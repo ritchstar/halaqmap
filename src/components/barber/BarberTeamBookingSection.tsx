@@ -257,13 +257,13 @@ export function BarberTeamBookingSection() {
   const copyStaffLink = async (member: TeamMemberRemote) => {
     const token = String(member.staff_access_token ?? '').trim();
     if (!token) {
-      toast.error('لا يوجد رابط لهذا الحلاق بعد. حدّث الصفحة أو أعد إصدار الرابط.');
+      toast.error('لا يوجد رابط بوابة طاقم لهذا الحلاق بعد. حدّث الصفحة أو أعد إصدار الرابط.');
       return;
     }
     try {
       await navigator.clipboard.writeText(staffBookingsAbsoluteUrl(token));
       setStaffLinkCopiedId(member.id);
-      toast.success(`تم نسخ رابط متابعة حجوزات ${member.display_name}.`);
+      toast.success(`تم نسخ رابط بوابة الطاقم لـ ${member.display_name}.`);
       setTimeout(() => setStaffLinkCopiedId((prev) => (prev === member.id ? null : prev)), 2000);
     } catch {
       toast.error('تعذّر النسخ.');
@@ -301,7 +301,7 @@ export function BarberTeamBookingSection() {
     }
     const token = String(member.staff_access_token ?? '').trim();
     if (!token) {
-      toast.error('لا يوجد رابط متابعة لهذا الحلاق.');
+      toast.error('لا يوجد رابط بوابة طاقم لهذا الحلاق.');
       return;
     }
     const salonName = String(readBarberAuthSession()?.name ?? '').trim() || 'الصالون';
@@ -309,7 +309,7 @@ export function BarberTeamBookingSection() {
     const message = [
       `حجز بانتظارك في ${salonName}.`,
       `الحلاق: ${member.display_name}`,
-      `افتح صفحة متابعة حجوزاتك:`,
+      `افتح بوابة الطاقم (مواعيدك + تأكيد):`,
       pageUrl,
     ].join('\n');
     const href = buildWhatsAppChatHref(phone, message);
@@ -499,7 +499,10 @@ export function BarberTeamBookingSection() {
                   </div>
 
                   <div className="space-y-2 rounded-md border border-border/70 bg-muted/20 p-2.5">
-                    <p className="text-xs font-medium text-foreground">متابعة حجوزات الحلاق</p>
+                    <p className="text-xs font-medium text-foreground">بوابة الطاقم (عرض + تأكيد)</p>
+                    <p className="text-[11px] leading-relaxed text-muted-foreground">
+                      الرابط يفتح للحلاق جلسة على مواعيده فقط مع تنبيه وتأكيد. الإلغاء يبقى من لوحتك.
+                    </p>
                     <div className="flex flex-wrap gap-2">
                       <Button
                         type="button"
@@ -509,7 +512,7 @@ export function BarberTeamBookingSection() {
                         onClick={() => void copyStaffLink(m)}
                       >
                         <Copy className="h-3.5 w-3.5" />
-                        {staffLinkCopiedId === m.id ? 'تم النسخ' : 'نسخ رابط متابعة الحجوزات'}
+                        {staffLinkCopiedId === m.id ? 'تم النسخ' : 'نسخ رابط بوابة الطاقم'}
                       </Button>
                       <Button
                         type="button"

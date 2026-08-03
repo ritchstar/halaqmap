@@ -1,22 +1,24 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
- * صفحة خفيفة لعضو الطاقم عبر رابط سري — عرض الحجوزات + منبّه عند حجز جديد.
+ * بوابة طاقم خفيفة عبر رابط سري — جلسة staff + عرض + تنبيه + تأكيد المواعيد الشخصية.
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { Bell, Clock, Home, Loader2, Phone, Scissors, User } from 'lucide-react';
+import { Bell, Check, Clock, Home, Loader2, Phone, Scissors, User } from 'lucide-react';
 import { Layout } from '@/components/Layout';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ROUTE_PATHS } from '@/lib/index';
 import {
+  confirmStaffTeamBookingRemote,
   fetchStaffTeamBookingsRemote,
   type StaffTeamBookingRemote,
   type StaffTeamBookingsPayload,
 } from '@/lib/namedBarberBookingRemote';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 const POLL_MS = 20_000;
 
@@ -76,6 +78,7 @@ export default function StaffTeamBookingsPage() {
   const [error, setError] = useState<string | null>(null);
   const [payload, setPayload] = useState<StaffTeamBookingsPayload | null>(null);
   const [freshAlert, setFreshAlert] = useState(false);
+  const [confirmingId, setConfirmingId] = useState<string | null>(null);
   const lastPendingRef = useRef<number | null>(null);
   const alertTimerRef = useRef<number | null>(null);
 
@@ -117,6 +120,28 @@ export default function StaffTeamBookingsPage() {
     };
   }, [refresh]);
 
+  const confirmBooking = async (bookingId: string) => {
+    const accessToken = token.trim();
+    if (!accessToken) return;
+    setConfirmingId(bookingId);
+    const res = await confirmStaffTeamBookingRemote(accessToken, bookingId);
+    setConfirmingId(null);
+    if (!res.ok) {
+      toast.error(res.error);
+      return;
+    }
+    toast.success('تم تأكيد الموعد.');
+    setPayload((prev) => {
+      if (!prev) return prev;
+      const bookings = prev.bookings.map((b) =>
+        b.id === res.booking.id ? { ...b, ...res.booking, status: 'confirmed' as const } : b,
+      );
+      const pendingCount = bookings.filter((b) => b.status === 'pending').length;
+      lastPendingRef.current = pendingCount;
+      return { ...prev, bookings, pendingCount };
+    });
+  };
+
   if (loading && !payload) {
     return (
       <Layout>
@@ -133,7 +158,7 @@ export default function StaffTeamBookingsPage() {
         <div className="mx-auto max-w-md px-4 py-12" dir="rtl">
           <Card>
             <CardHeader>
-              <CardTitle>تعذّر فتح صفحة الحجوزات</CardTitle>
+              <CardTitle>تعذّر فتح بوابة الطاقم</CardTitle>
               <CardDescription>{error}</CardDescription>
             </CardHeader>
             <CardContent>
@@ -169,7 +194,7 @@ export default function StaffTeamBookingsPage() {
             <p className="text-xs text-muted-foreground">{salon.name || 'الصالون'}</p>
             <h1 className="text-xl font-bold tracking-tight">{member.displayName}</h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              حجوزاتك القادمة باسمك — حدّث الصفحة تبقى مفتوحة لاستقبال المنبّه.
+              بوابة طاقم — مواعيدك فقط: متابعة وتنبيه وتأكيد. أبقِ الصفحة مفتوحة للمنبّه.
             </p>
           </div>
         </div>
@@ -224,7 +249,7 @@ export default function StaffTeamBookingsPage() {
                     b.status === 'pending' ? 'border-amber-500/35 bg-amber-500/5' : '',
                   )}
                 >
-                  <CardContent className="space-y-2 p-4">
+                  <CardContent className="space-y-3 p-4">
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex min-w-0 items-center gap-2">
                         <User className="h-4 w-4 shrink-0 text-muted-foreground" />
@@ -251,6 +276,22 @@ export default function StaffTeamBookingsPage() {
                         </a>
                       ) : null}
                     </div>
+                    {b.status === 'pending' ? (
+                      <Button
+                        type="button"
+                        size="sm"
+                        className="w-full gap-1.5"
+                        disabled={confirmingId === b.id}
+                        onClick={() => void confirmBooking(b.id)}
+                      >
+                        {confirmingId === b.id ? (
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        ) : (
+                          <Check className="h-3.5 w-3.5" />
+                        )}
+                        تأكيد الموعد
+                      </Button>
+                    ) : null}
                   </CardContent>
                 </Card>
               </li>
@@ -259,7 +300,7 @@ export default function StaffTeamBookingsPage() {
         )}
 
         <p className="mt-6 text-center text-[11px] text-muted-foreground">
-          التأكيد والإلغاء من لوحة مالك الصالون. هذه الصفحة للمتابعة والتنبيه فقط.
+          يمكنك تأكيد مواعيدك من هنا. الإلغاء وتعديل إعدادات الصالون من لوحة مالك الصالون فقط.
         </p>
       </div>
     </Layout>

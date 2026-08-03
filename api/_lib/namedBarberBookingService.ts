@@ -561,6 +561,134 @@ export async function listStaffTeamBookings(
   return { ok: true, bookings };
 }
 
+/** تحميل عضو الطاقم عبر معرف الجلسة مع التحقق من salون نشط ومطابقة barberId. */
+export async function resolveTeamMemberForStaffSession(
+  supabase: SupabaseClient,
+  input: { teamMemberId: string; barberId: string },
+): Promise<
+  | { ok: true; member: BarberTeamMemberRow; salonName: string }
+  | { ok: false; error: string; status: number }
+> {
+  const teamMemberId = String(input.teamMemberId ?? '').trim();
+  const barberId = String(input.barberId ?? '').trim();
+  if (!UUID_RE.test(teamMemberId) || !UUID_RE.test(barberId)) {
+    return { ok: false, error: 'invalid_session_ids', status: 400 };
+  }
+  const { data, error } = await supabase
+    .from('barber_team_members')
+    .select(
+      'id, barber_id, display_name, photo_url, sort_order, is_active, default_duration_minutes, internal_notes, return_to_work_date, staff_access_token, notify_phone, created_at, updated_at',
+    )
+    .eq('id', teamMemberId)
+    .eq('barber_id', barberId)
+    .maybeSingle();
+  if (error) return { ok: false, error: error.message || 'lookup_failed', status: 500 };
+  if (!data) return { ok: false, error: 'session_member_not_found', status: 401 };
+
+  const member = mapMember(data as Record<string, unknown>);
+  const { data: barber } = await supabase
+    .from('barbers')
+    .select('id, name, is_active')
+    .eq('id', member.barber_id)
+    .maybeSingle();
+  if (!barber || barber.is_active === false) {
+    return { ok: false, error: 'salon_inactive', status: 409 };
+  }
+  return {
+    ok: true,
+    member,
+    salonName: String(barber.name ?? ''),
+  };
+}
+
+/**
+ * تأكيد موعد يخص عضو الطاقم فقط: pending → confirmed.
+ * الإلغاء ممنوع من هذا المسار (يبقى لمالك الصالون).
+ */
+export async function confirmStaffTeamBooking(
+  supabase: SupabaseClient,
+  input: { teamMemberId: string; barberId: string; bookingId: string },
+): Promise<
+  | { ok: true; booking: StaffTeamBookingRow }
+  | { ok: false; error: string; status: number }
+> {
+  const teamMemberId = String(input.teamMemberId ?? '').trim();
+  const barberId = String(input.barberId ?? '').trim();
+  const bookingId = String(input.bookingId ?? '').trim();
+  if (!UUID_RE.test(teamMemberId) || !UUID_RE.test(barberId) || !UUID_RE.test(bookingId)) {
+    return { ok: false, error: 'invalid_id', status: 400 };
+  }
+
+  const { data: existing, error: readErr } = await supabase
+    .from('bookings')
+    .select(
+      'id, barber_id, team_member_id, customer_name, customer_phone, service_name, booking_date, booking_time, duration_minutes, status, created_at',
+    )
+    .eq('id', bookingId)
+    .eq('barber_id', barberId)
+    .eq('team_member_id', teamMemberId)
+    .maybeSingle();
+
+  if (readErr) return { ok: false, error: readErr.message || 'lookup_failed', status: 500 };
+  if (!existing) return { ok: false, error: 'booking_not_found', status: 404 };
+
+  const currentStatus = String((existing as { status?: unknown }).status ?? '');
+  if (currentStatus === 'confirmed') {
+    const r = existing as Record<string, unknown>;
+    return {
+      ok: true,
+      booking: {
+        id: String(r.id ?? ''),
+        customer_name: String(r.customer_name ?? ''),
+        customer_phone: String(r.customer_phone ?? ''),
+        service_name: String(r.service_name ?? ''),
+        booking_date: String(r.booking_date ?? '').slice(0, 10),
+        booking_time: formatTimeHm(String(r.booking_time ?? '')),
+        duration_minutes: Number(r.duration_minutes) || 30,
+        status: 'confirmed',
+        created_at: String(r.created_at ?? ''),
+      },
+    };
+  }
+  if (currentStatus !== 'pending') {
+    return { ok: false, error: 'booking_not_confirmable', status: 409 };
+  }
+
+  const { data: updated, error: updateErr } = await supabase
+    .from('bookings')
+    .update({
+      status: 'confirmed',
+      cancellation_reason: null,
+    })
+    .eq('id', bookingId)
+    .eq('barber_id', barberId)
+    .eq('team_member_id', teamMemberId)
+    .eq('status', 'pending')
+    .select(
+      'id, customer_name, customer_phone, service_name, booking_date, booking_time, duration_minutes, status, created_at',
+    )
+    .maybeSingle();
+
+  if (updateErr) return { ok: false, error: updateErr.message || 'update_failed', status: 500 };
+  if (!updated) return { ok: false, error: 'booking_not_confirmable', status: 409 };
+
+  const r = updated as Record<string, unknown>;
+  return {
+    ok: true,
+    booking: {
+      id: String(r.id ?? ''),
+      customer_name: String(r.customer_name ?? ''),
+      customer_phone: String(r.customer_phone ?? ''),
+      service_name: String(r.service_name ?? ''),
+      booking_date: String(r.booking_date ?? '').slice(0, 10),
+      booking_time: formatTimeHm(String(r.booking_time ?? '')),
+      duration_minutes: Number(r.duration_minutes) || 30,
+      status: 'confirmed',
+      created_at: String(r.created_at ?? ''),
+    },
+  };
+}
+
 export async function loadTeamMemberDisplayMap(
   supabase: SupabaseClient,
   memberIds: string[],

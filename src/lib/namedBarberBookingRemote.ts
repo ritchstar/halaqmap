@@ -2,6 +2,13 @@
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
 import { readBarberAuthSession } from '@/lib/barberPortalSession';
+import {
+  clearStaffPortalSession,
+  readStaffPortalSession,
+  readStaffSessionTokenHeader,
+  writeStaffPortalSession,
+  type StaffPortalStoredSession,
+} from '@/lib/staffPortalSession';
 
 const TEAM_ENDPOINT = '/api/barber-team-members';
 const PUBLIC_ENDPOINT = '/api/named-barber-booking';
@@ -117,25 +124,43 @@ function portalCreds(): { barberId: string; email: string } | null {
 }
 
 function normalizeError(message: string): string {
-  const m = message.toLowerCase();
+  const raw = String(message || '').trim();
+  const m = raw.toLowerCase();
+  if (raw.includes('الطاقم') || m.includes('staff')) {
+    return raw || 'انتهت جلسة الطاقم. أعد فتح الرابط.';
+  }
   if (m.includes('جلسة') || m.includes('session') || m.includes('missing_token')) {
     return 'انتهت جلسة لوحة التحكم. أعد تسجيل الدخول.';
   }
   if (m.includes('diamond')) return 'هذه الميزة متاحة لباقة ماسي فقط.';
   if (m.includes('slot overlaps')) return 'هذا الوقت محجوز مسبقاً. اختر وقتاً آخر.';
   if (m.includes('invalid saudi')) return 'أدخل رقم جوال سعودي صحيح يبدأ بـ 05 (10 أرقام).';
-  return message || 'تعذّر تنفيذ العملية.';
+  return raw || 'تعذّر تنفيذ العملية.';
+}
+
+function staffHeaders(accessToken?: string): Record<string, string> {
+  const headers = publicHeaders();
+  const sessionToken = readStaffSessionTokenHeader(accessToken);
+  if (sessionToken) headers['x-staff-portal-session'] = sessionToken;
+  return headers;
 }
 
 async function postJson<T>(
   endpoint: string,
   payload: Record<string, unknown>,
-  auth: 'public' | 'barber',
+  auth: 'public' | 'barber' | 'staff',
+  accessTokenForStaff?: string,
 ): Promise<{ ok: true; json: T } | { ok: false; error: string }> {
   try {
+    const headers =
+      auth === 'barber'
+        ? barberHeaders()
+        : auth === 'staff'
+          ? staffHeaders(accessTokenForStaff)
+          : publicHeaders();
     const res = await fetch(endpoint, {
       method: 'POST',
-      headers: auth === 'barber' ? barberHeaders() : publicHeaders(),
+      headers,
       body: JSON.stringify(payload),
     });
     const json = (await res.json().catch(() => ({}))) as T & { error?: string; ok?: boolean };
@@ -336,19 +361,116 @@ export async function rotateStaffAccessTokenRemote(
   return { ok: true, member: res.json.member };
 }
 
+export type StaffSessionExchangeResult = {
+  session: StaffPortalStoredSession;
+  member: StaffTeamBookingsPayload['member'];
+  salon: StaffTeamBookingsPayload['salon'];
+};
+
+/** استبدال رابط الطاقم السري بجلسة staff قصيرة العمر في sessionStorage. */
+export async function exchangeStaffPortalSessionRemote(
+  token: string,
+): Promise<{ ok: true; data: StaffSessionExchangeResult } | { ok: false; error: string }> {
+  const accessToken = token.trim();
+  if (!accessToken) return { ok: false, error: 'رابط المتابعة غير صالح.' };
+
+  const existing = readStaffPortalSession(accessToken);
+  if (existing) {
+    return {
+      ok: true,
+      data: {
+        session: existing,
+        member: {
+          id: existing.memberId,
+          displayName: existing.memberDisplayName,
+          photoUrl: existing.photoUrl,
+          isActive: true,
+        },
+        salon: { id: existing.salonId, name: existing.salonName },
+      },
+    };
+  }
+
+  const res = await postJson<{
+    staffSessionToken?: string;
+    expiresAt?: number;
+    member?: StaffTeamBookingsPayload['member'];
+    salon?: StaffTeamBookingsPayload['salon'];
+    error?: string;
+  }>(STAFF_BOOKINGS_ENDPOINT, { action: 'exchange', token: accessToken }, 'public');
+  if (!res.ok) return { ok: false, error: res.error };
+  const staffSessionToken = String(res.json.staffSessionToken ?? '').trim();
+  if (!staffSessionToken || !res.json.member || !res.json.salon) {
+    return { ok: false, error: normalizeError(res.json.error || 'تعذّر فتح جلسة الطاقم.') };
+  }
+  const session: StaffPortalStoredSession = {
+    accessToken,
+    staffSessionToken,
+    expiresAt: Number(res.json.expiresAt) || Date.now() + 12 * 60 * 60 * 1000,
+    memberId: res.json.member.id,
+    memberDisplayName: res.json.member.displayName,
+    salonId: res.json.salon.id,
+    salonName: res.json.salon.name,
+    photoUrl: res.json.member.photoUrl,
+  };
+  writeStaffPortalSession(session);
+  return {
+    ok: true,
+    data: {
+      session,
+      member: res.json.member,
+      salon: res.json.salon,
+    },
+  };
+}
+
 export async function fetchStaffTeamBookingsRemote(
   token: string,
 ): Promise<{ ok: true; data: StaffTeamBookingsPayload } | { ok: false; error: string }> {
   const accessToken = token.trim();
   if (!accessToken) return { ok: false, error: 'رابط المتابعة غير صالح.' };
+
+  const exchange = await exchangeStaffPortalSessionRemote(accessToken);
+  if (!exchange.ok) {
+    clearStaffPortalSession();
+    return { ok: false, error: exchange.error };
+  }
+
   const res = await postJson<{
     member?: StaffTeamBookingsPayload['member'];
     salon?: StaffTeamBookingsPayload['salon'];
     bookings?: StaffTeamBookingRemote[];
     pendingCount?: number;
     error?: string;
-  }>(STAFF_BOOKINGS_ENDPOINT, { token: accessToken }, 'public');
-  if (!res.ok) return { ok: false, error: res.error };
+  }>(STAFF_BOOKINGS_ENDPOINT, { action: 'list' }, 'staff', accessToken);
+
+  if (!res.ok) {
+    // جلسة منتهية أو رابط أُعيد إصداره — امسح وأعد المحاولة بتبادل جديد مرة واحدة
+    clearStaffPortalSession();
+    const retryExchange = await exchangeStaffPortalSessionRemote(accessToken);
+    if (!retryExchange.ok) return { ok: false, error: retryExchange.error };
+    const retry = await postJson<{
+      member?: StaffTeamBookingsPayload['member'];
+      salon?: StaffTeamBookingsPayload['salon'];
+      bookings?: StaffTeamBookingRemote[];
+      pendingCount?: number;
+      error?: string;
+    }>(STAFF_BOOKINGS_ENDPOINT, { action: 'list' }, 'staff', accessToken);
+    if (!retry.ok) return { ok: false, error: retry.error };
+    if (!retry.json.member || !retry.json.salon) {
+      return { ok: false, error: normalizeError(retry.json.error || 'تعذّر تحميل الحجوزات.') };
+    }
+    return {
+      ok: true,
+      data: {
+        member: retry.json.member,
+        salon: retry.json.salon,
+        bookings: Array.isArray(retry.json.bookings) ? retry.json.bookings : [],
+        pendingCount: Number(retry.json.pendingCount) || 0,
+      },
+    };
+  }
+
   if (!res.json.member || !res.json.salon) {
     return { ok: false, error: normalizeError(res.json.error || 'تعذّر تحميل الحجوزات.') };
   }
@@ -361,6 +483,30 @@ export async function fetchStaffTeamBookingsRemote(
       pendingCount: Number(res.json.pendingCount) || 0,
     },
   };
+}
+
+export async function confirmStaffTeamBookingRemote(
+  token: string,
+  bookingId: string,
+): Promise<{ ok: true; booking: StaffTeamBookingRemote } | { ok: false; error: string }> {
+  const accessToken = token.trim();
+  const id = bookingId.trim();
+  if (!accessToken) return { ok: false, error: 'رابط المتابعة غير صالح.' };
+  if (!id) return { ok: false, error: 'معرّف الموعد مطلوب.' };
+
+  const exchange = await exchangeStaffPortalSessionRemote(accessToken);
+  if (!exchange.ok) return { ok: false, error: exchange.error };
+
+  const res = await postJson<{
+    booking?: StaffTeamBookingRemote;
+    error?: string;
+  }>(STAFF_BOOKINGS_ENDPOINT, { action: 'confirm', bookingId: id }, 'staff', accessToken);
+
+  if (!res.ok) return { ok: false, error: res.error };
+  if (!res.json.booking) {
+    return { ok: false, error: normalizeError(res.json.error || 'تعذّر تأكيد الموعد.') };
+  }
+  return { ok: true, booking: res.json.booking };
 }
 
 export async function deleteTeamMemberRemote(
