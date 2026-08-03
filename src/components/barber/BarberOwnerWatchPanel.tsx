@@ -14,6 +14,7 @@ import {
   Wifi,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { formatPlatformDate } from '@/lib/platformLocale';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -51,7 +52,13 @@ function severityLabelAr(severity: OwnerSalonWatchAlert['severity']): string {
 function formatTimeAr(iso: string): string {
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return '—';
-  return d.toLocaleString('ar-SA-u-ca-gregory-nu-latn', { hour: '2-digit', minute: '2-digit', day: 'numeric', month: 'short' });
+  // أسماء عربية + أرقام لاتينية مفروضة عبر platformLocale
+  return formatPlatformDate(d, {
+    hour: '2-digit',
+    minute: '2-digit',
+    day: 'numeric',
+    month: 'short',
+  });
 }
 
 function AlertList({ items, emptyText }: { items: OwnerSalonWatchAlert[]; emptyText: string }) {

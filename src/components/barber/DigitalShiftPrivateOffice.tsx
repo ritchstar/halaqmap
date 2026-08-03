@@ -42,6 +42,12 @@ import {
 import { sanitizeBarberFacingCopyAr } from '@/lib/barberFacingCopySanitize';
 import { BarberDashboardOutboundAnchor } from '@/components/barber/BarberDashboardOutboundLink';
 import { ROUTE_PATHS } from '@/lib/index';
+import {
+  formatPlatformDate,
+  formatPlatformNumber,
+  formatPlatformTime,
+  withWesternDigits,
+} from '@/lib/platformLocale';
 
 type ChatTurn = { role: 'user' | 'assistant'; content: string; ts: string };
 
@@ -59,7 +65,7 @@ const CODE_BUTTONS = [
 ] as const;
 
 function nowTs() {
-  return new Date().toLocaleTimeString('ar-SA-u-ca-gregory-nu-latn', { hour: '2-digit', minute: '2-digit' });
+  return formatPlatformTime(new Date());
 }
 function nid() {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
@@ -91,8 +97,10 @@ function PackageStatusBar({ daysRemaining }: { daysRemaining: number }) {
       <div className="flex items-center gap-2.5">
         <span className="text-lg">{icon}</span>
         <div>
-          <p className={`text-base font-black tracking-tight ${textColor} [text-shadow:0_0_18px_rgba(255,255,255,0.12)]`}>
-            {daysRemaining === 0 ? 'الحزمة منتهية!' : `${daysRemaining} يوم متبقٍ`}
+          <p className={`text-base font-black tracking-tight hm-latin-nums tabular-nums ${textColor} [text-shadow:0_0_18px_rgba(255,255,255,0.12)]`}>
+            {daysRemaining === 0
+              ? 'الحزمة منتهية!'
+              : `${formatPlatformNumber(daysRemaining)} يوم متبقٍ`}
           </p>
           <p className="text-sm font-medium text-slate-300">حزمة رخصة النفاذ الماسية</p>
         </div>
@@ -352,7 +360,11 @@ export function DigitalShiftPrivateOffice({
                 showReports ? 'border-emerald-400/60 bg-emerald-500/25 text-emerald-100' : 'border-white/15 bg-white/[0.06] text-slate-200 hover:border-emerald-400/40'
               }`}>
               <FileText className="h-3.5 w-3.5" />
-              {shiftReports.length > 0 && <span className="rounded-full bg-emerald-500 px-1.5 text-[0.65rem] font-black text-white">{shiftReports.length}</span>}
+              {shiftReports.length > 0 && (
+                <span className="rounded-full bg-emerald-500 px-1.5 text-[0.65rem] font-black text-white hm-latin-nums tabular-nums">
+                  {formatPlatformNumber(shiftReports.length)}
+                </span>
+              )}
               تقارير
             </button>
             {/* ◆ زر القناة السرية */}
@@ -361,7 +373,10 @@ export function DigitalShiftPrivateOffice({
                 className={`flex items-center gap-1.5 rounded-xl border px-3 py-2 text-sm font-black transition-all ${
                   showFleet ? 'border-purple-400/70 bg-purple-500/30 text-purple-50' : 'border-purple-400/40 bg-purple-500/15 text-purple-100 hover:border-purple-400/60 animate-pulse'
                 }`}>
-                ◆ <span className="rounded-full bg-purple-500 px-1.5 text-[0.65rem] font-black text-white">{fleetDirectives.length}</span>
+                ◆{' '}
+                <span className="rounded-full bg-purple-500 px-1.5 text-[0.65rem] font-black text-white hm-latin-nums tabular-nums">
+                  {formatPlatformNumber(fleetDirectives.length)}
+                </span>
               </button>
             )}
             <button onClick={() => { setShowTasks(s => !s); setShowInstructions(false); }}
@@ -469,7 +484,9 @@ export function DigitalShiftPrivateOffice({
                     <div key={r.id} className="rounded-xl border border-emerald-400/30 bg-emerald-950/40 px-4 py-3">
                       <div className="mb-1 flex items-center justify-between gap-2">
                         <p className="text-sm font-black text-emerald-100">{r.title}</p>
-                        <p className="shrink-0 text-xs text-emerald-200/70">{new Date(r.created_at).toLocaleTimeString('ar-SA-u-ca-gregory-nu-latn', { hour: '2-digit', minute: '2-digit' })}</p>
+                        <p className="shrink-0 text-xs text-emerald-200/70 hm-latin-nums tabular-nums">
+                          {formatPlatformTime(r.created_at)}
+                        </p>
                       </div>
                       <p className="whitespace-pre-wrap text-sm leading-relaxed text-slate-100" style={{ unicodeBidi: 'plaintext' }}>{r.body}</p>
                     </div>
@@ -512,7 +529,9 @@ export function DigitalShiftPrivateOffice({
                       <p className="text-sm font-black uppercase tracking-widest text-purple-100">
                         {sanitizeBarberFacingCopyAr(d.title)}
                       </p>
-                      <p className="shrink-0 text-xs text-purple-200/70">{new Date(d.created_at).toLocaleDateString('ar-SA-u-ca-gregory-nu-latn')}</p>
+                      <p className="shrink-0 text-xs text-purple-200/70 hm-latin-nums tabular-nums">
+                        {formatPlatformDate(d.created_at)}
+                      </p>
                     </div>
                     <p className="text-sm leading-relaxed text-purple-50" style={{ unicodeBidi: 'plaintext' }}>
                       {sanitizeBarberFacingCopyAr(d.body)}
@@ -606,12 +625,14 @@ export function DigitalShiftPrivateOffice({
                   : 'rounded-tl-sm border border-amber-300/35 bg-gradient-to-br from-amber-500/25 to-amber-950/45 text-amber-50 shadow-[0_2px_16px_rgba(245,158,11,0.12)]'
               }`}>
                 <p
-                  className="whitespace-pre-wrap break-words text-base font-medium leading-7 [text-shadow:0_0_12px_rgba(255,255,255,0.08)]"
+                  className="whitespace-pre-wrap break-words text-base font-medium leading-7 hm-latin-nums [text-shadow:0_0_12px_rgba(255,255,255,0.08)]"
                   style={{ unicodeBidi: 'plaintext' }}
                 >
-                  {t.content}
+                  {withWesternDigits(t.content)}
                 </p>
-                <p className="mt-1.5 text-xs font-medium opacity-70">{t.ts}</p>
+                <p className="mt-1.5 text-xs font-medium opacity-70 hm-latin-nums tabular-nums">
+                  {withWesternDigits(t.ts)}
+                </p>
               </div>
             </motion.div>
           ))}

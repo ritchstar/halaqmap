@@ -4,6 +4,12 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Loader2, Moon, RefreshCw, Send, Sparkles, Wallet } from 'lucide-react';
 import { ROUTE_PATHS } from '@/lib';
+import {
+  formatPlatformDate,
+  formatPlatformMoney,
+  formatPlatformNumber,
+  toWesternDigits,
+} from '@/lib/platformLocale';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -52,8 +58,13 @@ function formatWalletTxLabel(reason: string): string {
 
 function formatWalletTxWhen(iso: string): string {
   const d = new Date(iso);
-  if (!Number.isFinite(d.getTime())) return iso;
-  return d.toLocaleString('ar-SA-u-ca-gregory-nu-latn', { hour: '2-digit', minute: '2-digit', day: 'numeric', month: 'short' });
+  if (!Number.isFinite(d.getTime())) return toWesternDigits(iso);
+  return formatPlatformDate(d, {
+    hour: '2-digit',
+    minute: '2-digit',
+    day: 'numeric',
+    month: 'short',
+  });
 }
 
 type ChatTurn = { role: 'user' | 'assistant'; content: string };
@@ -201,8 +212,12 @@ export function DigitalShiftAssistantHub({
     setChatHistory([...nextHistory, { role: 'assistant', content: r.reply }]);
   };
 
-  const walletSar = summary?.wallet ? (summary.wallet.balance_halalas / 100).toFixed(2) : '—';
-  const spentSar = summary?.wallet ? (summary.wallet.total_spent_halalas / 100).toFixed(2) : '—';
+  const walletSar = summary?.wallet
+    ? formatPlatformMoney(summary.wallet.balance_halalas / 100)
+    : '—';
+  const spentSar = summary?.wallet
+    ? formatPlatformMoney(summary.wallet.total_spent_halalas / 100)
+    : '—';
   const walletReplies = summary?.wallet ? repliesFromHalalas(summary.wallet.balance_halalas) : null;
   const walletLowBalance =
     summary?.wallet != null &&
@@ -253,10 +268,10 @@ export function DigitalShiftAssistantHub({
         <Card className={walletLowBalance ? 'border-amber-500/40' : 'border-indigo-500/20'}>
           <CardHeader className="pb-2">
             <CardDescription>رصيد محفظة المناوب</CardDescription>
-            <CardTitle className="text-2xl">
-              {walletReplies != null ? `${walletReplies} رد` : '—'}
+            <CardTitle className="text-2xl hm-latin-nums tabular-nums">
+              {walletReplies != null ? `${formatPlatformNumber(walletReplies)} رد` : '—'}
             </CardTitle>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-muted-foreground hm-latin-nums tabular-nums">
               الرصيد: {walletSar} ر.س · المصروف: {spentSar} ر.س
             </p>
           </CardHeader>
@@ -273,17 +288,17 @@ export function DigitalShiftAssistantHub({
                   type="button"
                   size="sm"
                   variant="outline"
-                  className="h-8 gap-1 px-2 text-xs"
+                  className="h-8 gap-1 px-2 text-xs hm-latin-nums tabular-nums"
                   onClick={() => goWalletTopup(pkg.sku)}
                 >
                   <Wallet className="h-3.5 w-3.5" />
-                  {pkg.baseSar} ر.س
+                  {formatPlatformNumber(pkg.baseSar)} ر.س
                 </Button>
               ))}
             </div>
-            <p className="text-[0.65rem] text-muted-foreground">
+            <p className="text-[0.65rem] text-muted-foreground hm-latin-nums tabular-nums">
               {vatSettings.enabled
-                ? `الأسعار قبل الضريبة · تُضاف ضريبة القيمة المضافة ${vatSettings.ratePercent}% عند الدفع · كل رد ≈ 1.50 ر.س`
+                ? `الأسعار قبل الضريبة · تُضاف ضريبة القيمة المضافة ${formatPlatformNumber(vatSettings.ratePercent)}% عند الدفع · كل رد ≈ 1.50 ر.س`
                 : 'الأسعار نهائية بلا ضريبة حالياً · كل رد ≈ 1.50 ر.س'}
             </p>
             {(summary?.walletTransactions?.length ?? 0) > 0 ? (
@@ -291,10 +306,10 @@ export function DigitalShiftAssistantHub({
                 <p className="text-[0.65rem] font-semibold text-muted-foreground">آخر الحركات</p>
                 <ul className="max-h-36 space-y-1 overflow-y-auto text-[0.65rem]">
                   {summary!.walletTransactions!.slice(0, 12).map((tx) => {
-                    const sar = (tx.amount_halalas / 100).toFixed(2);
+                    const sar = formatPlatformMoney(Math.abs(tx.amount_halalas) / 100);
                     const sign = tx.direction === 'debit' ? '−' : '+';
                     return (
-                      <li key={tx.id} className="flex items-start justify-between gap-2">
+                      <li key={tx.id} className="flex items-start justify-between gap-2 hm-latin-nums tabular-nums">
                         <span className="text-muted-foreground">{formatWalletTxWhen(tx.created_at)}</span>
                         <span className="text-start">
                           <span className={tx.direction === 'debit' ? 'text-rose-600' : 'text-emerald-600'}>
@@ -355,10 +370,18 @@ export function DigitalShiftAssistantHub({
               <Input
                 id="shift-delay"
                 type="number"
+                lang="en"
+                inputMode="numeric"
                 min={1}
                 max={30}
+                className="hm-latin-nums tabular-nums"
                 value={replyDelayMinutes}
-                onChange={(e) => setReplyDelayMinutes(Number(e.target.value) || DIGITAL_SHIFT_REPLY_DELAY_MINUTES)}
+                onChange={(e) => {
+                  const n = Number(toWesternDigits(e.target.value));
+                  setReplyDelayMinutes(
+                    Number.isFinite(n) && n > 0 ? n : DIGITAL_SHIFT_REPLY_DELAY_MINUTES,
+                  );
+                }}
               />
             </div>
           </div>

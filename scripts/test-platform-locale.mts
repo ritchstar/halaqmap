@@ -5,18 +5,23 @@ import assert from 'node:assert/strict';
 import {
   PLATFORM_AR_LOCALE,
   formatPlatformDate,
+  formatPlatformMoney,
   formatPlatformNumber,
   toWesternDigits,
+  withWesternDigits,
 } from '../src/lib/platformLocale.ts';
 
 assert.equal(PLATFORM_AR_LOCALE, 'ar-SA-u-ca-gregory-nu-latn');
 assert.equal(toWesternDigits('٠٨/٠٣/٢٠٢٦'), '08/03/2026');
 assert.equal(toWesternDigits('۱۲۳'), '123');
 assert.equal(toWesternDigits('2026-08-03'), '2026-08-03');
+assert.equal(withWesternDigits('٢٩ يوم · ٠٣:٤٤'), '29 يوم · 03:44');
 
 const n = formatPlatformNumber(1234.5);
 assert.ok(!/[٠-٩۰-۹]/.test(n), `expected western digits, got ${n}`);
 assert.ok(/1/.test(n) && /2/.test(n), `expected latin digits in ${n}`);
+assert.equal(formatPlatformMoney(1036), '1036.00');
+assert.equal(formatPlatformNumber(29), '29');
 
 const d = formatPlatformDate('2026-08-03T12:00:00', {
   year: 'numeric',

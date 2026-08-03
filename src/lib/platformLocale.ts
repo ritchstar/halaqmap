@@ -22,12 +22,22 @@ export function toWesternDigits(raw: string | number | null | undefined): string
     .replace(EXTENDED_ARABIC_INDIC, (c) => String(c.charCodeAt(0) - 0x06f0));
 }
 
+/**
+ * تنسيق رقم للعرض — دائماً 0–9 حتى لو تجاهل المتصفح/الخط nu-latn.
+ * نستخدم en-US للأرقام الصرفة ثم نمرّر toWesternDigits احتياطاً.
+ */
 export function formatPlatformNumber(
   value: number,
   options?: Intl.NumberFormatOptions,
 ): string {
   if (!Number.isFinite(value)) return '—';
-  return new Intl.NumberFormat(PLATFORM_AR_LOCALE, options).format(value);
+  return toWesternDigits(new Intl.NumberFormat('en-US', options).format(value));
+}
+
+/** مبلغ ر.س بمنزلتين عشريتين وأرقام لاتينية */
+export function formatPlatformMoney(value: number, fractionDigits = 2): string {
+  if (!Number.isFinite(value)) return '—';
+  return toWesternDigits(value.toFixed(fractionDigits));
 }
 
 export function formatPlatformDate(
@@ -37,7 +47,8 @@ export function formatPlatformDate(
   if (value == null || value === '') return '—';
   const d = value instanceof Date ? value : new Date(value);
   if (!Number.isFinite(d.getTime())) return '—';
-  return new Intl.DateTimeFormat(PLATFORM_AR_LOCALE, options).format(d);
+  // أسماء الأشهر عربية + أرقام لاتينية مفروضة بعد التنسيق
+  return toWesternDigits(new Intl.DateTimeFormat(PLATFORM_AR_LOCALE, options).format(d));
 }
 
 export function formatPlatformDateTime(
@@ -58,8 +69,14 @@ export function formatPlatformTime(
   return formatPlatformDate(value, {
     hour: '2-digit',
     minute: '2-digit',
+    hour12: true,
     ...options,
   });
+}
+
+/** يطبّع أي نص معروض (ردود المناوب، الشارات، …) ليبقى بأرقام 0–9 */
+export function withWesternDigits(value: string | number | null | undefined): string {
+  return toWesternDigits(value);
 }
 
 /** يضبط lang على جذر المستند ليطابق سياسة الأرقام الميلادية للمنصة */

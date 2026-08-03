@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { ROUTE_PATHS, SubscriptionTier } from '@/lib';
 import { buildBuyPackageUrl } from '@/lib/buyPackageRouter';
 import type { ListingLicenseBalance } from '@/lib/listingLicenseRemote';
+import { formatPlatformDate, formatPlatformNumber } from '@/lib/platformLocale';
 import { cn } from '@/lib/utils';
 
 import { DIAMOND_PRODUCT_SMART_LABEL_AR } from '@/config/subscriptionPricing';
@@ -107,14 +108,14 @@ export function BarberDashboardLicenseFooter({
               <p className="text-sm text-muted-foreground">جاري تحميل صلاحية الحزمة…</p>
             ) : hasActiveListing ? (
               <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
-                <span className="inline-flex items-center gap-1.5">
+                <span className="inline-flex items-center gap-1.5 hm-latin-nums tabular-nums">
                   <CalendarClock className="h-3.5 w-3.5" aria-hidden />
                   أيام الإدراج المتبقية:{' '}
-                  <strong className="text-foreground">{daysRemaining}</strong>
+                  <strong className="text-foreground">{formatPlatformNumber(daysRemaining)}</strong>
                 </span>
                 {listingBalance?.validUntil ? (
-                  <span dir="ltr" className="text-xs">
-                    حتى {new Date(listingBalance.validUntil).toLocaleDateString('ar-SA-u-ca-gregory-nu-latn')}
+                  <span dir="ltr" className="text-xs hm-latin-nums tabular-nums">
+                    حتى {formatPlatformDate(listingBalance.validUntil)}
                   </span>
                 ) : null}
               </p>
