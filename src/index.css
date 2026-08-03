@@ -1206,6 +1206,19 @@
     overscroll-behavior-y: none;
   }
 
+  /*
+   * سياسة أرقام المنصة: ميلادي + أرقام لاتينية 0–9.
+   * حقول التاريخ/الوقت الأصلية تأخذ lang من Input؛ هذا يعزّز العرض الجدولي.
+   */
+  input[type="date"],
+  input[type="datetime-local"],
+  input[type="month"],
+  input[type="week"],
+  input[type="time"],
+  input[type="number"] {
+    font-variant-numeric: lining-nums tabular-nums;
+  }
+
   body {
     @apply text-foreground font-sans min-h-[100dvh] overflow-x-hidden;
     background: var(--app-canvas, oklch(0.98 0.005 174));

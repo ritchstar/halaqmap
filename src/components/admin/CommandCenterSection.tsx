@@ -780,7 +780,7 @@ export function CommandCenterSection({
                         setLeadPatch(prospect.id, {
                           status: 'contacted',
                           notes: `${prospect.notes ?? ''}\n[اعتماد] تمت مراجعة الطلب واعتماده.`.trim(),
-                          lastContactAt: new Date().toLocaleString('ar-SA'),
+                          lastContactAt: new Date().toLocaleString('ar-SA-u-ca-gregory-nu-latn'),
                         })
                       }
                     >
@@ -796,7 +796,7 @@ export function CommandCenterSection({
                           status: 'waiting',
                           assignedTo: prospect.assignedTo ?? 'admin_hospitality_ops',
                           notes: `${prospect.notes ?? ''}\n[تحويل] أُحيل للمختص التنفيذي.`.trim(),
-                          lastContactAt: new Date().toLocaleString('ar-SA'),
+                          lastContactAt: new Date().toLocaleString('ar-SA-u-ca-gregory-nu-latn'),
                         })
                       }
                     >
@@ -810,7 +810,7 @@ export function CommandCenterSection({
                         setLeadPatch(prospect.id, {
                           status: 'won',
                           notes: `${prospect.notes ?? ''}\n[إغلاق] تم التنفيذ وإقفال الطلب.`.trim(),
-                          lastContactAt: new Date().toLocaleString('ar-SA'),
+                          lastContactAt: new Date().toLocaleString('ar-SA-u-ca-gregory-nu-latn'),
                         })
                       }
                     >
@@ -1040,7 +1040,7 @@ export function CommandCenterSection({
                     onValueChange={(value) =>
                       setLeadPatch(prospect.id, {
                         status: value as CommandLeadStatus,
-                        lastContactAt: new Date().toLocaleString('ar-SA'),
+                        lastContactAt: new Date().toLocaleString('ar-SA-u-ca-gregory-nu-latn'),
                       })
                     }
                     disabled={!canManage}

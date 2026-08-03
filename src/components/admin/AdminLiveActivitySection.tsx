@@ -145,7 +145,7 @@ export function AdminLiveActivitySection({ isActive }: Props) {
           )}
           {data?.generatedAt ? (
             <p className="mt-3 text-[0.65rem] text-slate-500">
-              آخر توليد: {new Date(data.generatedAt).toLocaleString('ar-SA')}
+              آخر توليد: {new Date(data.generatedAt).toLocaleString('ar-SA-u-ca-gregory-nu-latn')}
             </p>
           ) : null}
         </CardContent>

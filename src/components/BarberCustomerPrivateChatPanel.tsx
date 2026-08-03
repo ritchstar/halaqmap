@@ -536,7 +536,7 @@ export function BarberCustomerPrivateChatPanel({
                 {conversations.map((c) => (
                   <option key={c.id} value={c.id}>
                     عميل {c.customer_id.slice(0, 8)}… — حتى{' '}
-                    {new Date(c.expires_at).toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' })}
+                    {new Date(c.expires_at).toLocaleTimeString('ar-SA-u-ca-gregory-nu-latn', { hour: '2-digit', minute: '2-digit' })}
                   </option>
                 ))}
               </select>
@@ -670,7 +670,7 @@ export function BarberCustomerPrivateChatPanel({
                           <p className="mt-1.5 text-[10px] opacity-75">تعذّرت الترجمة — أعد تحميل الصفحة.</p>
                         ) : null}
                         <p className="mt-1 text-[10px] opacity-75">
-                          {new Date(m.created_at).toLocaleString('ar-SA')}
+                          {new Date(m.created_at).toLocaleString('ar-SA-u-ca-gregory-nu-latn')}
                         </p>
                       </div>
                     </div>

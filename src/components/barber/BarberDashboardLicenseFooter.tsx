@@ -114,7 +114,7 @@ export function BarberDashboardLicenseFooter({
                 </span>
                 {listingBalance?.validUntil ? (
                   <span dir="ltr" className="text-xs">
-                    حتى {new Date(listingBalance.validUntil).toLocaleDateString('ar-SA')}
+                    حتى {new Date(listingBalance.validUntil).toLocaleDateString('ar-SA-u-ca-gregory-nu-latn')}
                   </span>
                 ) : null}
               </p>

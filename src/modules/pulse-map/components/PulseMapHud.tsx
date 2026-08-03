@@ -84,7 +84,7 @@ export function PulseMapHudStart({ payload, loading }: Props) {
 /** يسار الشاشة (RTL end) — الحالة والإحصائيات */
 export function PulseMapHudEnd({ payload, loading }: Props) {
   const syncLabel = payload?.collectedAt
-    ? new Date(payload.collectedAt).toLocaleTimeString('ar-SA', {
+    ? new Date(payload.collectedAt).toLocaleTimeString('ar-SA-u-ca-gregory-nu-latn', {
         hour: '2-digit',
         minute: '2-digit',
       })

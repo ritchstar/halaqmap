@@ -136,7 +136,7 @@ export async function fetchTemperatureCelsius(lat: number, lng: number): Promise
 }
 
 export function formatRiyadhMonthAr(now = new Date()): string {
-  return new Intl.DateTimeFormat('ar-SA', {
+  return new Intl.DateTimeFormat('ar-SA-u-ca-gregory-nu-latn', {
     timeZone: 'Asia/Riyadh',
     month: 'long',
   }).format(now);

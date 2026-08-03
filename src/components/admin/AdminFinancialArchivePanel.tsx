@@ -477,10 +477,10 @@ export function AdminFinancialArchivePanel({ canManage, canFetchCommitments }: P
                     </TableCell>
                     <TableCell className="text-xs">
                       <div>{d.uploaded_by_email}</div>
-                      <div className="text-muted-foreground">{new Date(d.uploaded_at).toLocaleString('ar-SA')}</div>
+                      <div className="text-muted-foreground">{new Date(d.uploaded_at).toLocaleString('ar-SA-u-ca-gregory-nu-latn')}</div>
                     </TableCell>
                     <TableCell className="text-xs">
-                      {d.sync_applied_at ? new Date(d.sync_applied_at).toLocaleString('ar-SA') : '—'}
+                      {d.sync_applied_at ? new Date(d.sync_applied_at).toLocaleString('ar-SA-u-ca-gregory-nu-latn') : '—'}
                     </TableCell>
                     <TableCell className="whitespace-nowrap">
                       <Button type="button" variant="ghost" size="icon" title="تحميل" onClick={() => void onDownload(d.id)}>

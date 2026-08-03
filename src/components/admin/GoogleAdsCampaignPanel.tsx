@@ -36,7 +36,7 @@ import { toast } from 'sonner';
 
 function formatWhen(iso: string): string {
   try {
-    return new Date(iso).toLocaleString('ar-SA', {
+    return new Date(iso).toLocaleString('ar-SA-u-ca-gregory-nu-latn', {
       dateStyle: 'short',
       timeStyle: 'medium',
     });

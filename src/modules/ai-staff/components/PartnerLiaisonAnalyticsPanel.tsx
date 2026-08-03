@@ -31,7 +31,7 @@ export function PartnerLiaisonAnalyticsPanel() {
       <div className="grid gap-3 sm:grid-cols-3">
         <StaffMetricTile
           title="محادثات مُعالجة (7 أيام)"
-          value={data.chatsHandled7d.toLocaleString('ar-SA')}
+          value={data.chatsHandled7d.toLocaleString('ar-SA-u-ca-gregory-nu-latn')}
           icon={MessageSquare}
           accent="violet"
         />
@@ -43,7 +43,7 @@ export function PartnerLiaisonAnalyticsPanel() {
         />
         <StaffMetricTile
           title="تقارير احتكاك ميداني"
-          value={data.frictionReports7d.toLocaleString('ar-SA')}
+          value={data.frictionReports7d.toLocaleString('ar-SA-u-ca-gregory-nu-latn')}
           icon={ThumbsDown}
           accent="amber"
         />
@@ -81,7 +81,7 @@ export function PartnerLiaisonAnalyticsPanel() {
               </div>
               <p className="text-xs leading-relaxed text-slate-400">{chat.summaryAr}</p>
               <p className="mt-1 text-[10px] text-slate-500">
-                {new Date(chat.handledAt).toLocaleString('ar-SA')}
+                {new Date(chat.handledAt).toLocaleString('ar-SA-u-ca-gregory-nu-latn')}
               </p>
             </article>
           ))}

@@ -17,7 +17,7 @@ import { cn } from '@/lib/utils';
 
 function formatSubmittedAt(iso: string): string {
   try {
-    return new Intl.DateTimeFormat('ar-SA', {
+    return new Intl.DateTimeFormat('ar-SA-u-ca-gregory-nu-latn', {
       dateStyle: 'medium',
       timeStyle: 'short',
     }).format(new Date(iso));

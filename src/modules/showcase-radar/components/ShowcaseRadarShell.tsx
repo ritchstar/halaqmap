@@ -31,7 +31,7 @@ function HudStat({ label, value }: { label: string; value: string | number }) {
 export function ShowcaseRadarShell({ payload, loading, error, className }: Props) {
   const stats = payload?.stats;
   const syncLabel = payload?.collectedAt
-    ? new Date(payload.collectedAt).toLocaleTimeString('ar-SA', {
+    ? new Date(payload.collectedAt).toLocaleTimeString('ar-SA-u-ca-gregory-nu-latn', {
         hour: '2-digit',
         minute: '2-digit',
       })

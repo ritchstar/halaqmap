@@ -47,7 +47,7 @@ export function formatPartnerOrderReceptionCountdownAr(daysUntil: number): strin
   if (daysUntil <= 0) return 'قريباً جداً';
   if (daysUntil === 1) return 'خلال يوم واحد';
   if (daysUntil === 2) return 'خلال يومين';
-  return `خلال ${daysUntil.toLocaleString('ar-SA')} أيام`;
+  return `خلال ${daysUntil.toLocaleString('ar-SA-u-ca-gregory-nu-latn')} أيام`;
 }
 
 export function shouldShowPartnerOrderReceptionBanner(

@@ -35,8 +35,8 @@ function WarningStrip({ signal }: { signal: ZatcaEarlyWarningSignal }) {
     <div className={`rounded-xl border px-4 py-3 text-sm leading-relaxed ${tone}`}>
       <p>{signal.messageAr}</p>
       <p className="mt-1 text-xs opacity-80">
-        إجمالي الإيرادات: {signal.totalRevenueSar.toLocaleString('ar-SA')} ر.س · وتيرة يومية تقريبية:{' '}
-        {signal.dailyVelocitySar.toLocaleString('ar-SA')} ر.س
+        إجمالي الإيرادات: {signal.totalRevenueSar.toLocaleString('ar-SA-u-ca-gregory-nu-latn')} ر.س · وتيرة يومية تقريبية:{' '}
+        {signal.dailyVelocitySar.toLocaleString('ar-SA-u-ca-gregory-nu-latn')} ر.س
         {signal.daysToMandatoryLimit != null ? ` · تقدير للحد الإلزامي: ${signal.daysToMandatoryLimit} يوم` : null}
       </p>
     </div>
@@ -234,7 +234,7 @@ export function ZatcaTaxActivationAlert({
             <h3 className="text-lg font-bold text-cyan-50">{alert.titleAr}</h3>
             <p className="text-sm leading-relaxed text-cyan-100/90">{alert.bodyAr}</p>
             <p className="text-xs text-cyan-200/75">
-              إجمالي الإيرادات المُرصَدة: {alert.totalRevenueSar.toLocaleString('ar-SA')} ر.س · الضريبة المُجهَّزة:{' '}
+              إجمالي الإيرادات المُرصَدة: {alert.totalRevenueSar.toLocaleString('ar-SA-u-ca-gregory-nu-latn')} ر.س · الضريبة المُجهَّزة:{' '}
               {alert.preparedVatRatePercent}%
             </p>
             <div className="flex flex-wrap justify-end gap-2">

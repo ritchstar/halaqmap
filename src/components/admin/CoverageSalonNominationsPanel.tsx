@@ -32,7 +32,7 @@ function mapsUrl(lat: number, lng: number): string {
 }
 
 function formatNominationTxtBlock(row: NominationItem, index: number): string {
-  const when = row.createdAt ? new Date(row.createdAt).toLocaleString('ar-SA') : '—';
+  const when = row.createdAt ? new Date(row.createdAt).toLocaleString('ar-SA-u-ca-gregory-nu-latn') : '—';
   const status = STATUS_LABEL[row.status] ?? row.status;
   return [
     `── ترشيح ${index + 1} ──`,
@@ -109,7 +109,7 @@ export function CoverageSalonNominationsPanel() {
     const body = [
       COVERAGE_NOMINATE_TITLE_AR,
       'ملف تسويقي — ترشيحات تغطية من المستعلمين',
-      `تاريخ التصدير: ${new Date().toLocaleString('ar-SA')}`,
+      `تاريخ التصدير: ${new Date().toLocaleString('ar-SA-u-ca-gregory-nu-latn')}`,
       `عدد الترشيحات: ${items.length}`,
       '',
       ...items.map((row, i) => formatNominationTxtBlock(row, i)),
@@ -211,7 +211,7 @@ export function CoverageSalonNominationsPanel() {
 
                 {row.createdAt ? (
                   <p className="mt-2 text-xs font-semibold text-slate-700">
-                    وقت الترشيح: {new Date(row.createdAt).toLocaleString('ar-SA')}
+                    وقت الترشيح: {new Date(row.createdAt).toLocaleString('ar-SA-u-ca-gregory-nu-latn')}
                   </p>
                 ) : null}
 

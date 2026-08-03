@@ -294,10 +294,10 @@ export function KSACityClocksBar() {
               <Link
                 to={ROUTE_PATHS.RADAR_SHOWCASE}
                 className="group flex shrink-0 flex-col items-center justify-center gap-0.5 rounded-xl border border-teal-400/15 bg-teal-500/5 px-2.5 py-1.5 transition-colors hover:border-teal-400/30 hover:bg-teal-500/10 sm:px-3"
-                title={`${PLATFORM_CITY_COUNT.toLocaleString('ar-SA')} مدينة ضمن تغطية المنصة — الشريط يُبرز ${KSA_CLOCK_BAR_CITY_COUNT.toLocaleString('ar-SA')} مدن رئيسية`}
+                title={`${PLATFORM_CITY_COUNT.toLocaleString('ar-SA-u-ca-gregory-nu-latn')} مدينة ضمن تغطية المنصة — الشريط يُبرز ${KSA_CLOCK_BAR_CITY_COUNT.toLocaleString('ar-SA-u-ca-gregory-nu-latn')} مدن رئيسية`}
               >
                 <span className="text-[0.58rem] font-black leading-none text-teal-300/90 group-hover:text-teal-200">
-                  +{KSA_CLOCK_BAR_OVERFLOW_COUNT.toLocaleString('ar-SA')}
+                  +{KSA_CLOCK_BAR_OVERFLOW_COUNT.toLocaleString('ar-SA-u-ca-gregory-nu-latn')}
                 </span>
                 <span className="hidden text-[0.52rem] font-semibold leading-none text-slate-500 group-hover:text-slate-400 sm:block">
                   مدينة
@@ -320,7 +320,7 @@ export function KSACityClocksBar() {
             coordsFromDevice
               ? userRegion.city.inClockBar
                 ? `درجة الحرارة قرب ${userRegion.city.nameAr}`
-                : `مدينتك ${userRegion.city.nameAr} ضمن تغطية المنصة (${PLATFORM_CITY_COUNT.toLocaleString('ar-SA')} مدينة) — الشريط يعرض ${KSA_CLOCK_BAR_CITY_COUNT.toLocaleString('ar-SA')} مدن رئيسية`
+                : `مدينتك ${userRegion.city.nameAr} ضمن تغطية المنصة (${PLATFORM_CITY_COUNT.toLocaleString('ar-SA-u-ca-gregory-nu-latn')} مدينة) — الشريط يعرض ${KSA_CLOCK_BAR_CITY_COUNT.toLocaleString('ar-SA-u-ca-gregory-nu-latn')} مدن رئيسية`
               : `درجة الحرارة في ${userRegion.city.nameAr} — مرجع افتراضي حتى بدء الاستعلام`
           }
         >

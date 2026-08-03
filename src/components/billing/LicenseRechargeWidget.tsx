@@ -299,7 +299,7 @@ export function LicenseRechargeWidget({ mode = 'register', showHeader = true, cl
                 <div className="text-center">
                   <div className="flex items-end justify-center gap-1">
                     <span className="banner-glow-safe-price font-mono text-4xl tabular-nums">
-                      {total.toLocaleString('ar-SA')}
+                      {total.toLocaleString('ar-SA-u-ca-gregory-nu-latn')}
                     </span>
                     <div className="mb-1 flex flex-col text-right leading-none">
                       <span className="banner-glow-safe-text text-sm font-bold">ر.س</span>

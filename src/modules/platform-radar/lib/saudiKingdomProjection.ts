@@ -60,7 +60,7 @@ export function formatTacticalCoordinates(lat: number, lng: number): string {
 export function formatTacticalTime(iso: string): string {
   const t = Date.parse(iso);
   if (!Number.isFinite(t)) return '—';
-  return new Date(t).toLocaleTimeString('ar-SA', {
+  return new Date(t).toLocaleTimeString('ar-SA-u-ca-gregory-nu-latn', {
     hour: '2-digit',
     minute: '2-digit',
     second: '2-digit',

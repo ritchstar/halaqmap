@@ -8,6 +8,9 @@ import { ensureDomainVerificationMeta } from '@/config/domainVerification'
 import { RootErrorBoundary } from '@/components/RootErrorBoundary'
 import { initPlatformBuildSync } from '@/lib/platformBuildSync'
 import { assertRuntimeEnvSafety } from '@/config/runtimeEnvGuard'
+import { applyPlatformDocumentLocale } from '@/lib/platformLocale'
+
+applyPlatformDocumentLocale()
 
 // build-sync يُجدول بعد mount — يكتشف حزمة JS قديمة بعد النشر ويُحدّث PWA بأمان
 import { PARTNER_ASSISTANT_UI_VERSION } from './lib/partnerAssistantUiVersion'

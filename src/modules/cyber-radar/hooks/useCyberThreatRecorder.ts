@@ -269,7 +269,7 @@ export function sessionToScenario(session: CyberThreatSession) {
   return {
     id: session.id,
     titleAr: `🔴 تسجيل: ${session.titleAr}`,
-    subtitleAr: `مسجَّل ${new Date(session.recordedAt).toLocaleString('ar-SA')} · ${session.stats.totalThreats} تهديد`,
+    subtitleAr: `مسجَّل ${new Date(session.recordedAt).toLocaleString('ar-SA-u-ca-gregory-nu-latn')} · ${session.stats.totalThreats} تهديد`,
     totalDurationMs: steps.length * STEP_GAP + 3000,
     steps,
   };

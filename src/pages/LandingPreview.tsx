@@ -512,7 +512,7 @@ function StatsStrip() {
         >
           <s.icon className={`h-6 w-6 ${s.color}`} />
           <div className={`text-3xl font-black tabular-nums ${s.color}`}>
-            {s.value.toLocaleString('ar-SA')}{s.suffix}
+            {s.value.toLocaleString('ar-SA-u-ca-gregory-nu-latn')}{s.suffix}
           </div>
           <div className="text-center text-xs text-white/88 [text-shadow:0_0_10px_rgba(255,255,255,0.12)]">{s.label}</div>
         </motion.div>

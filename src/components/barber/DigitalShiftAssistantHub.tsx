@@ -53,7 +53,7 @@ function formatWalletTxLabel(reason: string): string {
 function formatWalletTxWhen(iso: string): string {
   const d = new Date(iso);
   if (!Number.isFinite(d.getTime())) return iso;
-  return d.toLocaleString('ar-SA', { hour: '2-digit', minute: '2-digit', day: 'numeric', month: 'short' });
+  return d.toLocaleString('ar-SA-u-ca-gregory-nu-latn', { hour: '2-digit', minute: '2-digit', day: 'numeric', month: 'short' });
 }
 
 type ChatTurn = { role: 'user' | 'assistant'; content: string };

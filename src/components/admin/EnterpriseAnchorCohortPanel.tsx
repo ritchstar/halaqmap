@@ -136,7 +136,7 @@ export function EnterpriseAnchorCohortPanel({ accessToken }: Props) {
       return;
     }
     toast.success(
-      `تم تفعيل المقعد — ماسي ${res.listingDaysGranted ?? ENTERPRISE_ANCHOR_UI.days} يوماً حتى ${res.validUntil ? new Date(res.validUntil).toLocaleDateString('ar-SA') : '—'}`,
+      `تم تفعيل المقعد — ماسي ${res.listingDaysGranted ?? ENTERPRISE_ANCHOR_UI.days} يوماً حتى ${res.validUntil ? new Date(res.validUntil).toLocaleDateString('ar-SA-u-ca-gregory-nu-latn') : '—'}`,
     );
     void refresh();
   };
@@ -268,7 +268,7 @@ export function EnterpriseAnchorCohortPanel({ accessToken }: Props) {
                       {hq?.daysRemaining != null
                         ? `${hq.daysRemaining} يوم`
                         : seat.expires_at
-                          ? new Date(seat.expires_at).toLocaleDateString('ar-SA')
+                          ? new Date(seat.expires_at).toLocaleDateString('ar-SA-u-ca-gregory-nu-latn')
                           : '—'}
                     </td>
                     <td className="px-3 py-2">

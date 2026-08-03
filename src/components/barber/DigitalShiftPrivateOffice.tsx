@@ -59,7 +59,7 @@ const CODE_BUTTONS = [
 ] as const;
 
 function nowTs() {
-  return new Date().toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' });
+  return new Date().toLocaleTimeString('ar-SA-u-ca-gregory-nu-latn', { hour: '2-digit', minute: '2-digit' });
 }
 function nid() {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
@@ -469,7 +469,7 @@ export function DigitalShiftPrivateOffice({
                     <div key={r.id} className="rounded-xl border border-emerald-400/30 bg-emerald-950/40 px-4 py-3">
                       <div className="mb-1 flex items-center justify-between gap-2">
                         <p className="text-sm font-black text-emerald-100">{r.title}</p>
-                        <p className="shrink-0 text-xs text-emerald-200/70">{new Date(r.created_at).toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' })}</p>
+                        <p className="shrink-0 text-xs text-emerald-200/70">{new Date(r.created_at).toLocaleTimeString('ar-SA-u-ca-gregory-nu-latn', { hour: '2-digit', minute: '2-digit' })}</p>
                       </div>
                       <p className="whitespace-pre-wrap text-sm leading-relaxed text-slate-100" style={{ unicodeBidi: 'plaintext' }}>{r.body}</p>
                     </div>
@@ -512,7 +512,7 @@ export function DigitalShiftPrivateOffice({
                       <p className="text-sm font-black uppercase tracking-widest text-purple-100">
                         {sanitizeBarberFacingCopyAr(d.title)}
                       </p>
-                      <p className="shrink-0 text-xs text-purple-200/70">{new Date(d.created_at).toLocaleDateString('ar-SA')}</p>
+                      <p className="shrink-0 text-xs text-purple-200/70">{new Date(d.created_at).toLocaleDateString('ar-SA-u-ca-gregory-nu-latn')}</p>
                     </div>
                     <p className="text-sm leading-relaxed text-purple-50" style={{ unicodeBidi: 'plaintext' }}>
                       {sanitizeBarberFacingCopyAr(d.body)}

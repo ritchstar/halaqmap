@@ -37,11 +37,11 @@ function ScenarioRow({ s }: { s: ZatcaHypotheticalScenario }) {
   return (
     <tr className="border-b border-slate-700/80 last:border-0">
       <td className="py-2.5 pe-3 text-sm text-slate-200">{s.labelAr}</td>
-      <td className="py-2.5 px-2 text-end tabular-nums text-slate-300">{s.subtotalSar.toLocaleString('ar-SA')}</td>
+      <td className="py-2.5 px-2 text-end tabular-nums text-slate-300">{s.subtotalSar.toLocaleString('ar-SA-u-ca-gregory-nu-latn')}</td>
       <td className="py-2.5 px-2 text-end tabular-nums text-slate-400">{s.vatRatePercent}%</td>
-      <td className="py-2.5 px-2 text-end tabular-nums text-slate-300">{s.vatSar.toLocaleString('ar-SA')}</td>
+      <td className="py-2.5 px-2 text-end tabular-nums text-slate-300">{s.vatSar.toLocaleString('ar-SA-u-ca-gregory-nu-latn')}</td>
       <td className="py-2.5 ps-2 text-end tabular-nums font-semibold text-slate-100">
-        {s.totalSar.toLocaleString('ar-SA')}
+        {s.totalSar.toLocaleString('ar-SA-u-ca-gregory-nu-latn')}
       </td>
     </tr>
   );
@@ -74,8 +74,8 @@ export function ZatcaProactiveReportPanel({ report, externalIntel, onRefreshInte
         <p>{g.summaryAr}</p>
         <p className="mt-2 text-xs opacity-90">
           الرقم المرجعي لتفعيل العرض:{' '}
-          <strong className="tabular-nums">{g.triggerSar.toLocaleString('ar-SA')} ر.س</strong> إيرادات مُرصَدة ·
-          اختياري: {g.voluntaryLimitSar.toLocaleString('ar-SA')} · إلزامي: {g.mandatoryLimitSar.toLocaleString('ar-SA')}{' '}
+          <strong className="tabular-nums">{g.triggerSar.toLocaleString('ar-SA-u-ca-gregory-nu-latn')} ر.س</strong> إيرادات مُرصَدة ·
+          اختياري: {g.voluntaryLimitSar.toLocaleString('ar-SA-u-ca-gregory-nu-latn')} · إلزامي: {g.mandatoryLimitSar.toLocaleString('ar-SA-u-ca-gregory-nu-latn')}{' '}
           · نسبة مُجهَّزة: {g.preparedVatRatePercent}%
         </p>
       </div>
@@ -84,19 +84,19 @@ export function ZatcaProactiveReportPanel({ report, externalIntel, onRefreshInte
         <div className="rounded-lg border border-slate-700 bg-slate-800/60 p-3 text-right">
           <p className="text-[11px] text-slate-500">إيرادات مُرصَدة</p>
           <p className="text-lg font-bold tabular-nums text-white">
-            {report.currentRevenueSar.toLocaleString('ar-SA')} <span className="text-sm font-normal">ر.س</span>
+            {report.currentRevenueSar.toLocaleString('ar-SA-u-ca-gregory-nu-latn')} <span className="text-sm font-normal">ر.س</span>
           </p>
         </div>
         <div className="rounded-lg border border-slate-700 bg-slate-800/60 p-3 text-right">
           <p className="text-[11px] text-slate-500">وتيرة يومية تقريبية</p>
           <p className="text-lg font-bold tabular-nums text-white">
-            {report.dailyVelocitySar.toLocaleString('ar-SA')} <span className="text-sm font-normal">ر.س</span>
+            {report.dailyVelocitySar.toLocaleString('ar-SA-u-ca-gregory-nu-latn')} <span className="text-sm font-normal">ر.س</span>
           </p>
         </div>
         <div className="rounded-lg border border-slate-700 bg-slate-800/60 p-3 text-right">
           <p className="text-[11px] text-slate-500">تقدير 30 يوماً</p>
           <p className="text-lg font-bold tabular-nums text-white">
-            {(report.projectedRevenue30dSar ?? 0).toLocaleString('ar-SA')}{' '}
+            {(report.projectedRevenue30dSar ?? 0).toLocaleString('ar-SA-u-ca-gregory-nu-latn')}{' '}
             <span className="text-sm font-normal">ر.س</span>
           </p>
         </div>
@@ -122,8 +122,8 @@ export function ZatcaProactiveReportPanel({ report, externalIntel, onRefreshInte
             {report.thresholds.map((t) => (
               <tr key={t.id} className="border-b border-slate-800 last:border-0">
                 <td className="py-2.5 pe-3 text-slate-200">{t.labelAr}</td>
-                <td className="py-2.5 px-2 tabular-nums text-slate-300">{t.limitSar.toLocaleString('ar-SA')}</td>
-                <td className="py-2.5 px-2 tabular-nums text-slate-400">{t.remainingSar.toLocaleString('ar-SA')}</td>
+                <td className="py-2.5 px-2 tabular-nums text-slate-300">{t.limitSar.toLocaleString('ar-SA-u-ca-gregory-nu-latn')}</td>
+                <td className="py-2.5 px-2 tabular-nums text-slate-400">{t.remainingSar.toLocaleString('ar-SA-u-ca-gregory-nu-latn')}</td>
                 <td className="py-2.5 ps-2">
                   <span
                     className={`text-xs font-semibold ${t.breached ? 'text-amber-300' : 'text-slate-500'}`}

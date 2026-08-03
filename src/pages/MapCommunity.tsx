@@ -153,7 +153,7 @@ const VIDEO_GRADIENTS = [
 ];
 
 function formatTime(iso: string): string {
-  return new Intl.DateTimeFormat('ar-SA', {
+  return new Intl.DateTimeFormat('ar-SA-u-ca-gregory-nu-latn', {
     hour: '2-digit',
     minute: '2-digit',
   }).format(new Date(iso));

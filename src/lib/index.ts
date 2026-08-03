@@ -10,6 +10,16 @@ import {
 } from '@/lib/barberCategoryLexicon';
 
 export { LEGACY_PARTNER_ROUTE_PATHS, ROUTE_PATHS } from '@/lib/routePaths';
+export {
+  PLATFORM_AR_LOCALE,
+  PLATFORM_FORM_LANG,
+  toWesternDigits,
+  formatPlatformNumber,
+  formatPlatformDate,
+  formatPlatformDateTime,
+  formatPlatformTime,
+  applyPlatformDocumentLocale,
+} from '@/lib/platformLocale';
 
 export enum SubscriptionTier {
   BRONZE = 'bronze',

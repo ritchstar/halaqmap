@@ -50,7 +50,7 @@ export function FleetDirectorIntelligenceFeed() {
           >
             <div className="mb-1 flex flex-wrap items-center justify-between gap-2">
               <span className="text-[10px] text-slate-500">
-                {new Date(ping.timestamp).toLocaleTimeString('ar-SA')}
+                {new Date(ping.timestamp).toLocaleTimeString('ar-SA-u-ca-gregory-nu-latn')}
               </span>
               <Badge variant="outline" className="h-5 border-slate-600 text-[9px] uppercase text-slate-400">
                 {ping.severity}

@@ -51,7 +51,7 @@ function severityLabelAr(severity: OwnerSalonWatchAlert['severity']): string {
 function formatTimeAr(iso: string): string {
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return '—';
-  return d.toLocaleString('ar-SA', { hour: '2-digit', minute: '2-digit', day: 'numeric', month: 'short' });
+  return d.toLocaleString('ar-SA-u-ca-gregory-nu-latn', { hour: '2-digit', minute: '2-digit', day: 'numeric', month: 'short' });
 }
 
 function AlertList({ items, emptyText }: { items: OwnerSalonWatchAlert[]; emptyText: string }) {

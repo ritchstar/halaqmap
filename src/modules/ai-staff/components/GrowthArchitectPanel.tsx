@@ -146,7 +146,7 @@ export function GrowthArchitectPanel({ opsControllerEnabled }: Props) {
               تحديث التوصيات
             </Button>
             <span>
-              بيانات تحليل: {snapshot.searchCount7d.toLocaleString('ar-SA')} بحث ·{' '}
+              بيانات تحليل: {snapshot.searchCount7d.toLocaleString('ar-SA-u-ca-gregory-nu-latn')} بحث ·{' '}
               {snapshot.citiesAnalyzed} مدينة
             </span>
           </div>

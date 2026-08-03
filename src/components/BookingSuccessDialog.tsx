@@ -49,7 +49,7 @@ export function BookingSuccessDialog({ open, onOpenChange, payload }: BookingSuc
     if (!payload) return '';
     const [y, m, d] = payload.date.split('-').map(Number);
     const dt = new Date(y, m - 1, d);
-    return new Intl.DateTimeFormat('ar-SA', {
+    return new Intl.DateTimeFormat('ar-SA-u-ca-gregory-nu-latn', {
       weekday: 'long',
       year: 'numeric',
       month: 'long',

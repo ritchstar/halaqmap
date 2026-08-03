@@ -184,15 +184,15 @@ export function ResourceManagementSection({ isActive }: Props) {
                     registration-uploads
                   </p>
                   <ul className="mt-2 space-y-1 text-sm text-muted-foreground">
-                    <li>الكائنات: {snap.registration_uploads.object_count.toLocaleString('ar-SA')}</li>
-                    <li>البنرات (مسار banners): {snap.registration_uploads.banner_object_count.toLocaleString('ar-SA')}</li>
+                    <li>الكائنات: {snap.registration_uploads.object_count.toLocaleString('ar-SA-u-ca-gregory-nu-latn')}</li>
+                    <li>البنرات (مسار banners): {snap.registration_uploads.banner_object_count.toLocaleString('ar-SA-u-ca-gregory-nu-latn')}</li>
                     <li>الحجم التقريبي: {formatBytesArabic(snap.registration_uploads.approx_bytes)}</li>
                   </ul>
                 </div>
                 <div className="rounded-lg border border-border/80 p-4">
                   <p className="text-sm font-semibold">partner-promo</p>
                   <ul className="mt-2 space-y-1 text-sm text-muted-foreground">
-                    <li>الكائنات: {snap.partner_promo.object_count.toLocaleString('ar-SA')}</li>
+                    <li>الكائنات: {snap.partner_promo.object_count.toLocaleString('ar-SA-u-ca-gregory-nu-latn')}</li>
                     <li>الحجم التقريبي: {formatBytesArabic(snap.partner_promo.approx_bytes)}</li>
                   </ul>
                 </div>
@@ -202,7 +202,7 @@ export function ResourceManagementSection({ isActive }: Props) {
                     barber-portfolio (معرض أعمال الحلاقين)
                   </p>
                   <ul className="mt-2 space-y-1 text-sm text-muted-foreground">
-                    <li>الكائنات: {snap.barber_portfolio.object_count.toLocaleString('ar-SA')}</li>
+                    <li>الكائنات: {snap.barber_portfolio.object_count.toLocaleString('ar-SA-u-ca-gregory-nu-latn')}</li>
                     <li>الحجم التقريبي: {formatBytesArabic(snap.barber_portfolio.approx_bytes)}</li>
                   </ul>
                 </div>
@@ -211,8 +211,8 @@ export function ResourceManagementSection({ isActive }: Props) {
               <div className="rounded-lg border border-border/80 p-4">
                 <p className="text-sm font-semibold mb-2">سجلات قاعدة البيانات</p>
                 <ul className="space-y-1 text-sm text-muted-foreground">
-                  <li>search_activity_logs: {snap.logs.search_activity_logs_count.toLocaleString('ar-SA')} (معطّل)</li>
-                  <li>payment_security_events: {snap.logs.payment_security_events_count.toLocaleString('ar-SA')}</li>
+                  <li>search_activity_logs: {snap.logs.search_activity_logs_count.toLocaleString('ar-SA-u-ca-gregory-nu-latn')} (معطّل)</li>
+                  <li>payment_security_events: {snap.logs.payment_security_events_count.toLocaleString('ar-SA-u-ca-gregory-nu-latn')}</li>
                 </ul>
               </div>
             </>

@@ -273,7 +273,7 @@ export function formatRenewalDisplay(row: OpsBillingCommitmentRow): {
 } {
   const nr = row.next_renewal_at;
   if (typeof nr === 'string' && nr.trim()) {
-    return { text: new Date(nr).toLocaleDateString('ar-SA'), tone: 'default' };
+    return { text: new Date(nr).toLocaleDateString('ar-SA-u-ca-gregory-nu-latn'), tone: 'default' };
   }
 
   const gap = String(row.data_gap_kind ?? '');
@@ -338,7 +338,7 @@ export function formatMonthlyDisplay(row: OpsBillingCommitmentRow): {
 export function formatLastSyncDisplay(row: OpsBillingCommitmentRow): string {
   const ls = row.last_synced_at;
   if (typeof ls === 'string' && ls.trim()) {
-    return new Date(ls).toLocaleString('ar-SA');
+    return new Date(ls).toLocaleString('ar-SA-u-ca-gregory-nu-latn');
   }
   const gap = String(row.data_gap_kind ?? '');
   if (gap === 'token_expired') return 'يتطلب تحديث الرمز';

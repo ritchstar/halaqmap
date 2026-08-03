@@ -27,7 +27,7 @@ export function getRiyadhMinutesNow(now = new Date()): number {
 }
 
 export function formatRiyadhTime(now = new Date()): string {
-  return new Intl.DateTimeFormat('ar-SA', {
+  return new Intl.DateTimeFormat('ar-SA-u-ca-gregory-nu-latn', {
     timeZone: RIYADH_TIMEZONE,
     hour: '2-digit',
     minute: '2-digit',

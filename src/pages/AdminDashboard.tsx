@@ -1442,7 +1442,7 @@ function SecurityOpsLogSection({ isActive, bumpNonce }: { isActive: boolean; bum
                           {labelForCode(row.event_code)}
                         </Badge>
                         <span className="text-xs text-muted-foreground">
-                          {new Date(row.created_at).toLocaleString('ar-SA')}
+                          {new Date(row.created_at).toLocaleString('ar-SA-u-ca-gregory-nu-latn')}
                         </span>
                       </div>
                       <span className="text-[10px] uppercase text-muted-foreground">{row.severity}</span>
@@ -3567,7 +3567,7 @@ const BARBER_PURGE_CONFIRM_PHRASE = 'حذف كل الحلاقين';
 function formatBarberCreatedAtDisplay(iso: string | null): string {
   if (!iso) return '—';
   try {
-    return new Intl.DateTimeFormat('ar-SA-u-ca-gregory', {
+    return new Intl.DateTimeFormat('ar-SA-u-ca-gregory-nu-latn', {
       dateStyle: 'short',
       timeStyle: 'short',
     }).format(new Date(iso));
@@ -4110,7 +4110,7 @@ function BarbersSection({
                             className="font-semibold text-amber-200"
                             title={
                               days.validUntil
-                                ? `حتى ${new Date(days.validUntil).toLocaleString('ar-SA')} · ${days.activeTier ?? ''} · مصدر barber_listing_summary`
+                                ? `حتى ${new Date(days.validUntil).toLocaleString('ar-SA-u-ca-gregory-nu-latn')} · ${days.activeTier ?? ''} · مصدر barber_listing_summary`
                                 : 'مصدر: barber_listing_summary'
                             }
                           >
@@ -4659,7 +4659,7 @@ function MessagesSection({ canUseChat }: { canUseChat: boolean }) {
                   <SelectContent className="max-h-72">
                     {threads.map((t) => (
                       <SelectItem key={t.barberId} value={t.barberId}>
-                        {t.barberName} — آخر رسالة: {t.lastMessageAt ? new Date(t.lastMessageAt).toLocaleString('ar-SA') : '—'}
+                        {t.barberName} — آخر رسالة: {t.lastMessageAt ? new Date(t.lastMessageAt).toLocaleString('ar-SA-u-ca-gregory-nu-latn') : '—'}
                       </SelectItem>
                     ))}
                     {barbers
@@ -4712,7 +4712,7 @@ function MessagesSection({ canUseChat }: { canUseChat: boolean }) {
                       <SelectContent className="max-h-72">
                         {threads.map((t) => (
                           <SelectItem key={t.barberId} value={t.barberId}>
-                            {t.barberName} — آخر رسالة: {t.lastMessageAt ? new Date(t.lastMessageAt).toLocaleString('ar-SA') : '—'}
+                            {t.barberName} — آخر رسالة: {t.lastMessageAt ? new Date(t.lastMessageAt).toLocaleString('ar-SA-u-ca-gregory-nu-latn') : '—'}
                           </SelectItem>
                         ))}
                         {barbers
@@ -4755,7 +4755,7 @@ function MessagesSection({ canUseChat }: { canUseChat: boolean }) {
                           <p className="whitespace-pre-wrap break-words">{m.body}</p>
                           <p className="mt-1 text-[11px] opacity-80">
                             {m.from_admin ? `إدارة: ${m.admin_sender_email ?? '—'}` : 'الحلاق'} ·{' '}
-                            {new Date(m.created_at).toLocaleString('ar-SA')}
+                            {new Date(m.created_at).toLocaleString('ar-SA-u-ca-gregory-nu-latn')}
                           </p>
                         </div>
                       </div>

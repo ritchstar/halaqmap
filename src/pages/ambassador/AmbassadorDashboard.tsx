@@ -929,7 +929,7 @@ function WalletTab({
               >
                 <div>
                   <p className="text-slate-200">{e.note}</p>
-                  <p className="text-slate-500">{new Date(e.createdAt).toLocaleString('ar-SA')}</p>
+                  <p className="text-slate-500">{new Date(e.createdAt).toLocaleString('ar-SA-u-ca-gregory-nu-latn')}</p>
                 </div>
                 <span className={e.amountSar >= 0 ? 'text-emerald-300' : 'text-amber-200'}>
                   {e.amountSar >= 0 ? '+' : ''}

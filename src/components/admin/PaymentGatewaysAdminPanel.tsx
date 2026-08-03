@@ -359,7 +359,7 @@ export function PaymentGatewaysAdminPanel({ canSave }: Props) {
           <CardTitle className="text-lg">مراقبة سريعة</CardTitle>
           {settings.updated_at && (
             <Badge variant="outline" className="font-normal">
-              آخر تحديث: {new Date(settings.updated_at).toLocaleString('ar-SA')}
+              آخر تحديث: {new Date(settings.updated_at).toLocaleString('ar-SA-u-ca-gregory-nu-latn')}
               {settings.updated_by_email ? ` — ${settings.updated_by_email}` : ''}
             </Badge>
           )}

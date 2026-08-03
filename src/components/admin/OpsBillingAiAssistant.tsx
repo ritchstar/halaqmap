@@ -109,7 +109,7 @@ function formatValue(key: string, v: unknown): string {
   if (v == null || v === '') return '—';
   if (key === 'next_renewal_at' && typeof v === 'string') {
     const d = new Date(v);
-    return Number.isFinite(d.getTime()) ? d.toLocaleString('ar-SA') : v;
+    return Number.isFinite(d.getTime()) ? d.toLocaleString('ar-SA-u-ca-gregory-nu-latn') : v;
   }
   if (typeof v === 'number') return v.toFixed(2);
   return String(v);

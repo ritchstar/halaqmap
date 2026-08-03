@@ -70,8 +70,8 @@ function SessionCard({
   onDelete: (id: string) => void;
 }) {
   const dt = new Date(session.recordedAt);
-  const timeLabel = dt.toLocaleTimeString('ar-SA', { hour:'2-digit', minute:'2-digit' });
-  const dateLabel = dt.toLocaleDateString('ar-SA', { month:'short', day:'numeric' });
+  const timeLabel = dt.toLocaleTimeString('ar-SA-u-ca-gregory-nu-latn', { hour:'2-digit', minute:'2-digit' });
+  const dateLabel = dt.toLocaleDateString('ar-SA-u-ca-gregory-nu-latn', { month:'short', day:'numeric' });
   const durSec = Math.round(session.durationMs / 1000);
 
   return (

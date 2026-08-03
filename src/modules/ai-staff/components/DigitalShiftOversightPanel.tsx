@@ -21,13 +21,13 @@ export function DigitalShiftOversightPanel({ doctrineNotes = [] }: Props) {
       <div className="grid gap-3 sm:grid-cols-2">
         <StaffMetricTile
           title="رموز مناوبة نشطة الآن"
-          value={snap.activeNow.toLocaleString('ar-SA')}
+          value={snap.activeNow.toLocaleString('ar-SA-u-ca-gregory-nu-latn')}
           icon={Activity}
           accent="violet"
         />
         <StaffMetricTile
           title="إجمالي المنشور (المملكة)"
-          value={snap.deployedTokensKingdomWide.toLocaleString('ar-SA')}
+          value={snap.deployedTokensKingdomWide.toLocaleString('ar-SA-u-ca-gregory-nu-latn')}
           icon={Globe}
           accent="violet"
         />

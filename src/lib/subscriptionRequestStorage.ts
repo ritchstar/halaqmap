@@ -96,7 +96,7 @@ export function generateRegistrationOrderId(): string {
 }
 
 export function formatSubmissionDateTimeAr(): string {
-  return new Date().toLocaleString('ar-SA-u-ca-gregory', {
+  return new Date().toLocaleString('ar-SA-u-ca-gregory-nu-latn', {
     weekday: 'long',
     year: 'numeric',
     month: 'long',

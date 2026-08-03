@@ -49,7 +49,7 @@ export function PulseMapAdminControls({
 }: Props) {
   const admin = payload?.admin;
   const syncLabel = payload?.collectedAt
-    ? new Date(payload.collectedAt).toLocaleTimeString('ar-SA', {
+    ? new Date(payload.collectedAt).toLocaleTimeString('ar-SA-u-ca-gregory-nu-latn', {
         hour: '2-digit',
         minute: '2-digit',
         second: '2-digit',

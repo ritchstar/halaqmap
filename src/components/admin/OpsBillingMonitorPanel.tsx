@@ -327,7 +327,7 @@ export function OpsBillingMonitorPanel({ canMutate, isFounderView = false }: Pro
               <span className={syncing ? 'mr-2' : ''}>مزامنة الآن (+ GoDaddy مرجعي)</span>
             </Button>
             {lastPoll && (
-              <span className="text-sm text-muted-foreground">آخر استطلاع: {new Date(lastPoll).toLocaleString('ar-SA')}</span>
+              <span className="text-sm text-muted-foreground">آخر استطلاع: {new Date(lastPoll).toLocaleString('ar-SA-u-ca-gregory-nu-latn')}</span>
             )}
           </div>
 
@@ -337,7 +337,7 @@ export function OpsBillingMonitorPanel({ canMutate, isFounderView = false }: Pro
                 <div className="text-sm text-slate-500">أقرب موعد تجديد (معروف)</div>
                 <div className="text-lg font-semibold mt-1 text-slate-100">
                   {displaySummary.nearestRenewalAt
-                    ? new Date(displaySummary.nearestRenewalAt).toLocaleString('ar-SA')
+                    ? new Date(displaySummary.nearestRenewalAt).toLocaleString('ar-SA-u-ca-gregory-nu-latn')
                     : 'تأكيد يدوي'}
                 </div>
                 <div className="text-sm text-slate-500 mt-2">

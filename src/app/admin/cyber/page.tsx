@@ -829,7 +829,7 @@ function AdminCyberOperationsPageInner() {
                       </p>
                     </div>
                     <span className="shrink-0 text-[0.45rem] text-slate-700">
-                      {new Date(e.created_at).toLocaleTimeString('ar-SA', { hour:'2-digit', minute:'2-digit', second:'2-digit' })}
+                      {new Date(e.created_at).toLocaleTimeString('ar-SA-u-ca-gregory-nu-latn', { hour:'2-digit', minute:'2-digit', second:'2-digit' })}
                     </span>
                   </div>
                 ))}

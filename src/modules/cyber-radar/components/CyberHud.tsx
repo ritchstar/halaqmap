@@ -130,25 +130,25 @@ export function CyberStatsStrip({
       <StatCard
         icon={Users2}
         labelAr="اتصالات نَشطة"
-        value={stats.connections.toLocaleString('ar-SA')}
+        value={stats.connections.toLocaleString('ar-SA-u-ca-gregory-nu-latn')}
         tone="neutral"
       />
       <StatCard
         icon={Crown}
         labelAr="طلبات تفعيل الرخصة"
-        value={stats.registrations.toLocaleString('ar-SA')}
+        value={stats.registrations.toLocaleString('ar-SA-u-ca-gregory-nu-latn')}
         tone="good"
       />
       <StatCard
         icon={ShieldAlert}
         labelAr="تَهديدات نَشطة"
-        value={stats.threatsActive.toLocaleString('ar-SA')}
+        value={stats.threatsActive.toLocaleString('ar-SA-u-ca-gregory-nu-latn')}
         tone={stats.threatsActive > 0 ? 'danger' : 'neutral'}
       />
       <StatCard
         icon={Shield}
         labelAr="تَهديدات مَحجوبة"
-        value={threatsBlocked.toLocaleString('ar-SA')}
+        value={threatsBlocked.toLocaleString('ar-SA-u-ca-gregory-nu-latn')}
         tone="good"
       />
       <StatCard

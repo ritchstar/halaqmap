@@ -234,7 +234,7 @@ export default function PlatformReviews() {
         city: city || 'المملكة',
         rating,
         comment: comment.trim(),
-        date: new Date().toLocaleDateString('ar-SA', { day: 'numeric', month: 'long', year: 'numeric' }),
+        date: new Date().toLocaleDateString('ar-SA-u-ca-gregory-nu-latn', { day: 'numeric', month: 'long', year: 'numeric' }),
         likes: 0,
       };
       try {
