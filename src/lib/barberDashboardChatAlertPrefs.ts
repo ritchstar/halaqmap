@@ -120,7 +120,8 @@ export const BARBER_CHAT_ALERT_HOME_TONE_LABELS: Record<BarberChatAlertHomeTone,
 };
 
 export function barberChatAlertVolumeGain(volume: BarberChatAlertVolume): number {
-  if (volume === 'low') return 0.07;
-  if (volume === 'high') return 0.2;
-  return 0.13;
+  // مستويات أعلى لتُسمع بوضوح في بيئة الصالون / مكبر الجوال
+  if (volume === 'low') return 0.22;
+  if (volume === 'high') return 0.55;
+  return 0.38;
 }

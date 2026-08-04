@@ -24,7 +24,10 @@ import {
   writeBarberChatAlertPrefs,
   type BarberChatAlertPrefs,
 } from '@/lib/barberDashboardChatAlertPrefs';
-import { playBarberChatAlert } from '@/lib/barberDashboardChatAlertSound';
+import {
+  playBarberChatAlert,
+  unlockBarberChatAudioFromGesture,
+} from '@/lib/barberDashboardChatAlertSound';
 import {
   ensureBarberPushSubscription,
   fetchBarberChatPushConfig,
@@ -111,9 +114,13 @@ export function BarberChatAlertSettingsCard({
         toast.message('فعّل التنبيه الصوتي أولاً من المفتاح أعلاه.');
         return;
       }
+      // مهم على iOS: فتح AudioContext داخل نفس إيماءة النقر قبل أي await
+      unlockBarberChatAudioFromGesture();
       const ok = await playBarberChatAlert(kind, prefs);
       if (!ok) {
-        toast.error('تعذّر تشغيل الصوت — تحقق من إذن الصوت في المتصفح.');
+        toast.error(
+          'تعذّر تشغيل الصوت. على الجوال: تأكد أن صامت الجهاز غير مفعّل، وأن المتصفح غير مانع للصوت، ثم أعد النقر على زر التجربة.',
+        );
         return;
       }
       toast.message(label);

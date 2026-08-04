@@ -1,5 +1,8 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
+ *
+ * أصوات تنبيه لوحة الصالون — Web Audio مع فتح موثوق على iOS/Android
+ * (يجب استدعاء التشغيل من إيماءة مستخدم؛ لا نعتمد على سياق معلّق بعد await طويل).
  */
 import type {
   BarberChatAlertHomeTone,
@@ -19,7 +22,6 @@ type ToneStep = {
 };
 
 let sharedCtx: AudioContext | null = null;
-let resumePending = false;
 
 function resolveAudioContextCtor(): SafeAudioContextCtor | null {
   if (typeof window === 'undefined') return null;
@@ -30,16 +32,8 @@ function resolveAudioContextCtor(): SafeAudioContextCtor | null {
   return win.AudioContext ?? win.webkitAudioContext ?? null;
 }
 
-function getSharedAudioContext(): AudioContext | null {
-  if (sharedCtx && sharedCtx.state !== 'closed') {
-    if (sharedCtx.state === 'suspended' && !resumePending) {
-      resumePending = true;
-      void sharedCtx.resume().finally(() => {
-        resumePending = false;
-      });
-    }
-    return sharedCtx;
-  }
+function getOrCreateAudioContext(): AudioContext | null {
+  if (sharedCtx && sharedCtx.state !== 'closed') return sharedCtx;
   const Ctor = resolveAudioContextCtor();
   if (!Ctor) return null;
   try {
@@ -51,60 +45,111 @@ function getSharedAudioContext(): AudioContext | null {
   }
 }
 
+/** نبضة صامتة تقريباً لإبقاء السياق مفتوحاً ضمن إيماءة اللمس/النقر */
+function primeAudioContext(ctx: AudioContext): void {
+  try {
+    const t0 = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(440, t0);
+    gain.gain.setValueAtTime(0.00008, t0);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(t0);
+    osc.stop(t0 + 0.02);
+  } catch {
+    /* ignore */
+  }
+}
+
+/**
+ * يُستدعى من معالج النقر مباشرةً (قبل أي await طويل) لفتح الصوت على iOS.
+ */
+export function unlockBarberChatAudioFromGesture(): AudioContext | null {
+  const ctx = getOrCreateAudioContext();
+  if (!ctx) return null;
+  primeAudioContext(ctx);
+  if (ctx.state === 'suspended') {
+    void ctx.resume().catch(() => undefined);
+  }
+  return ctx;
+}
+
 if (typeof document !== 'undefined') {
   const unlock = () => {
-    const ctx = getSharedAudioContext();
-    if (ctx && ctx.state === 'suspended') {
-      void ctx.resume().catch(() => undefined);
-    }
-    document.removeEventListener('click', unlock);
+    unlockBarberChatAudioFromGesture();
+    document.removeEventListener('pointerdown', unlock);
     document.removeEventListener('touchstart', unlock);
     document.removeEventListener('keydown', unlock);
   };
-  document.addEventListener('click', unlock, { once: true, passive: true });
+  document.addEventListener('pointerdown', unlock, { once: true, passive: true });
   document.addEventListener('touchstart', unlock, { once: true, passive: true });
   document.addEventListener('keydown', unlock, { once: true });
 }
 
 async function ensureBarberChatAudioReady(): Promise<AudioContext | null> {
-  const ctx = getSharedAudioContext();
-  if (!ctx || ctx.state === 'closed') return null;
+  let ctx = unlockBarberChatAudioFromGesture();
+  if (!ctx) return null;
+
   if (ctx.state === 'suspended') {
+    try {
+      await ctx.resume();
+    } catch {
+      /* recreate below */
+    }
+  }
+
+  if (!ctx || ctx.state === 'closed' || ctx.state === 'suspended') {
+    try {
+      if (sharedCtx && sharedCtx.state !== 'closed') {
+        await sharedCtx.close().catch(() => undefined);
+      }
+    } catch {
+      /* ignore */
+    }
+    sharedCtx = null;
+    ctx = getOrCreateAudioContext();
+    if (!ctx) return null;
+    primeAudioContext(ctx);
     try {
       await ctx.resume();
     } catch {
       return null;
     }
   }
-  return ctx.state === 'running' ? ctx : null;
+
+  return ctx.state === 'running' || ctx.state === 'suspended' ? ctx : null;
 }
 
 function playToneBurstOnContext(ctx: AudioContext, volume: number, steps: ToneStep[]): void {
   try {
     if (ctx.state === 'closed' || steps.length === 0) return;
     const t0 = ctx.currentTime;
+    const endAt = t0 + Math.max(...steps.map((s) => s.at + s.dur)) + 0.12;
     const master = ctx.createGain();
     master.connect(ctx.destination);
+    const peak = Math.min(1, Math.max(0.05, volume));
     master.gain.setValueAtTime(0.0001, t0);
-    master.gain.linearRampToValueAtTime(volume, t0 + 0.02);
-    master.gain.exponentialRampToValueAtTime(
-      0.0001,
-      t0 + Math.max(...steps.map((s) => s.at + s.dur)) + 0.08,
-    );
+    master.gain.linearRampToValueAtTime(peak, t0 + 0.015);
+    master.gain.linearRampToValueAtTime(0.0001, endAt);
 
     for (const step of steps) {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = step.type ?? 'sine';
       osc.frequency.setValueAtTime(step.freq, t0 + step.at);
-      gain.gain.setValueAtTime(step.gain ?? 0.5, t0 + step.at);
+      const stepGain = step.gain ?? 0.55;
+      gain.gain.setValueAtTime(0.0001, t0 + step.at);
+      gain.gain.linearRampToValueAtTime(stepGain, t0 + step.at + 0.01);
+      gain.gain.linearRampToValueAtTime(0.0001, t0 + step.at + step.dur);
       osc.connect(gain);
       gain.connect(master);
       osc.start(t0 + step.at);
-      osc.stop(t0 + step.at + step.dur);
+      osc.stop(t0 + step.at + step.dur + 0.02);
     }
   } catch {
-    /* autoplay policy */
+    /* autoplay / closed context */
   }
 }
 
@@ -115,55 +160,55 @@ function playMessageToneOnContext(
 ): void {
   if (tone === 'bright') {
     playToneBurstOnContext(ctx, volume, [
-      { freq: 880, at: 0, dur: 0.1, type: 'sine', gain: 0.55 },
-      { freq: 1175, at: 0.09, dur: 0.14, type: 'sine', gain: 0.5 },
-      { freq: 1319, at: 0.2, dur: 0.16, type: 'triangle', gain: 0.4 },
+      { freq: 880, at: 0, dur: 0.12, type: 'sine', gain: 0.7 },
+      { freq: 1175, at: 0.1, dur: 0.16, type: 'sine', gain: 0.65 },
+      { freq: 1319, at: 0.22, dur: 0.18, type: 'triangle', gain: 0.55 },
     ]);
     return;
   }
   if (tone === 'bell') {
     playToneBurstOnContext(ctx, volume, [
-      { freq: 784, at: 0, dur: 0.18, type: 'triangle', gain: 0.5 },
-      { freq: 1047, at: 0.1, dur: 0.22, type: 'sine', gain: 0.42 },
-      { freq: 1319, at: 0.22, dur: 0.28, type: 'sine', gain: 0.32 },
+      { freq: 784, at: 0, dur: 0.2, type: 'triangle', gain: 0.65 },
+      { freq: 1047, at: 0.1, dur: 0.24, type: 'sine', gain: 0.55 },
+      { freq: 1319, at: 0.24, dur: 0.3, type: 'sine', gain: 0.45 },
     ]);
     return;
   }
-  // soft — أوضح من السابق قليلاً ليُسمع في الصالون
   playToneBurstOnContext(ctx, volume, [
-    { freq: 587, at: 0, dur: 0.14, type: 'sine', gain: 0.5 },
-    { freq: 740, at: 0.12, dur: 0.18, type: 'sine', gain: 0.45 },
+    { freq: 587, at: 0, dur: 0.16, type: 'sine', gain: 0.65 },
+    { freq: 740, at: 0.14, dur: 0.2, type: 'sine', gain: 0.55 },
   ]);
 }
 
 function playAppointmentToneOnContext(ctx: AudioContext, volume: number): void {
-  // نغمة مواعيد مميزة: ثلاث نبضات صاعدة
   playToneBurstOnContext(ctx, volume, [
-    { freq: 494, at: 0, dur: 0.12, type: 'square', gain: 0.22 },
-    { freq: 622, at: 0.14, dur: 0.12, type: 'square', gain: 0.22 },
-    { freq: 784, at: 0.28, dur: 0.2, type: 'sine', gain: 0.48 },
-    { freq: 988, at: 0.42, dur: 0.26, type: 'triangle', gain: 0.4 },
+    { freq: 523, at: 0, dur: 0.14, type: 'triangle', gain: 0.55 },
+    { freq: 659, at: 0.14, dur: 0.14, type: 'triangle', gain: 0.55 },
+    { freq: 784, at: 0.28, dur: 0.22, type: 'sine', gain: 0.7 },
+    { freq: 988, at: 0.44, dur: 0.28, type: 'triangle', gain: 0.6 },
   ]);
 }
 
 function playHomeToneOnContext(ctx: AudioContext, tone: BarberChatAlertHomeTone, volume: number): void {
   if (tone === 'chime') {
     playToneBurstOnContext(ctx, volume, [
-      { freq: 392, at: 0, dur: 0.22, type: 'triangle' },
-      { freq: 523, at: 0.18, dur: 0.28, type: 'sine' },
+      { freq: 392, at: 0, dur: 0.24, type: 'triangle', gain: 0.65 },
+      { freq: 523, at: 0.18, dur: 0.3, type: 'sine', gain: 0.6 },
     ]);
     return;
   }
   if (tone === 'pulse') {
     playToneBurstOnContext(ctx, volume, [
-      { freq: 96, at: 0, dur: 0.32, type: 'sine', gain: 0.7 },
-      { freq: 144, at: 0.04, dur: 0.24, type: 'triangle', gain: 0.25 },
+      { freq: 180, at: 0, dur: 0.28, type: 'sine', gain: 0.75 },
+      { freq: 240, at: 0.08, dur: 0.22, type: 'triangle', gain: 0.45 },
     ]);
     return;
   }
+  // doorbell
   playToneBurstOnContext(ctx, volume, [
-    { freq: 440, at: 0, dur: 0.14, type: 'square', gain: 0.22 },
-    { freq: 660, at: 0.16, dur: 0.2, type: 'sine', gain: 0.4 },
+    { freq: 520, at: 0, dur: 0.16, type: 'triangle', gain: 0.6 },
+    { freq: 690, at: 0.18, dur: 0.22, type: 'sine', gain: 0.65 },
+    { freq: 520, at: 0.42, dur: 0.2, type: 'triangle', gain: 0.55 },
   ]);
 }
 
@@ -174,26 +219,26 @@ function playGroomPrepToneOnContext(
 ): void {
   if (tone === 'chime') {
     playToneBurstOnContext(ctx, volume, [
-      { freq: 330, at: 0, dur: 0.24, type: 'triangle' },
-      { freq: 440, at: 0.2, dur: 0.3, type: 'sine' },
-      { freq: 554, at: 0.38, dur: 0.34, type: 'sine', gain: 0.42 },
-      { freq: 659, at: 0.58, dur: 0.36, type: 'triangle', gain: 0.38 },
+      { freq: 330, at: 0, dur: 0.24, type: 'triangle', gain: 0.6 },
+      { freq: 440, at: 0.2, dur: 0.3, type: 'sine', gain: 0.6 },
+      { freq: 554, at: 0.38, dur: 0.34, type: 'sine', gain: 0.55 },
+      { freq: 659, at: 0.58, dur: 0.36, type: 'triangle', gain: 0.5 },
     ]);
     return;
   }
   if (tone === 'pulse') {
     playToneBurstOnContext(ctx, volume, [
-      { freq: 110, at: 0, dur: 0.36, type: 'sine', gain: 0.65 },
-      { freq: 165, at: 0.06, dur: 0.28, type: 'triangle', gain: 0.3 },
-      { freq: 220, at: 0.22, dur: 0.3, type: 'sine', gain: 0.35 },
+      { freq: 165, at: 0, dur: 0.32, type: 'sine', gain: 0.7 },
+      { freq: 220, at: 0.1, dur: 0.28, type: 'triangle', gain: 0.5 },
+      { freq: 277, at: 0.28, dur: 0.3, type: 'sine', gain: 0.45 },
     ]);
     return;
   }
   playToneBurstOnContext(ctx, volume, [
-    { freq: 392, at: 0, dur: 0.18, type: 'sine', gain: 0.5 },
-    { freq: 494, at: 0.16, dur: 0.2, type: 'triangle', gain: 0.42 },
-    { freq: 587, at: 0.32, dur: 0.24, type: 'sine', gain: 0.45 },
-    { freq: 740, at: 0.5, dur: 0.28, type: 'triangle', gain: 0.4 },
+    { freq: 392, at: 0, dur: 0.18, type: 'sine', gain: 0.65 },
+    { freq: 494, at: 0.16, dur: 0.2, type: 'triangle', gain: 0.55 },
+    { freq: 587, at: 0.32, dur: 0.24, type: 'sine', gain: 0.6 },
+    { freq: 740, at: 0.5, dur: 0.28, type: 'triangle', gain: 0.55 },
   ]);
 }
 
@@ -203,14 +248,26 @@ export async function playBarberChatAlert(
   kind: BarberAlertSoundKind,
   prefs: Pick<BarberChatAlertPrefs, 'volume' | 'messageTone' | 'homeVisitTone'>,
 ): Promise<boolean> {
+  // فتح فوري ضمن نفس سلسلة الإيماءة قبل أي انتظار
+  unlockBarberChatAudioFromGesture();
   const ctx = await ensureBarberChatAudioReady();
   if (!ctx) return false;
 
+  // إن بقي معلّقاً بعد resume — لا ندّعي النجاح
+  if (ctx.state === 'suspended') {
+    try {
+      await ctx.resume();
+    } catch {
+      return false;
+    }
+  }
+  if (ctx.state !== 'running') return false;
+
   const gain = barberChatAlertVolumeGain(prefs.volume);
   if (kind === 'appointment') {
-    playAppointmentToneOnContext(ctx, gain * 1.2);
+    playAppointmentToneOnContext(ctx, gain * 1.15);
   } else if (kind === 'home_visit') {
-    playHomeToneOnContext(ctx, prefs.homeVisitTone, gain * 1.05);
+    playHomeToneOnContext(ctx, prefs.homeVisitTone, gain * 1.1);
   } else if (kind === 'groom_prep') {
     playGroomPrepToneOnContext(ctx, prefs.homeVisitTone, gain * 1.15);
   } else {
