@@ -949,17 +949,18 @@ export default function LandingPreview() {
 
         <div
           className={cn(
-            'relative z-10 mx-auto grid max-w-7xl items-center px-5',
+            'relative z-10 mx-auto grid w-full min-w-0 max-w-7xl items-center px-5',
             isMobile
               ? 'gap-6 py-6'
-              : 'gap-6 py-12 lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:gap-5 lg:py-20 xl:gap-8',
+              : 'gap-6 py-12 lg:grid-cols-[minmax(0,1.2fr)_auto_minmax(0,440px)] lg:gap-5 lg:py-20 xl:gap-8',
           )}
         >
-          {/* Left — text */}
+          {/* عمود النص (يمين في RTL) — min-w-0 يمنع انهيار العمود أمام الرادار */}
           <motion.div
             initial={skipHeroMotion ? false : { opacity: 0, x: 40 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: skipHeroMotion ? 0 : 0.7, ease: 'easeOut' }}
+            className="min-w-0 w-full"
           >
             {isMobile ? (
               <div className="mb-4 flex flex-wrap items-center gap-2">
@@ -1047,7 +1048,7 @@ export default function LandingPreview() {
             initial={skipHeroMotion ? false : { opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: skipHeroMotion ? 0 : 0.25, duration: 0.55 }}
-            className="hidden self-center lg:flex"
+            className="hidden min-w-0 self-center lg:flex"
           >
             <VisitorServiceIntentRail
               filters={filters}
@@ -1065,9 +1066,9 @@ export default function LandingPreview() {
             initial={skipHeroMotion ? false : { opacity: 0, scale: 0.92 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: skipHeroMotion ? 0 : 0.3, duration: skipHeroMotion ? 0 : 0.8 }}
-            className="relative"
+            className="relative min-w-0 w-full"
           >
-            <div className="relative mx-auto max-w-[440px]">
+            <div className="relative mx-auto w-full max-w-[440px] min-w-0 overflow-hidden">
               <Suspense
                 fallback={
                   <div
