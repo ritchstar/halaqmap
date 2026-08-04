@@ -13,19 +13,23 @@
 ## المتطلبات
 
 1. حساب **Apple Developer** (حوالي 99$/سنة).
-2. جهاز **macOS** مع Xcode (البناء والأرشفة لا يكتملان على Windows).
-3. من جذر المستودع بعد أي تغيير في الإعدادات:
+2. البناء على Mac محلي **أو** عبر GitHub Actions (macOS runner) — انظر أدناه.
+
+### أتمتة بدون Mac محلي (موصى به)
+
+Workflow جاهز: **Actions → iOS Consumer App Store**  
+الدليل الكامل للأسرار ومفتاح App Store Connect API:
+
+→ [`ios/CI-GITHUB-ACTIONS.md`](./CI-GITHUB-ACTIONS.md)
+
+### بناء محلي (اختياري على macOS)
 
 ```bash
 npm run ios:sync
 npm run ios:open
 ```
 
-على Mac داخل Xcode:
-
-1. اختر Team التوقيع (Signing & Capabilities).
-2. اضبط Deployment Target مناسباً (iOS 14+ مقبول).
-3. Product → Archive → Distribute App → App Store Connect.
+في Xcode: Team → Archive → Distribute App → App Store Connect.
 
 ## أوامر مفيدة
 
