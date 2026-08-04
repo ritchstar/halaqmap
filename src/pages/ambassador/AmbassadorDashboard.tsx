@@ -26,6 +26,7 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { AmbassadorMarketingKitPanel } from '@/components/ambassador/AmbassadorMarketingKitPanel';
+import { AmbassadorTelegramGroupBanner } from '@/components/ambassador/AmbassadorTelegramGroupBanner';
 import {
   AMBASSADOR_COMMISSION_TABLE,
   AMBASSADOR_GEO_MATCH_MAX_METERS,
@@ -171,7 +172,8 @@ export default function AmbassadorDashboard() {
         ) : null}
       </header>
 
-      <main className="relative z-10 container mx-auto max-w-3xl px-4 pb-28 pt-6">
+      <main className="relative z-10 container mx-auto max-w-3xl space-y-5 px-4 pb-28 pt-6">
+        <AmbassadorTelegramGroupBanner compact />
         {tab === 'home' ? (
           <HomeTab
             state={state}

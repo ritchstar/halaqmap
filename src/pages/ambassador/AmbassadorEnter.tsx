@@ -6,6 +6,7 @@ import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Handshake, Presentation } from 'lucide-react';
 import { AmbassadorMarketingKitPanel } from '@/components/ambassador/AmbassadorMarketingKitPanel';
+import { AmbassadorTelegramGroupBanner } from '@/components/ambassador/AmbassadorTelegramGroupBanner';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
@@ -153,7 +154,9 @@ export default function AmbassadorEnter() {
         </div>
       </header>
 
-      <main className="relative z-10 container mx-auto max-w-3xl space-y-10 px-4 py-10 pb-16">
+      <main className="relative z-10 container mx-auto max-w-3xl space-y-8 px-4 py-8 pb-16">
+        <AmbassadorTelegramGroupBanner />
+
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="mx-auto max-w-lg">
           <div className="mb-8 text-center">
             <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-teal-400/30 bg-teal-500/10">
