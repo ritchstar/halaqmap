@@ -183,7 +183,9 @@ function isDynamicImportChunkError(reason: unknown): boolean {
     /Importing a module script failed/i.test(msg) ||
     /Unable to preload CSS/i.test(msg) ||
     /ChunkLoadError/i.test(msg) ||
-    /Loading chunk [\w-]+ failed/i.test(msg)
+    /Loading chunk [\w-]+ failed/i.test(msg) ||
+    /reading ['"]default['"]/i.test(msg) ||
+    /failed to load$/i.test(msg)
   )
 }
 
@@ -199,12 +201,16 @@ function reloadOnceForChunkError(): void {
 }
 
 function renderBootstrapFailure(rootEl: HTMLElement, reason: unknown): void {
-  const message = toErrorMessage(reason) || 'حدث خطأ غير متوقع أثناء تشغيل المنصة.'
+  const showTechDetails = import.meta.env.DEV
+  const message = showTechDetails
+    ? toErrorMessage(reason) || 'حدث خطأ غير متوقع أثناء تشغيل المنصة.'
+    : 'حدث خلل مؤقت أثناء التشغيل — غالباً بسبب كاش قديم بعد تحديث. اضغط إعادة التحميل.'
   const stack =
-    reason instanceof Error && typeof reason.stack === 'string'
+    showTechDetails && reason instanceof Error && typeof reason.stack === 'string'
       ? reason.stack.split('\n').slice(0, 7).join('\n')
       : null
   const debugInfo = (() => {
+    if (!showTechDetails) return null
     if (reason instanceof Error) {
       return `name: ${reason.name}\nmessage: ${reason.message}`
     }
@@ -232,12 +238,14 @@ function renderBootstrapFailure(rootEl: HTMLElement, reason: unknown): void {
     >
       <p className="text-lg font-bold text-rose-300">تعذّر تشغيل المنصة</p>
       <p className="max-w-md text-sm text-slate-400">{message}</p>
-      <pre
-        dir="ltr"
-        className="max-w-3xl overflow-auto rounded-xl border border-white/10 bg-black/20 p-3 text-left text-[11px] leading-5 text-slate-400"
-      >
-        {debugInfo}
-      </pre>
+      {debugInfo ? (
+        <pre
+          dir="ltr"
+          className="max-w-3xl overflow-auto rounded-xl border border-white/10 bg-black/20 p-3 text-left text-[11px] leading-5 text-slate-400"
+        >
+          {debugInfo}
+        </pre>
+      ) : null}
       {stack ? (
         <pre
           dir="ltr"
@@ -249,7 +257,21 @@ function renderBootstrapFailure(rootEl: HTMLElement, reason: unknown): void {
       <button
         type="button"
         className="rounded-xl border border-cyan-400/40 bg-cyan-500/10 px-5 py-2 text-sm font-semibold text-cyan-200"
-        onClick={() => window.location.reload()}
+        onClick={() => {
+          try {
+            if ('serviceWorker' in navigator) {
+              void navigator.serviceWorker.getRegistrations().then((regs) =>
+                Promise.all(regs.map((r) => r.unregister())),
+              )
+            }
+            if ('caches' in window) {
+              void caches.keys().then((keys) => Promise.all(keys.map((k) => caches.delete(k))))
+            }
+          } catch {
+            /* ignore */
+          }
+          window.location.reload()
+        }}
       >
         إعادة التحميل
       </button>

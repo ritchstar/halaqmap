@@ -151,16 +151,27 @@ export class RootErrorBoundary extends Component<Props, State> {
     if (this.state.error) {
       const domMismatch = isDomRemoveChildError(this.state.error);
       const lazyDefaultMismatch = isLazyDefaultExportError(this.state.error);
-      const stack = typeof this.state.error.stack === 'string'
-        ? this.state.error.stack.split('\n').slice(0, 8).join('\n')
-        : null;
+      const showTechDetails = import.meta.env.DEV;
+      const stack =
+        showTechDetails && typeof this.state.error.stack === 'string'
+          ? this.state.error.stack.split('\n').slice(0, 8).join('\n')
+          : null;
+      const userMessage =
+        domMismatch || lazyDefaultMismatch
+          ? 'يبدو أن نسخة قديمة من التطبيق ما زالت في الكاش بعد تحديث المنصة. اضغط إعادة التحميل للتنظيف والمتابعة.'
+          : 'حدث خلل مؤقت أثناء التحميل. أعد المحاولة — إن استمر الأمر تواصل مع الدعم.';
       return (
         <div
           dir="rtl"
           className="flex min-h-dvh flex-col items-center justify-center gap-4 bg-[#061223] px-6 text-center text-slate-100"
         >
           <p className="text-lg font-bold text-rose-300">تعذّر تحميل المنصة</p>
-          <p className="max-w-md text-sm text-slate-400">{this.state.error.message}</p>
+          <p className="max-w-md text-sm text-slate-400">{userMessage}</p>
+          {showTechDetails ? (
+            <p className="max-w-md text-xs text-amber-200/80" dir="ltr">
+              {this.state.error.message}
+            </p>
+          ) : null}
           {stack ? (
             <pre
               dir="ltr"
@@ -171,7 +182,7 @@ export class RootErrorBoundary extends Component<Props, State> {
           ) : null}
           {domMismatch || lazyDefaultMismatch ? (
             <p className="max-w-md text-xs text-slate-500">
-              اضغط إعادة التحميل لتنظيف الكاش يدوياً — إن استمر الخطأ جرّب نافذة خاصة أو تواصل مع الدعم.
+              إن استمر الخطأ بعد إعادة التحميل: افتح نافذة خاصة أو امسح بيانات الموقع، ثم تواصل مع الدعم.
             </p>
           ) : null}
           <button
