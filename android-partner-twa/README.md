@@ -18,7 +18,20 @@
 | الصلاحية | 10,000 يوم |
 | DN | `CN=Halaq Map, OU=Partners, O=Halaq Map, L=Riyadh, ST=Riyadh, C=SA` |
 
-احفظ كلمة مرور الـ keystore وكلمة مرور الـ alias في مكان آمن خارج المستودع (مدير كلمات مرور / Vercel env خاص بالبناء فقط).
+احفظ كلمة مرور الـ keystore وكلمة مرور الـ alias في مكان آمن خارج المستودع.
+
+لبناء **AAB موقّع** عبر Gradle (مطلوب لـ Play Console):
+
+1. انسخ `android-keys.env.example` → `android-keys.env`
+2. املأ `STORE_PASSWORD` و `KEY_PASSWORD`
+3. من مجلد المشروع:
+
+```bash
+./gradlew.bat bundleRelease
+```
+
+الملف الناتج: `app/build/outputs/bundle/release/app-release.aab`  
+إن ظهرت رسالة Play «All uploaded bundles must be signed» فالحزمة المرفوعة غير موقّعة — أعد البناء بعد ضبط `android-keys.env`.
 
 ### استخراج بصمة SHA-256 لـ Digital Asset Links
 

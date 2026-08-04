@@ -50,6 +50,26 @@ def twaManifest = [
     orientation: 'portrait',
 ]
 
+// توقيع الإصدار من android-keys.env (محلي / غير مُرفوع لـ Git) أو متغيرات البيئة.
+def signingProps = new Properties()
+def signingEnvFile = rootProject.file('android-keys.env')
+if (signingEnvFile.exists()) {
+    signingEnvFile.withInputStream { stream -> signingProps.load(stream) }
+}
+def keystoreStorePassword = (System.getenv('HALAQMAP_KEYSTORE_PASSWORD')
+        ?: signingProps.getProperty('STORE_PASSWORD')
+        ?: '').trim()
+def keystoreKeyPassword = (System.getenv('HALAQMAP_KEY_PASSWORD')
+        ?: signingProps.getProperty('KEY_PASSWORD')
+        ?: keystoreStorePassword).trim()
+def keystoreFilePath = (System.getenv('HALAQMAP_KEYSTORE_FILE')
+        ?: signingProps.getProperty('STORE_FILE')
+        ?: '../android.keystore').trim()
+def keystoreAliasName = (System.getenv('HALAQMAP_KEY_ALIAS')
+        ?: signingProps.getProperty('KEY_ALIAS')
+        ?: 'halaqmap-key').trim()
+def releaseSigningReady = keystoreStorePassword && keystoreKeyPassword && file(keystoreFilePath).exists()
+
 android {
     compileSdkVersion 36
     namespace "com.halaqmap.partner"
@@ -57,8 +77,8 @@ android {
         applicationId "com.halaqmap.partner"
         minSdkVersion 21
         targetSdkVersion 36
-        versionCode 4
-        versionName "1.0.2"
+        versionCode 5
+        versionName "1.0.3"
 
         // The name for the application
         resValue "string", "appName", twaManifest.name
@@ -150,9 +170,22 @@ android {
 
         
     }
+    signingConfigs {
+        release {
+            if (releaseSigningReady) {
+                storeFile file(keystoreFilePath)
+                storePassword keystoreStorePassword
+                keyAlias keystoreAliasName
+                keyPassword keystoreKeyPassword
+            }
+        }
+    }
     buildTypes {
         release {
             minifyEnabled true
+            if (releaseSigningReady) {
+                signingConfig signingConfigs.release
+            }
         }
     }
     compileOptions {

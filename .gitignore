@@ -117,6 +117,7 @@ build-log.txt
 android-partner-twa/android.keystore
 android-partner-twa/*.keystore
 android-partner-twa/android-keys.env
+android-partner-twa/android-keys.env.txt
 android-partner-twa/passwords.txt
 android-partner-twa/local.properties
 
@@ -130,3 +131,14 @@ play-store/delivery/*.apk
 android-partner-twa/*.idsig
 android-partner-twa/manifest-checksum.txt
 android-partner-twa/app/src/main/res/raw/
+
+# --- iOS Capacitor consumer shell ---
+ios/App/Pods/
+ios/App/App/public/
+ios/DerivedData/
+ios/**/xcuserdata/
+ios/**/*.xcuserstate
+ios/App/App/capacitor.config.json
+*.ipa
+*.dSYM.zip
+
