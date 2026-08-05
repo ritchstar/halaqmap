@@ -96,14 +96,16 @@ export function AmbassadorMarketingKitPanel({ compact }: { compact?: boolean }) 
         ) : null}
       </div>
 
-      <div className="rounded-xl border border-white/10 bg-[#0f0f14]/90 p-3">
-        <p className="mb-2 text-[11px] text-slate-500">تسمية ملفات PDF المتوقعة في المجلد:</p>
-        <ul className="space-y-1 font-mono text-[10px] text-slate-400" dir="ltr">
-          <li>{AMBASSADOR_TRAINING_PDF_FILENAME}</li>
-          <li>{AMBASSADOR_SLIDES_PDF_FILENAME}</li>
-        </ul>
-        <p className="mt-2 text-[10px] text-slate-500">
-          المسار: <code className="text-slate-400">public/docs/ambassadors/</code>
+      <div className="rounded-xl border border-teal-400/25 bg-teal-500/5 p-3">
+        <p className="mb-2 text-[11px] font-semibold text-teal-100">ملف التحميل الرسمي للسفراء</p>
+        <p className="text-[11px] leading-relaxed text-slate-400">
+          دليل التسويق بالعمولة (جداول العمولة + خطوات الميدان + نموذج التقديم) جاهز للتحميل من القسم أدناه.
+        </p>
+        <p className="mt-2 break-all font-mono text-[10px] text-slate-500" dir="ltr">
+          {AMBASSADOR_TRAINING_PDF_FILENAME}
+        </p>
+        <p className="mt-1 font-mono text-[10px] text-slate-600" dir="ltr">
+          اختياري: {AMBASSADOR_SLIDES_PDF_FILENAME}
         </p>
         <a
           href={HALAQMAP_X_URL}

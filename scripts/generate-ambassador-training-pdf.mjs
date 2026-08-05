@@ -1,0 +1,251 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
+ * يحوّل دليل تدريب السفراء من Markdown إلى PDF (RTL) داخل public/docs/ambassadors/
+ * Usage: node scripts/generate-ambassador-training-pdf.mjs
+ */
+import { readFileSync, existsSync, writeFileSync, mkdirSync } from 'node:fs';
+import { resolve, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { spawnSync } from 'node:child_process';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const root = resolve(__dirname, '..');
+const cssPath = resolve(root, 'docs/export/nca-pdf-style.css');
+const mdPath = resolve(root, 'docs/ambassadors/Halaqmap-Ambassador-Field-Training-Application-AR.md');
+const outDir = resolve(root, 'public/docs/ambassadors');
+const htmlPath = resolve(outDir, 'Halaqmap-Ambassador-Field-Training-Application-AR.html');
+const pdfPath = resolve(outDir, 'Halaqmap-Ambassador-Field-Training-Application-AR.pdf');
+
+const css = existsSync(cssPath)
+  ? readFileSync(cssPath, 'utf8')
+  : `@page{size:A4;margin:18mm 16mm}body{font-family:Tahoma,Arial,sans-serif;font-size:11.5pt;line-height:1.65;direction:rtl}`;
+
+function escapeHtml(s) {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function inlineMd(text) {
+  return escapeHtml(text)
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/`([^`]+)`/g, '<code dir="ltr">$1</code>');
+}
+
+function parseTable(lines) {
+  const rows = lines.filter((l) => l.trim().startsWith('|'));
+  if (rows.length < 2) return '';
+  const cells = rows.map((row) =>
+    row
+      .trim()
+      .replace(/^\|/, '')
+      .replace(/\|$/, '')
+      .split('|')
+      .map((c) => c.trim()),
+  );
+  const header = cells[0];
+  const body = cells.slice(2);
+  let html = '<table><thead><tr>';
+  for (const h of header) html += `<th>${inlineMd(h)}</th>`;
+  html += '</tr></thead><tbody>';
+  for (const row of body) {
+    html += '<tr>';
+    for (const c of row) html += `<td>${inlineMd(c)}</td>`;
+    html += '</tr>';
+  }
+  html += '</tbody></table>';
+  return html;
+}
+
+function markdownToHtml(markdown) {
+  const lines = markdown.replace(/\r\n/g, '\n').split('\n');
+  const out = [];
+  let i = 0;
+
+  while (i < lines.length) {
+    const line = lines[i];
+    const trimmed = line.trim();
+
+    if (!trimmed) {
+      i += 1;
+      continue;
+    }
+    if (trimmed === '---') {
+      out.push('<hr />');
+      i += 1;
+      continue;
+    }
+    if (trimmed.startsWith('|')) {
+      const tableLines = [];
+      while (i < lines.length && lines[i].trim().startsWith('|')) {
+        tableLines.push(lines[i]);
+        i += 1;
+      }
+      out.push(parseTable(tableLines));
+      continue;
+    }
+    if (trimmed.startsWith('### ')) {
+      out.push(`<h3>${inlineMd(trimmed.slice(4))}</h3>`);
+      i += 1;
+      continue;
+    }
+    if (trimmed.startsWith('## ')) {
+      out.push(`<h2>${inlineMd(trimmed.slice(3))}</h2>`);
+      i += 1;
+      continue;
+    }
+    if (trimmed.startsWith('# ')) {
+      out.push(`<h1>${inlineMd(trimmed.slice(2))}</h1>`);
+      i += 1;
+      continue;
+    }
+    if (trimmed.startsWith('- [ ] ') || trimmed.startsWith('- [x] ') || trimmed.startsWith('- [X] ')) {
+      out.push('<ul class="checklist">');
+      while (i < lines.length) {
+        const t = lines[i].trim();
+        const m = t.match(/^- \[([ xX])\]\s+(.+)$/);
+        if (!m) break;
+        out.push(`<li>${inlineMd(m[2])}</li>`);
+        i += 1;
+      }
+      out.push('</ul>');
+      continue;
+    }
+    if (trimmed.startsWith('- ')) {
+      out.push('<ul>');
+      while (i < lines.length && lines[i].trim().startsWith('- ') && !lines[i].trim().startsWith('- [')) {
+        out.push(`<li>${inlineMd(lines[i].trim().slice(2))}</li>`);
+        i += 1;
+      }
+      out.push('</ul>');
+      continue;
+    }
+    if (/^\d+\.\s/.test(trimmed)) {
+      out.push('<ol>');
+      while (i < lines.length && /^\d+\.\s/.test(lines[i].trim())) {
+        out.push(`<li>${inlineMd(lines[i].trim().replace(/^\d+\.\s/, ''))}</li>`);
+        i += 1;
+      }
+      out.push('</ol>');
+      continue;
+    }
+
+    const para = [trimmed];
+    i += 1;
+    while (i < lines.length) {
+      const next = lines[i].trim();
+      if (
+        !next ||
+        next === '---' ||
+        next.startsWith('#') ||
+        next.startsWith('- ') ||
+        next.startsWith('|') ||
+        /^\d+\.\s/.test(next)
+      ) {
+        break;
+      }
+      para.push(next);
+      i += 1;
+    }
+    out.push(`<p>${inlineMd(para.join(' '))}</p>`);
+  }
+
+  return out.join('\n');
+}
+
+function wrapHtml(body) {
+  return `<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title>دليل تدريب سفراء حلاق ماب — التسويق بالعمولة</title>
+  <style>
+${css}
+.checklist li::marker { content: "☐ "; }
+code { font-size: 0.92em; }
+.cover {
+  text-align: center;
+  padding: 28px 12px 18px;
+  margin-bottom: 18px;
+  border: 1px solid #99f6e4;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #ecfdf5 0%, #fff 70%);
+}
+.cover .brand { font-size: 22pt; font-weight: 800; color: #0f766e; margin: 0 0 6px; }
+.cover .sub { font-size: 13pt; color: #134e4a; margin: 0 0 10px; }
+.cover .meta { font-size: 10pt; color: #64748b; margin: 0; }
+  </style>
+</head>
+<body>
+  <div class="cover">
+    <p class="brand">حلاق ماب</p>
+    <p class="sub">دليل تدريب سفراء التسويق الميداني — نظام العمولة</p>
+    <p class="meta">نسخة القواعد 2026-07-14 · للتحميل من صفحة السفراء</p>
+  </div>
+${body}
+</body>
+</html>`;
+}
+
+function findHeadlessBrowser() {
+  const candidates = [
+    process.env.PUPPETEER_EXECUTABLE_PATH,
+    'C:/Program Files/Google/Chrome/Application/chrome.exe',
+    'C:/Program Files (x86)/Google/Chrome/Application/chrome.exe',
+    'C:/Program Files/Microsoft/Edge/Application/msedge.exe',
+    'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',
+  ].filter(Boolean);
+
+  for (const p of candidates) {
+    if (existsSync(p)) return p;
+  }
+  return null;
+}
+
+function printHtmlToPdf(htmlFile, pdfFile) {
+  const browser = findHeadlessBrowser();
+  if (!browser) {
+    console.warn('No Chrome/Edge found — HTML only:', htmlFile);
+    return false;
+  }
+  const fileUrl = `file:///${htmlFile.replace(/\\/g, '/')}`;
+  const args = [
+    '--headless=new',
+    '--disable-gpu',
+    '--no-sandbox',
+    `--print-to-pdf=${pdfFile}`,
+    '--no-pdf-header-footer',
+    fileUrl,
+  ];
+  const r = spawnSync(browser, args, { encoding: 'utf8', shell: false });
+  if (r.status !== 0) {
+    console.error(r.stderr || r.stdout);
+    return false;
+  }
+  return existsSync(pdfFile);
+}
+
+function main() {
+  if (!existsSync(mdPath)) {
+    console.error('Missing markdown:', mdPath);
+    process.exit(1);
+  }
+  mkdirSync(outDir, { recursive: true });
+  const markdown = readFileSync(mdPath, 'utf8');
+  const body = markdownToHtml(markdown);
+  writeFileSync(htmlPath, wrapHtml(body), 'utf8');
+  console.log('Wrote', htmlPath);
+
+  if (printHtmlToPdf(htmlPath, pdfPath)) {
+    console.log('Wrote', pdfPath);
+  } else {
+    console.warn('PDF skipped — open HTML and Print → Save as PDF');
+    process.exitCode = 1;
+  }
+}
+
+main();

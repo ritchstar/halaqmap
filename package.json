@@ -22,7 +22,8 @@
     "test:registration-security": "npm run test:registration-guard && npm run test:registration-intent",
     "test:whatsapp-phone": "npx --yes tsx scripts/test-saudi-whatsapp-phone.mts",
     "check:email-dns": "node scripts/check-email-dns-security.mjs",
-    "check:dns-mx-spf-dmarc": "node scripts/check-dns-mx-spf-dmarc.mjs"
+    "check:dns-mx-spf-dmarc": "node scripts/check-dns-mx-spf-dmarc.mjs",
+    "docs:ambassador-pdf": "node scripts/generate-ambassador-training-pdf.mjs"
   },
   "dependencies": {
     "@capacitor/app": "^8.1.1",

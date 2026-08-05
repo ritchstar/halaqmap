@@ -12,25 +12,27 @@ public/docs/ambassadors/training-slides/page_1.html
 public/docs/ambassadors/training-slides/page_14.html
 ```
 
-المصدر الأصلي للتصميم: مجلد `nazamsafir/` في جذر المستودع.
-
-## ملفات PDF (اختياري)
-
-ضع الملفين في هذا المجلد بنفس الأسماء حرفياً إن رغبت بالتحميل/الطباعة:
+## ملف التحميل الرسمي (PDF)
 
 | الملف | التسمية |
 |--------|---------|
-| دليل التدريب والتقديم | `Halaqmap-Ambassador-Field-Training-Application-AR.pdf` |
-| شرائح الشرح الميداني | `Halaqmap-Ambassador-Field-Slides-AR.pdf` |
+| دليل التسويق بالعمولة + التدريب والتقديم | `Halaqmap-Ambassador-Field-Training-Application-AR.pdf` |
+| شرائح الشرح الميداني (اختياري) | `Halaqmap-Ambassador-Field-Slides-AR.pdf` |
 
-روابط التحميل بعد النشر (عند وجود الملف):
+رابط التحميل:
 
 - `https://www.halaqmap.com/docs/ambassadors/Halaqmap-Ambassador-Field-Training-Application-AR.pdf`
-- `https://www.halaqmap.com/docs/ambassadors/Halaqmap-Ambassador-Field-Slides-AR.pdf`
 
-## حساب X
+إعادة توليد PDF من المصدر:
 
-https://x.com/halaqmap
+```bash
+node scripts/generate-ambassador-training-pdf.mjs
+```
+
+## حسابات المجتمع
+
+- تيليجرام: https://t.me/HalaqMapAmbassadors
+- X: https://x.com/halaqmap
 
 ## مصدر النص
 

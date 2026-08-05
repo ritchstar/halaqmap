@@ -60,7 +60,8 @@ export function getAmbassadorMarketingKitGroups(): AmbassadorKitGroup[] {
     {
       id: 'training',
       titleAr: 'التدريب الميداني',
-      blurbAr: 'ابدأ من العارض داخل المنصة — لا يلزم تحميل. PDF اختياري إن رغبت بالطباعة أو العمل دون اتصال.',
+      blurbAr:
+        'ابدأ من الشرائح داخل المنصة، أو حمّل دليل التسويق بالعمولة (PDF) للطباعة والعمل دون اتصال.',
       links: [
         page(
           ROUTE_PATHS.AMBASSADOR_TRAINING,
@@ -70,9 +71,9 @@ export function getAmbassadorMarketingKitGroups(): AmbassadorKitGroup[] {
         ),
         {
           id: 'pdf-training',
-          titleAr: 'دليل التدريب والتقديم (PDF) — اختياري',
+          titleAr: 'دليل التسويق بالعمولة للسفراء (PDF)',
           descriptionAr:
-            'نص التدريب وجداول العمولة ونموذج التقديم — بعد رفع الملف إلى مجلد المستندات.',
+            'دليل تعليمي كامل: جداول العمولة، خطوات الاستهداف، قاعدة 50م، المحفظة، الضيافة، المحظورات، ونموذج التقديم.',
           href: trainingPdf,
           kind: 'pdf',
           external: true,
@@ -81,7 +82,7 @@ export function getAmbassadorMarketingKitGroups(): AmbassadorKitGroup[] {
           id: 'pdf-slides',
           titleAr: 'شرائح الشرح الميداني (PDF) — اختياري',
           descriptionAr:
-            'نسخة PDF من الشرائح للطباعة أو العرض دون اتصال — بعد رفع الملف بنفس التسمية.',
+            'نسخة PDF من الشرائح للطباعة أو العرض دون اتصال — إن وُجدت بنفس التسمية في مجلد المستندات.',
           href: slidesPdf,
           kind: 'pdf',
           external: true,
