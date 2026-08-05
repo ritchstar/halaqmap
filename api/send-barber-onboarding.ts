@@ -893,8 +893,100 @@ function verifyOnboardingInternalWebhookSecret(request: Request): boolean {
   }
 }
 
+async function sendClassicPartnerLinksMail(input: {
+  barberEmail: string;
+  barberName: string;
+  barberId: string | null;
+  tierRaw: Tier | null | undefined;
+  registrationOrderId: string | null;
+  onboardingRow: Awaited<ReturnType<typeof loadBarberOnboardingRow>>;
+  baseUrl: string;
+  links: MailLinks;
+  resendApiKey: string;
+  fromEmail: string;
+  digitalShiftAddon?: boolean;
+}): Promise<ResendSendOutcome> {
+  const tierSource = input.onboardingRow?.tier ?? input.tierRaw;
+  const tierAr = tierLabelAr(tierSource);
+  const ratingTok = input.onboardingRow?.rating_invite_token ?? null;
+  const openTok = input.onboardingRow?.open_status_token ?? null;
+  const memberPadded = padBarberMember(input.onboardingRow?.member_number);
+  const ratingCtx = await buildRatingEmailContext(input.baseUrl, input.barberId, ratingTok);
+  const linksForRow = linksWithMagicDashboardIfEligible(
+    input.links,
+    input.barberId,
+    input.barberEmail,
+    tierSource,
+  );
+  const shopOpenMail = buildShopOpenMailContext(input.baseUrl, openTok);
+  const attachments =
+    ratingCtx.hasToken && ratingCtx.qrPngBase64
+      ? [
+          {
+            filename: 'halaqmap-rating-qr.png',
+            content: ratingCtx.qrPngBase64,
+            content_type: 'image/png',
+            content_id: RATING_QR_CONTENT_ID,
+          },
+        ]
+      : undefined;
+  const subject = 'حلاق ماب | روابط التشغيل ولوحة التحكم — إعادة إرسال';
+  const text = emailText(
+    input.barberName,
+    tierAr,
+    tierSource,
+    linksForRow,
+    shopOpenMail,
+    ratingCtx,
+    input.registrationOrderId,
+    memberPadded,
+    input.digitalShiftAddon,
+  );
+  const html = emailHtml(
+    input.barberName,
+    tierAr,
+    tierSource,
+    linksForRow,
+    shopOpenMail,
+    ratingCtx,
+    input.registrationOrderId,
+    memberPadded,
+    input.digitalShiftAddon,
+  );
+  return sendViaResend({
+    to: input.barberEmail,
+    subject,
+    text,
+    html,
+    resendApiKey: input.resendApiKey,
+    fromEmail: input.fromEmail,
+    attachments,
+  });
+}
+
+function partnerMailFailureHintAr(errors: string[]): string {
+  const joined = errors.join(' | ');
+  if (/certificate_missing/i.test(joined)) {
+    return 'لا توجد شهادة تفعيل مدفوعة مرتبطة بهذا الحساب — أُرسلت رسالة الروابط الأساسية بدلاً من الحزمة الموحّدة إن أمكن.';
+  }
+  if (/resend_not_configured/i.test(joined)) {
+    return 'إعداد Resend غير مكتمل على الخادم (RESEND_API_KEY / RESEND_FROM_EMAIL).';
+  }
+  if (/static_contract_pdf_missing/i.test(joined)) {
+    return 'ملف عقد الشريك PDF غير متوفر في حزمة النشر.';
+  }
+  if (/missing_barber_id/i.test(joined)) {
+    return 'لا يوجد معرف حلاق مرتبط لإكمال رسالة التفعيل.';
+  }
+  if (/unified_activation_email/i.test(joined)) {
+    return 'رفض Resend إرسال البريد الموحّد — راجع النطاق والمرسل في لوحة Resend.';
+  }
+  return joined.slice(0, 280) || 'تعذر إرسال بريد التفعيل.';
+}
+
 export async function POST(request: Request): Promise<Response> {
   const headers = corsHeaders(request);
+  try {
   const url = (process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '').trim();
   const serviceRole = (process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();
   const resendApiKey = (process.env.RESEND_API_KEY || '').trim();
@@ -976,75 +1068,111 @@ export async function POST(request: Request): Promise<Response> {
     }
     const effectiveTierKey = tierKey(tierForMagic ?? tierRaw);
     const registrationOrderId = String((payload as SinglePayload).registrationOrderId ?? '').trim() || null;
-
-    if (effectiveTierKey === 'bronze') {
-      if (internalOk) {
-        return Response.json(
-          {
-            ok: true,
-            skipped: true,
-            reason: 'bronze_uses_activation_mail_from_fulfill',
-          },
-          { headers },
-        );
-      }
-      const certificate = await loadLatestCertificateForBarber(supabase, barberId, registrationOrderId);
-      const dispatch = await dispatchPartnerActivationMails(supabase, {
-        buyerEmail: barberEmail,
-        buyerName: barberName,
-        tier: 'bronze',
-        barberId,
-        registrationRequestId: registrationOrderId,
-        activationCertificate: certificate,
-        forceContract: false,
-      });
-      if (!dispatch.unifiedActivationEmailed && dispatch.errors.length > 0) {
-        return Response.json(
-          { error: 'bronze_activation_mail_failed', details: dispatch },
-          { status: 502, headers },
-        );
-      }
-      return Response.json(
-        {
-          ok: true,
-          mode: 'single',
-          bronzeActivation: true,
-          unifiedActivation: true,
-          to: barberEmail,
-          dispatch,
-        },
-        { headers },
-      );
-    }
+    const dsRaw = (payload as SinglePayload).digitalShiftAddon as unknown;
+    const digitalShiftAddon =
+      dsRaw === true || dsRaw === 'true' || dsRaw === 1 || dsRaw === '1';
 
     if (internalOk) {
       return Response.json(
         {
           ok: true,
           skipped: true,
-          reason: 'gold_diamond_use_activation_mail_from_fulfill',
+          reason:
+            effectiveTierKey === 'bronze'
+              ? 'bronze_uses_activation_mail_from_fulfill'
+              : 'gold_diamond_use_activation_mail_from_fulfill',
         },
         { headers },
       );
     }
 
     const certificate = await loadLatestCertificateForBarber(supabase, barberId, registrationOrderId);
-    const dsRaw = (payload as SinglePayload).digitalShiftAddon as unknown;
-    const digitalShiftAddon =
-      dsRaw === true || dsRaw === 'true' || dsRaw === 1 || dsRaw === '1';
-    const dispatch = await dispatchPartnerActivationMails(supabase, {
-      buyerEmail: barberEmail,
-      buyerName: barberName,
-      tier: effectiveTierKey,
-      barberId,
-      registrationRequestId: registrationOrderId,
-      activationCertificate: certificate,
-      forceContract: false,
-      paymentMetadata: digitalShiftAddon ? { digital_shift_addon: true } : undefined,
-    });
-    if (!dispatch.unifiedActivationEmailed && dispatch.errors.length > 0) {
+
+    // مسار الإدارة: إعادة إرسال — لا ندوّر كلمة المرور؛ وإن فشلت الحزمة الموحّدة نُرسل روابط التشغيل.
+    if (certificate) {
+      const dispatch = await dispatchPartnerActivationMails(supabase, {
+        buyerEmail: barberEmail,
+        buyerName: barberName,
+        tier: effectiveTierKey,
+        barberId,
+        registrationRequestId: registrationOrderId,
+        activationCertificate: certificate,
+        forceContract: true,
+        rotatePortalPassword: false,
+        paymentMetadata: digitalShiftAddon ? { digital_shift_addon: true } : undefined,
+      });
+      if (dispatch.unifiedActivationEmailed) {
+        return Response.json(
+          {
+            ok: true,
+            mode: 'single',
+            unifiedActivation: true,
+            bronzeActivation: effectiveTierKey === 'bronze',
+            to: barberEmail,
+            messageId: dispatch.messageId,
+            dispatch,
+          },
+          { headers },
+        );
+      }
+      // سقوط لطيف لرسالة الروابط إن فشل المرفق/Resend الموحّد
+      const classic = await sendClassicPartnerLinksMail({
+        barberEmail,
+        barberName,
+        barberId,
+        tierRaw: tierForMagic ?? tierRaw,
+        registrationOrderId,
+        onboardingRow,
+        baseUrl,
+        links,
+        resendApiKey,
+        fromEmail: fromEmailRaw,
+        digitalShiftAddon,
+      });
+      if (!isResendFailure(classic)) {
+        return Response.json(
+          {
+            ok: true,
+            mode: 'single',
+            classicLinksFallback: true,
+            to: barberEmail,
+            messageId: classic.id,
+            dispatch,
+            hint: partnerMailFailureHintAr(dispatch.errors),
+          },
+          { headers },
+        );
+      }
       return Response.json(
-        { error: 'partner_activation_mail_failed', details: dispatch },
+        {
+          error: 'partner_activation_mail_failed',
+          hint: partnerMailFailureHintAr([...dispatch.errors, classic.error]),
+          details: { ...dispatch, classicError: classic.error },
+        },
+        { status: 502, headers },
+      );
+    }
+
+    const classicOnly = await sendClassicPartnerLinksMail({
+      barberEmail,
+      barberName,
+      barberId,
+      tierRaw: tierForMagic ?? tierRaw,
+      registrationOrderId,
+      onboardingRow,
+      baseUrl,
+      links,
+      resendApiKey,
+      fromEmail: fromEmailRaw,
+      digitalShiftAddon,
+    });
+    if (isResendFailure(classicOnly)) {
+      return Response.json(
+        {
+          error: 'partner_links_mail_failed',
+          hint: partnerMailFailureHintAr(['certificate_missing', classicOnly.error]),
+          details: { errors: ['certificate_missing', classicOnly.error] },
+        },
         { status: 502, headers },
       );
     }
@@ -1052,9 +1180,10 @@ export async function POST(request: Request): Promise<Response> {
       {
         ok: true,
         mode: 'single',
-        unifiedActivation: true,
+        classicLinksOnly: true,
         to: barberEmail,
-        dispatch,
+        messageId: classicOnly.id,
+        hint: 'لا توجد شهادة تفعيل مرتبطة — أُرسلت رسالة الروابط الأساسية بنجاح.',
       },
       { headers },
     );
@@ -1160,4 +1289,16 @@ export async function POST(request: Request): Promise<Response> {
   }
 
   return Response.json({ error: 'Unsupported mode' }, { status: 400, headers });
+  } catch (err) {
+    const message = err instanceof Error ? err.message.slice(0, 240) : 'unexpected_server_error';
+    console.error('[send-barber-onboarding] unhandled', message);
+    return Response.json(
+      {
+        error: 'onboarding_mail_unhandled',
+        hint: 'تعذر إكمال إرسال الروابط بسبب خطأ داخلي في الخادم. أعد المحاولة أو راجع سجلات Vercel.',
+        details: { message },
+      },
+      { status: 500, headers },
+    );
+  }
 }

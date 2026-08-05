@@ -71,6 +71,45 @@ async function buildAuthHeaders(): Promise<Record<string, string>> {
   return headers;
 }
 
+function formatOnboardingMailError(payload: {
+  error?: string;
+  hint?: string;
+  details?: { errors?: string[]; classicError?: string; message?: string };
+}): string {
+  const hint = typeof payload.hint === 'string' ? payload.hint.trim() : '';
+  if (hint) return hint;
+
+  const detailsErrors = Array.isArray(payload.details?.errors)
+    ? payload.details!.errors!.filter((e): e is string => typeof e === 'string' && e.trim().length > 0)
+    : [];
+  if (detailsErrors.length) {
+    const joined = detailsErrors.join(' · ');
+    if (/certificate_missing/i.test(joined)) {
+      return 'لا توجد شهادة تفعيل مرتبطة بهذا الطلب/الحساب.';
+    }
+    if (/resend_not_configured/i.test(joined)) {
+      return 'إعداد البريد (Resend) غير مكتمل على الخادم.';
+    }
+    if (/static_contract_pdf_missing/i.test(joined)) {
+      return 'ملف عقد الشريك غير متوفر في النشر.';
+    }
+    return joined.slice(0, 280);
+  }
+
+  const code = typeof payload.error === 'string' ? payload.error.trim() : '';
+  if (code === 'partner_activation_mail_failed' || code === 'bronze_activation_mail_failed') {
+    return 'فشل إرسال بريد التفعيل الموحّد.';
+  }
+  if (code === 'partner_links_mail_failed') {
+    return 'فشل إرسال رسالة الروابط.';
+  }
+  if (code === 'onboarding_mail_unhandled') {
+    return 'خطأ داخلي أثناء إرسال الروابط.';
+  }
+  if (code) return code;
+  return 'تعذر الإرسال البريدي.';
+}
+
 export async function sendBarberOnboardingEmailRemote(input: {
   barberName: string;
   barberEmail: string;
@@ -103,9 +142,18 @@ export async function sendBarberOnboardingEmailRemote(input: {
       headers: await buildAuthHeaders(),
       body: JSON.stringify(body),
     });
-    const payload = (await response.json().catch(() => ({}))) as { error?: string; messageId?: string };
+    const payload = (await response.json().catch(() => ({}))) as {
+      error?: string;
+      hint?: string;
+      messageId?: string;
+      details?: { errors?: string[]; classicError?: string; message?: string };
+    };
     if (!response.ok) {
-      return { ok: false, error: payload.error || `HTTP ${response.status}` };
+      const formatted = formatOnboardingMailError(payload);
+      return {
+        ok: false,
+        error: formatted === 'تعذر الإرسال البريدي.' ? `HTTP ${response.status}` : formatted,
+      };
     }
     const mid = typeof payload.messageId === 'string' && payload.messageId.trim() ? payload.messageId.trim() : undefined;
     return { ok: true, ...(mid ? { messageId: mid } : {}) };
@@ -154,9 +202,13 @@ export async function sendOnboardingEmailsForActiveBarbersRemote(
       failedDetails?: Array<{ email: string; error: string }>;
       invalidSamples?: string[];
       error?: string;
+      hint?: string;
     };
     if (!response.ok) {
-      return { ok: false, error: payload.error || `HTTP ${response.status}` };
+      return {
+        ok: false,
+        error: formatOnboardingMailError(payload) || `HTTP ${response.status}`,
+      };
     }
     return {
       ok: true,

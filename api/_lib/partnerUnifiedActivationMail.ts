@@ -49,7 +49,7 @@ function buildCertificateSectionHtml(
 <p style="margin:0;font-size:12px;color:#64748b">شهادة التفعيل الرقمية · Digital Activation Certificate</p>
 <p style="margin:8px 0;font-size:18px;font-weight:bold;letter-spacing:1px" dir="ltr">${h(cert.certificateNumber)}</p>
 <p style="margin:0"><strong>${GEOSPATIAL_LICENSE_ASSET_CLASS}</strong> · ISIC4 ${ISIC_ACTIVITY_CODE}</p>
-<p style="margin:8px 0 0">الباقة: <strong>${h(cert.tierLabelAr)}</strong> — حتى <strong>${h(cert.validUntil.slice(0, 10))}</strong></p>
+<p style="margin:8px 0 0">الباقة: <strong>${h(cert.tierLabelAr)}</strong> — حتى <strong>${h(String(cert.validUntil || '').slice(0, 10) || '—')}</strong></p>
 <p style="margin:12px 0 0;font-size:13px;color:#0369a1">${h(mapLine)}</p>
 </div>`;
 }
@@ -115,7 +115,7 @@ export function buildUnifiedPartnerActivationEmailBodies(
     SOFTWARE_LICENSE_MANAGER_LABEL_AR,
     `رقم الشهادة: ${cert.certificateNumber}`,
     `الباقة: ${cert.tierLabelAr}`,
-    `صالحة حتى: ${cert.validUntil.slice(0, 10)}`,
+    `صالحة حتى: ${String(cert.validUntil || '').slice(0, 10) || '—'}`,
     mapLine,
     cert.verifyPath ? `التحقق: ${cert.verifyPath}` : '',
     '',

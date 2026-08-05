@@ -27,7 +27,7 @@ async function sendResendEmail(input: {
   html: string;
   text: string;
   attachments?: Array<{ filename: string; content: string; content_id?: string }>;
-}): Promise<{ ok: true } | { ok: false; error: string }> {
+}): Promise<{ ok: true; id?: string } | { ok: false; error: string }> {
   const resp = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: {
@@ -47,13 +47,20 @@ async function sendResendEmail(input: {
   if (!resp.ok) {
     return { ok: false, error: raw.slice(0, 400) };
   }
-  return { ok: true };
+  let id: string | undefined;
+  try {
+    const parsed = JSON.parse(raw) as { id?: string };
+    if (typeof parsed.id === 'string' && parsed.id.trim()) id = parsed.id.trim();
+  } catch {
+    /* ignore */
+  }
+  return { ok: true, ...(id ? { id } : {}) };
 }
 
 async function sendResendEmailWithRetry(
   input: Parameters<typeof sendResendEmail>[0],
   opts?: { attempts?: number; delayMs?: number },
-): Promise<{ ok: true } | { ok: false; error: string }> {
+): Promise<{ ok: true; id?: string } | { ok: false; error: string }> {
   const attempts = opts?.attempts ?? 3;
   const delayMs = opts?.delayMs ?? 700;
   let lastError = 'send_failed';
@@ -76,6 +83,11 @@ export type PartnerActivationMailDispatchInput = {
   activationCertificate: DigitalActivationCertificatePayload | null;
   /** إعادة إرسال العقد حتى لو أُرسل مسبقاً */
   forceContract?: boolean;
+  /**
+   * تدوير كلمة مرور بوابة الشريك (ذهبي/ماسي).
+   * عند إعادة الإرسال من لوحة الإدارة يُفضَّل `false` حتى لا تُبطَل بيانات الدخول السابقة دون قصد.
+   */
+  rotatePortalPassword?: boolean;
   /** بيانات الدفع (مثلاً digital_shift_addon) */
   paymentMetadata?: Record<string, unknown>;
 };
@@ -89,6 +101,7 @@ export type PartnerActivationMailDispatchResult = {
   contractEmailed: boolean;
   skippedBronzeOps: boolean;
   errors: string[];
+  messageId?: string;
 };
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -211,44 +224,67 @@ export async function dispatchPartnerActivationMails(
     shopOpenRotateUrl = shopUrls.shopOpenRotateUrl;
   } else if (UUID_RE.test(barberId)) {
     let portalPassword: string | null = null;
-    const rotated = await rotateBarberPortalLoginPassword(supabase, buyerEmail, input.buyerName);
-    if (rotated.ok) {
-      portalPassword = rotated.password;
-      await supabase.from('barbers').update({ user_id: rotated.userId }).eq('id', barberId);
-    } else {
-      errors.push(`portal_password_rotate:${rotated.error}`);
+    const shouldRotate = input.rotatePortalPassword !== false;
+    if (shouldRotate) {
+      try {
+        const rotated = await rotateBarberPortalLoginPassword(supabase, buyerEmail, input.buyerName);
+        if (rotated.ok) {
+          portalPassword = rotated.password;
+          await supabase.from('barbers').update({ user_id: rotated.userId }).eq('id', barberId);
+        } else {
+          errors.push(`portal_password_rotate:${rotated.error}`);
+        }
+      } catch (e) {
+        errors.push(
+          `portal_password_rotate:${e instanceof Error ? e.message.slice(0, 120) : 'unexpected'}`,
+        );
+      }
     }
 
-    const dashboardCtx = await resolveDashboardSupplementForBarber(supabase, {
-      barberId,
-      buyerEmail,
-      tier: input.tier,
-      registrationOrderId: input.registrationRequestId,
-      paymentMetadata: input.paymentMetadata,
-      portalPassword,
-    });
-    if (dashboardCtx) {
-      dashboardSectionHtml = dashboardCtx.supplement.html;
-      dashboardSectionText = dashboardCtx.supplement.text;
-      ratingQrBase64 = dashboardCtx.rating.qrPngBase64;
+    try {
+      const dashboardCtx = await resolveDashboardSupplementForBarber(supabase, {
+        barberId,
+        buyerEmail,
+        tier: input.tier,
+        registrationOrderId: input.registrationRequestId,
+        paymentMetadata: input.paymentMetadata,
+        portalPassword,
+      });
+      if (dashboardCtx) {
+        dashboardSectionHtml = dashboardCtx.supplement.html;
+        dashboardSectionText = dashboardCtx.supplement.text;
+        ratingQrBase64 = dashboardCtx.rating.qrPngBase64;
+      }
+    } catch (e) {
+      errors.push(
+        `dashboard_supplement:${e instanceof Error ? e.message.slice(0, 120) : 'unexpected'}`,
+      );
     }
   }
 
-  const mail = buildUnifiedPartnerActivationEmailBodies({
-    barberName: input.buyerName,
-    buyerEmail,
-    tier: input.tier,
-    certificate: input.activationCertificate,
-    establishmentName: contractFields.establishmentName,
-    commercialRegistration: contractFields.commercialRegistration,
-    packageTypeAr: contractFields.packageTypeAr,
-    contractDateDisplay: contractFields.contractDateDisplay,
-    registrationOrderId: input.registrationRequestId,
-    shopOpenToggleUrl,
-    shopOpenRotateUrl,
-    dashboardSectionHtml,
-    dashboardSectionText,
-  });
+  let mail: { subject: string; html: string; text: string };
+  try {
+    mail = buildUnifiedPartnerActivationEmailBodies({
+      barberName: input.buyerName,
+      buyerEmail,
+      tier: input.tier,
+      certificate: input.activationCertificate,
+      establishmentName: contractFields.establishmentName,
+      commercialRegistration: contractFields.commercialRegistration,
+      packageTypeAr: contractFields.packageTypeAr,
+      contractDateDisplay: contractFields.contractDateDisplay,
+      registrationOrderId: input.registrationRequestId,
+      shopOpenToggleUrl,
+      shopOpenRotateUrl,
+      dashboardSectionHtml,
+      dashboardSectionText,
+    });
+  } catch (e) {
+    errors.push(
+      `activation_mail_build:${e instanceof Error ? e.message.slice(0, 160) : 'unexpected'}`,
+    );
+    return result;
+  }
 
   const safeId = String(input.registrationRequestId || input.activationCertificate.certificateNumber || 'contract')
     .replace(/[^\w.-]+/g, '_')
@@ -285,6 +321,7 @@ export async function dispatchPartnerActivationMails(
   result.activationCertificateEmailed = true;
   result.bronzeActivationEmailed = bronze;
   result.contractEmailed = true;
+  if (sent.id) result.messageId = sent.id;
 
   if (UUID_RE.test(barberId)) {
     const ts = new Date().toISOString();
