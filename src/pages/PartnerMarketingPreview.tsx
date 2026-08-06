@@ -17,7 +17,7 @@ import {
   Sparkles, ChevronDown, Globe2, Users, BarChart3,
   Crown, Zap, Navigation2, Lock,
   TrendingUp, QrCode, ImageIcon, Brain, FileCheck,
-  ArrowRight, Wifi, Menu, BriefcaseBusiness,
+  ArrowRight, Wifi, Menu, BriefcaseBusiness, DoorOpen,
 } from 'lucide-react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/lib/index';
@@ -55,6 +55,7 @@ import {
   PARTNER_JOIN_PATH_HERO_LEAD_AR,
   PARTNER_JOIN_PATH_HERO_TITLE_AR,
   PARTNER_JOIN_PATH_HOW_IT_WORKS,
+  PARTNER_JOIN_PATH_LIVELIHOOD_CTA_AR,
   PARTNER_JOIN_PATH_PAY_GATE,
   PARTNER_JOIN_PATH_PRIMARY_CTA_AR,
   PARTNER_JOIN_PATH_SECONDARY_LINKS,
@@ -775,8 +776,47 @@ export default function PartnerMarketingPreview() {
 
         <div className={cn(
           'relative z-10 mx-auto max-w-7xl px-5',
-          isMobile ? 'py-10' : 'grid items-center gap-12 py-20 lg:grid-cols-2 lg:gap-20 lg:py-28',
+          isMobile ? 'py-10' : 'py-20 lg:py-28',
         )}>
+          {/* دعوة مختصرة أعلى المسار → تعبئة طلب الاشتراك */}
+          <motion.button
+            type="button"
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.45 }}
+            onMouseEnter={warmRegisterRoute}
+            onFocus={warmRegisterRoute}
+            onPointerDown={warmRegisterRoute}
+            onTouchStart={warmRegisterRoute}
+            onClick={handleRegisterNavigate}
+            aria-label={`${PARTNER_JOIN_PATH_LIVELIHOOD_CTA_AR} — الانتقال لتعبئة طلب الاشتراك`}
+            className={cn(
+              'group mb-6 flex w-full items-center gap-3 rounded-2xl border border-cyan-300/70 bg-gradient-to-l from-cyan-50 via-teal-50/90 to-white px-3.5 py-3 text-right shadow-[0_10px_36px_-12px_rgba(6,182,212,0.45)] transition hover:border-cyan-400 hover:shadow-[0_14px_40px_-10px_rgba(6,182,212,0.55)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 active:scale-[0.995] sm:mb-8 sm:gap-4 sm:px-5 sm:py-3.5',
+              !isMobile && 'mb-10',
+            )}
+          >
+            <span
+              className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-cyan-400 to-teal-500 text-white shadow-[0_0_0_4px_rgba(34,211,238,0.22),0_0_28px_rgba(34,211,238,0.55)] transition group-hover:scale-[1.04] group-hover:shadow-[0_0_0_5px_rgba(34,211,238,0.28),0_0_36px_rgba(34,211,238,0.7)] sm:h-14 sm:w-14"
+              aria-hidden
+            >
+              <span className="absolute -inset-1 animate-pulse rounded-full bg-cyan-300/25 blur-[2px]" />
+              <DoorOpen className="relative h-6 w-6 sm:h-7 sm:w-7" strokeWidth={2.25} />
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block text-[0.68rem] font-semibold text-cyan-700/90 sm:text-xs">
+                اضغط للبدء
+              </span>
+              <span className="mt-0.5 block text-base font-black leading-snug text-teal-950 sm:text-lg md:text-xl">
+                {PARTNER_JOIN_PATH_LIVELIHOOD_CTA_AR}
+              </span>
+            </span>
+            <ArrowLeft
+              className="h-5 w-5 shrink-0 text-cyan-600 transition group-hover:-translate-x-0.5"
+              aria-hidden
+            />
+          </motion.button>
+
+          <div className={cn(!isMobile && 'grid items-center gap-12 lg:grid-cols-2 lg:gap-20')}>
           {/* Text */}
           <motion.div initial={{ opacity: 0, x: isMobile ? 0 : 40 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.7 }}>
 
@@ -893,6 +933,7 @@ export default function PartnerMarketingPreview() {
             </p>
           </motion.div>
           ) : null}
+          </div>
         </div>
 
         <motion.div animate={{ y: [0, 6, 0] }} transition={{ duration: 2, repeat: Infinity }}

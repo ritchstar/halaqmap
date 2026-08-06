@@ -7,6 +7,9 @@
  * لا أرقام انتشار وهمية — صياغة نوعية آمنة فقط.
  */
 
+/** دعوة مختصرة أعلى مسار الشركاء — تفتح طلب الاشتراك */
+export const PARTNER_JOIN_PATH_LIVELIHOOD_CTA_AR = 'افتح باب رزق جديد لصالونك' as const;
+
 /** شارة فوق العنوان */
 export const PARTNER_JOIN_PATH_BADGE_AR = 'مسار انضمام المنشآت' as const;
 
