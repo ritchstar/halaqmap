@@ -1683,9 +1683,9 @@ export default function Payment() {
                               {paymentActivateNowCtaAr(isWalletTopup ? walletChargedHalalas / 100 : price)}
                             </CardTitle>
                             <CardDescription className="text-base leading-relaxed text-foreground/85">
-                              {TERM_ACTIVATE_NOW_AR} — منتج رقمي فوري. المبلغ المعروض أعلاه هو ما يُخصم بالهللة.
-                              بعد إتمام العملية يعيد ميسر التوجيه مع <span dir="ltr">?id=</span> ثم يُتحقق من الخادم
-                              تلقائياً وتُصدر الرخصة.
+                              {TERM_ACTIVATE_NOW_AR} — منتج رقمي فوري. المبلغ المعروض أعلاه بالريال هو ما يُخصم عبر
+                              البوابة. بعد إتمام العملية يعيد ميسر التوجيه مع <span dir="ltr">?id=</span> ثم يُتحقق من
+                              الخادم تلقائياً وتُصدر الرخصة.
                             </CardDescription>
                           </CardHeader>
                           <CardContent className="space-y-3">

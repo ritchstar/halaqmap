@@ -18,7 +18,9 @@ export type PaymentLicenseTotalPanelProps = {
   breakdown: { subtotal: number; vat: number; total: number };
   vatEnabled: boolean;
   vatPercent: number;
-  /** المبلغ الفعلي المُرسل للبوابة بالهللة — يجب أن يطابق الحسبة */
+  /**
+   * المبلغ الفعلي المُرسل للبوابة (وحدة داخلية) — للمطابقة فقط، لا يُعرض للعميل.
+   */
   chargedHalalas: number;
 };
 
@@ -27,7 +29,7 @@ function formatSar(n: number): string {
 }
 
 /**
- * لوحة حسبة الرخصة — بارزة ومقروءة، مع مطابقة جنائية للمبلغ المخصوم.
+ * لوحة حسبة الرخصة — بارزة ومقروءة بالريال فقط (التسعير الداخلي لا يُعرض للعميل).
  */
 export function PaymentLicenseTotalPanel({
   tierLabel,
@@ -109,9 +111,11 @@ export function PaymentLicenseTotalPanel({
           {formatSar(breakdown.total)}
           <span className="mr-2 text-xl font-bold sm:text-2xl">ر.س</span>
         </p>
-        <p className="mt-2 text-sm font-semibold text-foreground/90 sm:text-base" dir="ltr">
-          يُخصم عبر البوابة: {chargedSar.toFixed(2)} ر.س · {chargedHalalas} هللة
-        </p>
+        {integrityOk ? (
+          <p className="mt-2 text-sm font-semibold text-foreground/90 sm:text-base">
+            يُخصم عبر البوابة: {formatSar(chargedSar)} ر.س
+          </p>
+        ) : null}
       </div>
 
       {!integrityOk ? (
@@ -121,8 +125,8 @@ export function PaymentLicenseTotalPanel({
         >
           <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
           <p>
-            تعذّر مطابقة الحسبة مع مبلغ البوابة. أعد تحميل الصفحة قبل الدفع. (متوقع {expectedHalalas}{' '}
-            هللة · مُمرَّر {chargedHalalas})
+            تعذّر مطابقة الحسبة مع مبلغ البوابة. أعد تحميل الصفحة قبل الدفع. (معروض{' '}
+            {formatSar(breakdown.total)} ر.س · مُمرَّر {formatSar(chargedSar)} ر.س)
           </p>
         </div>
       ) : (
