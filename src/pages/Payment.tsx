@@ -64,9 +64,9 @@ import { PlatformTlsTrustBadge } from '@/components/PlatformTlsTrustBadge';
 import { PlatformTrustStrip } from '@/components/PlatformTrustStrip';
 import { paymentActivateNowCtaAr, TERM_ACTIVATE_NOW_AR } from '@/config/softwareLicenseTerminology';
 import {
-  PAYMENT_INCOMPLETE_FOUNDER_GRANT_BODY_AR,
-  PAYMENT_INCOMPLETE_FOUNDER_GRANT_TITLE_AR,
-  PAYMENT_PRE_CHECKOUT_FOUNDER_GRANT_HINT_AR,
+  PAYMENT_INCOMPLETE_ADMIN_GRANT_BODY_AR,
+  PAYMENT_INCOMPLETE_ADMIN_GRANT_TITLE_AR,
+  PAYMENT_PRE_CHECKOUT_ADMIN_GRANT_HINT_AR,
 } from '@/config/paymentCheckoutCommitments';
 import type { DigitalActivationCertificateView } from '@/config/geospatialLicenseDoctrine';
 import { getMoyasarGlobal, loadMoyasarFormScript, MOYASAR_APPLE_PAY_VALIDATE_URL } from '@/lib/moyasarFormLoader';
@@ -1279,8 +1279,8 @@ export default function Payment() {
                 <p className="font-semibold text-foreground">{paymentReturnMessage}</p>
                 {!isWalletTopup ? (
                   <div className="rounded-lg border border-amber-700/30 bg-background/70 p-3 sm:p-4">
-                    <p className="font-bold text-foreground">{PAYMENT_INCOMPLETE_FOUNDER_GRANT_TITLE_AR}</p>
-                    <p className="mt-2 text-foreground/90">{PAYMENT_INCOMPLETE_FOUNDER_GRANT_BODY_AR}</p>
+                    <p className="font-bold text-foreground">{PAYMENT_INCOMPLETE_ADMIN_GRANT_TITLE_AR}</p>
+                    <p className="mt-2 text-foreground/90">{PAYMENT_INCOMPLETE_ADMIN_GRANT_BODY_AR}</p>
                   </div>
                 ) : null}
                 {moyasarPaymentIdFromUrl && paymentReturnUnpaid ? (
@@ -1466,7 +1466,7 @@ export default function Payment() {
                       />
 
                       <p className="rounded-lg border border-amber-600/25 bg-amber-500/10 px-3 py-3 text-sm font-medium leading-relaxed text-foreground sm:text-base">
-                        {PAYMENT_PRE_CHECKOUT_FOUNDER_GRANT_HINT_AR}
+                        {PAYMENT_PRE_CHECKOUT_ADMIN_GRANT_HINT_AR}
                       </p>
                     </>
                   )}
