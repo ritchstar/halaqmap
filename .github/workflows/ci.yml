@@ -1,5 +1,6 @@
-# يعمل تلقائياً عند كل دفع أو طلب دمج إلى الفرع الرئيسي.
-# الهدف: أن يبقى ما على GitHub دائماً يمرّ بفحص lint وبناء ناجح.
+# بوابة صحة المنصة (Health gate) — تلقائياً على كل push / PR إلى الفرع الرئيسي.
+# يغطي: lint + typecheck (واجهة + API) + بناء إنتاج.
+# لا تُنشأ workflow مكررة باسم health-check؛ هذا الملف هو المصدر الوحيد.
 name: CI
 
 on:
@@ -10,6 +11,7 @@ on:
 
 jobs:
   verify:
+    name: lint · typecheck · build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -27,7 +29,7 @@ jobs:
       - name: ESLint
         run: npm run lint
 
-      - name: Typecheck
+      - name: Typecheck app
         run: npx tsc --noEmit -p tsconfig.app.json
 
       - name: Typecheck API routes
