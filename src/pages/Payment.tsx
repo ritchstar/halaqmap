@@ -57,6 +57,7 @@ import { PaymentSuccessPanel } from '@/components/billing/PaymentSuccessPanel';
 import { PaymentMerchantCompliancePanel } from '@/components/billing/PaymentMerchantCompliancePanel';
 import { PaymentCheckoutAcknowledgment } from '@/components/billing/PaymentCheckoutAcknowledgment';
 import { PaymentLicenseTotalPanel } from '@/components/billing/PaymentLicenseTotalPanel';
+import { MoyasarOfficialTrustChip } from '@/components/billing/MoyasarOfficialTrustChip';
 import { PartnerExternalCheckoutGate } from '@/components/partner/PartnerExternalCheckoutGate';
 import { MadaBadgeIcon, VisaMastercardBadgeIcon } from '@/components/billing/PaymentMethodBadgeIcons';
 import { REGISTRATION_STORAGE_ORDER_ID_RE } from '@/lib/registrationFileUploads';
@@ -1565,16 +1566,16 @@ export default function Payment() {
                   >
                     {enableMoyasarCard ? (
                       <label
-                        className={`flex items-center gap-4 p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                        className={`flex items-center gap-3 p-4 border-2 rounded-lg cursor-pointer transition-all sm:gap-4 ${
                           paymentMethod === 'moyasar'
                             ? 'border-primary bg-primary/5'
                             : 'border-border hover:border-primary/50'
                         }`}
                       >
                         <RadioGroupItem value="moyasar" id="moyasar" />
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <CreditCard className="w-5 h-5 text-primary" />
+                        <div className="min-w-0 flex-1">
+                          <div className="mb-1 flex flex-wrap items-center gap-2">
+                            <CreditCard className="h-5 w-5 text-primary" />
                             <h3 className="font-semibold">ميسر (Moyasar)</h3>
                             {preferredGatewayCode === 'MOYASAR' && availablePaymentChannels.length > 1 ? (
                               <Badge variant="secondary" className="text-xs">افتراضي</Badge>
@@ -1593,6 +1594,8 @@ export default function Payment() {
                             <VisaMastercardBadgeIcon className="h-6 opacity-80" />
                           </div>
                         </div>
+                        {/* في RTL يظهر على يسار الشاشة — رابط اطمئنان دون مغادرة مسار الدفع */}
+                        <MoyasarOfficialTrustChip variant="compact" />
                       </label>
                     ) : null}
 
@@ -1652,6 +1655,7 @@ export default function Payment() {
 
                   {paymentMethod === 'moyasar' && showMoyasarCheckout && (
                     <div className="space-y-4 rounded-lg border border-primary/30 bg-primary/5 p-4 sm:p-5">
+                      <MoyasarOfficialTrustChip variant="banner" />
                       <PaymentCheckoutAcknowledgment
                         checked={checkoutAcknowledged}
                         onCheckedChange={setCheckoutAcknowledged}
