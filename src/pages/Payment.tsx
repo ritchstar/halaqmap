@@ -10,13 +10,11 @@ import {
   CheckCircle2,
   AlertCircle,
   Loader2,
-  Shield,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { ROUTE_PATHS, SubscriptionTier } from '@/lib';
@@ -26,6 +24,7 @@ import { LEGAL_TRADE_NAME_AR } from '@/config/partnerLegal';
 import {
   clampListingLicenseQuantity,
   computeListingLicenseTotalSar,
+  computeListingLicenseUnitSar,
   formatListingLicenseQuantitySummaryAr,
   isDigitalShiftAddonAllowed,
   LISTING_LICENSE_MAX_QUANTITY,
@@ -40,12 +39,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import {
-  DIGITAL_SHIFT_MONTHLY_ADDON_SAR,
-  DIGITAL_SHIFT_PRODUCT_NAME_AR,
-  DIGITAL_SHIFT_SOFTWARE_ADDON_BADGE_AR,
   DIAMOND_PRODUCT_SMART_LABEL_AR,
   DIAMOND_PRODUCT_STANDARD_LABEL_AR,
-  TIER_MONTHLY_SAR,
 } from '@/config/subscriptionPricing';
 import { fetchPublicPaymentPageConfig, type PublicPaymentPageConfig } from '@/lib/publicPaymentPageConfigRemote';
 import { getUnifiedPaymentProvider } from '@/lib/payment/providers';
@@ -60,17 +55,19 @@ import { pollMoyasarPaymentFulfillmentRemote } from '@/lib/moyasarPaymentFulfill
 import { loadSabPaymentWidgetScript, mountSabPaymentForm, setSabWidgetLocaleAr } from '@/lib/sabFormLoader';
 import { PaymentSuccessPanel } from '@/components/billing/PaymentSuccessPanel';
 import { PaymentMerchantCompliancePanel } from '@/components/billing/PaymentMerchantCompliancePanel';
+import { PaymentCheckoutAcknowledgment } from '@/components/billing/PaymentCheckoutAcknowledgment';
+import { PaymentLicenseTotalPanel } from '@/components/billing/PaymentLicenseTotalPanel';
 import { PartnerExternalCheckoutGate } from '@/components/partner/PartnerExternalCheckoutGate';
 import { MadaBadgeIcon, VisaMastercardBadgeIcon } from '@/components/billing/PaymentMethodBadgeIcons';
-import { REFUND_POLICY_PATH } from '@/config/moyasarMerchantCompliance';
 import { REGISTRATION_STORAGE_ORDER_ID_RE } from '@/lib/registrationFileUploads';
 import { PlatformTlsTrustBadge } from '@/components/PlatformTlsTrustBadge';
 import { PlatformTrustStrip } from '@/components/PlatformTrustStrip';
 import { paymentActivateNowCtaAr, TERM_ACTIVATE_NOW_AR } from '@/config/softwareLicenseTerminology';
 import {
-  SOFTWARE_PRODUCT_PURCHASE_ACK_AR,
-  SOFTWARE_PRODUCT_PURCHASE_ACK_SHORT_AR,
-} from '@/config/legalActivityScope';
+  PAYMENT_INCOMPLETE_FOUNDER_GRANT_BODY_AR,
+  PAYMENT_INCOMPLETE_FOUNDER_GRANT_TITLE_AR,
+  PAYMENT_PRE_CHECKOUT_FOUNDER_GRANT_HINT_AR,
+} from '@/config/paymentCheckoutCommitments';
 import type { DigitalActivationCertificateView } from '@/config/geospatialLicenseDoctrine';
 import { getMoyasarGlobal, loadMoyasarFormScript, MOYASAR_APPLE_PAY_VALIDATE_URL } from '@/lib/moyasarFormLoader';
 import {
@@ -254,9 +251,14 @@ export default function Payment() {
   const showMoyasarCheckout = enableMoyasarCard && paymentMethod === 'moyasar';
   const showSabCheckout = enableSabGateway && paymentMethod === 'sab';
   const preferredGatewayCode = pubPayConfig?.ok ? pubPayConfig.preferredGateway : resolvePaymentGateway();
-  /** إقرار بقراءة شروط ميسر كبوابة دفع — مطلوب قبل متابعة الدفع عبر ميسر (المادة الخامسة من الشروط). */
-  const [moyasarTermsAccepted, setMoyasarTermsAccepted] = useState(false);
-  const [softwareProductAcknowledged, setSoftwareProductAcknowledged] = useState(false);
+  /**
+   * تأشيرة دفع واحدة ظاهرة — تضبط أعلام الإقرار الخلفية معاً
+   * (منتج برمجي ISIC + شروط ميسر/SAB) دون إعادة طلب إقرارات التسجيل.
+   */
+  const [checkoutAcknowledged, setCheckoutAcknowledged] = useState(false);
+  const softwareProductAcknowledged = checkoutAcknowledged;
+  const moyasarTermsAccepted = checkoutAcknowledged;
+  const sabTermsAccepted = checkoutAcknowledged;
   /** بعد العودة من ميسر بـ ?id= — التحقق من الخادم */
   const [moyasarReturnVerify, setMoyasarReturnVerify] = useState<
     'idle' | 'loading' | 'paid' | 'unpaid' | 'error'
@@ -276,7 +278,6 @@ export default function Payment() {
   const [walletTopupError, setWalletTopupError] = useState<string | null>(null);
   const moyasarHostRef = useRef<HTMLDivElement>(null);
   const [moyasarFormError, setMoyasarFormError] = useState<string | null>(null);
-  const [sabTermsAccepted, setSabTermsAccepted] = useState(false);
   const [sabReturnVerify, setSabReturnVerify] = useState<'idle' | 'loading' | 'paid' | 'unpaid' | 'error'>('idle');
   const [sabVerifyMessage, setSabVerifyMessage] = useState<string | null>(null);
   const [sabPaidAmountFormat, setSabPaidAmountFormat] = useState<string | null>(null);
@@ -342,13 +343,6 @@ export default function Payment() {
     toast.success(res.messageAr);
   }, [bronzeTrialCode, bronzeTrialEmail, purchasePurpose, registrationRequestReady, requestId, linkedBarberId]);
 
-  // Subscription prices
-  const prices = {
-    [SubscriptionTier.BRONZE]: 100,
-    [SubscriptionTier.GOLD]: 150,
-    [SubscriptionTier.DIAMOND]: 200,
-  };
-
   const tierNames = {
     [SubscriptionTier.BRONZE]: 'برونزي',
     [SubscriptionTier.GOLD]: 'ذهبي',
@@ -361,6 +355,7 @@ export default function Payment() {
     [SubscriptionTier.DIAMOND]: 'from-primary to-cyan-600',
   };
 
+  const unitPriceSar = computeListingLicenseUnitSar(tier, listingPricingOptions);
   const price = computeListingLicenseTotalSar(tier, licenseQuantity, listingPricingOptions);
   const tierName = tierNames[tier];
   const tierColor = tierColors[tier];
@@ -1120,12 +1115,12 @@ export default function Payment() {
                   : 'إتمام شراء رخصة النفاذ'
               }
             </h1>
-            <p className="text-sm sm:text-lg text-muted-foreground">
+            <p className="mx-auto max-w-2xl text-base font-medium leading-relaxed text-foreground/90 sm:text-xl">
               {isWalletTopup
                 ? 'أضِف رصيد ردود للمناوب — يُفعَّل فوراً بعد تأكيد الدفع'
                 : purchasePurpose === 'recharge'
-                  ? 'اختر عدد الحزم وطريقة الدفع — الحزم تُضاف لحساب صالونك مباشرة بعد نجاح الدفع'
-                  : 'ثلاث خطوات: راجع الملخص ← أكّد الإقرارات ← ادفع بأمان عبر ميسر أو بنك الأول'
+                  ? 'راجع الحسبة بوضوح، وافق على شروط الدفع مرة واحدة، ثم أكمل الدفع لتُضاف الحزم لحسابك'
+                  : 'راجع الحسبة بوضوح ← وافق على شروط الدفع مرة واحدة ← ادفع بأمان ← تُصدر الرخصة بعد نجاح الدفع'
               }
             </p>
           </div>
@@ -1280,8 +1275,14 @@ export default function Payment() {
               }`}
             >
               <AlertCircle className="h-4 w-4" />
-              <AlertDescription className="space-y-3 text-sm leading-relaxed">
-                <p>{paymentReturnMessage}</p>
+              <AlertDescription className="space-y-4 text-base leading-relaxed">
+                <p className="font-semibold text-foreground">{paymentReturnMessage}</p>
+                {!isWalletTopup ? (
+                  <div className="rounded-lg border border-amber-700/30 bg-background/70 p-3 sm:p-4">
+                    <p className="font-bold text-foreground">{PAYMENT_INCOMPLETE_FOUNDER_GRANT_TITLE_AR}</p>
+                    <p className="mt-2 text-foreground/90">{PAYMENT_INCOMPLETE_FOUNDER_GRANT_BODY_AR}</p>
+                  </div>
+                ) : null}
                 {moyasarPaymentIdFromUrl && paymentReturnUnpaid ? (
                   <Button
                     type="button"
@@ -1297,7 +1298,7 @@ export default function Payment() {
                   </Button>
                 ) : null}
                 {paymentReturnUnpaid || paymentReturnError ? (
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-sm text-foreground/80">
                     إن ظهرت العملية <strong className="text-foreground">مدفوعة</strong> في لوحة ميسر، انسخ
                     معرّف الدفع (UUID) من تفاصيل العملية وأضفه للرابط:{' '}
                     <span dir="ltr" className="font-mono">
@@ -1346,101 +1347,82 @@ export default function Payment() {
 
               {/* Subscription / Wallet Summary — يُخفى بعد نجاح الدفع */}
               {!paymentReturnPaid ? (
-              <Card>
+              <Card className="border-primary/25">
                 <CardHeader>
-                  <CardTitle>
+                  <CardTitle className="text-xl sm:text-2xl">
                     {isWalletTopup ? 'ملخص شحن محفظة المناوب الرقمي' : 'ملخص حزمة رخصة النفاذ الرقمية'}
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="space-y-5">
                   {isWalletTopup ? (
-                    <div className="flex flex-col gap-4 rounded-lg bg-gradient-to-r from-muted/50 to-muted/30 p-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="space-y-4 rounded-xl border-2 border-primary/40 bg-gradient-to-b from-primary/12 to-background p-4 sm:p-6">
                       <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-primary to-cyan-600 flex items-center justify-center text-white text-2xl">
+                        <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-cyan-600 text-2xl text-white">
                           🌙
                         </div>
                         <div>
-                          <h3 className="text-lg font-bold">{walletPkg?.labelAr ?? 'باقة شحن المحفظة'}</h3>
-                          <p className="text-sm text-muted-foreground">
+                          <h3 className="text-xl font-black sm:text-2xl">
+                            {walletPkg?.labelAr ?? 'باقة شحن المحفظة'}
+                          </h3>
+                          <p className="text-base text-foreground/90 sm:text-lg">
                             شحن رصيد ردود المناوب الآلي (كل رد ≈ 1.50 ر.س)
-                          </p>
-                          <p className="mt-1 text-xs font-medium text-primary">
-                            {vatSettings.enabled
-                              ? `يُضاف الأساسي كاملاً للرصيد · ضريبة ${vatSettings.ratePercent}% فوق السعر`
-                              : 'يُضاف المبلغ كاملاً للرصيد · بلا ضريبة حالياً'}
                           </p>
                         </div>
                       </div>
-                      <div className="space-y-1 text-right sm:text-left">
+                      <dl className="space-y-2 text-base sm:text-lg">
                         {walletVatHalalas > 0 ? (
                           <>
-                            <p className="text-xs text-muted-foreground">
-                              يُضاف للرصيد: {(walletCreditedHalalas / 100).toFixed(2)} ر.س
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                              ضريبة القيمة المضافة ({vatSettings.ratePercent}%): {(walletVatHalalas / 100).toFixed(2)} ر.س
-                            </p>
+                            <div className="flex justify-between gap-3 border-b border-border/60 pb-2">
+                              <dt>يُضاف للرصيد</dt>
+                              <dd className="font-bold tabular-nums">
+                                {(walletCreditedHalalas / 100).toFixed(2)} ر.س
+                              </dd>
+                            </div>
+                            <div className="flex justify-between gap-3 border-b border-border/60 pb-2">
+                              <dt>ضريبة القيمة المضافة ({vatSettings.ratePercent}%)</dt>
+                              <dd className="font-bold tabular-nums">
+                                {(walletVatHalalas / 100).toFixed(2)} ر.س
+                              </dd>
+                            </div>
                           </>
-                        ) : null}
-                        <p className="text-2xl font-bold text-primary">
-                          {(walletChargedHalalas / 100).toFixed(2)} ر.س
+                        ) : (
+                          <p className="font-medium text-foreground/85">
+                            يُضاف المبلغ كاملاً للرصيد · بلا ضريبة حالياً
+                          </p>
+                        )}
+                      </dl>
+                      <div className="rounded-xl border-2 border-primary/50 bg-primary/15 px-4 py-4 text-center">
+                        <p className="text-sm font-bold text-primary sm:text-base">المبلغ المستحق للدفع الآن</p>
+                        <p className="mt-1 text-4xl font-black tabular-nums text-foreground sm:text-5xl">
+                          {(walletChargedHalalas / 100).toFixed(2)}
+                          <span className="mr-2 text-xl font-bold sm:text-2xl">ر.س</span>
                         </p>
-                        <p className="text-xs text-muted-foreground">
+                        <p className="mt-2 text-base font-semibold text-foreground/90">
                           ≈ {repliesFromHalalas(walletCreditedHalalas)} رد آلي
                         </p>
                       </div>
                     </div>
                   ) : (
-                    <div className="flex flex-col gap-4 rounded-lg bg-gradient-to-r from-muted/50 to-muted/30 p-4">
-                      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                        <div className="flex items-center gap-4">
-                          <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${tierColor} flex items-center justify-center text-white font-bold`}>
-                            {tierName === 'برونزي' && '🥉'}
-                            {tierName === 'ذهبي' && '🥇'}
-                            {tierName === 'ماسي' && '💎'}
-                          </div>
-                          <div>
-                            <h3 className="text-lg font-bold">{tierDisplayLabel}</h3>
-                            <p className="text-sm text-muted-foreground">حزمة إدراج برمجية (30 يوماً لكل حزمة)</p>
-                            {digitalShiftAddonSelected ? (
-                              <p className="mt-1 text-xs font-medium text-primary">
-                                {DIGITAL_SHIFT_SOFTWARE_ADDON_BADGE_AR} · {DIGITAL_SHIFT_PRODUCT_NAME_AR} (
-                                {DIGITAL_SHIFT_MONTHLY_ADDON_SAR} ر.س × {licenseQuantity} حزمة)
-                              </p>
-                            ) : null}
-                          </div>
+                    <>
+                      <div className="flex items-center gap-3">
+                        <div
+                          className={`flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br ${tierColor} text-lg font-bold text-white`}
+                        >
+                          {tierName === 'برونزي' && '🥉'}
+                          {tierName === 'ذهبي' && '🥇'}
+                          {tierName === 'ماسي' && '💎'}
                         </div>
-                        <div className="space-y-1 text-right sm:text-left">
-                          {vatSettings.enabled && licenseBreakdown.vat > 0 ? (
-                            <>
-                              <p className="text-xs text-muted-foreground">
-                                قيمة حزمة الرخصة الرقمية الموحد ({licenseQuantity} حزمة): {licenseBreakdown.subtotal} ر.س
-                              </p>
-                              <p className="text-xs text-muted-foreground">
-                                ضريبة القيمة المضافة ({vatSettings.ratePercent}%): {licenseBreakdown.vat} ر.س
-                              </p>
-                              <p className="text-2xl font-bold text-primary">{licenseBreakdown.total} ر.س</p>
-                              <p className="text-xs text-muted-foreground">إجمالي قيمة حزمة الرخصة</p>
-                            </>
-                          ) : (
-                            <>
-                              <p className="text-2xl font-bold text-primary">{price} ر.س</p>
-                              <p className="text-xs text-muted-foreground">
-                                {licenseQuantity > 1
-                                  ? `${TIER_MONTHLY_SAR[tier] + (digitalShiftAddonSelected ? DIGITAL_SHIFT_MONTHLY_ADDON_SAR : 0)} ر.س × ${licenseQuantity} حزمة (دون ضريبة قيمة مضافة)`
-                                  : 'لحزمة الرخصة (دون ضريبة قيمة مضافة)'}
-                              </p>
-                            </>
-                          )}
-                        </div>
+                        <p className="text-base font-semibold text-foreground sm:text-lg">
+                          اختر عدد الحزم ثم راجع الحسبة أدناه قبل الدفع
+                        </p>
                       </div>
 
-                      <div className="grid gap-2 rounded-lg border border-border/70 bg-background/70 p-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
+                      <div className="grid gap-3 rounded-xl border border-border/80 bg-muted/30 p-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
                         <div className="space-y-1.5">
-                          <Label htmlFor="license-qty-select" className="text-sm font-semibold">
+                          <Label htmlFor="license-qty-select" className="text-base font-bold">
                             عدد الحزم المشتراة
                           </Label>
-                          <p className="text-xs text-muted-foreground leading-relaxed">
+                          <p className="text-sm leading-relaxed text-foreground/85 sm:text-base">
                             {formatListingLicenseQuantitySummaryAr(licenseQuantity)}
                           </p>
                         </div>
@@ -1450,7 +1432,7 @@ export default function Payment() {
                         >
                           <SelectTrigger
                             id="license-qty-select"
-                            className="w-full sm:w-[11rem]"
+                            className="h-11 w-full text-base sm:w-[12rem]"
                             aria-label="اختيار عدد الحزم"
                           >
                             <SelectValue placeholder="اختر العدد" />
@@ -1460,14 +1442,33 @@ export default function Payment() {
                               { length: LISTING_LICENSE_MAX_QUANTITY - LISTING_LICENSE_MIN_QUANTITY + 1 },
                               (_, i) => LISTING_LICENSE_MIN_QUANTITY + i,
                             ).map((n) => (
-                              <SelectItem key={n} value={String(n)}>
-                                {n === 1 ? '1 حزمة (30 يوماً)' : n === 12 ? '12 حزمة (سنة / 360 يوماً)' : `${n} حزم (${n * 30} يوماً)`}
+                              <SelectItem key={n} value={String(n)} className="text-base">
+                                {n === 1
+                                  ? '1 حزمة (30 يوماً)'
+                                  : n === 12
+                                    ? '12 حزمة (سنة / 360 يوماً)'
+                                    : `${n} حزم (${n * 30} يوماً)`}
                               </SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
                       </div>
-                    </div>
+
+                      <PaymentLicenseTotalPanel
+                        tierLabel={tierDisplayLabel}
+                        unitSar={unitPriceSar}
+                        quantity={licenseQuantity}
+                        digitalShiftAddon={digitalShiftAddonSelected}
+                        breakdown={licenseBreakdown}
+                        vatEnabled={vatSettings.enabled}
+                        vatPercent={vatSettings.ratePercent}
+                        chargedHalalas={monthlyAmountHalalas}
+                      />
+
+                      <p className="rounded-lg border border-amber-600/25 bg-amber-500/10 px-3 py-3 text-sm font-medium leading-relaxed text-foreground sm:text-base">
+                        {PAYMENT_PRE_CHECKOUT_FOUNDER_GRANT_HINT_AR}
+                      </p>
+                    </>
                   )}
                 </CardContent>
               </Card>
@@ -1560,8 +1561,6 @@ export default function Payment() {
                     value={paymentMethod}
                     onValueChange={(value: 'moyasar' | 'sab') => {
                       setPaymentMethod(value);
-                      if (value !== 'moyasar') setMoyasarTermsAccepted(false);
-                      if (value !== 'sab') setSabTermsAccepted(false);
                     }}
                   >
                     {enableMoyasarCard ? (
@@ -1652,76 +1651,18 @@ export default function Payment() {
                   )}
 
                   {paymentMethod === 'moyasar' && showMoyasarCheckout && (
-                    <div className="space-y-4 rounded-lg border border-primary/30 bg-primary/5 p-4">
-                      <p className="text-sm font-medium text-primary">
-                        خطوة أخيرة: فعّل الإقرارين أدناه ليظهر نموذج الدفع الآمن من ميسر، ثم أكمل الدفع.
-                      </p>
-                      <Alert>
-                        <Shield className="h-4 w-4" />
-                        <AlertDescription className="space-y-2 text-sm leading-relaxed">
-                          <p>
-                            الدفع عبر <strong>ميسر</strong> يخضع لـ{' '}
-                            <a
-                              href="https://moyasar.com/ar/resources/terms/"
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="font-medium text-primary underline-offset-2 hover:underline"
-                            >
-                              شروط التاجر الرسمية
-                            </a>
-                            . بالمتابعة تُقرّ بالاطلاع على{' '}
-                            <Link to={ROUTE_PATHS.TERMS_OF_SERVICE} className="font-medium text-primary underline-offset-2 hover:underline">
-                              شروط الاستخدام
-                            </Link>
-                            {' '}و{' '}
-                            <Link to={REFUND_POLICY_PATH} className="font-medium text-primary underline-offset-2 hover:underline">
-                              سياسة الاسترجاع
-                            </Link>
-                            {' '}و{' '}
-                            <Link to={ROUTE_PATHS.SUBSCRIPTION_POLICY} className="font-medium text-primary underline-offset-2 hover:underline">
-                              رخصة النفاذ الرقمية
-                            </Link>
-                            .
-                          </p>
-                        </AlertDescription>
-                      </Alert>
-                      <div className="flex items-start gap-3">
-                        <Checkbox
-                          id="software-product-ack"
-                          checked={softwareProductAcknowledged}
-                          onCheckedChange={(c) => setSoftwareProductAcknowledged(c === true)}
-                          className="mt-1"
-                        />
-                        <Label htmlFor="software-product-ack" className="cursor-pointer text-sm font-normal leading-relaxed">
-                          <span className="font-semibold text-foreground">{SOFTWARE_PRODUCT_PURCHASE_ACK_SHORT_AR}</span>
-                          {' — '}
-                          {SOFTWARE_PRODUCT_PURCHASE_ACK_AR.replace(/\*\*/g, '')}
-                        </Label>
-                      </div>
-                      <div className="flex items-start gap-3">
-                        <Checkbox
-                          id="moyasar-merchant-terms"
-                          checked={moyasarTermsAccepted}
-                          onCheckedChange={(c) => setMoyasarTermsAccepted(c === true)}
-                          className="mt-1"
-                        />
-                        <Label htmlFor="moyasar-merchant-terms" className="cursor-pointer text-sm font-normal leading-relaxed">
-                          <span className="font-semibold text-foreground">أقر</span> بأنني اطلعت على{' '}
-                          <Link to={ROUTE_PATHS.TERMS_OF_SERVICE} className="font-medium text-primary underline-offset-2 hover:underline">
-                            شروط وأحكام الاستخدام
-                          </Link>
-                          ، و{' '}
-                          <Link to={REFUND_POLICY_PATH} className="font-medium text-primary underline-offset-2 hover:underline">
-                            سياسة الاسترجاع والاسترداد
-                          </Link>
-                          ، وشروط بوابة الدفع لشركة مُيسر المالية، وأوافق على المتابعة.
-                        </Label>
-                      </div>
+                    <div className="space-y-4 rounded-lg border border-primary/30 bg-primary/5 p-4 sm:p-5">
+                      <PaymentCheckoutAcknowledgment
+                        checked={checkoutAcknowledged}
+                        onCheckedChange={setCheckoutAcknowledged}
+                        gateway="moyasar"
+                        idPrefix="moyasar-checkout"
+                      />
 
                       {!moyasarKeyOk && (
                         <Alert>
                           <AlertCircle className="h-4 w-4" />
-                          <AlertDescription className="text-sm">
+                          <AlertDescription className="text-base">
                             لإظهار نموذج الدفع أضف{' '}
                             <code className="rounded bg-muted px-1">VITE_MOYSAR_PUBLISHABLE_TEST_API_KEY</code> (أو{' '}
                             <code className="rounded bg-muted px-1">VITE_MOYSAR_PUBLISHABLE_LIVE_API_KEY</code> في الإنتاج)
@@ -1731,17 +1672,16 @@ export default function Payment() {
                         </Alert>
                       )}
 
-                      {moyasarKeyOk && (!softwareProductAcknowledged || !moyasarTermsAccepted) && (
-                        <p className="text-sm text-muted-foreground">فعّل الإقرارات أعلاه لعرض نموذج ميسر.</p>
-                      )}
-
-                      {moyasarKeyOk && softwareProductAcknowledged && moyasarTermsAccepted && registrationRequestReady && (
-                        <Card className="border-primary/20">
+                      {moyasarKeyOk && checkoutAcknowledged && registrationRequestReady && (
+                        <Card className="border-primary/30">
                           <CardHeader className="pb-2">
-                            <CardTitle className="text-lg">{paymentActivateNowCtaAr(price)}</CardTitle>
-                            <CardDescription>
-                              {TERM_ACTIVATE_NOW_AR} — منتج رقمي فوري. المبلغ بالهللة وفق الباقة والضريبة. بعد إتمام
-                              العملية يعيد ميسر التوجيه مع <span dir="ltr">?id=</span> ثم يُتحقق من الخادم تلقائياً.
+                            <CardTitle className="text-xl sm:text-2xl">
+                              {paymentActivateNowCtaAr(isWalletTopup ? walletChargedHalalas / 100 : price)}
+                            </CardTitle>
+                            <CardDescription className="text-base leading-relaxed text-foreground/85">
+                              {TERM_ACTIVATE_NOW_AR} — منتج رقمي فوري. المبلغ المعروض أعلاه هو ما يُخصم بالهللة.
+                              بعد إتمام العملية يعيد ميسر التوجيه مع <span dir="ltr">?id=</span> ثم يُتحقق من الخادم
+                              تلقائياً وتُصدر الرخصة.
                             </CardDescription>
                           </CardHeader>
                           <CardContent className="space-y-3">
@@ -1756,7 +1696,7 @@ export default function Payment() {
                               className="min-h-[280px] w-full max-w-full overflow-x-auto rounded-md border border-border bg-background p-2"
                               dir="ltr"
                             />
-                            <p className="text-xs text-muted-foreground leading-relaxed">
+                            <p className="text-sm leading-relaxed text-foreground/80 sm:text-base">
                               تُدخَل بيانات البطاقة داخل نموذج ميسر نفسه وتُعالَج عبر مزوّد الدفع؛ لا يحتفظ
                               حلاق ماب ببيانات البطاقة الكاملة.
                             </p>
@@ -1766,60 +1706,27 @@ export default function Payment() {
                     </div>
                   )}
 
-
                   {showSabCheckout && registrationRequestReady && (
-                    <div className="space-y-4 rounded-lg border border-border bg-muted/30 p-4">
-                      <Alert>
-                        <Shield className="h-4 w-4" />
-                        <AlertDescription className="space-y-2 text-sm leading-relaxed">
-                          <p>
-                            الدفع عبر <strong>بنك الأول (SAB)</strong> يتم عبر بوابة OPPWA المعتمدة. تُعالَج بيانات
-                            البطاقة داخل ودجت البنك ولا يحتفظ موقع حلاق ماب ببيانات البطاقة الكاملة.
-                          </p>
-                        </AlertDescription>
-                      </Alert>
-                      <div className="flex items-start gap-3">
-                        <Checkbox
-                          id="sab-software-product-ack"
-                          checked={softwareProductAcknowledged}
-                          onCheckedChange={(c) => setSoftwareProductAcknowledged(c === true)}
-                          className="mt-1"
-                        />
-                        <Label htmlFor="sab-software-product-ack" className="cursor-pointer text-sm font-normal leading-relaxed">
-                          <span className="font-semibold text-foreground">{SOFTWARE_PRODUCT_PURCHASE_ACK_SHORT_AR}</span>
-                          {' — '}
-                          {SOFTWARE_PRODUCT_PURCHASE_ACK_AR.replace(/\*\*/g, '')}
-                        </Label>
-                      </div>
-                      <div className="flex items-start gap-3">
-                        <Checkbox
-                          id="sab-merchant-terms"
-                          checked={sabTermsAccepted}
-                          onCheckedChange={(c) => setSabTermsAccepted(c === true)}
-                          className="mt-1"
-                        />
-                        <Label htmlFor="sab-merchant-terms" className="cursor-pointer text-sm font-normal leading-relaxed">
-                          <span className="font-semibold text-foreground">أقر</span> بأنني أوافق على متابعة الدفع عبر
-                          بوابة بنك الأول وفق شروط التاجر والبنك المعتمدة.
-                        </Label>
-                      </div>
+                    <div className="space-y-4 rounded-lg border border-border bg-muted/30 p-4 sm:p-5">
+                      <PaymentCheckoutAcknowledgment
+                        checked={checkoutAcknowledged}
+                        onCheckedChange={setCheckoutAcknowledged}
+                        gateway="sab"
+                        idPrefix="sab-checkout"
+                      />
 
-                      {(!softwareProductAcknowledged || !sabTermsAccepted) && (
-                        <p className="text-sm text-muted-foreground">فعّل الإقرارات أعلاه لعرض نموذج بنك الأول.</p>
-                      )}
-
-                      {softwareProductAcknowledged && sabTermsAccepted && (
-                        <Card className="border-primary/20">
+                      {checkoutAcknowledged && (
+                        <Card className="border-primary/30">
                           <CardHeader className="pb-2">
-                            <CardTitle className="text-lg">{paymentActivateNowCtaAr(price)}</CardTitle>
-                            <CardDescription>
+                            <CardTitle className="text-xl sm:text-2xl">{paymentActivateNowCtaAr(price)}</CardTitle>
+                            <CardDescription className="text-base leading-relaxed text-foreground/85">
                               {TERM_ACTIVATE_NOW_AR} — بعد إتمام العملية يعيد البنك التوجيه مع{' '}
-                              <span dir="ltr">?gateway=sab&amp;id=</span> ثم يُتحقق من الخادم تلقائياً.
+                              <span dir="ltr">?gateway=sab&amp;id=</span> ثم يُتحقق من الخادم تلقائياً وتُصدر الرخصة.
                             </CardDescription>
                           </CardHeader>
                           <CardContent className="space-y-3">
                             {sabCheckoutLoading && (
-                              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                              <div className="flex items-center gap-2 text-base text-foreground/80">
                                 <Loader2 className="h-4 w-4 animate-spin" />
                                 جاري تجهيز جلسة الدفع…
                               </div>
@@ -1835,7 +1742,7 @@ export default function Payment() {
                               className="min-h-[280px] w-full max-w-full overflow-x-auto rounded-md border border-border bg-background p-2"
                               dir="ltr"
                             />
-                            <p className="text-xs text-muted-foreground leading-relaxed">
+                            <p className="text-sm leading-relaxed text-foreground/80 sm:text-base">
                               يتطلب الإنتاج <strong>HTTPS</strong> وتسجيل النطاق لدى البنك. webhook الخادم:{' '}
                               <span dir="ltr">/api/sab-webhook</span>
                             </p>
