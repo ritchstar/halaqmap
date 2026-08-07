@@ -346,8 +346,14 @@ export default defineConfig(({ mode }) => {
           globIgnores: ['**/halaqmap_barber_banner_*.png'],
           maximumFileSizeToCacheInBytes: 8 * 1024 * 1024,
           navigateFallback: '/index.html',
-          // .well-known/* يجب أن يُخدَم كملفّ خام (تحقّق Apple Pay وغيره) لا كقشرة التطبيق
-          navigateFallbackDenylist: [/^\/api\//, /^\/\.well-known\//],
+          // .well-known/* خام؛ /near/* صفحات SEO ثابتة — لا تُستبدل بقشرة SPA عبر navigateFallback
+          navigateFallbackDenylist: [
+            /^\/api\//,
+            /^\/\.well-known\//,
+            /^\/near($|\/)/,
+            /^\/sitemap(-|\.)/i,
+            /^\/robots\.txt$/i,
+          ],
           runtimeCaching: [
             // ملاحظة مقصودة: لا نُسجّل أي قاعدة لمسارات /api/* نفس-الأصل. مع generateSW
             // فإن الطلبات التي لا تطابق أي قاعدة ولا هي مسبقة-التخزين لا يعترضها الـ SW
