@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "origin": "https://www.halaqmap.com",
   "nodes": [
     {
@@ -9,89 +9,51 @@
       "parentSlugs": [],
       "lat": 24.7136,
       "lng": 46.6753,
-      "aliasesAr": ["مدينة الرياض"],
       "priority": 100
     },
     {
       "slug": "north",
       "nameAr": "شمال الرياض",
       "kind": "direction",
-      "parentSlugs": ["riyadh"],
-      "lat": 24.82,
-      "lng": 46.65,
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.8036,
+      "lng": 46.6753,
       "priority": 90
     },
     {
       "slug": "south",
       "nameAr": "جنوب الرياض",
       "kind": "direction",
-      "parentSlugs": ["riyadh"],
-      "lat": 24.58,
-      "lng": 46.72,
-      "priority": 88
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.6236,
+      "lng": 46.6753,
+      "priority": 89
     },
     {
       "slug": "east",
       "nameAr": "شرق الرياض",
       "kind": "direction",
-      "parentSlugs": ["riyadh"],
-      "lat": 24.72,
-      "lng": 46.85,
-      "priority": 87
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.7136,
+      "lng": 46.7753,
+      "priority": 88
     },
     {
       "slug": "west",
       "nameAr": "غرب الرياض",
       "kind": "direction",
-      "parentSlugs": ["riyadh"],
-      "lat": 24.7,
-      "lng": 46.55,
-      "priority": 86
-    },
-    {
-      "slug": "qurtubah",
-      "nameAr": "قرطبة",
-      "kind": "neighborhood",
-      "parentSlugs": ["riyadh"],
-      "lat": 24.8105,
-      "lng": 46.724,
-      "priority": 80
-    },
-    {
-      "slug": "olaya",
-      "nameAr": "العليا",
-      "kind": "neighborhood",
-      "parentSlugs": ["riyadh"],
-      "lat": 24.6907,
-      "lng": 46.6858,
-      "priority": 79
-    },
-    {
-      "slug": "malaz",
-      "nameAr": "الملز",
-      "kind": "neighborhood",
-      "parentSlugs": ["riyadh"],
-      "lat": 24.6622,
-      "lng": 46.7312,
-      "priority": 78
-    },
-    {
-      "slug": "narjis",
-      "nameAr": "النرجس",
-      "kind": "neighborhood",
-      "parentSlugs": ["riyadh"],
-      "lat": 24.8601,
-      "lng": 46.659,
-      "priority": 77
-    },
-    {
-      "slug": "yasmin",
-      "nameAr": "الياسمين",
-      "kind": "neighborhood",
-      "parentSlugs": ["riyadh"],
-      "lat": 24.828,
-      "lng": 46.64,
-      "priority": 76
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.7136,
+      "lng": 46.5753,
+      "priority": 87
     },
     {
       "slug": "jeddah",
@@ -106,64 +68,157 @@
       "slug": "north",
       "nameAr": "شمال جدة",
       "kind": "direction",
-      "parentSlugs": ["jeddah"],
-      "lat": 21.65,
-      "lng": 39.15,
+      "parentSlugs": [
+        "jeddah"
+      ],
+      "lat": 21.5758,
+      "lng": 39.1925,
       "priority": 89
     },
     {
       "slug": "south",
       "nameAr": "جنوب جدة",
       "kind": "direction",
-      "parentSlugs": ["jeddah"],
-      "lat": 21.35,
-      "lng": 39.22,
+      "parentSlugs": [
+        "jeddah"
+      ],
+      "lat": 21.3958,
+      "lng": 39.1925,
       "priority": 88
     },
     {
       "slug": "east",
       "nameAr": "شرق جدة",
       "kind": "direction",
-      "parentSlugs": ["jeddah"],
-      "lat": 21.52,
-      "lng": 39.28,
+      "parentSlugs": [
+        "jeddah"
+      ],
+      "lat": 21.4858,
+      "lng": 39.2925,
       "priority": 87
     },
     {
       "slug": "west",
       "nameAr": "غرب جدة",
       "kind": "direction",
-      "parentSlugs": ["jeddah"],
-      "lat": 21.52,
-      "lng": 39.12,
+      "parentSlugs": [
+        "jeddah"
+      ],
+      "lat": 21.4858,
+      "lng": 39.0925,
       "priority": 86
     },
     {
-      "slug": "rawdah",
-      "nameAr": "الروضة",
-      "kind": "neighborhood",
-      "parentSlugs": ["jeddah"],
-      "lat": 21.562,
-      "lng": 39.155,
-      "priority": 80
+      "slug": "makkah",
+      "nameAr": "مكة",
+      "kind": "city",
+      "parentSlugs": [],
+      "lat": 21.3891,
+      "lng": 39.8579,
+      "priority": 97,
+      "aliasesAr": [
+        "مكة المكرمة"
+      ]
     },
     {
-      "slug": "hamra",
-      "nameAr": "الحمراء",
-      "kind": "neighborhood",
-      "parentSlugs": ["jeddah"],
-      "lat": 21.538,
-      "lng": 39.168,
-      "priority": 79
+      "slug": "north",
+      "nameAr": "شمال مكة",
+      "kind": "direction",
+      "parentSlugs": [
+        "makkah"
+      ],
+      "lat": 21.4791,
+      "lng": 39.8579,
+      "priority": 87
     },
     {
-      "slug": "shati",
-      "nameAr": "الشاطئ",
-      "kind": "neighborhood",
-      "parentSlugs": ["jeddah"],
-      "lat": 21.6,
-      "lng": 39.11,
-      "priority": 78
+      "slug": "south",
+      "nameAr": "جنوب مكة",
+      "kind": "direction",
+      "parentSlugs": [
+        "makkah"
+      ],
+      "lat": 21.2991,
+      "lng": 39.8579,
+      "priority": 86
+    },
+    {
+      "slug": "east",
+      "nameAr": "شرق مكة",
+      "kind": "direction",
+      "parentSlugs": [
+        "makkah"
+      ],
+      "lat": 21.3891,
+      "lng": 39.9579,
+      "priority": 85
+    },
+    {
+      "slug": "west",
+      "nameAr": "غرب مكة",
+      "kind": "direction",
+      "parentSlugs": [
+        "makkah"
+      ],
+      "lat": 21.3891,
+      "lng": 39.7579,
+      "priority": 84
+    },
+    {
+      "slug": "madinah",
+      "nameAr": "المدينة",
+      "kind": "city",
+      "parentSlugs": [],
+      "lat": 24.5247,
+      "lng": 39.5692,
+      "priority": 96,
+      "aliasesAr": [
+        "المدينة المنورة"
+      ]
+    },
+    {
+      "slug": "north",
+      "nameAr": "شمال المدينة",
+      "kind": "direction",
+      "parentSlugs": [
+        "madinah"
+      ],
+      "lat": 24.6147,
+      "lng": 39.5692,
+      "priority": 86
+    },
+    {
+      "slug": "south",
+      "nameAr": "جنوب المدينة",
+      "kind": "direction",
+      "parentSlugs": [
+        "madinah"
+      ],
+      "lat": 24.4347,
+      "lng": 39.5692,
+      "priority": 85
+    },
+    {
+      "slug": "east",
+      "nameAr": "شرق المدينة",
+      "kind": "direction",
+      "parentSlugs": [
+        "madinah"
+      ],
+      "lat": 24.5247,
+      "lng": 39.6692,
+      "priority": 84
+    },
+    {
+      "slug": "west",
+      "nameAr": "غرب المدينة",
+      "kind": "direction",
+      "parentSlugs": [
+        "madinah"
+      ],
+      "lat": 24.5247,
+      "lng": 39.4692,
+      "priority": 83
     },
     {
       "slug": "dammam",
@@ -172,160 +227,2404 @@
       "parentSlugs": [],
       "lat": 26.3927,
       "lng": 49.9777,
-      "aliasesAr": ["الخبر", "المنطقة الشرقية"],
-      "priority": 95
+      "priority": 98
     },
     {
       "slug": "north",
       "nameAr": "شمال الدمام",
       "kind": "direction",
-      "parentSlugs": ["dammam"],
-      "lat": 26.48,
-      "lng": 50.02,
-      "priority": 85
+      "parentSlugs": [
+        "dammam"
+      ],
+      "lat": 26.4827,
+      "lng": 49.9777,
+      "priority": 88
     },
     {
       "slug": "south",
       "nameAr": "جنوب الدمام",
       "kind": "direction",
-      "parentSlugs": ["dammam"],
-      "lat": 26.3,
-      "lng": 50.05,
-      "priority": 84
+      "parentSlugs": [
+        "dammam"
+      ],
+      "lat": 26.3027,
+      "lng": 49.9777,
+      "priority": 87
     },
     {
       "slug": "east",
       "nameAr": "شرق الدمام",
       "kind": "direction",
-      "parentSlugs": ["dammam"],
-      "lat": 26.4,
-      "lng": 50.12,
-      "priority": 83
+      "parentSlugs": [
+        "dammam"
+      ],
+      "lat": 26.3927,
+      "lng": 50.0777,
+      "priority": 86
     },
     {
       "slug": "west",
       "nameAr": "غرب الدمام",
       "kind": "direction",
-      "parentSlugs": ["dammam"],
-      "lat": 26.38,
-      "lng": 49.9,
-      "priority": 82
+      "parentSlugs": [
+        "dammam"
+      ],
+      "lat": 26.3927,
+      "lng": 49.8777,
+      "priority": 85
+    },
+    {
+      "slug": "khobar",
+      "nameAr": "الخبر",
+      "kind": "city",
+      "parentSlugs": [],
+      "lat": 26.2172,
+      "lng": 50.1971,
+      "priority": 65
+    },
+    {
+      "slug": "north",
+      "nameAr": "شمال الخبر",
+      "kind": "direction",
+      "parentSlugs": [
+        "khobar"
+      ],
+      "lat": 26.3072,
+      "lng": 50.1971,
+      "priority": 55
+    },
+    {
+      "slug": "south",
+      "nameAr": "جنوب الخبر",
+      "kind": "direction",
+      "parentSlugs": [
+        "khobar"
+      ],
+      "lat": 26.1272,
+      "lng": 50.1971,
+      "priority": 54
+    },
+    {
+      "slug": "east",
+      "nameAr": "شرق الخبر",
+      "kind": "direction",
+      "parentSlugs": [
+        "khobar"
+      ],
+      "lat": 26.2172,
+      "lng": 50.2971,
+      "priority": 53
+    },
+    {
+      "slug": "west",
+      "nameAr": "غرب الخبر",
+      "kind": "direction",
+      "parentSlugs": [
+        "khobar"
+      ],
+      "lat": 26.2172,
+      "lng": 50.0971,
+      "priority": 52
+    },
+    {
+      "slug": "dhahran",
+      "nameAr": "الظهران",
+      "kind": "city",
+      "parentSlugs": [],
+      "lat": 26.3031,
+      "lng": 50.115,
+      "priority": 64
+    },
+    {
+      "slug": "north",
+      "nameAr": "شمال الظهران",
+      "kind": "direction",
+      "parentSlugs": [
+        "dhahran"
+      ],
+      "lat": 26.3931,
+      "lng": 50.115,
+      "priority": 54
+    },
+    {
+      "slug": "south",
+      "nameAr": "جنوب الظهران",
+      "kind": "direction",
+      "parentSlugs": [
+        "dhahran"
+      ],
+      "lat": 26.2131,
+      "lng": 50.115,
+      "priority": 53
+    },
+    {
+      "slug": "east",
+      "nameAr": "شرق الظهران",
+      "kind": "direction",
+      "parentSlugs": [
+        "dhahran"
+      ],
+      "lat": 26.3031,
+      "lng": 50.215,
+      "priority": 52
+    },
+    {
+      "slug": "west",
+      "nameAr": "غرب الظهران",
+      "kind": "direction",
+      "parentSlugs": [
+        "dhahran"
+      ],
+      "lat": 26.3031,
+      "lng": 50.015,
+      "priority": 51
+    },
+    {
+      "slug": "qatif",
+      "nameAr": "القطيف",
+      "kind": "city",
+      "parentSlugs": [],
+      "lat": 26.5654,
+      "lng": 49.9983,
+      "priority": 63
+    },
+    {
+      "slug": "north",
+      "nameAr": "شمال القطيف",
+      "kind": "direction",
+      "parentSlugs": [
+        "qatif"
+      ],
+      "lat": 26.6554,
+      "lng": 49.9983,
+      "priority": 53
+    },
+    {
+      "slug": "south",
+      "nameAr": "جنوب القطيف",
+      "kind": "direction",
+      "parentSlugs": [
+        "qatif"
+      ],
+      "lat": 26.4754,
+      "lng": 49.9983,
+      "priority": 52
+    },
+    {
+      "slug": "east",
+      "nameAr": "شرق القطيف",
+      "kind": "direction",
+      "parentSlugs": [
+        "qatif"
+      ],
+      "lat": 26.5654,
+      "lng": 50.0983,
+      "priority": 51
+    },
+    {
+      "slug": "west",
+      "nameAr": "غرب القطيف",
+      "kind": "direction",
+      "parentSlugs": [
+        "qatif"
+      ],
+      "lat": 26.5654,
+      "lng": 49.8983,
+      "priority": 50
+    },
+    {
+      "slug": "ahsa",
+      "nameAr": "الأحساء",
+      "kind": "city",
+      "parentSlugs": [],
+      "lat": 25.3633,
+      "lng": 49.5872,
+      "priority": 62,
+      "aliasesAr": [
+        "الهفوف"
+      ]
+    },
+    {
+      "slug": "north",
+      "nameAr": "شمال الأحساء",
+      "kind": "direction",
+      "parentSlugs": [
+        "ahsa"
+      ],
+      "lat": 25.4533,
+      "lng": 49.5872,
+      "priority": 52
+    },
+    {
+      "slug": "south",
+      "nameAr": "جنوب الأحساء",
+      "kind": "direction",
+      "parentSlugs": [
+        "ahsa"
+      ],
+      "lat": 25.2733,
+      "lng": 49.5872,
+      "priority": 51
+    },
+    {
+      "slug": "east",
+      "nameAr": "شرق الأحساء",
+      "kind": "direction",
+      "parentSlugs": [
+        "ahsa"
+      ],
+      "lat": 25.3633,
+      "lng": 49.6872,
+      "priority": 50
+    },
+    {
+      "slug": "west",
+      "nameAr": "غرب الأحساء",
+      "kind": "direction",
+      "parentSlugs": [
+        "ahsa"
+      ],
+      "lat": 25.3633,
+      "lng": 49.4872,
+      "priority": 49
+    },
+    {
+      "slug": "jubail",
+      "nameAr": "الجبيل",
+      "kind": "city",
+      "parentSlugs": [],
+      "lat": 27.0146,
+      "lng": 49.6622,
+      "priority": 61
+    },
+    {
+      "slug": "north",
+      "nameAr": "شمال الجبيل",
+      "kind": "direction",
+      "parentSlugs": [
+        "jubail"
+      ],
+      "lat": 27.1046,
+      "lng": 49.6622,
+      "priority": 51
+    },
+    {
+      "slug": "south",
+      "nameAr": "جنوب الجبيل",
+      "kind": "direction",
+      "parentSlugs": [
+        "jubail"
+      ],
+      "lat": 26.9246,
+      "lng": 49.6622,
+      "priority": 50
+    },
+    {
+      "slug": "east",
+      "nameAr": "شرق الجبيل",
+      "kind": "direction",
+      "parentSlugs": [
+        "jubail"
+      ],
+      "lat": 27.0146,
+      "lng": 49.7622,
+      "priority": 49
+    },
+    {
+      "slug": "west",
+      "nameAr": "غرب الجبيل",
+      "kind": "direction",
+      "parentSlugs": [
+        "jubail"
+      ],
+      "lat": 27.0146,
+      "lng": 49.5622,
+      "priority": 48
+    },
+    {
+      "slug": "yanbu",
+      "nameAr": "ينبع",
+      "kind": "city",
+      "parentSlugs": [],
+      "lat": 24.0889,
+      "lng": 38.0584,
+      "priority": 60
+    },
+    {
+      "slug": "north",
+      "nameAr": "شمال ينبع",
+      "kind": "direction",
+      "parentSlugs": [
+        "yanbu"
+      ],
+      "lat": 24.1789,
+      "lng": 38.0584,
+      "priority": 50
+    },
+    {
+      "slug": "south",
+      "nameAr": "جنوب ينبع",
+      "kind": "direction",
+      "parentSlugs": [
+        "yanbu"
+      ],
+      "lat": 23.9989,
+      "lng": 38.0584,
+      "priority": 49
+    },
+    {
+      "slug": "east",
+      "nameAr": "شرق ينبع",
+      "kind": "direction",
+      "parentSlugs": [
+        "yanbu"
+      ],
+      "lat": 24.0889,
+      "lng": 38.1584,
+      "priority": 48
+    },
+    {
+      "slug": "west",
+      "nameAr": "غرب ينبع",
+      "kind": "direction",
+      "parentSlugs": [
+        "yanbu"
+      ],
+      "lat": 24.0889,
+      "lng": 37.9584,
+      "priority": 47
+    },
+    {
+      "slug": "taif",
+      "nameAr": "الطائف",
+      "kind": "city",
+      "parentSlugs": [],
+      "lat": 21.2703,
+      "lng": 40.4178,
+      "priority": 59
+    },
+    {
+      "slug": "north",
+      "nameAr": "شمال الطائف",
+      "kind": "direction",
+      "parentSlugs": [
+        "taif"
+      ],
+      "lat": 21.3603,
+      "lng": 40.4178,
+      "priority": 49
+    },
+    {
+      "slug": "south",
+      "nameAr": "جنوب الطائف",
+      "kind": "direction",
+      "parentSlugs": [
+        "taif"
+      ],
+      "lat": 21.1803,
+      "lng": 40.4178,
+      "priority": 48
+    },
+    {
+      "slug": "east",
+      "nameAr": "شرق الطائف",
+      "kind": "direction",
+      "parentSlugs": [
+        "taif"
+      ],
+      "lat": 21.2703,
+      "lng": 40.5178,
+      "priority": 47
+    },
+    {
+      "slug": "west",
+      "nameAr": "غرب الطائف",
+      "kind": "direction",
+      "parentSlugs": [
+        "taif"
+      ],
+      "lat": 21.2703,
+      "lng": 40.3178,
+      "priority": 46
+    },
+    {
+      "slug": "tabuk",
+      "nameAr": "تبوك",
+      "kind": "city",
+      "parentSlugs": [],
+      "lat": 28.3838,
+      "lng": 36.555,
+      "priority": 58
+    },
+    {
+      "slug": "north",
+      "nameAr": "شمال تبوك",
+      "kind": "direction",
+      "parentSlugs": [
+        "tabuk"
+      ],
+      "lat": 28.4738,
+      "lng": 36.555,
+      "priority": 48
+    },
+    {
+      "slug": "south",
+      "nameAr": "جنوب تبوك",
+      "kind": "direction",
+      "parentSlugs": [
+        "tabuk"
+      ],
+      "lat": 28.2938,
+      "lng": 36.555,
+      "priority": 47
+    },
+    {
+      "slug": "east",
+      "nameAr": "شرق تبوك",
+      "kind": "direction",
+      "parentSlugs": [
+        "tabuk"
+      ],
+      "lat": 28.3838,
+      "lng": 36.655,
+      "priority": 46
+    },
+    {
+      "slug": "west",
+      "nameAr": "غرب تبوك",
+      "kind": "direction",
+      "parentSlugs": [
+        "tabuk"
+      ],
+      "lat": 28.3838,
+      "lng": 36.455,
+      "priority": 45
+    },
+    {
+      "slug": "buraidah",
+      "nameAr": "بريدة",
+      "kind": "city",
+      "parentSlugs": [],
+      "lat": 26.326,
+      "lng": 43.975,
+      "priority": 57
+    },
+    {
+      "slug": "north",
+      "nameAr": "شمال بريدة",
+      "kind": "direction",
+      "parentSlugs": [
+        "buraidah"
+      ],
+      "lat": 26.416,
+      "lng": 43.975,
+      "priority": 47
+    },
+    {
+      "slug": "south",
+      "nameAr": "جنوب بريدة",
+      "kind": "direction",
+      "parentSlugs": [
+        "buraidah"
+      ],
+      "lat": 26.236,
+      "lng": 43.975,
+      "priority": 46
+    },
+    {
+      "slug": "east",
+      "nameAr": "شرق بريدة",
+      "kind": "direction",
+      "parentSlugs": [
+        "buraidah"
+      ],
+      "lat": 26.326,
+      "lng": 44.075,
+      "priority": 45
+    },
+    {
+      "slug": "west",
+      "nameAr": "غرب بريدة",
+      "kind": "direction",
+      "parentSlugs": [
+        "buraidah"
+      ],
+      "lat": 26.326,
+      "lng": 43.875,
+      "priority": 44
+    },
+    {
+      "slug": "unayzah",
+      "nameAr": "عنيزة",
+      "kind": "city",
+      "parentSlugs": [],
+      "lat": 26.087,
+      "lng": 43.993,
+      "priority": 56
+    },
+    {
+      "slug": "north",
+      "nameAr": "شمال عنيزة",
+      "kind": "direction",
+      "parentSlugs": [
+        "unayzah"
+      ],
+      "lat": 26.177,
+      "lng": 43.993,
+      "priority": 46
+    },
+    {
+      "slug": "south",
+      "nameAr": "جنوب عنيزة",
+      "kind": "direction",
+      "parentSlugs": [
+        "unayzah"
+      ],
+      "lat": 25.997,
+      "lng": 43.993,
+      "priority": 45
+    },
+    {
+      "slug": "east",
+      "nameAr": "شرق عنيزة",
+      "kind": "direction",
+      "parentSlugs": [
+        "unayzah"
+      ],
+      "lat": 26.087,
+      "lng": 44.093,
+      "priority": 44
+    },
+    {
+      "slug": "west",
+      "nameAr": "غرب عنيزة",
+      "kind": "direction",
+      "parentSlugs": [
+        "unayzah"
+      ],
+      "lat": 26.087,
+      "lng": 43.893,
+      "priority": 43
+    },
+    {
+      "slug": "ar-rass",
+      "nameAr": "الرس",
+      "kind": "city",
+      "parentSlugs": [],
+      "lat": 25.8694,
+      "lng": 43.4973,
+      "priority": 55
+    },
+    {
+      "slug": "north",
+      "nameAr": "شمال الرس",
+      "kind": "direction",
+      "parentSlugs": [
+        "ar-rass"
+      ],
+      "lat": 25.9594,
+      "lng": 43.4973,
+      "priority": 45
+    },
+    {
+      "slug": "south",
+      "nameAr": "جنوب الرس",
+      "kind": "direction",
+      "parentSlugs": [
+        "ar-rass"
+      ],
+      "lat": 25.7794,
+      "lng": 43.4973,
+      "priority": 44
+    },
+    {
+      "slug": "east",
+      "nameAr": "شرق الرس",
+      "kind": "direction",
+      "parentSlugs": [
+        "ar-rass"
+      ],
+      "lat": 25.8694,
+      "lng": 43.5973,
+      "priority": 43
+    },
+    {
+      "slug": "west",
+      "nameAr": "غرب الرس",
+      "kind": "direction",
+      "parentSlugs": [
+        "ar-rass"
+      ],
+      "lat": 25.8694,
+      "lng": 43.3973,
+      "priority": 42
+    },
+    {
+      "slug": "hail",
+      "nameAr": "حائل",
+      "kind": "city",
+      "parentSlugs": [],
+      "lat": 27.5114,
+      "lng": 41.7208,
+      "priority": 54
+    },
+    {
+      "slug": "north",
+      "nameAr": "شمال حائل",
+      "kind": "direction",
+      "parentSlugs": [
+        "hail"
+      ],
+      "lat": 27.6014,
+      "lng": 41.7208,
+      "priority": 44
+    },
+    {
+      "slug": "south",
+      "nameAr": "جنوب حائل",
+      "kind": "direction",
+      "parentSlugs": [
+        "hail"
+      ],
+      "lat": 27.4214,
+      "lng": 41.7208,
+      "priority": 43
+    },
+    {
+      "slug": "east",
+      "nameAr": "شرق حائل",
+      "kind": "direction",
+      "parentSlugs": [
+        "hail"
+      ],
+      "lat": 27.5114,
+      "lng": 41.8208,
+      "priority": 42
+    },
+    {
+      "slug": "west",
+      "nameAr": "غرب حائل",
+      "kind": "direction",
+      "parentSlugs": [
+        "hail"
+      ],
+      "lat": 27.5114,
+      "lng": 41.6208,
+      "priority": 41
+    },
+    {
+      "slug": "sakaka",
+      "nameAr": "سكاكا",
+      "kind": "city",
+      "parentSlugs": [],
+      "lat": 29.9697,
+      "lng": 40.2064,
+      "priority": 53,
+      "aliasesAr": [
+        "الجوف"
+      ]
+    },
+    {
+      "slug": "north",
+      "nameAr": "شمال سكاكا",
+      "kind": "direction",
+      "parentSlugs": [
+        "sakaka"
+      ],
+      "lat": 30.0597,
+      "lng": 40.2064,
+      "priority": 43
+    },
+    {
+      "slug": "south",
+      "nameAr": "جنوب سكاكا",
+      "kind": "direction",
+      "parentSlugs": [
+        "sakaka"
+      ],
+      "lat": 29.8797,
+      "lng": 40.2064,
+      "priority": 42
+    },
+    {
+      "slug": "east",
+      "nameAr": "شرق سكاكا",
+      "kind": "direction",
+      "parentSlugs": [
+        "sakaka"
+      ],
+      "lat": 29.9697,
+      "lng": 40.3064,
+      "priority": 41
+    },
+    {
+      "slug": "west",
+      "nameAr": "غرب سكاكا",
+      "kind": "direction",
+      "parentSlugs": [
+        "sakaka"
+      ],
+      "lat": 29.9697,
+      "lng": 40.1064,
+      "priority": 40
+    },
+    {
+      "slug": "qurayyat",
+      "nameAr": "القريات",
+      "kind": "city",
+      "parentSlugs": [],
+      "lat": 31.3316,
+      "lng": 37.3428,
+      "priority": 52
+    },
+    {
+      "slug": "north",
+      "nameAr": "شمال القريات",
+      "kind": "direction",
+      "parentSlugs": [
+        "qurayyat"
+      ],
+      "lat": 31.4216,
+      "lng": 37.3428,
+      "priority": 42
+    },
+    {
+      "slug": "south",
+      "nameAr": "جنوب القريات",
+      "kind": "direction",
+      "parentSlugs": [
+        "qurayyat"
+      ],
+      "lat": 31.2416,
+      "lng": 37.3428,
+      "priority": 41
+    },
+    {
+      "slug": "east",
+      "nameAr": "شرق القريات",
+      "kind": "direction",
+      "parentSlugs": [
+        "qurayyat"
+      ],
+      "lat": 31.3316,
+      "lng": 37.4428,
+      "priority": 40
+    },
+    {
+      "slug": "west",
+      "nameAr": "غرب القريات",
+      "kind": "direction",
+      "parentSlugs": [
+        "qurayyat"
+      ],
+      "lat": 31.3316,
+      "lng": 37.2428,
+      "priority": 39
+    },
+    {
+      "slug": "arar",
+      "nameAr": "عرعر",
+      "kind": "city",
+      "parentSlugs": [],
+      "lat": 30.9753,
+      "lng": 41.0381,
+      "priority": 51
+    },
+    {
+      "slug": "north",
+      "nameAr": "شمال عرعر",
+      "kind": "direction",
+      "parentSlugs": [
+        "arar"
+      ],
+      "lat": 31.0653,
+      "lng": 41.0381,
+      "priority": 41
+    },
+    {
+      "slug": "south",
+      "nameAr": "جنوب عرعر",
+      "kind": "direction",
+      "parentSlugs": [
+        "arar"
+      ],
+      "lat": 30.8853,
+      "lng": 41.0381,
+      "priority": 40
+    },
+    {
+      "slug": "east",
+      "nameAr": "شرق عرعر",
+      "kind": "direction",
+      "parentSlugs": [
+        "arar"
+      ],
+      "lat": 30.9753,
+      "lng": 41.1381,
+      "priority": 39
+    },
+    {
+      "slug": "west",
+      "nameAr": "غرب عرعر",
+      "kind": "direction",
+      "parentSlugs": [
+        "arar"
+      ],
+      "lat": 30.9753,
+      "lng": 40.9381,
+      "priority": 38
+    },
+    {
+      "slug": "rafha",
+      "nameAr": "رفحاء",
+      "kind": "city",
+      "parentSlugs": [],
+      "lat": 29.6342,
+      "lng": 43.4969,
+      "priority": 50
+    },
+    {
+      "slug": "north",
+      "nameAr": "شمال رفحاء",
+      "kind": "direction",
+      "parentSlugs": [
+        "rafha"
+      ],
+      "lat": 29.7242,
+      "lng": 43.4969,
+      "priority": 40
+    },
+    {
+      "slug": "south",
+      "nameAr": "جنوب رفحاء",
+      "kind": "direction",
+      "parentSlugs": [
+        "rafha"
+      ],
+      "lat": 29.5442,
+      "lng": 43.4969,
+      "priority": 39
+    },
+    {
+      "slug": "east",
+      "nameAr": "شرق رفحاء",
+      "kind": "direction",
+      "parentSlugs": [
+        "rafha"
+      ],
+      "lat": 29.6342,
+      "lng": 43.5969,
+      "priority": 38
+    },
+    {
+      "slug": "west",
+      "nameAr": "غرب رفحاء",
+      "kind": "direction",
+      "parentSlugs": [
+        "rafha"
+      ],
+      "lat": 29.6342,
+      "lng": 43.3969,
+      "priority": 37
+    },
+    {
+      "slug": "turaif",
+      "nameAr": "طريف",
+      "kind": "city",
+      "parentSlugs": [],
+      "lat": 31.6725,
+      "lng": 38.6637,
+      "priority": 49
+    },
+    {
+      "slug": "north",
+      "nameAr": "شمال طريف",
+      "kind": "direction",
+      "parentSlugs": [
+        "turaif"
+      ],
+      "lat": 31.7625,
+      "lng": 38.6637,
+      "priority": 39
+    },
+    {
+      "slug": "south",
+      "nameAr": "جنوب طريف",
+      "kind": "direction",
+      "parentSlugs": [
+        "turaif"
+      ],
+      "lat": 31.5825,
+      "lng": 38.6637,
+      "priority": 38
+    },
+    {
+      "slug": "east",
+      "nameAr": "شرق طريف",
+      "kind": "direction",
+      "parentSlugs": [
+        "turaif"
+      ],
+      "lat": 31.6725,
+      "lng": 38.7637,
+      "priority": 37
+    },
+    {
+      "slug": "west",
+      "nameAr": "غرب طريف",
+      "kind": "direction",
+      "parentSlugs": [
+        "turaif"
+      ],
+      "lat": 31.6725,
+      "lng": 38.5637,
+      "priority": 36
+    },
+    {
+      "slug": "hafar-al-batin",
+      "nameAr": "حفر الباطن",
+      "kind": "city",
+      "parentSlugs": [],
+      "lat": 28.4337,
+      "lng": 45.9601,
+      "priority": 48
+    },
+    {
+      "slug": "north",
+      "nameAr": "شمال حفر الباطن",
+      "kind": "direction",
+      "parentSlugs": [
+        "hafar-al-batin"
+      ],
+      "lat": 28.5237,
+      "lng": 45.9601,
+      "priority": 38
+    },
+    {
+      "slug": "south",
+      "nameAr": "جنوب حفر الباطن",
+      "kind": "direction",
+      "parentSlugs": [
+        "hafar-al-batin"
+      ],
+      "lat": 28.3437,
+      "lng": 45.9601,
+      "priority": 37
+    },
+    {
+      "slug": "east",
+      "nameAr": "شرق حفر الباطن",
+      "kind": "direction",
+      "parentSlugs": [
+        "hafar-al-batin"
+      ],
+      "lat": 28.4337,
+      "lng": 46.0601,
+      "priority": 36
+    },
+    {
+      "slug": "west",
+      "nameAr": "غرب حفر الباطن",
+      "kind": "direction",
+      "parentSlugs": [
+        "hafar-al-batin"
+      ],
+      "lat": 28.4337,
+      "lng": 45.8601,
+      "priority": 35
+    },
+    {
+      "slug": "kharj",
+      "nameAr": "الخرج",
+      "kind": "city",
+      "parentSlugs": [],
+      "lat": 24.1556,
+      "lng": 47.305,
+      "priority": 47
+    },
+    {
+      "slug": "north",
+      "nameAr": "شمال الخرج",
+      "kind": "direction",
+      "parentSlugs": [
+        "kharj"
+      ],
+      "lat": 24.2456,
+      "lng": 47.305,
+      "priority": 37
+    },
+    {
+      "slug": "south",
+      "nameAr": "جنوب الخرج",
+      "kind": "direction",
+      "parentSlugs": [
+        "kharj"
+      ],
+      "lat": 24.0656,
+      "lng": 47.305,
+      "priority": 36
+    },
+    {
+      "slug": "east",
+      "nameAr": "شرق الخرج",
+      "kind": "direction",
+      "parentSlugs": [
+        "kharj"
+      ],
+      "lat": 24.1556,
+      "lng": 47.405,
+      "priority": 35
+    },
+    {
+      "slug": "west",
+      "nameAr": "غرب الخرج",
+      "kind": "direction",
+      "parentSlugs": [
+        "kharj"
+      ],
+      "lat": 24.1556,
+      "lng": 47.205,
+      "priority": 34
+    },
+    {
+      "slug": "dawadmi",
+      "nameAr": "الدوادمي",
+      "kind": "city",
+      "parentSlugs": [],
+      "lat": 24.5077,
+      "lng": 44.3922,
+      "priority": 46
+    },
+    {
+      "slug": "north",
+      "nameAr": "شمال الدوادمي",
+      "kind": "direction",
+      "parentSlugs": [
+        "dawadmi"
+      ],
+      "lat": 24.5977,
+      "lng": 44.3922,
+      "priority": 36
+    },
+    {
+      "slug": "south",
+      "nameAr": "جنوب الدوادمي",
+      "kind": "direction",
+      "parentSlugs": [
+        "dawadmi"
+      ],
+      "lat": 24.4177,
+      "lng": 44.3922,
+      "priority": 35
+    },
+    {
+      "slug": "east",
+      "nameAr": "شرق الدوادمي",
+      "kind": "direction",
+      "parentSlugs": [
+        "dawadmi"
+      ],
+      "lat": 24.5077,
+      "lng": 44.4922,
+      "priority": 34
+    },
+    {
+      "slug": "west",
+      "nameAr": "غرب الدوادمي",
+      "kind": "direction",
+      "parentSlugs": [
+        "dawadmi"
+      ],
+      "lat": 24.5077,
+      "lng": 44.2922,
+      "priority": 33
+    },
+    {
+      "slug": "majmaah",
+      "nameAr": "المجمعة",
+      "kind": "city",
+      "parentSlugs": [],
+      "lat": 25.9042,
+      "lng": 45.3458,
+      "priority": 45
+    },
+    {
+      "slug": "north",
+      "nameAr": "شمال المجمعة",
+      "kind": "direction",
+      "parentSlugs": [
+        "majmaah"
+      ],
+      "lat": 25.9942,
+      "lng": 45.3458,
+      "priority": 35
+    },
+    {
+      "slug": "south",
+      "nameAr": "جنوب المجمعة",
+      "kind": "direction",
+      "parentSlugs": [
+        "majmaah"
+      ],
+      "lat": 25.8142,
+      "lng": 45.3458,
+      "priority": 34
+    },
+    {
+      "slug": "east",
+      "nameAr": "شرق المجمعة",
+      "kind": "direction",
+      "parentSlugs": [
+        "majmaah"
+      ],
+      "lat": 25.9042,
+      "lng": 45.4458,
+      "priority": 33
+    },
+    {
+      "slug": "west",
+      "nameAr": "غرب المجمعة",
+      "kind": "direction",
+      "parentSlugs": [
+        "majmaah"
+      ],
+      "lat": 25.9042,
+      "lng": 45.2458,
+      "priority": 32
+    },
+    {
+      "slug": "wadi-ad-dawasir",
+      "nameAr": "وادي الدواسر",
+      "kind": "city",
+      "parentSlugs": [],
+      "lat": 20.4693,
+      "lng": 44.7943,
+      "priority": 44
+    },
+    {
+      "slug": "north",
+      "nameAr": "شمال وادي الدواسر",
+      "kind": "direction",
+      "parentSlugs": [
+        "wadi-ad-dawasir"
+      ],
+      "lat": 20.5593,
+      "lng": 44.7943,
+      "priority": 34
+    },
+    {
+      "slug": "south",
+      "nameAr": "جنوب وادي الدواسر",
+      "kind": "direction",
+      "parentSlugs": [
+        "wadi-ad-dawasir"
+      ],
+      "lat": 20.3793,
+      "lng": 44.7943,
+      "priority": 33
+    },
+    {
+      "slug": "east",
+      "nameAr": "شرق وادي الدواسر",
+      "kind": "direction",
+      "parentSlugs": [
+        "wadi-ad-dawasir"
+      ],
+      "lat": 20.4693,
+      "lng": 44.8943,
+      "priority": 32
+    },
+    {
+      "slug": "west",
+      "nameAr": "غرب وادي الدواسر",
+      "kind": "direction",
+      "parentSlugs": [
+        "wadi-ad-dawasir"
+      ],
+      "lat": 20.4693,
+      "lng": 44.6943,
+      "priority": 31
+    },
+    {
+      "slug": "zulfi",
+      "nameAr": "الزلفي",
+      "kind": "city",
+      "parentSlugs": [],
+      "lat": 26.2994,
+      "lng": 44.8154,
+      "priority": 43
+    },
+    {
+      "slug": "north",
+      "nameAr": "شمال الزلفي",
+      "kind": "direction",
+      "parentSlugs": [
+        "zulfi"
+      ],
+      "lat": 26.3894,
+      "lng": 44.8154,
+      "priority": 33
+    },
+    {
+      "slug": "south",
+      "nameAr": "جنوب الزلفي",
+      "kind": "direction",
+      "parentSlugs": [
+        "zulfi"
+      ],
+      "lat": 26.2094,
+      "lng": 44.8154,
+      "priority": 32
+    },
+    {
+      "slug": "east",
+      "nameAr": "شرق الزلفي",
+      "kind": "direction",
+      "parentSlugs": [
+        "zulfi"
+      ],
+      "lat": 26.2994,
+      "lng": 44.9154,
+      "priority": 31
+    },
+    {
+      "slug": "west",
+      "nameAr": "غرب الزلفي",
+      "kind": "direction",
+      "parentSlugs": [
+        "zulfi"
+      ],
+      "lat": 26.2994,
+      "lng": 44.7154,
+      "priority": 30
+    },
+    {
+      "slug": "shagra",
+      "nameAr": "شقراء",
+      "kind": "city",
+      "parentSlugs": [],
+      "lat": 25.2484,
+      "lng": 45.2528,
+      "priority": 42
+    },
+    {
+      "slug": "north",
+      "nameAr": "شمال شقراء",
+      "kind": "direction",
+      "parentSlugs": [
+        "shagra"
+      ],
+      "lat": 25.3384,
+      "lng": 45.2528,
+      "priority": 32
+    },
+    {
+      "slug": "south",
+      "nameAr": "جنوب شقراء",
+      "kind": "direction",
+      "parentSlugs": [
+        "shagra"
+      ],
+      "lat": 25.1584,
+      "lng": 45.2528,
+      "priority": 31
+    },
+    {
+      "slug": "east",
+      "nameAr": "شرق شقراء",
+      "kind": "direction",
+      "parentSlugs": [
+        "shagra"
+      ],
+      "lat": 25.2484,
+      "lng": 45.3528,
+      "priority": 30
+    },
+    {
+      "slug": "west",
+      "nameAr": "غرب شقراء",
+      "kind": "direction",
+      "parentSlugs": [
+        "shagra"
+      ],
+      "lat": 25.2484,
+      "lng": 45.1528,
+      "priority": 29
+    },
+    {
+      "slug": "abha",
+      "nameAr": "أبها",
+      "kind": "city",
+      "parentSlugs": [],
+      "lat": 18.2164,
+      "lng": 42.5053,
+      "priority": 41
+    },
+    {
+      "slug": "north",
+      "nameAr": "شمال أبها",
+      "kind": "direction",
+      "parentSlugs": [
+        "abha"
+      ],
+      "lat": 18.3064,
+      "lng": 42.5053,
+      "priority": 31
+    },
+    {
+      "slug": "south",
+      "nameAr": "جنوب أبها",
+      "kind": "direction",
+      "parentSlugs": [
+        "abha"
+      ],
+      "lat": 18.1264,
+      "lng": 42.5053,
+      "priority": 30
+    },
+    {
+      "slug": "east",
+      "nameAr": "شرق أبها",
+      "kind": "direction",
+      "parentSlugs": [
+        "abha"
+      ],
+      "lat": 18.2164,
+      "lng": 42.6053,
+      "priority": 29
+    },
+    {
+      "slug": "west",
+      "nameAr": "غرب أبها",
+      "kind": "direction",
+      "parentSlugs": [
+        "abha"
+      ],
+      "lat": 18.2164,
+      "lng": 42.4053,
+      "priority": 28
+    },
+    {
+      "slug": "khamis-mushait",
+      "nameAr": "خميس مشيط",
+      "kind": "city",
+      "parentSlugs": [],
+      "lat": 18.306,
+      "lng": 42.7298,
+      "priority": 40
+    },
+    {
+      "slug": "north",
+      "nameAr": "شمال خميس مشيط",
+      "kind": "direction",
+      "parentSlugs": [
+        "khamis-mushait"
+      ],
+      "lat": 18.396,
+      "lng": 42.7298,
+      "priority": 30
+    },
+    {
+      "slug": "south",
+      "nameAr": "جنوب خميس مشيط",
+      "kind": "direction",
+      "parentSlugs": [
+        "khamis-mushait"
+      ],
+      "lat": 18.216,
+      "lng": 42.7298,
+      "priority": 29
+    },
+    {
+      "slug": "east",
+      "nameAr": "شرق خميس مشيط",
+      "kind": "direction",
+      "parentSlugs": [
+        "khamis-mushait"
+      ],
+      "lat": 18.306,
+      "lng": 42.8298,
+      "priority": 28
+    },
+    {
+      "slug": "west",
+      "nameAr": "غرب خميس مشيط",
+      "kind": "direction",
+      "parentSlugs": [
+        "khamis-mushait"
+      ],
+      "lat": 18.306,
+      "lng": 42.6298,
+      "priority": 27
+    },
+    {
+      "slug": "bisha",
+      "nameAr": "بيشة",
+      "kind": "city",
+      "parentSlugs": [],
+      "lat": 19.987,
+      "lng": 42.589,
+      "priority": 39
+    },
+    {
+      "slug": "north",
+      "nameAr": "شمال بيشة",
+      "kind": "direction",
+      "parentSlugs": [
+        "bisha"
+      ],
+      "lat": 20.077,
+      "lng": 42.589,
+      "priority": 29
+    },
+    {
+      "slug": "south",
+      "nameAr": "جنوب بيشة",
+      "kind": "direction",
+      "parentSlugs": [
+        "bisha"
+      ],
+      "lat": 19.897,
+      "lng": 42.589,
+      "priority": 28
+    },
+    {
+      "slug": "east",
+      "nameAr": "شرق بيشة",
+      "kind": "direction",
+      "parentSlugs": [
+        "bisha"
+      ],
+      "lat": 19.987,
+      "lng": 42.689,
+      "priority": 27
+    },
+    {
+      "slug": "west",
+      "nameAr": "غرب بيشة",
+      "kind": "direction",
+      "parentSlugs": [
+        "bisha"
+      ],
+      "lat": 19.987,
+      "lng": 42.489,
+      "priority": 26
+    },
+    {
+      "slug": "muhayil",
+      "nameAr": "محايل",
+      "kind": "city",
+      "parentSlugs": [],
+      "lat": 18.544,
+      "lng": 42.053,
+      "priority": 38,
+      "aliasesAr": [
+        "محايل عسير"
+      ]
+    },
+    {
+      "slug": "north",
+      "nameAr": "شمال محايل",
+      "kind": "direction",
+      "parentSlugs": [
+        "muhayil"
+      ],
+      "lat": 18.634,
+      "lng": 42.053,
+      "priority": 28
+    },
+    {
+      "slug": "south",
+      "nameAr": "جنوب محايل",
+      "kind": "direction",
+      "parentSlugs": [
+        "muhayil"
+      ],
+      "lat": 18.454,
+      "lng": 42.053,
+      "priority": 27
+    },
+    {
+      "slug": "east",
+      "nameAr": "شرق محايل",
+      "kind": "direction",
+      "parentSlugs": [
+        "muhayil"
+      ],
+      "lat": 18.544,
+      "lng": 42.153,
+      "priority": 26
+    },
+    {
+      "slug": "west",
+      "nameAr": "غرب محايل",
+      "kind": "direction",
+      "parentSlugs": [
+        "muhayil"
+      ],
+      "lat": 18.544,
+      "lng": 41.953,
+      "priority": 25
+    },
+    {
+      "slug": "an-namas",
+      "nameAr": "النماص",
+      "kind": "city",
+      "parentSlugs": [],
+      "lat": 19.145,
+      "lng": 42.113,
+      "priority": 37
+    },
+    {
+      "slug": "north",
+      "nameAr": "شمال النماص",
+      "kind": "direction",
+      "parentSlugs": [
+        "an-namas"
+      ],
+      "lat": 19.235,
+      "lng": 42.113,
+      "priority": 27
+    },
+    {
+      "slug": "south",
+      "nameAr": "جنوب النماص",
+      "kind": "direction",
+      "parentSlugs": [
+        "an-namas"
+      ],
+      "lat": 19.055,
+      "lng": 42.113,
+      "priority": 26
+    },
+    {
+      "slug": "east",
+      "nameAr": "شرق النماص",
+      "kind": "direction",
+      "parentSlugs": [
+        "an-namas"
+      ],
+      "lat": 19.145,
+      "lng": 42.213,
+      "priority": 25
+    },
+    {
+      "slug": "west",
+      "nameAr": "غرب النماص",
+      "kind": "direction",
+      "parentSlugs": [
+        "an-namas"
+      ],
+      "lat": 19.145,
+      "lng": 42.013,
+      "priority": 24
+    },
+    {
+      "slug": "jazan",
+      "nameAr": "جازان",
+      "kind": "city",
+      "parentSlugs": [],
+      "lat": 16.8894,
+      "lng": 42.5706,
+      "priority": 36
+    },
+    {
+      "slug": "north",
+      "nameAr": "شمال جازان",
+      "kind": "direction",
+      "parentSlugs": [
+        "jazan"
+      ],
+      "lat": 16.9794,
+      "lng": 42.5706,
+      "priority": 26
+    },
+    {
+      "slug": "south",
+      "nameAr": "جنوب جازان",
+      "kind": "direction",
+      "parentSlugs": [
+        "jazan"
+      ],
+      "lat": 16.7994,
+      "lng": 42.5706,
+      "priority": 25
+    },
+    {
+      "slug": "east",
+      "nameAr": "شرق جازان",
+      "kind": "direction",
+      "parentSlugs": [
+        "jazan"
+      ],
+      "lat": 16.8894,
+      "lng": 42.6706,
+      "priority": 24
+    },
+    {
+      "slug": "west",
+      "nameAr": "غرب جازان",
+      "kind": "direction",
+      "parentSlugs": [
+        "jazan"
+      ],
+      "lat": 16.8894,
+      "lng": 42.4706,
+      "priority": 23
+    },
+    {
+      "slug": "sabya",
+      "nameAr": "صبيا",
+      "kind": "city",
+      "parentSlugs": [],
+      "lat": 17.1495,
+      "lng": 42.6257,
+      "priority": 35
+    },
+    {
+      "slug": "north",
+      "nameAr": "شمال صبيا",
+      "kind": "direction",
+      "parentSlugs": [
+        "sabya"
+      ],
+      "lat": 17.2395,
+      "lng": 42.6257,
+      "priority": 25
+    },
+    {
+      "slug": "south",
+      "nameAr": "جنوب صبيا",
+      "kind": "direction",
+      "parentSlugs": [
+        "sabya"
+      ],
+      "lat": 17.0595,
+      "lng": 42.6257,
+      "priority": 24
+    },
+    {
+      "slug": "east",
+      "nameAr": "شرق صبيا",
+      "kind": "direction",
+      "parentSlugs": [
+        "sabya"
+      ],
+      "lat": 17.1495,
+      "lng": 42.7257,
+      "priority": 23
+    },
+    {
+      "slug": "west",
+      "nameAr": "غرب صبيا",
+      "kind": "direction",
+      "parentSlugs": [
+        "sabya"
+      ],
+      "lat": 17.1495,
+      "lng": 42.5257,
+      "priority": 22
+    },
+    {
+      "slug": "abu-arish",
+      "nameAr": "أبو عريش",
+      "kind": "city",
+      "parentSlugs": [],
+      "lat": 16.9689,
+      "lng": 42.8317,
+      "priority": 34
+    },
+    {
+      "slug": "north",
+      "nameAr": "شمال أبو عريش",
+      "kind": "direction",
+      "parentSlugs": [
+        "abu-arish"
+      ],
+      "lat": 17.0589,
+      "lng": 42.8317,
+      "priority": 24
+    },
+    {
+      "slug": "south",
+      "nameAr": "جنوب أبو عريش",
+      "kind": "direction",
+      "parentSlugs": [
+        "abu-arish"
+      ],
+      "lat": 16.8789,
+      "lng": 42.8317,
+      "priority": 23
+    },
+    {
+      "slug": "east",
+      "nameAr": "شرق أبو عريش",
+      "kind": "direction",
+      "parentSlugs": [
+        "abu-arish"
+      ],
+      "lat": 16.9689,
+      "lng": 42.9317,
+      "priority": 22
+    },
+    {
+      "slug": "west",
+      "nameAr": "غرب أبو عريش",
+      "kind": "direction",
+      "parentSlugs": [
+        "abu-arish"
+      ],
+      "lat": 16.9689,
+      "lng": 42.7317,
+      "priority": 21
+    },
+    {
+      "slug": "najran",
+      "nameAr": "نجران",
+      "kind": "city",
+      "parentSlugs": [],
+      "lat": 17.5656,
+      "lng": 44.2289,
+      "priority": 33
+    },
+    {
+      "slug": "north",
+      "nameAr": "شمال نجران",
+      "kind": "direction",
+      "parentSlugs": [
+        "najran"
+      ],
+      "lat": 17.6556,
+      "lng": 44.2289,
+      "priority": 23
+    },
+    {
+      "slug": "south",
+      "nameAr": "جنوب نجران",
+      "kind": "direction",
+      "parentSlugs": [
+        "najran"
+      ],
+      "lat": 17.4756,
+      "lng": 44.2289,
+      "priority": 22
+    },
+    {
+      "slug": "east",
+      "nameAr": "شرق نجران",
+      "kind": "direction",
+      "parentSlugs": [
+        "najran"
+      ],
+      "lat": 17.5656,
+      "lng": 44.3289,
+      "priority": 21
+    },
+    {
+      "slug": "west",
+      "nameAr": "غرب نجران",
+      "kind": "direction",
+      "parentSlugs": [
+        "najran"
+      ],
+      "lat": 17.5656,
+      "lng": 44.1289,
+      "priority": 20
+    },
+    {
+      "slug": "sharurah",
+      "nameAr": "شرورة",
+      "kind": "city",
+      "parentSlugs": [],
+      "lat": 17.485,
+      "lng": 47.114,
+      "priority": 32
+    },
+    {
+      "slug": "north",
+      "nameAr": "شمال شرورة",
+      "kind": "direction",
+      "parentSlugs": [
+        "sharurah"
+      ],
+      "lat": 17.575,
+      "lng": 47.114,
+      "priority": 22
+    },
+    {
+      "slug": "south",
+      "nameAr": "جنوب شرورة",
+      "kind": "direction",
+      "parentSlugs": [
+        "sharurah"
+      ],
+      "lat": 17.395,
+      "lng": 47.114,
+      "priority": 21
+    },
+    {
+      "slug": "east",
+      "nameAr": "شرق شرورة",
+      "kind": "direction",
+      "parentSlugs": [
+        "sharurah"
+      ],
+      "lat": 17.485,
+      "lng": 47.214,
+      "priority": 20
+    },
+    {
+      "slug": "west",
+      "nameAr": "غرب شرورة",
+      "kind": "direction",
+      "parentSlugs": [
+        "sharurah"
+      ],
+      "lat": 17.485,
+      "lng": 47.014,
+      "priority": 19
+    },
+    {
+      "slug": "baha",
+      "nameAr": "الباحة",
+      "kind": "city",
+      "parentSlugs": [],
+      "lat": 20.0129,
+      "lng": 41.4677,
+      "priority": 31
+    },
+    {
+      "slug": "north",
+      "nameAr": "شمال الباحة",
+      "kind": "direction",
+      "parentSlugs": [
+        "baha"
+      ],
+      "lat": 20.1029,
+      "lng": 41.4677,
+      "priority": 21
+    },
+    {
+      "slug": "south",
+      "nameAr": "جنوب الباحة",
+      "kind": "direction",
+      "parentSlugs": [
+        "baha"
+      ],
+      "lat": 19.9229,
+      "lng": 41.4677,
+      "priority": 20
+    },
+    {
+      "slug": "east",
+      "nameAr": "شرق الباحة",
+      "kind": "direction",
+      "parentSlugs": [
+        "baha"
+      ],
+      "lat": 20.0129,
+      "lng": 41.5677,
+      "priority": 19
+    },
+    {
+      "slug": "west",
+      "nameAr": "غرب الباحة",
+      "kind": "direction",
+      "parentSlugs": [
+        "baha"
+      ],
+      "lat": 20.0129,
+      "lng": 41.3677,
+      "priority": 18
+    },
+    {
+      "slug": "rabigh",
+      "nameAr": "رابغ",
+      "kind": "city",
+      "parentSlugs": [],
+      "lat": 22.7985,
+      "lng": 39.035,
+      "priority": 30
+    },
+    {
+      "slug": "north",
+      "nameAr": "شمال رابغ",
+      "kind": "direction",
+      "parentSlugs": [
+        "rabigh"
+      ],
+      "lat": 22.8885,
+      "lng": 39.035,
+      "priority": 20
+    },
+    {
+      "slug": "south",
+      "nameAr": "جنوب رابغ",
+      "kind": "direction",
+      "parentSlugs": [
+        "rabigh"
+      ],
+      "lat": 22.7085,
+      "lng": 39.035,
+      "priority": 19
+    },
+    {
+      "slug": "east",
+      "nameAr": "شرق رابغ",
+      "kind": "direction",
+      "parentSlugs": [
+        "rabigh"
+      ],
+      "lat": 22.7985,
+      "lng": 39.135,
+      "priority": 18
+    },
+    {
+      "slug": "west",
+      "nameAr": "غرب رابغ",
+      "kind": "direction",
+      "parentSlugs": [
+        "rabigh"
+      ],
+      "lat": 22.7985,
+      "lng": 38.935,
+      "priority": 17
+    },
+    {
+      "slug": "qunfudhah",
+      "nameAr": "القنفذة",
+      "kind": "city",
+      "parentSlugs": [],
+      "lat": 19.1264,
+      "lng": 41.0789,
+      "priority": 29
+    },
+    {
+      "slug": "north",
+      "nameAr": "شمال القنفذة",
+      "kind": "direction",
+      "parentSlugs": [
+        "qunfudhah"
+      ],
+      "lat": 19.2164,
+      "lng": 41.0789,
+      "priority": 19
+    },
+    {
+      "slug": "south",
+      "nameAr": "جنوب القنفذة",
+      "kind": "direction",
+      "parentSlugs": [
+        "qunfudhah"
+      ],
+      "lat": 19.0364,
+      "lng": 41.0789,
+      "priority": 18
+    },
+    {
+      "slug": "east",
+      "nameAr": "شرق القنفذة",
+      "kind": "direction",
+      "parentSlugs": [
+        "qunfudhah"
+      ],
+      "lat": 19.1264,
+      "lng": 41.1789,
+      "priority": 17
+    },
+    {
+      "slug": "west",
+      "nameAr": "غرب القنفذة",
+      "kind": "direction",
+      "parentSlugs": [
+        "qunfudhah"
+      ],
+      "lat": 19.1264,
+      "lng": 40.9789,
+      "priority": 16
+    },
+    {
+      "slug": "khafji",
+      "nameAr": "الخفجي",
+      "kind": "city",
+      "parentSlugs": [],
+      "lat": 28.439,
+      "lng": 48.4913,
+      "priority": 28
+    },
+    {
+      "slug": "north",
+      "nameAr": "شمال الخفجي",
+      "kind": "direction",
+      "parentSlugs": [
+        "khafji"
+      ],
+      "lat": 28.529,
+      "lng": 48.4913,
+      "priority": 18
+    },
+    {
+      "slug": "south",
+      "nameAr": "جنوب الخفجي",
+      "kind": "direction",
+      "parentSlugs": [
+        "khafji"
+      ],
+      "lat": 28.349,
+      "lng": 48.4913,
+      "priority": 17
+    },
+    {
+      "slug": "east",
+      "nameAr": "شرق الخفجي",
+      "kind": "direction",
+      "parentSlugs": [
+        "khafji"
+      ],
+      "lat": 28.439,
+      "lng": 48.5913,
+      "priority": 16
+    },
+    {
+      "slug": "west",
+      "nameAr": "غرب الخفجي",
+      "kind": "direction",
+      "parentSlugs": [
+        "khafji"
+      ],
+      "lat": 28.439,
+      "lng": 48.3913,
+      "priority": 15
+    },
+    {
+      "slug": "duba",
+      "nameAr": "ضبا",
+      "kind": "city",
+      "parentSlugs": [],
+      "lat": 27.351,
+      "lng": 35.6971,
+      "priority": 27
+    },
+    {
+      "slug": "north",
+      "nameAr": "شمال ضبا",
+      "kind": "direction",
+      "parentSlugs": [
+        "duba"
+      ],
+      "lat": 27.441,
+      "lng": 35.6971,
+      "priority": 17
+    },
+    {
+      "slug": "south",
+      "nameAr": "جنوب ضبا",
+      "kind": "direction",
+      "parentSlugs": [
+        "duba"
+      ],
+      "lat": 27.261,
+      "lng": 35.6971,
+      "priority": 16
+    },
+    {
+      "slug": "east",
+      "nameAr": "شرق ضبا",
+      "kind": "direction",
+      "parentSlugs": [
+        "duba"
+      ],
+      "lat": 27.351,
+      "lng": 35.7971,
+      "priority": 15
+    },
+    {
+      "slug": "west",
+      "nameAr": "غرب ضبا",
+      "kind": "direction",
+      "parentSlugs": [
+        "duba"
+      ],
+      "lat": 27.351,
+      "lng": 35.5971,
+      "priority": 15
+    },
+    {
+      "slug": "umluj",
+      "nameAr": "أملج",
+      "kind": "city",
+      "parentSlugs": [],
+      "lat": 25.0203,
+      "lng": 37.2685,
+      "priority": 26
+    },
+    {
+      "slug": "north",
+      "nameAr": "شمال أملج",
+      "kind": "direction",
+      "parentSlugs": [
+        "umluj"
+      ],
+      "lat": 25.1103,
+      "lng": 37.2685,
+      "priority": 16
+    },
+    {
+      "slug": "south",
+      "nameAr": "جنوب أملج",
+      "kind": "direction",
+      "parentSlugs": [
+        "umluj"
+      ],
+      "lat": 24.9303,
+      "lng": 37.2685,
+      "priority": 15
+    },
+    {
+      "slug": "east",
+      "nameAr": "شرق أملج",
+      "kind": "direction",
+      "parentSlugs": [
+        "umluj"
+      ],
+      "lat": 25.0203,
+      "lng": 37.3685,
+      "priority": 15
+    },
+    {
+      "slug": "west",
+      "nameAr": "غرب أملج",
+      "kind": "direction",
+      "parentSlugs": [
+        "umluj"
+      ],
+      "lat": 25.0203,
+      "lng": 37.1685,
+      "priority": 15
+    },
+    {
+      "slug": "haql",
+      "nameAr": "حقل",
+      "kind": "city",
+      "parentSlugs": [],
+      "lat": 29.2985,
+      "lng": 34.9389,
+      "priority": 25
+    },
+    {
+      "slug": "north",
+      "nameAr": "شمال حقل",
+      "kind": "direction",
+      "parentSlugs": [
+        "haql"
+      ],
+      "lat": 29.3885,
+      "lng": 34.9389,
+      "priority": 15
+    },
+    {
+      "slug": "south",
+      "nameAr": "جنوب حقل",
+      "kind": "direction",
+      "parentSlugs": [
+        "haql"
+      ],
+      "lat": 29.2085,
+      "lng": 34.9389,
+      "priority": 15
+    },
+    {
+      "slug": "east",
+      "nameAr": "شرق حقل",
+      "kind": "direction",
+      "parentSlugs": [
+        "haql"
+      ],
+      "lat": 29.2985,
+      "lng": 35.0389,
+      "priority": 15
+    },
+    {
+      "slug": "west",
+      "nameAr": "غرب حقل",
+      "kind": "direction",
+      "parentSlugs": [
+        "haql"
+      ],
+      "lat": 29.2985,
+      "lng": 34.8389,
+      "priority": 15
+    },
+    {
+      "slug": "neom",
+      "nameAr": "نيوم",
+      "kind": "city",
+      "parentSlugs": [],
+      "lat": 28.0329,
+      "lng": 35.0193,
+      "priority": 24
+    },
+    {
+      "slug": "north",
+      "nameAr": "شمال نيوم",
+      "kind": "direction",
+      "parentSlugs": [
+        "neom"
+      ],
+      "lat": 28.1229,
+      "lng": 35.0193,
+      "priority": 15
+    },
+    {
+      "slug": "south",
+      "nameAr": "جنوب نيوم",
+      "kind": "direction",
+      "parentSlugs": [
+        "neom"
+      ],
+      "lat": 27.9429,
+      "lng": 35.0193,
+      "priority": 15
+    },
+    {
+      "slug": "east",
+      "nameAr": "شرق نيوم",
+      "kind": "direction",
+      "parentSlugs": [
+        "neom"
+      ],
+      "lat": 28.0329,
+      "lng": 35.1193,
+      "priority": 15
+    },
+    {
+      "slug": "west",
+      "nameAr": "غرب نيوم",
+      "kind": "direction",
+      "parentSlugs": [
+        "neom"
+      ],
+      "lat": 28.0329,
+      "lng": 34.9193,
+      "priority": 15
+    },
+    {
+      "slug": "qurtubah",
+      "nameAr": "قرطبة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.8105,
+      "lng": 46.724,
+      "priority": 80
+    },
+    {
+      "slug": "olaya",
+      "nameAr": "العليا",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.6907,
+      "lng": 46.6858,
+      "priority": 79
+    },
+    {
+      "slug": "malaz",
+      "nameAr": "الملز",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.6622,
+      "lng": 46.7312,
+      "priority": 78
+    },
+    {
+      "slug": "narjis",
+      "nameAr": "النرجس",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.8601,
+      "lng": 46.659,
+      "priority": 77
+    },
+    {
+      "slug": "yasmin",
+      "nameAr": "الياسمين",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.828,
+      "lng": 46.64,
+      "priority": 76
+    },
+    {
+      "slug": "rawdah",
+      "nameAr": "الروضة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "jeddah"
+      ],
+      "lat": 21.562,
+      "lng": 39.155,
+      "priority": 80
+    },
+    {
+      "slug": "hamra",
+      "nameAr": "الحمراء",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "jeddah"
+      ],
+      "lat": 21.538,
+      "lng": 39.168,
+      "priority": 79
+    },
+    {
+      "slug": "shati",
+      "nameAr": "الشاطئ",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "jeddah"
+      ],
+      "lat": 21.6,
+      "lng": 39.11,
+      "priority": 78
     },
     {
       "slug": "faisaliyah",
       "nameAr": "الفيصلية",
       "kind": "neighborhood",
-      "parentSlugs": ["dammam"],
+      "parentSlugs": [
+        "dammam"
+      ],
       "lat": 26.42,
       "lng": 50.05,
       "priority": 75
     },
     {
-      "slug": "makkah",
-      "nameAr": "مكة المكرمة",
-      "kind": "city",
-      "parentSlugs": [],
-      "lat": 21.3891,
-      "lng": 39.8579,
-      "aliasesAr": ["مكة"],
-      "priority": 94
-    },
-    {
-      "slug": "north",
-      "nameAr": "شمال مكة",
-      "kind": "direction",
-      "parentSlugs": ["makkah"],
-      "lat": 21.48,
-      "lng": 39.82,
-      "priority": 84
-    },
-    {
-      "slug": "south",
-      "nameAr": "جنوب مكة",
-      "kind": "direction",
-      "parentSlugs": ["makkah"],
-      "lat": 21.32,
-      "lng": 39.86,
-      "priority": 83
-    },
-    {
-      "slug": "east",
-      "nameAr": "شرق مكة",
-      "kind": "direction",
-      "parentSlugs": ["makkah"],
-      "lat": 21.4,
-      "lng": 39.95,
-      "priority": 82
-    },
-    {
-      "slug": "west",
-      "nameAr": "غرب مكة",
-      "kind": "direction",
-      "parentSlugs": ["makkah"],
-      "lat": 21.4,
-      "lng": 39.78,
-      "priority": 81
-    },
-    {
       "slug": "aziziyah",
       "nameAr": "العزيزية",
       "kind": "neighborhood",
-      "parentSlugs": ["makkah"],
+      "parentSlugs": [
+        "makkah"
+      ],
       "lat": 21.4,
       "lng": 39.88,
       "priority": 74
     },
     {
-      "slug": "madinah",
-      "nameAr": "المدينة المنورة",
-      "kind": "city",
-      "parentSlugs": [],
-      "lat": 24.5247,
-      "lng": 39.5692,
-      "aliasesAr": ["المدينة"],
-      "priority": 93
-    },
-    {
-      "slug": "north",
-      "nameAr": "شمال المدينة",
-      "kind": "direction",
-      "parentSlugs": ["madinah"],
-      "lat": 24.6,
-      "lng": 39.58,
-      "priority": 83
-    },
-    {
-      "slug": "south",
-      "nameAr": "جنوب المدينة",
-      "kind": "direction",
-      "parentSlugs": ["madinah"],
-      "lat": 24.45,
-      "lng": 39.58,
-      "priority": 82
-    },
-    {
-      "slug": "east",
-      "nameAr": "شرق المدينة",
-      "kind": "direction",
-      "parentSlugs": ["madinah"],
-      "lat": 24.52,
-      "lng": 39.65,
-      "priority": 81
-    },
-    {
-      "slug": "west",
-      "nameAr": "غرب المدينة",
-      "kind": "direction",
-      "parentSlugs": ["madinah"],
-      "lat": 24.52,
-      "lng": 39.48,
-      "priority": 80
-    },
-    {
       "slug": "quba",
       "nameAr": "قباء",
       "kind": "neighborhood",
-      "parentSlugs": ["madinah"],
+      "parentSlugs": [
+        "madinah"
+      ],
       "lat": 24.439,
       "lng": 39.617,
       "priority": 73
