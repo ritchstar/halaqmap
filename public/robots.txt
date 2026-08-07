@@ -12,5 +12,6 @@ Allow: /
 
 User-agent: *
 Allow: /
+Allow: /near/
 
 Sitemap: https://www.halaqmap.com/sitemap.xml

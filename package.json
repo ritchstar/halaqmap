@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "cross-env VITE_ENABLE_ROUTE_MESSAGING=true vite",
-    "build": "vite build",
+    "build": "vite build && node scripts/generate-near-geo-seo.mjs",
+    "seo:near": "node scripts/generate-near-geo-seo.mjs",
     "build:dev": "cross-env VITE_ENABLE_ROUTE_MESSAGING=true vite build --mode development --sourcemap",
     "build:map": "cross-env VITE_ENABLE_ROUTE_MESSAGING=true vite build --sourcemap",
     "pwa:icons": "node scripts/generate-pwa-icons.mjs",

@@ -11,6 +11,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { MobileBottomNav } from '@/components/MobileBottomNav';
 import { AppBuildStamp } from '@/components/AppBuildStamp';
 import { PlatformOfficialFooterStrip } from '@/components/PlatformOfficialFooterStrip';
+import { GeoNearCitiesStrip } from '@/components/GeoNearCitiesStrip';
+import { GEO_NEAR_HUB_PATH } from '@/config/geoNearRegistry';
 import { PLATFORM_FOOTER_TAGLINE } from '@/config/platformGrowthNarrative';
 import { PLATFORM_IDENTITY_BOILERPLATE_AR } from '@/config/platformIdentity';
 import { PlatformTrustStrip } from '@/components/PlatformTrustStrip';
@@ -216,9 +218,9 @@ export function Layout({ children }: LayoutProps) {
         </div>
 
         <div className="container mx-auto px-4 py-12 md:py-16">
-          <div className="grid grid-cols-1 gap-10 md:grid-cols-4">
+          <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-5">
             {/* العلامة التجارية */}
-            <div className="md:col-span-1">
+            <div className="lg:col-span-1">
               <div className="flex items-center gap-3 mb-4">
                 <HalaqmapBrandMark
                   className="h-11 w-11 shrink-0 rounded-2xl ring-2 ring-teal-400/25 ring-offset-1 ring-offset-[#020912] shadow-[0_0_20px_rgba(20,184,166,0.15)]"
@@ -268,8 +270,16 @@ export function Layout({ children }: LayoutProps) {
                     {link.label}
                   </NavLink>
                 ))}
+                <a
+                  href={GEO_NEAR_HUB_PATH}
+                  className="text-sm text-slate-500 transition-colors hover:text-teal-300"
+                >
+                  أقرب حلاق حسب المدينة
+                </a>
               </div>
             </div>
+
+            <GeoNearCitiesStrip variant="compact" />
 
             {/* سياسات */}
             <div>

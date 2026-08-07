@@ -28,6 +28,9 @@ export const GOOGLE_ADS_CLEAN_LANDING_URLS = {
   register: 'https://www.halaqmap.com/partners/register',
   bronzeTrial: 'https://www.halaqmap.com/partners/bronze-trial',
   why: 'https://www.halaqmap.com/partners/why',
+  /** صفحات SEO جغرافية (HTML ثابت — ليس HashRouter) */
+  nearHub: 'https://www.halaqmap.com/near',
+  nearRiyadh: 'https://www.halaqmap.com/near/riyadh',
 } as const;
 
 export const GOOGLE_ADS_TAG_SCRIPT_SRC = `https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ADS_CONVERSION_ID}`;

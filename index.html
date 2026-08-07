@@ -301,7 +301,7 @@
       content="منصة رقمية ذكية تساعدك على الوصول إلى الحلاق الأنسب عبر معالجة وفلترة لحظية للبيانات المتاحة داخل المنصة."
     />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://halaqmap.com/" />
+    <meta property="og:url" content="https://www.halaqmap.com/" />
     <meta
       property="og:image"
       content="https://www.halaqmap.com/images/halaqmap_logo_refined.png"
@@ -377,6 +377,8 @@
           if (hash.length > 1) return;
           if (path === '/' || path === '') return;
           if (path.indexOf('/api/') === 0) return;
+          /* صفحات SEO جغرافية ثابتة — لا تُحوَّل إلى HashRouter */
+          if (path === '/near' || path.indexOf('/near/') === 0) return;
           if (/\.[a-zA-Z0-9]{1,12}$/.test(path)) return;
           window.location.replace(window.location.origin + '/#' + path + search);
         } catch (e) {}

@@ -35,6 +35,7 @@ import {
   PLATFORM_SEARCH_EMPTY_TITLE,
 } from '@/config/platformSmartTracking';
 import { PlatformVoluntaryEngagementStrip } from '@/components/platformEngagement/PlatformVoluntaryEngagementStrip';
+import { GeoNearCitiesStrip } from '@/components/GeoNearCitiesStrip';
 import { DEFAULT_VISITOR_SEARCH_RADIUS_KM } from '@/lib/visitorServiceIntents';
 
 const JSON_LD_SCRIPT_ID = 'halaqmap-home-jsonld';
@@ -431,6 +432,12 @@ export default function Home() {
                     </motion.div>
                   ))}
                 </div>
+              </div>
+            </div>
+
+            <div className="container mx-auto px-4 pb-8">
+              <div className="mx-auto max-w-4xl">
+                <GeoNearCitiesStrip variant="card" />
               </div>
             </div>
 
