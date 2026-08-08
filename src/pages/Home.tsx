@@ -37,22 +37,14 @@ import {
 import { PlatformVoluntaryEngagementStrip } from '@/components/platformEngagement/PlatformVoluntaryEngagementStrip';
 import { GeoNearCitiesStrip } from '@/components/GeoNearCitiesStrip';
 import { findGeoNearByPathKey } from '@/config/geoNearRegistry';
-import { DEFAULT_VISITOR_SEARCH_RADIUS_KM } from '@/lib/visitorServiceIntents';
+import { findFilterIntentLandingBySlug } from '@/config/filterIntentLandingRegistry';
+import {
+  applyVisitorServiceIntent,
+  DEFAULT_VISITOR_SEARCH_RADIUS_KM,
+} from '@/lib/visitorServiceIntents';
+import { readHashQueryParam } from '@/lib/hashQueryParams';
 
 const JSON_LD_SCRIPT_ID = 'halaqmap-home-jsonld';
-
-/** يقرأ `near` من هاش HashRouter مثل `#/?near=riyadh/badiah` */
-function readNearPathKeyFromLocation(): string | null {
-  try {
-    const hash = window.location.hash || '';
-    const q = hash.includes('?') ? hash.slice(hash.indexOf('?') + 1) : window.location.search.replace(/^\?/, '');
-    if (!q) return null;
-    const value = new URLSearchParams(q).get('near');
-    return value ? decodeURIComponent(value).trim() : null;
-  } catch {
-    return null;
-  }
-}
 
 export default function Home() {
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
@@ -105,21 +97,35 @@ export default function Home() {
     script.textContent = JSON.stringify(graph);
   }, []);
 
-  /** قمع صفحات `/near/...` → توسيط نطاق الحي/المدينة داخل الاستعلام */
+  /** قمع صفحات `/near` و`/need` → نطاق جغرافي + فلتر نية */
   useEffect(() => {
-    const pathKey = readNearPathKeyFromLocation();
-    if (!pathKey) return;
-    const node = findGeoNearByPathKey(pathKey);
-    if (!node) return;
-    setUserLocation({ lat: node.lat, lng: node.lng });
-    const label =
-      node.kind === 'neighborhood'
-        ? `حي ${node.nameAr}`
-        : node.kind === 'direction'
-          ? node.nameAr
-          : `مدينة ${node.nameAr}`;
+    const hints: string[] = [];
+    const needSlug = readHashQueryParam('need');
+    if (needSlug) {
+      const page = findFilterIntentLandingBySlug(needSlug);
+      if (page) {
+        setFilters(applyVisitorServiceIntent(page.intentId));
+        hints.push(page.h1Ar);
+      }
+    }
+    const pathKey = readHashQueryParam('near');
+    if (pathKey) {
+      const node = findGeoNearByPathKey(pathKey);
+      if (node) {
+        setUserLocation({ lat: node.lat, lng: node.lng });
+        hints.push(
+          node.kind === 'neighborhood'
+            ? `حي ${node.nameAr}`
+            : node.kind === 'direction'
+              ? node.nameAr
+              : `مدينة ${node.nameAr}`,
+        );
+      }
+    }
+    if (hints.length === 0) return;
+    const label = hints.join(' · ');
     setNearHintAr(label);
-    toast.message(`تم ضبط نطاق الاستعلام على ${label}`, {
+    toast.message(`تم ضبط الاستعلام: ${label}`, {
       description: 'يمكنك منح إذن موقعك لاحقاً لنتائج أدق حول موقعك الفعلي.',
     });
   }, []);

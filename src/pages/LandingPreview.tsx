@@ -39,10 +39,14 @@ import { VisitorMobileQueryLens } from '@/components/landing/VisitorMobileQueryL
 import { VisitorTrustTriad } from '@/components/landing/VisitorTrustTriad';
 import { VisitorServiceSpotlight } from '@/components/landing/VisitorServiceSpotlight';
 import {
+  applyVisitorServiceIntent,
   defaultVisitorFilters,
   detectVisitorServiceIntent,
   type VisitorServiceIntentId,
 } from '@/lib/visitorServiceIntents';
+import { findFilterIntentLandingBySlug } from '@/config/filterIntentLandingRegistry';
+import { findGeoNearByPathKey } from '@/config/geoNearRegistry';
+import { readHashQueryParam } from '@/lib/hashQueryParams';
 import { LocationStatusBar } from '@/components/LocationStatusBar';
 import { KSACityClocksBar } from '@/components/KSACityClocksBar';
 import { PlatformTlsTrustBadge } from '@/components/PlatformTlsTrustBadge';
@@ -540,11 +544,49 @@ export default function LandingPreview() {
   const [filters, setFilters] = useState<FilterState>(() => defaultVisitorFilters());
   const [selectedBarber, setSelectedBarber] = useState<Barber | null>(null);
   const [activeAgentPanel, setActiveAgentPanel] = useState<LandingAgentPanel>(null);
+  const [seoFunnelHintAr, setSeoFunnelHintAr] = useState<string | null>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
 
   const [deferMobileExtras, setDeferMobileExtras] = useState(
     () => typeof window === 'undefined' || window.innerWidth >= 768,
   );
+
+  /** قمع صفحات `/need` و`/near` → فلتر + نطاق جغرافي */
+  useEffect(() => {
+    const needSlug = readHashQueryParam('need');
+    const nearKey = readHashQueryParam('near');
+    const hints: string[] = [];
+
+    if (needSlug) {
+      const page = findFilterIntentLandingBySlug(needSlug);
+      if (page) {
+        setFilters(applyVisitorServiceIntent(page.intentId));
+        hints.push(page.h1Ar);
+      }
+    }
+
+    if (nearKey) {
+      const node = findGeoNearByPathKey(nearKey);
+      if (node) {
+        setUserLocation({ lat: node.lat, lng: node.lng });
+        hints.push(
+          node.kind === 'neighborhood'
+            ? `حي ${node.nameAr}`
+            : node.kind === 'direction'
+              ? node.nameAr
+              : `مدينة ${node.nameAr}`,
+        );
+      }
+    }
+
+    if (hints.length > 0) {
+      const label = hints.join(' · ');
+      setSeoFunnelHintAr(label);
+      toast.message(`تم ضبط الاستعلام: ${label}`, {
+        description: 'امنح إذن موقعك لنتائج أدق حول موقعك الفعلي إن رغبت.',
+      });
+    }
+  }, []);
 
   useEffect(() => {
     if (!isMobile) {
@@ -754,6 +796,11 @@ export default function LandingPreview() {
 
       {/* شريط موقع المستخدم */}
       {userLocation && <LocationStatusBar lat={userLocation.lat} lng={userLocation.lng} />}
+      {seoFunnelHintAr && (
+        <div className="border-b border-teal-500/20 bg-teal-500/10 px-4 py-2 text-center text-sm text-teal-100">
+          استعلام مضبوط من صفحة الهبوط: <strong>{seoFunnelHintAr}</strong>
+        </div>
+      )}
 
       {!isMobile && deferMobileExtras ? (
         <Suspense fallback={null}>

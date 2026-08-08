@@ -347,16 +347,18 @@ export default defineConfig(({ mode }) => {
             '**/halaqmap_barber_banner_*.png',
             '**/near/**',
             '**/nusuk/**',
+            '**/need/**',
             '**/sitemap-geo.xml',
           ],
           maximumFileSizeToCacheInBytes: 8 * 1024 * 1024,
           navigateFallback: '/index.html',
-          // .well-known/* خام؛ /near و /nusuk صفحات SEO ثابتة — لا تُستبدل بقشرة SPA
+          // .well-known/* خام؛ /near و /nusuk و /need صفحات SEO ثابتة — لا تُستبدل بقشرة SPA
           navigateFallbackDenylist: [
             /^\/api\//,
             /^\/\.well-known\//,
             /^\/near($|\/)/,
             /^\/nusuk($|\/)/,
+            /^\/need($|\/)/,
             /^\/sitemap(-|\.)/i,
             /^\/robots\.txt$/i,
           ],

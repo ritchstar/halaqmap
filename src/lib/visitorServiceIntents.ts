@@ -3,6 +3,8 @@
  */
 import type { FilterState } from '@/lib/index';
 
+import { OPEN_24H_FILTER_ID } from '@/lib/barberCategoryLexicon';
+
 export type VisitorServiceIntentId =
   | 'near_open'
   | 'home_visit'
@@ -10,7 +12,8 @@ export type VisitorServiceIntentId =
   | 'groom_prep'
   | 'children_specialist'
   | 'mens_grooming'
-  | 'top_rated';
+  | 'top_rated'
+  | 'open_24h';
 
 export type VisitorServiceIntentDef = {
   id: VisitorServiceIntentId;
@@ -27,6 +30,7 @@ export const VISITOR_SERVICE_INTENTS: VisitorServiceIntentDef[] = [
   { id: 'children_specialist', label: 'متخصص أطفال', shortLabel: 'أطفال', emoji: '👦' },
   { id: 'mens_grooming', label: 'مركز عناية رجل', shortLabel: 'عناية رجل', emoji: '✦' },
   { id: 'top_rated', label: 'تقييم 4.5+', shortLabel: 'الأعلى تقييماً', emoji: '⭐' },
+  { id: 'open_24h', label: 'حلاقة 24 ساعة', shortLabel: '24 ساعة', emoji: '🕒' },
 ];
 
 /** ترتيب عدسة الجوال — أساس (3) ثم تخصّص (4) بلا تمرير */
@@ -79,6 +83,8 @@ export function applyVisitorServiceIntent(
       return { ...baseFilters(maxDistance), mensGroomingCenterOnly: true };
     case 'top_rated':
       return { ...baseFilters(maxDistance), minRating: 4.5 };
+    case 'open_24h':
+      return { ...baseFilters(maxDistance), categories: [OPEN_24H_FILTER_ID] };
     default:
       return { ...baseFilters(maxDistance), openNow: true };
   }
@@ -87,6 +93,7 @@ export function applyVisitorServiceIntent(
 export function detectVisitorServiceIntent(filters: FilterState): VisitorServiceIntentId | null {
   if (filters.mensGroomingCenterOnly) return 'mens_grooming';
   if (filters.childrenSpecialistOnly) return 'children_specialist';
+  if (filters.categories.includes(OPEN_24H_FILTER_ID)) return 'open_24h';
   if (filters.minRating >= 4.5 && filters.categories.length === 0 && !filters.openNow) return 'top_rated';
   if (filters.categories.includes('تجهيز عريس')) return 'groom_prep';
   if (filters.categories.includes('زيارة منزلية')) return 'home_visit';
@@ -95,6 +102,11 @@ export function detectVisitorServiceIntent(filters: FilterState): VisitorService
     return 'near_open';
   }
   return null;
+}
+
+/** هل المعرّف نية استعلام معروفة؟ */
+export function isVisitorServiceIntentId(value: string): value is VisitorServiceIntentId {
+  return VISITOR_SERVICE_INTENTS.some((i) => i.id === value);
 }
 
 export function defaultVisitorFilters(): FilterState {

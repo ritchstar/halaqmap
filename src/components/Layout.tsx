@@ -282,6 +282,12 @@ export function Layout({ children }: LayoutProps) {
                 >
                   نسك الحج — الحلق والتقصير
                 </a>
+                <a
+                  href={ROUTE_PATHS.FILTER_INTENT_HUB}
+                  className="text-sm text-slate-500 transition-colors hover:text-teal-300"
+                >
+                  ابحث حسب حاجتك — الفلاتر
+                </a>
               </div>
             </div>
 

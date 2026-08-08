@@ -14,5 +14,6 @@ User-agent: *
 Allow: /
 Allow: /near/
 Allow: /nusuk/
+Allow: /need/
 
 Sitemap: https://www.halaqmap.com/sitemap.xml

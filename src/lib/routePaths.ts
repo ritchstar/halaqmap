@@ -13,6 +13,8 @@ export const ROUTE_PATHS = {
    * النسخة الثابتة للفهرسة: `/nusuk` على القرص؛ هذا المسار لنسخة التطبيق.
    */
   HAJJ_NUSUK: '/nusuk',
+  /** مصيدة الفلاتر — نية البحث (HTML ثابت على /need) */
+  FILTER_INTENT_HUB: '/need',
   BARBERS_LANDING: '/partners',
   /** صفحة هبوط B2B (Skywork) — partners.halaqmap.com */
   PARTNERS_B2B_LANDING: '/partners/b2b',

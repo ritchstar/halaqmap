@@ -35,6 +35,10 @@ export const GOOGLE_ADS_CLEAN_LANDING_URLS = {
   merchantSettlement: 'https://www.halaqmap.com/partners/merchant-settlement',
   /** مركز نسك الحج — الحلق والتقصير (HTML ثابت) */
   hajjNusuk: 'https://www.halaqmap.com/nusuk',
+  /** مصيدة الفلاتر — نية الاستعلام */
+  needHub: 'https://www.halaqmap.com/need',
+  needHomeVisit: 'https://www.halaqmap.com/need/home-visit',
+  needOpenNow: 'https://www.halaqmap.com/need/open-now',
 } as const;
 
 export const GOOGLE_ADS_TAG_SCRIPT_SRC = `https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ADS_CONVERSION_ID}`;
