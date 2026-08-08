@@ -81,8 +81,14 @@ export default function Home() {
           '@type': 'Organization',
           '@id': orgId,
           name: 'حلاق ماب',
+          alternateName: 'HALAQ MAP',
           url: origin,
-          logo: `${origin}/favicon.svg`,
+          logo: {
+            '@type': 'ImageObject',
+            url: `${origin}/images/halaqmap_logo_20260409_073322.png`,
+            width: 512,
+            height: 512,
+          },
         },
       ],
     };

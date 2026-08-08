@@ -7,6 +7,13 @@
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import {
+  BRAND_LOGO_ABS,
+  BRAND_SITE_NAME,
+  brandHeaderCss,
+  brandHeaderHtml,
+  brandIconLinks,
+} from './lib/platformBrandIdentity.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
@@ -412,24 +419,23 @@ function htmlShell({ title, description, canonical, h1, bodyInner, jsonLd }) {
   <meta property="og:description" content="${escapeHtml(description)}" />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="${escapeHtml(canonical)}" />
-  <meta property="og:image" content="${ORIGIN}/images/halaqmap_logo_refined.png" />
+  <meta property="og:image" content="${BRAND_LOGO_ABS}" />
   <meta property="og:locale" content="ar_SA" />
-  <meta property="og:site_name" content="حلاق ماب" />
+  <meta property="og:site_name" content="${BRAND_SITE_NAME}" />
+  <meta name="application-name" content="${BRAND_SITE_NAME}" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="${escapeHtml(title)}" />
   <meta name="twitter:description" content="${escapeHtml(description)}" />
-  <meta name="twitter:image" content="${ORIGIN}/images/halaqmap_logo_refined.png" />
-  <link rel="icon" href="/icons/icon-192.png" type="image/png" sizes="192x192" />
+  <meta name="twitter:image" content="${BRAND_LOGO_ABS}" />
+${brandIconLinks()}
   <script type="application/ld+json">${JSON.stringify(jsonLd)}</script>
   <style>
+${brandHeaderCss()}
     :root { color-scheme: dark; --bg:#061223; --card:#0c1a2e; --text:#e8eef7; --muted:#94a3b8; --accent:#2dd4bf; --line:rgba(45,212,191,.25); }
     * { box-sizing: border-box; }
-    body { margin:0; font-family: "Segoe UI", Tahoma, Arial, sans-serif; background: linear-gradient(180deg,#061223,#0a1f33 55%,#061223); color:var(--text); line-height:1.75; }
+    body { margin:0; font-family: "Tajawal", "Segoe UI", Tahoma, Arial, sans-serif; background: linear-gradient(180deg,#061223,#0a1f33 55%,#061223); color:var(--text); line-height:1.75; }
     .wrap { max-width: 44rem; margin: 0 auto; padding: 1.5rem 1.15rem 3rem; }
-    header { display:flex; align-items:center; gap:.75rem; margin-bottom:1.25rem; }
-    header img { width:48px; height:48px; border-radius:12px; }
-    header a { color:var(--accent); text-decoration:none; font-weight:800; font-size:1.15rem; }
-    h1 { font-size: clamp(1.55rem, 4vw, 2.1rem); line-height:1.35; margin: .5rem 0 1rem; }
+    h1 { font-size: clamp(1.55rem, 4vw, 2.1rem); line-height:1.35; margin: .5rem 0 1rem; font-weight:900; }
     h2 { font-size:1.15rem; margin: 1.75rem 0 .75rem; color:var(--accent); }
     .lead { font-size:1.05rem; }
     .note { color:var(--muted); font-size:.95rem; }
@@ -447,10 +453,7 @@ function htmlShell({ title, description, canonical, h1, bodyInner, jsonLd }) {
 </head>
 <body>
   <div class="wrap">
-    <header>
-      <a href="${ORIGIN}/"><img src="/images/halaqmap_logo_refined.png" width="48" height="48" alt="حلاق ماب" /></a>
-      <a href="${ORIGIN}/">حلاق ماب</a>
-    </header>
+${brandHeaderHtml()}
     <main>
       <h1>${escapeHtml(h1)}</h1>
       ${bodyInner}

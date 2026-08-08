@@ -2,18 +2,18 @@
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
 /**
- * يولّد أيقونات PWA + شاشة تشغيل TWA من الشعار الرسمي.
- * المصدر: public/images/halaqmap_logo_refined.png
+ * يولّد أيقونات PWA + Favicon + شاشة تشغيل TWA من الشعار الرسمي الحالي.
+ * المصدر: public/images/halaqmap_logo_20260409_073322.png (شعار الواجهة)
  * Usage: node scripts/generate-pwa-icons.mjs
  */
 import sharp from 'sharp';
-import { copyFile, mkdir } from 'node:fs/promises';
+import { copyFile, mkdir, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, '..');
-const sourcePath = join(root, 'public', 'images', 'halaqmap_logo_refined.png');
+const sourcePath = join(root, 'public', 'images', 'halaqmap_logo_20260409_073322.png');
 const outDir = join(root, 'public', 'icons');
 const androidRes = join(root, 'android-partner-twa', 'app', 'src', 'main', 'res');
 
@@ -88,4 +88,31 @@ for (const [folder, dims] of Object.entries(launcher)) {
   await sharp(await logoMaskable(dims.maskable, 0.12)).toFile(join(dir, 'ic_maskable.png'));
 }
 
-console.log('Official HalaqMap logo applied to PWA icons, splash, and Android launcher assets.');
+/** أيقونة متصفح: الشعار كاملاً على خلفية فيروزية (بدون اقتصاص غلاف) */
+async function logoFavicon(size) {
+  return sharp(sourcePath)
+    .resize(size, size, { fit: 'contain', background: TEAL })
+    .png()
+    .toBuffer();
+}
+
+/** Favicon لمتصفح Google — مضاعفات 48px مفضّلة */
+for (const s of [48, 96]) {
+  await sharp(await logoFavicon(s)).toFile(join(root, 'public', `favicon-${s}.png`));
+}
+await sharp(await logoFavicon(48)).toFile(join(outDir, 'favicon-48.png'));
+await sharp(await logoFavicon(32)).toFile(join(root, 'public', 'favicon-32.png'));
+await copyFile(join(root, 'public', 'favicon-48.png'), join(root, 'public', 'favicon.png'));
+
+/** SVG مضمّن base64 — بديل الأيقونة القديمة (دبوس أصفر) ويعمل دون طلب خارجي */
+const fav48 = await logoFavicon(48);
+const b64 = fav48.toString('base64');
+const svgFavicon = `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" role="img">
+  <title>حلاق ماب · HALAQ MAP</title>
+  <image width="48" height="48" preserveAspectRatio="xMidYMid meet" href="data:image/png;base64,${b64}"/>
+</svg>
+`;
+await writeFile(join(root, 'public', 'favicon.svg'), svgFavicon, 'utf8');
+
+console.log('Official HalaqMap logo applied to PWA icons, favicon, splash, and Android launcher assets.');

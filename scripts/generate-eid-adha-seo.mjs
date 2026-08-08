@@ -5,6 +5,13 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import {
+  BRAND_LOGO_ABS,
+  BRAND_SITE_NAME,
+  brandHeaderCss,
+  brandHeaderHtml,
+  brandIconLinks,
+} from './lib/platformBrandIdentity.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
@@ -115,21 +122,20 @@ function shell({ title, description, canonical, h1, bodyInner, jsonLd, keywords 
   <meta property="og:description" content="${escapeHtml(description)}" />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="${escapeHtml(canonical)}" />
-  <meta property="og:image" content="${ORIGIN}/images/halaqmap_logo_refined.png" />
+  <meta property="og:image" content="${BRAND_LOGO_ABS}" />
   <meta property="og:locale" content="ar_SA" />
-  <meta property="og:site_name" content="حلاق ماب" />
-  <link rel="icon" href="/icons/icon-192.png" type="image/png" sizes="192x192" />
+  <meta property="og:site_name" content="${BRAND_SITE_NAME}" />
+  <meta name="application-name" content="${BRAND_SITE_NAME}" />
+${brandIconLinks()}
   <script type="application/ld+json">${JSON.stringify(jsonLd)}</script>
   <style>
+${brandHeaderCss()}
     :root { color-scheme: dark; --card:#0c1a2e; --text:#e8eef7; --muted:#94a3b8; --accent:#2dd4bf; --amber:#fbbf24; --line:rgba(45,212,191,.25); --rose:rgba(251,113,133,.35); }
     * { box-sizing: border-box; }
-    body { margin:0; font-family: "Segoe UI", Tahoma, Arial, sans-serif; background: linear-gradient(180deg,#120a06,#0a1f33 40%,#061223 100%); color:var(--text); line-height:1.8; }
+    body { margin:0; font-family: "Tajawal", "Segoe UI", Tahoma, Arial, sans-serif; background: linear-gradient(180deg,#120a06,#0a1f33 40%,#061223 100%); color:var(--text); line-height:1.8; }
     .wrap { max-width: 44rem; margin: 0 auto; padding: 1.5rem 1.15rem 3rem; }
-    header { display:flex; align-items:center; gap:.75rem; margin-bottom:1.25rem; }
-    header img { width:48px; height:48px; border-radius:12px; }
-    header a { color:var(--accent); text-decoration:none; font-weight:800; font-size:1.15rem; }
     .badge { display:inline-block; color:var(--amber); font-weight:800; font-size:.9rem; margin-bottom:.5rem; }
-    h1 { font-size: clamp(1.55rem, 4.2vw, 2.15rem); line-height:1.35; margin: .35rem 0 1rem; }
+    h1 { font-size: clamp(1.55rem, 4.2vw, 2.15rem); line-height:1.35; margin: .35rem 0 1rem; font-weight:900; }
     h2 { font-size:1.12rem; margin: 1.65rem 0 .7rem; color:var(--accent); }
     .lead { font-size:1.05rem; }
     .note { color:var(--muted); font-size:.95rem; }
@@ -151,10 +157,7 @@ function shell({ title, description, canonical, h1, bodyInner, jsonLd, keywords 
 </head>
 <body>
   <div class="wrap">
-    <header>
-      <a href="${ORIGIN}/"><img src="/images/halaqmap_logo_refined.png" width="48" height="48" alt="حلاق ماب" /></a>
-      <a href="${ORIGIN}/">حلاق ماب</a>
-    </header>
+${brandHeaderHtml()}
     <main>
       <h1>${escapeHtml(h1)}</h1>
       ${bodyInner}

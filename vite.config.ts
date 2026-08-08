@@ -332,6 +332,10 @@ export default defineConfig(({ mode }) => {
         manifest: webAppManifest,
         includeAssets: [
           'favicon.svg',
+          'favicon.png',
+          'favicon-32.png',
+          'favicon-48.png',
+          'favicon-96.png',
           'robots.txt',
           'sitemap.xml',
           'icons/**/*.png',
