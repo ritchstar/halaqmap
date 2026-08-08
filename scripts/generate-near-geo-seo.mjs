@@ -2,7 +2,7 @@
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
  * يولّد صفحات SEO ثابتة تحت dist/near/** وملف sitemap-geo.xml
- * من src/config/geoNearRegistry.json — يُشغَّل بعد vite build.
+ * من geoNearRegistry.json + geoNearNeighborhoods.json — يُشغَّل بعد vite build.
  */
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -11,8 +11,10 @@ import { fileURLToPath } from 'node:url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
 const REGISTRY_PATH = join(ROOT, 'src', 'config', 'geoNearRegistry.json');
+const NEIGHBORHOODS_PATH = join(ROOT, 'src', 'config', 'geoNearNeighborhoods.json');
 const DIST = join(ROOT, 'dist');
 const ORIGIN = 'https://www.halaqmap.com';
+const SIBLING_LIMIT = 12;
 
 function escapeHtml(s) {
   return String(s)
@@ -31,9 +33,14 @@ function absoluteUrl(path) {
   return `${ORIGIN}${path}`;
 }
 
-function childrenOf(nodes, citySlug) {
+function childrenOf(nodes, citySlug, kind = null) {
   return nodes
-    .filter((n) => n.parentSlugs.length === 1 && n.parentSlugs[0] === citySlug)
+    .filter(
+      (n) =>
+        n.parentSlugs.length === 1 &&
+        n.parentSlugs[0] === citySlug &&
+        (kind == null || n.kind === kind),
+    )
     .sort((a, b) => b.priority - a.priority);
 }
 
@@ -47,7 +54,32 @@ function placeType(kind) {
   return 'Place';
 }
 
-function buildFaqs(nameAr) {
+function sitemapPriority(node, isHub = false) {
+  if (isHub) return '0.9';
+  if (node.kind === 'city') return '0.85';
+  if (node.kind === 'neighborhood') return '0.75';
+  if (node.kind === 'direction') return '0.65';
+  return '0.7';
+}
+
+function buildFaqs(node, city) {
+  const nameAr = node.nameAr;
+  if (node.kind === 'neighborhood' && city) {
+    return [
+      {
+        q: `كيف أجد أقرب حلاق في حي ${nameAr} بمدينة ${city.nameAr}؟`,
+        a: `افتح صفحة الاستعلام في حلاق ماب وابدأ الاستعلام حول نطاق حي ${nameAr} في ${city.nameAr}. تعالج المنصة البيانات المتاحة لحظياً وتعرض الخيارات المناسبة — دون أن تكون صالوناً أو وسيط حجز.`,
+      },
+      {
+        q: `هل حلاق ماب صالون في حي ${nameAr}؟`,
+        a: `لا. حلاق ماب منصة برمجية (تطبيق ويب) للاستعلام والعرض الرقمي في ${city.nameAr} وبقية مدن التغطية. الصالونات الظاهرة بيانات شركاء مفعّلين داخل المنصة.`,
+      },
+      {
+        q: `هل صفحة حي ${nameAr} تغني عن صفحة ${city.nameAr}؟`,
+        a: `هذه الصفحة مخصّصة لنية البحث المحلي داخل الحي. يمكنك أيضاً فتح صفحة ${city.nameAr} لاستكشاف الاتجاهات والأحياء الأخرى، ثم بدء الاستعلام داخل المنصة.`,
+      },
+    ];
+  }
   return [
     {
       q: `كيف أجد أقرب حلاق في ${nameAr} عبر حلاق ماب؟`,
@@ -64,7 +96,16 @@ function buildFaqs(nameAr) {
   ];
 }
 
-function jsonLdGraph({ node, path, city, children, faqs }) {
+function linkList(items) {
+  return items
+    .map(
+      (c) =>
+        `<li><a href="${escapeHtml(nodePath(c))}">أقرب حلاق في ${escapeHtml(c.nameAr)}</a></li>`,
+    )
+    .join('\n');
+}
+
+function jsonLdGraph({ node, path, city, directions, neighborhoods, faqs }) {
   const pageUrl = absoluteUrl(path);
   const placeName = node.nameAr;
   const breadcrumbItems = [
@@ -75,6 +116,32 @@ function jsonLdGraph({ node, path, city, children, faqs }) {
     breadcrumbItems.push({ name: city.nameAr, item: absoluteUrl(nodePath(city)) });
   }
   breadcrumbItems.push({ name: placeName, item: pageUrl });
+
+  const place = {
+    '@type': placeType(node.kind),
+    '@id': `${pageUrl}#place`,
+    name: placeName,
+    geo: {
+      '@type': 'GeoCoordinates',
+      latitude: node.lat,
+      longitude: node.lng,
+    },
+  };
+  if (Array.isArray(node.aliasesAr) && node.aliasesAr.length > 0) {
+    place.alternateName = node.aliasesAr;
+  }
+  if (city && node.kind !== 'city') {
+    place.containedInPlace = {
+      '@type': 'City',
+      name: city.nameAr,
+      url: absoluteUrl(nodePath(city)),
+    };
+  }
+
+  const collectionDesc =
+    node.kind === 'neighborhood' && city
+      ? `صفحة هبوط لحي ${placeName} في ${city.nameAr} من حلاق ماب لبدء استعلام أقرب حلاق.`
+      : `صفحة هبوط جغرافية من حلاق ماب لمساعدتك على بدء استعلام أقرب حلاق في ${placeName}.`;
 
   const graph = [
     {
@@ -99,25 +166,19 @@ function jsonLdGraph({ node, path, city, children, faqs }) {
     {
       '@type': 'CollectionPage',
       '@id': `${pageUrl}#page`,
-      name: `أقرب حلاق في ${placeName}`,
+      name:
+        node.kind === 'neighborhood' && city
+          ? `أقرب حلاق في ${placeName} | ${city.nameAr}`
+          : `أقرب حلاق في ${placeName}`,
       url: pageUrl,
       inLanguage: 'ar-SA',
       isPartOf: { '@id': `${ORIGIN}/#webapp` },
       about: { '@id': `${pageUrl}#place` },
       spatialCoverage: { '@id': `${pageUrl}#place` },
-      description: `صفحة هبوط جغرافية من حلاق ماب لمساعدتك على بدء استعلام أقرب حلاق في ${placeName}.`,
+      description: collectionDesc,
       mainEntity: { '@id': `${ORIGIN}/#webapp` },
     },
-    {
-      '@type': placeType(node.kind),
-      '@id': `${pageUrl}#place`,
-      name: placeName,
-      geo: {
-        '@type': 'GeoCoordinates',
-        latitude: node.lat,
-        longitude: node.lng,
-      },
-    },
+    place,
     {
       '@type': 'BreadcrumbList',
       '@id': `${pageUrl}#breadcrumb`,
@@ -139,12 +200,13 @@ function jsonLdGraph({ node, path, city, children, faqs }) {
     },
   ];
 
-  if (children.length > 0) {
+  const listItems = [...directions, ...neighborhoods];
+  if (listItems.length > 0) {
     graph.push({
       '@type': 'ItemList',
       '@id': `${pageUrl}#children`,
       name: `مناطق ضمن ${placeName}`,
-      itemListElement: children.map((c, i) => ({
+      itemListElement: listItems.map((c, i) => ({
         '@type': 'ListItem',
         position: i + 1,
         name: c.nameAr,
@@ -162,14 +224,16 @@ function jsonLdGraph({ node, path, city, children, faqs }) {
 function renderPage({ node, nodes, isHub = false }) {
   if (isHub) {
     const cities = nodes.filter((n) => n.kind === 'city').sort((a, b) => b.priority - a.priority);
-    const title = 'أقرب حلاق حسب المدينة | حلاق ماب';
+    const topNeighborhoodCities = cities.slice(0, 8);
+    const title = 'أقرب حلاق حسب المدينة والحي | حلاق ماب';
     const description =
-      'صفحات هبوط جغرافية من منصة حلاق ماب لبدء استعلام أقرب حلاق في مدن المملكة — برمجيات استعلام لحظي وليست صالوناً.';
+      'صفحات هبوط جغرافية من منصة حلاق ماب لبدء استعلام أقرب حلاق في مدن وأحياء المملكة — برمجيات استعلام لحظي وليست صالوناً.';
     const canonical = `${ORIGIN}/near`;
-    const cityLinks = cities
+    const cityLinks = linkList(cities);
+    const neighHint = topNeighborhoodCities
       .map(
         (c) =>
-          `<li><a href="${escapeHtml(nodePath(c))}">أقرب حلاق في ${escapeHtml(c.nameAr)}</a></li>`,
+          `<li><a href="${escapeHtml(nodePath(c))}">أحياء ${escapeHtml(c.nameAr)} — تصفّح بالحي</a></li>`,
       )
       .join('\n');
     const graph = {
@@ -198,11 +262,19 @@ function renderPage({ node, nodes, isHub = false }) {
       title,
       description,
       canonical,
-      h1: 'أقرب حلاق حسب المدينة',
+      h1: 'أقرب حلاق حسب المدينة والحي',
       bodyInner: `
         <p class="lead">اختر مدينتك لفتح صفحة هبوط محلية من <strong>حلاق ماب</strong> — منصة برمجية للاستعلام اللحظي عن الحلاق الأنسب ضمن البيانات المتاحة.</p>
-        <p class="note">حلاق ماب ليست صالوناً وليست وسيط حجز. بعد فتح الصفحة اضغط «ابدأ الاستعلام» للمتابعة داخل التطبيق.</p>
-        <ul class="grid">${cityLinks}</ul>
+        <p class="note">حلاق ماب ليست صالوناً وليست وسيط حجز. بعد فتح الصفحة اضغط «ابدأ الاستعلام» للمتابعة داخل التطبيق. يمكنك أيضاً التعمّق إلى صفحة الحي (مثل البديعة في الرياض) ثم الدخول للمنصة.</p>
+        <p class="note"><a href="/nusuk">مركز نسك الحج — الحلق والتقصير للحجاج</a></p>
+        <section>
+          <h2>تصفّح بالأحياء — مدن رئيسية</h2>
+          <ul class="grid">${neighHint}</ul>
+        </section>
+        <section>
+          <h2>كل المدن</h2>
+          <ul class="grid">${cityLinks}</ul>
+        </section>
         <p class="cta-wrap"><a class="cta" href="${ORIGIN}/#/">ابدأ الاستعلام الآن</a></p>
       `,
       jsonLd: graph,
@@ -211,10 +283,17 @@ function renderPage({ node, nodes, isHub = false }) {
 
   const path = nodePath(node);
   const city = node.kind === 'city' ? node : findCity(nodes, node.parentSlugs[0]);
-  const children = node.kind === 'city' ? childrenOf(nodes, node.slug) : [];
-  const faqs = buildFaqs(node.nameAr);
-  const title = `أقرب حلاق في ${node.nameAr} | حلاق ماب`;
-  const description = `ابدأ استعلام أقرب حلاق في ${node.nameAr} عبر منصة حلاق ماب — معالجة وفلترة لحظية للبيانات المتاحة داخل المنصة، دون أن تكون صالوناً أو دليل حجوزات.`;
+  const directions = node.kind === 'city' ? childrenOf(nodes, node.slug, 'direction') : [];
+  const neighborhoods = node.kind === 'city' ? childrenOf(nodes, node.slug, 'neighborhood') : [];
+  const faqs = buildFaqs(node, city);
+  const title =
+    node.kind === 'neighborhood' && city
+      ? `أقرب حلاق في ${node.nameAr} | ${city.nameAr} | حلاق ماب`
+      : `أقرب حلاق في ${node.nameAr} | حلاق ماب`;
+  const description =
+    node.kind === 'neighborhood' && city
+      ? `ابدأ استعلام أقرب حلاق في حي ${node.nameAr} بمدينة ${city.nameAr} عبر منصة حلاق ماب — معالجة وفلترة لحظية للبيانات المتاحة داخل المنصة، دون أن تكون صالوناً أو دليل حجوزات.`
+      : `ابدأ استعلام أقرب حلاق في ${node.nameAr} عبر منصة حلاق ماب — معالجة وفلترة لحظية للبيانات المتاحة داخل المنصة، دون أن تكون صالوناً أو دليل حجوزات.`;
   const canonical = absoluteUrl(path);
   const cta = `${ORIGIN}/#/?near=${encodeURIComponent([...node.parentSlugs, node.slug].join('/'))}`;
 
@@ -227,20 +306,41 @@ function renderPage({ node, nodes, isHub = false }) {
   }
   crumbs.push(`<span>${escapeHtml(node.nameAr)}</span>`);
 
-  const childBlock =
-    children.length > 0
-      ? `<section>
-        <h2>مناطق واتجاهات ضمن ${escapeHtml(node.nameAr)}</h2>
-        <ul class="grid">${children
-          .map(
-            (c) =>
-              `<li><a href="${escapeHtml(nodePath(c))}">أقرب حلاق في ${escapeHtml(c.nameAr)}</a></li>`,
-          )
-          .join('\n')}</ul>
+  let childBlock = '';
+  if (node.kind === 'city') {
+    const parts = [];
+    if (directions.length > 0) {
+      parts.push(`<section>
+        <h2>اتجاهات ضمن ${escapeHtml(node.nameAr)}</h2>
+        <ul class="grid">${linkList(directions)}</ul>
+      </section>`);
+    }
+    if (neighborhoods.length > 0) {
+      parts.push(`<section>
+        <h2>أحياء ${escapeHtml(node.nameAr)} — أقرب حلاق حسب الحي</h2>
+        <p class="note">صفحات هبوط محلية تقودك تدريجياً إلى استعلام المنصة حول الحي.</p>
+        <ul class="grid">${linkList(neighborhoods)}</ul>
+      </section>`);
+    }
+    childBlock = parts.join('\n');
+  } else if (node.kind === 'neighborhood' && city) {
+    const siblings = childrenOf(nodes, city.slug, 'neighborhood')
+      .filter((n) => n.slug !== node.slug)
+      .slice(0, SIBLING_LIMIT);
+    childBlock = `
+      <p class="note">حي <strong>${escapeHtml(node.nameAr)}</strong> ضمن مدينة <a href="${escapeHtml(nodePath(city))}">${escapeHtml(city.nameAr)}</a> — عد لصفحة المدينة لرؤية كل الأحياء والاتجاهات.</p>
+      ${
+        siblings.length > 0
+          ? `<section>
+        <h2>أحياء قريبة ضمن ${escapeHtml(city.nameAr)}</h2>
+        <ul class="grid">${linkList(siblings)}</ul>
       </section>`
-      : city
-        ? `<p class="note">عد إلى صفحة <a href="${escapeHtml(nodePath(city))}">${escapeHtml(city.nameAr)}</a> لرؤية بقية المناطق.</p>`
-        : '';
+          : ''
+      }
+    `;
+  } else if (city) {
+    childBlock = `<p class="note">عد إلى صفحة <a href="${escapeHtml(nodePath(city))}">${escapeHtml(city.nameAr)}</a> لرؤية الاتجاهات والأحياء.</p>`;
+  }
 
   const faqHtml = faqs
     .map(
@@ -252,6 +352,20 @@ function renderPage({ node, nodes, isHub = false }) {
     )
     .join('\n');
 
+  const isHajjCity =
+    node.kind === 'city' && (node.slug === 'makkah' || node.slug === 'madinah');
+  const nusukNote = isHajjCity
+    ? `<p class="note"><a href="/nusuk">مركز نسك الحج — الحلق والتقصير</a> للحجاج والزوار في ${escapeHtml(node.nameAr)}.</p>`
+    : '';
+
+  const lead =
+    node.kind === 'neighborhood' && city
+      ? `<p class="lead">هذه صفحة هبوط لحي <strong>${escapeHtml(node.nameAr)}</strong> في مدينة <strong>${escapeHtml(city.nameAr)}</strong> من منصة <strong>حلاق ماب</strong>. المنصة تطبيق ويب للاستعلام والعرض الرقمي — وليست منشأة حلاقة في الحي.</p>
+      <p>اضغط الزر أدناه لبدء الاستعلام داخل التطبيق حول نطاق حي ${escapeHtml(node.nameAr)}. تُعرض النتائج وفق البيانات المتاحة من الشركاء المفعّلين لحظة الاستعلام.</p>`
+      : `<p class="lead">هذه صفحة هبوط جغرافية من منصة <strong>حلاق ماب</strong> لنية البحث عن أقرب حلاق في <strong>${escapeHtml(node.nameAr)}</strong>. المنصة تطبيق ويب للاستعلام والعرض الرقمي — وليست منشأة حلاقة.</p>
+      <p>اضغط الزر أدناه لبدء الاستعلام داخل التطبيق حول نطاق ${escapeHtml(node.nameAr)}. تُعرض النتائج وفق البيانات المتاحة من الشركاء المفعّلين لحظة الاستعلام.</p>
+      ${nusukNote}`;
+
   return htmlShell({
     title,
     description,
@@ -259,8 +373,7 @@ function renderPage({ node, nodes, isHub = false }) {
     h1: `أقرب حلاق في ${node.nameAr}`,
     bodyInner: `
       <nav class="crumbs" aria-label="مسار التنقل">${crumbs.join(' <span aria-hidden="true">/</span> ')}</nav>
-      <p class="lead">هذه صفحة هبوط جغرافية من منصة <strong>حلاق ماب</strong> لنية البحث عن أقرب حلاق في <strong>${escapeHtml(node.nameAr)}</strong>. المنصة تطبيق ويب للاستعلام والعرض الرقمي — وليست منشأة حلاقة.</p>
-      <p>اضغط الزر أدناه لبدء الاستعلام داخل التطبيق حول نطاق ${escapeHtml(node.nameAr)}. تُعرض النتائج وفق البيانات المتاحة من الشركاء المفعّلين لحظة الاستعلام.</p>
+      ${lead}
       <p class="cta-wrap"><a class="cta" href="${escapeHtml(cta)}">ابدأ الاستعلام — ${escapeHtml(node.nameAr)}</a></p>
       ${childBlock}
       <section>
@@ -269,7 +382,19 @@ function renderPage({ node, nodes, isHub = false }) {
       </section>
       <p class="note"><a href="/near">كل المدن</a> · <a href="${ORIGIN}/">الصفحة الرئيسية</a></p>
     `,
-    jsonLd: jsonLdGraph({ node, path, city, children, faqs }),
+    jsonLd: jsonLdGraph({
+      node,
+      path,
+      city,
+      directions,
+      neighborhoods:
+        node.kind === 'neighborhood' && city
+          ? childrenOf(nodes, city.slug, 'neighborhood')
+              .filter((n) => n.slug !== node.slug)
+              .slice(0, SIBLING_LIMIT)
+          : neighborhoods,
+      faqs,
+    }),
   });
 }
 
@@ -344,34 +469,45 @@ function writeFileDeep(filePath, content) {
   writeFileSync(filePath, content, 'utf8');
 }
 
-function main() {
+function loadAllNodes() {
   const registry = JSON.parse(readFileSync(REGISTRY_PATH, 'utf8'));
-  const nodes = registry.nodes;
-  if (!Array.isArray(nodes) || nodes.length === 0) {
-    throw new Error('geoNearRegistry.json: nodes empty');
+  let neighborhoods = { nodes: [] };
+  try {
+    neighborhoods = JSON.parse(readFileSync(NEIGHBORHOODS_PATH, 'utf8'));
+  } catch {
+    /* optional */
   }
+  const nodes = [...(registry.nodes || []), ...(neighborhoods.nodes || [])];
+  if (nodes.length === 0) {
+    throw new Error('geo near registry empty');
+  }
+  return nodes;
+}
+
+function main() {
+  const nodes = loadAllNodes();
 
   const hubHtml = renderPage({ node: null, nodes, isHub: true });
   writeFileDeep(join(DIST, 'near', 'index.html'), hubHtml);
 
-  const urls = [`${ORIGIN}/near`];
+  const urlEntries = [{ loc: `${ORIGIN}/near`, priority: '0.9' }];
   for (const node of nodes) {
     const path = nodePath(node);
     const html = renderPage({ node, nodes, isHub: false });
     writeFileDeep(join(DIST, ...path.split('/').filter(Boolean), 'index.html'), html);
-    urls.push(absoluteUrl(path));
+    urlEntries.push({ loc: absoluteUrl(path), priority: sitemapPriority(node) });
   }
 
   const lastmod = new Date().toISOString().slice(0, 10);
   const sitemapGeo = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${urls
+${urlEntries
   .map(
-    (loc) => `  <url>
-    <loc>${loc}</loc>
+    (u) => `  <url>
+    <loc>${u.loc}</loc>
     <lastmod>${lastmod}</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>${loc.endsWith('/near') ? '0.85' : '0.8'}</priority>
+    <priority>${u.priority}</priority>
   </url>`,
   )
   .join('\n')}
@@ -379,7 +515,10 @@ ${urls
 `;
   writeFileDeep(join(DIST, 'sitemap-geo.xml'), sitemapGeo);
 
-  console.log(`[generate-near-geo-seo] wrote ${urls.length} geo URLs + hub under dist/near`);
+  const neighCount = nodes.filter((n) => n.kind === 'neighborhood').length;
+  console.log(
+    `[generate-near-geo-seo] wrote ${urlEntries.length} geo URLs (${neighCount} neighborhoods) under dist/near`,
+  );
 }
 
 main();

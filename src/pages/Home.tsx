@@ -36,11 +36,27 @@ import {
 } from '@/config/platformSmartTracking';
 import { PlatformVoluntaryEngagementStrip } from '@/components/platformEngagement/PlatformVoluntaryEngagementStrip';
 import { GeoNearCitiesStrip } from '@/components/GeoNearCitiesStrip';
+import { findGeoNearByPathKey } from '@/config/geoNearRegistry';
 import { DEFAULT_VISITOR_SEARCH_RADIUS_KM } from '@/lib/visitorServiceIntents';
 
 const JSON_LD_SCRIPT_ID = 'halaqmap-home-jsonld';
+
+/** يقرأ `near` من هاش HashRouter مثل `#/?near=riyadh/badiah` */
+function readNearPathKeyFromLocation(): string | null {
+  try {
+    const hash = window.location.hash || '';
+    const q = hash.includes('?') ? hash.slice(hash.indexOf('?') + 1) : window.location.search.replace(/^\?/, '');
+    if (!q) return null;
+    const value = new URLSearchParams(q).get('near');
+    return value ? decodeURIComponent(value).trim() : null;
+  } catch {
+    return null;
+  }
+}
+
 export default function Home() {
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [nearHintAr, setNearHintAr] = useState<string | null>(null);
   const [selectedBarber, setSelectedBarber] = useState<Barber | null>(null);
   const [remoteBarbers, setRemoteBarbers] = useState<Barber[]>([]);
   const [showcaseFallback, setShowcaseFallback] = useState<{ barber: Barber; intro: string } | null>(null);
@@ -87,6 +103,25 @@ export default function Home() {
       document.head.appendChild(script);
     }
     script.textContent = JSON.stringify(graph);
+  }, []);
+
+  /** قمع صفحات `/near/...` → توسيط نطاق الحي/المدينة داخل الاستعلام */
+  useEffect(() => {
+    const pathKey = readNearPathKeyFromLocation();
+    if (!pathKey) return;
+    const node = findGeoNearByPathKey(pathKey);
+    if (!node) return;
+    setUserLocation({ lat: node.lat, lng: node.lng });
+    const label =
+      node.kind === 'neighborhood'
+        ? `حي ${node.nameAr}`
+        : node.kind === 'direction'
+          ? node.nameAr
+          : `مدينة ${node.nameAr}`;
+    setNearHintAr(label);
+    toast.message(`تم ضبط نطاق الاستعلام على ${label}`, {
+      description: 'يمكنك منح إذن موقعك لاحقاً لنتائج أدق حول موقعك الفعلي.',
+    });
   }, []);
 
   useEffect(() => {
@@ -196,6 +231,11 @@ export default function Home() {
       {/* شريط الموقع الجغرافي — يظهر بعد منح الإذن */}
       {showLocationBar && userLocation && (
         <LocationStatusBar lat={userLocation.lat} lng={userLocation.lng} />
+      )}
+      {nearHintAr && userLocation && (
+        <div className="border-b border-teal-500/20 bg-teal-500/10 px-4 py-2 text-center text-sm text-teal-100">
+          نطاق الاستعلام مضبوط على <strong>{nearHintAr}</strong> من صفحة الهبوط الجغرافية
+        </div>
       )}
 
       {/* ══════════════════════════════════════════════════════════════════

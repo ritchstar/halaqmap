@@ -343,14 +343,20 @@ export default defineConfig(({ mode }) => {
           clientsClaim: true,
           cleanupOutdatedCaches: true,
           globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,woff2,json}'],
-          globIgnores: ['**/halaqmap_barber_banner_*.png'],
+          globIgnores: [
+            '**/halaqmap_barber_banner_*.png',
+            '**/near/**',
+            '**/nusuk/**',
+            '**/sitemap-geo.xml',
+          ],
           maximumFileSizeToCacheInBytes: 8 * 1024 * 1024,
           navigateFallback: '/index.html',
-          // .well-known/* خام؛ /near/* صفحات SEO ثابتة — لا تُستبدل بقشرة SPA عبر navigateFallback
+          // .well-known/* خام؛ /near و /nusuk صفحات SEO ثابتة — لا تُستبدل بقشرة SPA
           navigateFallbackDenylist: [
             /^\/api\//,
             /^\/\.well-known\//,
             /^\/near($|\/)/,
+            /^\/nusuk($|\/)/,
             /^\/sitemap(-|\.)/i,
             /^\/robots\.txt$/i,
           ],

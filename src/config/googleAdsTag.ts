@@ -33,6 +33,8 @@ export const GOOGLE_ADS_CLEAN_LANDING_URLS = {
   nearRiyadh: 'https://www.halaqmap.com/near/riyadh',
   /** صفحة تسكين التجار — إقفال اشتراكات الصالونات */
   merchantSettlement: 'https://www.halaqmap.com/partners/merchant-settlement',
+  /** مركز نسك الحج — الحلق والتقصير (HTML ثابت) */
+  hajjNusuk: 'https://www.halaqmap.com/nusuk',
 } as const;
 
 export const GOOGLE_ADS_TAG_SCRIPT_SRC = `https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ADS_CONVERSION_ID}`;

@@ -8,6 +8,11 @@
 
 export const ROUTE_PATHS = {
   HOME: '/',
+  /**
+   * مركز نسك الحج — الحلق والتقصير (هبوط موسمي للحجاج).
+   * النسخة الثابتة للفهرسة: `/nusuk` على القرص؛ هذا المسار لنسخة التطبيق.
+   */
+  HAJJ_NUSUK: '/nusuk',
   BARBERS_LANDING: '/partners',
   /** صفحة هبوط B2B (Skywork) — partners.halaqmap.com */
   PARTNERS_B2B_LANDING: '/partners/b2b',

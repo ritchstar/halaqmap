@@ -276,6 +276,12 @@ export function Layout({ children }: LayoutProps) {
                 >
                   أقرب حلاق حسب المدينة
                 </a>
+                <a
+                  href={ROUTE_PATHS.HAJJ_NUSUK}
+                  className="text-sm text-slate-500 transition-colors hover:text-teal-300"
+                >
+                  نسك الحج — الحلق والتقصير
+                </a>
               </div>
             </div>
 

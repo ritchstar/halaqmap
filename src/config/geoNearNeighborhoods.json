@@ -1,0 +1,4582 @@
+{
+  "version": 1,
+  "origin": "https://www.halaqmap.com",
+  "nodes": [
+    {
+      "slug": "olaya",
+      "nameAr": "العليا",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.6907,
+      "lng": 46.6858,
+      "priority": 85
+    },
+    {
+      "slug": "malaz",
+      "nameAr": "الملز",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.6622,
+      "lng": 46.7312,
+      "priority": 84
+    },
+    {
+      "slug": "qurtubah",
+      "nameAr": "قرطبة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.8105,
+      "lng": 46.724,
+      "priority": 83
+    },
+    {
+      "slug": "narjis",
+      "nameAr": "النرجس",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.8601,
+      "lng": 46.659,
+      "priority": 82
+    },
+    {
+      "slug": "yasmin",
+      "nameAr": "الياسمين",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.828,
+      "lng": 46.64,
+      "priority": 81
+    },
+    {
+      "slug": "badiah",
+      "nameAr": "البديعة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.666,
+      "lng": 46.62,
+      "priority": 80
+    },
+    {
+      "slug": "sulimaniyah",
+      "nameAr": "السليمانية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.698,
+      "lng": 46.701,
+      "priority": 79
+    },
+    {
+      "slug": "muruj",
+      "nameAr": "المروج",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.755,
+      "lng": 46.655,
+      "priority": 78
+    },
+    {
+      "slug": "sahafa",
+      "nameAr": "الصحافة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.795,
+      "lng": 46.64,
+      "priority": 77
+    },
+    {
+      "slug": "wadi",
+      "nameAr": "الوادي",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.78,
+      "lng": 46.62,
+      "priority": 76
+    },
+    {
+      "slug": "nuzha",
+      "nameAr": "النزهة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.745,
+      "lng": 46.68,
+      "priority": 75
+    },
+    {
+      "slug": "rawdah",
+      "nameAr": "الروضة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.735,
+      "lng": 46.78,
+      "priority": 74
+    },
+    {
+      "slug": "rabwah",
+      "nameAr": "الربوة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.69,
+      "lng": 46.76,
+      "priority": 73
+    },
+    {
+      "slug": "manar",
+      "nameAr": "المنار",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.72,
+      "lng": 46.8,
+      "priority": 72
+    },
+    {
+      "slug": "yarmuk",
+      "nameAr": "اليرموك",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.78,
+      "lng": 46.82,
+      "priority": 71
+    },
+    {
+      "slug": "qadisiyah",
+      "nameAr": "القادسية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.8,
+      "lng": 46.85,
+      "priority": 70
+    },
+    {
+      "slug": "ishbiliyah",
+      "nameAr": "إشبيلية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.77,
+      "lng": 46.86,
+      "priority": 69
+    },
+    {
+      "slug": "andalus",
+      "nameAr": "الأندلس",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.74,
+      "lng": 46.72,
+      "priority": 68
+    },
+    {
+      "slug": "falah",
+      "nameAr": "الفلاح",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.82,
+      "lng": 46.7,
+      "priority": 67
+    },
+    {
+      "slug": "nakheel",
+      "nameAr": "النخيل",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.76,
+      "lng": 46.63,
+      "priority": 66
+    },
+    {
+      "slug": "ghadir",
+      "nameAr": "الغدير",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.785,
+      "lng": 46.65,
+      "priority": 65
+    },
+    {
+      "slug": "aqiq",
+      "nameAr": "العقيق",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.77,
+      "lng": 46.61,
+      "priority": 64
+    },
+    {
+      "slug": "hittin",
+      "nameAr": "حطين",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.76,
+      "lng": 46.6,
+      "priority": 63
+    },
+    {
+      "slug": "aridah",
+      "nameAr": "العارض",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.85,
+      "lng": 46.62,
+      "priority": 62
+    },
+    {
+      "slug": "qirawan",
+      "nameAr": "القيروان",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.87,
+      "lng": 46.63,
+      "priority": 61
+    },
+    {
+      "slug": "banban",
+      "nameAr": "بنبان",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.9,
+      "lng": 46.6,
+      "priority": 60
+    },
+    {
+      "slug": "king-abdullah-financial-district",
+      "nameAr": "مركز الملك عبدالله المالي",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.765,
+      "lng": 46.64,
+      "priority": 59
+    },
+    {
+      "slug": "diplomatic-quarter",
+      "nameAr": "الحي الدبلوماسي",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.68,
+      "lng": 46.62,
+      "priority": 58
+    },
+    {
+      "slug": "diriyah",
+      "nameAr": "الدرعية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.735,
+      "lng": 46.575,
+      "priority": 57
+    },
+    {
+      "slug": "irqa",
+      "nameAr": "عرقة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.69,
+      "lng": 46.55,
+      "priority": 56
+    },
+    {
+      "slug": "umm-al-hamam",
+      "nameAr": "أم الحمام",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.68,
+      "lng": 46.63,
+      "priority": 55
+    },
+    {
+      "slug": "maather",
+      "nameAr": "المعذر",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.67,
+      "lng": 46.66,
+      "priority": 54
+    },
+    {
+      "slug": "rahmaniyah",
+      "nameAr": "الرحمانية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.7,
+      "lng": 46.64,
+      "priority": 53
+    },
+    {
+      "slug": "mohammadiyah",
+      "nameAr": "المحمدية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.71,
+      "lng": 46.65,
+      "priority": 52
+    },
+    {
+      "slug": "sulay",
+      "nameAr": "السلي",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.68,
+      "lng": 46.82,
+      "priority": 51
+    },
+    {
+      "slug": "nashiyah",
+      "nameAr": "النهضة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.72,
+      "lng": 46.84,
+      "priority": 50
+    },
+    {
+      "slug": "khaleej",
+      "nameAr": "الخليج",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.75,
+      "lng": 46.83,
+      "priority": 49
+    },
+    {
+      "slug": "jazeerah",
+      "nameAr": "الجزيرة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.73,
+      "lng": 46.81,
+      "priority": 48
+    },
+    {
+      "slug": "hamra",
+      "nameAr": "الحمراء",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.76,
+      "lng": 46.79,
+      "priority": 47
+    },
+    {
+      "slug": "quds",
+      "nameAr": "القدس",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.79,
+      "lng": 46.8,
+      "priority": 46
+    },
+    {
+      "slug": "munsiyah",
+      "nameAr": "المونسية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.83,
+      "lng": 46.78,
+      "priority": 45
+    },
+    {
+      "slug": "rawabi",
+      "nameAr": "الروابي",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.7,
+      "lng": 46.79,
+      "priority": 44
+    },
+    {
+      "slug": "shifa",
+      "nameAr": "الشفا",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.58,
+      "lng": 46.7,
+      "priority": 43
+    },
+    {
+      "slug": "aziziyah",
+      "nameAr": "العزيزية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.6,
+      "lng": 46.74,
+      "priority": 42
+    },
+    {
+      "slug": "dar-albaida",
+      "nameAr": "دار البيضاء",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.57,
+      "lng": 46.78,
+      "priority": 41
+    },
+    {
+      "slug": "ishbiliya-south",
+      "nameAr": "شبرا",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.62,
+      "lng": 46.7,
+      "priority": 40
+    },
+    {
+      "slug": "badr",
+      "nameAr": "بدر",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.64,
+      "lng": 46.68,
+      "priority": 39
+    },
+    {
+      "slug": "namudhajiyah",
+      "nameAr": "النموذجية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.65,
+      "lng": 46.7,
+      "priority": 38
+    },
+    {
+      "slug": "ulaya",
+      "nameAr": "العليا القديمة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.68,
+      "lng": 46.69,
+      "priority": 37
+    },
+    {
+      "slug": "batha",
+      "nameAr": "البطحاء",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.63,
+      "lng": 46.72,
+      "priority": 36
+    },
+    {
+      "slug": "deira",
+      "nameAr": "الديرة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.63,
+      "lng": 46.715,
+      "priority": 35
+    },
+    {
+      "slug": "faisaliyah",
+      "nameAr": "الفيصلية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.69,
+      "lng": 46.685,
+      "priority": 34
+    },
+    {
+      "slug": "wurud",
+      "nameAr": "الورود",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.72,
+      "lng": 46.69,
+      "priority": 33
+    },
+    {
+      "slug": "murooj",
+      "nameAr": "المروج الشرقية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.75,
+      "lng": 46.7,
+      "priority": 32
+    },
+    {
+      "slug": "takhassusi",
+      "nameAr": "التخصصي",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.685,
+      "lng": 46.675,
+      "priority": 31
+    },
+    {
+      "slug": "exit-5",
+      "nameAr": "مخرج 5",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.78,
+      "lng": 46.68,
+      "priority": 30
+    },
+    {
+      "slug": "exit-9",
+      "nameAr": "مخرج 9",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.73,
+      "lng": 46.7,
+      "priority": 29
+    },
+    {
+      "slug": "exit-10",
+      "nameAr": "مخرج 10",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.7,
+      "lng": 46.72,
+      "priority": 28
+    },
+    {
+      "slug": "exit-14",
+      "nameAr": "مخرج 14",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.68,
+      "lng": 46.75,
+      "priority": 27
+    },
+    {
+      "slug": "exit-15",
+      "nameAr": "مخرج 15",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.66,
+      "lng": 46.78,
+      "priority": 26
+    },
+    {
+      "slug": "tuwaiq",
+      "nameAr": "طويق",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.62,
+      "lng": 46.55,
+      "priority": 25
+    },
+    {
+      "slug": "dhahrat-laban",
+      "nameAr": "ظهرة لبن",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.62,
+      "lng": 46.58,
+      "priority": 24
+    },
+    {
+      "slug": "nassem",
+      "nameAr": "النسيم",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.72,
+      "lng": 46.85,
+      "priority": 23
+    },
+    {
+      "slug": "salam",
+      "nameAr": "السلام",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.7,
+      "lng": 46.83,
+      "priority": 22
+    },
+    {
+      "slug": "rawdah-east",
+      "nameAr": "الروضة الشرقية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.74,
+      "lng": 46.8,
+      "priority": 21
+    },
+    {
+      "slug": "khalidiyah",
+      "nameAr": "الخالدية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.64,
+      "lng": 46.73,
+      "priority": 20
+    },
+    {
+      "slug": "manfuha",
+      "nameAr": "منفوحة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.61,
+      "lng": 46.72,
+      "priority": 20
+    },
+    {
+      "slug": "otaigah",
+      "nameAr": "عتيقة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.62,
+      "lng": 46.7,
+      "priority": 20
+    },
+    {
+      "slug": "rawdah",
+      "nameAr": "الروضة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "jeddah"
+      ],
+      "lat": 21.562,
+      "lng": 39.155,
+      "priority": 85
+    },
+    {
+      "slug": "hamra",
+      "nameAr": "الحمراء",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "jeddah"
+      ],
+      "lat": 21.538,
+      "lng": 39.168,
+      "priority": 84
+    },
+    {
+      "slug": "shati",
+      "nameAr": "الشاطئ",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "jeddah"
+      ],
+      "lat": 21.6,
+      "lng": 39.11,
+      "priority": 83
+    },
+    {
+      "slug": "rawdah-south",
+      "nameAr": "الروضة الجنوبية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "jeddah"
+      ],
+      "lat": 21.4958,
+      "lng": 39.1825,
+      "priority": 82
+    },
+    {
+      "slug": "andalus",
+      "nameAr": "الأندلس",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "jeddah"
+      ],
+      "lat": 21.5058,
+      "lng": 39.2025,
+      "priority": 81
+    },
+    {
+      "slug": "zahra",
+      "nameAr": "الزهراء",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "jeddah"
+      ],
+      "lat": 21.5158,
+      "lng": 39.1725,
+      "priority": 80
+    },
+    {
+      "slug": "salamah",
+      "nameAr": "السلامة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "jeddah"
+      ],
+      "lat": 21.5258,
+      "lng": 39.1925,
+      "priority": 79
+    },
+    {
+      "slug": "mohammadiyah",
+      "nameAr": "المحمدية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "jeddah"
+      ],
+      "lat": 21.5008,
+      "lng": 39.2125,
+      "priority": 78
+    },
+    {
+      "slug": "khalidiyah",
+      "nameAr": "الخالدية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "jeddah"
+      ],
+      "lat": 21.4758,
+      "lng": 39.2025,
+      "priority": 77
+    },
+    {
+      "slug": "balad",
+      "nameAr": "البلد",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "jeddah"
+      ],
+      "lat": 21.4558,
+      "lng": 39.1925,
+      "priority": 76
+    },
+    {
+      "slug": "historic-jeddah",
+      "nameAr": "جدة التاريخية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "jeddah"
+      ],
+      "lat": 21.4508,
+      "lng": 39.1875,
+      "priority": 75
+    },
+    {
+      "slug": "corniche",
+      "nameAr": "الكورنيش",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "jeddah"
+      ],
+      "lat": 21.5358,
+      "lng": 39.1525,
+      "priority": 74
+    },
+    {
+      "slug": "obhur",
+      "nameAr": "أبحر",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "jeddah"
+      ],
+      "lat": 21.5658,
+      "lng": 39.1625,
+      "priority": 73
+    },
+    {
+      "slug": "obhur-north",
+      "nameAr": "أبحر الشمالية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "jeddah"
+      ],
+      "lat": 21.5858,
+      "lng": 39.1725,
+      "priority": 72
+    },
+    {
+      "slug": "nuzlah",
+      "nameAr": "النزلة اليمانية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "jeddah"
+      ],
+      "lat": 21.4458,
+      "lng": 39.2125,
+      "priority": 71
+    },
+    {
+      "slug": "rehab",
+      "nameAr": "الرحاب",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "jeddah"
+      ],
+      "lat": 21.5058,
+      "lng": 39.2225,
+      "priority": 70
+    },
+    {
+      "slug": "faisaliyah",
+      "nameAr": "الفيصلية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "jeddah"
+      ],
+      "lat": 21.4858,
+      "lng": 39.2175,
+      "priority": 69
+    },
+    {
+      "slug": "safa",
+      "nameAr": "الصفا",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "jeddah"
+      ],
+      "lat": 21.4658,
+      "lng": 39.2225,
+      "priority": 68
+    },
+    {
+      "slug": "marwah",
+      "nameAr": "المروة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "jeddah"
+      ],
+      "lat": 21.4708,
+      "lng": 39.2275,
+      "priority": 67
+    },
+    {
+      "slug": "bawadi",
+      "nameAr": "البوادي",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "jeddah"
+      ],
+      "lat": 21.5108,
+      "lng": 39.2075,
+      "priority": 66
+    },
+    {
+      "slug": "aziziyah",
+      "nameAr": "العزيزية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "makkah"
+      ],
+      "lat": 21.4,
+      "lng": 39.88,
+      "priority": 85
+    },
+    {
+      "slug": "sharaye",
+      "nameAr": "الشرائع",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "makkah"
+      ],
+      "lat": 21.4291,
+      "lng": 39.8879,
+      "priority": 84
+    },
+    {
+      "slug": "ajar",
+      "nameAr": "العوالي",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "makkah"
+      ],
+      "lat": 21.3591,
+      "lng": 39.8779,
+      "priority": 83
+    },
+    {
+      "slug": "nakkah",
+      "nameAr": "النوارية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "makkah"
+      ],
+      "lat": 21.4091,
+      "lng": 39.8379,
+      "priority": 82
+    },
+    {
+      "slug": "rusayfah",
+      "nameAr": "الرصيفة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "makkah"
+      ],
+      "lat": 21.3991,
+      "lng": 39.8679,
+      "priority": 81
+    },
+    {
+      "slug": "jarwal",
+      "nameAr": "جرول",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "makkah"
+      ],
+      "lat": 21.3791,
+      "lng": 39.8579,
+      "priority": 80
+    },
+    {
+      "slug": "ajyad",
+      "nameAr": "أجياد",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "makkah"
+      ],
+      "lat": 21.3841,
+      "lng": 39.8629,
+      "priority": 79
+    },
+    {
+      "slug": "shisha",
+      "nameAr": "الششة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "makkah"
+      ],
+      "lat": 21.4041,
+      "lng": 39.8479,
+      "priority": 78
+    },
+    {
+      "slug": "kudai",
+      "nameAr": "كدي",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "makkah"
+      ],
+      "lat": 21.3691,
+      "lng": 39.8479,
+      "priority": 77
+    },
+    {
+      "slug": "hindawiyah",
+      "nameAr": "الهنداوية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "makkah"
+      ],
+      "lat": 21.4141,
+      "lng": 39.8729,
+      "priority": 76
+    },
+    {
+      "slug": "zahir",
+      "nameAr": "الظاهر",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "makkah"
+      ],
+      "lat": 21.4191,
+      "lng": 39.8579,
+      "priority": 75
+    },
+    {
+      "slug": "umrah",
+      "nameAr": "العمرة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "makkah"
+      ],
+      "lat": 21.4391,
+      "lng": 39.8279,
+      "priority": 74
+    },
+    {
+      "slug": "batha-quraish",
+      "nameAr": "بطحاء قريش",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "makkah"
+      ],
+      "lat": 21.3741,
+      "lng": 39.8779,
+      "priority": 73
+    },
+    {
+      "slug": "mansour",
+      "nameAr": "المنصور",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "makkah"
+      ],
+      "lat": 21.4091,
+      "lng": 39.8829,
+      "priority": 72
+    },
+    {
+      "slug": "rawdah",
+      "nameAr": "الروضة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "makkah"
+      ],
+      "lat": 21.4241,
+      "lng": 39.8679,
+      "priority": 71
+    },
+    {
+      "slug": "quba",
+      "nameAr": "قباء",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "madinah"
+      ],
+      "lat": 24.439,
+      "lng": 39.617,
+      "priority": 85
+    },
+    {
+      "slug": "awali",
+      "nameAr": "العوالي",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "madinah"
+      ],
+      "lat": 24.4947,
+      "lng": 39.5892,
+      "priority": 84
+    },
+    {
+      "slug": "qubaa-road",
+      "nameAr": "طريق قباء",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "madinah"
+      ],
+      "lat": 24.4847,
+      "lng": 39.5792,
+      "priority": 83
+    },
+    {
+      "slug": "anbariyah",
+      "nameAr": "العنبرية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "madinah"
+      ],
+      "lat": 24.5347,
+      "lng": 39.5592,
+      "priority": 82
+    },
+    {
+      "slug": "sairafi",
+      "nameAr": "الصيرفي",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "madinah"
+      ],
+      "lat": 24.5447,
+      "lng": 39.5692,
+      "priority": 81
+    },
+    {
+      "slug": "haram",
+      "nameAr": "الحرم",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "madinah"
+      ],
+      "lat": 24.5247,
+      "lng": 39.5692,
+      "priority": 80
+    },
+    {
+      "slug": "qiblatain",
+      "nameAr": "القبلتين",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "madinah"
+      ],
+      "lat": 24.5547,
+      "lng": 39.5492,
+      "priority": 79
+    },
+    {
+      "slug": "uhud",
+      "nameAr": "أحد",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "madinah"
+      ],
+      "lat": 24.5747,
+      "lng": 39.5792,
+      "priority": 78
+    },
+    {
+      "slug": "aziziyah",
+      "nameAr": "العزيزية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "madinah"
+      ],
+      "lat": 24.5047,
+      "lng": 39.5992,
+      "priority": 77
+    },
+    {
+      "slug": "khalidiyah",
+      "nameAr": "الخالدية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "madinah"
+      ],
+      "lat": 24.5397,
+      "lng": 39.5892,
+      "priority": 76
+    },
+    {
+      "slug": "nakheel",
+      "nameAr": "النخيل",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "madinah"
+      ],
+      "lat": 24.5647,
+      "lng": 39.5892,
+      "priority": 75
+    },
+    {
+      "slug": "warqan",
+      "nameAr": "ورقان",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "madinah"
+      ],
+      "lat": 24.4747,
+      "lng": 39.5592,
+      "priority": 74
+    },
+    {
+      "slug": "jumuah",
+      "nameAr": "الجمعة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "madinah"
+      ],
+      "lat": 24.5497,
+      "lng": 39.5542,
+      "priority": 73
+    },
+    {
+      "slug": "urwah",
+      "nameAr": "عروة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "madinah"
+      ],
+      "lat": 24.5147,
+      "lng": 39.5842,
+      "priority": 72
+    },
+    {
+      "slug": "sayyidah",
+      "nameAr": "السيدة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "madinah"
+      ],
+      "lat": 24.5347,
+      "lng": 39.5942,
+      "priority": 71
+    },
+    {
+      "slug": "faisaliyah",
+      "nameAr": "الفيصلية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "dammam"
+      ],
+      "lat": 26.42,
+      "lng": 50.05,
+      "priority": 85
+    },
+    {
+      "slug": "jalawiyah",
+      "nameAr": "الجلوية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "dammam"
+      ],
+      "lat": 26.4127,
+      "lng": 49.9877,
+      "priority": 84
+    },
+    {
+      "slug": "shati",
+      "nameAr": "الشاطئ",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "dammam"
+      ],
+      "lat": 26.4227,
+      "lng": 49.9977,
+      "priority": 83
+    },
+    {
+      "slug": "adamah",
+      "nameAr": "العدامة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "dammam"
+      ],
+      "lat": 26.3827,
+      "lng": 49.9777,
+      "priority": 82
+    },
+    {
+      "slug": "tubayshi",
+      "nameAr": "الطبيشي",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "dammam"
+      ],
+      "lat": 26.4077,
+      "lng": 49.9677,
+      "priority": 81
+    },
+    {
+      "slug": "mizan",
+      "nameAr": "المزروعية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "dammam"
+      ],
+      "lat": 26.4177,
+      "lng": 49.9777,
+      "priority": 80
+    },
+    {
+      "slug": "badea",
+      "nameAr": "البديع",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "dammam"
+      ],
+      "lat": 26.3727,
+      "lng": 49.9927,
+      "priority": 79
+    },
+    {
+      "slug": "nawras",
+      "nameAr": "النورس",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "dammam"
+      ],
+      "lat": 26.4327,
+      "lng": 49.9877,
+      "priority": 78
+    },
+    {
+      "slug": "corniche",
+      "nameAr": "الكورنيش",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "dammam"
+      ],
+      "lat": 26.4277,
+      "lng": 50.0077,
+      "priority": 77
+    },
+    {
+      "slug": "industrial",
+      "nameAr": "الصناعية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "dammam"
+      ],
+      "lat": 26.3627,
+      "lng": 49.9577,
+      "priority": 76
+    },
+    {
+      "slug": "rawdah",
+      "nameAr": "الروضة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "dammam"
+      ],
+      "lat": 26.4027,
+      "lng": 49.9977,
+      "priority": 75
+    },
+    {
+      "slug": "shulah",
+      "nameAr": "الشعلة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "dammam"
+      ],
+      "lat": 26.4127,
+      "lng": 49.9577,
+      "priority": 74
+    },
+    {
+      "slug": "nakheel",
+      "nameAr": "النخيل",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "dammam"
+      ],
+      "lat": 26.4227,
+      "lng": 49.9627,
+      "priority": 73
+    },
+    {
+      "slug": "qadisiyah",
+      "nameAr": "القادسية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "dammam"
+      ],
+      "lat": 26.3927,
+      "lng": 50.0027,
+      "priority": 72
+    },
+    {
+      "slug": "aziziyah",
+      "nameAr": "العزيزية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "dammam"
+      ],
+      "lat": 26.3777,
+      "lng": 49.9977,
+      "priority": 71
+    },
+    {
+      "slug": "corniche",
+      "nameAr": "الكورنيش",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "khobar"
+      ],
+      "lat": 26.2372,
+      "lng": 50.2271,
+      "priority": 85
+    },
+    {
+      "slug": "olaya",
+      "nameAr": "العليا",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "khobar"
+      ],
+      "lat": 26.2272,
+      "lng": 50.1971,
+      "priority": 84
+    },
+    {
+      "slug": "thuqbah",
+      "nameAr": "الثقبة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "khobar"
+      ],
+      "lat": 26.1972,
+      "lng": 50.1871,
+      "priority": 83
+    },
+    {
+      "slug": "aqrabiyah",
+      "nameAr": "العقربية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "khobar"
+      ],
+      "lat": 26.2322,
+      "lng": 50.1821,
+      "priority": 82
+    },
+    {
+      "slug": "rawabi",
+      "nameAr": "الروابي",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "khobar"
+      ],
+      "lat": 26.2472,
+      "lng": 50.2071,
+      "priority": 81
+    },
+    {
+      "slug": "yarmuk",
+      "nameAr": "اليرموك",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "khobar"
+      ],
+      "lat": 26.2422,
+      "lng": 50.1771,
+      "priority": 80
+    },
+    {
+      "slug": "hulailah",
+      "nameAr": "الحليلة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "khobar"
+      ],
+      "lat": 26.2072,
+      "lng": 50.2171,
+      "priority": 79
+    },
+    {
+      "slug": "bandariyah",
+      "nameAr": "البندرية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "khobar"
+      ],
+      "lat": 26.2172,
+      "lng": 50.2221,
+      "priority": 78
+    },
+    {
+      "slug": "razzah",
+      "nameAr": "الراكة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "khobar"
+      ],
+      "lat": 26.2572,
+      "lng": 50.2171,
+      "priority": 77
+    },
+    {
+      "slug": "jisr",
+      "nameAr": "الجسر",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "khobar"
+      ],
+      "lat": 26.2672,
+      "lng": 50.1971,
+      "priority": 76
+    },
+    {
+      "slug": "thuqbah-south",
+      "nameAr": "الثقبة الجنوبية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "khobar"
+      ],
+      "lat": 26.1872,
+      "lng": 50.1971,
+      "priority": 75
+    },
+    {
+      "slug": "khobar-north",
+      "nameAr": "الخبر الشمالية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "khobar"
+      ],
+      "lat": 26.2522,
+      "lng": 50.2121,
+      "priority": 74
+    },
+    {
+      "slug": "university",
+      "nameAr": "الجامعة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "dhahran"
+      ],
+      "lat": 26.3131,
+      "lng": 50.125,
+      "priority": 85
+    },
+    {
+      "slug": "doha",
+      "nameAr": "الدوحة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "dhahran"
+      ],
+      "lat": 26.3231,
+      "lng": 50.105,
+      "priority": 84
+    },
+    {
+      "slug": "dana",
+      "nameAr": "الدانة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "dhahran"
+      ],
+      "lat": 26.3181,
+      "lng": 50.135,
+      "priority": 83
+    },
+    {
+      "slug": "qusur",
+      "nameAr": "القصور",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "dhahran"
+      ],
+      "lat": 26.2931,
+      "lng": 50.115,
+      "priority": 82
+    },
+    {
+      "slug": "airport",
+      "nameAr": "المطار",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "dhahran"
+      ],
+      "lat": 26.3331,
+      "lng": 50.135,
+      "priority": 81
+    },
+    {
+      "slug": "rawdah",
+      "nameAr": "الروضة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "dhahran"
+      ],
+      "lat": 26.3031,
+      "lng": 50.13,
+      "priority": 80
+    },
+    {
+      "slug": "qatif-center",
+      "nameAr": "وسط القطيف",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "qatif"
+      ],
+      "lat": 26.5654,
+      "lng": 49.9983,
+      "priority": 85
+    },
+    {
+      "slug": "saihat",
+      "nameAr": "سيهات",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "qatif"
+      ],
+      "lat": 26.5354,
+      "lng": 50.0183,
+      "priority": 84
+    },
+    {
+      "slug": "safwa",
+      "nameAr": "صفوى",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "qatif"
+      ],
+      "lat": 26.6054,
+      "lng": 50.0083,
+      "priority": 83
+    },
+    {
+      "slug": "tarut",
+      "nameAr": "تاروت",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "qatif"
+      ],
+      "lat": 26.5854,
+      "lng": 50.0283,
+      "priority": 82
+    },
+    {
+      "slug": "awamiyah",
+      "nameAr": "العوامية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "qatif"
+      ],
+      "lat": 26.5754,
+      "lng": 49.9883,
+      "priority": 81
+    },
+    {
+      "slug": "qudaih",
+      "nameAr": "القديح",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "qatif"
+      ],
+      "lat": 26.5454,
+      "lng": 50.0133,
+      "priority": 80
+    },
+    {
+      "slug": "anak",
+      "nameAr": "عنك",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "qatif"
+      ],
+      "lat": 26.5954,
+      "lng": 49.9783,
+      "priority": 79
+    },
+    {
+      "slug": "jarudiyah",
+      "nameAr": "الجارودية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "qatif"
+      ],
+      "lat": 26.5804,
+      "lng": 50.0183,
+      "priority": 78
+    },
+    {
+      "slug": "hofuf",
+      "nameAr": "الهفوف",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "ahsa"
+      ],
+      "lat": 25.3633,
+      "lng": 49.5872,
+      "priority": 85
+    },
+    {
+      "slug": "mubarraz",
+      "nameAr": "المبرز",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "ahsa"
+      ],
+      "lat": 25.3933,
+      "lng": 49.5972,
+      "priority": 84
+    },
+    {
+      "slug": "oyoun",
+      "nameAr": "العيون",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "ahsa"
+      ],
+      "lat": 25.4133,
+      "lng": 49.5672,
+      "priority": 83
+    },
+    {
+      "slug": "omran",
+      "nameAr": "العمران",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "ahsa"
+      ],
+      "lat": 25.3433,
+      "lng": 49.6172,
+      "priority": 82
+    },
+    {
+      "slug": "jafr",
+      "nameAr": "الجفر",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "ahsa"
+      ],
+      "lat": 25.4033,
+      "lng": 49.6072,
+      "priority": 81
+    },
+    {
+      "slug": "taraf",
+      "nameAr": "الطرف",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "ahsa"
+      ],
+      "lat": 25.3333,
+      "lng": 49.5772,
+      "priority": 80
+    },
+    {
+      "slug": "shuaba",
+      "nameAr": "الشعيبة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "ahsa"
+      ],
+      "lat": 25.3833,
+      "lng": 49.5572,
+      "priority": 79
+    },
+    {
+      "slug": "rawdah",
+      "nameAr": "الروضة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "ahsa"
+      ],
+      "lat": 25.3733,
+      "lng": 49.6022,
+      "priority": 78
+    },
+    {
+      "slug": "jubail-industrial",
+      "nameAr": "الجبيل الصناعية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "jubail"
+      ],
+      "lat": 27.0646,
+      "lng": 49.6822,
+      "priority": 85
+    },
+    {
+      "slug": "jubail-balad",
+      "nameAr": "الجبيل البلد",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "jubail"
+      ],
+      "lat": 26.9946,
+      "lng": 49.6622,
+      "priority": 84
+    },
+    {
+      "slug": "fanateer",
+      "nameAr": "الفناتير",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "jubail"
+      ],
+      "lat": 27.0446,
+      "lng": 49.6722,
+      "priority": 83
+    },
+    {
+      "slug": "jalmudah",
+      "nameAr": "جلمودة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "jubail"
+      ],
+      "lat": 27.0246,
+      "lng": 49.6422,
+      "priority": 82
+    },
+    {
+      "slug": "hudood",
+      "nameAr": "الحوطة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "jubail"
+      ],
+      "lat": 27.0046,
+      "lng": 49.6822,
+      "priority": 81
+    },
+    {
+      "slug": "corniche",
+      "nameAr": "الكورنيش",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "jubail"
+      ],
+      "lat": 27.0346,
+      "lng": 49.6922,
+      "priority": 80
+    },
+    {
+      "slug": "yanbu-industrial",
+      "nameAr": "ينبع الصناعية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "yanbu"
+      ],
+      "lat": 24.1289,
+      "lng": 38.0784,
+      "priority": 85
+    },
+    {
+      "slug": "yanbu-balad",
+      "nameAr": "ينبع البلد",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "yanbu"
+      ],
+      "lat": 24.0689,
+      "lng": 38.0584,
+      "priority": 84
+    },
+    {
+      "slug": "bahr",
+      "nameAr": "البحر",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "yanbu"
+      ],
+      "lat": 24.0989,
+      "lng": 38.0284,
+      "priority": 83
+    },
+    {
+      "slug": "samir",
+      "nameAr": "السميري",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "yanbu"
+      ],
+      "lat": 24.1089,
+      "lng": 38.0684,
+      "priority": 82
+    },
+    {
+      "slug": "nakheel",
+      "nameAr": "النخيل",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "yanbu"
+      ],
+      "lat": 24.1039,
+      "lng": 38.0784,
+      "priority": 81
+    },
+    {
+      "slug": "rawdah",
+      "nameAr": "الروضة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "yanbu"
+      ],
+      "lat": 24.0789,
+      "lng": 38.0734,
+      "priority": 80
+    },
+    {
+      "slug": "shafa",
+      "nameAr": "الشفا",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "taif"
+      ],
+      "lat": 21.3103,
+      "lng": 40.3978,
+      "priority": 85
+    },
+    {
+      "slug": "hada",
+      "nameAr": "الهدا",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "taif"
+      ],
+      "lat": 21.3203,
+      "lng": 40.4278,
+      "priority": 84
+    },
+    {
+      "slug": "qura",
+      "nameAr": "القريع",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "taif"
+      ],
+      "lat": 21.2503,
+      "lng": 40.4378,
+      "priority": 83
+    },
+    {
+      "slug": "mathnah",
+      "nameAr": "المثناه",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "taif"
+      ],
+      "lat": 21.2803,
+      "lng": 40.4178,
+      "priority": 82
+    },
+    {
+      "slug": "shihar",
+      "nameAr": "الشهداء",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "taif"
+      ],
+      "lat": 21.2603,
+      "lng": 40.4328,
+      "priority": 81
+    },
+    {
+      "slug": "rawdah",
+      "nameAr": "الروضة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "taif"
+      ],
+      "lat": 21.2903,
+      "lng": 40.4078,
+      "priority": 80
+    },
+    {
+      "slug": "aziziyah",
+      "nameAr": "العزيزية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "taif"
+      ],
+      "lat": 21.2703,
+      "lng": 40.4378,
+      "priority": 79
+    },
+    {
+      "slug": "faisaliyah",
+      "nameAr": "الفيصلية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "taif"
+      ],
+      "lat": 21.2553,
+      "lng": 40.4078,
+      "priority": 78
+    },
+    {
+      "slug": "sultanah",
+      "nameAr": "السلطانية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "tabuk"
+      ],
+      "lat": 28.4038,
+      "lng": 36.565,
+      "priority": 85
+    },
+    {
+      "slug": "murooj",
+      "nameAr": "المروج",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "tabuk"
+      ],
+      "lat": 28.4138,
+      "lng": 36.545,
+      "priority": 84
+    },
+    {
+      "slug": "rawdah",
+      "nameAr": "الروضة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "tabuk"
+      ],
+      "lat": 28.3938,
+      "lng": 36.575,
+      "priority": 83
+    },
+    {
+      "slug": "khalidiyah",
+      "nameAr": "الخالدية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "tabuk"
+      ],
+      "lat": 28.3738,
+      "lng": 36.57,
+      "priority": 82
+    },
+    {
+      "slug": "aziziyah",
+      "nameAr": "العزيزية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "tabuk"
+      ],
+      "lat": 28.3838,
+      "lng": 36.535,
+      "priority": 81
+    },
+    {
+      "slug": "industrial",
+      "nameAr": "الصناعية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "tabuk"
+      ],
+      "lat": 28.3538,
+      "lng": 36.575,
+      "priority": 80
+    },
+    {
+      "slug": "masif",
+      "nameAr": "المصيف",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "tabuk"
+      ],
+      "lat": 28.4088,
+      "lng": 36.555,
+      "priority": 79
+    },
+    {
+      "slug": "safra",
+      "nameAr": "الصفراء",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "buraidah"
+      ],
+      "lat": 26.346,
+      "lng": 43.985,
+      "priority": 85
+    },
+    {
+      "slug": "khabrah",
+      "nameAr": "الخبراء",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "buraidah"
+      ],
+      "lat": 26.296,
+      "lng": 43.995,
+      "priority": 84
+    },
+    {
+      "slug": "rawdah",
+      "nameAr": "الروضة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "buraidah"
+      ],
+      "lat": 26.336,
+      "lng": 43.965,
+      "priority": 83
+    },
+    {
+      "slug": "fakhriyah",
+      "nameAr": "الفخرية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "buraidah"
+      ],
+      "lat": 26.341,
+      "lng": 43.995,
+      "priority": 82
+    },
+    {
+      "slug": "suloimi",
+      "nameAr": "السليمي",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "buraidah"
+      ],
+      "lat": 26.316,
+      "lng": 43.975,
+      "priority": 81
+    },
+    {
+      "slug": "nakheel",
+      "nameAr": "النخيل",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "buraidah"
+      ],
+      "lat": 26.356,
+      "lng": 43.96,
+      "priority": 80
+    },
+    {
+      "slug": "aziziyah",
+      "nameAr": "العزيزية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "buraidah"
+      ],
+      "lat": 26.326,
+      "lng": 44,
+      "priority": 79
+    },
+    {
+      "slug": "industrial",
+      "nameAr": "الصناعية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "buraidah"
+      ],
+      "lat": 26.306,
+      "lng": 43.955,
+      "priority": 78
+    },
+    {
+      "slug": "qadisiyah",
+      "nameAr": "القادسية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "buraidah"
+      ],
+      "lat": 26.351,
+      "lng": 43.985,
+      "priority": 77
+    },
+    {
+      "slug": "manar",
+      "nameAr": "المنار",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "buraidah"
+      ],
+      "lat": 26.336,
+      "lng": 44.005,
+      "priority": 76
+    },
+    {
+      "slug": "wasit",
+      "nameAr": "الوسيطى",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "buraidah"
+      ],
+      "lat": 26.311,
+      "lng": 43.99,
+      "priority": 75
+    },
+    {
+      "slug": "rihab",
+      "nameAr": "الرحاب",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "buraidah"
+      ],
+      "lat": 26.361,
+      "lng": 43.975,
+      "priority": 74
+    },
+    {
+      "slug": "wasat",
+      "nameAr": "وسط عنيزة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "unayzah"
+      ],
+      "lat": 26.087,
+      "lng": 43.993,
+      "priority": 85
+    },
+    {
+      "slug": "rawdah",
+      "nameAr": "الروضة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "unayzah"
+      ],
+      "lat": 26.107,
+      "lng": 44.003,
+      "priority": 84
+    },
+    {
+      "slug": "khalidiyah",
+      "nameAr": "الخالدية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "unayzah"
+      ],
+      "lat": 26.077,
+      "lng": 44.008,
+      "priority": 83
+    },
+    {
+      "slug": "aziziyah",
+      "nameAr": "العزيزية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "unayzah"
+      ],
+      "lat": 26.102,
+      "lng": 43.983,
+      "priority": 82
+    },
+    {
+      "slug": "nakheel",
+      "nameAr": "النخيل",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "unayzah"
+      ],
+      "lat": 26.117,
+      "lng": 43.993,
+      "priority": 81
+    },
+    {
+      "slug": "industrial",
+      "nameAr": "الصناعية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "unayzah"
+      ],
+      "lat": 26.067,
+      "lng": 44.013,
+      "priority": 80
+    },
+    {
+      "slug": "qadisiyah",
+      "nameAr": "القادسية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "unayzah"
+      ],
+      "lat": 26.097,
+      "lng": 44.018,
+      "priority": 79
+    },
+    {
+      "slug": "wasat",
+      "nameAr": "وسط الرس",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "ar-rass"
+      ],
+      "lat": 25.8694,
+      "lng": 43.4973,
+      "priority": 85
+    },
+    {
+      "slug": "rawdah",
+      "nameAr": "الروضة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "ar-rass"
+      ],
+      "lat": 25.8844,
+      "lng": 43.5073,
+      "priority": 84
+    },
+    {
+      "slug": "aziziyah",
+      "nameAr": "العزيزية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "ar-rass"
+      ],
+      "lat": 25.8594,
+      "lng": 43.5173,
+      "priority": 83
+    },
+    {
+      "slug": "nakheel",
+      "nameAr": "النخيل",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "ar-rass"
+      ],
+      "lat": 25.8894,
+      "lng": 43.4873,
+      "priority": 82
+    },
+    {
+      "slug": "industrial",
+      "nameAr": "الصناعية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "ar-rass"
+      ],
+      "lat": 25.8494,
+      "lng": 43.4823,
+      "priority": 81
+    },
+    {
+      "slug": "khalidiyah",
+      "nameAr": "الخالدية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "ar-rass"
+      ],
+      "lat": 25.8794,
+      "lng": 43.5173,
+      "priority": 80
+    },
+    {
+      "slug": "wasat",
+      "nameAr": "وسط حائل",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "hail"
+      ],
+      "lat": 27.5114,
+      "lng": 41.7208,
+      "priority": 85
+    },
+    {
+      "slug": "aziziyah",
+      "nameAr": "العزيزية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "hail"
+      ],
+      "lat": 27.5314,
+      "lng": 41.7308,
+      "priority": 84
+    },
+    {
+      "slug": "rawdah",
+      "nameAr": "الروضة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "hail"
+      ],
+      "lat": 27.5014,
+      "lng": 41.7408,
+      "priority": 83
+    },
+    {
+      "slug": "samra",
+      "nameAr": "السمراء",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "hail"
+      ],
+      "lat": 27.5414,
+      "lng": 41.7108,
+      "priority": 82
+    },
+    {
+      "slug": "murooj",
+      "nameAr": "المروج",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "hail"
+      ],
+      "lat": 27.5264,
+      "lng": 41.7458,
+      "priority": 81
+    },
+    {
+      "slug": "nakheel",
+      "nameAr": "النخيل",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "hail"
+      ],
+      "lat": 27.4914,
+      "lng": 41.7208,
+      "priority": 80
+    },
+    {
+      "slug": "industrial",
+      "nameAr": "الصناعية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "hail"
+      ],
+      "lat": 27.5114,
+      "lng": 41.6958,
+      "priority": 79
+    },
+    {
+      "slug": "zubarah",
+      "nameAr": "الزبارة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "hail"
+      ],
+      "lat": 27.5364,
+      "lng": 41.7358,
+      "priority": 78
+    },
+    {
+      "slug": "qadisiyah",
+      "nameAr": "القادسية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "hail"
+      ],
+      "lat": 27.4964,
+      "lng": 41.7408,
+      "priority": 77
+    },
+    {
+      "slug": "khalidiyah",
+      "nameAr": "الخالدية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "hail"
+      ],
+      "lat": 27.5214,
+      "lng": 41.7008,
+      "priority": 76
+    },
+    {
+      "slug": "masif",
+      "nameAr": "المصيف",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "hail"
+      ],
+      "lat": 27.5514,
+      "lng": 41.7208,
+      "priority": 75
+    },
+    {
+      "slug": "barzan",
+      "nameAr": "برزان",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "hail"
+      ],
+      "lat": 27.4814,
+      "lng": 41.7308,
+      "priority": 74
+    },
+    {
+      "slug": "wasat",
+      "nameAr": "وسط سكاكا",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "sakaka"
+      ],
+      "lat": 29.9697,
+      "lng": 40.2064,
+      "priority": 85
+    },
+    {
+      "slug": "rawdah",
+      "nameAr": "الروضة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "sakaka"
+      ],
+      "lat": 29.9897,
+      "lng": 40.2164,
+      "priority": 84
+    },
+    {
+      "slug": "aziziyah",
+      "nameAr": "العزيزية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "sakaka"
+      ],
+      "lat": 29.9597,
+      "lng": 40.2214,
+      "priority": 83
+    },
+    {
+      "slug": "nakheel",
+      "nameAr": "النخيل",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "sakaka"
+      ],
+      "lat": 29.9847,
+      "lng": 40.1964,
+      "priority": 82
+    },
+    {
+      "slug": "industrial",
+      "nameAr": "الصناعية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "sakaka"
+      ],
+      "lat": 29.9497,
+      "lng": 40.2264,
+      "priority": 81
+    },
+    {
+      "slug": "khalidiyah",
+      "nameAr": "الخالدية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "sakaka"
+      ],
+      "lat": 29.9797,
+      "lng": 40.2264,
+      "priority": 80
+    },
+    {
+      "slug": "wasat",
+      "nameAr": "وسط القريات",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "qurayyat"
+      ],
+      "lat": 31.3316,
+      "lng": 37.3428,
+      "priority": 85
+    },
+    {
+      "slug": "rawdah",
+      "nameAr": "الروضة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "qurayyat"
+      ],
+      "lat": 31.3466,
+      "lng": 37.3528,
+      "priority": 84
+    },
+    {
+      "slug": "aziziyah",
+      "nameAr": "العزيزية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "qurayyat"
+      ],
+      "lat": 31.3216,
+      "lng": 37.3578,
+      "priority": 83
+    },
+    {
+      "slug": "nakheel",
+      "nameAr": "النخيل",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "qurayyat"
+      ],
+      "lat": 31.3516,
+      "lng": 37.3328,
+      "priority": 82
+    },
+    {
+      "slug": "industrial",
+      "nameAr": "الصناعية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "qurayyat"
+      ],
+      "lat": 31.3166,
+      "lng": 37.3628,
+      "priority": 81
+    },
+    {
+      "slug": "wasat",
+      "nameAr": "وسط عرعر",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "arar"
+      ],
+      "lat": 30.9753,
+      "lng": 41.0381,
+      "priority": 85
+    },
+    {
+      "slug": "rawdah",
+      "nameAr": "الروضة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "arar"
+      ],
+      "lat": 30.9953,
+      "lng": 41.0481,
+      "priority": 84
+    },
+    {
+      "slug": "aziziyah",
+      "nameAr": "العزيزية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "arar"
+      ],
+      "lat": 30.9653,
+      "lng": 41.0531,
+      "priority": 83
+    },
+    {
+      "slug": "nakheel",
+      "nameAr": "النخيل",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "arar"
+      ],
+      "lat": 30.9903,
+      "lng": 41.0181,
+      "priority": 82
+    },
+    {
+      "slug": "industrial",
+      "nameAr": "الصناعية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "arar"
+      ],
+      "lat": 30.9553,
+      "lng": 41.0481,
+      "priority": 81
+    },
+    {
+      "slug": "khalidiyah",
+      "nameAr": "الخالدية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "arar"
+      ],
+      "lat": 30.9853,
+      "lng": 41.0581,
+      "priority": 80
+    },
+    {
+      "slug": "wasat",
+      "nameAr": "وسط رفحاء",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "rafha"
+      ],
+      "lat": 29.6342,
+      "lng": 43.4969,
+      "priority": 85
+    },
+    {
+      "slug": "rawdah",
+      "nameAr": "الروضة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "rafha"
+      ],
+      "lat": 29.6492,
+      "lng": 43.5069,
+      "priority": 84
+    },
+    {
+      "slug": "aziziyah",
+      "nameAr": "العزيزية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "rafha"
+      ],
+      "lat": 29.6242,
+      "lng": 43.5119,
+      "priority": 83
+    },
+    {
+      "slug": "nakheel",
+      "nameAr": "النخيل",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "rafha"
+      ],
+      "lat": 29.6542,
+      "lng": 43.4869,
+      "priority": 82
+    },
+    {
+      "slug": "industrial",
+      "nameAr": "الصناعية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "rafha"
+      ],
+      "lat": 29.6192,
+      "lng": 43.5169,
+      "priority": 81
+    },
+    {
+      "slug": "wasat",
+      "nameAr": "وسط طريف",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "turaif"
+      ],
+      "lat": 31.6725,
+      "lng": 38.6637,
+      "priority": 85
+    },
+    {
+      "slug": "rawdah",
+      "nameAr": "الروضة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "turaif"
+      ],
+      "lat": 31.6875,
+      "lng": 38.6737,
+      "priority": 84
+    },
+    {
+      "slug": "aziziyah",
+      "nameAr": "العزيزية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "turaif"
+      ],
+      "lat": 31.6625,
+      "lng": 38.6757,
+      "priority": 83
+    },
+    {
+      "slug": "nakheel",
+      "nameAr": "النخيل",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "turaif"
+      ],
+      "lat": 31.6905,
+      "lng": 38.6537,
+      "priority": 82
+    },
+    {
+      "slug": "industrial",
+      "nameAr": "الصناعية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "turaif"
+      ],
+      "lat": 31.6575,
+      "lng": 38.6787,
+      "priority": 81
+    },
+    {
+      "slug": "wasat",
+      "nameAr": "وسط حفر الباطن",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "hafar-al-batin"
+      ],
+      "lat": 28.4337,
+      "lng": 45.9601,
+      "priority": 85
+    },
+    {
+      "slug": "rawdah",
+      "nameAr": "الروضة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "hafar-al-batin"
+      ],
+      "lat": 28.4537,
+      "lng": 45.9701,
+      "priority": 84
+    },
+    {
+      "slug": "aziziyah",
+      "nameAr": "العزيزية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "hafar-al-batin"
+      ],
+      "lat": 28.4187,
+      "lng": 45.9801,
+      "priority": 83
+    },
+    {
+      "slug": "nakheel",
+      "nameAr": "النخيل",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "hafar-al-batin"
+      ],
+      "lat": 28.4587,
+      "lng": 45.9501,
+      "priority": 82
+    },
+    {
+      "slug": "industrial",
+      "nameAr": "الصناعية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "hafar-al-batin"
+      ],
+      "lat": 28.4137,
+      "lng": 45.9451,
+      "priority": 81
+    },
+    {
+      "slug": "qadisiyah",
+      "nameAr": "القادسية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "hafar-al-batin"
+      ],
+      "lat": 28.4437,
+      "lng": 45.9851,
+      "priority": 80
+    },
+    {
+      "slug": "khalidiyah",
+      "nameAr": "الخالدية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "hafar-al-batin"
+      ],
+      "lat": 28.4487,
+      "lng": 45.9401,
+      "priority": 79
+    },
+    {
+      "slug": "wasat",
+      "nameAr": "وسط الخرج",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "kharj"
+      ],
+      "lat": 24.1556,
+      "lng": 47.305,
+      "priority": 85
+    },
+    {
+      "slug": "rawdah",
+      "nameAr": "الروضة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "kharj"
+      ],
+      "lat": 24.1756,
+      "lng": 47.315,
+      "priority": 84
+    },
+    {
+      "slug": "aziziyah",
+      "nameAr": "العزيزية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "kharj"
+      ],
+      "lat": 24.1406,
+      "lng": 47.32,
+      "priority": 83
+    },
+    {
+      "slug": "nakheel",
+      "nameAr": "النخيل",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "kharj"
+      ],
+      "lat": 24.1806,
+      "lng": 47.295,
+      "priority": 82
+    },
+    {
+      "slug": "industrial",
+      "nameAr": "الصناعية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "kharj"
+      ],
+      "lat": 24.1356,
+      "lng": 47.325,
+      "priority": 81
+    },
+    {
+      "slug": "yamamah",
+      "nameAr": "اليمامة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "kharj"
+      ],
+      "lat": 24.1656,
+      "lng": 47.33,
+      "priority": 80
+    },
+    {
+      "slug": "silayyil",
+      "nameAr": "السليل",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "kharj"
+      ],
+      "lat": 24.1856,
+      "lng": 47.305,
+      "priority": 79
+    },
+    {
+      "slug": "wasat",
+      "nameAr": "وسط الدوادمي",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "dawadmi"
+      ],
+      "lat": 24.5077,
+      "lng": 44.3922,
+      "priority": 85
+    },
+    {
+      "slug": "rawdah",
+      "nameAr": "الروضة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "dawadmi"
+      ],
+      "lat": 24.5227,
+      "lng": 44.4022,
+      "priority": 84
+    },
+    {
+      "slug": "aziziyah",
+      "nameAr": "العزيزية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "dawadmi"
+      ],
+      "lat": 24.4977,
+      "lng": 44.4072,
+      "priority": 83
+    },
+    {
+      "slug": "nakheel",
+      "nameAr": "النخيل",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "dawadmi"
+      ],
+      "lat": 24.5277,
+      "lng": 44.3822,
+      "priority": 82
+    },
+    {
+      "slug": "industrial",
+      "nameAr": "الصناعية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "dawadmi"
+      ],
+      "lat": 24.4927,
+      "lng": 44.4122,
+      "priority": 81
+    },
+    {
+      "slug": "khalidiyah",
+      "nameAr": "الخالدية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "dawadmi"
+      ],
+      "lat": 24.5177,
+      "lng": 44.4122,
+      "priority": 80
+    },
+    {
+      "slug": "wasat",
+      "nameAr": "وسط المجمعة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "majmaah"
+      ],
+      "lat": 25.9042,
+      "lng": 45.3458,
+      "priority": 85
+    },
+    {
+      "slug": "rawdah",
+      "nameAr": "الروضة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "majmaah"
+      ],
+      "lat": 25.9192,
+      "lng": 45.3558,
+      "priority": 84
+    },
+    {
+      "slug": "aziziyah",
+      "nameAr": "العزيزية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "majmaah"
+      ],
+      "lat": 25.8942,
+      "lng": 45.3608,
+      "priority": 83
+    },
+    {
+      "slug": "nakheel",
+      "nameAr": "النخيل",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "majmaah"
+      ],
+      "lat": 25.9242,
+      "lng": 45.3358,
+      "priority": 82
+    },
+    {
+      "slug": "industrial",
+      "nameAr": "الصناعية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "majmaah"
+      ],
+      "lat": 25.8892,
+      "lng": 45.3658,
+      "priority": 81
+    },
+    {
+      "slug": "khalidiyah",
+      "nameAr": "الخالدية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "majmaah"
+      ],
+      "lat": 25.9142,
+      "lng": 45.3658,
+      "priority": 80
+    },
+    {
+      "slug": "wasat",
+      "nameAr": "وسط وادي الدواسر",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "wadi-ad-dawasir"
+      ],
+      "lat": 20.4693,
+      "lng": 44.7943,
+      "priority": 85
+    },
+    {
+      "slug": "rawdah",
+      "nameAr": "الروضة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "wadi-ad-dawasir"
+      ],
+      "lat": 20.4893,
+      "lng": 44.8043,
+      "priority": 84
+    },
+    {
+      "slug": "aziziyah",
+      "nameAr": "العزيزية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "wadi-ad-dawasir"
+      ],
+      "lat": 20.4543,
+      "lng": 44.8093,
+      "priority": 83
+    },
+    {
+      "slug": "nakheel",
+      "nameAr": "النخيل",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "wadi-ad-dawasir"
+      ],
+      "lat": 20.4943,
+      "lng": 44.7843,
+      "priority": 82
+    },
+    {
+      "slug": "industrial",
+      "nameAr": "الصناعية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "wadi-ad-dawasir"
+      ],
+      "lat": 20.4493,
+      "lng": 44.8143,
+      "priority": 81
+    },
+    {
+      "slug": "khalidiyah",
+      "nameAr": "الخالدية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "wadi-ad-dawasir"
+      ],
+      "lat": 20.4793,
+      "lng": 44.8143,
+      "priority": 80
+    },
+    {
+      "slug": "qadisiyah",
+      "nameAr": "القادسية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "wadi-ad-dawasir"
+      ],
+      "lat": 20.4843,
+      "lng": 44.7743,
+      "priority": 79
+    },
+    {
+      "slug": "sulayyil",
+      "nameAr": "السليل",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "wadi-ad-dawasir"
+      ],
+      "lat": 20.4993,
+      "lng": 44.7943,
+      "priority": 78
+    },
+    {
+      "slug": "lidam",
+      "nameAr": "اليدام",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "wadi-ad-dawasir"
+      ],
+      "lat": 20.4443,
+      "lng": 44.8043,
+      "priority": 77
+    },
+    {
+      "slug": "al-faw",
+      "nameAr": "الفاو",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "wadi-ad-dawasir"
+      ],
+      "lat": 20.4793,
+      "lng": 44.8243,
+      "priority": 76
+    },
+    {
+      "slug": "wasat",
+      "nameAr": "وسط الزلفي",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "zulfi"
+      ],
+      "lat": 26.2994,
+      "lng": 44.8154,
+      "priority": 85
+    },
+    {
+      "slug": "rawdah",
+      "nameAr": "الروضة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "zulfi"
+      ],
+      "lat": 26.3144,
+      "lng": 44.8254,
+      "priority": 84
+    },
+    {
+      "slug": "aziziyah",
+      "nameAr": "العزيزية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "zulfi"
+      ],
+      "lat": 26.2894,
+      "lng": 44.8304,
+      "priority": 83
+    },
+    {
+      "slug": "nakheel",
+      "nameAr": "النخيل",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "zulfi"
+      ],
+      "lat": 26.3194,
+      "lng": 44.8054,
+      "priority": 82
+    },
+    {
+      "slug": "industrial",
+      "nameAr": "الصناعية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "zulfi"
+      ],
+      "lat": 26.2844,
+      "lng": 44.8354,
+      "priority": 81
+    },
+    {
+      "slug": "wasat",
+      "nameAr": "وسط شقراء",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "shagra"
+      ],
+      "lat": 25.2484,
+      "lng": 45.2528,
+      "priority": 85
+    },
+    {
+      "slug": "rawdah",
+      "nameAr": "الروضة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "shagra"
+      ],
+      "lat": 25.2634,
+      "lng": 45.2628,
+      "priority": 84
+    },
+    {
+      "slug": "aziziyah",
+      "nameAr": "العزيزية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "shagra"
+      ],
+      "lat": 25.2384,
+      "lng": 45.2678,
+      "priority": 83
+    },
+    {
+      "slug": "nakheel",
+      "nameAr": "النخيل",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "shagra"
+      ],
+      "lat": 25.2684,
+      "lng": 45.2428,
+      "priority": 82
+    },
+    {
+      "slug": "industrial",
+      "nameAr": "الصناعية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "shagra"
+      ],
+      "lat": 25.2334,
+      "lng": 45.2728,
+      "priority": 81
+    },
+    {
+      "slug": "wasat",
+      "nameAr": "وسط أبها",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "abha"
+      ],
+      "lat": 18.2164,
+      "lng": 42.5053,
+      "priority": 85
+    },
+    {
+      "slug": "manhal",
+      "nameAr": "المنهل",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "abha"
+      ],
+      "lat": 18.2364,
+      "lng": 42.5153,
+      "priority": 84
+    },
+    {
+      "slug": "khasha",
+      "nameAr": "الخاشع",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "abha"
+      ],
+      "lat": 18.2014,
+      "lng": 42.5253,
+      "priority": 83
+    },
+    {
+      "slug": "sadd",
+      "nameAr": "السد",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "abha"
+      ],
+      "lat": 18.2414,
+      "lng": 42.4953,
+      "priority": 82
+    },
+    {
+      "slug": "murooj",
+      "nameAr": "المروج",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "abha"
+      ],
+      "lat": 18.2264,
+      "lng": 42.5303,
+      "priority": 81
+    },
+    {
+      "slug": "rawdah",
+      "nameAr": "الروضة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "abha"
+      ],
+      "lat": 18.2064,
+      "lng": 42.4903,
+      "priority": 80
+    },
+    {
+      "slug": "aziziyah",
+      "nameAr": "العزيزية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "abha"
+      ],
+      "lat": 18.2314,
+      "lng": 42.4853,
+      "priority": 79
+    },
+    {
+      "slug": "shada",
+      "nameAr": "شدا",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "abha"
+      ],
+      "lat": 18.2464,
+      "lng": 42.5053,
+      "priority": 78
+    },
+    {
+      "slug": "industrial",
+      "nameAr": "الصناعية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "abha"
+      ],
+      "lat": 18.1914,
+      "lng": 42.5153,
+      "priority": 77
+    },
+    {
+      "slug": "nakheel",
+      "nameAr": "النخيل",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "abha"
+      ],
+      "lat": 18.2164,
+      "lng": 42.5353,
+      "priority": 76
+    },
+    {
+      "slug": "wasat",
+      "nameAr": "وسط خميس مشيط",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "khamis-mushait"
+      ],
+      "lat": 18.306,
+      "lng": 42.7298,
+      "priority": 85
+    },
+    {
+      "slug": "rawdah",
+      "nameAr": "الروضة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "khamis-mushait"
+      ],
+      "lat": 18.326,
+      "lng": 42.7398,
+      "priority": 84
+    },
+    {
+      "slug": "aziziyah",
+      "nameAr": "العزيزية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "khamis-mushait"
+      ],
+      "lat": 18.291,
+      "lng": 42.7448,
+      "priority": 83
+    },
+    {
+      "slug": "nakheel",
+      "nameAr": "النخيل",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "khamis-mushait"
+      ],
+      "lat": 18.331,
+      "lng": 42.7198,
+      "priority": 82
+    },
+    {
+      "slug": "industrial",
+      "nameAr": "الصناعية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "khamis-mushait"
+      ],
+      "lat": 18.286,
+      "lng": 42.7498,
+      "priority": 81
+    },
+    {
+      "slug": "khalidiyah",
+      "nameAr": "الخالدية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "khamis-mushait"
+      ],
+      "lat": 18.316,
+      "lng": 42.7548,
+      "priority": 80
+    },
+    {
+      "slug": "murooj",
+      "nameAr": "المروج",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "khamis-mushait"
+      ],
+      "lat": 18.321,
+      "lng": 42.7098,
+      "priority": 79
+    },
+    {
+      "slug": "qadisiyah",
+      "nameAr": "القادسية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "khamis-mushait"
+      ],
+      "lat": 18.296,
+      "lng": 42.7148,
+      "priority": 78
+    },
+    {
+      "slug": "wasat",
+      "nameAr": "وسط بيشة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "bisha"
+      ],
+      "lat": 19.987,
+      "lng": 42.589,
+      "priority": 85
+    },
+    {
+      "slug": "rawdah",
+      "nameAr": "الروضة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "bisha"
+      ],
+      "lat": 20.002,
+      "lng": 42.599,
+      "priority": 84
+    },
+    {
+      "slug": "aziziyah",
+      "nameAr": "العزيزية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "bisha"
+      ],
+      "lat": 19.977,
+      "lng": 42.604,
+      "priority": 83
+    },
+    {
+      "slug": "nakheel",
+      "nameAr": "النخيل",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "bisha"
+      ],
+      "lat": 20.007,
+      "lng": 42.579,
+      "priority": 82
+    },
+    {
+      "slug": "industrial",
+      "nameAr": "الصناعية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "bisha"
+      ],
+      "lat": 19.972,
+      "lng": 42.609,
+      "priority": 81
+    },
+    {
+      "slug": "khalidiyah",
+      "nameAr": "الخالدية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "bisha"
+      ],
+      "lat": 19.997,
+      "lng": 42.609,
+      "priority": 80
+    },
+    {
+      "slug": "wasat",
+      "nameAr": "وسط محايل",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "muhayil"
+      ],
+      "lat": 18.544,
+      "lng": 42.053,
+      "priority": 85
+    },
+    {
+      "slug": "rawdah",
+      "nameAr": "الروضة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "muhayil"
+      ],
+      "lat": 18.559,
+      "lng": 42.063,
+      "priority": 84
+    },
+    {
+      "slug": "aziziyah",
+      "nameAr": "العزيزية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "muhayil"
+      ],
+      "lat": 18.534,
+      "lng": 42.068,
+      "priority": 83
+    },
+    {
+      "slug": "nakheel",
+      "nameAr": "النخيل",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "muhayil"
+      ],
+      "lat": 18.564,
+      "lng": 42.043,
+      "priority": 82
+    },
+    {
+      "slug": "industrial",
+      "nameAr": "الصناعية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "muhayil"
+      ],
+      "lat": 18.529,
+      "lng": 42.073,
+      "priority": 81
+    },
+    {
+      "slug": "wasat",
+      "nameAr": "وسط النماص",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "an-namas"
+      ],
+      "lat": 19.145,
+      "lng": 42.113,
+      "priority": 85
+    },
+    {
+      "slug": "rawdah",
+      "nameAr": "الروضة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "an-namas"
+      ],
+      "lat": 19.16,
+      "lng": 42.123,
+      "priority": 84
+    },
+    {
+      "slug": "aziziyah",
+      "nameAr": "العزيزية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "an-namas"
+      ],
+      "lat": 19.135,
+      "lng": 42.125,
+      "priority": 83
+    },
+    {
+      "slug": "nakheel",
+      "nameAr": "النخيل",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "an-namas"
+      ],
+      "lat": 19.163,
+      "lng": 42.103,
+      "priority": 82
+    },
+    {
+      "slug": "industrial",
+      "nameAr": "الصناعية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "an-namas"
+      ],
+      "lat": 19.13,
+      "lng": 42.128,
+      "priority": 81
+    },
+    {
+      "slug": "wasat",
+      "nameAr": "وسط جازان",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "jazan"
+      ],
+      "lat": 16.8894,
+      "lng": 42.5706,
+      "priority": 85
+    },
+    {
+      "slug": "corniche",
+      "nameAr": "الكورنيش",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "jazan"
+      ],
+      "lat": 16.9094,
+      "lng": 42.5406,
+      "priority": 84
+    },
+    {
+      "slug": "rawdah",
+      "nameAr": "الروضة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "jazan"
+      ],
+      "lat": 16.9044,
+      "lng": 42.5856,
+      "priority": 83
+    },
+    {
+      "slug": "aziziyah",
+      "nameAr": "العزيزية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "jazan"
+      ],
+      "lat": 16.8794,
+      "lng": 42.5906,
+      "priority": 82
+    },
+    {
+      "slug": "nakheel",
+      "nameAr": "النخيل",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "jazan"
+      ],
+      "lat": 16.9144,
+      "lng": 42.5706,
+      "priority": 81
+    },
+    {
+      "slug": "industrial",
+      "nameAr": "الصناعية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "jazan"
+      ],
+      "lat": 16.8694,
+      "lng": 42.5856,
+      "priority": 80
+    },
+    {
+      "slug": "khalidiyah",
+      "nameAr": "الخالدية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "jazan"
+      ],
+      "lat": 16.8994,
+      "lng": 42.5956,
+      "priority": 79
+    },
+    {
+      "slug": "shati",
+      "nameAr": "الشاطئ",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "jazan"
+      ],
+      "lat": 16.9194,
+      "lng": 42.5506,
+      "priority": 78
+    },
+    {
+      "slug": "wasat",
+      "nameAr": "وسط صبيا",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "sabya"
+      ],
+      "lat": 17.1495,
+      "lng": 42.6257,
+      "priority": 85
+    },
+    {
+      "slug": "rawdah",
+      "nameAr": "الروضة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "sabya"
+      ],
+      "lat": 17.1645,
+      "lng": 42.6357,
+      "priority": 84
+    },
+    {
+      "slug": "aziziyah",
+      "nameAr": "العزيزية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "sabya"
+      ],
+      "lat": 17.1395,
+      "lng": 42.6407,
+      "priority": 83
+    },
+    {
+      "slug": "nakheel",
+      "nameAr": "النخيل",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "sabya"
+      ],
+      "lat": 17.1695,
+      "lng": 42.6157,
+      "priority": 82
+    },
+    {
+      "slug": "industrial",
+      "nameAr": "الصناعية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "sabya"
+      ],
+      "lat": 17.1345,
+      "lng": 42.6457,
+      "priority": 81
+    },
+    {
+      "slug": "wasat",
+      "nameAr": "وسط أبو عريش",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "abu-arish"
+      ],
+      "lat": 16.9689,
+      "lng": 42.8317,
+      "priority": 85
+    },
+    {
+      "slug": "rawdah",
+      "nameAr": "الروضة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "abu-arish"
+      ],
+      "lat": 16.9839,
+      "lng": 42.8417,
+      "priority": 84
+    },
+    {
+      "slug": "aziziyah",
+      "nameAr": "العزيزية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "abu-arish"
+      ],
+      "lat": 16.9589,
+      "lng": 42.8467,
+      "priority": 83
+    },
+    {
+      "slug": "nakheel",
+      "nameAr": "النخيل",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "abu-arish"
+      ],
+      "lat": 16.9889,
+      "lng": 42.8217,
+      "priority": 82
+    },
+    {
+      "slug": "industrial",
+      "nameAr": "الصناعية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "abu-arish"
+      ],
+      "lat": 16.9539,
+      "lng": 42.8517,
+      "priority": 81
+    },
+    {
+      "slug": "wasat",
+      "nameAr": "وسط نجران",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "najran"
+      ],
+      "lat": 17.5656,
+      "lng": 44.2289,
+      "priority": 85
+    },
+    {
+      "slug": "rawdah",
+      "nameAr": "الروضة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "najran"
+      ],
+      "lat": 17.5856,
+      "lng": 44.2389,
+      "priority": 84
+    },
+    {
+      "slug": "aziziyah",
+      "nameAr": "العزيزية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "najran"
+      ],
+      "lat": 17.5506,
+      "lng": 44.2439,
+      "priority": 83
+    },
+    {
+      "slug": "nakheel",
+      "nameAr": "النخيل",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "najran"
+      ],
+      "lat": 17.5906,
+      "lng": 44.2189,
+      "priority": 82
+    },
+    {
+      "slug": "industrial",
+      "nameAr": "الصناعية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "najran"
+      ],
+      "lat": 17.5456,
+      "lng": 44.2489,
+      "priority": 81
+    },
+    {
+      "slug": "khalidiyah",
+      "nameAr": "الخالدية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "najran"
+      ],
+      "lat": 17.5756,
+      "lng": 44.2539,
+      "priority": 80
+    },
+    {
+      "slug": "qadisiyah",
+      "nameAr": "القادسية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "najran"
+      ],
+      "lat": 17.5806,
+      "lng": 44.2089,
+      "priority": 79
+    },
+    {
+      "slug": "abarat",
+      "nameAr": "الأبراق",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "najran"
+      ],
+      "lat": 17.5956,
+      "lng": 44.2289,
+      "priority": 78
+    },
+    {
+      "slug": "faisaliyah",
+      "nameAr": "الفيصلية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "najran"
+      ],
+      "lat": 17.5556,
+      "lng": 44.2139,
+      "priority": 77
+    },
+    {
+      "slug": "murooj",
+      "nameAr": "المروج",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "najran"
+      ],
+      "lat": 17.5656,
+      "lng": 44.2589,
+      "priority": 76
+    },
+    {
+      "slug": "najran-university",
+      "nameAr": "جامعة نجران",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "najran"
+      ],
+      "lat": 17.6056,
+      "lng": 44.2389,
+      "priority": 75
+    },
+    {
+      "slug": "airport",
+      "nameAr": "المطار",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "najran"
+      ],
+      "lat": 17.5356,
+      "lng": 44.2489,
+      "priority": 74
+    },
+    {
+      "slug": "wasat",
+      "nameAr": "وسط شرورة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "sharurah"
+      ],
+      "lat": 17.485,
+      "lng": 47.114,
+      "priority": 85
+    },
+    {
+      "slug": "rawdah",
+      "nameAr": "الروضة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "sharurah"
+      ],
+      "lat": 17.5,
+      "lng": 47.124,
+      "priority": 84
+    },
+    {
+      "slug": "aziziyah",
+      "nameAr": "العزيزية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "sharurah"
+      ],
+      "lat": 17.475,
+      "lng": 47.129,
+      "priority": 83
+    },
+    {
+      "slug": "nakheel",
+      "nameAr": "النخيل",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "sharurah"
+      ],
+      "lat": 17.505,
+      "lng": 47.104,
+      "priority": 82
+    },
+    {
+      "slug": "industrial",
+      "nameAr": "الصناعية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "sharurah"
+      ],
+      "lat": 17.47,
+      "lng": 47.134,
+      "priority": 81
+    },
+    {
+      "slug": "wasat",
+      "nameAr": "وسط الباحة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "baha"
+      ],
+      "lat": 20.0129,
+      "lng": 41.4677,
+      "priority": 85
+    },
+    {
+      "slug": "rawdah",
+      "nameAr": "الروضة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "baha"
+      ],
+      "lat": 20.0279,
+      "lng": 41.4777,
+      "priority": 84
+    },
+    {
+      "slug": "aziziyah",
+      "nameAr": "العزيزية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "baha"
+      ],
+      "lat": 20.0029,
+      "lng": 41.4827,
+      "priority": 83
+    },
+    {
+      "slug": "nakheel",
+      "nameAr": "النخيل",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "baha"
+      ],
+      "lat": 20.0329,
+      "lng": 41.4577,
+      "priority": 82
+    },
+    {
+      "slug": "industrial",
+      "nameAr": "الصناعية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "baha"
+      ],
+      "lat": 19.9979,
+      "lng": 41.4877,
+      "priority": 81
+    },
+    {
+      "slug": "zafeer",
+      "nameAr": "الظفير",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "baha"
+      ],
+      "lat": 20.0379,
+      "lng": 41.4677,
+      "priority": 80
+    },
+    {
+      "slug": "wasat",
+      "nameAr": "وسط رابغ",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "rabigh"
+      ],
+      "lat": 22.7985,
+      "lng": 39.035,
+      "priority": 85
+    },
+    {
+      "slug": "rawdah",
+      "nameAr": "الروضة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "rabigh"
+      ],
+      "lat": 22.8135,
+      "lng": 39.045,
+      "priority": 84
+    },
+    {
+      "slug": "aziziyah",
+      "nameAr": "العزيزية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "rabigh"
+      ],
+      "lat": 22.7885,
+      "lng": 39.05,
+      "priority": 83
+    },
+    {
+      "slug": "nakheel",
+      "nameAr": "النخيل",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "rabigh"
+      ],
+      "lat": 22.8185,
+      "lng": 39.025,
+      "priority": 82
+    },
+    {
+      "slug": "industrial",
+      "nameAr": "الصناعية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "rabigh"
+      ],
+      "lat": 22.7835,
+      "lng": 39.055,
+      "priority": 81
+    },
+    {
+      "slug": "corniche",
+      "nameAr": "الكورنيش",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "rabigh"
+      ],
+      "lat": 22.8085,
+      "lng": 39.005,
+      "priority": 80
+    },
+    {
+      "slug": "wasat",
+      "nameAr": "وسط القنفذة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "qunfudhah"
+      ],
+      "lat": 19.1264,
+      "lng": 41.0789,
+      "priority": 85
+    },
+    {
+      "slug": "rawdah",
+      "nameAr": "الروضة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "qunfudhah"
+      ],
+      "lat": 19.1414,
+      "lng": 41.0889,
+      "priority": 84
+    },
+    {
+      "slug": "aziziyah",
+      "nameAr": "العزيزية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "qunfudhah"
+      ],
+      "lat": 19.1164,
+      "lng": 41.0939,
+      "priority": 83
+    },
+    {
+      "slug": "nakheel",
+      "nameAr": "النخيل",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "qunfudhah"
+      ],
+      "lat": 19.1464,
+      "lng": 41.0689,
+      "priority": 82
+    },
+    {
+      "slug": "industrial",
+      "nameAr": "الصناعية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "qunfudhah"
+      ],
+      "lat": 19.1114,
+      "lng": 41.0989,
+      "priority": 81
+    },
+    {
+      "slug": "wasat",
+      "nameAr": "وسط الخفجي",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "khafji"
+      ],
+      "lat": 28.439,
+      "lng": 48.4913,
+      "priority": 85
+    },
+    {
+      "slug": "rawdah",
+      "nameAr": "الروضة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "khafji"
+      ],
+      "lat": 28.454,
+      "lng": 48.5013,
+      "priority": 84
+    },
+    {
+      "slug": "aziziyah",
+      "nameAr": "العزيزية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "khafji"
+      ],
+      "lat": 28.429,
+      "lng": 48.5063,
+      "priority": 83
+    },
+    {
+      "slug": "nakheel",
+      "nameAr": "النخيل",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "khafji"
+      ],
+      "lat": 28.459,
+      "lng": 48.4813,
+      "priority": 82
+    },
+    {
+      "slug": "industrial",
+      "nameAr": "الصناعية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "khafji"
+      ],
+      "lat": 28.424,
+      "lng": 48.5113,
+      "priority": 81
+    },
+    {
+      "slug": "corniche",
+      "nameAr": "الكورنيش",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "khafji"
+      ],
+      "lat": 28.449,
+      "lng": 48.5213,
+      "priority": 80
+    },
+    {
+      "slug": "wasat",
+      "nameAr": "وسط ضبا",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "duba"
+      ],
+      "lat": 27.351,
+      "lng": 35.6971,
+      "priority": 85
+    },
+    {
+      "slug": "rawdah",
+      "nameAr": "الروضة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "duba"
+      ],
+      "lat": 27.366,
+      "lng": 35.7071,
+      "priority": 84
+    },
+    {
+      "slug": "aziziyah",
+      "nameAr": "العزيزية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "duba"
+      ],
+      "lat": 27.341,
+      "lng": 35.7091,
+      "priority": 83
+    },
+    {
+      "slug": "nakheel",
+      "nameAr": "النخيل",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "duba"
+      ],
+      "lat": 27.369,
+      "lng": 35.6871,
+      "priority": 82
+    },
+    {
+      "slug": "industrial",
+      "nameAr": "الصناعية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "duba"
+      ],
+      "lat": 27.336,
+      "lng": 35.7121,
+      "priority": 81
+    },
+    {
+      "slug": "wasat",
+      "nameAr": "وسط أملج",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "umluj"
+      ],
+      "lat": 25.0203,
+      "lng": 37.2685,
+      "priority": 85
+    },
+    {
+      "slug": "rawdah",
+      "nameAr": "الروضة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "umluj"
+      ],
+      "lat": 25.0353,
+      "lng": 37.2785,
+      "priority": 84
+    },
+    {
+      "slug": "aziziyah",
+      "nameAr": "العزيزية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "umluj"
+      ],
+      "lat": 25.0103,
+      "lng": 37.2805,
+      "priority": 83
+    },
+    {
+      "slug": "nakheel",
+      "nameAr": "النخيل",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "umluj"
+      ],
+      "lat": 25.0383,
+      "lng": 37.2585,
+      "priority": 82
+    },
+    {
+      "slug": "industrial",
+      "nameAr": "الصناعية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "umluj"
+      ],
+      "lat": 25.0053,
+      "lng": 37.2835,
+      "priority": 81
+    },
+    {
+      "slug": "wasat",
+      "nameAr": "وسط حقل",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "haql"
+      ],
+      "lat": 29.2985,
+      "lng": 34.9389,
+      "priority": 85
+    },
+    {
+      "slug": "rawdah",
+      "nameAr": "الروضة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "haql"
+      ],
+      "lat": 29.3135,
+      "lng": 34.9489,
+      "priority": 84
+    },
+    {
+      "slug": "aziziyah",
+      "nameAr": "العزيزية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "haql"
+      ],
+      "lat": 29.2885,
+      "lng": 34.9509,
+      "priority": 83
+    },
+    {
+      "slug": "nakheel",
+      "nameAr": "النخيل",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "haql"
+      ],
+      "lat": 29.3165,
+      "lng": 34.9289,
+      "priority": 82
+    },
+    {
+      "slug": "industrial",
+      "nameAr": "الصناعية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "haql"
+      ],
+      "lat": 29.2835,
+      "lng": 34.9539,
+      "priority": 81
+    },
+    {
+      "slug": "oxagon",
+      "nameAr": "أوكساجون",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "neom"
+      ],
+      "lat": 28.0829,
+      "lng": 35.0493,
+      "priority": 85
+    },
+    {
+      "slug": "trojena",
+      "nameAr": "تروجينا",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "neom"
+      ],
+      "lat": 28.1129,
+      "lng": 34.9693,
+      "priority": 84
+    },
+    {
+      "slug": "sindalah",
+      "nameAr": "سندالة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "neom"
+      ],
+      "lat": 27.9929,
+      "lng": 35.0793,
+      "priority": 83
+    },
+    {
+      "slug": "line",
+      "nameAr": "ذا لاين",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "neom"
+      ],
+      "lat": 28.0529,
+      "lng": 35.0193,
+      "priority": 82
+    },
+    {
+      "slug": "wasat",
+      "nameAr": "وسط نيوم",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "neom"
+      ],
+      "lat": 28.0329,
+      "lng": 35.0193,
+      "priority": 81
+    }
+  ]
+}

@@ -72,6 +72,7 @@ const SubscriptionPolicy = lazy(() => import("@/pages/SubscriptionPolicy"));
 const PartnerSupportChat = lazy(() => import("@/pages/PartnerSupportChat"));
 const PartnerSalesOfficePage = lazy(() => import("@/pages/PartnerSalesOfficePage"));
 const MerchantSettlementLanding = lazy(() => import("@/pages/MerchantSettlementLanding"));
+const HajjNusukLanding = lazy(() => import("@/pages/HajjNusukLanding"));
 
 const ArchiveHome = lazy(() => import("@/pages/Home"));
 const RegisterSuccess = lazy(() => import("@/pages/RegisterSuccess"));
@@ -344,6 +345,11 @@ export function App() {
             element={<LazyRoute><CoverageSalonNominatePage /></LazyRoute>}
           />
           <Route path={ROUTE_PATHS.ABOUT} element={<WithPublicLayout><LazyRoute><About /></LazyRoute></WithPublicLayout>} />
+          {/**
+           * مركز نسك الحج — للنسخة داخل HashRouter (`/#/nusuk`).
+           * المسار النظيف للفهرسة هو HTML ثابت على `/nusuk` (لا rewrite إلى SPA).
+           */}
+          <Route path={ROUTE_PATHS.HAJJ_NUSUK} element={<LazyRoute><HajjNusukLanding /></LazyRoute>} />
           <Route path={ROUTE_PATHS.TERMS_OF_SERVICE} element={<WithPublicLayout><LazyRoute><TermsOfService /></LazyRoute></WithPublicLayout>} />
           <Route path={ROUTE_PATHS.USER_PRIVACY_POLICY} element={<WithPublicLayout><LazyRoute><UserPrivacyPolicy /></LazyRoute></WithPublicLayout>} />
           <Route path={ROUTE_PATHS.EPHEMERAL_PROCESSING_GOVERNANCE} element={<WithPublicLayout><LazyRoute><EphemeralProcessingGovernance /></LazyRoute></WithPublicLayout>} />
