@@ -71,6 +71,7 @@ const PartnerPrivacy = lazy(() => import("@/pages/PartnerPrivacy"));
 const SubscriptionPolicy = lazy(() => import("@/pages/SubscriptionPolicy"));
 const PartnerSupportChat = lazy(() => import("@/pages/PartnerSupportChat"));
 const PartnerSalesOfficePage = lazy(() => import("@/pages/PartnerSalesOfficePage"));
+const MerchantSettlementLanding = lazy(() => import("@/pages/MerchantSettlementLanding"));
 
 const ArchiveHome = lazy(() => import("@/pages/Home"));
 const RegisterSuccess = lazy(() => import("@/pages/RegisterSuccess"));
@@ -421,6 +422,14 @@ export function App() {
           <Route path={ROUTE_PATHS.MAP_COMMUNITY} element={<WithPartnerLayout><LazyRoute><MapCommunity /></LazyRoute></WithPartnerLayout>} />
           <Route path={ROUTE_PATHS.PARTNER_SUPPORT} element={<WithPartnerLayout><LazyRoute><PartnerSupportChat /></LazyRoute></WithPartnerLayout>} />
           <Route path={ROUTE_PATHS.PARTNER_SALES_OFFICE} element={<LazyRoute><PartnerSalesOfficePage /></LazyRoute>} />
+          <Route
+            path={ROUTE_PATHS.PARTNER_MERCHANT_SETTLEMENT}
+            element={
+              <WithPartnerLayout>
+                <LazyRoute><MerchantSettlementLanding /></LazyRoute>
+              </WithPartnerLayout>
+            }
+          />
           <Route path={LEGACY_PARTNER_ROUTE_PATHS.BARBERS_LANDING} element={<LegacyPartnerRedirect to={ROUTE_PATHS.BARBERS_LANDING} />} />
           <Route path={LEGACY_PARTNER_ROUTE_PATHS.REGISTER} element={<LegacyPartnerRedirect to={ROUTE_PATHS.REGISTER} />} />
           <Route path={LEGACY_PARTNER_ROUTE_PATHS.REGISTER_SUCCESS} element={<LegacyPartnerRedirect to={ROUTE_PATHS.REGISTER_SUCCESS} />} />

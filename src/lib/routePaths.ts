@@ -60,6 +60,11 @@ export const ROUTE_PATHS = {
   PARTNER_SUPPORT: '/partners/support',
   /** مكتب مدير المبيعات B2B — صفحة مستقلة للتفاوض والشرح والانضمام */
   PARTNER_SALES_OFFICE: '/partners/sales-office',
+  /**
+   * تسكين التجار — موقف المنصة الحالي بعد زخم زيارات المستخدمين
+   * وتركيز الإقفال على اشتراكات الصالونات.
+   */
+  PARTNER_MERCHANT_SETTLEMENT: '/partners/merchant-settlement',
   /** تبديل «مفتوح/مغلق» للعملاء عبر نظام الرصد الذكي برابط سري (?t=رمز) — مفيد للبرونزي */
   SHOP_OPEN_STATUS: '/partners/shop-open',
   /** تجديد رابط مفتوح/مغلق — برونزي: رخصة + بريد + تأكيد */

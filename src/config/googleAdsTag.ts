@@ -31,6 +31,8 @@ export const GOOGLE_ADS_CLEAN_LANDING_URLS = {
   /** صفحات SEO جغرافية (HTML ثابت — ليس HashRouter) */
   nearHub: 'https://www.halaqmap.com/near',
   nearRiyadh: 'https://www.halaqmap.com/near/riyadh',
+  /** صفحة تسكين التجار — إقفال اشتراكات الصالونات */
+  merchantSettlement: 'https://www.halaqmap.com/partners/merchant-settlement',
 } as const;
 
 export const GOOGLE_ADS_TAG_SCRIPT_SRC = `https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ADS_CONVERSION_ID}`;

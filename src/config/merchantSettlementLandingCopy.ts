@@ -1,0 +1,104 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
+ * صفحة تسكين التجار — موقف المنصة الحالي بعد انفجار زيارات المستخدمين
+ * أثناء حملات موجّهة أصلاً لأصحاب الصالونات.
+ */
+import { PARTNER_REGISTRATION_FORM_YOUTUBE_GUIDE } from '@/config/partnerRegistrationYoutubeGuide';
+
+export const MERCHANT_SETTLEMENT_PATH = '/partners/merchant-settlement' as const;
+
+export const MERCHANT_SETTLEMENT_META = {
+  titleAr: 'تسكين الصالونات الآن | حلاق ماب',
+  descriptionAr:
+    'أوقفنا حملات الترويج العامة لنركّز على تسكين أصحاب الصالونات. الطلب من المستخدمين ثبت فعلياً — الفرصة الآن لمقدّمي الخدمة.',
+} as const;
+
+/** مقاييس معلنة على صفحة التسكين — حدّثها عند صدور أرقام أدق */
+export const MERCHANT_SETTLEMENT_PROOF_STATS = [
+  {
+    valueAr: '+8 ملايين',
+    labelAr: 'زيارة في أسبوع واحد',
+    noteAr: 'دون استهداف المستخدم بالإعلان المباشر',
+  },
+  {
+    valueAr: '+918 ألف',
+    labelAr: 'مشاهدة يوتيوب / 28 يوماً',
+    noteAr: 'مقطع تجربة المستخدم أثبت الجاذبية',
+  },
+  {
+    valueAr: '47 مدينة',
+    labelAr: 'تغطية جغرافية للفهرسة',
+    noteAr: 'صفحات «أقرب حلاق» حسب المدينة',
+  },
+  {
+    valueAr: 'موقف واضح',
+    labelAr: 'مرحلة تسكين التجار',
+    noteAr: 'لم نبدأ بعد برامج نشر المستخدم الاستراتيجية',
+  },
+] as const;
+
+export const MERCHANT_SETTLEMENT_HERO = {
+  eyebrowAr: 'رسالة مباشرة لأصحاب الصالونات',
+  brandAr: 'حلاق ماب',
+  headlineAr: 'الطلب من المستخدم ثبت. الفرصة الآن لتسكين صالونك.',
+  leadAr:
+    'أطلقنا حملات لتسكين التجار على المول الرقمي (Google · X · YouTube · Facebook · Snapchat). انفجرت الزيارات بالملايين — واتضح أن أغلبها مستخدمون يلهفون على الخدمة، لا تجّار. أوقفنا الحملات لنركّز على إقفال اشتراكات الصالونات وشرح ما تحقق على الأرض.',
+} as const;
+
+export const MERCHANT_SETTLEMENT_INVESTOR_QA = {
+  questionAr: 'لو سألت كمستثمر صارم: كيف تخطّطون لنشر المنصة؟',
+  answerAr:
+    'الإجابة اليوم بصراحة: لم نبدأ بعد استهداف المستخدمين ببرامج استراتيجية واسعة. ما زلنا في مرحلة تسكين التجار — أن تشترك أعداد كافية من الصالونات أولاً. بعد ذلك تنطلق برامج النشر على السوشال وعلى الأرض (ستاندات أكريليك بـ QR، فنادق، شقق مخدومة، تطبيقات إيجار، مجمعات، أندية، مقاهي، لوحات طرق…). القبول من المستخدم لم يعد فرضية: التجربة والإحصاءات أثبتتا تعلّقاً شديداً بالخدمة.',
+} as const;
+
+export const MERCHANT_SETTLEMENT_WHY_PAUSE = [
+  'الحملات كانت موجّهة للتاجر، فجذبت المستخدم الملهوف — وهذا دليل قوة لا ضعف.',
+  'استمرار الإنفاق على نفس القنوات يستهلك الميزانية قبل اكتمال قاعدة مقدّمي الخدمة.',
+  'المنصة أثبتت قدرتها على استقبال زخم هائل؛ الأولوية الآن لإقفال طلبات الاشتراك.',
+  'كل صالون يُسكَّن اليوم يستفيد من تفرّغ المنصة لتسويق نفسها لاحقاً كمقدّم خدمة جاهز.',
+] as const;
+
+export const MERCHANT_SETTLEMENT_GROUND_TACTICS = [
+  'ستاندات أكريليك بـ QR للمنصة في غرف النزلاء والمنشآت الفندقية',
+  'الشقق المخدومة ومؤجّرو الدور الخاصة عبر تطبيقات الإيجار القصير',
+  'المجمعات السكنية والأندية الرياضية والمقاهي الكبرى والمتخصصة',
+  'لوحات الطرق وقنوات ميدانية أخرى مُعدّة خصيصاً لانتشار المملكة',
+] as const;
+
+export type MerchantSettlementVideo = {
+  videoId: string;
+  titleAr: string;
+  blurbAr: string;
+};
+
+/**
+ * حدّث `radarSupportVideoId` بمعرّف مقطع الرادار الطويل عند توفره.
+ * الافتراضي الحالي: فيديو شرح التسجيل المعروف + نفس المقطع كاحتياط للرادار إن لم يُضبط.
+ */
+export const MERCHANT_SETTLEMENT_RADAR_VIDEO_ID =
+  String(import.meta.env.VITE_MERCHANT_SETTLEMENT_RADAR_YOUTUBE_ID || '').trim() ||
+  PARTNER_REGISTRATION_FORM_YOUTUBE_GUIDE.videoId;
+
+export const MERCHANT_SETTLEMENT_VIDEOS: readonly MerchantSettlementVideo[] = [
+  {
+    videoId: MERCHANT_SETTLEMENT_RADAR_VIDEO_ID,
+    titleAr: 'تجربة المستخدم — الرادار والاستفسار',
+    blurbAr: 'المقطع الذي أثبت أن نشر المنصة ممكن: استعلام، رادار، ومتابعة الطلب.',
+  },
+  {
+    videoId: PARTNER_REGISTRATION_FORM_YOUTUBE_GUIDE.videoId,
+    titleAr: 'شرح تعبئة طلب اشتراك الصالون',
+    blurbAr: 'خطوات نموذج التسجيل للشركاء — من الطلب حتى مسار التفعيل.',
+  },
+] as const;
+
+export const MERCHANT_SETTLEMENT_CTA = {
+  primaryAr: 'سجّل طلب اشتراك صالونك الآن',
+  secondaryAr: 'مسار الشركاء',
+  salesOfficeAr: 'مكتب المبيعات — ناقش معنا',
+  supportAr: 'دعم الشركاء',
+  nearAr: 'معاينة صفحات «أقرب حلاق» حسب المدينة',
+  homeDemoAr: 'شاهد تجربة الاستعلام (كعميل)',
+} as const;
