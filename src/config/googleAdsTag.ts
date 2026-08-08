@@ -39,6 +39,7 @@ export const GOOGLE_ADS_CLEAN_LANDING_URLS = {
   needHub: 'https://www.halaqmap.com/need',
   needHomeVisit: 'https://www.halaqmap.com/need/home-visit',
   needOpenNow: 'https://www.halaqmap.com/need/open-now',
+  needNearMe: 'https://www.halaqmap.com/need/near-me',
   /** صفحة مساعدة عيد الأضحى — حلاقة النسك بعد الأضحية */
   eidAdhaShaving: 'https://www.halaqmap.com/occasions/eid-adha-shaving',
 } as const;

@@ -13,6 +13,8 @@ export const NEIGHBORHOOD_SEEDS = {
     ['narjis', 'النرجس', 24.8601, 46.659, true],
     ['yasmin', 'الياسمين', 24.828, 46.64, true],
     ['badiah', 'البديعة', 24.666, 46.62, true],
+    ['malqa', 'الملقا', 24.814, 46.612, true],
+    ['suwaidi', 'السويدي', 24.592, 46.68, true],
     ['sulimaniyah', 'السليمانية', 24.698, 46.701, true],
     ['muruj', 'المروج', 24.755, 46.655, true],
     ['sahafa', 'الصحافة', 24.795, 46.64, true],

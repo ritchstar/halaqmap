@@ -69,6 +69,28 @@
       "priority": 80
     },
     {
+      "slug": "malqa",
+      "nameAr": "الملقا",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.814,
+      "lng": 46.612,
+      "priority": 79
+    },
+    {
+      "slug": "suwaidi",
+      "nameAr": "السويدي",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "riyadh"
+      ],
+      "lat": 24.592,
+      "lng": 46.68,
+      "priority": 78
+    },
+    {
       "slug": "sulimaniyah",
       "nameAr": "السليمانية",
       "kind": "neighborhood",
@@ -77,7 +99,7 @@
       ],
       "lat": 24.698,
       "lng": 46.701,
-      "priority": 79
+      "priority": 77
     },
     {
       "slug": "muruj",
@@ -88,7 +110,7 @@
       ],
       "lat": 24.755,
       "lng": 46.655,
-      "priority": 78
+      "priority": 76
     },
     {
       "slug": "sahafa",
@@ -99,7 +121,7 @@
       ],
       "lat": 24.795,
       "lng": 46.64,
-      "priority": 77
+      "priority": 75
     },
     {
       "slug": "wadi",
@@ -110,7 +132,7 @@
       ],
       "lat": 24.78,
       "lng": 46.62,
-      "priority": 76
+      "priority": 74
     },
     {
       "slug": "nuzha",
@@ -121,7 +143,7 @@
       ],
       "lat": 24.745,
       "lng": 46.68,
-      "priority": 75
+      "priority": 73
     },
     {
       "slug": "rawdah",
@@ -132,7 +154,7 @@
       ],
       "lat": 24.735,
       "lng": 46.78,
-      "priority": 74
+      "priority": 72
     },
     {
       "slug": "rabwah",
@@ -143,7 +165,7 @@
       ],
       "lat": 24.69,
       "lng": 46.76,
-      "priority": 73
+      "priority": 71
     },
     {
       "slug": "manar",
@@ -154,7 +176,7 @@
       ],
       "lat": 24.72,
       "lng": 46.8,
-      "priority": 72
+      "priority": 70
     },
     {
       "slug": "yarmuk",
@@ -165,7 +187,7 @@
       ],
       "lat": 24.78,
       "lng": 46.82,
-      "priority": 71
+      "priority": 69
     },
     {
       "slug": "qadisiyah",
@@ -176,7 +198,7 @@
       ],
       "lat": 24.8,
       "lng": 46.85,
-      "priority": 70
+      "priority": 68
     },
     {
       "slug": "ishbiliyah",
@@ -187,7 +209,7 @@
       ],
       "lat": 24.77,
       "lng": 46.86,
-      "priority": 69
+      "priority": 67
     },
     {
       "slug": "andalus",
@@ -198,7 +220,7 @@
       ],
       "lat": 24.74,
       "lng": 46.72,
-      "priority": 68
+      "priority": 66
     },
     {
       "slug": "falah",
@@ -209,7 +231,7 @@
       ],
       "lat": 24.82,
       "lng": 46.7,
-      "priority": 67
+      "priority": 65
     },
     {
       "slug": "nakheel",
@@ -220,7 +242,7 @@
       ],
       "lat": 24.76,
       "lng": 46.63,
-      "priority": 66
+      "priority": 64
     },
     {
       "slug": "ghadir",
@@ -231,7 +253,7 @@
       ],
       "lat": 24.785,
       "lng": 46.65,
-      "priority": 65
+      "priority": 63
     },
     {
       "slug": "aqiq",
@@ -242,7 +264,7 @@
       ],
       "lat": 24.77,
       "lng": 46.61,
-      "priority": 64
+      "priority": 62
     },
     {
       "slug": "hittin",
@@ -253,7 +275,7 @@
       ],
       "lat": 24.76,
       "lng": 46.6,
-      "priority": 63
+      "priority": 61
     },
     {
       "slug": "aridah",
@@ -264,7 +286,7 @@
       ],
       "lat": 24.85,
       "lng": 46.62,
-      "priority": 62
+      "priority": 60
     },
     {
       "slug": "qirawan",
@@ -275,7 +297,7 @@
       ],
       "lat": 24.87,
       "lng": 46.63,
-      "priority": 61
+      "priority": 59
     },
     {
       "slug": "banban",
@@ -286,7 +308,7 @@
       ],
       "lat": 24.9,
       "lng": 46.6,
-      "priority": 60
+      "priority": 58
     },
     {
       "slug": "king-abdullah-financial-district",
@@ -297,7 +319,7 @@
       ],
       "lat": 24.765,
       "lng": 46.64,
-      "priority": 59
+      "priority": 57
     },
     {
       "slug": "diplomatic-quarter",
@@ -308,7 +330,7 @@
       ],
       "lat": 24.68,
       "lng": 46.62,
-      "priority": 58
+      "priority": 56
     },
     {
       "slug": "diriyah",
@@ -319,7 +341,7 @@
       ],
       "lat": 24.735,
       "lng": 46.575,
-      "priority": 57
+      "priority": 55
     },
     {
       "slug": "irqa",
@@ -330,7 +352,7 @@
       ],
       "lat": 24.69,
       "lng": 46.55,
-      "priority": 56
+      "priority": 54
     },
     {
       "slug": "umm-al-hamam",
@@ -341,7 +363,7 @@
       ],
       "lat": 24.68,
       "lng": 46.63,
-      "priority": 55
+      "priority": 53
     },
     {
       "slug": "maather",
@@ -352,7 +374,7 @@
       ],
       "lat": 24.67,
       "lng": 46.66,
-      "priority": 54
+      "priority": 52
     },
     {
       "slug": "rahmaniyah",
@@ -363,7 +385,7 @@
       ],
       "lat": 24.7,
       "lng": 46.64,
-      "priority": 53
+      "priority": 51
     },
     {
       "slug": "mohammadiyah",
@@ -374,7 +396,7 @@
       ],
       "lat": 24.71,
       "lng": 46.65,
-      "priority": 52
+      "priority": 50
     },
     {
       "slug": "sulay",
@@ -385,7 +407,7 @@
       ],
       "lat": 24.68,
       "lng": 46.82,
-      "priority": 51
+      "priority": 49
     },
     {
       "slug": "nashiyah",
@@ -396,7 +418,7 @@
       ],
       "lat": 24.72,
       "lng": 46.84,
-      "priority": 50
+      "priority": 48
     },
     {
       "slug": "khaleej",
@@ -407,7 +429,7 @@
       ],
       "lat": 24.75,
       "lng": 46.83,
-      "priority": 49
+      "priority": 47
     },
     {
       "slug": "jazeerah",
@@ -418,7 +440,7 @@
       ],
       "lat": 24.73,
       "lng": 46.81,
-      "priority": 48
+      "priority": 46
     },
     {
       "slug": "hamra",
@@ -429,7 +451,7 @@
       ],
       "lat": 24.76,
       "lng": 46.79,
-      "priority": 47
+      "priority": 45
     },
     {
       "slug": "quds",
@@ -440,7 +462,7 @@
       ],
       "lat": 24.79,
       "lng": 46.8,
-      "priority": 46
+      "priority": 44
     },
     {
       "slug": "munsiyah",
@@ -451,7 +473,7 @@
       ],
       "lat": 24.83,
       "lng": 46.78,
-      "priority": 45
+      "priority": 43
     },
     {
       "slug": "rawabi",
@@ -462,7 +484,7 @@
       ],
       "lat": 24.7,
       "lng": 46.79,
-      "priority": 44
+      "priority": 42
     },
     {
       "slug": "shifa",
@@ -473,7 +495,7 @@
       ],
       "lat": 24.58,
       "lng": 46.7,
-      "priority": 43
+      "priority": 41
     },
     {
       "slug": "aziziyah",
@@ -484,7 +506,7 @@
       ],
       "lat": 24.6,
       "lng": 46.74,
-      "priority": 42
+      "priority": 40
     },
     {
       "slug": "dar-albaida",
@@ -495,7 +517,7 @@
       ],
       "lat": 24.57,
       "lng": 46.78,
-      "priority": 41
+      "priority": 39
     },
     {
       "slug": "ishbiliya-south",
@@ -506,7 +528,7 @@
       ],
       "lat": 24.62,
       "lng": 46.7,
-      "priority": 40
+      "priority": 38
     },
     {
       "slug": "badr",
@@ -517,7 +539,7 @@
       ],
       "lat": 24.64,
       "lng": 46.68,
-      "priority": 39
+      "priority": 37
     },
     {
       "slug": "namudhajiyah",
@@ -528,7 +550,7 @@
       ],
       "lat": 24.65,
       "lng": 46.7,
-      "priority": 38
+      "priority": 36
     },
     {
       "slug": "ulaya",
@@ -539,7 +561,7 @@
       ],
       "lat": 24.68,
       "lng": 46.69,
-      "priority": 37
+      "priority": 35
     },
     {
       "slug": "batha",
@@ -550,7 +572,7 @@
       ],
       "lat": 24.63,
       "lng": 46.72,
-      "priority": 36
+      "priority": 34
     },
     {
       "slug": "deira",
@@ -561,7 +583,7 @@
       ],
       "lat": 24.63,
       "lng": 46.715,
-      "priority": 35
+      "priority": 33
     },
     {
       "slug": "faisaliyah",
@@ -572,7 +594,7 @@
       ],
       "lat": 24.69,
       "lng": 46.685,
-      "priority": 34
+      "priority": 32
     },
     {
       "slug": "wurud",
@@ -583,7 +605,7 @@
       ],
       "lat": 24.72,
       "lng": 46.69,
-      "priority": 33
+      "priority": 31
     },
     {
       "slug": "murooj",
@@ -594,7 +616,7 @@
       ],
       "lat": 24.75,
       "lng": 46.7,
-      "priority": 32
+      "priority": 30
     },
     {
       "slug": "takhassusi",
@@ -605,7 +627,7 @@
       ],
       "lat": 24.685,
       "lng": 46.675,
-      "priority": 31
+      "priority": 29
     },
     {
       "slug": "exit-5",
@@ -616,7 +638,7 @@
       ],
       "lat": 24.78,
       "lng": 46.68,
-      "priority": 30
+      "priority": 28
     },
     {
       "slug": "exit-9",
@@ -627,7 +649,7 @@
       ],
       "lat": 24.73,
       "lng": 46.7,
-      "priority": 29
+      "priority": 27
     },
     {
       "slug": "exit-10",
@@ -638,7 +660,7 @@
       ],
       "lat": 24.7,
       "lng": 46.72,
-      "priority": 28
+      "priority": 26
     },
     {
       "slug": "exit-14",
@@ -649,7 +671,7 @@
       ],
       "lat": 24.68,
       "lng": 46.75,
-      "priority": 27
+      "priority": 25
     },
     {
       "slug": "exit-15",
@@ -660,7 +682,7 @@
       ],
       "lat": 24.66,
       "lng": 46.78,
-      "priority": 26
+      "priority": 24
     },
     {
       "slug": "tuwaiq",
@@ -671,7 +693,7 @@
       ],
       "lat": 24.62,
       "lng": 46.55,
-      "priority": 25
+      "priority": 23
     },
     {
       "slug": "dhahrat-laban",
@@ -682,7 +704,7 @@
       ],
       "lat": 24.62,
       "lng": 46.58,
-      "priority": 24
+      "priority": 22
     },
     {
       "slug": "nassem",
@@ -693,7 +715,7 @@
       ],
       "lat": 24.72,
       "lng": 46.85,
-      "priority": 23
+      "priority": 21
     },
     {
       "slug": "salam",
@@ -704,7 +726,7 @@
       ],
       "lat": 24.7,
       "lng": 46.83,
-      "priority": 22
+      "priority": 20
     },
     {
       "slug": "rawdah-east",
@@ -715,7 +737,7 @@
       ],
       "lat": 24.74,
       "lng": 46.8,
-      "priority": 21
+      "priority": 20
     },
     {
       "slug": "khalidiyah",
