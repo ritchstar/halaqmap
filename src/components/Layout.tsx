@@ -12,7 +12,7 @@ import { MobileBottomNav } from '@/components/MobileBottomNav';
 import { AppBuildStamp } from '@/components/AppBuildStamp';
 import { PlatformOfficialFooterStrip } from '@/components/PlatformOfficialFooterStrip';
 import { GeoNearCitiesStrip } from '@/components/GeoNearCitiesStrip';
-import { GEO_NEAR_HUB_PATH } from '@/config/geoNearRegistry';
+import { GEO_NEAR_HUB_PATH, GEO_NEAR_SITE_ORIGIN } from '@/config/geoNearRegistry';
 import { PLATFORM_FOOTER_TAGLINE } from '@/config/platformGrowthNarrative';
 import { PLATFORM_IDENTITY_BOILERPLATE_AR } from '@/config/platformIdentity';
 import { PlatformTrustStrip } from '@/components/PlatformTrustStrip';
@@ -271,25 +271,25 @@ export function Layout({ children }: LayoutProps) {
                   </NavLink>
                 ))}
                 <a
-                  href={GEO_NEAR_HUB_PATH}
+                  href={`${GEO_NEAR_SITE_ORIGIN}${GEO_NEAR_HUB_PATH}`}
                   className="text-sm text-slate-500 transition-colors hover:text-teal-300"
                 >
                   أقرب حلاق حسب المدينة
                 </a>
                 <a
-                  href={ROUTE_PATHS.HAJJ_NUSUK}
+                  href={`${GEO_NEAR_SITE_ORIGIN}${ROUTE_PATHS.HAJJ_NUSUK}`}
                   className="text-sm text-slate-500 transition-colors hover:text-teal-300"
                 >
                   نسك الحج — الحلق والتقصير
                 </a>
                 <a
-                  href={ROUTE_PATHS.FILTER_INTENT_HUB}
+                  href={`${GEO_NEAR_SITE_ORIGIN}${ROUTE_PATHS.FILTER_INTENT_HUB}`}
                   className="text-sm text-slate-500 transition-colors hover:text-teal-300"
                 >
                   ابحث حسب حاجتك — الفلاتر
                 </a>
                 <a
-                  href={ROUTE_PATHS.EID_ADHA_SHAVING}
+                  href={`${GEO_NEAR_SITE_ORIGIN}${ROUTE_PATHS.EID_ADHA_SHAVING}`}
                   className="text-sm text-slate-500 transition-colors hover:text-teal-300"
                 >
                   عيد الأضحى — حلاق بعد الأضحية

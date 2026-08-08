@@ -73,6 +73,9 @@ const PartnerSupportChat = lazy(() => import("@/pages/PartnerSupportChat"));
 const PartnerSalesOfficePage = lazy(() => import("@/pages/PartnerSalesOfficePage"));
 const MerchantSettlementLanding = lazy(() => import("@/pages/MerchantSettlementLanding"));
 const HajjNusukLanding = lazy(() => import("@/pages/HajjNusukLanding"));
+const StaticSeoRedirect = lazy(() =>
+  import("@/components/StaticSeoRedirect").then((m) => ({ default: m.StaticSeoRedirect })),
+);
 
 const ArchiveHome = lazy(() => import("@/pages/Home"));
 const RegisterSuccess = lazy(() => import("@/pages/RegisterSuccess"));
@@ -346,10 +349,32 @@ export function App() {
           />
           <Route path={ROUTE_PATHS.ABOUT} element={<WithPublicLayout><LazyRoute><About /></LazyRoute></WithPublicLayout>} />
           {/**
-           * مركز نسك الحج — للنسخة داخل HashRouter (`/#/nusuk`).
-           * المسار النظيف للفهرسة هو HTML ثابت على `/nusuk` (لا rewrite إلى SPA).
+           * مركز نسك الحج — نسخة React داخل الهاش؛ والفهرسة على `/nusuk` الثابت.
            */}
           <Route path={ROUTE_PATHS.HAJJ_NUSUK} element={<LazyRoute><HajjNusukLanding /></LazyRoute>} />
+          {/**
+           * مصائد SEO الثابتة — إن فُتحت عبر HashRouter (`/#/need`) نُحوّل للرابط النظيف.
+           */}
+          <Route
+            path={ROUTE_PATHS.FILTER_INTENT_HUB}
+            element={<LazyRoute><StaticSeoRedirect path="/need" /></LazyRoute>}
+          />
+          <Route
+            path={`${ROUTE_PATHS.FILTER_INTENT_HUB}/:slug`}
+            element={<LazyRoute><StaticSeoRedirect path="/need/:slug" /></LazyRoute>}
+          />
+          <Route
+            path={ROUTE_PATHS.OCCASIONS_HUB}
+            element={<LazyRoute><StaticSeoRedirect path="/occasions" /></LazyRoute>}
+          />
+          <Route
+            path={ROUTE_PATHS.EID_ADHA_SHAVING}
+            element={<LazyRoute><StaticSeoRedirect path="/occasions/eid-adha-shaving" /></LazyRoute>}
+          />
+          <Route
+            path={`${ROUTE_PATHS.OCCASIONS_HUB}/:slug`}
+            element={<LazyRoute><StaticSeoRedirect path="/occasions/:slug" /></LazyRoute>}
+          />
           <Route path={ROUTE_PATHS.TERMS_OF_SERVICE} element={<WithPublicLayout><LazyRoute><TermsOfService /></LazyRoute></WithPublicLayout>} />
           <Route path={ROUTE_PATHS.USER_PRIVACY_POLICY} element={<WithPublicLayout><LazyRoute><UserPrivacyPolicy /></LazyRoute></WithPublicLayout>} />
           <Route path={ROUTE_PATHS.EPHEMERAL_PROCESSING_GOVERNANCE} element={<WithPublicLayout><LazyRoute><EphemeralProcessingGovernance /></LazyRoute></WithPublicLayout>} />
