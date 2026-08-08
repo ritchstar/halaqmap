@@ -39,6 +39,8 @@ export const GOOGLE_ADS_CLEAN_LANDING_URLS = {
   needHub: 'https://www.halaqmap.com/need',
   needHomeVisit: 'https://www.halaqmap.com/need/home-visit',
   needOpenNow: 'https://www.halaqmap.com/need/open-now',
+  /** مصيدة عيد الأضحى — حلاقة النسك بعد الأضحية */
+  eidAdhaShaving: 'https://www.halaqmap.com/occasions/eid-adha-shaving',
 } as const;
 
 export const GOOGLE_ADS_TAG_SCRIPT_SRC = `https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ADS_CONVERSION_ID}`;

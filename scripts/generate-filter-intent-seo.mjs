@@ -262,7 +262,7 @@ function renderHub() {
       <p class="lead">اختر نية البحث — ثم ابدأ الاستعلام داخل <strong>حلاق ماب</strong> بفلتر حقيقي يطابق ما يعلنه الشركاء المفعّلون.</p>
       <p class="note">المنصة ليست صالوناً. بعض الكلمات التسويقية (نظيف، فخم، فنان) تُربط بأقرب فلتر بيانات متاح بشفافية.</p>
       <ul class="grid">${links}</ul>
-      <p class="note"><a href="/near">أقرب حلاق حسب المدينة</a> · <a href="/nusuk">نسك الحج</a></p>
+      <p class="note"><a href="/near">أقرب حلاق حسب المدينة</a> · <a href="/nusuk">نسك الحج</a> · <a href="/occasions/eid-adha-shaving">عيد الأضحى</a></p>
     `,
     jsonLd,
   });

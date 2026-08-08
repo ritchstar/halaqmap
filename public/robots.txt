@@ -15,5 +15,6 @@ Allow: /
 Allow: /near/
 Allow: /nusuk/
 Allow: /need/
+Allow: /occasions/
 
 Sitemap: https://www.halaqmap.com/sitemap.xml

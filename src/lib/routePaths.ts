@@ -15,6 +15,10 @@ export const ROUTE_PATHS = {
   HAJJ_NUSUK: '/nusuk',
   /** مصيدة الفلاتر — نية البحث (HTML ثابت على /need) */
   FILTER_INTENT_HUB: '/need',
+  /** مناسبات موسمية (HTML ثابت) */
+  OCCASIONS_HUB: '/occasions',
+  /** مصيدة عيد الأضحى — حلاقة النسك بعد الأضحية */
+  EID_ADHA_SHAVING: '/occasions/eid-adha-shaving',
   BARBERS_LANDING: '/partners',
   /** صفحة هبوط B2B (Skywork) — partners.halaqmap.com */
   PARTNERS_B2B_LANDING: '/partners/b2b',

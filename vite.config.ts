@@ -348,17 +348,19 @@ export default defineConfig(({ mode }) => {
             '**/near/**',
             '**/nusuk/**',
             '**/need/**',
+            '**/occasions/**',
             '**/sitemap-geo.xml',
           ],
           maximumFileSizeToCacheInBytes: 8 * 1024 * 1024,
           navigateFallback: '/index.html',
-          // .well-known/* خام؛ /near و /nusuk و /need صفحات SEO ثابتة — لا تُستبدل بقشرة SPA
+          // صفحات SEO ثابتة — لا تُستبدل بقشرة SPA
           navigateFallbackDenylist: [
             /^\/api\//,
             /^\/\.well-known\//,
             /^\/near($|\/)/,
             /^\/nusuk($|\/)/,
             /^\/need($|\/)/,
+            /^\/occasions($|\/)/,
             /^\/sitemap(-|\.)/i,
             /^\/robots\.txt$/i,
           ],

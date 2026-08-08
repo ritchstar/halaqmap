@@ -288,6 +288,12 @@ export function Layout({ children }: LayoutProps) {
                 >
                   ابحث حسب حاجتك — الفلاتر
                 </a>
+                <a
+                  href={ROUTE_PATHS.EID_ADHA_SHAVING}
+                  className="text-sm text-slate-500 transition-colors hover:text-teal-300"
+                >
+                  عيد الأضحى — حلاق بعد الأضحية
+                </a>
               </div>
             </div>
 
