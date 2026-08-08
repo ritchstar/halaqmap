@@ -11,6 +11,7 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, '..');
+/** الشعار الرسمي الحالي */
 const logo = join(root, 'public', 'images', 'halaqmap_logo_refined.png');
 const distDir = join(root, 'dist');
 const iconDir = join(root, 'ios', 'App', 'App', 'Assets.xcassets', 'AppIcon.appiconset');

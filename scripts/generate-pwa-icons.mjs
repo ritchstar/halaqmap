@@ -3,7 +3,7 @@
  */
 /**
  * يولّد أيقونات PWA + Favicon + شاشة تشغيل TWA من الشعار الرسمي الحالي.
- * المصدر: public/images/halaqmap_logo_20260409_073322.png (شعار الواجهة)
+ * المصدر: public/images/halaqmap_logo_refined.png (الشعار الرسمي الحالي)
  * Usage: node scripts/generate-pwa-icons.mjs
  */
 import sharp from 'sharp';
@@ -13,7 +13,9 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, '..');
-const sourcePath = join(root, 'public', 'images', 'halaqmap_logo_20260409_073322.png');
+const sourcePath = join(root, 'public', 'images', 'halaqmap_logo_refined.png');
+/** مسار قديم ما زال يُطلب من كاش/روابط خارجية — يُحدَّث لنفس الشعار الجديد */
+const legacyLogoPath = join(root, 'public', 'images', 'halaqmap_logo_20260409_073322.png');
 const outDir = join(root, 'public', 'icons');
 const androidRes = join(root, 'android-partner-twa', 'app', 'src', 'main', 'res');
 
@@ -114,5 +116,8 @@ const svgFavicon = `<?xml version="1.0" encoding="UTF-8"?>
 </svg>
 `;
 await writeFile(join(root, 'public', 'favicon.svg'), svgFavicon, 'utf8');
+
+/** استبدال ملف الشعار القديم بنفس الشعار الجديد حتى لا يظهر في أي صفحة */
+await copyFile(sourcePath, legacyLogoPath);
 
 console.log('Official HalaqMap logo applied to PWA icons, favicon, splash, and Android launcher assets.');

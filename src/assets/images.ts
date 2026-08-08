@@ -69,6 +69,7 @@ export const IMAGES = {
   HALAQMAP_BARBER_BANNER_1_41: "/images/halaqmap_barber_banner_1.png",
   HALAQMAP_BARBER_BANNER_1_45: "/images/halaqmap_barber_banner_1.png",
   HALAQMAP_HERO_JPG_50: "/images/halaqmap-hero.jpg.png",
+  /** الشعار الرسمي الحالي (refined) — الاسم التاريخي للمفتاح محفوظ للتوافق */
   HALAQMAP_LOGO_20260409_073322_83: "/images/halaqmap_logo_refined.png",
   IMAGE_4142826B_43: "/images/image_4142826b.png",
   IMAGE_4142826B_47: "/images/image_4142826b.png",

@@ -85,7 +85,7 @@ export default function Home() {
           url: origin,
           logo: {
             '@type': 'ImageObject',
-            url: `${origin}/images/halaqmap_logo_20260409_073322.png`,
+            url: `${origin}/images/halaqmap_logo_refined.png`,
             width: 512,
             height: 512,
           },

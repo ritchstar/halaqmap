@@ -5,8 +5,8 @@
 export const BRAND_NAME_AR = 'حلاق ماب';
 export const BRAND_NAME_EN = 'HALAQ MAP';
 export const BRAND_SITE_NAME = 'حلاق ماب | HALAQ MAP';
-export const BRAND_LOGO_PATH = '/images/halaqmap_logo_20260409_073322.png';
-export const BRAND_ICON_VERSION = '20260808';
+export const BRAND_LOGO_PATH = '/images/halaqmap_logo_refined.png';
+export const BRAND_ICON_VERSION = '20260809';
 export const ORIGIN = 'https://www.halaqmap.com';
 export const BRAND_LOGO_ABS = `${ORIGIN}${BRAND_LOGO_PATH}`;
 
