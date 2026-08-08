@@ -353,7 +353,7 @@ export function App() {
            */}
           <Route path={ROUTE_PATHS.HAJJ_NUSUK} element={<LazyRoute><HajjNusukLanding /></LazyRoute>} />
           {/**
-           * مصائد SEO الثابتة — إن فُتحت عبر HashRouter (`/#/need`) نُحوّل للرابط النظيف.
+           * صفحات المساعدة الثابتة — إن فُتحت عبر HashRouter (`/#/need`) نُحوّل للرابط النظيف.
            */}
           <Route
             path={ROUTE_PATHS.FILTER_INTENT_HUB}

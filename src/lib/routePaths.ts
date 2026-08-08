@@ -9,15 +9,15 @@
 export const ROUTE_PATHS = {
   HOME: '/',
   /**
-   * مركز نسك الحج — الحلق والتقصير (هبوط موسمي للحجاج).
+   * مركز نسك الحج — صفحة مساعدة للحلق والتقصير.
    * النسخة الثابتة للفهرسة: `/nusuk` على القرص؛ هذا المسار لنسخة التطبيق.
    */
   HAJJ_NUSUK: '/nusuk',
-  /** مصيدة الفلاتر — نية البحث (HTML ثابت على /need) */
+  /** صفحات مساعدة حسب الحاجة — نية البحث (HTML ثابت على /need) */
   FILTER_INTENT_HUB: '/need',
-  /** مناسبات موسمية (HTML ثابت) */
+  /** صفحات مساعدة للمناسبات (HTML ثابت) */
   OCCASIONS_HUB: '/occasions',
-  /** مصيدة عيد الأضحى — حلاقة النسك بعد الأضحية */
+  /** صفحة مساعدة عيد الأضحى — حلاقة النسك بعد الأضحية */
   EID_ADHA_SHAVING: '/occasions/eid-adha-shaving',
   BARBERS_LANDING: '/partners',
   /** صفحة هبوط B2B (Skywork) — partners.halaqmap.com */
