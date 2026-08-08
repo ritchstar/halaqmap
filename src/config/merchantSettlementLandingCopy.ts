@@ -5,9 +5,10 @@
  * صفحة تسكين التجار — موقف المنصة الحالي بعد انفجار زيارات المستخدمين
  * أثناء حملات موجّهة أصلاً لأصحاب الصالونات.
  */
-import { PARTNER_REGISTRATION_FORM_YOUTUBE_GUIDE } from '@/config/partnerRegistrationYoutubeGuide';
-
 export const MERCHANT_SETTLEMENT_PATH = '/partners/merchant-settlement' as const;
+
+/** تجربة المستخدم — Shorts (بحث أقرب حلاق) */
+export const MERCHANT_SETTLEMENT_USER_EXPERIENCE_YOUTUBE_ID = 'buRFUPrN9ko' as const;
 
 export const MERCHANT_SETTLEMENT_META = {
   titleAr: 'تسكين الصالونات الآن | حلاق ماب',
@@ -74,23 +75,17 @@ export type MerchantSettlementVideo = {
 };
 
 /**
- * حدّث `radarSupportVideoId` بمعرّف مقطع الرادار الطويل عند توفره.
- * الافتراضي الحالي: فيديو شرح التسجيل المعروف + نفس المقطع كاحتياط للرادار إن لم يُضبط.
+ * مقطع تجربة المستخدم (Shorts). يمكن تجاوزه بـ `VITE_MERCHANT_SETTLEMENT_RADAR_YOUTUBE_ID`.
  */
 export const MERCHANT_SETTLEMENT_RADAR_VIDEO_ID =
   String(import.meta.env.VITE_MERCHANT_SETTLEMENT_RADAR_YOUTUBE_ID || '').trim() ||
-  PARTNER_REGISTRATION_FORM_YOUTUBE_GUIDE.videoId;
+  MERCHANT_SETTLEMENT_USER_EXPERIENCE_YOUTUBE_ID;
 
 export const MERCHANT_SETTLEMENT_VIDEOS: readonly MerchantSettlementVideo[] = [
   {
     videoId: MERCHANT_SETTLEMENT_RADAR_VIDEO_ID,
-    titleAr: 'تجربة المستخدم — الرادار والاستفسار',
-    blurbAr: 'المقطع الذي أثبت أن نشر المنصة ممكن: استعلام، رادار، ومتابعة الطلب.',
-  },
-  {
-    videoId: PARTNER_REGISTRATION_FORM_YOUTUBE_GUIDE.videoId,
-    titleAr: 'شرح تعبئة طلب اشتراك الصالون',
-    blurbAr: 'خطوات نموذج التسجيل للشركاء — من الطلب حتى مسار التفعيل.',
+    titleAr: 'تجربة المستخدم للبحث عن أقرب حلاق عبر حلاق ماب',
+    blurbAr: 'المقطع الذي أثبت أن نشر المنصة ممكن: استعلام، رادار، ومتابعة الطلب — دون خطوات تسجيل الصالون.',
   },
 ] as const;
 
