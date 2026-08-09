@@ -55,7 +55,7 @@ export default function Home() {
           '@id': orgId,
           name: 'حلاق ماب',
           url: origin,
-          logo: `${origin}/favicon.svg`,
+          logo: `${origin}/favicon.svg?v=20260809`,
         },
       ],
     };
