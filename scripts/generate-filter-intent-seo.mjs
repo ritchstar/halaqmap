@@ -19,6 +19,16 @@ const ROOT = join(__dirname, '..');
 const DIST = join(ROOT, 'dist');
 const ORIGIN = 'https://www.halaqmap.com';
 const HUB = '/need';
+const JSON_OUT = join(ROOT, 'src', 'config', 'filterIntentLandingPages.json');
+
+/** يُزامن JSON المستخدم في الواجهة مع مصدر الصفحات */
+function syncLandingPagesJson() {
+  writeFileSync(
+    JSON_OUT,
+    `${JSON.stringify({ version: 1, pages: PAGES }, null, 2)}\n`,
+    'utf8',
+  );
+}
 
 function escapeHtml(s) {
   return String(s)
@@ -126,7 +136,7 @@ function renderHub() {
     h1: 'ابحث عن حلاق حسب حاجتك',
     bodyInner: `
       <p class="lead">صفحات مساعدة من <strong>حلاق ماب</strong> لمن يبحث عن حلاق في محيطه أو بما يوافق رغبته — اختر نيتك ثم ابدأ الاستعلام بفلتر يطابق ما يعلنه الشركاء المفعّلون.</p>
-      <p class="note">المنصة ليست صالوناً. بعض الكلمات الشائعة (نظيف، فخم، فنان) تُربط بأقرب فلتر بيانات متاح بشفافية.</p>
+      <p class="note">المنصة ليست صالوناً. بعض الكلمات الشائعة (نظيف، فخم، فنان، لحية، فيد، رخيص) تُربط بأقرب فلتر بيانات متاح بشفافية — دون اختراع فلتر غير موجود.</p>
       <ul class="grid">${links}</ul>
       <p class="note"><a href="/near">أقرب حلاق حسب المدينة</a> · <a href="/nusuk">نسك الحج</a> · <a href="/occasions/eid-adha-shaving">عيد الأضحى</a></p>
     `,
@@ -226,11 +236,12 @@ function renderPage(page) {
 }
 
 function main() {
+  syncLandingPagesJson();
   writeFileDeep(join(DIST, 'need', 'index.html'), renderHub());
   for (const page of PAGES) {
     writeFileDeep(join(DIST, 'need', page.slug, 'index.html'), renderPage(page));
   }
-  console.log(`[generate-filter-intent-seo] wrote hub + ${PAGES.length} pages under dist/need`);
+  console.log(`[generate-filter-intent-seo] synced JSON + wrote hub + ${PAGES.length} pages under dist/need`);
 }
 
 main();
