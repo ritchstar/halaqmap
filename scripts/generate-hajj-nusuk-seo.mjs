@@ -288,7 +288,7 @@ ${brandHeaderHtml()}
         ${faqHtml}
       </section>
 
-      <p class="note"><a href="/near">أقرب حلاق حسب المدينة والحي</a> · <a href="/need">ابحث حسب حاجتك</a> · <a href="/occasions/eid-adha-shaving">عيد الأضحى — بعد الأضحية</a> · <a href="${ORIGIN}/">الصفحة الرئيسية</a></p>
+      <p class="note"><a href="/near">أقرب حلاق حسب المدينة والحي</a> · <a href="/need">ابحث حسب حاجتك</a> · <a href="/occasions">المناسبات</a> · <a href="/occasions/ramadan">رمضان</a> · <a href="/occasions/friday-prep">الجمعة</a> · <a href="/occasions/eid-adha-shaving">عيد الأضحى</a> · <a href="${ORIGIN}/">الصفحة الرئيسية</a></p>
     </main>
     <footer>
       <p>© حلاق ماب — منصة برمجية للاستعلام الرقمي. ليست صالوناً وليست جهة إفتاء في أحكام النسك.</p>

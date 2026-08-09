@@ -1,6 +1,6 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
- * يولّد dist/occasions/index.html و dist/occasions/eid-adha-shaving/index.html
+ * يولّد dist/occasions/** — عيد الأضحى، رمضان، تحضير الجمعة.
  */
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -19,6 +19,8 @@ const DIST = join(ROOT, 'dist');
 const ORIGIN = 'https://www.halaqmap.com';
 const HUB = '/occasions';
 const PAGE = '/occasions/eid-adha-shaving';
+const RAMADAN_PAGE = '/occasions/ramadan';
+const FRIDAY_PAGE = '/occasions/friday-prep';
 
 function escapeHtml(s) {
   return String(s)
@@ -107,7 +109,10 @@ const FAQS = [
   },
 ];
 
-function shell({ title, description, canonical, h1, bodyInner, jsonLd, keywords }) {
+function shell({ title, description, canonical, h1, bodyInner, jsonLd, keywords, footerNote }) {
+  const footer =
+    footerNote ||
+    '© حلاق ماب — منصة استعلام رقمية. ليست صالوناً ولا وسيط حجز ولا جهة إفتاء.';
   return `<!DOCTYPE html>
 <html lang="ar-SA" dir="rtl">
 <head>
@@ -163,7 +168,7 @@ ${brandHeaderHtml()}
       ${bodyInner}
     </main>
     <footer>
-      <p>© حلاق ماب — منصة استعلام رقمية. ليست صالوناً ولا وسيط حجز ولا جهة إفتاء في أحكام النسك أو الأضحية.</p>
+      <p>${escapeHtml(footer)}</p>
     </footer>
   </div>
 </body>
@@ -173,19 +178,22 @@ ${brandHeaderHtml()}
 function renderHub() {
   const title = 'مناسبات الحلاقة | حلاق ماب';
   const description =
-    'صفحات مساعدة من حلاق ماب للمناسبات — عيد الأضحى وحلاقة النسك بعد الأضحية، والمزيد لاحقاً.';
+    'صفحات مساعدة من حلاق ماب للمناسبات والزحام الأسبوعي: عيد الأضحى، رمضان، وتحضير الجمعة — ثم ابدأ الاستعلام.';
   const canonical = `${ORIGIN}${HUB}`;
   return shell({
     title,
     description,
     canonical,
-    h1: 'مناسبات الحلاقة',
+    h1: 'مناسبات الحلاقة وأوقات الزحام',
     bodyInner: `
-      <p class="lead">صفحات مساعدة من <strong>حلاق ماب</strong> لمن يبحث عن حلاق في محيطه أو بما يوافق رغبته في أوقات الزحام — ثم يبدأ الاستعلام داخل المنصة.</p>
+      <p class="lead">صفحات مساعدة من <strong>حلاق ماب</strong> لمن يبحث عن حلاق في محيطه في أوقات الذروة — موسمية أو أسبوعية — ثم يبدأ الاستعلام داخل المنصة.</p>
       <ul class="grid">
+        <li><a href="${FRIDAY_PAGE}">تحضير الجمعة — قبل الصلاة وليلة الخميس</a></li>
+        <li><a href="${RAMADAN_PAGE}">رمضان — حلاق الليل وبعد التراويح</a></li>
         <li><a href="${PAGE}">عيد الأضحى — حلاق بعد الأضحية وحلاقة النسك</a></li>
         <li><a href="/nusuk">مركز نسك الحج — الحلق والتقصير</a></li>
         <li><a href="/need/open-now">حلاق مفتوح الآن</a></li>
+        <li><a href="/need/classic-barber">حلاق تقليدي</a></li>
       </ul>
     `,
     jsonLd: {
@@ -329,10 +337,231 @@ function renderEidPage() {
   });
 }
 
+function renderOccasionPage({
+  path,
+  title,
+  description,
+  keywords,
+  h1,
+  badge,
+  leadHtml,
+  sectionsHtml,
+  about,
+  crumbLabel,
+  faqs,
+  footerNote,
+}) {
+  const canonical = `${ORIGIN}${path}`;
+  const faqHtml = faqs
+    .map(
+      (f) => `
+    <details>
+      <summary>${escapeHtml(f.q)}</summary>
+      <p>${escapeHtml(f.a)}</p>
+    </details>`,
+    )
+    .join('\n');
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'WebPage',
+        '@id': `${canonical}#page`,
+        name: title,
+        url: canonical,
+        inLanguage: 'ar-SA',
+        description,
+        about,
+        isPartOf: { '@type': 'WebApplication', name: 'حلاق ماب', url: `${ORIGIN}/` },
+      },
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'حلاق ماب', item: `${ORIGIN}/` },
+          { '@type': 'ListItem', position: 2, name: 'مناسبات', item: `${ORIGIN}${HUB}` },
+          { '@type': 'ListItem', position: 3, name: crumbLabel, item: canonical },
+        ],
+      },
+      {
+        '@type': 'FAQPage',
+        mainEntity: faqs.map((f) => ({
+          '@type': 'Question',
+          name: f.q,
+          acceptedAnswer: { '@type': 'Answer', text: f.a },
+        })),
+      },
+    ],
+  };
+  return shell({
+    title,
+    description,
+    canonical,
+    keywords: keywords.join(', '),
+    h1,
+    jsonLd,
+    footerNote,
+    bodyInner: `
+      <nav class="crumbs">
+        <a href="${ORIGIN}/">الرئيسية</a> /
+        <a href="${HUB}">مناسبات</a> /
+        <span>${escapeHtml(crumbLabel)}</span>
+      </nav>
+      <p class="badge">${escapeHtml(badge)}</p>
+      ${leadHtml}
+      ${sectionsHtml}
+      <section>
+        <h2>أسئلة شائعة</h2>
+        ${faqHtml}
+      </section>
+      <p class="note"><a href="${HUB}">كل المناسبات</a> · <a href="/need">حسب الحاجة</a> · <a href="/near">حسب المدينة</a> · <a href="${ORIGIN}/">الرئيسية</a></p>
+    `,
+  });
+}
+
+function renderRamadanPage() {
+  const phrases = [
+    'حلاق رمضان',
+    'حلاق يفتح رمضان الليل',
+    'حلاق مفتوح رمضان',
+    'حلاق بعد التراويح',
+    'حلاق ليل رمضان',
+    'حلاق يفتح وقت السحور',
+    'حلاق رمضان متأخر',
+    'صالون مفتوح رمضان',
+    'حلاق مفتوح الليل رمضان',
+    'حلاق وقت الإجازة الرمضانية',
+  ];
+  const chips = phrases.map((p) => `<span class="chip">${escapeHtml(p)}</span>`).join('');
+  const faqs = [
+    {
+      q: 'هل يوجد فلتر اسمه رمضان في حلاق ماب؟',
+      a: 'لا. رمضان يغيّر أوقات الذروة (مساء، بعد التراويح، قرب السحور). أقرب أداة لحظية هي فلتر «مفتوح الآن» أو «24 ساعة» ثم التأكيد مع الصالون.',
+    },
+    {
+      q: 'هل تضمنون فتح الصالون بعد التراويح؟',
+      a: 'لا نضمن. الحالة تعتمد على ما يعلنه الشريك لحظة الاستعلام وقد تتغيّر. أكّد بالتواصل قبل التوجه.',
+    },
+    {
+      q: 'هل الصفحة تقدّم أحكاماً شرعية عن الحلاقة في رمضان؟',
+      a: 'لا. دور المنصة تقني: مساعدتك على بدء استعلام عن حلاق قريب/مفتوح — وليست جهة إفتاء.',
+    },
+  ];
+  return renderOccasionPage({
+    path: RAMADAN_PAGE,
+    title: 'حلاق رمضان — الليل وبعد التراويح | حلاق ماب',
+    description:
+      'صفحة مساعدة من حلاق ماب لرمضان: حلاق يفتح الليل، بعد التراويح، وقت السحور — ابدأ بـ«مفتوح الآن» حول موقعك ثم تواصل مباشرة مع الصالون.',
+    keywords: phrases,
+    h1: 'رمضان… حلاق فاتح الليل؟',
+    badge: 'صفحة مساعدة من حلاق ماب · موسم رمضان',
+    crumbLabel: 'رمضان',
+    about: ['رمضان', 'حلاق بعد التراويح', 'حلاق ليل رمضان', 'حلاق وقت السحور'],
+    footerNote:
+      '© حلاق ماب — منصة استعلام رقمية. ليست صالوناً ولا وسيط حجز ولا جهة إفتاء في أحكام الصيام.',
+    faqs,
+    leadHtml: `
+      <p class="lead">في رمضان تتأخّر ذروة الحلاقة إلى <strong>المساء وبعد التراويح وقرب السحور</strong> — بعكس الصباح المعتاد. هذه صفحة مساعدة من <strong>حلاق ماب</strong> لتسهيل بدء الاستعلام حين تحتاج حلاقاً مفتوحاً في ذلك التوقيت. المنصة ليست صالوناً ولا تضمن جدولاً رمضانياً ثابتاً.</p>
+    `,
+    sectionsHtml: `
+      <section class="card warn">
+        <h2>لماذا «مفتوح الآن» أهم من فلتر رمضان؟</h2>
+        <p>لا يوجد فلتر تقويم رمضاني داخل المنصة. ما يتغيّر هو سلوك الفتح لدى الصالونات. لذلك نوجّهك لفلتر «مفتوح الآن» لحظة بحثك (ليلاً أو بعد التراويح)، أو «24 ساعة» إن أعلن الشريك ذلك — ثم تسأل عن الدوام الرمضاني مباشرة.</p>
+      </section>
+      <section class="card urgent">
+        <h2>ابدأ الاستعلام الآن</h2>
+        <p>امنح إذن الموقع إن أمكن، فعّل «مفتوح الآن»، وتواصل مع الصالون قبل التوجه — خصوصاً قرب السحور أو بعد التراويح.</p>
+        <p><a class="cta" href="${ORIGIN}/#/?need=open-now">ابدأ الاستعلام — مفتوح الآن في رمضان</a></p>
+        <p>
+          <a class="cta-secondary" href="/need/24h">حلاق 24 ساعة</a>
+          <a class="cta-secondary" href="/need/near-me">من موقعي</a>
+          <a class="cta-secondary" href="${FRIDAY_PAGE}">تحضير الجمعة</a>
+          <a class="cta-secondary" href="${PAGE}">عيد الأضحى</a>
+        </p>
+      </section>
+      <section class="card">
+        <h2>عبارات شائعة في بحث رمضان</h2>
+        <p>${chips}</p>
+      </section>
+    `,
+  });
+}
+
+function renderFridayPage() {
+  const phrases = [
+    'حلاق جمعة',
+    'حلاق قبل صلاة الجمعة',
+    'حلاق الخميس الليل',
+    'حلاق ليلة الجمعة',
+    'حلاق عصر الجمعة',
+    'حلاق قبل العيد',
+    'حلاق الأربعاء الليل',
+    'حلاق يفتح الخميس',
+    'صالون مفتوح ليلة الجمعة',
+    'حلاق قبل صلاة العصر',
+  ];
+  const chips = phrases.map((p) => `<span class="chip">${escapeHtml(p)}</span>`).join('');
+  const faqs = [
+    {
+      q: 'هل صفحة الجمعة موسمية مثل رمضان؟',
+      a: 'لا. تحضير الجمعة نية أسبوعية متكررة وأعلى زحمة معتادة في الأسبوع؛ لذلك الصفحة دائمة ضمن المناسبات/أوقات الذروة.',
+    },
+    {
+      q: 'ما أفضل وقت للاستعلام قبل الجمعة؟',
+      a: 'كثير يبحث ليلة الخميس أو صباح الجمعة قبل الصلاة. استخدم «مفتوح الآن» لحظة حاجتك، أو رتّب مع الصالون مسبقاً عبر التواصل المباشر — المنصة ليست وسيط حجز.',
+    },
+    {
+      q: 'هل تضمنون مقعداً قبل صلاة الجمعة؟',
+      a: 'لا. النتائج حسب بيانات الشركاء المفعّلين لحظة الاستعلام. أكّد الموعد أو التوجه مع الصالون مباشرة.',
+    },
+  ];
+  return renderOccasionPage({
+    path: FRIDAY_PAGE,
+    title: 'حلاق قبل الجمعة — ليلة الخميس وعصر الجمعة | حلاق ماب',
+    description:
+      'صفحة مساعدة دائمة من حلاق ماب لزحمة الجمعة: قبل الصلاة، ليلة الخميس، عصر الجمعة — ابدأ الاستعلام بـ«مفتوح الآن» ثم تواصل مباشرة مع الصالون.',
+    keywords: phrases,
+    h1: 'قبل الجمعة… وين أحلق بدون زحمة؟',
+    badge: 'صفحة مساعدة دائمة من حلاق ماب · ذروة الأسبوع',
+    crumbLabel: 'تحضير الجمعة',
+    about: ['حلاق جمعة', 'قبل صلاة الجمعة', 'حلاق ليلة الجمعة', 'حلاق الخميس الليل'],
+    footerNote: '© حلاق ماب — منصة استعلام رقمية. ليست صالوناً ولا وسيط حجز.',
+    faqs,
+    leadHtml: `
+      <p class="lead">الجمعة أعلى زحمة حلاقة أسبوعية: <strong>ليلة الخميس، صباح الجمعة، وقبل الصلاة</strong>. هذه صفحة مساعدة دائمة من <strong>حلاق ماب</strong> — ليست موسمية — لتسهيل بدء الاستعلام حول موقعك ثم ترتيب التوجه مع الصالون مباشرة.</p>
+    `,
+    sectionsHtml: `
+      <section class="card warn">
+        <h2>نية أسبوعية لا موسمية</h2>
+        <p>بخلاف رمضان أو العيد، يتكرر ضغط الجمعة كل أسبوع. لا يوجد فلتر باسم «جمعة»؛ الأداة العملية هي «مفتوح الآن» وقت بحثك، مع تواصل مباشر لتفادي الطابور الأعمى.</p>
+      </section>
+      <section class="card urgent">
+        <h2>ابدأ قبل الزحمة</h2>
+        <p>ليلة الخميس أو باكراً يوم الجمعة: افتح الاستعلام، اختر نطاقاً قريباً، واتصل بالصالون قبل التوجه.</p>
+        <p><a class="cta" href="${ORIGIN}/#/?need=open-now">ابدأ الاستعلام — مفتوح الآن قبل الجمعة</a></p>
+        <p>
+          <a class="cta-secondary" href="/need/classic-barber">حلاق تقليدي</a>
+          <a class="cta-secondary" href="/need/near-me">من موقعي</a>
+          <a class="cta-secondary" href="${RAMADAN_PAGE}">رمضان</a>
+          <a class="cta-secondary" href="/near">حسب المدينة</a>
+        </p>
+      </section>
+      <section class="card">
+        <h2>عبارات شائعة حول الجمعة</h2>
+        <p>${chips}</p>
+        <p class="note">عبارة «حلاق قبل العيد» تظهر أحياناً مع زحام ما قبل المناسبات؛ لعيد الأضحى خصيصاً استخدم صفحة الأضحى.</p>
+      </section>
+    `,
+  });
+}
+
 function main() {
   writeFileDeep(join(DIST, 'occasions', 'index.html'), renderHub());
   writeFileDeep(join(DIST, 'occasions', 'eid-adha-shaving', 'index.html'), renderEidPage());
-  console.log(`[generate-eid-adha-seo] wrote ${ORIGIN}${HUB} and ${ORIGIN}${PAGE}`);
+  writeFileDeep(join(DIST, 'occasions', 'ramadan', 'index.html'), renderRamadanPage());
+  writeFileDeep(join(DIST, 'occasions', 'friday-prep', 'index.html'), renderFridayPage());
+  console.log(
+    `[generate-eid-adha-seo] wrote ${ORIGIN}${HUB}, ${PAGE}, ${RAMADAN_PAGE}, ${FRIDAY_PAGE}`,
+  );
 }
 
 main();

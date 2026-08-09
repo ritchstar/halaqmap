@@ -42,6 +42,9 @@ export const GOOGLE_ADS_CLEAN_LANDING_URLS = {
   needNearMe: 'https://www.halaqmap.com/need/near-me',
   /** صفحة مساعدة عيد الأضحى — حلاقة النسك بعد الأضحية */
   eidAdhaShaving: 'https://www.halaqmap.com/occasions/eid-adha-shaving',
+  ramadanBarber: 'https://www.halaqmap.com/occasions/ramadan',
+  fridayPrep: 'https://www.halaqmap.com/occasions/friday-prep',
+  classicBarber: 'https://www.halaqmap.com/need/classic-barber',
 } as const;
 
 export const GOOGLE_ADS_TAG_SCRIPT_SRC = `https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ADS_CONVERSION_ID}`;

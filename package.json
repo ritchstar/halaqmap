@@ -12,6 +12,7 @@
     "seo:nusuk": "node scripts/generate-hajj-nusuk-seo.mjs",
     "seo:need": "node scripts/generate-filter-intent-seo.mjs",
     "seo:eid-adha": "node scripts/generate-eid-adha-seo.mjs",
+    "seo:occasions": "node scripts/generate-eid-adha-seo.mjs",
     "build:dev": "cross-env VITE_ENABLE_ROUTE_MESSAGING=true vite build --mode development --sourcemap",
     "build:map": "cross-env VITE_ENABLE_ROUTE_MESSAGING=true vite build --sourcemap",
     "pwa:icons": "node scripts/generate-pwa-icons.mjs",

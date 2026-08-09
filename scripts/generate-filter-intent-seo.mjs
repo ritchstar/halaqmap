@@ -138,7 +138,7 @@ function renderHub() {
       <p class="lead">صفحات مساعدة من <strong>حلاق ماب</strong> لمن يبحث عن حلاق في محيطه أو بما يوافق رغبته — اختر نيتك ثم ابدأ الاستعلام بفلتر يطابق ما يعلنه الشركاء المفعّلون.</p>
       <p class="note">المنصة ليست صالوناً. بعض الكلمات الشائعة (نظيف، فخم، فنان، لحية، فيد، رخيص) تُربط بأقرب فلتر بيانات متاح بشفافية — دون اختراع فلتر غير موجود.</p>
       <ul class="grid">${links}</ul>
-      <p class="note"><a href="/near">أقرب حلاق حسب المدينة</a> · <a href="/nusuk">نسك الحج</a> · <a href="/occasions/eid-adha-shaving">عيد الأضحى</a></p>
+      <p class="note"><a href="/near">أقرب حلاق حسب المدينة</a> · <a href="/nusuk">نسك الحج</a> · <a href="/occasions">المناسبات والزحام</a> · <a href="/occasions/friday-prep">الجمعة</a> · <a href="/occasions/ramadan">رمضان</a></p>
     `,
     jsonLd,
   });

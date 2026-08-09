@@ -372,6 +372,14 @@ export function App() {
             element={<LazyRoute><StaticSeoRedirect path="/occasions/eid-adha-shaving" /></LazyRoute>}
           />
           <Route
+            path={ROUTE_PATHS.RAMADAN_BARBER}
+            element={<LazyRoute><StaticSeoRedirect path="/occasions/ramadan" /></LazyRoute>}
+          />
+          <Route
+            path={ROUTE_PATHS.FRIDAY_PREP}
+            element={<LazyRoute><StaticSeoRedirect path="/occasions/friday-prep" /></LazyRoute>}
+          />
+          <Route
             path={`${ROUTE_PATHS.OCCASIONS_HUB}/:slug`}
             element={<LazyRoute><StaticSeoRedirect path="/occasions/:slug" /></LazyRoute>}
           />

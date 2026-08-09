@@ -19,6 +19,10 @@ export const ROUTE_PATHS = {
   OCCASIONS_HUB: '/occasions',
   /** صفحة مساعدة عيد الأضحى — حلاقة النسك بعد الأضحية */
   EID_ADHA_SHAVING: '/occasions/eid-adha-shaving',
+  /** صفحة مساعدة رمضان — الليل وبعد التراويح */
+  RAMADAN_BARBER: '/occasions/ramadan',
+  /** صفحة مساعدة دائمة — تحضير الجمعة وزحمة الخميس */
+  FRIDAY_PREP: '/occasions/friday-prep',
   BARBERS_LANDING: '/partners',
   /** صفحة هبوط B2B (Skywork) — partners.halaqmap.com */
   PARTNERS_B2B_LANDING: '/partners/b2b',
