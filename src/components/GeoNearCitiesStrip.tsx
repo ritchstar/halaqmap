@@ -25,7 +25,7 @@ export function GeoNearCitiesStrip({ className = '', variant = 'compact' }: Prop
           أقرب حلاق حسب المدينة
         </h2>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground sm:text-base">
-          صفحات مساعدة من حلاق ماب لبدء الاستعلام عن حلاق في مدينتك أو بما يوافق رغبتك.
+          فزعات من حلاق ماب لبدء الاستعلام عن حلاق في مدينتك أو بما يوافق رغبتك.
         </p>
         <ul className="mt-4 flex flex-wrap gap-2">
           {cities.map((city) => (

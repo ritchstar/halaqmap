@@ -35,12 +35,12 @@ export const GOOGLE_ADS_CLEAN_LANDING_URLS = {
   merchantSettlement: 'https://www.halaqmap.com/partners/merchant-settlement',
   /** مركز نسك الحج — الحلق والتقصير (HTML ثابت) */
   hajjNusuk: 'https://www.halaqmap.com/nusuk',
-  /** صفحات مساعدة حسب الحاجة — نية الاستعلام */
+  /** فزعات حسب الحاجة — نية الاستعلام */
   needHub: 'https://www.halaqmap.com/need',
   needHomeVisit: 'https://www.halaqmap.com/need/home-visit',
   needOpenNow: 'https://www.halaqmap.com/need/open-now',
   needNearMe: 'https://www.halaqmap.com/need/near-me',
-  /** صفحة مساعدة عيد الأضحى — حلاقة النسك بعد الأضحية */
+  /** فزعة عيد الأضحى — حلاقة النسك بعد الأضحية */
   eidAdhaShaving: 'https://www.halaqmap.com/occasions/eid-adha-shaving',
   ramadanBarber: 'https://www.halaqmap.com/occasions/ramadan',
   fridayPrep: 'https://www.halaqmap.com/occasions/friday-prep',

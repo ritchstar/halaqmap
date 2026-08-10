@@ -1,6 +1,6 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
- * يولّد dist/need/index.html + dist/need/{slug}/index.html — صفحات مساعدة حسب الحاجة.
+ * يولّد dist/need/index.html + dist/need/{slug}/index.html — فزعات حسب الحاجة.
  */
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -100,9 +100,9 @@ ${brandHeaderHtml()}
 }
 
 function renderHub() {
-  const title = 'ابحث عن حلاق حسب حاجتك | حلاق ماب';
+  const title = 'فزعة — ابحث عن حلاق حسب حاجتك | حلاق ماب';
   const description =
-    'صفحات مساعدة من حلاق ماب للبحث حسب حاجتك: منزلي، مفتوح الآن، 24 ساعة، أطفال، تجهيز عريس، كبار سن، مركز عناية رجل والمزيد — ثم ابدأ الاستعلام.';
+    'فزعات من حلاق ماب للبحث حسب حاجتك: منزلي، مفتوح الآن، 24 ساعة، أطفال، تجهيز عريس، كبار سن، مركز عناية رجل والمزيد — ثم ابدأ الاستعلام أو ارجع للرئيسية.';
   const canonical = `${ORIGIN}${HUB}`;
   const links = PAGES.map(
     (p) => `<li><a href="${HUB}/${p.slug}">${escapeHtml(p.h1)}</a></li>`,
@@ -133,9 +133,9 @@ function renderHub() {
     title,
     description,
     canonical,
-    h1: 'ابحث عن حلاق حسب حاجتك',
+    h1: 'فزعة — ابحث عن حلاق حسب حاجتك',
     bodyInner: `
-      <p class="lead">صفحات مساعدة من <strong>حلاق ماب</strong> لمن يبحث عن حلاق في محيطه أو بما يوافق رغبته — اختر نيتك ثم ابدأ الاستعلام بفلتر يطابق ما يعلنه الشركاء المفعّلون.</p>
+      <p class="lead">فزعات من <strong>حلاق ماب</strong> لمن يبحث عن حلاق في محيطه أو بما يوافق رغبته — اختر نيتك ثم ابدأ الاستعلام بفلتر يطابق ما يعلنه الشركاء المفعّلون، أو ارجع للرئيسية بسرعة من أعلى الصفحة.</p>
       <p class="note">المنصة ليست صالوناً. بعض الكلمات الشائعة (نظيف، فخم، فنان، لحية، فيد، رخيص) تُربط بأقرب فلتر بيانات متاح بشفافية — دون اختراع فلتر غير موجود.</p>
       <ul class="grid">${links}</ul>
       <p class="note"><a href="/near">أقرب حلاق حسب المدينة</a> · <a href="/nusuk">نسك الحج</a> · <a href="/occasions">المناسبات والزحام</a> · <a href="/occasions/friday-prep">الجمعة</a> · <a href="/occasions/ramadan">رمضان</a></p>

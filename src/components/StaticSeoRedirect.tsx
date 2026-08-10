@@ -1,7 +1,7 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
- * صفحات المساعدة الثابتة (`/need`, `/occasions`, `/nusuk`, `/near`) تُخدم خارج HashRouter.
+ * صفحات فزعة الثابتة (`/need`, `/occasions`, `/nusuk`, `/near`) تُخدم خارج HashRouter.
  * إن فُتح المسار كـ `/#/need` نخرج من الهاش إلى الرابط النظيف فوراً.
  */
 import { useEffect } from 'react';

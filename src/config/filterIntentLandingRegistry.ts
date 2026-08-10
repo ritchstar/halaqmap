@@ -1,7 +1,7 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
- * صفحات مساعدة من حلاق ماب — `/need/{slug}` تربط نية البحث بفلاتر المنصة الحقيقية.
+ * فزعات من حلاق ماب — `/need/{slug}` تربط نية البحث بفلاتر المنصة الحقيقية.
  * العبارات الشائعة مستمدة من صيغ بحث المستخدمين (مثل «من موقعي») دون ذكر علامات تجارية منافسة.
  */
 import type { VisitorServiceIntentId } from '@/lib/visitorServiceIntents';
@@ -58,7 +58,7 @@ function mapJsonPage(p: FilterIntentPageJson): FilterIntentLandingPage {
 }
 
 /**
- * صفحات مساعدة حسب الحاجة — كل صفحة تفتح `#/?need={slug}` ثم تُطبَّق النية.
+ * فزعات حسب الحاجة — كل صفحة تفتح `#/?need={slug}` ثم تُطبَّق النية.
  * المصدر: filterIntentLandingPages.json (مولَّد من scripts/data/filterIntentLandingPages.mjs).
  */
 export const FILTER_INTENT_LANDING_PAGES: readonly FilterIntentLandingPage[] = (

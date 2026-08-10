@@ -147,8 +147,8 @@ function jsonLdGraph({ node, path, city, directions, neighborhoods, faqs }) {
 
   const collectionDesc =
     node.kind === 'neighborhood' && city
-      ? `صفحة مساعدة لحي ${placeName} في ${city.nameAr} من حلاق ماب لبدء استعلام أقرب حلاق.`
-      : `صفحة مساعدة جغرافية من حلاق ماب لمساعدتك على بدء استعلام أقرب حلاق في ${placeName}.`;
+      ? `فزعة لحي ${placeName} في ${city.nameAr} من حلاق ماب لبدء استعلام أقرب حلاق.`
+      : `فزعة جغرافية من حلاق ماب لمساعدتك على بدء استعلام أقرب حلاق في ${placeName}.`;
 
   const graph = [
     {
@@ -232,9 +232,9 @@ function renderPage({ node, nodes, isHub = false }) {
   if (isHub) {
     const cities = nodes.filter((n) => n.kind === 'city').sort((a, b) => b.priority - a.priority);
     const topNeighborhoodCities = cities.slice(0, 8);
-    const title = 'أقرب حلاق حسب المدينة والحي | حلاق ماب';
+    const title = 'فزعة — أقرب حلاق حسب المدينة والحي | حلاق ماب';
     const description =
-      'صفحات مساعدة جغرافية من منصة حلاق ماب لبدء استعلام أقرب حلاق في مدن وأحياء المملكة — برمجيات استعلام لحظي وليست صالوناً.';
+      'فزعات جغرافية من منصة حلاق ماب لبدء استعلام أقرب حلاق في مدن وأحياء المملكة — مثل أحياء الرياض وأحياء جدة وأحياء مكة — برمجيات استعلام لحظي وليست صالوناً.';
     const canonical = `${ORIGIN}/near`;
     const cityLinks = linkList(cities);
     const neighHint = topNeighborhoodCities
@@ -269,10 +269,10 @@ function renderPage({ node, nodes, isHub = false }) {
       title,
       description,
       canonical,
-      h1: 'أقرب حلاق حسب المدينة والحي',
+      h1: 'فزعة — أقرب حلاق حسب المدينة والحي',
       bodyInner: `
-        <p class="lead">اختر مدينتك لفتح صفحة مساعدة محلية من <strong>حلاق ماب</strong> — منصة برمجية للاستعلام اللحظي عن الحلاق الأنسب ضمن البيانات المتاحة.</p>
-        <p class="note">حلاق ماب ليست صالوناً وليست وسيط حجز. بعد فتح الصفحة اضغط «ابدأ الاستعلام» للمتابعة داخل التطبيق. يمكنك أيضاً التعمّق إلى صفحة الحي (مثل البديعة في الرياض) ثم الدخول للمنصة.</p>
+        <p class="lead">اختر مدينتك لفتح فزعة محلية من <strong>حلاق ماب</strong> — منصة برمجية للاستعلام اللحظي عن الحلاق الأنسب ضمن البيانات المتاحة.</p>
+        <p class="note">حلاق ماب ليست صالوناً وليست وسيط حجز. بعد فتح الصفحة اضغط «ابدأ الاستعلام» للمتابعة داخل التطبيق. يمكنك أيضاً فتح فزعة أحياء مدينتك — مثل أحياء الرياض أو أحياء جدة أو أحياء مكة — ثم بدء الاستعلام.</p>
         <p class="note"><a href="/nusuk">مركز نسك الحج — الحلق والتقصير للحجاج</a> · <a href="/need">ابحث حسب حاجتك — الفلاتر</a> · <a href="/occasions/eid-adha-shaving">عيد الأضحى — بعد الأضحية</a></p>
         <section>
           <h2>تصفّح بالأحياء — مدن رئيسية</h2>
@@ -325,7 +325,7 @@ function renderPage({ node, nodes, isHub = false }) {
     if (neighborhoods.length > 0) {
       parts.push(`<section>
         <h2>أحياء ${escapeHtml(node.nameAr)} — أقرب حلاق حسب الحي</h2>
-        <p class="note">صفحات مساعدة محلية من حلاق ماب لبدء الاستعلام حول الحي بما يوافق رغبتك.</p>
+        <p class="note">فزعات محلية من حلاق ماب لبدء الاستعلام حول الحي بما يوافق رغبتك.</p>
         <ul class="grid">${linkList(neighborhoods)}</ul>
       </section>`);
     }
@@ -367,9 +367,9 @@ function renderPage({ node, nodes, isHub = false }) {
 
   const lead =
     node.kind === 'neighborhood' && city
-      ? `<p class="lead">هذه صفحة مساعدة من <strong>حلاق ماب</strong> لمن يبحث عن حلاق في حي <strong>${escapeHtml(node.nameAr)}</strong> بمدينة <strong>${escapeHtml(city.nameAr)}</strong>. المنصة تطبيق ويب للاستعلام والعرض الرقمي — وليست منشأة حلاقة في الحي.</p>
+      ? `<p class="lead">هذه فزعة من <strong>حلاق ماب</strong> لمن يبحث عن حلاق في حي <strong>${escapeHtml(node.nameAr)}</strong> بمدينة <strong>${escapeHtml(city.nameAr)}</strong>. المنصة تطبيق ويب للاستعلام والعرض الرقمي — وليست منشأة حلاقة في الحي.</p>
       <p>اضغط الزر أدناه لبدء الاستعلام داخل التطبيق حول نطاق حي ${escapeHtml(node.nameAr)}. تُعرض النتائج وفق البيانات المتاحة من الشركاء المفعّلين لحظة الاستعلام.</p>`
-      : `<p class="lead">هذه صفحة مساعدة من <strong>حلاق ماب</strong> لمن يبحث عن أقرب حلاق في <strong>${escapeHtml(node.nameAr)}</strong> أو بما يوافق رغبته في محيطه. المنصة تطبيق ويب للاستعلام والعرض الرقمي — وليست منشأة حلاقة.</p>
+      : `<p class="lead">هذه فزعة من <strong>حلاق ماب</strong> لمن يبحث عن أقرب حلاق في <strong>${escapeHtml(node.nameAr)}</strong> أو بما يوافق رغبته في محيطه. المنصة تطبيق ويب للاستعلام والعرض الرقمي — وليست منشأة حلاقة.</p>
       <p>اضغط الزر أدناه لبدء الاستعلام داخل التطبيق حول نطاق ${escapeHtml(node.nameAr)}. تُعرض النتائج وفق البيانات المتاحة من الشركاء المفعّلين لحظة الاستعلام.</p>
       ${nusukNote}`;
 

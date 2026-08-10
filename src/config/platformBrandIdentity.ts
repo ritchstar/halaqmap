@@ -3,11 +3,15 @@
  *
  * هوية العلامة الظاهرة في المتصفح، المشاركة، وبيانات المنظمة لمحركات البحث.
  * ملاحظة: خط نتائج Google نفسه لا يُخصَّص من الموقع — الأيقونة + الاسم + الوصف هم ما يظهر.
+ * صفحات البحث الجغرافية/النوايا تُسمّى خدمة «فزعة» أمام الزائر.
  */
 export const PLATFORM_BRAND_NAME_AR = 'حلاق ماب' as const;
 export const PLATFORM_BRAND_NAME_EN = 'HALAQ MAP' as const;
 /** اسم الموقع في og:site_name وبيانات المنظّمة */
 export const PLATFORM_BRAND_SITE_NAME = 'حلاق ماب | HALAQ MAP' as const;
+/** اسم خدمة صفحات البحث (مدن/أحياء/نوايا/مناسبات) */
+export const PLATFORM_FAZAA_NAME_AR = 'فزعة' as const;
+export const PLATFORM_FAZAA_SERVICE_LINE = 'خدمة بحث سريعة من حلاق ماب' as const;
 /** الشعار الرسمي الحالي (refined — يُستخدم في الواجهة والأيقونات) */
 export const PLATFORM_BRAND_LOGO_PATH = '/images/halaqmap_logo_refined.png' as const;
 export const PLATFORM_BRAND_LOGO_ABSOLUTE =
