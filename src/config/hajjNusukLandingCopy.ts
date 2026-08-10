@@ -2,7 +2,7 @@
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
  * مركز نسك الحج — فزعة من حلاق ماب للحلق والتقصير.
- * المنصة أداة استعلام؛ ليست جهة إفتاء وليست صالوناً.
+ * فزعة نسك — استعلام عن أقرب حلاق شريك.
  */
 export const HAJJ_NUSUK_PATH = '/nusuk' as const;
 export const HAJJ_NUSUK_SITE_ORIGIN = 'https://www.halaqmap.com' as const;
@@ -10,7 +10,7 @@ export const HAJJ_NUSUK_SITE_ORIGIN = 'https://www.halaqmap.com' as const;
 export const HAJJ_NUSUK_META = {
   titleAr: 'نسك الحج — الحلق والتقصير | حلاق ماب',
   descriptionAr:
-    'مركز نسك الحج من حلاق ماب: افهم الحلق والتقصير، ثم ابدأ استعلام أقرب حلاق شريك في مكة أو المدينة — منصة استعلام وليست صالوناً ولا جهة إفتاء.',
+    'مركز نسك الحج من حلاق ماب: افهم الحلق والتقصير، ثم ابدأ استعلام أقرب حلاق شريك في مكة أو المدينة عبر فزعة البحث.',
 } as const;
 
 export const HAJJ_NUSUK_HERO = {

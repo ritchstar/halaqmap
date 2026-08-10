@@ -16,6 +16,7 @@ import {
   nearSearchPhrasesCss,
   nearSearchPhrasesSectionHtml,
 } from './lib/platformBrandIdentity.mjs';
+import { FAZAA_MARKETING_FOOTER_AR } from './lib/fazaaCitySeoBranches.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
@@ -97,7 +98,7 @@ ${brandHeaderHtml()}
       ${bodyInner}
     </main>
     <footer>
-      <p>© حلاق ماب — منصة استعلام رقمية. ليست صالوناً وليست وسيط حجز. النتائج حسب بيانات الشركاء المفعّلين لحظة الاستعلام.</p>
+      <p>${FAZAA_MARKETING_FOOTER_AR}</p>
     </footer>
   </div>
 </body>
@@ -141,7 +142,7 @@ function renderHub() {
     h1: 'ابحث لي عن أقرب حلاق حسب حاجتك',
     bodyInner: `
       <p class="lead">فزعات من <strong>حلاق ماب</strong> لمن يقول <strong>أبي حلاق قريب</strong> أو <strong>عطني أقرب حلاق</strong> أو يريد <strong>أقرب حلاق من موقعه</strong> بما يوافق حاجته — اختر نيتك ثم ابدأ الاستعلام، أو ارجع للرئيسية من أعلى الصفحة.</p>
-      <p class="note">المنصة ليست صالوناً. بعض الكلمات الشائعة (نظيف، فخم، فنان، لحية، فيد، رخيص) تُربط بأقرب فلتر بيانات متاح بشفافية — دون اختراع فلتر غير موجود.</p>
+      <p class="note">بعض الكلمات الشائعة (نظيف، فخم، فنان، لحية، فيد، رخيص) تُربط بأقرب فلتر بيانات متاح — اختر نيتك وابدأ الاستعلام.</p>
       ${nearSearchPhrasesSectionHtml()}
       <ul class="grid">${links}</ul>
       <p class="note"><a href="/near">أقرب حلاق من موقعي حسب المدينة</a> · <a href="/nusuk">نسك الحج</a> · <a href="/occasions">المناسبات والزحام</a> · <a href="/occasions/friday-prep">الجمعة</a> · <a href="/occasions/ramadan">رمضان</a></p>
@@ -200,10 +201,10 @@ function renderPage(page) {
         mainEntity: [
           {
             '@type': 'Question',
-            name: `هل حلاق ماب يوفر ${page.h1} مباشرة؟`,
+            name: `كيف أبدأ استعلام ${page.h1} من موقعي؟`,
             acceptedAnswer: {
               '@type': 'Answer',
-              text: 'لا. حلاق ماب منصة استعلام رقمية. تُفلتر النتائج حسب ما يعلنه الشركاء المفعّلون، والتنسيق معهم مباشرة.',
+              text: 'افتح فزعة الصفحة ثم اضغط ابدأ الاستعلام. تُفلتر النتائج حسب البيانات المتاحة من الشركاء، وتكمل معهم مباشرة.',
             },
           },
           {
