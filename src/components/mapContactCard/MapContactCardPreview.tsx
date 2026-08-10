@@ -66,6 +66,7 @@ export function MapContactCardPreview({
             height={44}
             className="h-11 w-11 rounded-xl object-cover ring-2 ring-teal-400/35"
             decoding="async"
+            crossOrigin="anonymous"
           />
         </div>
 

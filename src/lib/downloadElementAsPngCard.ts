@@ -129,12 +129,9 @@ function prepareCloneForCapture(originalRoot: HTMLElement, clonedRoot: HTMLEleme
 }
 
 /**
- * يلتقط عنصر HTML (شهادة/كرت) ويُنزّله كصورة PNG عالية الدقة للاحتفاظ بها.
+ * يلتقط عنصر HTML كـ PNG Blob (للتنزيل أو Web Share / سناب / واتساب…).
  */
-export async function downloadElementAsPngCard(
-  element: HTMLElement,
-  fileName: string,
-): Promise<void> {
+export async function captureElementAsPngBlob(element: HTMLElement): Promise<Blob> {
   await waitForImages(element);
 
   // امنح المتصفح إطاراً لإكمال التخطيط قبل الالتقاط
@@ -160,7 +157,17 @@ export async function downloadElementAsPngCard(
     throw new Error('canvas_empty');
   }
 
-  const blob = await canvasToPngBlob(canvas);
+  return canvasToPngBlob(canvas);
+}
+
+/**
+ * يلتقط عنصر HTML (شهادة/كرت) ويُنزّله كصورة PNG عالية الدقة للاحتفاظ بها.
+ */
+export async function downloadElementAsPngCard(
+  element: HTMLElement,
+  fileName: string,
+): Promise<void> {
+  const blob = await captureElementAsPngBlob(element);
   triggerBlobDownload(blob, fileName);
 }
 

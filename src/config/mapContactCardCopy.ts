@@ -7,16 +7,23 @@ export const MAP_CONTACT_CARD_PRODUCT_NAME_AR = 'بطاقة تواصل ماب' a
 export const MAP_CONTACT_CARD_ROUTE = '/map-contact-card' as const;
 
 export const MAP_CONTACT_CARD_META = {
-  titleAr: 'بطاقة تواصل ماب — أرسل لصالونك المفضل',
+  titleAr: 'بطاقة تواصل ماب — بطاقتك لدعوة أي صالون',
   descriptionAr:
-    'صمّم بطاقة تواصل باسم مستعار ورسالة جاهزة وختم مدينتك، ثم أرسلها لصالونك عبر واتساب ليظهر على حلاق ماب — بلا صور شخصية.',
+    'صمّم بطاقتك المفضلة واحفظها على جهازك، ثم أرسلها واتساب أو سناب أو أي منصة لدعوة أي صالون حلاقة لمسار الشركاء — بلا صور شخصية.',
 } as const;
 
 export const MAP_CONTACT_CARD_LEAD_AR =
-  'بطاقة تواصل من زبون إلى صالونه المفضل: قل له إنك تفضّل التواصل عبر حلاق ماب. بلا صور شخصية — أيقونة + ختم مدينة + رمز QR.' as const;
+  'احتفظ ببطاقتك الخاصة: حمّلها كصورة، احفظها كمفضلة على جهازك، وأرسلها واتساب أو سناب أو أي منصة — لدعوة أي صالون حلاقة يظهر على حلاق ماب. بلا صور شخصية — أيقونة + ختم مدينة + رمز QR لمسار الشركاء.' as const;
 
 export const MAP_CONTACT_CARD_CTA_AR = 'بطاقة تواصل ماب' as const;
-export const MAP_CONTACT_CARD_CTA_HINT_AR = 'أرسل لصالونك المفضل — بلا صور شخصية' as const;
+export const MAP_CONTACT_CARD_CTA_HINT_AR = 'بطاقتك المفضلة — ادعُ أي صالون' as const;
+
+export const MAP_CONTACT_CARD_KEEP_HINT_AR =
+  'البطاقة ملكك: احفظها مرّة، وأعد إرسالها لأي صالون تفضّله. الرابط والـ QR يوجّهان لمسار الشركاء.' as const;
+
+export const MAP_CONTACT_CARD_FAVORITE_SAVED_AR = 'حُفظت كبطاقتك المفضلة على هذا الجهاز' as const;
+export const MAP_CONTACT_CARD_DOWNLOAD_HINT_AR =
+  'حمّل الصورة إلى الاستوديو ثم شاركها من سناب أو إنستقرام أو أي تطبيق.' as const;
 
 export const MAP_CONTACT_CARD_FILTER_LABEL_AR = 'بطاقة تواصل' as const;
 
