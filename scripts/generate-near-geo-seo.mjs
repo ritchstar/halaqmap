@@ -21,6 +21,10 @@ import {
   FAZAA_MARKETING_FOOTER_AR,
   citySeoBranchesHtml,
 } from './lib/fazaaCitySeoBranches.mjs';
+import {
+  exportFazaaCityMarketingJsonList,
+  getFazaaCityMarketing,
+} from './data/fazaaCityMarketingCopy.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
@@ -119,9 +123,14 @@ function linkList(items) {
     .join('\n');
 }
 
-function jsonLdGraph({ node, path, city, directions, neighborhoods, faqs }) {
+function jsonLdGraph({ node, path, city, directions, neighborhoods, faqs, pageName }) {
   const pageUrl = absoluteUrl(path);
   const placeName = node.nameAr;
+  const collectionName =
+    pageName ||
+    (node.kind === 'neighborhood' && city
+      ? `أقرب حلاق في ${placeName} | ${city.nameAr}`
+      : `أقرب حلاق في ${placeName}`);
   const breadcrumbItems = [
     { name: 'حلاق ماب', item: `${ORIGIN}/` },
     { name: 'أقرب حلاق', item: `${ORIGIN}/near` },
@@ -152,8 +161,10 @@ function jsonLdGraph({ node, path, city, directions, neighborhoods, faqs }) {
     };
   }
 
-  const collectionDesc =
-    node.kind === 'neighborhood' && city
+  const marketing = node.kind === 'city' ? getFazaaCityMarketing(node.slug) : null;
+  const collectionDesc = marketing
+    ? marketing.description
+    : node.kind === 'neighborhood' && city
       ? `فزعة لحي ${placeName} في ${city.nameAr} من حلاق ماب لبدء استعلام أقرب حلاق.`
       : `فزعة جغرافية من حلاق ماب لمساعدتك على بدء استعلام أقرب حلاق في ${placeName}.`;
 
@@ -176,14 +187,14 @@ function jsonLdGraph({ node, path, city, directions, neighborhoods, faqs }) {
       provider: { '@id': `${ORIGIN}/#organization` },
       description:
         'منصة رقمية ذكية للاستعلام عن الحلاق الأنسب عبر المعالجة والفلترة اللحظية داخل المملكة.',
+      areaServed: marketing
+        ? { '@type': 'City', name: placeName }
+        : undefined,
     },
     {
       '@type': 'CollectionPage',
       '@id': `${pageUrl}#page`,
-      name:
-        node.kind === 'neighborhood' && city
-          ? `أقرب حلاق في ${placeName} | ${city.nameAr}`
-          : `أقرب حلاق في ${placeName}`,
+      name: collectionName,
       url: pageUrl,
       inLanguage: 'ar-SA',
       isPartOf: { '@id': `${ORIGIN}/#webapp` },
@@ -302,12 +313,16 @@ function renderPage({ node, nodes, isHub = false }) {
   const directions = node.kind === 'city' ? childrenOf(nodes, node.slug, 'direction') : [];
   const neighborhoods = node.kind === 'city' ? childrenOf(nodes, node.slug, 'neighborhood') : [];
   const faqs = buildFaqs(node, city);
-  const title =
-    node.kind === 'neighborhood' && city
+  const cityMarketing =
+    node.kind === 'city' ? getFazaaCityMarketing(node.slug) : null;
+  const title = cityMarketing
+    ? cityMarketing.title
+    : node.kind === 'neighborhood' && city
       ? `أقرب حلاق من موقعي في ${node.nameAr} | ${city.nameAr} | حلاق ماب`
       : `أقرب حلاق من موقعي في ${node.nameAr} | حلاق ماب`;
-  const description =
-    node.kind === 'neighborhood' && city
+  const description = cityMarketing
+    ? cityMarketing.description
+    : node.kind === 'neighborhood' && city
       ? `أفضل حلاقين بالقرب مني في حي ${node.nameAr} بمدينة ${city.nameAr} — أقرب حلاق من موقعي، صالون قريب، أقرب صالون حولي، حلاق منزلي عبر فزعة حلاق ماب.`
       : `أفضل حلاقين بالقرب مني في ${node.nameAr} — أقرب حلاق من موقعي، صالون قريب، أقرب صالون حولي، عطني أقرب صالون من موقعي، حلاق دليفري عبر فزعة حلاق ماب.`;
   const canonical = absoluteUrl(path);
@@ -383,19 +398,27 @@ function renderPage({ node, nodes, isHub = false }) {
     isNeighborhood: node.kind === 'neighborhood',
   });
 
-  const lead =
-    node.kind === 'neighborhood' && city
+  const lead = cityMarketing
+    ? `<p class="lead">${escapeHtml(cityMarketing.content_paragraph)}</p>
+      <h2>${escapeHtml(cityMarketing.h2)}</h2>
+      <p>ابدأ من فزعة <strong>حلاق ماب</strong> في ${escapeHtml(node.nameAr)}: أقرب حلاق من موقعك، صالون قريب، أقرب صالون حولي، أو حلاق منزلي ودليفري — ثم اتصل بالصالون مباشرة.</p>
+      ${nusukNote}`
+    : node.kind === 'neighborhood' && city
       ? `<p class="lead">فزعة <strong>حلاق ماب</strong> لمن يبحث عن <strong>أقرب حلاق من موقعه</strong> في حي <strong>${escapeHtml(node.nameAr)}</strong> بمدينة <strong>${escapeHtml(city.nameAr)}</strong> — صالون قريب، أقرب صالون حولي، أو حلاق منزلي حسب طلبك.</p>
       <p>سواء قلت أبي حلاق قريب أو عطني أقرب حلاق أو ابحث لي عن أقرب حلاق — اضغط الزر أدناه لبدء الاستعلام حول نطاق حي ${escapeHtml(node.nameAr)}.</p>`
       : `<p class="lead">فزعة <strong>حلاق ماب</strong> لمن يبحث عن <strong>أقرب حلاق من موقعه</strong> في <strong>${escapeHtml(node.nameAr)}</strong> — أفضل حلاقين بالقرب منك، صالون قريب، أو حلول منزلية ودليفري.</p>
       <p>سواء قلت أبي حلاق قريب أو عطني أقرب صالون من موقعي أو ابحث لي عن أقرب حلاق — ابدأ الاستعلام حول نطاق ${escapeHtml(node.nameAr)} الآن.</p>
       ${nusukNote}`;
 
+  const pageH1 = cityMarketing
+    ? cityMarketing.h1
+    : `أقرب حلاق من موقعي في ${node.nameAr}`;
+
   return htmlShell({
     title,
     description,
     canonical,
-    h1: `أقرب حلاق من موقعي في ${node.nameAr}`,
+    h1: pageH1,
     bodyInner: `
       <nav class="crumbs" aria-label="مسار التنقل">${crumbs.join(' <span aria-hidden="true">/</span> ')}</nav>
       ${lead}
@@ -421,6 +444,7 @@ function renderPage({ node, nodes, isHub = false }) {
               .slice(0, SIBLING_LIMIT)
           : neighborhoods,
       faqs,
+      pageName: pageH1,
     }),
   });
 }
@@ -539,6 +563,10 @@ ${urlEntries
 </urlset>
 `;
   writeFileDeep(join(DIST, 'sitemap-geo.xml'), sitemapGeo);
+  writeFileDeep(
+    join(DIST, 'near', 'city-marketing.json'),
+    `${JSON.stringify(exportFazaaCityMarketingJsonList(), null, 2)}\n`,
+  );
 
   const neighCount = nodes.filter((n) => n.kind === 'neighborhood').length;
   console.log(
