@@ -9,9 +9,12 @@ import { FILTER_INTENT_PAGES as PAGES } from './data/filterIntentLandingPages.mj
 import {
   BRAND_LOGO_ABS,
   BRAND_SITE_NAME,
+  NEAR_SEARCH_KEYWORDS_META,
   brandHeaderCss,
   brandHeaderHtml,
   brandIconLinks,
+  nearSearchPhrasesCss,
+  nearSearchPhrasesSectionHtml,
 } from './lib/platformBrandIdentity.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -52,6 +55,7 @@ function htmlShell({ title, description, canonical, h1, bodyInner, jsonLd }) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>${escapeHtml(title)}</title>
   <meta name="description" content="${escapeHtml(description)}" />
+  <meta name="keywords" content="${escapeHtml(NEAR_SEARCH_KEYWORDS_META)}" />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="${escapeHtml(canonical)}" />
   <meta property="og:title" content="${escapeHtml(title)}" />
@@ -66,6 +70,7 @@ ${brandIconLinks()}
   <script type="application/ld+json">${JSON.stringify(jsonLd)}</script>
   <style>
 ${brandHeaderCss()}
+${nearSearchPhrasesCss()}
     :root { color-scheme: dark; --card:#0c1a2e; --text:#e8eef7; --muted:#94a3b8; --accent:#2dd4bf; --line:rgba(45,212,191,.25); }
     * { box-sizing: border-box; }
     body { margin:0; font-family: "Tajawal", "Segoe UI", Tahoma, Arial, sans-serif; background: linear-gradient(180deg,#061223,#0a1f33 55%,#061223); color:var(--text); line-height:1.8; }
@@ -100,9 +105,9 @@ ${brandHeaderHtml()}
 }
 
 function renderHub() {
-  const title = 'فزعة — ابحث عن حلاق حسب حاجتك | حلاق ماب';
+  const title = 'ابحث لي عن أقرب حلاق حسب حاجتك | حلاق ماب';
   const description =
-    'فزعات من حلاق ماب للبحث حسب حاجتك: منزلي، مفتوح الآن، 24 ساعة، أطفال، تجهيز عريس، كبار سن، مركز عناية رجل والمزيد — ثم ابدأ الاستعلام أو ارجع للرئيسية.';
+    'ابحث لي عن أقرب حلاق أو أبي حلاق قريب أو عطني أقرب حلاق حسب حاجتك عبر فزعات حلاق ماب: منزلي، مفتوح الآن، 24 ساعة، أطفال والمزيد — ثم ابدأ الاستعلام.';
   const canonical = `${ORIGIN}${HUB}`;
   const links = PAGES.map(
     (p) => `<li><a href="${HUB}/${p.slug}">${escapeHtml(p.h1)}</a></li>`,
@@ -133,12 +138,13 @@ function renderHub() {
     title,
     description,
     canonical,
-    h1: 'فزعة — ابحث عن حلاق حسب حاجتك',
+    h1: 'ابحث لي عن أقرب حلاق حسب حاجتك',
     bodyInner: `
-      <p class="lead">فزعات من <strong>حلاق ماب</strong> لمن يبحث عن حلاق في محيطه أو بما يوافق رغبته — اختر نيتك ثم ابدأ الاستعلام بفلتر يطابق ما يعلنه الشركاء المفعّلون، أو ارجع للرئيسية بسرعة من أعلى الصفحة.</p>
+      <p class="lead">فزعات من <strong>حلاق ماب</strong> لمن يقول <strong>أبي حلاق قريب</strong> أو <strong>عطني أقرب حلاق</strong> أو يريد <strong>أقرب حلاق من موقعه</strong> بما يوافق حاجته — اختر نيتك ثم ابدأ الاستعلام، أو ارجع للرئيسية من أعلى الصفحة.</p>
       <p class="note">المنصة ليست صالوناً. بعض الكلمات الشائعة (نظيف، فخم، فنان، لحية، فيد، رخيص) تُربط بأقرب فلتر بيانات متاح بشفافية — دون اختراع فلتر غير موجود.</p>
+      ${nearSearchPhrasesSectionHtml()}
       <ul class="grid">${links}</ul>
-      <p class="note"><a href="/near">أقرب حلاق حسب المدينة</a> · <a href="/nusuk">نسك الحج</a> · <a href="/occasions">المناسبات والزحام</a> · <a href="/occasions/friday-prep">الجمعة</a> · <a href="/occasions/ramadan">رمضان</a></p>
+      <p class="note"><a href="/near">أقرب حلاق من موقعي حسب المدينة</a> · <a href="/nusuk">نسك الحج</a> · <a href="/occasions">المناسبات والزحام</a> · <a href="/occasions/friday-prep">الجمعة</a> · <a href="/occasions/ramadan">رمضان</a></p>
     `,
     jsonLd,
   });
@@ -223,13 +229,14 @@ function renderPage(page) {
       <p>${escapeHtml(page.body)}</p>
       <div class="card"><p class="note">${escapeHtml(page.filterNote)}</p></div>
       <p>${aliases}</p>
+      ${nearSearchPhrasesSectionHtml()}
       <p class="cta-wrap" style="margin:1.5rem 0"><a class="cta" href="${escapeHtml(cta)}">ابدأ الاستعلام — ${escapeHtml(page.h1)}</a></p>
       ${renderRelatedNearLinks(page)}
       <section>
         <h2>نيات بحث أخرى</h2>
         <ul class="grid">${siblings}</ul>
       </section>
-      <p class="note"><a href="${HUB}">كل الفلاتر</a> · <a href="/near">حسب المدينة</a> · <a href="${ORIGIN}/">الرئيسية</a></p>
+      <p class="note"><a href="${HUB}">كل الفلاتر</a> · <a href="/near">أقرب حلاق من موقعي</a> · <a href="${ORIGIN}/">الرئيسية</a></p>
     `,
     jsonLd,
   });

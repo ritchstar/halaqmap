@@ -286,7 +286,7 @@ export function Layout({ children }: LayoutProps) {
                   href={`${GEO_NEAR_SITE_ORIGIN}${GEO_NEAR_HUB_PATH}`}
                   className="text-sm text-slate-500 transition-colors hover:text-teal-300"
                 >
-                  أقرب حلاق حسب المدينة
+                  أقرب حلاق من موقعي
                 </a>
                 <a
                   href={`${GEO_NEAR_SITE_ORIGIN}${ROUTE_PATHS.HAJJ_NUSUK}`}

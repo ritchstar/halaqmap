@@ -1,6 +1,10 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
+import {
+  PLATFORM_NEAR_SEARCH_BLURB_AR,
+  PLATFORM_NEAR_SEARCH_PHRASES_AR,
+} from '@/config/platformBrandIdentity';
 import { GEO_NEAR_HUB_PATH, geoNearPath, listGeoNearCities } from '@/config/geoNearRegistry';
 
 type Props = {
@@ -22,11 +26,20 @@ export function GeoNearCitiesStrip({ className = '', variant = 'compact' }: Prop
         aria-labelledby="geo-near-heading"
       >
         <h2 id="geo-near-heading" className="text-lg font-bold text-foreground sm:text-xl">
-          أقرب حلاق حسب المدينة
+          أقرب حلاق من موقعي حسب المدينة
         </h2>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground sm:text-base">
-          فزعات من حلاق ماب لبدء الاستعلام عن حلاق في مدينتك أو بما يوافق رغبتك.
+          {PLATFORM_NEAR_SEARCH_BLURB_AR}
         </p>
+        <ul className="mt-3 flex flex-wrap gap-2" aria-label="عبارات البحث الشائعة">
+          {PLATFORM_NEAR_SEARCH_PHRASES_AR.map((phrase) => (
+            <li key={phrase}>
+              <span className="inline-flex rounded-full border border-amber-400/35 bg-amber-500/10 px-2.5 py-1 text-[0.7rem] font-bold text-amber-800 dark:text-amber-100">
+                {phrase}
+              </span>
+            </li>
+          ))}
+        </ul>
         <ul className="mt-4 flex flex-wrap gap-2">
           {cities.map((city) => (
             <li key={city.slug}>
@@ -54,14 +67,14 @@ export function GeoNearCitiesStrip({ className = '', variant = 'compact' }: Prop
   return (
     <div className={className}>
       <p className="mb-2 text-[0.65rem] font-bold uppercase tracking-widest text-slate-500">
-        أقرب حلاق
+        أقرب حلاق من موقعي
       </p>
       <div className="flex flex-col gap-2">
         <a
           href={GEO_NEAR_HUB_PATH}
           className="text-sm text-slate-500 transition-colors hover:text-teal-300"
         >
-          حسب المدينة
+          أبي حلاق قريب — حسب المدينة
         </a>
         {cities.slice(0, 5).map((city) => (
           <a

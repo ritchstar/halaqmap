@@ -17,7 +17,18 @@ export const PLATFORM_BRAND_LOGO_PATH = '/images/halaqmap_logo_refined.png' as c
 export const PLATFORM_BRAND_LOGO_ABSOLUTE =
   'https://www.halaqmap.com/images/halaqmap_logo_refined.png' as const;
 /** كسر كاش الأيقونة عند التحديث (Google/المتصفح يعيدان جلب الـ favicon ببطء) */
-export const PLATFORM_BRAND_ICON_VERSION = '20260809' as const;
+export const PLATFORM_BRAND_ICON_VERSION = '20260810' as const;
+
+/** عبارات بحث لصفحات فزعة / أقرب حلاق */
+export const PLATFORM_NEAR_SEARCH_PHRASES_AR = [
+  'أقرب حلاق من موقعي',
+  'أبي حلاق قريب',
+  'عطني أقرب حلاق',
+  'ابحث لي عن أقرب حلاق',
+] as const;
+
+export const PLATFORM_NEAR_SEARCH_BLURB_AR =
+  'إن كنت تبحث عن أقرب حلاق من موقعك، أو تقول أبي حلاق قريب، أو عطني أقرب حلاق، أو ابحث لي عن أقرب حلاق — ابدأ فزعة الاستعلام من حلاق ماب.';
 
 export function platformBrandIconUrl(path: string, origin = 'https://www.halaqmap.com'): string {
   const base = origin.replace(/\/+$/, '');

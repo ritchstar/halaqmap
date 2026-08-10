@@ -11,6 +11,8 @@ import {
   brandHeaderCss,
   brandHeaderHtml,
   brandIconLinks,
+  nearSearchPhrasesCss,
+  nearSearchPhrasesSectionHtml,
 } from './lib/platformBrandIdentity.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -135,6 +137,7 @@ ${brandIconLinks()}
   <script type="application/ld+json">${JSON.stringify(jsonLd)}</script>
   <style>
 ${brandHeaderCss()}
+${nearSearchPhrasesCss()}
     :root { color-scheme: dark; --card:#0c1a2e; --text:#e8eef7; --muted:#94a3b8; --accent:#2dd4bf; --amber:#fbbf24; --line:rgba(45,212,191,.25); --rose:rgba(251,113,133,.35); }
     * { box-sizing: border-box; }
     body { margin:0; font-family: "Tajawal", "Segoe UI", Tahoma, Arial, sans-serif; background: linear-gradient(180deg,#120a06,#0a1f33 40%,#061223 100%); color:var(--text); line-height:1.8; }
@@ -186,7 +189,8 @@ function renderHub() {
     canonical,
     h1: 'فزعة — مناسبات الحلاقة وأوقات الزحام',
     bodyInner: `
-      <p class="lead">فزعات من <strong>حلاق ماب</strong> لمن يبحث عن حلاق في محيطه في أوقات الذروة — موسمية أو أسبوعية — ثم يبدأ الاستعلام داخل المنصة، مع اختصار سريع للرئيسية من أعلى الصفحة.</p>
+      <p class="lead">فزعات من <strong>حلاق ماب</strong> لمن يبحث عن <strong>أقرب حلاق من موقعه</strong> في أوقات الذروة — موسمية أو أسبوعية — ثم يبدأ الاستعلام داخل المنصة.</p>
+      ${nearSearchPhrasesSectionHtml()}
       <ul class="grid">
         <li><a href="${FRIDAY_PAGE}">تحضير الجمعة — قبل الصلاة وليلة الخميس</a></li>
         <li><a href="${RAMADAN_PAGE}">رمضان — حلاق الليل وبعد التراويح</a></li>
@@ -194,6 +198,7 @@ function renderHub() {
         <li><a href="/nusuk">مركز نسك الحج — الحلق والتقصير</a></li>
         <li><a href="/need/open-now">حلاق مفتوح الآن</a></li>
         <li><a href="/need/classic-barber">حلاق تقليدي</a></li>
+        <li><a href="/near">أقرب حلاق من موقعي حسب المدينة</a></li>
       </ul>
     `,
     jsonLd: {

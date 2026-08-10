@@ -13,6 +13,9 @@ import {
   brandHeaderCss,
   brandHeaderHtml,
   brandIconLinks,
+  NEAR_SEARCH_KEYWORDS_META,
+  nearSearchPhrasesCss,
+  nearSearchPhrasesSectionHtml,
 } from './lib/platformBrandIdentity.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -74,8 +77,8 @@ function buildFaqs(node, city) {
   if (node.kind === 'neighborhood' && city) {
     return [
       {
-        q: `كيف أجد أقرب حلاق في حي ${nameAr} بمدينة ${city.nameAr}؟`,
-        a: `افتح صفحة الاستعلام في حلاق ماب وابدأ الاستعلام حول نطاق حي ${nameAr} في ${city.nameAr}. تعالج المنصة البيانات المتاحة لحظياً وتعرض الخيارات المناسبة — دون أن تكون صالوناً أو وسيط حجز.`,
+        q: `كيف أجد أقرب حلاق من موقعي في حي ${nameAr} بمدينة ${city.nameAr}؟`,
+        a: `افتح فزعة الاستعلام في حلاق ماب حول نطاق حي ${nameAr} في ${city.nameAr}. إن قلت أبي حلاق قريب أو عطني أقرب حلاق أو ابحث لي عن أقرب حلاق — تعالج المنصة البيانات المتاحة لحظياً وتعرض الخيارات المناسبة، دون أن تكون صالوناً أو وسيط حجز.`,
       },
       {
         q: `هل حلاق ماب صالون في حي ${nameAr}؟`,
@@ -89,8 +92,8 @@ function buildFaqs(node, city) {
   }
   return [
     {
-      q: `كيف أجد أقرب حلاق في ${nameAr} عبر حلاق ماب؟`,
-      a: `افتح صفحة الاستعلام في حلاق ماب وابدأ الاستعلام قرب موقعك أو ضمن نطاق ${nameAr}. تعالج المنصة البيانات المتاحة لحظياً وتعرض الخيارات المناسبة — دون أن تكون صالوناً أو وسيط حجز.`,
+      q: `كيف أجد أقرب حلاق من موقعي في ${nameAr}؟`,
+      a: `افتح فزعة الاستعلام في حلاق ماب وابدأ من موقعك أو ضمن نطاق ${nameAr}. إن قلت أبي حلاق قريب أو عطني أقرب حلاق أو ابحث لي عن أقرب حلاق — تعالج المنصة البيانات المتاحة لحظياً وتعرض الخيارات المناسبة، دون أن تكون صالوناً أو وسيط حجز.`,
     },
     {
       q: `هل حلاق ماب صالون في ${nameAr}؟`,
@@ -232,9 +235,10 @@ function renderPage({ node, nodes, isHub = false }) {
   if (isHub) {
     const cities = nodes.filter((n) => n.kind === 'city').sort((a, b) => b.priority - a.priority);
     const topNeighborhoodCities = cities.slice(0, 8);
-    const title = 'فزعة — أقرب حلاق حسب المدينة والحي | حلاق ماب';
+    // عنوان يبدأ بعبارات البحث التنافسية لـ «أقرب حلاق من موقعي»
+    const title = 'أقرب حلاق من موقعي حسب المدينة والحي | حلاق ماب';
     const description =
-      'فزعات جغرافية من منصة حلاق ماب لبدء استعلام أقرب حلاق في مدن وأحياء المملكة — مثل أحياء الرياض وأحياء جدة وأحياء مكة — برمجيات استعلام لحظي وليست صالوناً.';
+      'أقرب حلاق من موقعك عبر حلاق ماب: أبي حلاق قريب، عطني أقرب حلاق، ابحث لي عن أقرب حلاق — اختر المدينة أو الحي وابدأ استعلاماً لحظياً. فزعة بحث وليست صالوناً ولا وسيط حجز.';
     const canonical = `${ORIGIN}/near`;
     const cityLinks = linkList(cities);
     const neighHint = topNeighborhoodCities
@@ -269,10 +273,11 @@ function renderPage({ node, nodes, isHub = false }) {
       title,
       description,
       canonical,
-      h1: 'فزعة — أقرب حلاق حسب المدينة والحي',
+      h1: 'أقرب حلاق من موقعي حسب المدينة والحي',
       bodyInner: `
-        <p class="lead">اختر مدينتك لفتح فزعة محلية من <strong>حلاق ماب</strong> — منصة برمجية للاستعلام اللحظي عن الحلاق الأنسب ضمن البيانات المتاحة.</p>
-        <p class="note">حلاق ماب ليست صالوناً وليست وسيط حجز. بعد فتح الصفحة اضغط «ابدأ الاستعلام» للمتابعة داخل التطبيق. يمكنك أيضاً فتح فزعة أحياء مدينتك — مثل أحياء الرياض أو أحياء جدة أو أحياء مكة — ثم بدء الاستعلام.</p>
+        <p class="lead"><strong>أقرب حلاق من موقعك</strong> حسب مدينتك وحيّك عبر <strong>حلاق ماب</strong> — فزعة بحث لحظي ضمن البيانات المتاحة على المنصة.</p>
+        <p class="note">حلاق ماب ليست صالوناً وليست وسيط حجز. اختر المدينة أدناه ثم اضغط «ابدأ الاستعلام». يمكنك أيضاً تصفّح أحياء الرياض أو أحياء جدة أو أحياء مكة ثم بدء الاستعلام.</p>
+        ${nearSearchPhrasesSectionHtml()}
         <p class="note"><a href="/nusuk">مركز نسك الحج — الحلق والتقصير للحجاج</a> · <a href="/need">ابحث حسب حاجتك — الفلاتر</a> · <a href="/occasions/eid-adha-shaving">عيد الأضحى — بعد الأضحية</a></p>
         <section>
           <h2>تصفّح بالأحياء — مدن رئيسية</h2>
@@ -295,12 +300,12 @@ function renderPage({ node, nodes, isHub = false }) {
   const faqs = buildFaqs(node, city);
   const title =
     node.kind === 'neighborhood' && city
-      ? `أقرب حلاق في ${node.nameAr} | ${city.nameAr} | حلاق ماب`
-      : `أقرب حلاق في ${node.nameAr} | حلاق ماب`;
+      ? `أقرب حلاق من موقعي في ${node.nameAr} | ${city.nameAr} | حلاق ماب`
+      : `أقرب حلاق من موقعي في ${node.nameAr} | حلاق ماب`;
   const description =
     node.kind === 'neighborhood' && city
-      ? `ابدأ استعلام أقرب حلاق في حي ${node.nameAr} بمدينة ${city.nameAr} عبر منصة حلاق ماب — معالجة وفلترة لحظية للبيانات المتاحة داخل المنصة، دون أن تكون صالوناً أو دليل حجوزات.`
-      : `ابدأ استعلام أقرب حلاق في ${node.nameAr} عبر منصة حلاق ماب — معالجة وفلترة لحظية للبيانات المتاحة داخل المنصة، دون أن تكون صالوناً أو دليل حجوزات.`;
+      ? `أقرب حلاق من موقعك في حي ${node.nameAr} بمدينة ${city.nameAr} — أبي حلاق قريب، عطني أقرب حلاق، ابحث لي عن أقرب حلاق عبر حلاق ماب. فزعة بحث وليست صالوناً ولا دليل حجوزات.`
+      : `أقرب حلاق من موقعك في ${node.nameAr} — أبي حلاق قريب، عطني أقرب حلاق، ابحث لي عن أقرب حلاق عبر حلاق ماب. فزعة بحث وليست صالوناً ولا دليل حجوزات.`;
   const canonical = absoluteUrl(path);
   const cta = `${ORIGIN}/#/?near=${encodeURIComponent([...node.parentSlugs, node.slug].join('/'))}`;
 
@@ -367,20 +372,21 @@ function renderPage({ node, nodes, isHub = false }) {
 
   const lead =
     node.kind === 'neighborhood' && city
-      ? `<p class="lead">هذه فزعة من <strong>حلاق ماب</strong> لمن يبحث عن حلاق في حي <strong>${escapeHtml(node.nameAr)}</strong> بمدينة <strong>${escapeHtml(city.nameAr)}</strong>. المنصة تطبيق ويب للاستعلام والعرض الرقمي — وليست منشأة حلاقة في الحي.</p>
-      <p>اضغط الزر أدناه لبدء الاستعلام داخل التطبيق حول نطاق حي ${escapeHtml(node.nameAr)}. تُعرض النتائج وفق البيانات المتاحة من الشركاء المفعّلين لحظة الاستعلام.</p>`
-      : `<p class="lead">هذه فزعة من <strong>حلاق ماب</strong> لمن يبحث عن أقرب حلاق في <strong>${escapeHtml(node.nameAr)}</strong> أو بما يوافق رغبته في محيطه. المنصة تطبيق ويب للاستعلام والعرض الرقمي — وليست منشأة حلاقة.</p>
-      <p>اضغط الزر أدناه لبدء الاستعلام داخل التطبيق حول نطاق ${escapeHtml(node.nameAr)}. تُعرض النتائج وفق البيانات المتاحة من الشركاء المفعّلين لحظة الاستعلام.</p>
+      ? `<p class="lead">هذه فزعة من <strong>حلاق ماب</strong> لمن يبحث عن <strong>أقرب حلاق من موقعه</strong> في حي <strong>${escapeHtml(node.nameAr)}</strong> بمدينة <strong>${escapeHtml(city.nameAr)}</strong>. المنصة تطبيق ويب للاستعلام والعرض الرقمي — وليست منشأة حلاقة في الحي.</p>
+      <p>سواء قلت أبي حلاق قريب أو عطني أقرب حلاق أو ابحث لي عن أقرب حلاق — اضغط الزر أدناه لبدء الاستعلام حول نطاق حي ${escapeHtml(node.nameAr)}. تُعرض النتائج وفق البيانات المتاحة من الشركاء المفعّلين لحظة الاستعلام.</p>`
+      : `<p class="lead">هذه فزعة من <strong>حلاق ماب</strong> لمن يبحث عن <strong>أقرب حلاق من موقعه</strong> في <strong>${escapeHtml(node.nameAr)}</strong> أو بما يوافق رغبته في محيطه. المنصة تطبيق ويب للاستعلام والعرض الرقمي — وليست منشأة حلاقة.</p>
+      <p>سواء قلت أبي حلاق قريب أو عطني أقرب حلاق أو ابحث لي عن أقرب حلاق — اضغط الزر أدناه لبدء الاستعلام حول نطاق ${escapeHtml(node.nameAr)}. تُعرض النتائج وفق البيانات المتاحة من الشركاء المفعّلين لحظة الاستعلام.</p>
       ${nusukNote}`;
 
   return htmlShell({
     title,
     description,
     canonical,
-    h1: `أقرب حلاق في ${node.nameAr}`,
+    h1: `أقرب حلاق من موقعي في ${node.nameAr}`,
     bodyInner: `
       <nav class="crumbs" aria-label="مسار التنقل">${crumbs.join(' <span aria-hidden="true">/</span> ')}</nav>
       ${lead}
+      ${nearSearchPhrasesSectionHtml()}
       <p class="cta-wrap"><a class="cta" href="${escapeHtml(cta)}">ابدأ الاستعلام — ${escapeHtml(node.nameAr)}</a></p>
       ${childBlock}
       <section>
@@ -413,6 +419,7 @@ function htmlShell({ title, description, canonical, h1, bodyInner, jsonLd }) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>${escapeHtml(title)}</title>
   <meta name="description" content="${escapeHtml(description)}" />
+  <meta name="keywords" content="${escapeHtml(NEAR_SEARCH_KEYWORDS_META)}" />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="${escapeHtml(canonical)}" />
   <meta property="og:title" content="${escapeHtml(title)}" />
@@ -431,6 +438,7 @@ ${brandIconLinks()}
   <script type="application/ld+json">${JSON.stringify(jsonLd)}</script>
   <style>
 ${brandHeaderCss()}
+${nearSearchPhrasesCss()}
     :root { color-scheme: dark; --bg:#061223; --card:#0c1a2e; --text:#e8eef7; --muted:#94a3b8; --accent:#2dd4bf; --line:rgba(45,212,191,.25); }
     * { box-sizing: border-box; }
     body { margin:0; font-family: "Tajawal", "Segoe UI", Tahoma, Arial, sans-serif; background: linear-gradient(180deg,#061223,#0a1f33 55%,#061223); color:var(--text); line-height:1.75; }
