@@ -323,7 +323,7 @@ function paintCard(
   }
   ctx.fillStyle = '#94a3b8';
   ctx.font = `700 28px ${FONT}`;
-  const footLines = wrapLines(ctx, 'امسح الرمز للانضمام والظهور عند الطلب', 420, 2);
+  const footLines = wrapLines(ctx, 'امسح للانضمام والظهور', 420, 2);
   let fy = qrBoxY + 150;
   for (const ln of footLines) {
     ctx.fillText(ln, W - qrPad, fy);

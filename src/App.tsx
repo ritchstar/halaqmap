@@ -6,7 +6,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Fragment, lazy, Suspense, useEffect, useState, type ReactNode } from "react";
-import { HashRouter, Routes, Route, Navigate, useLocation, Link } from "react-router-dom";
+import { HashRouter, Routes, Route, Navigate, useLocation, useParams, Link } from "react-router-dom";
 import { PlatformAmbientProvider } from "@/context/PlatformAmbientContext";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { AnalyticsRouteTracker } from "@/components/AnalyticsRouteTracker";
@@ -15,9 +15,16 @@ import { MoyasarPaymentReturnGate } from "@/components/MoyasarPaymentReturnGate"
 import { ConsumerNativeShellGate } from "@/components/consumer/ConsumerNativeShellGate";
 import { RouteScopedErrorBoundary } from "@/components/RouteScopedErrorBoundary";
 import { LEGACY_PARTNER_ROUTE_PATHS, ROUTE_PATHS } from "@/lib/routePaths";
+import { buildMapContactPartnerInterestPath } from "@/config/mapContactCardCopy";
 import { getAdminPortalBasePath, getAdminPortalBasePaths } from "@/config/adminAuth";
 import { PUBLIC_PULSE_EXPERIENCE_ENABLED } from '@/config/publicPulseExperience';
 import { AdminAuthHashGate, AdminSentinelSecurityGate } from "@/components/AdminAuthHashGate";
+
+/** اختصار /i و /i/:city → مسار اهتمام الشركاء من بطاقة تواصل ماب */
+function MapContactShortJoinRedirect() {
+  const { cityId } = useParams<{ cityId?: string }>();
+  return <Navigate to={buildMapContactPartnerInterestPath(cityId)} replace />;
+}
 
 /** لا تُحمَّل مع الرئيسية — Layout/PartnerLayout لصفحات المحتوى/الشركاء فقط */
 const Layout = lazy(() =>
@@ -404,6 +411,11 @@ export function App() {
                 <LazyRoute><PartnerInterestLanding /></LazyRoute>
               </WithPartnerLayout>
             }
+          />
+          <Route path={ROUTE_PATHS.MAP_CONTACT_JOIN_SHORT} element={<MapContactShortJoinRedirect />} />
+          <Route
+            path={`${ROUTE_PATHS.MAP_CONTACT_JOIN_SHORT}/:cityId`}
+            element={<MapContactShortJoinRedirect />}
           />
           <Route
             path={ROUTE_PATHS.BRONZE_TRIAL_APPLY}

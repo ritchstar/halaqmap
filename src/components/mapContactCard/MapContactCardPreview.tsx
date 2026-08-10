@@ -101,7 +101,7 @@ export function MapContactCardPreview({
               HALAQ MAP
             </p>
             <p className="mt-2 text-[0.6rem] leading-snug text-slate-400">
-              امسح الرمز للانضمام والظهور عند الطلب
+              🔗 امسح للانضمام والظهور
             </p>
           </div>
           <div className="shrink-0 rounded-xl bg-white p-1.5 shadow-lg">

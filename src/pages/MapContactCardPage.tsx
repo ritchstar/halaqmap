@@ -622,11 +622,11 @@ export default function MapContactCardPage() {
             </div>
 
             <p className="text-[0.7rem] leading-relaxed text-slate-500">
-              الوجهة دائماً مسار الشركاء:{' '}
-              <code className="rounded bg-white/10 px-1 break-all" dir="ltr">
-                /partners/interest?ref=map-contact-card
-              </code>
-              . المنصة ليست وسيط حجز — أنت تدعو الصالون، والعلاقة مباشرة بينكما.
+              رابط الدعوة المختصر:{' '}
+              <code className="rounded bg-white/10 px-1" dir="ltr">
+                /i/{city.id}
+              </code>{' '}
+              → مسار الشركاء. المنصة ليست وسيط حجز — أنت تدعو الصالون، والعلاقة مباشرة بينكما.
             </p>
 
             <Link

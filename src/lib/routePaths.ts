@@ -46,6 +46,8 @@ export const ROUTE_PATHS = {
   COVERAGE_SALON_NOMINATE: '/help-cover-area',
   /** بطاقة تواصل ماب — مصمّم بطاقة عضوية لإرسالها للصالون */
   MAP_CONTACT_CARD: '/map-contact-card',
+  /** اختصار دعوة الصالون من بطاقة تواصل ماب → interest */
+  MAP_CONTACT_JOIN_SHORT: '/i',
   /** طلب تجربة برونزي — طابور تقييم (ليس تسجيلاً رسمياً) */
   BRONZE_TRIAL_APPLY: '/partners/bronze-trial',
   /** تأكيد بريد طلب التجربة (?c=token) */

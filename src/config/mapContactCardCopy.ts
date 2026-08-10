@@ -85,12 +85,32 @@ export const MAP_CONTACT_WHATSAPP_INTRO_AR =
 export const MAP_CONTACT_PRIVACY_NOTE_AR =
   'لا نطلب ولا نخزّن صوراً شخصية. البطاقة تعتمد على اسم مستعار وأيقونة وختم مدينة فقط.' as const;
 
+/** مسار قصير للدعوة — يُحوَّل إلى /partners/interest?ref=map-contact-card */
+export const MAP_CONTACT_SHORT_JOIN_PATH = '/i' as const;
+
+const CITY_ID_RE = /^[a-z][a-z0-9-]{0,40}$/;
+
+function sanitizeCityId(cityId: string): string {
+  const id = cityId.trim().toLowerCase();
+  return CITY_ID_RE.test(id) ? id : '';
+}
+
+/**
+ * رابط انضمام مختصر للمشاركة ورمز QR:
+ * `https://www.halaqmap.com/i` أو `…/i/riyadh`
+ */
 export function buildMapContactPartnerUrl(origin: string, cityId: string): string {
   const base = origin.replace(/\/+$/, '');
-  const u = new URL(`${base}/partners/interest`);
-  u.searchParams.set('ref', 'map-contact-card');
-  if (cityId) u.searchParams.set('city', cityId);
-  return u.toString();
+  const city = sanitizeCityId(cityId);
+  return city ? `${base}${MAP_CONTACT_SHORT_JOIN_PATH}/${city}` : `${base}${MAP_CONTACT_SHORT_JOIN_PATH}`;
+}
+
+/** الوجهة الكاملة بعد الاختصار (للتوجيه الداخلي) */
+export function buildMapContactPartnerInterestPath(cityId?: string): string {
+  const q = new URLSearchParams({ ref: 'map-contact-card' });
+  const city = cityId ? sanitizeCityId(cityId) : '';
+  if (city) q.set('city', city);
+  return `/partners/interest?${q.toString()}`;
 }
 
 export function buildMapContactWhatsAppText(opts: {
@@ -103,11 +123,12 @@ export function buildMapContactWhatsAppText(opts: {
   return [
     MAP_CONTACT_WHATSAPP_INTRO_AR,
     '',
-    `من: ${alias}`,
-    `المدينة: ${opts.cityNameAr}`,
+    `👤 ${alias}`,
+    `📍 ${opts.cityNameAr}`,
     '',
     opts.message.trim(),
     '',
-    `رابط الانضمام / الظهور: ${opts.partnerUrl}`,
+    '🔗 انضموا للظهور على حلاق ماب',
+    opts.partnerUrl,
   ].join('\n');
 }
