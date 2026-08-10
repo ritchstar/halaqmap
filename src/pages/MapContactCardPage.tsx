@@ -34,10 +34,10 @@ export default function MapContactCardPage() {
 
   const cardRef = useRef<HTMLDivElement>(null);
   const [alias, setAlias] = useState('زائر ماب');
-  const [templateId, setTemplateId] = useState(MAP_CONTACT_MESSAGE_TEMPLATES[0].id);
-  const [message, setMessage] = useState(MAP_CONTACT_MESSAGE_TEMPLATES[0].textAr);
-  const [cityId, setCityId] = useState(MAP_CONTACT_CITY_SEALS[0].id);
-  const [iconId, setIconId] = useState(MAP_CONTACT_ICON_OPTIONS[0].id);
+  const [templateId, setTemplateId] = useState<string>(MAP_CONTACT_MESSAGE_TEMPLATES[0].id);
+  const [message, setMessage] = useState<string>(MAP_CONTACT_MESSAGE_TEMPLATES[0].textAr);
+  const [cityId, setCityId] = useState<string>(MAP_CONTACT_CITY_SEALS[0].id);
+  const [iconId, setIconId] = useState<string>(MAP_CONTACT_ICON_OPTIONS[0].id);
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
   const [busy, setBusy] = useState<'save' | 'share' | null>(null);
 
