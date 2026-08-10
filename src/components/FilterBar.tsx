@@ -7,8 +7,9 @@
  */
 
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { RotateCcw, Star, SlidersHorizontal, ChevronDown, MapPin, Clock, Crown } from 'lucide-react';
+import { RotateCcw, Star, SlidersHorizontal, ChevronDown, MapPin, Clock, Crown, IdCard } from 'lucide-react';
 import { FilterState, SubscriptionTier } from '@/lib/index';
 import { DEFAULT_VISITOR_SEARCH_RADIUS_KM } from '@/lib/visitorServiceIntents';
 import { SaudiBishtIcon } from '@/components/icons/SaudiBishtIcon';
@@ -16,6 +17,8 @@ import { ChildrenSpecialistIcon } from '@/components/icons/ChildrenSpecialistIco
 import { CHILDREN_SPECIALIST_FILTER_LABEL_AR } from '@/lib/childrenSpecialistDisplay';
 import { MENS_GROOMING_CENTER_FILTER_LABEL_AR } from '@/lib/mensGroomingCenterDisplay';
 import { OPEN_24H_FILTER_ID } from '@/lib/barberCategoryLexicon';
+import { MAP_CONTACT_CARD_FILTER_LABEL_AR } from '@/config/mapContactCardCopy';
+import { ROUTE_PATHS } from '@/lib/routePaths';
 
 interface FilterBarProps {
   filters: FilterState;
@@ -164,6 +167,15 @@ export function FilterBar({ filters, onFilterChange, defaultExpanded = false }: 
           />
           مفتوح الآن
         </button>
+
+        <Link
+          to={ROUTE_PATHS.MAP_CONTACT_CARD}
+          className="flex items-center gap-1.5 rounded-full border border-teal-400/45 bg-teal-500/12 px-3 py-1.5 text-[0.7rem] font-semibold text-teal-100 transition-all hover:border-teal-300/70 hover:bg-teal-500/20"
+          aria-label={MAP_CONTACT_CARD_FILTER_LABEL_AR}
+        >
+          <IdCard className="h-3.5 w-3.5" />
+          {MAP_CONTACT_CARD_FILTER_LABEL_AR}
+        </Link>
 
         {/* Active tiers */}
         {TIERS.filter((t) => filters.tiers.includes(t.id)).map((t) => (

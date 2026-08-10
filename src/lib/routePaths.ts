@@ -44,6 +44,8 @@ export const ROUTE_PATHS = {
    * لا يظهر في نتائج البحث؛ يُحال لملف تسويقي في لوحة التحكم.
    */
   COVERAGE_SALON_NOMINATE: '/help-cover-area',
+  /** بطاقة تواصل ماب — مصمّم بطاقة عضوية لإرسالها للصالون */
+  MAP_CONTACT_CARD: '/map-contact-card',
   /** طلب تجربة برونزي — طابور تقييم (ليس تسجيلاً رسمياً) */
   BRONZE_TRIAL_APPLY: '/partners/bronze-trial',
   /** تأكيد بريد طلب التجربة (?c=token) */

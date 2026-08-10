@@ -89,6 +89,7 @@ const GrowthPitchDeckPage = lazy(() => import("@/pages/GrowthPitchDeckPage"));
 const PlatformDiscoverLandingPage = lazy(() => import("@/pages/PlatformDiscoverLandingPage"));
 const PartnerInterestLanding = lazy(() => import("@/pages/PartnerInterestLanding"));
 const CoverageSalonNominatePage = lazy(() => import("@/pages/CoverageSalonNominatePage"));
+const MapContactCardPage = lazy(() => import("@/pages/MapContactCardPage"));
 const BronzeTrialApplyLanding = lazy(() => import("@/pages/BronzeTrialApplyLanding"));
 const BronzeTrialConfirmLanding = lazy(() => import("@/pages/BronzeTrialConfirmLanding"));
 const PartnerWhyPage = lazy(() => import("@/pages/PartnerWhyPage"));
@@ -346,6 +347,10 @@ export function App() {
           <Route
             path={ROUTE_PATHS.COVERAGE_SALON_NOMINATE}
             element={<LazyRoute><CoverageSalonNominatePage /></LazyRoute>}
+          />
+          <Route
+            path={ROUTE_PATHS.MAP_CONTACT_CARD}
+            element={<LazyRoute><MapContactCardPage /></LazyRoute>}
           />
           <Route path={ROUTE_PATHS.ABOUT} element={<WithPublicLayout><LazyRoute><About /></LazyRoute></WithPublicLayout>} />
           {/**

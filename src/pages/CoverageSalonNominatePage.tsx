@@ -132,7 +132,13 @@ export default function CoverageSalonNominatePage() {
             مساعدة التغطية
           </div>
           <h1 className="mb-3 text-2xl font-black text-white sm:text-3xl">{COVERAGE_NOMINATE_TITLE_AR}</h1>
-          <p className="mb-8 text-sm leading-7 text-slate-400">{COVERAGE_NOMINATE_LEAD_AR}</p>
+          <p className="mb-4 text-sm leading-7 text-slate-400">{COVERAGE_NOMINATE_LEAD_AR}</p>
+          <Link
+            to={ROUTE_PATHS.MAP_CONTACT_CARD}
+            className="mb-8 inline-flex text-sm font-bold text-teal-300 hover:text-teal-200"
+          >
+            أو صمّم بطاقة تواصل ماب وأرسلها لصالونك ←
+          </Link>
         </motion.div>
 
         {step === 'inside' ? (

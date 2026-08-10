@@ -9,6 +9,7 @@ import { BarberMap } from '@/components/BarberMap';
 import { BarberCard } from '@/components/BarberCards';
 import { ShowcaseEducationBanner } from '@/components/ShowcaseEducationBanner';
 import { CoverageNominateCta } from '@/components/CoverageNominateCta';
+import { MapContactCardCta } from '@/components/MapContactCardCta';
 import { VisitorMobileQueryLens } from '@/components/landing/VisitorMobileQueryLens';
 import { isSupabaseConfigured } from '@/integrations/supabase/client';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -85,6 +86,7 @@ export function LandingSearchResults({
               />
             </motion.div>
             <CoverageNominateCta />
+            <MapContactCardCta />
           </div>
         </>
       ) : (
@@ -102,6 +104,12 @@ export function LandingSearchResults({
                 {remoteStatus === 'loading' ? 'جارٍ عرض الخدمات المتاحة…' : 'لا نتائج متاحة في هذا النطاق'}
               </h3>
               <p className="text-sm text-slate-400">جرّب توسيع نطاق البحث من شريط الفلاتر أعلاه</p>
+              {remoteStatus !== 'loading' ? (
+                <div className="mx-auto mt-6 max-w-lg text-right">
+                  <CoverageNominateCta />
+                  <MapContactCardCta />
+                </div>
+              ) : null}
             </div>
           ) : (
             <>

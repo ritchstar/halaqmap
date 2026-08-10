@@ -42,6 +42,7 @@ export function brandHeaderHtml() {
       <a class="fazaa-chip" href="${ORIGIN}/#/">ابدأ الاستعلام</a>
       <a class="fazaa-chip" href="/near">اختر مدينتك</a>
       <a class="fazaa-chip" href="/need">حسب حاجتك</a>
+      <a class="fazaa-chip" href="${ORIGIN}/#/map-contact-card">بطاقة تواصل ماب</a>
     </nav>`;
 }
 

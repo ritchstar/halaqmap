@@ -18,6 +18,7 @@ import { resolveShowcaseForEmptyDisplay } from '@/lib/platformShowcaseRemote';
 import { useShowcaseWhenSearchEmpty } from '@/lib/useShowcaseWhenSearchEmpty';
 import { ShowcaseEducationBanner } from '@/components/ShowcaseEducationBanner';
 import { CoverageNominateCta } from '@/components/CoverageNominateCta';
+import { MapContactCardCta } from '@/components/MapContactCardCta';
 import { toast } from '@/components/ui/sonner';
 import { getSiteOrigin } from '@/config/siteOrigin';
 import {
@@ -549,6 +550,7 @@ export default function Home() {
                       />
                     </motion.div>
                     <CoverageNominateCta />
+                    <MapContactCardCta />
                   </div>
                 </div>
               </>
@@ -576,6 +578,10 @@ export default function Home() {
                   {['تأكد من أن الاستعلام بدأ بشكل صحيح', 'قم بزيادة نطاق البحث من شريط الفلاتر', 'ألغِ فلتر «مفتوح الآن» إذا كان مفعّلاً', 'جرّب إلغاء فلتر الباقة لرؤية المزيد'].map((tip) => (
                     <p key={tip} className="text-sm text-slate-400">• {tip}</p>
                   ))}
+                </div>
+                <div className="mx-auto mt-6 max-w-lg">
+                  <CoverageNominateCta />
+                  <MapContactCardCta />
                 </div>
               </motion.div>
             ) : (
