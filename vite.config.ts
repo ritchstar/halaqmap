@@ -331,6 +331,7 @@ export default defineConfig(({ mode }) => {
         manifestFilename: 'manifest.json',
         manifest: webAppManifest,
         includeAssets: [
+          'favicon.ico',
           'favicon.svg',
           'favicon.png',
           'favicon-32.png',

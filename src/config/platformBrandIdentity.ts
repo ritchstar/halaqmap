@@ -17,7 +17,7 @@ export const PLATFORM_BRAND_LOGO_PATH = '/images/halaqmap_logo_refined.png' as c
 export const PLATFORM_BRAND_LOGO_ABSOLUTE =
   'https://www.halaqmap.com/images/halaqmap_logo_refined.png' as const;
 /** كسر كاش الأيقونة عند التحديث (Google/المتصفح يعيدان جلب الـ favicon ببطء) */
-export const PLATFORM_BRAND_ICON_VERSION = '20260810' as const;
+export const PLATFORM_BRAND_ICON_VERSION = '20260811' as const;
 
 /** أبرز عبارات بحث لصفحات فزعة في الواجهة */
 export const PLATFORM_NEAR_SEARCH_PHRASES_AR = [

@@ -33,6 +33,9 @@
 :root {
   /* Typography */
   --font-sans: 'Tajawal', 'IBM Plex Sans Arabic', system-ui, -apple-system, sans-serif;
+  /* عرض عربي فاخر + لاتيني مميّز لهوية HALAQ MAP */
+  --font-display-ar: 'El Messiri', 'Tajawal', 'IBM Plex Sans Arabic', system-ui, sans-serif;
+  --font-brand-en: 'Syne', 'Outfit', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', 'Courier New', monospace;
   
   /* Radius */

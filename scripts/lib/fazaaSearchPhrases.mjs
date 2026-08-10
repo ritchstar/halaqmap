@@ -123,7 +123,7 @@ export function fazaaSearchPhrasesCss() {
       border:1px solid rgba(251,191,36,.35);
       background:rgba(245,158,11,.1);
       color:#fde68a;
-      font-family:"Tajawal",sans-serif;
+      font-family:"IBM Plex Sans Arabic","Segoe UI",sans-serif;
       font-weight:700;
       font-size:.82rem;
     }`;

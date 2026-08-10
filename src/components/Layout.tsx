@@ -118,11 +118,15 @@ export function Layout({ children }: LayoutProps) {
                 />
               </motion.div>
               <div className="flex flex-col justify-center leading-tight gap-0.5">
-                <span className="text-lg font-black tracking-tight bg-gradient-to-l from-teal-300 via-cyan-400 to-amber-300 bg-clip-text text-transparent">
+                <span
+                  className="text-lg font-bold tracking-tight bg-gradient-to-l from-teal-300 via-cyan-400 to-amber-300 bg-clip-text text-transparent"
+                  style={{ fontFamily: 'var(--font-display-ar)' }}
+                >
                   حلاق ماب
                 </span>
                 <span
-                  className="text-[0.65rem] font-extrabold uppercase tracking-[0.16em] text-slate-400"
+                  className="text-[0.65rem] font-extrabold uppercase tracking-[0.22em] text-teal-300/80"
+                  style={{ fontFamily: 'var(--font-brand-en)' }}
                   dir="ltr"
                 >
                   HALAQ MAP
@@ -232,11 +236,15 @@ export function Layout({ children }: LayoutProps) {
                   className="h-11 w-11 shrink-0 rounded-2xl ring-2 ring-teal-400/25 ring-offset-1 ring-offset-[#020912] shadow-[0_0_20px_rgba(20,184,166,0.15)]"
                 />
                 <div className="flex flex-col justify-center leading-tight gap-0.5">
-                  <span className="text-base font-black tracking-tight bg-gradient-to-l from-teal-300 via-cyan-400 to-amber-300 bg-clip-text text-transparent">
+                  <span
+                    className="text-base font-bold tracking-tight bg-gradient-to-l from-teal-300 via-cyan-400 to-amber-300 bg-clip-text text-transparent"
+                    style={{ fontFamily: 'var(--font-display-ar)' }}
+                  >
                     حلاق ماب
                   </span>
                   <span
-                    className="text-[0.62rem] font-extrabold uppercase tracking-[0.16em] text-slate-400"
+                    className="text-[0.62rem] font-extrabold uppercase tracking-[0.22em] text-teal-300/80"
+                    style={{ fontFamily: 'var(--font-brand-en)' }}
                     dir="ltr"
                   >
                     HALAQ MAP

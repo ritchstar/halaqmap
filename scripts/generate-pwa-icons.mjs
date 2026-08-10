@@ -90,10 +90,39 @@ for (const [folder, dims] of Object.entries(launcher)) {
   await sharp(await logoMaskable(dims.maskable, 0.12)).toFile(join(dir, 'ic_maskable.png'));
 }
 
-/** أيقونة متصفح: الشعار كاملاً على خلفية فيروزية (بدون اقتصاص غلاف) */
+/**
+ * أيقونة متصفح: قصّ على دبوس البوصلة (بدون كلمة HalaqMap السفلية)
+ * حتى تبقى واضحة في نتائج Google بمقاس 16–48px.
+ */
 async function logoFavicon(size) {
-  return sharp(sourcePath)
-    .resize(size, size, { fit: 'contain', background: TEAL })
+  const meta = await sharp(sourcePath).metadata();
+  const w = meta.width || 512;
+  const h = meta.height || 512;
+  const crop = Math.round(Math.min(w, h) * 0.78);
+  const left = Math.max(0, Math.round((w - crop) / 2));
+  const top = Math.max(0, Math.round(h * 0.06));
+  const mark = await sharp(sourcePath)
+    .extract({
+      left,
+      top: Math.min(top, Math.max(0, h - crop)),
+      width: Math.min(crop, w - left),
+      height: Math.min(crop, h - Math.min(top, Math.max(0, h - crop))),
+    })
+    .resize(size, size, { fit: 'cover', position: 'centre' })
+    .png()
+    .toBuffer();
+
+  const pad = Math.max(1, Math.round(size * 0.06));
+  const inner = Math.max(1, size - pad * 2);
+  const innerBuf = await sharp(mark)
+    .resize(inner, inner, { fit: 'contain', background: TEAL })
+    .png()
+    .toBuffer();
+
+  return sharp({
+    create: { width: size, height: size, channels: 4, background: TEAL },
+  })
+    .composite([{ input: innerBuf, gravity: 'centre' }])
     .png()
     .toBuffer();
 }
@@ -117,7 +146,40 @@ const svgFavicon = `<?xml version="1.0" encoding="UTF-8"?>
 `;
 await writeFile(join(root, 'public', 'favicon.svg'), svgFavicon, 'utf8');
 
+/**
+ * ICO متعدد المقاسات (PNG داخل ICO) — مسار Google الكلاسيكي `/favicon.ico`.
+ * غياب الملف يُبقي أيقونة قديمة في نتائج البحث حتى بعد تحديث PNG/SVG.
+ */
+function packPngsToIco(pngEntries) {
+  const count = pngEntries.length;
+  const headerSize = 6 + count * 16;
+  let offset = headerSize;
+  const dir = Buffer.alloc(headerSize);
+  dir.writeUInt16LE(0, 0);
+  dir.writeUInt16LE(1, 2);
+  dir.writeUInt16LE(count, 4);
+  for (let i = 0; i < count; i++) {
+    const { size, png } = pngEntries[i];
+    const entry = 6 + i * 16;
+    dir.writeUInt8(size >= 256 ? 0 : size, entry);
+    dir.writeUInt8(size >= 256 ? 0 : size, entry + 1);
+    dir.writeUInt8(0, entry + 2);
+    dir.writeUInt8(0, entry + 3);
+    dir.writeUInt16LE(1, entry + 4);
+    dir.writeUInt16LE(32, entry + 6);
+    dir.writeUInt32LE(png.length, entry + 8);
+    dir.writeUInt32LE(offset, entry + 12);
+    offset += png.length;
+  }
+  return Buffer.concat([dir, ...pngEntries.map((e) => e.png)]);
+}
+
+const icoPngs = await Promise.all(
+  [16, 32, 48].map(async (size) => ({ size, png: await logoFavicon(size) })),
+);
+await writeFile(join(root, 'public', 'favicon.ico'), packPngsToIco(icoPngs));
+
 /** استبدال ملف الشعار القديم بنفس الشعار الجديد حتى لا يظهر في أي صفحة */
 await copyFile(sourcePath, legacyLogoPath);
 
-console.log('Official HalaqMap logo applied to PWA icons, favicon, splash, and Android launcher assets.');
+console.log('Official HalaqMap logo applied to PWA icons, favicon.ico, splash, and Android launcher assets.');

@@ -11,6 +11,7 @@ import {
   brandHeaderCss,
   brandHeaderHtml,
   brandIconLinks,
+  brandPageTypeCss,
   nearSearchPhrasesCss,
   nearSearchPhrasesSectionHtml,
 } from './lib/platformBrandIdentity.mjs';
@@ -140,12 +141,9 @@ ${brandHeaderCss()}
 ${nearSearchPhrasesCss()}
     :root { color-scheme: dark; --card:#0c1a2e; --text:#e8eef7; --muted:#94a3b8; --accent:#2dd4bf; --amber:#fbbf24; --line:rgba(45,212,191,.25); --rose:rgba(251,113,133,.35); }
     * { box-sizing: border-box; }
-    body { margin:0; font-family: "Tajawal", "Segoe UI", Tahoma, Arial, sans-serif; background: linear-gradient(180deg,#120a06,#0a1f33 40%,#061223 100%); color:var(--text); line-height:1.8; }
+${brandPageTypeCss('linear-gradient(180deg,#120a06,#0a1f33 40%,#061223 100%)')}
     .wrap { max-width: 44rem; margin: 0 auto; padding: 1.5rem 1.15rem 3rem; }
     .badge { display:inline-block; color:var(--amber); font-weight:800; font-size:.9rem; margin-bottom:.5rem; }
-    h1 { font-size: clamp(1.55rem, 4.2vw, 2.15rem); line-height:1.35; margin: .35rem 0 1rem; font-weight:900; }
-    h2 { font-size:1.12rem; margin: 1.65rem 0 .7rem; color:var(--accent); }
-    .lead { font-size:1.05rem; }
     .note { color:var(--muted); font-size:.95rem; }
     .crumbs { font-size:.9rem; color:var(--muted); margin-bottom:1rem; }
     .crumbs a { color:var(--accent); }
