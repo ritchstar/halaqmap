@@ -304,8 +304,8 @@ function renderPage({ node, nodes, isHub = false }) {
       : `أقرب حلاق من موقعي في ${node.nameAr} | حلاق ماب`;
   const description =
     node.kind === 'neighborhood' && city
-      ? `أقرب حلاق من موقعك في حي ${node.nameAr} بمدينة ${city.nameAr} — أبي حلاق قريب، عطني أقرب حلاق، ابحث لي عن أقرب حلاق عبر حلاق ماب. فزعة بحث وليست صالوناً ولا دليل حجوزات.`
-      : `أقرب حلاق من موقعك في ${node.nameAr} — أبي حلاق قريب، عطني أقرب حلاق، ابحث لي عن أقرب حلاق عبر حلاق ماب. فزعة بحث وليست صالوناً ولا دليل حجوزات.`;
+      ? `أفضل حلاقين بالقرب مني في حي ${node.nameAr} بمدينة ${city.nameAr} — أقرب حلاق من موقعي، صالون قريب، أقرب صالون حولي عبر حلاق ماب. فزعة بحث وليست صالوناً ولا دليل حجوزات.`
+      : `أفضل حلاقين بالقرب مني في ${node.nameAr} — أقرب حلاق من موقعي، صالون قريب، أقرب صالون حولي، عطني أقرب صالون من موقعي عبر حلاق ماب. فزعة بحث وليست صالوناً ولا دليل حجوزات.`;
   const canonical = absoluteUrl(path);
   const cta = `${ORIGIN}/#/?near=${encodeURIComponent([...node.parentSlugs, node.slug].join('/'))}`;
 
@@ -386,7 +386,7 @@ function renderPage({ node, nodes, isHub = false }) {
     bodyInner: `
       <nav class="crumbs" aria-label="مسار التنقل">${crumbs.join(' <span aria-hidden="true">/</span> ')}</nav>
       ${lead}
-      ${nearSearchPhrasesSectionHtml()}
+      ${nearSearchPhrasesSectionHtml({ compact: true })}
       <p class="cta-wrap"><a class="cta" href="${escapeHtml(cta)}">ابدأ الاستعلام — ${escapeHtml(node.nameAr)}</a></p>
       ${childBlock}
       <section>

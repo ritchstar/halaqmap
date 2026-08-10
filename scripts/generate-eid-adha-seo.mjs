@@ -190,7 +190,7 @@ function renderHub() {
     h1: 'فزعة — مناسبات الحلاقة وأوقات الزحام',
     bodyInner: `
       <p class="lead">فزعات من <strong>حلاق ماب</strong> لمن يبحث عن <strong>أقرب حلاق من موقعه</strong> في أوقات الذروة — موسمية أو أسبوعية — ثم يبدأ الاستعلام داخل المنصة.</p>
-      ${nearSearchPhrasesSectionHtml()}
+      ${nearSearchPhrasesSectionHtml({ compact: true })}
       <ul class="grid">
         <li><a href="${FRIDAY_PAGE}">تحضير الجمعة — قبل الصلاة وليلة الخميس</a></li>
         <li><a href="${RAMADAN_PAGE}">رمضان — حلاق الليل وبعد التراويح</a></li>

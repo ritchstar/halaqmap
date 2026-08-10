@@ -108,49 +108,10 @@ export function fazaaFromBrand(suffix = '') {
   return suffix ? `${base} ${suffix}` : base;
 }
 
-/**
- * عبارات بحث تنافسية لصفحات فزعة (أقرب حلاق من موقعي وما شابه).
- * تُدرج كنص طبيعي + كلمات مفتاحية — ليست قائمة حشو فقط.
- */
-export const NEAR_SEARCH_PHRASES_AR = [
-  'أقرب حلاق من موقعي',
-  'أبي حلاق قريب',
-  'عطني أقرب حلاق',
-  'ابحث لي عن أقرب حلاق',
-  'أقرب حلاق',
-  'حلاق قريب',
-];
-
-export const NEAR_SEARCH_KEYWORDS_META = NEAR_SEARCH_PHRASES_AR.join(', ');
-
-/** فقرة وصف قصيرة تدمج العبارات */
-export const NEAR_SEARCH_BLURB_AR =
-  'إن كنت تبحث عن أقرب حلاق من موقعك، أو تقول أبي حلاق قريب، أو عطني أقرب حلاق، أو ابحث لي عن أقرب حلاق — فزعة حلاق ماب تبدأ استعلاماً لحظياً ضمن البيانات المتاحة على المنصة.';
-
-/** قسم HTML قابل لإعادة الاستخدام في صفحات فزعة */
-export function nearSearchPhrasesSectionHtml() {
-  const chips = NEAR_SEARCH_PHRASES_AR.map(
-    (p) => `<li><span class="phrase-chip">${p}</span></li>`,
-  ).join('\n');
-  return `<section class="near-phrases" aria-label="عبارات البحث الشائعة">
-      <h2>تبحث عن أقرب حلاق من موقعك؟</h2>
-      <p class="note">${NEAR_SEARCH_BLURB_AR}</p>
-      <ul class="phrase-grid">${chips}</ul>
-    </section>`;
-}
-
-export function nearSearchPhrasesCss() {
-  return `    .near-phrases { margin: 1.5rem 0 0.5rem; }
-    .phrase-grid { list-style:none; padding:0; margin:.85rem 0 0; display:flex; flex-wrap:wrap; gap:.5rem; }
-    .phrase-chip {
-      display:inline-block;
-      padding:.4rem .75rem;
-      border-radius:999px;
-      border:1px solid rgba(251,191,36,.35);
-      background:rgba(245,158,11,.1);
-      color:#fde68a;
-      font-family:"Tajawal",sans-serif;
-      font-weight:700;
-      font-size:.82rem;
-    }`;
-}
+export {
+  FAZAA_ALL_SEARCH_PHRASES as NEAR_SEARCH_PHRASES_AR,
+  FAZAA_SEARCH_KEYWORDS_META as NEAR_SEARCH_KEYWORDS_META,
+  FAZAA_SEARCH_BLURB_AR as NEAR_SEARCH_BLURB_AR,
+  fazaaSearchPhrasesSectionHtml as nearSearchPhrasesSectionHtml,
+  fazaaSearchPhrasesCss as nearSearchPhrasesCss,
+} from './fazaaSearchPhrases.mjs';

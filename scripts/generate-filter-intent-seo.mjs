@@ -229,7 +229,7 @@ function renderPage(page) {
       <p>${escapeHtml(page.body)}</p>
       <div class="card"><p class="note">${escapeHtml(page.filterNote)}</p></div>
       <p>${aliases}</p>
-      ${nearSearchPhrasesSectionHtml()}
+      ${nearSearchPhrasesSectionHtml({ compact: true })}
       <p class="cta-wrap" style="margin:1.5rem 0"><a class="cta" href="${escapeHtml(cta)}">ابدأ الاستعلام — ${escapeHtml(page.h1)}</a></p>
       ${renderRelatedNearLinks(page)}
       <section>
