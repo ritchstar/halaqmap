@@ -11,7 +11,7 @@ export const MOBILE_SAFE_BOTTOM_MIN = 'pb-[max(1rem,env(safe-area-inset-bottom,0
 
 /** Fixed bottom dock with query lens — LandingPreview mobile (filters + CTA) */
 export const MOBILE_QUERY_DOCK_CLEARANCE =
-  'pb-[calc(14rem+env(safe-area-inset-bottom,0px))]';
+  'pb-[calc(12rem+env(safe-area-inset-bottom,0px))]';
 
 /** Legacy dock clearance (simple search bar) — keep independent of partner nav */
 export const MOBILE_DOCK_CLEARANCE =

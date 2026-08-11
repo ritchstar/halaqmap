@@ -140,6 +140,10 @@ export function LandingSearchResults({
                   </motion.div>
                 ))}
               </div>
+              <div className="mx-auto mt-8 max-w-lg">
+                <CoverageNominateCta />
+                <MapContactCardCta />
+              </div>
             </>
           )}
         </div>

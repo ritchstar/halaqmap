@@ -4,8 +4,8 @@
 /**
  * عدسة الاستعلام — فلاتر الجوال مدمجة مع زر البحث (بلا تمرير أفقي).
  * أساس: 3 خيارات شائعة | تخصّص: 4 خيارات أدق — كلها ظاهرة دفعة واحدة.
+ * بطاقة تواصل ماب تُعرض في شريط الفلاتر وأسفل نتائج البحث فقط (ليس هنا).
  */
-import { Link } from 'react-router-dom';
 import type { FilterState } from '@/lib/index';
 import {
   VISITOR_SERVICE_INTENTS,
@@ -20,8 +20,6 @@ import {
   VISITOR_MOBILE_QUERY_PRIMARY_AR,
   VISITOR_MOBILE_QUERY_REFINE_AR,
 } from '@/config/visitorLandingCopy';
-import { MAP_CONTACT_CARD_FILTER_LABEL_AR } from '@/config/mapContactCardCopy';
-import { ROUTE_PATHS } from '@/lib/routePaths';
 import { cn } from '@/lib/utils';
 
 const INTENT_BY_ID = Object.fromEntries(
@@ -146,14 +144,6 @@ export function VisitorMobileQueryLens({ filters, hasLocation, onIntentChange }:
           })}
         </div>
       </div>
-
-      <Link
-        to={ROUTE_PATHS.MAP_CONTACT_CARD}
-        className="flex items-center justify-center gap-1.5 rounded-xl border border-teal-400/35 bg-teal-500/10 px-2 py-2 text-[0.68rem] font-black text-teal-100 transition hover:bg-teal-500/18"
-      >
-        <span aria-hidden>🪪</span>
-        {MAP_CONTACT_CARD_FILTER_LABEL_AR}
-      </Link>
     </div>
   );
 }
