@@ -124,32 +124,19 @@ export default function PartnerSalesOfficePage() {
 
     const prevRestoration = window.history.scrollRestoration;
     const resetScroll = () => {
-      topAnchorRef.current?.scrollIntoView({ block: 'start', inline: 'nearest' });
-      window.scrollTo(0, 0);
+      window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
       document.documentElement.scrollTop = 0;
       document.body.scrollTop = 0;
     };
 
     window.history.scrollRestoration = 'manual';
     resetScroll();
-
-    const raf1 = window.requestAnimationFrame(() => {
-      resetScroll();
-      window.requestAnimationFrame(resetScroll);
-    });
-    const intervalId = window.setInterval(resetScroll, 120);
-    const timeout1 = window.setTimeout(resetScroll, 120);
-    const timeout2 = window.setTimeout(resetScroll, 360);
-    const timeout3 = window.setTimeout(() => window.clearInterval(intervalId), 1100);
+    const raf = window.requestAnimationFrame(resetScroll);
     const handlePageShow = () => resetScroll();
     window.addEventListener('pageshow', handlePageShow);
 
     return () => {
-      window.cancelAnimationFrame(raf1);
-      window.clearInterval(intervalId);
-      window.clearTimeout(timeout1);
-      window.clearTimeout(timeout2);
-      window.clearTimeout(timeout3);
+      window.cancelAnimationFrame(raf);
       window.removeEventListener('pageshow', handlePageShow);
       window.history.scrollRestoration = prevRestoration;
     };

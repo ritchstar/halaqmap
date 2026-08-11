@@ -230,9 +230,9 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
   return (
     <div
       className={cn(
-        'platform-dark platform-ambient relative flex min-h-dvh flex-col bg-gradient-to-b from-[#061223] via-background to-background md:pb-0',
+        /* min-h-svh: avoid 100dvh feedback that grows the page as mobile chrome hides */
+        'platform-dark platform-ambient relative flex min-h-svh flex-col bg-gradient-to-b from-[#061223] via-background to-background',
         MOBILE_SHELL_OVERFLOW,
-        isMapCommunityPage ? 'pb-0' : MOBILE_PARTNER_NAV_CLEARANCE,
       )}
       dir="rtl"
       data-ambient-phase={effectivePhase}
@@ -548,6 +548,7 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
         className={cn(
           'b2b-nebula-scope relative z-10 min-h-0 w-full flex-1',
           isMapCommunityPage && 'flex flex-col overflow-hidden',
+          /* Single bottom clearance for fixed mobile nav — do not also pad the outer shell */
           !isMapCommunityPage && `${MOBILE_PARTNER_NAV_CLEARANCE} md:pb-0`,
         )}
       >

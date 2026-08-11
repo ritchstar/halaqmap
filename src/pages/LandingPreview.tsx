@@ -705,13 +705,17 @@ export default function LandingPreview() {
     };
   }, []);
 
-  /** بعد تحديد الموقع — فك قفل التمرير ثم الانتقال للنتائج */
+  /** بعد تحديد الموقع — فك قفل التمرير ثم الانتقال للنتائج مرة واحدة */
   useEffect(() => {
     if (!userLocation) return;
     releaseLandingScrollLock();
+    const prefersReduced =
+      typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const scrollTimer = window.setTimeout(() => {
-      requestAnimationFrame(() => {
-        resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      resultsRef.current?.scrollIntoView({
+        behavior: prefersReduced ? 'auto' : 'smooth',
+        block: 'start',
       });
     }, 120);
     return () => window.clearTimeout(scrollTimer);
@@ -789,7 +793,7 @@ export default function LandingPreview() {
   return (
     <div
       dir="rtl"
-      className="platform-dark platform-ambient relative min-h-[100dvh] overflow-x-hidden bg-[#020912] font-[Tajawal,system-ui] text-slate-100 md:min-h-screen"
+      className="platform-dark platform-ambient relative min-h-[100svh] overflow-x-hidden bg-[#020912] font-[Tajawal,system-ui] text-slate-100 md:min-h-screen"
       data-ambient-phase={effectivePhase}
       data-ambient-control={control}
     >

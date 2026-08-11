@@ -76,7 +76,7 @@ export function Layout({ children }: LayoutProps) {
 
   return (
     <div
-      className="platform-dark platform-ambient min-h-[100dvh] min-h-screen flex flex-col bg-background overflow-x-hidden"
+      className="platform-dark platform-ambient min-h-[100svh] min-h-screen flex flex-col bg-background overflow-x-hidden"
       dir="rtl"
       style={{ fontFamily: 'Tajawal, IBM Plex Sans Arabic, system-ui' }}
       data-ambient-phase={effectivePhase}
