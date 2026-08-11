@@ -1,20 +1,32 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  * عبارات بحث تنافسية لصفحات فزعة — مصدر واحد للعربية/الإنجليزية.
+ * مرتّبة حسب أداء Google Ads (عبارات البحث، يوليو–أغسطس 2026) ثم توسعة عضوية.
  */
 
-/** قرب الموقع والصالون */
+/** قرب الموقع والصالون — العبارة الأقوى أولاً من تقرير Ads */
 export const FAZAA_NEAR_SALON_PHRASES = [
+  'اقرب حلاق رجالي من موقعي',
+  'أقرب حلاق رجالي من موقعي',
+  'حلاق قريب مني',
+  'حلاق قريب من موقعي',
+  'اقرب حلاق من موقعي',
   'أقرب حلاق من موقعي',
+  'اقرب حلاق',
+  'أقرب حلاق',
+  'حلاق قريب',
+  'حلاق رجالي قريب',
+  'اقرب حلاق رجالي',
   'أبي حلاق قريب',
   'عطني أقرب حلاق',
   'ابحث لي عن أقرب حلاق',
-  'أقرب حلاق',
-  'حلاق قريب',
   'صالون قريب',
-  'صالون حلاقة',
+  'صالون حلاقة قريب',
+  'صالون حلاقه قريب من موقعي',
+  'صالون رجالي قريب من موقعي',
   'أقرب صالون حلاقة',
   'أقرب صالون حولي',
+  'اقرب صالون حلاقة من موقعي',
   'صالونات الحارة',
   'صالونات الحي',
   'اطلب صالون',
@@ -24,10 +36,28 @@ export const FAZAA_NEAR_SALON_PHRASES = [
   'عطني أقرب صالون من موقعي',
   'رقم حلاق حولي',
   'أفضل حلاقين بالقرب مني',
+  'حلاقين قريب مني',
+];
+
+/** مفتوح الآن / 24 ساعة — من تقرير Ads */
+export const FAZAA_OPEN_NOW_PHRASES = [
+  'حلاق مفتوح 24 ساعة من موقعي',
+  'أقرب حلاق مفتوح من موقعي',
+  'اقرب حلاق مفتوح من موقعي',
+  'أقرب حلاق من موقعي مفتوح الآن',
+  'حلاق قريب مني مفتوح الآن',
+  'حلاق قريب من موقعي مفتوح الآن',
+  'حلاق فاتح الان',
+  'اقرب حلاق فاتح من موقعي',
+  'حلاق مفتوح الآن',
+  'حلاق ٢٤ ساعة',
+  'حلاق 24 ساعه قريب مني',
 ];
 
 /** منزلي / متنقل / دليفري */
 export const FAZAA_HOME_MOBILE_PHRASES = [
+  'حلاق يجي البيت',
+  'حلاق رجالي يجي البيت',
   'حلاق دليفري',
   'barber delivery',
   'delivery barber',
@@ -39,6 +69,14 @@ export const FAZAA_HOME_MOBILE_PHRASES = [
   'حلاق منزلي بالرياض',
   'حلاق منزلي في الرياض',
   'حلاق أطفال منزلي',
+];
+
+/** إنجليزي قرب — من تقرير Ads */
+export const FAZAA_EN_NEAR_PHRASES = [
+  'barber near me',
+  'barber shop near me',
+  'barbershop near me',
+  'nearest barber shop to me',
 ];
 
 /** أصول شائعة في صياغة البحث (ليست فلتر جنسية في المنصة) */
@@ -67,7 +105,9 @@ export const FAZAA_BEST_NEAR_CITY_PHRASES = [
 export const FAZAA_MAKKAH_PHRASES = [
   'أقرب حلاق مكة',
   'أقرب حلاق في مكة',
+  'أقرب حلاق رجالي من موقعي مكة',
   'أقرب حلاق من موقعي مكة',
+  'حلاق قريب مني مكة',
   'صالون قريب مكة',
   'حلاق مفتوح الآن مكة',
   'صالونات رجالي مكة',
@@ -79,7 +119,9 @@ export const FAZAA_MAKKAH_PHRASES = [
 /** كل العبارات لـ meta keywords + قسم العرض */
 export const FAZAA_ALL_SEARCH_PHRASES = [
   ...FAZAA_NEAR_SALON_PHRASES,
+  ...FAZAA_OPEN_NOW_PHRASES,
   ...FAZAA_HOME_MOBILE_PHRASES,
+  ...FAZAA_EN_NEAR_PHRASES,
   ...FAZAA_ORIGIN_STYLE_PHRASES,
   ...FAZAA_BEST_NEAR_CITY_PHRASES,
   ...FAZAA_MAKKAH_PHRASES,
@@ -88,7 +130,7 @@ export const FAZAA_ALL_SEARCH_PHRASES = [
 export const FAZAA_SEARCH_KEYWORDS_META = FAZAA_ALL_SEARCH_PHRASES.join(', ');
 
 export const FAZAA_SEARCH_BLURB_AR =
-  'إن كنت تبحث عن أقرب حلاق من موقعك، أو صالون قريب، أو أقرب صالون حولي، أو حلاق دليفري وbarber delivery، أو حلاق متنقل يجيك البيت، أو حلاق أطفال منزلي، أو تقول عطني أقرب صالون من موقعي — فزعة حلاق ماب تبدأ استعلاماً لحظياً ضمن البيانات المتاحة على المنصة.';
+  'إن كنت تبحث عن اقرب حلاق رجالي من موقعي، أو حلاق قريب مني، أو أقرب حلاق من موقعي، أو حلاق مفتوح الآن و24 ساعة، أو حلاق يجي البيت، أو barber near me — فزعة حلاق ماب تبدأ استعلاماً لحظياً ضمن البيانات المتاحة على المنصة.';
 
 function chipsHtml(phrases) {
   return phrases.map((p) => `<li><span class="phrase-chip">${p}</span></li>`).join('\n');
@@ -101,23 +143,28 @@ function chipsHtml(phrases) {
 export function fazaaSearchPhrasesSectionHtml(opts = {}) {
   const compact = opts.compact === true;
   const primary = [
-    ...FAZAA_NEAR_SALON_PHRASES.slice(0, 12),
-    ...FAZAA_HOME_MOBILE_PHRASES.slice(0, 8),
+    ...FAZAA_NEAR_SALON_PHRASES.slice(0, 14),
+    ...FAZAA_OPEN_NOW_PHRASES.slice(0, 6),
+    ...FAZAA_HOME_MOBILE_PHRASES.slice(0, 4),
   ];
   if (compact) {
     return `<section class="near-phrases" aria-label="عبارات البحث الشائعة">
-      <h2>تبحث عن أقرب حلاق أو صالون قريب؟</h2>
+      <h2>تبحث عن أقرب حلاق رجالي من موقعك؟</h2>
       <p class="note">${FAZAA_SEARCH_BLURB_AR}</p>
       <ul class="phrase-grid">${chipsHtml(primary)}</ul>
     </section>`;
   }
   return `<section class="near-phrases" aria-label="عبارات البحث الشائعة">
-      <h2>تبحث عن أقرب حلاق من موقعك أو صالون قريب؟</h2>
+      <h2>تبحث عن اقرب حلاق رجالي من موقعك أو حلاق قريب مني؟</h2>
       <p class="note">${FAZAA_SEARCH_BLURB_AR}</p>
-      <h3 class="phrase-sub">قرب الموقع والصالون</h3>
+      <h3 class="phrase-sub">قرب الموقع — رجالي</h3>
       <ul class="phrase-grid">${chipsHtml(FAZAA_NEAR_SALON_PHRASES)}</ul>
+      <h3 class="phrase-sub">مفتوح الآن · 24 ساعة</h3>
+      <ul class="phrase-grid">${chipsHtml(FAZAA_OPEN_NOW_PHRASES)}</ul>
       <h3 class="phrase-sub">منزلي · متنقل · دليفري</h3>
       <ul class="phrase-grid">${chipsHtml(FAZAA_HOME_MOBILE_PHRASES)}</ul>
+      <h3 class="phrase-sub">English near me</h3>
+      <ul class="phrase-grid">${chipsHtml(FAZAA_EN_NEAR_PHRASES)}</ul>
       <h3 class="phrase-sub">صيغ بحث شائعة بالأصل أو الأسلوب</h3>
       <p class="note">هذه صيغ يكتبها الباحثون غالباً — النتائج حسب ما يعلنه الشركاء المفعّلون داخل المنصة، وليست فلتر جنسية منفصلاً.</p>
       <ul class="phrase-grid">${chipsHtml(FAZAA_ORIGIN_STYLE_PHRASES)}</ul>

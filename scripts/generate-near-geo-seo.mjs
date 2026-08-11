@@ -272,9 +272,9 @@ function renderPage({ node, nodes, isHub = false }) {
     const cities = nodes.filter((n) => n.kind === 'city').sort((a, b) => b.priority - a.priority);
     const topNeighborhoodCities = cities.slice(0, 8);
     // عنوان يبدأ بعبارات البحث التنافسية لـ «أقرب حلاق من موقعي»
-    const title = 'أقرب حلاق من موقعي حسب المدينة والحي | حلاق ماب';
+    const title = 'اقرب حلاق رجالي من موقعي حسب المدينة | حلاق ماب';
     const description =
-      'أقرب حلاق من موقعك عبر حلاق ماب: أبي حلاق قريب، عطني أقرب حلاق، صالون قريب، ابحث لي عن أقرب حلاق — اختر المدينة أو الحي وابدأ استعلاماً لحظياً من فزعة البحث.';
+      'اقرب حلاق رجالي من موقعي، حلاق قريب مني، حلاق قريب من موقعي، مفتوح الآن و24 ساعة — اختر المدينة أو الحي وابدأ استعلاماً لحظياً من فزعة حلاق ماب.';
     const canonical = `${ORIGIN}/near`;
     const cityLinks = linkList(cities);
     const makkahFeature = `<section class="card" aria-label="عمود مكة">
@@ -314,9 +314,9 @@ function renderPage({ node, nodes, isHub = false }) {
       title,
       description,
       canonical,
-      h1: 'أقرب حلاق من موقعي حسب المدينة والحي',
+      h1: 'اقرب حلاق رجالي من موقعي حسب المدينة والحي',
       bodyInner: `
-        <p class="lead"><strong>أقرب حلاق من موقعك</strong> حسب مدينتك وحيّك عبر <strong>حلاق ماب</strong> — فزعة بحث لحظي توصلك لخيارات قريبة تناسب طلبك.</p>
+        <p class="lead"><strong>اقرب حلاق رجالي من موقعك</strong> أو <strong>حلاق قريب مني</strong> حسب مدينتك وحيّك عبر <strong>حلاق ماب</strong> — فزعة بحث لحظي توصلك لخيارات قريبة تناسب طلبك.</p>
         <p class="note">اختر المدينة أدناه ثم اضغط «ابدأ الاستعلام». أو تصفّح أحياء الرياض وجدة ومكة والمدن الأخرى، أو انتقل لتفرعات الحلاق المنزلي والدليفري والأطفال.</p>
         ${makkahFeature}
         ${nearSearchPhrasesSectionHtml()}
