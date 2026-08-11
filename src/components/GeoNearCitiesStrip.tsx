@@ -41,16 +41,23 @@ export function GeoNearCitiesStrip({ className = '', variant = 'compact' }: Prop
           ))}
         </ul>
         <ul className="mt-4 flex flex-wrap gap-2">
-          {cities.map((city) => (
-            <li key={city.slug}>
-              <a
-                href={geoNearPath(city)}
-                className="inline-flex rounded-xl border border-teal-400/30 bg-background/80 px-3 py-2 text-sm font-semibold text-teal-700 transition-colors hover:border-teal-400/60 hover:bg-teal-500/10 dark:text-teal-200"
-              >
-                {city.nameAr}
-              </a>
-            </li>
-          ))}
+          {cities.map((city) => {
+            const isMakkah = city.slug === 'makkah';
+            return (
+              <li key={city.slug}>
+                <a
+                  href={geoNearPath(city)}
+                  className={
+                    isMakkah
+                      ? 'inline-flex rounded-xl border border-amber-400/45 bg-amber-500/10 px-3 py-2 text-sm font-bold text-amber-800 transition-colors hover:border-amber-400/70 hover:bg-amber-500/15 dark:text-amber-100'
+                      : 'inline-flex rounded-xl border border-teal-400/30 bg-background/80 px-3 py-2 text-sm font-semibold text-teal-700 transition-colors hover:border-teal-400/60 hover:bg-teal-500/10 dark:text-teal-200'
+                  }
+                >
+                  {isMakkah ? 'أقرب حلاق مكة' : city.nameAr}
+                </a>
+              </li>
+            );
+          })}
         </ul>
         <p className="mt-3">
           <a
@@ -64,6 +71,9 @@ export function GeoNearCitiesStrip({ className = '', variant = 'compact' }: Prop
     );
   }
 
+  const makkah = cities.find((c) => c.slug === 'makkah');
+  const rest = cities.filter((c) => c.slug !== 'makkah').slice(0, 4);
+
   return (
     <div className={className}>
       <p className="mb-2 text-[0.65rem] font-bold uppercase tracking-widest text-slate-500">
@@ -76,7 +86,15 @@ export function GeoNearCitiesStrip({ className = '', variant = 'compact' }: Prop
         >
           أبي حلاق قريب — حسب المدينة
         </a>
-        {cities.slice(0, 5).map((city) => (
+        {makkah ? (
+          <a
+            href={geoNearPath(makkah)}
+            className="text-sm font-semibold text-teal-300/90 transition-colors hover:text-teal-200"
+          >
+            أقرب حلاق مكة
+          </a>
+        ) : null}
+        {rest.map((city) => (
           <a
             key={city.slug}
             href={geoNearPath(city)}

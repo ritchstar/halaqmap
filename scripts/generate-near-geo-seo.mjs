@@ -23,6 +23,7 @@ import {
   citySeoBranchesHtml,
 } from './lib/fazaaCitySeoBranches.mjs';
 import {
+  cityPillarSectionsHtml,
   exportFazaaCityMarketingJsonList,
   getFazaaCityMarketing,
 } from './data/fazaaCityMarketingCopy.mjs';
@@ -75,6 +76,7 @@ function placeType(kind) {
 
 function sitemapPriority(node, isHub = false) {
   if (isHub) return '0.9';
+  if (node.kind === 'city' && node.slug === 'makkah') return '0.95';
   if (node.kind === 'city') return '0.85';
   if (node.kind === 'neighborhood') return '0.75';
   if (node.kind === 'direction') return '0.65';
@@ -82,6 +84,12 @@ function sitemapPriority(node, isHub = false) {
 }
 
 function buildFaqs(node, city) {
+  if (node.kind === 'city') {
+    const marketing = getFazaaCityMarketing(node.slug);
+    if (Array.isArray(marketing?.faqs) && marketing.faqs.length > 0) {
+      return marketing.faqs;
+    }
+  }
   const nameAr = node.nameAr;
   if (node.kind === 'neighborhood' && city) {
     return [
@@ -257,6 +265,11 @@ function renderPage({ node, nodes, isHub = false }) {
       'أقرب حلاق من موقعك عبر حلاق ماب: أبي حلاق قريب، عطني أقرب حلاق، صالون قريب، ابحث لي عن أقرب حلاق — اختر المدينة أو الحي وابدأ استعلاماً لحظياً من فزعة البحث.';
     const canonical = `${ORIGIN}/near`;
     const cityLinks = linkList(cities);
+    const makkahFeature = `<section class="card" aria-label="عمود مكة">
+          <h2>أقرب حلاق مكة — صفحة مخصّصة</h2>
+          <p class="lead">عمود فزعة لمكة: أقرب حلاق من موقعك، صالونات مفتوحة الآن، أحياء مثل العزيزية، وربط بمركز نسك الحج للحلق والتقصير.</p>
+          <p class="cta-wrap"><a class="cta" href="/near/makkah">افتح أقرب حلاق في مكة</a></p>
+        </section>`;
     const neighHint = topNeighborhoodCities
       .map(
         (c) =>
@@ -293,8 +306,9 @@ function renderPage({ node, nodes, isHub = false }) {
       bodyInner: `
         <p class="lead"><strong>أقرب حلاق من موقعك</strong> حسب مدينتك وحيّك عبر <strong>حلاق ماب</strong> — فزعة بحث لحظي توصلك لخيارات قريبة تناسب طلبك.</p>
         <p class="note">اختر المدينة أدناه ثم اضغط «ابدأ الاستعلام». أو تصفّح أحياء الرياض وجدة ومكة والمدن الأخرى، أو انتقل لتفرعات الحلاق المنزلي والدليفري والأطفال.</p>
+        ${makkahFeature}
         ${nearSearchPhrasesSectionHtml()}
-        <p class="note"><a href="/nusuk">مركز نسك الحج — الحلق والتقصير للحجاج</a> · <a href="/need">ابحث حسب حاجتك — الفلاتر</a> · <a href="/occasions/eid-adha-shaving">عيد الأضحى — بعد الأضحية</a></p>
+        <p class="note"><a href="/near/makkah">أقرب حلاق مكة</a> · <a href="/nusuk">مركز نسك الحج — الحلق والتقصير للحجاج</a> · <a href="/need">ابحث حسب حاجتك — الفلاتر</a> · <a href="/occasions/eid-adha-shaving">عيد الأضحى — بعد الأضحية</a></p>
         <section>
           <h2>تصفّح بالأحياء — مدن رئيسية</h2>
           <ul class="grid">${neighHint}</ul>
@@ -386,28 +400,40 @@ function renderPage({ node, nodes, isHub = false }) {
 
   const isHajjCity =
     node.kind === 'city' && (node.slug === 'makkah' || node.slug === 'madinah');
+  const isMakkahPillar = Boolean(cityMarketing?.pillar && node.slug === 'makkah');
   const nusukNote = isHajjCity
     ? `<p class="note"><a href="/nusuk">مركز نسك الحج — الحلق والتقصير</a> للحجاج والزوار في ${escapeHtml(node.nameAr)}.</p>`
     : '';
 
   const citySlugForBranches =
     node.kind === 'city' ? node.slug : city?.slug || undefined;
-  const branches = citySeoBranchesHtml({
-    placeNameAr: node.nameAr,
-    citySlug: citySlugForBranches,
-    cityNameAr: city?.nameAr || node.nameAr,
-    isNeighborhood: node.kind === 'neighborhood',
-  });
+  const branches = isMakkahPillar
+    ? ''
+    : citySeoBranchesHtml({
+        placeNameAr: node.nameAr,
+        citySlug: citySlugForBranches,
+        cityNameAr: city?.nameAr || node.nameAr,
+        isNeighborhood: node.kind === 'neighborhood',
+      });
+  const pillarSections = isMakkahPillar
+    ? cityPillarSectionsHtml({ marketing: cityMarketing })
+    : '';
 
-  const lead = cityMarketing
+  const lead = isMakkahPillar
     ? `<p class="lead">${escapeHtml(cityMarketing.content_paragraph)}</p>
+      <h2>${escapeHtml(cityMarketing.h2)}</h2>
+      <p>ابدأ فزعة <strong>حلاق ماب</strong> لنطاق <strong>مكة</strong>: أقرب حلاق من موقعك، صالون قريب، مفتوح الآن، أو تصفّح الأحياء — ثم اتصل بالصالون مباشرة.</p>
+      ${nusukNote}`
+    : cityMarketing
+      ? `<p class="lead">${escapeHtml(cityMarketing.content_paragraph)}</p>
       <h2>${escapeHtml(cityMarketing.h2)}</h2>
       <p>ابدأ من فزعة <strong>حلاق ماب</strong> في ${escapeHtml(node.nameAr)}: أقرب حلاق من موقعك، صالون قريب، أقرب صالون حولي، أو حلاق منزلي ودليفري — ثم اتصل بالصالون مباشرة.</p>
       ${nusukNote}`
-    : node.kind === 'neighborhood' && city
-      ? `<p class="lead">فزعة <strong>حلاق ماب</strong> لمن يبحث عن <strong>أقرب حلاق من موقعه</strong> في حي <strong>${escapeHtml(node.nameAr)}</strong> بمدينة <strong>${escapeHtml(city.nameAr)}</strong> — صالون قريب، أقرب صالون حولي، أو حلاق منزلي حسب طلبك.</p>
-      <p>سواء قلت أبي حلاق قريب أو عطني أقرب حلاق أو ابحث لي عن أقرب حلاق — اضغط الزر أدناه لبدء الاستعلام حول نطاق حي ${escapeHtml(node.nameAr)}.</p>`
-      : `<p class="lead">فزعة <strong>حلاق ماب</strong> لمن يبحث عن <strong>أقرب حلاق من موقعه</strong> في <strong>${escapeHtml(node.nameAr)}</strong> — أفضل حلاقين بالقرب منك، صالون قريب، أو حلول منزلية ودليفري.</p>
+      : node.kind === 'neighborhood' && city
+        ? `<p class="lead">فزعة <strong>حلاق ماب</strong> لمن يبحث عن <strong>أقرب حلاق من موقعه</strong> في حي <strong>${escapeHtml(node.nameAr)}</strong> بمدينة <strong>${escapeHtml(city.nameAr)}</strong> — صالون قريب، أقرب صالون حولي، أو حلاق منزلي حسب طلبك.</p>
+      <p>سواء قلت أبي حلاق قريب أو عطني أقرب حلاق أو ابحث لي عن أقرب حلاق — اضغط الزر أدناه لبدء الاستعلام حول نطاق حي ${escapeHtml(node.nameAr)}.</p>
+      ${city?.slug === 'makkah' ? `<p class="note">عد إلى عمود <a href="/near/makkah">أقرب حلاق في مكة</a> لكل الأحياء والنسك.</p>` : ''}`
+        : `<p class="lead">فزعة <strong>حلاق ماب</strong> لمن يبحث عن <strong>أقرب حلاق من موقعه</strong> في <strong>${escapeHtml(node.nameAr)}</strong> — أفضل حلاقين بالقرب منك، صالون قريب، أو حلول منزلية ودليفري.</p>
       <p>سواء قلت أبي حلاق قريب أو عطني أقرب صالون من موقعي أو ابحث لي عن أقرب حلاق — ابدأ الاستعلام حول نطاق ${escapeHtml(node.nameAr)} الآن.</p>
       ${nusukNote}`;
 
@@ -415,23 +441,29 @@ function renderPage({ node, nodes, isHub = false }) {
     ? cityMarketing.h1
     : `أقرب حلاق من موقعي في ${node.nameAr}`;
 
+  const keywordsMeta = cityMarketing?.keywords_extra
+    ? `${NEAR_SEARCH_KEYWORDS_META}, ${cityMarketing.keywords_extra}`
+    : NEAR_SEARCH_KEYWORDS_META;
+
   return htmlShell({
     title,
     description,
     canonical,
     h1: pageH1,
+    keywords: keywordsMeta,
     bodyInner: `
       <nav class="crumbs" aria-label="مسار التنقل">${crumbs.join(' <span aria-hidden="true">/</span> ')}</nav>
       ${lead}
+      ${pillarSections}
       ${branches}
-      ${nearSearchPhrasesSectionHtml({ compact: true })}
+      ${isMakkahPillar ? '' : nearSearchPhrasesSectionHtml({ compact: true })}
       <p class="cta-wrap"><a class="cta" href="${escapeHtml(cta)}">ابدأ الاستعلام — ${escapeHtml(node.nameAr)}</a></p>
       ${childBlock}
       <section>
         <h2>أسئلة شائعة</h2>
         ${faqHtml}
       </section>
-      <p class="note"><a href="/near">كل المدن</a> · <a href="${ORIGIN}/">الصفحة الرئيسية</a></p>
+      <p class="note"><a href="/near">كل المدن</a>${isMakkahPillar || city?.slug === 'makkah' ? ' · <a href="/nusuk">نسك الحج</a>' : ''} · <a href="${ORIGIN}/">الصفحة الرئيسية</a></p>
     `,
     jsonLd: jsonLdGraph({
       node,
@@ -450,7 +482,8 @@ function renderPage({ node, nodes, isHub = false }) {
   });
 }
 
-function htmlShell({ title, description, canonical, h1, bodyInner, jsonLd }) {
+function htmlShell({ title, description, canonical, h1, bodyInner, jsonLd, keywords }) {
+  const keywordsMeta = keywords || NEAR_SEARCH_KEYWORDS_META;
   return `<!DOCTYPE html>
 <html lang="ar-SA" dir="rtl">
 <head>
@@ -458,7 +491,7 @@ function htmlShell({ title, description, canonical, h1, bodyInner, jsonLd }) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>${escapeHtml(title)}</title>
   <meta name="description" content="${escapeHtml(description)}" />
-  <meta name="keywords" content="${escapeHtml(NEAR_SEARCH_KEYWORDS_META)}" />
+  <meta name="keywords" content="${escapeHtml(keywordsMeta)}" />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="${escapeHtml(canonical)}" />
   <meta property="og:title" content="${escapeHtml(title)}" />
@@ -482,6 +515,7 @@ ${nearSearchPhrasesCss()}
     * { box-sizing: border-box; }
 ${brandPageTypeCss()}
     .wrap { max-width: 44rem; margin: 0 auto; padding: 1.5rem 1.15rem 3rem; }
+    .card { border:1px solid var(--line); border-radius:14px; background:var(--card); padding:1rem 1.1rem; margin:1rem 0; }
     .note { color:var(--muted); font-size:.95rem; }
     .crumbs { font-size:.9rem; color:var(--muted); margin-bottom:1rem; }
     .crumbs a { color:var(--accent); }

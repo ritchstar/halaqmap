@@ -63,12 +63,26 @@ export const FAZAA_BEST_NEAR_CITY_PHRASES = [
   'أفضل حلاقين بالقرب مني في الخبر',
 ];
 
+/** عبارات مكة — عمود /near/makkah */
+export const FAZAA_MAKKAH_PHRASES = [
+  'أقرب حلاق مكة',
+  'أقرب حلاق في مكة',
+  'أقرب حلاق من موقعي مكة',
+  'صالون قريب مكة',
+  'حلاق مفتوح الآن مكة',
+  'صالونات رجالي مكة',
+  'حلق مكة',
+  'تقصير مكة',
+  'تحلل مكة',
+];
+
 /** كل العبارات لـ meta keywords + قسم العرض */
 export const FAZAA_ALL_SEARCH_PHRASES = [
   ...FAZAA_NEAR_SALON_PHRASES,
   ...FAZAA_HOME_MOBILE_PHRASES,
   ...FAZAA_ORIGIN_STYLE_PHRASES,
   ...FAZAA_BEST_NEAR_CITY_PHRASES,
+  ...FAZAA_MAKKAH_PHRASES,
 ];
 
 export const FAZAA_SEARCH_KEYWORDS_META = FAZAA_ALL_SEARCH_PHRASES.join(', ');

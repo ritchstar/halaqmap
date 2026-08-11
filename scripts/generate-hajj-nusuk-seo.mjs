@@ -53,21 +53,23 @@ const TERMS = [
 
 const CTAS = [
   {
-    label: 'ابدأ الاستعلام — مكة المكرمة',
-    blurb: 'لنطاق مكة وما حول الحرم ضمن البيانات المتاحة.',
+    label: 'أقرب حلاق مكة — ابدأ الاستعلام',
+    blurb: 'عمود مكة: أقرب حلاق من موقعك، صالونات مفتوحة، أحياء الحرم والعزيزية — ثم اتصل بالصالون مباشرة.',
     href: `${ORIGIN}/#/?near=makkah`,
     near: '/near/makkah',
+    nearLabel: 'افتح صفحة أقرب حلاق في مكة',
   },
   {
     label: 'ابدأ الاستعلام — المدينة المنورة',
     blurb: 'لنطاق المدينة وما حولها ضمن البيانات المتاحة.',
     href: `${ORIGIN}/#/?near=madinah`,
     near: '/near/madinah',
+    nearLabel: 'صفحة أقرب حلاق المحلية',
   },
 ];
 
 const GEO = [
-  { href: '/near/makkah', label: 'أقرب حلاق في مكة' },
+  { href: '/near/makkah', label: 'أقرب حلاق مكة — الصفحة المخصّصة' },
   { href: '/near/makkah/aziziyah', label: 'أقرب حلاق في العزيزية (مكة)' },
   { href: '/near/madinah', label: 'أقرب حلاق في المدينة' },
   { href: '/near/madinah/quba', label: 'أقرب حلاق في قباء' },
@@ -98,7 +100,7 @@ const FAQS = [
   },
   {
     q: 'كيف أبدأ البحث عن حلاق للحلق أو التقصير؟',
-    a: 'اختر مكة أو المدينة أدناه لبدء الاستعلام داخل التطبيق حول ذلك النطاق، أو افتح صفحات «أقرب حلاق» حسب الحي ثم اضغط ابدأ الاستعلام.',
+    a: 'للحاج في مكة: افتح صفحة «أقرب حلاق في مكة» ثم ابدأ الاستعلام حول النطاق. وللمدينة استخدم صفحتها المحلية. يمكنك أيضاً اختيار الحي ثم الضغط على ابدأ الاستعلام.',
   },
   {
     q: 'هل الصفحة تغطي لغات الحجاج المختلفة؟',
@@ -171,7 +173,7 @@ const ctasHtml = CTAS.map(
   <div class="cta-card">
     <a class="cta" href="${escapeHtml(c.href)}">${escapeHtml(c.label)}</a>
     <p class="note">${escapeHtml(c.blurb)}</p>
-    <p class="note"><a href="${escapeHtml(c.near)}">صفحة أقرب حلاق المحلية</a></p>
+    <p class="note"><a href="${escapeHtml(c.near)}">${escapeHtml(c.nearLabel || 'صفحة أقرب حلاق المحلية')}</a></p>
   </div>`,
 ).join('\n');
 
@@ -265,6 +267,12 @@ ${brandHeaderHtml()}
         <p>حلاق ماب لا تقدّم خدمة الحلاقة بنفسها، ولا تُفتي في أحكام النسك، ولا تضمن توفر صالون في كل لحظة. دورها برمجي: استعلام وعرض رقمي لشركاء مفعّلين داخل المنصة، والعلاقة في تنفيذ الخدمة مباشرة بينك وبين الصالون.</p>
       </section>
 
+      <section class="card">
+        <h2>أقرب حلاق مكة بعد النسك</h2>
+        <p>بعد فهم الحلق والتقصير، انتقل لعمود <a href="/near/makkah">أقرب حلاق في مكة</a> لبدء استعلام لحظي عن صالون قريب أو مفتوح الآن حول مكة وأحيائها — ثم تواصل مع الصالون مباشرة.</p>
+        <p class="cta-wrap"><a class="cta" href="/near/makkah">افتح أقرب حلاق مكة</a></p>
+      </section>
+
       <section>
         <h2>ابدأ الاستعلام الآن</h2>
         ${ctasHtml}
@@ -286,7 +294,7 @@ ${brandHeaderHtml()}
         ${faqHtml}
       </section>
 
-      <p class="note"><a href="/near">أقرب حلاق حسب المدينة والحي</a> · <a href="/need">ابحث حسب حاجتك</a> · <a href="/occasions">المناسبات</a> · <a href="/occasions/ramadan">رمضان</a> · <a href="/occasions/friday-prep">الجمعة</a> · <a href="/occasions/eid-adha-shaving">عيد الأضحى</a> · <a href="${ORIGIN}/">الصفحة الرئيسية</a></p>
+      <p class="note"><a href="/near/makkah">أقرب حلاق مكة</a> · <a href="/near">أقرب حلاق حسب المدينة والحي</a> · <a href="/need">ابحث حسب حاجتك</a> · <a href="/occasions">المناسبات</a> · <a href="/occasions/ramadan">رمضان</a> · <a href="/occasions/friday-prep">الجمعة</a> · <a href="/occasions/eid-adha-shaving">عيد الأضحى</a> · <a href="${ORIGIN}/">الصفحة الرئيسية</a></p>
     </main>
     <footer>
       <p>© حلاق ماب — فزعة استعلام لأقرب حلاق شريك في مكة والمدينة بعد المناسك.</p>
