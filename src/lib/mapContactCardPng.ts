@@ -26,7 +26,7 @@ function safeFileName(fileName: string): string {
   const raw = (fileName || 'halaqmap-contact-card.png').trim();
   const withExt = raw.toLowerCase().endsWith('.png') ? raw : `${raw}.png`;
   // أسماء عربية تكسر التحميل على بعض متصفحات الجوال
-  const ascii = withExt.replace(/[^\w.\-]+/g, '_').replace(/_+/g, '_');
+  const ascii = withExt.replace(/[^\w.-]+/g, '_').replace(/_+/g, '_');
   return ascii.length > 8 ? ascii : 'halaqmap-contact-card.png';
 }
 
