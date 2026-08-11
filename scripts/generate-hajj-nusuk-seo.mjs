@@ -53,11 +53,11 @@ const TERMS = [
 
 const CTAS = [
   {
-    label: 'أقرب حلاق مكة — ابدأ الاستعلام',
-    blurb: 'عمود مكة: أقرب حلاق من موقعك، صالونات مفتوحة، أحياء الحرم والعزيزية — ثم اتصل بالصالون مباشرة.',
+    label: 'أقرب حلاق مكة 🕋 — ابدأ الاستعلام',
+    blurb: 'عمود مكة 🕋: أقرب حلاق من موقعك، صالونات مفتوحة، أحياء الحرم والعزيزية — ثم اتصل بالصالون مباشرة.',
     href: `${ORIGIN}/#/?near=makkah`,
     near: '/near/makkah',
-    nearLabel: 'افتح صفحة أقرب حلاق في مكة',
+    nearLabel: 'افتح صفحة أقرب حلاق في مكة 🕋',
   },
   {
     label: 'ابدأ الاستعلام — المدينة المنورة',
@@ -69,7 +69,7 @@ const CTAS = [
 ];
 
 const GEO = [
-  { href: '/near/makkah', label: 'أقرب حلاق مكة — الصفحة المخصّصة' },
+  { href: '/near/makkah', label: 'أقرب حلاق مكة 🕋 — الصفحة المخصّصة' },
   { href: '/near/makkah/aziziyah', label: 'أقرب حلاق في العزيزية (مكة)' },
   { href: '/near/madinah', label: 'أقرب حلاق في المدينة' },
   { href: '/near/madinah/quba', label: 'أقرب حلاق في قباء' },
@@ -268,9 +268,9 @@ ${brandHeaderHtml()}
       </section>
 
       <section class="card">
-        <h2>أقرب حلاق مكة بعد النسك</h2>
-        <p>بعد فهم الحلق والتقصير، انتقل لعمود <a href="/near/makkah">أقرب حلاق في مكة</a> لبدء استعلام لحظي عن صالون قريب أو مفتوح الآن حول مكة وأحيائها — ثم تواصل مع الصالون مباشرة.</p>
-        <p class="cta-wrap"><a class="cta" href="/near/makkah">افتح أقرب حلاق مكة</a></p>
+        <h2>أقرب حلاق مكة 🕋 بعد النسك</h2>
+        <p>بعد فهم الحلق والتقصير، انتقل لعمود <a href="/near/makkah">أقرب حلاق في مكة 🕋</a> لبدء استعلام لحظي عن صالون قريب أو مفتوح الآن حول مكة وأحيائها — ثم تواصل مع الصالون مباشرة.</p>
+        <p class="cta-wrap"><a class="cta" href="/near/makkah">افتح أقرب حلاق مكة 🕋</a></p>
       </section>
 
       <section>
@@ -294,7 +294,7 @@ ${brandHeaderHtml()}
         ${faqHtml}
       </section>
 
-      <p class="note"><a href="/near/makkah">أقرب حلاق مكة</a> · <a href="/near">أقرب حلاق حسب المدينة والحي</a> · <a href="/need">ابحث حسب حاجتك</a> · <a href="/occasions">المناسبات</a> · <a href="/occasions/ramadan">رمضان</a> · <a href="/occasions/friday-prep">الجمعة</a> · <a href="/occasions/eid-adha-shaving">عيد الأضحى</a> · <a href="${ORIGIN}/">الصفحة الرئيسية</a></p>
+      <p class="note"><a href="/near/makkah">أقرب حلاق مكة 🕋</a> · <a href="/near">أقرب حلاق حسب المدينة والحي</a> · <a href="/need">ابحث حسب حاجتك</a> · <a href="/occasions">المناسبات</a> · <a href="/occasions/ramadan">رمضان</a> · <a href="/occasions/friday-prep">الجمعة</a> · <a href="/occasions/eid-adha-shaving">عيد الأضحى</a> · <a href="${ORIGIN}/">الصفحة الرئيسية</a></p>
     </main>
     <footer>
       <p>© حلاق ماب — فزعة استعلام لأقرب حلاق شريك في مكة والمدينة بعد المناسك.</p>

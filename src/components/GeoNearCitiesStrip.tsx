@@ -53,7 +53,7 @@ export function GeoNearCitiesStrip({ className = '', variant = 'compact' }: Prop
                       : 'inline-flex rounded-xl border border-teal-400/30 bg-background/80 px-3 py-2 text-sm font-semibold text-teal-700 transition-colors hover:border-teal-400/60 hover:bg-teal-500/10 dark:text-teal-200'
                   }
                 >
-                  {isMakkah ? 'أقرب حلاق مكة' : city.nameAr}
+                  {isMakkah ? 'أقرب حلاق مكة 🕋' : city.nameAr}
                 </a>
               </li>
             );
@@ -91,7 +91,7 @@ export function GeoNearCitiesStrip({ className = '', variant = 'compact' }: Prop
             href={geoNearPath(makkah)}
             className="text-sm font-semibold text-teal-300/90 transition-colors hover:text-teal-200"
           >
-            أقرب حلاق مكة
+            أقرب حلاق مكة 🕋
           </a>
         ) : null}
         {rest.map((city) => (
