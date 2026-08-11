@@ -1227,7 +1227,8 @@
   }
 
   body {
-    @apply text-foreground font-sans min-h-[100dvh] overflow-x-hidden;
+    /* Prefer svh over dvh for min-height — dvh grows as mobile browser chrome collapses and can feel like endless downward scroll */
+    @apply text-foreground font-sans min-h-[100svh] overflow-x-hidden;
     background: var(--app-canvas, oklch(0.98 0.005 174));
     /*
      * خطوط عربية (Tajawal / IBM Plex) تستبدل غالباً 0–9 بـ ٠–٩ عند lang=ar.
