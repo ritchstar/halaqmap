@@ -1,12 +1,63 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  * عبارات بحث تنافسية لصفحات فزعة — مصدر واحد للعربية/الإنجليزية.
- * مرتّبة حسب أداء Search Console العضوي (CTR، أغسطس 2026) ثم Google Ads ثم توسعة.
+ * مرتّبة حسب أداء Search Console العضوي (CTR) ثم نوايا عامية (أبي/عطني/شف لي) ثم مدن.
  */
 
+import { readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+/** بادئات نية عامية شائعة في البحث العربي */
+export const FAZAA_INTENT_PREFIXES_AR = ['أبي', 'أريد', 'أرغب', 'شف لي', 'عطني'];
+
+function uniquePhrases(list) {
+  const seen = new Set();
+  const out = [];
+  for (const raw of list) {
+    const p = String(raw || '').trim();
+    if (!p || seen.has(p)) continue;
+    seen.add(p);
+    out.push(p);
+  }
+  return out;
+}
+
+/** يولّد: أبي حلاق قريب · عطني حلاق قريب · … */
+export function withIntentPrefixes(seeds, prefixes = FAZAA_INTENT_PREFIXES_AR) {
+  const out = [];
+  for (const seed of seeds) {
+    const s = String(seed || '').trim();
+    if (!s) continue;
+    out.push(s);
+    for (const pre of prefixes) {
+      out.push(`${pre} ${s}`);
+    }
+  }
+  return uniquePhrases(out);
+}
+
+function loadCityNamesAr() {
+  try {
+    const raw = JSON.parse(
+      readFileSync(join(__dirname, '../../src/config/geoNearRegistry.json'), 'utf8'),
+    );
+    const nodes = Array.isArray(raw) ? raw : raw.nodes || [];
+    return nodes
+      .filter((n) => n && n.kind === 'city' && n.nameAr)
+      .sort((a, b) => (b.priority || 0) - (a.priority || 0))
+      .map((n) => String(n.nameAr));
+  } catch {
+    return ['الرياض', 'جدة', 'مكة', 'المدينة', 'الدمام', 'الخبر'];
+  }
+}
+
+const CITY_NAMES_AR = loadCityNamesAr();
+
 /** قرب الموقع والصالون — عبارات GSC ذات النقر/الظهور أولاً */
-export const FAZAA_NEAR_SALON_PHRASES = [
-  // فائزة بالنقر عضوياً
+const NEAR_SEEDS = [
   'اقرب حلاق',
   'أقرب حلاق',
   'حلاق قريب',
@@ -19,6 +70,8 @@ export const FAZAA_NEAR_SALON_PHRASES = [
   'حلاق رجالي قريب مني',
   'حلاق رجالي قريب',
   'اقرب حلاق رجالي',
+  'حلاق رجال',
+  'حلاق رجالي',
   'اقرب حلاق لي',
   'اقرب حلاق لموقعي',
   'حلاقين بالقرب مني',
@@ -26,9 +79,7 @@ export const FAZAA_NEAR_SALON_PHRASES = [
   'أفضل حلاق قريب من موقعي',
   'افضل حلاق قريب مني',
   'أفضل حلاقين بالقرب مني',
-  'أبي حلاق قريب',
-  'عطني أقرب حلاق',
-  'ابحث لي عن أقرب حلاق',
+  'أفضل حلاق',
   'صالون قريب',
   'صالون حلاقة قريب',
   'صالون حلاقه قريب من موقعي',
@@ -42,15 +93,36 @@ export const FAZAA_NEAR_SALON_PHRASES = [
   'اطلب صالون',
   'صالون جنبي',
   'صالون بقربي',
-  'عطني أقرب صالون حولي',
-  'عطني أقرب صالون من موقعي',
   'رقم حلاق حولي',
   'حلاقين قريب مني',
   'حلاق رخيص',
+  'ابحث لي عن أقرب حلاق',
 ];
 
+/** نوى تُوسَّع ببادئات أبي/أريد/أرغب/شف لي/عطني */
+const INTENT_NEAR_SEEDS = [
+  'حلاق قريب',
+  'اقرب حلاق',
+  'أقرب حلاق من موقعي',
+  'حلاق قريب مني',
+  'حلاق قريب من موقعي',
+  'حلاق رجال',
+  'حلاق رجالي',
+  'أفضل حلاق',
+  'صالون قريب',
+];
+
+export const FAZAA_NEAR_SALON_PHRASES = uniquePhrases([
+  ...NEAR_SEEDS,
+  ...withIntentPrefixes(INTENT_NEAR_SEEDS),
+  'أبي حلاق قريب',
+  'عطني أقرب حلاق',
+  'عطني أقرب صالون حولي',
+  'عطني أقرب صالون من موقعي',
+]);
+
 /** مفتوح الآن / 24 ساعة — GSC + Ads */
-export const FAZAA_OPEN_NOW_PHRASES = [
+export const FAZAA_OPEN_NOW_PHRASES = uniquePhrases([
   'اقرب حلاق مفتوح من موقعي',
   'أقرب حلاق مفتوح من موقعي',
   'حلاق مفتوح 24 ساعة من موقعي',
@@ -64,10 +136,15 @@ export const FAZAA_OPEN_NOW_PHRASES = [
   'حلاق مفتوح الآن',
   'حلاق ٢٤ ساعة',
   'حلاق 24 ساعه قريب مني',
-];
+  ...withIntentPrefixes([
+    'حلاق مفتوح الآن',
+    'اقرب حلاق مفتوح من موقعي',
+    'حلاق مفتوح 24 ساعة من موقعي',
+  ]),
+]);
 
-/** منزلي / متنقل / دليفري */
-export const FAZAA_HOME_MOBILE_PHRASES = [
+/** منزلي / متنقل / دليفري — مع الرياض وصيغ النية */
+const HOME_SEEDS = [
   'حلاق يجي البيت',
   'حلاق رجالي يجي البيت',
   'حلاق دليفري',
@@ -78,10 +155,77 @@ export const FAZAA_HOME_MOBILE_PHRASES = [
   'حلاق يجيك لبيتك',
   'حلاق يجيك البيت',
   'حلاق منزلي',
+  'حلاق منزلي الرياض',
   'حلاق منزلي بالرياض',
   'حلاق منزلي في الرياض',
+  'حلاق متنقل الرياض',
   'حلاق أطفال منزلي',
+  'حلاق اطفال منزلي',
+  'حلاق أطفال متنقل',
+  'حلاق اطفال متنقل',
+  'حلاق اطفال متنقل الرياض',
+  'حلاق أطفال متنقل الرياض',
 ];
+
+export const FAZAA_HOME_MOBILE_PHRASES = uniquePhrases([
+  ...HOME_SEEDS,
+  ...withIntentPrefixes([
+    'حلاق منزلي',
+    'حلاق منزلي الرياض',
+    'حلاق متنقل',
+    'حلاق يجي البيت',
+    'حلاق دليفري',
+    'حلاق اطفال متنقل الرياض',
+  ]),
+  ...CITY_NAMES_AR.flatMap((city) => [
+    `حلاق منزلي ${city}`,
+    `حلاق منزلي في ${city}`,
+    `حلاق متنقل ${city}`,
+  ]),
+]);
+
+/** حلاق أطفال — قرب / منزلي / أحياء / مدن */
+const CHILDREN_SEEDS = [
+  'حلاق أطفال',
+  'حلاق اطفال',
+  'حلاقة أطفال',
+  'صالون أطفال',
+  'حلاق أطفال قريب من موقعي',
+  'حلاق اطفال قريب من موقعي',
+  'أقرب حلاق أطفال من موقعي',
+  'اقرب حلاق اطفال من موقعي',
+  'حلاق أطفال منزلي',
+  'حلاق اطفال منزلي',
+  'حلاق أطفال متنقل',
+  'حلاق اطفال متنقل',
+  'حلاق اطفال متنقل الرياض',
+  'حلاق أطفال متنقل الرياض',
+  'حلاق أطفال الرياض',
+  'حلاق اطفال الرياض',
+  'حلاق أطفال الملقا',
+  'حلاق اطفال الملقا',
+  'حلاق أطفال العليا',
+  'حلاق اطفال العليا',
+  'حلاق أطفال النخيل',
+  'حلاق اطفال النخيل',
+];
+
+export const FAZAA_CHILDREN_PHRASES = uniquePhrases([
+  ...CHILDREN_SEEDS,
+  ...withIntentPrefixes([
+    'حلاق أطفال',
+    'حلاق اطفال قريب من موقعي',
+    'حلاق أطفال قريب من موقعي',
+    'حلاق اطفال الرياض',
+    'حلاق أطفال الملقا',
+    'حلاق اطفال متنقل الرياض',
+  ]),
+  ...CITY_NAMES_AR.flatMap((city) => [
+    `حلاق أطفال ${city}`,
+    `حلاق اطفال ${city}`,
+    `حلاق أطفال في ${city}`,
+  ]),
+]);
 
 /** إنجليزي قرب — من تقرير Ads */
 export const FAZAA_EN_NEAR_PHRASES = [
@@ -91,7 +235,7 @@ export const FAZAA_EN_NEAR_PHRASES = [
   'nearest barber shop to me',
 ];
 
-/** أصول شائعة في صياغة البحث (ليست فلتر جنسية في المنصة) — مع صيغ GSC «قريب مني» */
+/** أصول شائعة في صياغة البحث (ليست فلتر جنسية في المنصة) */
 export const FAZAA_ORIGIN_STYLE_PHRASES = [
   'حلاق محترف',
   'حلاق مصري',
@@ -109,18 +253,31 @@ export const FAZAA_ORIGIN_STYLE_PHRASES = [
   'حلاق لحية',
 ];
 
-/** أفضل حلاقين بالقرب مني — مدن محورية */
-export const FAZAA_BEST_NEAR_CITY_PHRASES = [
+/** أفضل حلاق + مدن المنصة (~47) */
+export const FAZAA_BEST_NEAR_CITY_PHRASES = uniquePhrases([
+  'أفضل حلاق بالرياض',
+  'افضل حلاق بالرياض',
+  'أفضل حلاق في الرياض',
+  'افضل حلاق في الرياض',
+  'أفضل حلاق الرياض',
+  'حلاق الرياض',
+  'حلاق بالرياض',
+  'حلاق الرياض من موقعي',
   'أفضل حلاقين بالقرب مني في الرياض',
   'أفضل حلاقين بالقرب مني في جدة',
   'أفضل حلاقين بالقرب مني في مكة',
   'أفضل حلاقين بالقرب مني في الدمام',
   'أفضل حلاقين بالقرب مني في المدينة',
   'أفضل حلاقين بالقرب مني في الخبر',
-  'حلاق الرياض',
-  'حلاق بالرياض',
-  'حلاق الرياض من موقعي',
-];
+  ...withIntentPrefixes(['أفضل حلاق بالرياض', 'أفضل حلاق في الرياض', 'حلاق الرياض']),
+  ...CITY_NAMES_AR.flatMap((city) => [
+    `أفضل حلاق ب${city}`,
+    `أفضل حلاق في ${city}`,
+    `افضل حلاق في ${city}`,
+    `حلاق ${city}`,
+    `حلاق ب${city}`,
+  ]),
+]);
 
 /** عبارات مكة — عمود /near/makkah */
 export const FAZAA_MAKKAH_PHRASES = [
@@ -138,20 +295,21 @@ export const FAZAA_MAKKAH_PHRASES = [
 ];
 
 /** كل العبارات لـ meta keywords + قسم العرض */
-export const FAZAA_ALL_SEARCH_PHRASES = [
+export const FAZAA_ALL_SEARCH_PHRASES = uniquePhrases([
   ...FAZAA_NEAR_SALON_PHRASES,
   ...FAZAA_OPEN_NOW_PHRASES,
   ...FAZAA_HOME_MOBILE_PHRASES,
+  ...FAZAA_CHILDREN_PHRASES,
   ...FAZAA_EN_NEAR_PHRASES,
   ...FAZAA_ORIGIN_STYLE_PHRASES,
   ...FAZAA_BEST_NEAR_CITY_PHRASES,
   ...FAZAA_MAKKAH_PHRASES,
-];
+]);
 
 export const FAZAA_SEARCH_KEYWORDS_META = FAZAA_ALL_SEARCH_PHRASES.join(', ');
 
 export const FAZAA_SEARCH_BLURB_AR =
-  'إن كنت تبحث عن اقرب حلاق، أو حلاق قريب، أو حلاق قريب مني، أو حلاق قريب من موقعي، أو اقرب حلاق مفتوح من موقعي، أو حلاق مفتوح 24 ساعة، أو حلاق يجي البيت، أو barber near me — فزعة حلاق ماب تبدأ استعلاماً لحظياً ضمن البيانات المتاحة على المنصة.';
+  'إن كنت تقول أبي أو عطني أو شف لي حلاق قريب، أو حلاق منزلي الرياض، أو حلاق اطفال قريب من موقعي، أو أفضل حلاق بالرياض — فزعة حلاق ماب تبدأ استعلاماً لحظياً ضمن البيانات المتاحة على المنصة.';
 
 function chipsHtml(phrases) {
   return phrases.map((p) => `<li><span class="phrase-chip">${p}</span></li>`).join('\n');
@@ -163,11 +321,13 @@ function chipsHtml(phrases) {
  */
 export function fazaaSearchPhrasesSectionHtml(opts = {}) {
   const compact = opts.compact === true;
-  const primary = [
-    ...FAZAA_NEAR_SALON_PHRASES.slice(0, 14),
-    ...FAZAA_OPEN_NOW_PHRASES.slice(0, 6),
-    ...FAZAA_HOME_MOBILE_PHRASES.slice(0, 4),
-  ];
+  const primary = uniquePhrases([
+    ...FAZAA_NEAR_SALON_PHRASES.slice(0, 12),
+    ...withIntentPrefixes(['حلاق قريب', 'حلاق منزلي', 'حلاق أطفال']).slice(0, 12),
+    ...FAZAA_OPEN_NOW_PHRASES.slice(0, 4),
+    ...FAZAA_HOME_MOBILE_PHRASES.slice(0, 6),
+    ...FAZAA_CHILDREN_PHRASES.slice(0, 8),
+  ]);
   if (compact) {
     return `<section class="near-phrases" aria-label="عبارات البحث الشائعة">
       <h2>تبحث عن اقرب حلاق أو حلاق قريب منك؟</h2>
@@ -175,22 +335,27 @@ export function fazaaSearchPhrasesSectionHtml(opts = {}) {
       <ul class="phrase-grid">${chipsHtml(primary)}</ul>
     </section>`;
   }
+  const cityPreview = FAZAA_BEST_NEAR_CITY_PHRASES.slice(0, 36);
+  const homePreview = FAZAA_HOME_MOBILE_PHRASES.slice(0, 40);
+  const childrenPreview = FAZAA_CHILDREN_PHRASES.slice(0, 40);
   return `<section class="near-phrases" aria-label="عبارات البحث الشائعة">
-      <h2>تبحث عن اقرب حلاق أو حلاق قريب مني؟</h2>
+      <h2>تبحث عن اقرب حلاق أو حلاق قريب؟ أبي · عطني · شف لي</h2>
       <p class="note">${FAZAA_SEARCH_BLURB_AR}</p>
       <h3 class="phrase-sub">قرب الموقع — رجالي</h3>
-      <ul class="phrase-grid">${chipsHtml(FAZAA_NEAR_SALON_PHRASES)}</ul>
+      <ul class="phrase-grid">${chipsHtml(FAZAA_NEAR_SALON_PHRASES.slice(0, 48))}</ul>
       <h3 class="phrase-sub">مفتوح الآن · 24 ساعة</h3>
       <ul class="phrase-grid">${chipsHtml(FAZAA_OPEN_NOW_PHRASES)}</ul>
-      <h3 class="phrase-sub">منزلي · متنقل · دليفري</h3>
-      <ul class="phrase-grid">${chipsHtml(FAZAA_HOME_MOBILE_PHRASES)}</ul>
+      <h3 class="phrase-sub">منزلي · متنقل · دليفري · مدن</h3>
+      <ul class="phrase-grid">${chipsHtml(homePreview)}</ul>
+      <h3 class="phrase-sub">حلاق أطفال — قرب · منزلي · أحياء</h3>
+      <ul class="phrase-grid">${chipsHtml(childrenPreview)}</ul>
       <h3 class="phrase-sub">English near me</h3>
       <ul class="phrase-grid">${chipsHtml(FAZAA_EN_NEAR_PHRASES)}</ul>
       <h3 class="phrase-sub">صيغ بحث شائعة بالأصل أو الأسلوب</h3>
       <p class="note">هذه صيغ يكتبها الباحثون غالباً — النتائج حسب ما يعلنه الشركاء المفعّلون داخل المنصة، وليست فلتر جنسية منفصلاً.</p>
       <ul class="phrase-grid">${chipsHtml(FAZAA_ORIGIN_STYLE_PHRASES)}</ul>
-      <h3 class="phrase-sub">أفضل حلاقين بالقرب مني — مدن</h3>
-      <ul class="phrase-grid">${chipsHtml(FAZAA_BEST_NEAR_CITY_PHRASES)}</ul>
+      <h3 class="phrase-sub">أفضل حلاق — مدن المنصة</h3>
+      <ul class="phrase-grid">${chipsHtml(cityPreview)}</ul>
     </section>`;
 }
 
