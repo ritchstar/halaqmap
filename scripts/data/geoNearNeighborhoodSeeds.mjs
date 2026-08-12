@@ -7,6 +7,8 @@
  */
 export const NEIGHBORHOOD_SEEDS = {
   riyadh: [
+    // حطين أولاً — واجهة فخامة الرياض لكلمة «أقرب حلاق من موقعي» (بدل منفوحة)
+    ['hittin', 'حطين', 24.76, 46.6, true],
     ['olaya', 'العليا', 24.6907, 46.6858, true],
     ['malaz', 'الملز', 24.6622, 46.7312, true],
     ['qurtubah', 'قرطبة', 24.8105, 46.724, true],
@@ -31,7 +33,6 @@ export const NEIGHBORHOOD_SEEDS = {
     ['nakheel', 'النخيل', 24.76, 46.63, true],
     ['ghadir', 'الغدير', 24.785, 46.65, true],
     ['aqiq', 'العقيق', 24.77, 46.61, true],
-    ['hittin', 'حطين', 24.76, 46.6, true],
     ['aridah', 'العارض', 24.85, 46.62, true],
     ['qirawan', 'القيروان', 24.87, 46.63, true],
     ['banban', 'بنبان', 24.9, 46.6, true],
@@ -75,7 +76,6 @@ export const NEIGHBORHOOD_SEEDS = {
     ['salam', 'السلام', 24.7, 46.83, true],
     ['rawdah-east', 'الروضة الشرقية', 24.74, 46.8, true],
     ['khalidiyah', 'الخالدية', 24.64, 46.73, true],
-    ['manfuha', 'منفوحة', 24.61, 46.72, true],
     ['otaigah', 'عتيقة', 24.62, 46.7, true],
   ],
   jeddah: [

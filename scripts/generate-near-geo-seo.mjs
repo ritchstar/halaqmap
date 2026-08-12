@@ -79,9 +79,24 @@ function sitemapPriority(node, isHub = false) {
   if (isHub) return '0.9';
   if (node.kind === 'city' && (node.slug === 'makkah' || node.slug === 'madinah')) return '0.95';
   if (node.kind === 'city') return '0.85';
+  if (node.kind === 'neighborhood' && node.slug === 'hittin') return '0.9';
   if (node.kind === 'neighborhood') return '0.75';
   if (node.kind === 'direction') return '0.65';
   return '0.7';
+}
+
+/** أحياء واجهة فخامة — عنوان يطابق نية «أقرب حلاق من موقعي» */
+const PREMIUM_NEAR_ME_NEIGHBORHOODS = new Set(['hittin']);
+
+function neighborhoodSeoCopy(node, city) {
+  if (PREMIUM_NEAR_ME_NEIGHBORHOODS.has(node.slug) && city) {
+    return {
+      title: `أقرب حلاق من موقعي في ${node.nameAr} | ${city.nameAr} | حلاق ماب`,
+      description: `أقرب حلاق من موقعي في حي ${node.nameAr} بالرياض — حلاق رجالي قريب، صالون راقٍ ضمن نطاقك عبر فزعة حلاق ماب. ابدأ الاستعلام أو تصفّح مفتوح الآن وحلاق منزلي وحلاق أطفال.`,
+      h1: `أقرب حلاق من موقعي في ${node.nameAr}`,
+    };
+  }
+  return null;
 }
 
 function buildFaqs(node, city) {
@@ -92,6 +107,22 @@ function buildFaqs(node, city) {
     }
   }
   const nameAr = node.nameAr;
+  if (node.kind === 'neighborhood' && city && PREMIUM_NEAR_ME_NEIGHBORHOODS.has(node.slug)) {
+    return [
+      {
+        q: `كيف أجد أقرب حلاق من موقعي في حي ${nameAr} بمدينة ${city.nameAr}؟`,
+        a: `افتح فزعة حلاق ماب حول حي ${nameAr} — من أحياء شمال الرياض الراقية — واستعلم عن أقرب حلاق رجالي من موقعك. صيغ مثل أبي أقرب حلاق أو عطني حلاق قريب من موقعي تظهر شركاء متاحين لحظياً ضمن النطاق.`,
+      },
+      {
+        q: `أين أجد صالون رجالي راقٍ أو حلاق قريب قرب حي ${nameAr}؟`,
+        a: `من صفحة حي ${nameAr} ابدأ الاستعلام، أو انتقل لتفرعات «مفتوح الآن» و«حلاق منزلي ودليفري» و«حلاق أطفال» ثم خصّص النطاق حول ${nameAr} في ${city.nameAr}.`,
+      },
+      {
+        q: `هل أتصفّح أحياء أخرى في ${city.nameAr}؟`,
+        a: `نعم — افتح صفحة ${city.nameAr} لاستكشاف أحياء مثل العليا والملقا والنرجس، ثم ابدأ الاستعلام من الحي الأنسب لك.`,
+      },
+    ];
+  }
   if (node.kind === 'neighborhood' && city) {
     return [
       {
@@ -349,16 +380,22 @@ function renderPage({ node, nodes, isHub = false }) {
   const faqs = buildFaqs(node, city);
   const cityMarketing =
     node.kind === 'city' ? getFazaaCityMarketing(node.slug) : null;
+  const premiumCopy =
+    node.kind === 'neighborhood' && city ? neighborhoodSeoCopy(node, city) : null;
   const title = cityMarketing
     ? cityMarketing.title
-    : node.kind === 'neighborhood' && city
-      ? `اقرب حلاق في ${node.nameAr} · حلاق قريب | ${city.nameAr} | حلاق ماب`
-      : `اقرب حلاق في ${node.nameAr} · حلاق قريب | حلاق ماب`;
+    : premiumCopy
+      ? premiumCopy.title
+      : node.kind === 'neighborhood' && city
+        ? `اقرب حلاق في ${node.nameAr} · حلاق قريب | ${city.nameAr} | حلاق ماب`
+        : `اقرب حلاق في ${node.nameAr} · حلاق قريب | حلاق ماب`;
   const description = cityMarketing
     ? cityMarketing.description
-    : node.kind === 'neighborhood' && city
-      ? `اقرب حلاق وحلاق قريب في حي ${node.nameAr} بمدينة ${city.nameAr} — حلاق قريب مني، حلاق قريب من موقعي، صالون قريب عبر فزعة حلاق ماب.`
-      : `اقرب حلاق وحلاق قريب في ${node.nameAr} — حلاق قريب مني، حلاق قريب من موقعي، صالون قريب عبر فزعة حلاق ماب.`;
+    : premiumCopy
+      ? premiumCopy.description
+      : node.kind === 'neighborhood' && city
+        ? `اقرب حلاق وحلاق قريب في حي ${node.nameAr} بمدينة ${city.nameAr} — حلاق قريب مني، حلاق قريب من موقعي، صالون قريب عبر فزعة حلاق ماب.`
+        : `اقرب حلاق وحلاق قريب في ${node.nameAr} — حلاق قريب مني، حلاق قريب من موقعي، صالون قريب عبر فزعة حلاق ماب.`;
   const canonical = absoluteUrl(path);
   const cta = `${ORIGIN}/#/?near=${encodeURIComponent([...node.parentSlugs, node.slug].join('/'))}`;
 
@@ -460,7 +497,7 @@ function renderPage({ node, nodes, isHub = false }) {
 
   const pageH1 = cityMarketing
     ? cityMarketing.h1
-    : `اقرب حلاق في ${node.nameAr} · حلاق قريب`;
+    : premiumCopy?.h1 || `اقرب حلاق في ${node.nameAr} · حلاق قريب`;
 
   const keywordsMeta = cityMarketing?.keywords_extra
     ? `${NEAR_SEARCH_KEYWORDS_META}, ${cityMarketing.keywords_extra}`

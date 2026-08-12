@@ -21,6 +21,16 @@
       "source": "/sitemap",
       "destination": "/sitemap.xml",
       "permanent": true
+    },
+    {
+      "source": "/near/riyadh/manfuha",
+      "destination": "/near/riyadh/hittin",
+      "permanent": true
+    },
+    {
+      "source": "/near/riyadh/manfuha/",
+      "destination": "/near/riyadh/hittin",
+      "permanent": true
     }
   ],
   "rewrites": [
