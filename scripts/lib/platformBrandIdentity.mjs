@@ -128,6 +128,47 @@ export function fazaaFromBrand(suffix = '') {
   return suffix ? `${base} ${suffix}` : base;
 }
 
+/** معرّفات القياس — تطابق index.html و src/config/googleAdsTag.ts */
+export const FAZAA_GA4_MEASUREMENT_ID = 'G-NVQ8BJDN30';
+export const FAZAA_GOOGLE_ADS_ID = 'AW-18240041811';
+
+/**
+ * تاج Google (GA4 + Ads) لصفحات فزعة الثابتة — يُحمَّل بعد idle مثل الرئيسية
+ * حتى لا تظهر /near و /need كـ «غير موسومة» في تشخيص العلامة.
+ */
+export function fazaaMeasurementTagHtml() {
+  return `  <!-- Google tag (GA4 + Ads) — idle boot, matches main index.html -->
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    (function(){
+      function bootGtag(){
+        if (window.__hmGtagBooted) return;
+        window.__hmGtagBooted = true;
+        var s = document.createElement('script');
+        s.async = true;
+        s.src = 'https://www.googletagmanager.com/gtag/js?id=${FAZAA_GOOGLE_ADS_ID}';
+        document.head.appendChild(s);
+        gtag('js', new Date());
+        gtag('config', '${FAZAA_GA4_MEASUREMENT_ID}', { send_page_view: true });
+        gtag('config', '${FAZAA_GOOGLE_ADS_ID}', {
+          send_page_view: true,
+          conversion_linker: true
+        });
+      }
+      function schedule(){
+        if (typeof window.requestIdleCallback === 'function') {
+          window.requestIdleCallback(bootGtag, { timeout: 4500 });
+        } else {
+          window.setTimeout(bootGtag, 2200);
+        }
+      }
+      if (document.readyState === 'complete') schedule();
+      else window.addEventListener('load', schedule, { once: true });
+    })();
+  </script>`;
+}
+
 export {
   FAZAA_ALL_SEARCH_PHRASES as NEAR_SEARCH_PHRASES_AR,
   FAZAA_SEARCH_KEYWORDS_META as NEAR_SEARCH_KEYWORDS_META,

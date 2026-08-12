@@ -12,6 +12,7 @@ import {
   brandHeaderHtml,
   brandIconLinks,
   brandPageTypeCss,
+  fazaaMeasurementTagHtml,
 } from './lib/platformBrandIdentity.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -243,6 +244,7 @@ ${brandPageTypeCss('linear-gradient(180deg,#061223,#0a1f33 50%,#120a06 100%)')}
     footer { margin-top:2.5rem; padding-top:1rem; border-top:1px solid var(--line); color:var(--muted); font-size:.85rem; }
     .warn { border-color: rgba(251,191,36,.35); background: rgba(120,53,15,.25); }
   </style>
+${fazaaMeasurementTagHtml()}
 </head>
 <body>
   <div class="wrap">

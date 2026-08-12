@@ -14,6 +14,7 @@ import {
   brandHeaderHtml,
   brandIconLinks,
   brandPageTypeCss,
+  fazaaMeasurementTagHtml,
   NEAR_SEARCH_KEYWORDS_META,
   nearSearchPhrasesCss,
   nearSearchPhrasesSectionHtml,
@@ -548,6 +549,7 @@ ${brandPageTypeCss()}
     summary { cursor:pointer; font-weight:700; }
     footer { margin-top:2.5rem; padding-top:1rem; border-top:1px solid var(--line); color:var(--muted); font-size:.85rem; }
   </style>
+${fazaaMeasurementTagHtml()}
 </head>
 <body>
   <div class="wrap">

@@ -14,6 +14,7 @@ import {
   brandHeaderHtml,
   brandIconLinks,
   brandPageTypeCss,
+  fazaaMeasurementTagHtml,
   nearSearchPhrasesCss,
   nearSearchPhrasesSectionHtml,
 } from './lib/platformBrandIdentity.mjs';
@@ -87,6 +88,7 @@ ${brandPageTypeCss()}
     .card { border:1px solid var(--line); border-radius:14px; background:var(--card); padding:1rem 1.1rem; margin:1rem 0; }
     footer { margin-top:2.5rem; padding-top:1rem; border-top:1px solid var(--line); color:var(--muted); font-size:.85rem; }
   </style>
+${fazaaMeasurementTagHtml()}
 </head>
 <body>
   <div class="wrap">
