@@ -76,7 +76,7 @@ function placeType(kind) {
 
 function sitemapPriority(node, isHub = false) {
   if (isHub) return '0.9';
-  if (node.kind === 'city' && node.slug === 'makkah') return '0.95';
+  if (node.kind === 'city' && (node.slug === 'makkah' || node.slug === 'madinah')) return '0.95';
   if (node.kind === 'city') return '0.85';
   if (node.kind === 'neighborhood') return '0.75';
   if (node.kind === 'direction') return '0.65';
@@ -127,18 +127,18 @@ function placeLabelAr(node) {
   if (node?.slug === 'makkah' || node?.city_slug === 'makkah') {
     return `${node.nameAr} 🕋`;
   }
+  if (node?.slug === 'madinah' || node?.city_slug === 'madinah') {
+    return `${node.nameAr} 🕌`;
+  }
   return node.nameAr;
 }
 
 function linkList(items) {
   return items
     .map((c) => {
-      const label =
-        c.slug === 'makkah' || c.parentSlugs?.includes?.('makkah')
-          ? c.slug === 'makkah'
-            ? `أقرب حلاق في ${escapeHtml(c.nameAr)} 🕋`
-            : `أقرب حلاق في ${escapeHtml(c.nameAr)}`
-          : `أقرب حلاق في ${escapeHtml(c.nameAr)}`;
+      let label = `أقرب حلاق في ${escapeHtml(c.nameAr)}`;
+      if (c.slug === 'makkah') label = `أقرب حلاق في ${escapeHtml(c.nameAr)} 🕋`;
+      if (c.slug === 'madinah') label = `أقرب حلاق في ${escapeHtml(c.nameAr)} 🕌`;
       return `<li><a href="${escapeHtml(nodePath(c))}">${label}</a></li>`;
     })
     .join('\n');
@@ -282,6 +282,11 @@ function renderPage({ node, nodes, isHub = false }) {
           <p class="lead">عمود فزعة لمكة 🕋: أقرب حلاق من موقعك، صالونات مفتوحة الآن، أحياء مثل العزيزية، وربط بمركز نسك الحج للحلق والتقصير.</p>
           <p class="cta-wrap"><a class="cta" href="/near/makkah">افتح أقرب حلاق في مكة 🕋</a></p>
         </section>`;
+    const madinahFeature = `<section class="card" aria-label="عمود المدينة المنورة">
+          <h2>اقرب حلاق المدينة المنورة 🕌 — صفحة مخصّصة</h2>
+          <p class="lead">عمود فزعة للمدينة 🕌: اقرب حلاق رجالي من موقعي، تكتيك المسافة من 100 إلى 1000 متر، مفتوح الآن، أحياء مثل قباء والحرم والعوالي، وربط بنسك الحج.</p>
+          <p class="cta-wrap"><a class="cta" href="/near/madinah">افتح اقرب حلاق في المدينة 🕌</a></p>
+        </section>`;
     const neighHint = topNeighborhoodCities
       .map(
         (c) =>
@@ -317,10 +322,11 @@ function renderPage({ node, nodes, isHub = false }) {
       h1: 'اقرب حلاق · حلاق قريب حسب المدينة والحي',
       bodyInner: `
         <p class="lead"><strong>اقرب حلاق</strong> أو <strong>حلاق قريب</strong> أو <strong>حلاق قريب مني</strong> أو <strong>حلاق قريب من موقعي</strong> حسب مدينتك وحيّك عبر <strong>حلاق ماب</strong> — فزعة بحث لحظي توصلك لخيارات قريبة تناسب طلبك.</p>
-        <p class="note">اختر المدينة أدناه ثم اضغط «ابدأ الاستعلام». أو تصفّح أحياء الرياض وجدة ومكة والمدن الأخرى، أو انتقل لتفرعات الحلاق المنزلي والدليفري والأطفال.</p>
+        <p class="note">اختر المدينة أدناه ثم اضغط «ابدأ الاستعلام». أو تصفّح أحياء الرياض وجدة ومكة والمدينة والمدن الأخرى، أو انتقل لتفرعات الحلاق المنزلي والدليفري والأطفال.</p>
         ${makkahFeature}
+        ${madinahFeature}
         ${nearSearchPhrasesSectionHtml()}
-        <p class="note"><a href="/near/makkah">أقرب حلاق مكة 🕋</a> · <a href="/nusuk">مركز نسك الحج — الحلق والتقصير للحجاج</a> · <a href="/need">ابحث حسب حاجتك — الفلاتر</a> · <a href="/occasions/eid-adha-shaving">عيد الأضحى — بعد الأضحية</a></p>
+        <p class="note"><a href="/near/makkah">أقرب حلاق مكة 🕋</a> · <a href="/near/madinah">اقرب حلاق المدينة 🕌</a> · <a href="/nusuk">مركز نسك الحج — الحلق والتقصير للحجاج</a> · <a href="/need">ابحث حسب حاجتك — الفلاتر</a> · <a href="/occasions/eid-adha-shaving">عيد الأضحى — بعد الأضحية</a></p>
         <section>
           <h2>تصفّح بالأحياء — مدن رئيسية</h2>
           <ul class="grid">${neighHint}</ul>
@@ -413,14 +419,14 @@ function renderPage({ node, nodes, isHub = false }) {
 
   const isHajjCity =
     node.kind === 'city' && (node.slug === 'makkah' || node.slug === 'madinah');
-  const isMakkahPillar = Boolean(cityMarketing?.pillar && node.slug === 'makkah');
+  const isCityPillar = Boolean(cityMarketing?.pillar);
   const nusukNote = isHajjCity
     ? `<p class="note"><a href="/nusuk">مركز نسك الحج — الحلق والتقصير</a> للحجاج والزوار في ${escapeHtml(node.nameAr)}.</p>`
     : '';
 
   const citySlugForBranches =
     node.kind === 'city' ? node.slug : city?.slug || undefined;
-  const branches = isMakkahPillar
+  const branches = isCityPillar
     ? ''
     : citySeoBranchesHtml({
         placeNameAr: node.nameAr,
@@ -428,14 +434,14 @@ function renderPage({ node, nodes, isHub = false }) {
         cityNameAr: city?.nameAr || node.nameAr,
         isNeighborhood: node.kind === 'neighborhood',
       });
-  const pillarSections = isMakkahPillar
+  const pillarSections = isCityPillar
     ? cityPillarSectionsHtml({ marketing: cityMarketing })
     : '';
 
-  const lead = isMakkahPillar
+  const lead = isCityPillar
     ? `<p class="lead">${escapeHtml(cityMarketing.content_paragraph)}</p>
       <h2>${escapeHtml(cityMarketing.h2)}</h2>
-      <p>ابدأ فزعة <strong>حلاق ماب</strong> لنطاق <strong>مكة</strong>: أقرب حلاق من موقعك، صالون قريب، مفتوح الآن، أو تصفّح الأحياء — ثم اتصل بالصالون مباشرة.</p>
+      <p>ابدأ فزعة <strong>حلاق ماب</strong> لنطاق <strong>${escapeHtml(cityMarketing.city_name_ar)}</strong>: اقرب حلاق رجالي من موقعك، صالون قريب، مفتوح الآن، أو تصفّح الأحياء — ثم اتصل بالصالون مباشرة.</p>
       ${nusukNote}`
     : cityMarketing
       ? `<p class="lead">${escapeHtml(cityMarketing.content_paragraph)}</p>
@@ -445,7 +451,8 @@ function renderPage({ node, nodes, isHub = false }) {
       : node.kind === 'neighborhood' && city
         ? `<p class="lead">فزعة <strong>حلاق ماب</strong> لمن يبحث عن <strong>أقرب حلاق من موقعه</strong> في حي <strong>${escapeHtml(node.nameAr)}</strong> بمدينة <strong>${escapeHtml(city.nameAr)}</strong> — صالون قريب، أقرب صالون حولي، أو حلاق منزلي حسب طلبك.</p>
       <p>سواء قلت أبي حلاق قريب أو عطني أقرب حلاق أو ابحث لي عن أقرب حلاق — اضغط الزر أدناه لبدء الاستعلام حول نطاق حي ${escapeHtml(node.nameAr)}.</p>
-      ${city?.slug === 'makkah' ? `<p class="note">عد إلى عمود <a href="/near/makkah">أقرب حلاق في مكة 🕋</a> لكل الأحياء والنسك.</p>` : ''}`
+      ${city?.slug === 'makkah' ? `<p class="note">عد إلى عمود <a href="/near/makkah">أقرب حلاق في مكة 🕋</a> لكل الأحياء والنسك.</p>` : ''}
+      ${city?.slug === 'madinah' ? `<p class="note">عد إلى عمود <a href="/near/madinah">اقرب حلاق في المدينة 🕌</a> لكل الأحياء والمسافة والنسك.</p>` : ''}`
         : `<p class="lead">فزعة <strong>حلاق ماب</strong> لمن يبحث عن <strong>أقرب حلاق من موقعه</strong> في <strong>${escapeHtml(node.nameAr)}</strong> — أفضل حلاقين بالقرب منك، صالون قريب، أو حلول منزلية ودليفري.</p>
       <p>سواء قلت أبي حلاق قريب أو عطني أقرب صالون من موقعي أو ابحث لي عن أقرب حلاق — ابدأ الاستعلام حول نطاق ${escapeHtml(node.nameAr)} الآن.</p>
       ${nusukNote}`;
@@ -469,14 +476,14 @@ function renderPage({ node, nodes, isHub = false }) {
       ${lead}
       ${pillarSections}
       ${branches}
-      ${isMakkahPillar ? '' : nearSearchPhrasesSectionHtml({ compact: true })}
+      ${isCityPillar ? '' : nearSearchPhrasesSectionHtml({ compact: true })}
       <p class="cta-wrap"><a class="cta" href="${escapeHtml(cta)}">ابدأ الاستعلام — ${escapeHtml(node.nameAr)}</a></p>
       ${childBlock}
       <section>
         <h2>أسئلة شائعة</h2>
         ${faqHtml}
       </section>
-      <p class="note"><a href="/near">كل المدن</a>${isMakkahPillar || city?.slug === 'makkah' ? ' · <a href="/nusuk">نسك الحج</a>' : ''} · <a href="${ORIGIN}/">الصفحة الرئيسية</a></p>
+      <p class="note"><a href="/near">كل المدن</a>${isCityPillar || isHajjCity ? ' · <a href="/nusuk">نسك الحج</a>' : ''} · <a href="${ORIGIN}/">الصفحة الرئيسية</a></p>
     `,
     jsonLd: jsonLdGraph({
       node,

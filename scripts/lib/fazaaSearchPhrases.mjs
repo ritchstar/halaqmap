@@ -294,9 +294,81 @@ export const FAZAA_MAKKAH_PHRASES = [
   'تحلل مكة',
 ];
 
+/** عبارات المدينة المنورة — عمود /near/madinah */
+export const FAZAA_MADINAH_PHRASES = [
+  'اقرب حلاق المدينة المنورة',
+  'أقرب حلاق المدينة المنورة',
+  'أقرب حلاق في المدينة',
+  'اقرب حلاق في المدينة',
+  'اقرب حلاق رجالي من موقعي المدينة',
+  'أقرب حلاق رجالي من موقعي المدينة',
+  'اقرب حلاق من موقعي المدينة',
+  'حلاق قريب مني المدينة',
+  'حلاق قريب قباء',
+  'اقرب حلاق قباء',
+  'حلاق مفتوح الآن المدينة',
+  'صالونات رجالي المدينة',
+  ...withIntentPrefixes([
+    'اقرب حلاق المدينة المنورة',
+    'اقرب حلاق رجالي من موقعي المدينة',
+  ]),
+];
+
+/**
+ * تكتيك المسافة — 100م … 1000م (خطوة 100)
+ * يستهدف: اقرب حلاق من موقعي · اقرب حلاق 200 متر · اقرب حلاق رجالي من موقعي مفتوح الآن
+ */
+export const FAZAA_DISTANCE_METERS = [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000];
+
+function distancePhrasesForMeters(meters) {
+  const out = [];
+  for (const n of meters) {
+    out.push(
+      `اقرب حلاق ${n} متر`,
+      `أقرب حلاق ${n} متر`,
+      `اقرب حلاق من موقعي ${n} متر`,
+      `أقرب حلاق من موقعي ${n} متر`,
+      `اقرب حلاق رجالي من موقعي ${n} متر`,
+      `أقرب حلاق رجالي من موقعي ${n} متر`,
+      `اقرب حلاق في نطاق ${n} متر`,
+      `حلاق قريب ${n} متر`,
+      `حلاق رجالي قريب ${n} متر`,
+    );
+  }
+  return out;
+}
+
+export const FAZAA_DISTANCE_PHRASES = uniquePhrases([
+  'اقرب حلاق من موقعي',
+  'أقرب حلاق من موقعي',
+  'اقرب حلاق رجالي من موقعي',
+  'أقرب حلاق رجالي من موقعي',
+  'اقرب حلاق رجالي من موقعي مفتوح الآن',
+  'أقرب حلاق رجالي من موقعي مفتوح الآن',
+  'اقرب حلاق رجالي من موقعي مفتوح الان',
+  'أقرب حلاق رجالي من موقعي مفتوح الان',
+  'اقرب حلاق من موقعي مفتوح الآن',
+  'أقرب حلاق من موقعي مفتوح الآن',
+  ...distancePhrasesForMeters(FAZAA_DISTANCE_METERS),
+  // مسافات شائعة + مفتوح الآن
+  ...[200, 500, 800, 1000].flatMap((n) => [
+    `اقرب حلاق رجالي من موقعي ${n} متر مفتوح الآن`,
+    `اقرب حلاق من موقعي ${n} متر مفتوح الآن`,
+    `اقرب حلاق ${n} متر مفتوح الآن`,
+  ]),
+  ...withIntentPrefixes([
+    'اقرب حلاق رجالي من موقعي',
+    'اقرب حلاق من موقعي',
+    'اقرب حلاق 200 متر',
+    'اقرب حلاق 800 متر',
+    'اقرب حلاق رجالي من موقعي مفتوح الآن',
+  ]),
+]);
+
 /** كل العبارات لـ meta keywords + قسم العرض */
 export const FAZAA_ALL_SEARCH_PHRASES = uniquePhrases([
   ...FAZAA_NEAR_SALON_PHRASES,
+  ...FAZAA_DISTANCE_PHRASES,
   ...FAZAA_OPEN_NOW_PHRASES,
   ...FAZAA_HOME_MOBILE_PHRASES,
   ...FAZAA_CHILDREN_PHRASES,
@@ -304,12 +376,13 @@ export const FAZAA_ALL_SEARCH_PHRASES = uniquePhrases([
   ...FAZAA_ORIGIN_STYLE_PHRASES,
   ...FAZAA_BEST_NEAR_CITY_PHRASES,
   ...FAZAA_MAKKAH_PHRASES,
+  ...FAZAA_MADINAH_PHRASES,
 ]);
 
 export const FAZAA_SEARCH_KEYWORDS_META = FAZAA_ALL_SEARCH_PHRASES.join(', ');
 
 export const FAZAA_SEARCH_BLURB_AR =
-  'إن كنت تقول أبي أو عطني أو شف لي حلاق قريب، أو حلاق منزلي الرياض، أو حلاق اطفال قريب من موقعي، أو أفضل حلاق بالرياض — فزعة حلاق ماب تبدأ استعلاماً لحظياً ضمن البيانات المتاحة على المنصة.';
+  'إن كنت تقول أبي أو عطني أو شف لي اقرب حلاق رجالي من موقعي، أو اقرب حلاق 200 متر، أو اقرب حلاق 800 متر، أو اقرب حلاق رجالي من موقعي مفتوح الآن، أو اقرب حلاق في المدينة المنورة — فزعة حلاق ماب تبدأ استعلاماً لحظياً ضمن البيانات المتاحة على المنصة.';
 
 function chipsHtml(phrases) {
   return phrases.map((p) => `<li><span class="phrase-chip">${p}</span></li>`).join('\n');
@@ -322,11 +395,12 @@ function chipsHtml(phrases) {
 export function fazaaSearchPhrasesSectionHtml(opts = {}) {
   const compact = opts.compact === true;
   const primary = uniquePhrases([
-    ...FAZAA_NEAR_SALON_PHRASES.slice(0, 12),
-    ...withIntentPrefixes(['حلاق قريب', 'حلاق منزلي', 'حلاق أطفال']).slice(0, 12),
+    ...FAZAA_NEAR_SALON_PHRASES.slice(0, 10),
+    ...FAZAA_DISTANCE_PHRASES.slice(0, 14),
+    ...withIntentPrefixes(['حلاق قريب', 'حلاق منزلي', 'حلاق أطفال']).slice(0, 8),
     ...FAZAA_OPEN_NOW_PHRASES.slice(0, 4),
-    ...FAZAA_HOME_MOBILE_PHRASES.slice(0, 6),
-    ...FAZAA_CHILDREN_PHRASES.slice(0, 8),
+    ...FAZAA_HOME_MOBILE_PHRASES.slice(0, 4),
+    ...FAZAA_CHILDREN_PHRASES.slice(0, 6),
   ]);
   if (compact) {
     return `<section class="near-phrases" aria-label="عبارات البحث الشائعة">
@@ -338,11 +412,14 @@ export function fazaaSearchPhrasesSectionHtml(opts = {}) {
   const cityPreview = FAZAA_BEST_NEAR_CITY_PHRASES.slice(0, 36);
   const homePreview = FAZAA_HOME_MOBILE_PHRASES.slice(0, 40);
   const childrenPreview = FAZAA_CHILDREN_PHRASES.slice(0, 40);
+  const distancePreview = FAZAA_DISTANCE_PHRASES.slice(0, 48);
   return `<section class="near-phrases" aria-label="عبارات البحث الشائعة">
       <h2>تبحث عن اقرب حلاق أو حلاق قريب؟ أبي · عطني · شف لي</h2>
       <p class="note">${FAZAA_SEARCH_BLURB_AR}</p>
       <h3 class="phrase-sub">قرب الموقع — رجالي</h3>
       <ul class="phrase-grid">${chipsHtml(FAZAA_NEAR_SALON_PHRASES.slice(0, 48))}</ul>
+      <h3 class="phrase-sub">تكتيك المسافة — 100 إلى 1000 متر</h3>
+      <ul class="phrase-grid">${chipsHtml(distancePreview)}</ul>
       <h3 class="phrase-sub">مفتوح الآن · 24 ساعة</h3>
       <ul class="phrase-grid">${chipsHtml(FAZAA_OPEN_NOW_PHRASES)}</ul>
       <h3 class="phrase-sub">منزلي · متنقل · دليفري · مدن</h3>
@@ -356,6 +433,8 @@ export function fazaaSearchPhrasesSectionHtml(opts = {}) {
       <ul class="phrase-grid">${chipsHtml(FAZAA_ORIGIN_STYLE_PHRASES)}</ul>
       <h3 class="phrase-sub">أفضل حلاق — مدن المنصة</h3>
       <ul class="phrase-grid">${chipsHtml(cityPreview)}</ul>
+      <h3 class="phrase-sub">مكة · المدينة المنورة</h3>
+      <ul class="phrase-grid">${chipsHtml([...FAZAA_MAKKAH_PHRASES, ...FAZAA_MADINAH_PHRASES])}</ul>
     </section>`;
 }
 
