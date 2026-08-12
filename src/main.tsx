@@ -350,6 +350,14 @@ function schedulePlatformBuildSync(): void {
   window.addEventListener('load', scheduleIdle, { once: true })
 }
 
+function signalBootStarted(): void {
+  if (typeof window === 'undefined') return
+  const w = window as Window & { __halaqmapBootStartedV1?: boolean }
+  if (w.__halaqmapBootStartedV1 === true) return
+  w.__halaqmapBootStartedV1 = true
+  window.dispatchEvent(new CustomEvent('halaqmap:boot-started'))
+}
+
 async function bootstrapApp(rootEl: HTMLElement): Promise<void> {
   const bootMarker = window as Window & {
     [APP_BOOTSTRAP_FLAG]?: boolean
@@ -357,6 +365,7 @@ async function bootstrapApp(rootEl: HTMLElement): Promise<void> {
   }
   if (!bootMarker[APP_BOOTSTRAP_FLAG]) {
     bootMarker[APP_BOOTSTRAP_FLAG] = true
+    signalBootStarted()
     try {
       // كلا الاسمين متوفران (hoisted) — لا تعتمد على اسم واحد فقط بعد إعادة التسمية
       normalizeLocationHash()
@@ -387,33 +396,10 @@ async function bootstrapApp(rootEl: HTMLElement): Promise<void> {
           <AppComponent />
         </RootErrorBoundary>,
       )
+      // أوقف watchdog فور استدعاء React — لا تنتظر DOM (Suspense/الجوال البطيء)
+      markAppMounted()
       schedulePlatformBuildSync();
       void import('@/lib/registerAppServiceWorker').then((m) => m.registerAppServiceWorker());
-
-      const markIfMounted = () => {
-        if (rootEl.childElementCount > 0 || rootEl.textContent?.trim()) {
-          markAppMounted()
-        }
-      }
-
-      // Fast path: mark on first paint if React rendered any content.
-      requestAnimationFrame(() => {
-        requestAnimationFrame(markIfMounted)
-      })
-
-      // Robust path: detect first real DOM mount under #root.
-      const observer = new MutationObserver(() => {
-        if (bootMarker[APP_MOUNTED_FLAG] === true) return
-        markIfMounted()
-        const mountedFlag = (window as Window & { [APP_MOUNTED_FLAG]?: boolean })[APP_MOUNTED_FLAG]
-        if (mountedFlag === true) {
-          observer.disconnect()
-        }
-      })
-      observer.observe(rootEl, { childList: true, subtree: true, characterData: true })
-
-      // Safety stop to avoid leaving observer alive forever on broken boots.
-      window.setTimeout(() => observer.disconnect(), 12_000)
     } catch (error) {
       if (isDynamicImportChunkError(error)) {
         reloadOnceForChunkError()

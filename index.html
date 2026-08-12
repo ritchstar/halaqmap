@@ -115,30 +115,43 @@
         } catch (e) {}
       })();
     </script>
-    <!-- خط دفاع أخير ضد الشاشة البيضاء: إنعاش واحد بدون حلقة مسح كاش مزدوجة -->
+    <!-- خط دفاع أخير ضد الشاشة البيضاء: مهلة أطول على الجوال (حزمة vendor كبيرة) -->
     <script>
       (function () {
         try {
           var mountedFlag = '__halaqmapAppMountedV1';
+          var bootStartedFlag = '__halaqmapBootStartedV1';
           var overlayId = 'hm-boot-emergency-overlay-v1';
           var graceKey = 'hm-boot-grace-after-sw-reset';
-          var recoverKey = 'hm-boot-watchdog-recovered-v2';
+          var recoverKey = 'hm-boot-watchdog-recovered-v3';
           /* مفتاح ثابت للمسار بدون search حتى لا يعيد ?_boot إطلاق الـ watchdog */
           var key =
-            'hm-boot-watchdog-v2:' +
+            'hm-boot-watchdog-v3:' +
             window.location.pathname +
             (window.location.hash || '');
 
           if (window[mountedFlag] !== true) {
             window[mountedFlag] = false;
           }
+          if (window[bootStartedFlag] !== true) {
+            window[bootStartedFlag] = false;
+          }
+
+          var isSlowClient = false;
+          try {
+            isSlowClient =
+              (window.matchMedia && window.matchMedia('(max-width: 767px)').matches) ||
+              (navigator.connection && navigator.connection.saveData === true) ||
+              (navigator.connection &&
+                /2g|3g|slow-2g/i.test(String(navigator.connection.effectiveType || '')));
+          } catch (e0) {}
 
           var removeOverlay = function () {
             var existing = document.getElementById(overlayId);
             if (existing && existing.parentNode) existing.parentNode.removeChild(existing);
           };
 
-          var showOverlay = function () {
+          var showOverlay = function (autoRecovering) {
             if (document.getElementById(overlayId)) return;
             var el = document.createElement('div');
             el.id = overlayId;
@@ -147,8 +160,14 @@
               'position:fixed;inset:0;z-index:2147483647;display:flex;align-items:center;justify-content:center;background:#f8fafc;color:#0f172a;font-family:Tajawal,system-ui,sans-serif;padding:24px;';
             el.innerHTML =
               '<div style="max-width:640px;background:#ffffff;border:1px solid #cbd5e1;border-radius:16px;padding:18px 16px;box-shadow:0 24px 48px -32px rgba(15,23,42,.35)">' +
-              '<h2 style="margin:0 0 8px;font-size:20px;font-weight:800;color:#0f172a">نقوم باستعادة الصفحة تلقائياً…</h2>' +
-              '<p style="margin:0 0 12px;font-size:14px;line-height:1.8;color:#334155">تم رصد تعثّر في الإقلاع. يجري الآن إعادة التحميل الآمن دون مسح كاش مزدوج.</p>' +
+              '<h2 style="margin:0 0 8px;font-size:20px;font-weight:800;color:#0f172a">' +
+              (autoRecovering ? 'نقوم باستعادة الصفحة تلقائياً…' : 'تعذّر إكمال الإقلاع') +
+              '</h2>' +
+              '<p style="margin:0 0 12px;font-size:14px;line-height:1.8;color:#334155">' +
+              (autoRecovering
+                ? 'تم رصد تعثّر في الإقلاع. يجري الآن إعادة التحميل الآمن دون مسح كاش مزدوج.'
+                : 'الشبكة بطيئة أو التحميل معلّق. أعد المحاولة، ويفضّل شبكة Wi‑Fi إن أمكن.') +
+              '</p>' +
               '<button id="hm-boot-emergency-btn" style="border:0;border-radius:10px;padding:10px 14px;background:#0ea5e9;color:#fff;font-weight:700;cursor:pointer">إعادة تحميل فورية</button>' +
               '</div>';
             document.body.appendChild(el);
@@ -164,10 +183,16 @@
             }
           };
 
+          window.addEventListener('halaqmap:boot-started', function () {
+            window[bootStartedFlag] = true;
+          });
+
           window.addEventListener('halaqmap:mounted', function () {
             window[mountedFlag] = true;
+            window[bootStartedFlag] = true;
             try {
               sessionStorage.removeItem(graceKey);
+              sessionStorage.removeItem(key);
             } catch (e) {}
             removeOverlay();
           });
@@ -175,63 +200,87 @@
           var graceMs = 0;
           try {
             var graceAt = Number(sessionStorage.getItem(graceKey) || '0');
-            if (graceAt > 0) graceMs = Math.max(0, 25000 - (Date.now() - graceAt));
+            /* بعد مسح SW: مهلة أطول — تحميل بارد لـ vendor على الجوال يتجاوز 12ث بسهولة */
+            if (graceAt > 0) graceMs = Math.max(0, 60000 - (Date.now() - graceAt));
           } catch (e) {}
-          var timeoutMs = graceMs > 0 ? 20000 : 12000;
 
-          window.setTimeout(function () {
-            try {
-              if (window[mountedFlag] === true) return;
-              if (sessionStorage.getItem(key) === '1') return;
-              sessionStorage.setItem(key, '1');
-              showOverlay();
+          /* سطح المكتب 20ث · الجوال/شبكة بطيئة 45ث · بعد مسح الكاش 55ث */
+          var timeoutMs = graceMs > 0 ? 55000 : isSlowClient ? 45000 : 20000;
 
-              var softReload = function () {
-                try {
-                  sessionStorage.setItem(recoverKey, String(Date.now()));
-                } catch (e) {}
-                window.location.reload();
-              };
-
-              /* لا نمسح الكاش هنا إذا كان مسح SW قد حصل للتو — ذلك يسبب صفحة بلا CSS */
-              var recentlyReset = false;
+          var armWatchdog = function (ms, allowAutoRecover) {
+            window.setTimeout(function () {
               try {
-                var g = Number(sessionStorage.getItem(graceKey) || '0');
-                recentlyReset = g > 0 && Date.now() - g < 60000;
-              } catch (e2) {}
+                if (window[mountedFlag] === true) return;
 
-              if (recentlyReset) {
-                softReload();
-                return;
+                /* JS بدأ لكن لم يكتمل بعد — مدّد مرة واحدة بدل إنذار كاذب */
+                if (window[bootStartedFlag] === true && allowAutoRecover) {
+                  armWatchdog(isSlowClient ? 25000 : 15000, false);
+                  return;
+                }
+
+                var alreadyTried = false;
+                try {
+                  alreadyTried = sessionStorage.getItem(key) === '1';
+                } catch (e1) {}
+
+                if (alreadyTried || !allowAutoRecover) {
+                  showOverlay(false);
+                  return;
+                }
+
+                try {
+                  sessionStorage.setItem(key, '1');
+                } catch (e2) {}
+                showOverlay(true);
+
+                var softReload = function () {
+                  try {
+                    sessionStorage.setItem(recoverKey, String(Date.now()));
+                  } catch (e3) {}
+                  window.location.reload();
+                };
+
+                /* لا نمسح الكاش إذا كان مسح SW حديثاً أو الإقلاع قد بدأ — تجنّب حلقة باردة بلا CSS */
+                var recentlyReset = false;
+                try {
+                  var g = Number(sessionStorage.getItem(graceKey) || '0');
+                  recentlyReset = g > 0 && Date.now() - g < 90000;
+                } catch (e4) {}
+
+                if (recentlyReset || window[bootStartedFlag] === true) {
+                  softReload();
+                  return;
+                }
+
+                var clearCaches = function () {
+                  if (!('caches' in window)) return Promise.resolve();
+                  return caches
+                    .keys()
+                    .then(function (keys) {
+                      return Promise.all(keys.map(function (k) { return caches.delete(k); }));
+                    })
+                    .catch(function () {});
+                };
+
+                if ('serviceWorker' in navigator) {
+                  navigator.serviceWorker
+                    .getRegistrations()
+                    .then(function (regs) {
+                      return Promise.all(regs.map(function (r) { return r.unregister(); }));
+                    })
+                    .catch(function () {})
+                    .then(clearCaches)
+                    .finally(softReload);
+                } else {
+                  clearCaches().finally(softReload);
+                }
+              } catch (e) {
+                showOverlay(false);
               }
+            }, ms);
+          };
 
-              var clearCaches = function () {
-                if (!('caches' in window)) return Promise.resolve();
-                return caches
-                  .keys()
-                  .then(function (keys) {
-                    return Promise.all(keys.map(function (k) { return caches.delete(k); }));
-                  })
-                  .catch(function () {});
-              };
-
-              if ('serviceWorker' in navigator) {
-                navigator.serviceWorker
-                  .getRegistrations()
-                  .then(function (regs) {
-                    return Promise.all(regs.map(function (r) { return r.unregister(); }));
-                  })
-                  .catch(function () {})
-                  .then(clearCaches)
-                  .finally(softReload);
-              } else {
-                clearCaches().finally(softReload);
-              }
-            } catch (e) {
-              showOverlay();
-              window.location.reload();
-            }
-          }, timeoutMs);
+          armWatchdog(timeoutMs, true);
         } catch (e) {}
       })();
     </script>
