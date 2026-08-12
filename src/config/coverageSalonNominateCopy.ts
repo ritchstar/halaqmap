@@ -2,16 +2,16 @@
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
 /**
- * نسخة مسار «ساعد المنصة تغطي منطقتك» — ترشيح تغطية خفيف من المستعلم.
+ * نسخة مسار «رشح صالونك المفضل» — ترشيح تغطية خفيف من المستعلم.
  * لا يعني ظهوراً فورياً ولا انضماماً رسمياً.
  */
 
-export const COVERAGE_NOMINATE_TITLE_AR = 'ساعد المنصة تغطي منطقتك' as const;
+export const COVERAGE_NOMINATE_TITLE_AR = 'رشح صالونك المفضل' as const;
 
 export const COVERAGE_NOMINATE_LEAD_AR =
   'إن لم تجد صالوناً مشتركاً قريباً، يمكنك ترشيح صالون تعرفه. هذا ترشيح لتغطية المنطقة — وليس إعلاناً ولا تفعيل شراكة فورية.' as const;
 
-export const COVERAGE_NOMINATE_CTA_AR = 'ساعد المنصة تغطي منطقتك' as const;
+export const COVERAGE_NOMINATE_CTA_AR = 'رشح صالونك المفضل' as const;
 
 export const COVERAGE_NOMINATE_CTA_HINT_AR = 'ترشيح بسيط لتغطية منطقتك' as const;
 
