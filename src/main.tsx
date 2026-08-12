@@ -277,6 +277,7 @@ function renderBootstrapFailure(rootEl: HTMLElement, reason: unknown): void {
       </button>
     </div>,
   )
+  markAppMounted()
 }
 
 if (typeof window !== 'undefined') {
