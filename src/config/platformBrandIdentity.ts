@@ -19,23 +19,23 @@ export const PLATFORM_BRAND_LOGO_ABSOLUTE =
 /** كسر كاش الأيقونة عند التحديث (Google/المتصفح يعيدان جلب الـ favicon ببطء) */
 export const PLATFORM_BRAND_ICON_VERSION = '20260811' as const;
 
-/** أبرز عبارات بحث لصفحات فزعة في الواجهة — مرتّبة حسب أداء Ads */
+/** أبرز عبارات بحث لصفحات فزعة في الواجهة — مرتّبة حسب CTR في Search Console ثم Ads */
 export const PLATFORM_NEAR_SEARCH_PHRASES_AR = [
-  'اقرب حلاق رجالي من موقعي',
+  'اقرب حلاق',
   'حلاق قريب مني',
   'حلاق قريب من موقعي',
-  'أقرب حلاق من موقعي',
-  'حلاق مفتوح الآن',
+  'اقرب حلاق من موقعي',
+  'اقرب حلاق مفتوح من موقعي',
+  'اقرب حلاق رجالي من موقعي',
   'حلاق مفتوح 24 ساعة من موقعي',
   'حلاق يجي البيت',
   'barber near me',
   'أقرب صالون حولي',
   'حلاق دليفري',
-  'عطني أقرب صالون من موقعي',
 ] as const;
 
 export const PLATFORM_NEAR_SEARCH_BLURB_AR =
-  'اقرب حلاق رجالي من موقعك، حلاق قريب مني، مفتوح الآن أو 24 ساعة، أو حلاق يجي البيت — ابدأ فزعة الاستعلام من حلاق ماب.';
+  'اقرب حلاق، حلاق قريب مني، حلاق قريب من موقعي، مفتوح الآن أو 24 ساعة، أو حلاق يجي البيت — ابدأ فزعة الاستعلام من حلاق ماب.';
 
 export function platformBrandIconUrl(path: string, origin = 'https://www.halaqmap.com'): string {
   const base = origin.replace(/\/+$/, '');

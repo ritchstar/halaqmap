@@ -7,9 +7,9 @@
 
 export const VISITOR_HERO_BADGE_AR = 'مجاني · بلا تسجيل';
 
-export const VISITOR_HERO_TITLE_AR = 'حلاق قريب';
+export const VISITOR_HERO_TITLE_AR = 'اقرب حلاق';
 
-export const VISITOR_HERO_TITLE_ACCENT_AR = 'يناسب حاجتك';
+export const VISITOR_HERO_TITLE_ACCENT_AR = 'قريب منك';
 
 /** سطح المكتب — الواجهة تشرح نفسها؛ لا فقرة إضافية */
 export const VISITOR_HERO_LEAD_DESKTOP_AR = '';

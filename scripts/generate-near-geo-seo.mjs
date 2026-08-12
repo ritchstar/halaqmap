@@ -271,10 +271,10 @@ function renderPage({ node, nodes, isHub = false }) {
   if (isHub) {
     const cities = nodes.filter((n) => n.kind === 'city').sort((a, b) => b.priority - a.priority);
     const topNeighborhoodCities = cities.slice(0, 8);
-    // عنوان يبدأ بعبارات البحث التنافسية لـ «أقرب حلاق من موقعي»
-    const title = 'اقرب حلاق رجالي من موقعي حسب المدينة | حلاق ماب';
+    // عنوان يبدأ بعبارات GSC ذات أعلى نقر عضوي: اقرب حلاق · حلاق قريب مني
+    const title = 'اقرب حلاق · حلاق قريب مني حسب المدينة | حلاق ماب';
     const description =
-      'اقرب حلاق رجالي من موقعي، حلاق قريب مني، حلاق قريب من موقعي، مفتوح الآن و24 ساعة — اختر المدينة أو الحي وابدأ استعلاماً لحظياً من فزعة حلاق ماب.';
+      'اقرب حلاق، حلاق قريب مني، حلاق قريب من موقعي، اقرب حلاق مفتوح من موقعي و24 ساعة — اختر المدينة أو الحي وابدأ استعلاماً لحظياً من فزعة حلاق ماب.';
     const canonical = `${ORIGIN}/near`;
     const cityLinks = linkList(cities);
     const makkahFeature = `<section class="card" aria-label="عمود مكة">
@@ -314,9 +314,9 @@ function renderPage({ node, nodes, isHub = false }) {
       title,
       description,
       canonical,
-      h1: 'اقرب حلاق رجالي من موقعي حسب المدينة والحي',
+      h1: 'اقرب حلاق · حلاق قريب مني حسب المدينة والحي',
       bodyInner: `
-        <p class="lead"><strong>اقرب حلاق رجالي من موقعك</strong> أو <strong>حلاق قريب مني</strong> حسب مدينتك وحيّك عبر <strong>حلاق ماب</strong> — فزعة بحث لحظي توصلك لخيارات قريبة تناسب طلبك.</p>
+        <p class="lead"><strong>اقرب حلاق</strong> أو <strong>حلاق قريب مني</strong> أو <strong>حلاق قريب من موقعي</strong> حسب مدينتك وحيّك عبر <strong>حلاق ماب</strong> — فزعة بحث لحظي توصلك لخيارات قريبة تناسب طلبك.</p>
         <p class="note">اختر المدينة أدناه ثم اضغط «ابدأ الاستعلام». أو تصفّح أحياء الرياض وجدة ومكة والمدن الأخرى، أو انتقل لتفرعات الحلاق المنزلي والدليفري والأطفال.</p>
         ${makkahFeature}
         ${nearSearchPhrasesSectionHtml()}
@@ -345,13 +345,13 @@ function renderPage({ node, nodes, isHub = false }) {
   const title = cityMarketing
     ? cityMarketing.title
     : node.kind === 'neighborhood' && city
-      ? `أقرب حلاق من موقعي في ${node.nameAr} | ${city.nameAr} | حلاق ماب`
-      : `أقرب حلاق من موقعي في ${node.nameAr} | حلاق ماب`;
+      ? `اقرب حلاق في ${node.nameAr} · حلاق قريب مني | ${city.nameAr} | حلاق ماب`
+      : `اقرب حلاق في ${node.nameAr} · حلاق قريب مني | حلاق ماب`;
   const description = cityMarketing
     ? cityMarketing.description
     : node.kind === 'neighborhood' && city
-      ? `أفضل حلاقين بالقرب مني في حي ${node.nameAr} بمدينة ${city.nameAr} — أقرب حلاق من موقعي، صالون قريب، أقرب صالون حولي، حلاق منزلي عبر فزعة حلاق ماب.`
-      : `أفضل حلاقين بالقرب مني في ${node.nameAr} — أقرب حلاق من موقعي، صالون قريب، أقرب صالون حولي، عطني أقرب صالون من موقعي، حلاق دليفري عبر فزعة حلاق ماب.`;
+      ? `اقرب حلاق وحلاق قريب مني في حي ${node.nameAr} بمدينة ${city.nameAr} — حلاق قريب من موقعي، صالون قريب، أقرب صالون حولي عبر فزعة حلاق ماب.`
+      : `اقرب حلاق وحلاق قريب مني في ${node.nameAr} — حلاق قريب من موقعي، صالون قريب، أقرب صالون حولي عبر فزعة حلاق ماب.`;
   const canonical = absoluteUrl(path);
   const cta = `${ORIGIN}/#/?near=${encodeURIComponent([...node.parentSlugs, node.slug].join('/'))}`;
 
@@ -452,7 +452,7 @@ function renderPage({ node, nodes, isHub = false }) {
 
   const pageH1 = cityMarketing
     ? cityMarketing.h1
-    : `أقرب حلاق من موقعي في ${node.nameAr}`;
+    : `اقرب حلاق في ${node.nameAr} · حلاق قريب مني`;
 
   const keywordsMeta = cityMarketing?.keywords_extra
     ? `${NEAR_SEARCH_KEYWORDS_META}, ${cityMarketing.keywords_extra}`
