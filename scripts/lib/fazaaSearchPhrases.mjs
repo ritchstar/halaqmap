@@ -151,7 +151,7 @@ export const FAZAA_ALL_SEARCH_PHRASES = [
 export const FAZAA_SEARCH_KEYWORDS_META = FAZAA_ALL_SEARCH_PHRASES.join(', ');
 
 export const FAZAA_SEARCH_BLURB_AR =
-  'إن كنت تبحث عن اقرب حلاق، أو حلاق قريب مني، أو حلاق قريب من موقعي، أو اقرب حلاق مفتوح من موقعي، أو حلاق مفتوح 24 ساعة، أو حلاق يجي البيت، أو barber near me — فزعة حلاق ماب تبدأ استعلاماً لحظياً ضمن البيانات المتاحة على المنصة.';
+  'إن كنت تبحث عن اقرب حلاق، أو حلاق قريب، أو حلاق قريب مني، أو حلاق قريب من موقعي، أو اقرب حلاق مفتوح من موقعي، أو حلاق مفتوح 24 ساعة، أو حلاق يجي البيت، أو barber near me — فزعة حلاق ماب تبدأ استعلاماً لحظياً ضمن البيانات المتاحة على المنصة.';
 
 function chipsHtml(phrases) {
   return phrases.map((p) => `<li><span class="phrase-chip">${p}</span></li>`).join('\n');

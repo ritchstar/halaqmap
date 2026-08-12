@@ -22,6 +22,7 @@ export const PLATFORM_BRAND_ICON_VERSION = '20260811' as const;
 /** أبرز عبارات بحث لصفحات فزعة في الواجهة — مرتّبة حسب CTR في Search Console ثم Ads */
 export const PLATFORM_NEAR_SEARCH_PHRASES_AR = [
   'اقرب حلاق',
+  'حلاق قريب',
   'حلاق قريب مني',
   'حلاق قريب من موقعي',
   'اقرب حلاق من موقعي',
@@ -35,7 +36,7 @@ export const PLATFORM_NEAR_SEARCH_PHRASES_AR = [
 ] as const;
 
 export const PLATFORM_NEAR_SEARCH_BLURB_AR =
-  'اقرب حلاق، حلاق قريب مني، حلاق قريب من موقعي، مفتوح الآن أو 24 ساعة، أو حلاق يجي البيت — ابدأ فزعة الاستعلام من حلاق ماب.';
+  'اقرب حلاق، حلاق قريب، حلاق قريب مني، حلاق قريب من موقعي، مفتوح الآن أو 24 ساعة، أو حلاق يجي البيت — ابدأ فزعة الاستعلام من حلاق ماب.';
 
 export function platformBrandIconUrl(path: string, origin = 'https://www.halaqmap.com'): string {
   const base = origin.replace(/\/+$/, '');
