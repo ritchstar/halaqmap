@@ -75,6 +75,8 @@ export const ROUTE_PATHS = {
   /** طلب حذف الحساب (باقة برونزية — نموذج يُحال للإدارة) */
   BARBER_ACCOUNT_DELETE_REQUEST: '/barber/request-account-deletion',
   PAYMENT: '/partners/payment',
+  /** تأكيد الاشتراك بعد نجاح الدفع فقط — لتتبع إحالات Google Ads */
+  PAYMENT_SUCCESS: '/partners/payment/success',
   /** دعم فني للشركاء — محادثة خاصة بجلسة ساعة (?t=رمز_فريد) */
   PARTNER_SUPPORT: '/partners/support',
   /** مكتب مدير المبيعات B2B — صفحة مستقلة للتفاوض والشرح والانضمام */

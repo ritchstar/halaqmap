@@ -31,8 +31,8 @@ export const GOOGLE_ADS_CLEAN_LANDING_URLS = {
   /** صفحات SEO جغرافية (HTML ثابت — ليس HashRouter) */
   nearHub: 'https://www.halaqmap.com/near',
   nearRiyadh: 'https://www.halaqmap.com/near/riyadh',
-  /** صفحة تسكين التجار — إقفال اشتراكات الصالونات */
-  merchantSettlement: 'https://www.halaqmap.com/partners/merchant-settlement',
+  /** صفحة تأكيد الاشتراك بعد نجاح الدفع فقط — لتحويلات Google Ads */
+  paymentSuccess: 'https://www.halaqmap.com/partners/payment/success',
   /** مركز نسك الحج — الحلق والتقصير (HTML ثابت) */
   hajjNusuk: 'https://www.halaqmap.com/nusuk',
   /** فزعات حسب الحاجة — نية الاستعلام */

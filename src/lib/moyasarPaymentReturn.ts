@@ -8,6 +8,7 @@ import { calcVatBreakdown, type PlatformVatSettings } from '@/lib/platformVatSet
 export const MOYASAR_PAYMENT_CONTEXT_STORAGE_KEY = 'hm-moyasar-payment-context-v1';
 export const MOYASAR_LAST_PAYMENT_ID_STORAGE_KEY = 'hm-moyasar-last-payment-id-v1';
 export const MOYASAR_PAID_RECEIPT_STORAGE_KEY = 'hm-moyasar-paid-receipt-v1';
+export const PAYMENT_SUCCESS_GATE_STORAGE_KEY = 'hm-payment-success-gate-v1';
 
 export type MoyasarPaymentContext = {
   tier: string;
@@ -117,6 +118,48 @@ export function clearMoyasarPaidReceipt(): void {
   } catch {
     // ignore
   }
+}
+
+export type PaymentSuccessGate = {
+  paymentId: string;
+  at: string;
+  purpose?: string;
+};
+
+/** يُفتح مسار /partners/payment/success فقط بعد تحقق دفع ناجح في هذه الجلسة. */
+export function markPaymentSuccessGate(paymentId: string, purpose?: string): void {
+  if (typeof window === 'undefined') return;
+  const id = paymentId.trim();
+  if (!id) return;
+  try {
+    sessionStorage.setItem(
+      PAYMENT_SUCCESS_GATE_STORAGE_KEY,
+      JSON.stringify({
+        paymentId: id,
+        at: new Date().toISOString(),
+        ...(purpose ? { purpose } : {}),
+      } satisfies PaymentSuccessGate),
+    );
+  } catch {
+    // ignore
+  }
+}
+
+export function readPaymentSuccessGate(): PaymentSuccessGate | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = sessionStorage.getItem(PAYMENT_SUCCESS_GATE_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as PaymentSuccessGate;
+    if (!parsed?.paymentId) return null;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+export function hasPaymentSuccessGate(): boolean {
+  return Boolean(readPaymentSuccessGate()?.paymentId || readMoyasarPaidReceipt());
 }
 
 export function persistMoyasarLastPaymentId(paymentId: string): void {

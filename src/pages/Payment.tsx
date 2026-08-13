@@ -90,6 +90,7 @@ import {
   persistMoyasarLastPaymentId,
   persistMoyasarPaidReceipt,
   persistMoyasarPaymentContext,
+  markPaymentSuccessGate,
   readHashOrTopLevelSearchParams,
   readMoyasarFailureReturn,
   readMoyasarLastPaymentId,
@@ -1059,7 +1060,18 @@ export default function Payment() {
     void import('@/lib/analytics/productAnalytics').then(({ ProductEvents }) => {
       ProductEvents.paymentCompleted({ tier: String(tier) });
     });
-  }, [paymentReturnPaid, tier]);
+    if (isWalletTopup) return;
+    const pid = readMoyasarPaidReceipt(requestId) || readMoyasarLastPaymentId() || 'paid';
+    markPaymentSuccessGate(pid, purchasePurpose);
+    navigate(ROUTE_PATHS.PAYMENT_SUCCESS, { replace: true });
+  }, [
+    paymentReturnPaid,
+    tier,
+    isWalletTopup,
+    requestId,
+    purchasePurpose,
+    navigate,
+  ]);
 
   const paymentPathWithSearch = useMemo(() => {
     const q = searchParams.toString();

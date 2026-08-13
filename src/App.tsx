@@ -107,6 +107,7 @@ const PartnerAppInstall = lazy(() => import("@/pages/PartnerAppInstall"));
 const BarberAccountDeletionRequest = lazy(() => import("@/pages/BarberAccountDeletionRequest"));
 const AdminLogin = lazy(() => import("@/pages/AdminLogin"));
 const Payment = lazy(() => import("@/pages/Payment"));
+const PaymentSuccess = lazy(() => import("@/pages/PaymentSuccess"));
 const PartnerSubscriptionTutorials = lazy(() => import("@/pages/PartnerSubscriptionTutorials"));
 const MapCommunity = lazy(() => import("@/pages/MapCommunity"));
 const PartnerBannersPreviewLanding = lazy(() => import("@/pages/PartnerBannersPreviewLanding"));
@@ -473,6 +474,7 @@ export function App() {
           <Route path={ROUTE_PATHS.BARBER_LOGIN} element={<LazyRoute><BarberLogin /></LazyRoute>} />
           <Route path={ROUTE_PATHS.PARTNER_APP} element={<LazyRoute><PartnerAppInstall /></LazyRoute>} />
           <Route path={ROUTE_PATHS.BARBER_PORTAL_ENTER} element={<LazyRoute><BarberPortalEnter /></LazyRoute>} />
+          <Route path={ROUTE_PATHS.PAYMENT_SUCCESS} element={<WithPartnerLayout><LazyRoute><PaymentSuccess /></LazyRoute></WithPartnerLayout>} />
           <Route path={ROUTE_PATHS.PAYMENT} element={<WithPartnerLayout><LazyRoute><Payment /></LazyRoute></WithPartnerLayout>} />
           <Route path={ROUTE_PATHS.PARTNER_TUTORIALS} element={<WithPartnerLayout><LazyRoute><PartnerSubscriptionTutorials /></LazyRoute></WithPartnerLayout>} />
           <Route path={ROUTE_PATHS.MAP_COMMUNITY} element={<WithPartnerLayout><LazyRoute><MapCommunity /></LazyRoute></WithPartnerLayout>} />

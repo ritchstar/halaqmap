@@ -115,7 +115,7 @@ function isPartnerAcquisitionPath(path: string): boolean {
   const p = path.startsWith('/') ? path : `/${path}`;
   return (
     p === '/partners' ||
-    p.startsWith('/partners/') ||
+    (p.startsWith('/partners/') && !p.startsWith('/partners/payment/success')) ||
     p === '/register' ||
     p.startsWith('/register/')
   );
