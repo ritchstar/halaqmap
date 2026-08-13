@@ -114,4 +114,9 @@ export const PARTNER_JOIN_PATH_SECONDARY_LINKS = {
   why: 'لماذا نحن؟',
   guide: 'دليل تعبئة الطلب',
   story: 'اقرأ المزيد عن المسار',
+  app: 'تطبيق الصالون على Play',
 } as const;
+
+/** سطر قصير بجانب CTA التطبيق — مسار الشركاء */
+export const PARTNER_JOIN_PATH_APP_HINT_AR =
+  'تطبيق رسمي للشركاء على Google Play: إدارة الصالون والمواعيد من الهاتف.' as const;

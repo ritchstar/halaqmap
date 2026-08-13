@@ -17,7 +17,7 @@ import {
   Sparkles, ChevronDown, Globe2, Users, BarChart3,
   Crown, Zap, Navigation2, Lock,
   TrendingUp, QrCode, ImageIcon, Brain, FileCheck,
-  ArrowRight, Wifi, Menu, BriefcaseBusiness, DoorOpen,
+  ArrowRight, Wifi, Menu, BriefcaseBusiness, DoorOpen, Smartphone,
 } from 'lucide-react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/lib/index';
@@ -57,6 +57,7 @@ import {
   PARTNER_JOIN_PATH_HOW_IT_WORKS,
   PARTNER_JOIN_PATH_LIVELIHOOD_CTA_AR,
   PARTNER_JOIN_PATH_PAY_GATE,
+  PARTNER_JOIN_PATH_APP_HINT_AR,
   PARTNER_JOIN_PATH_PRIMARY_CTA_AR,
   PARTNER_JOIN_PATH_SECONDARY_LINKS,
   PARTNER_JOIN_PATH_STEPS,
@@ -753,6 +754,14 @@ export default function PartnerMarketingPreview() {
                     className="mt-1 w-full rounded-xl border border-amber-300/70 bg-amber-50 py-2.5 text-sm font-black text-amber-800">
                     {PARTNER_JOIN_PATH_PRIMARY_CTA_AR}
                   </button>
+                  <Link
+                    to={ROUTE_PATHS.PARTNER_APP}
+                    onClick={() => setMobileNavOpen(false)}
+                    className="mt-1 flex w-full items-center justify-center gap-2 rounded-xl border border-teal-200 bg-teal-50 py-2.5 text-sm font-bold text-teal-900"
+                  >
+                    <Smartphone className="h-4 w-4" />
+                    {PARTNER_JOIN_PATH_SECONDARY_LINKS.app}
+                  </Link>
                 </div>
               </motion.div>
             )}
@@ -875,7 +884,17 @@ export default function PartnerMarketingPreview() {
                   مكتب المبيعات
                 </Link>
               ) : null}
+              <Link
+                to={ROUTE_PATHS.PARTNER_APP}
+                className="flex items-center justify-center gap-2 rounded-xl border border-teal-200 bg-teal-50 px-6 py-4 font-semibold text-teal-900 shadow-sm hover:bg-teal-100"
+              >
+                <Smartphone className="h-4 w-4" />
+                {PARTNER_JOIN_PATH_SECONDARY_LINKS.app}
+              </Link>
             </div>
+            <p className="mt-3 max-w-xl text-xs leading-relaxed text-slate-500 sm:text-sm">
+              {PARTNER_JOIN_PATH_APP_HINT_AR}
+            </p>
 
           </motion.div>
 
@@ -1459,6 +1478,7 @@ export default function PartnerMarketingPreview() {
               <div className="flex flex-col gap-2.5 text-sm text-slate-600">
                 {[
                   { label: 'التسجيل', to: ROUTE_PATHS.REGISTER },
+                  { label: PARTNER_JOIN_PATH_SECONDARY_LINKS.app, to: ROUTE_PATHS.PARTNER_APP },
                   { label: 'الباقات والأسعار', to: ROUTE_PATHS.SUBSCRIPTION_POLICY },
                   { label: 'طلب ضيافة B2B (فنادق/شقق)', to: ROUTE_PATHS.HOSPITALITY_B2B_REQUEST },
                   { label: 'سياسة الحزم', to: ROUTE_PATHS.SUBSCRIPTION_POLICY },
