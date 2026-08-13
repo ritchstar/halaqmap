@@ -1,11 +1,13 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
+import { useEffect, useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ROUTE_PATHS } from '@/lib/routePaths';
-import { hasPaymentSuccessGate } from '@/lib/moyasarPaymentReturn';
+import { hasPaymentSuccessGate, readPaymentSuccessGate } from '@/lib/moyasarPaymentReturn';
+import { trackGoogleAdsSubscriptionPurchase } from '@/lib/googleAdsTag';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 
 /**
@@ -15,8 +17,24 @@ import { useDocumentTitle } from '@/hooks/useDocumentTitle';
  */
 export default function PaymentSuccess() {
   useDocumentTitle('تم تأكيد الاشتراك | حلاق ماب');
+  const [gate] = useState(() => readPaymentSuccessGate());
+  const allowed = Boolean(gate?.paymentId) || hasPaymentSuccessGate();
 
-  if (!hasPaymentSuccessGate()) {
+  useEffect(() => {
+    if (!gate?.paymentId) return;
+    if (gate.purpose === 'wallet_topup') return;
+    if (typeof gate.value !== 'number' || !Number.isFinite(gate.value) || gate.value <= 0) return;
+    trackGoogleAdsSubscriptionPurchase({
+      transactionId: gate.paymentId,
+      value: gate.value,
+      currency: gate.currency || 'SAR',
+      tier: gate.tier,
+      qty: gate.qty,
+      digitalShiftAddon: gate.digitalShiftAddon,
+    });
+  }, [gate]);
+
+  if (!allowed) {
     return <Navigate to={ROUTE_PATHS.PAYMENT} replace />;
   }
 

@@ -3,7 +3,7 @@
  */
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { AlertTriangle, Calendar, CheckCircle2, Home, Loader2, Scissors, Smartphone, User } from 'lucide-react';
+import { AlertTriangle, Calendar, CheckCircle2, Home, Loader2, Scissors, Smartphone, Store, User } from 'lucide-react';
 import { Layout } from '@/components/Layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,6 +20,11 @@ import {
   type PublicBookingTeamMember,
 } from '@/lib/namedBarberBookingRemote';
 import { cn } from '@/lib/utils';
+import {
+  formatCustomerBookingRef,
+  homeWithSalonPath,
+  persistCustomerNamedBookingReceipt,
+} from '@/lib/customerNamedBookingReceipt';
 
 function todayIso(): string {
   return new Date().toISOString().slice(0, 10);
@@ -47,6 +52,7 @@ export default function BookBarber() {
   const [phone, setPhone] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [bookingRef, setBookingRef] = useState('');
 
   useEffect(() => {
     let cancelled = false;
@@ -125,7 +131,16 @@ export default function BookBarber() {
       void refreshSlots();
       return;
     }
+    persistCustomerNamedBookingReceipt({
+      bookingId: result.bookingId,
+      barberId,
+      barberName: context?.salon.name || '',
+      date,
+      time,
+    });
+    setBookingRef(formatCustomerBookingRef(result.bookingId));
     setSubmitted(true);
+    window.scrollTo(0, 0);
     toast.success('تم إرسال طلب الحجز. سيُراجعه الصالون ويتم التأكيد على رقمك.');
   };
 
@@ -168,27 +183,44 @@ export default function BookBarber() {
   if (submitted) {
     return (
       <Layout>
-        <div className="container mx-auto max-w-lg px-4 py-12" dir="rtl">
-          <Card className="border-primary/30">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-primary">
-                <CheckCircle2 className="h-5 w-5" />
-                وصل طلبك للصالون
-              </CardTitle>
-              <CardDescription>
-                سيراجع {context.salon.name} الطلب ويؤكد الموعد على رقمك. لا حاجة للاتصال المباشر.
+        <div className="container mx-auto flex min-h-[80svh] max-w-lg items-start px-4 py-10" dir="rtl">
+          <Card className="w-full border-emerald-400/40 bg-emerald-500/5">
+            <CardHeader className="text-center">
+              <CheckCircle2 className="mx-auto h-12 w-12 text-emerald-600" aria-hidden />
+              <CardTitle className="mt-3 text-2xl text-foreground">تم إرسال الطلب</CardTitle>
+              <CardDescription className="text-base leading-relaxed">
+                وصل طلبك إلى {context.salon.name}. سيراجع الصالون الموعد ويتواصل معك على جوالك.
               </CardDescription>
             </CardHeader>
-            <CardContent className="flex flex-wrap gap-2">
-              <Button type="button" onClick={() => setSubmitted(false)}>
-                حجز موعد آخر
-              </Button>
-              <Button asChild variant="outline" className="gap-2">
-                <Link to={ROUTE_PATHS.HOME}>
-                  <Home className="h-4 w-4" />
-                  الرئيسية
-                </Link>
-              </Button>
+            <CardContent className="space-y-4">
+              {bookingRef ? (
+                <div className="rounded-xl border border-emerald-400/30 bg-background/80 px-4 py-3 text-center">
+                  <p className="text-xs text-muted-foreground">رقم الموعد</p>
+                  <p className="mt-1 font-mono text-xl font-black tracking-wide" dir="ltr">
+                    {bookingRef}
+                  </p>
+                  <p className="mt-2 text-sm text-foreground">
+                    {date} — الساعة {time}
+                  </p>
+                </div>
+              ) : null}
+              <div className="flex flex-col gap-2">
+                <Button asChild className="w-full gap-2 font-bold">
+                  <Link to={homeWithSalonPath(barberId)}>
+                    <Store className="h-4 w-4" />
+                    المتابعة مع الصالون
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" className="w-full gap-2">
+                  <Link to={ROUTE_PATHS.HOME}>
+                    <Home className="h-4 w-4" />
+                    العودة للرئيسية
+                  </Link>
+                </Button>
+                <Button type="button" variant="ghost" className="w-full" onClick={() => setSubmitted(false)}>
+                  حجز موعد آخر
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </div>

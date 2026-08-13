@@ -43,6 +43,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { PlatformDisplayImage } from '@/components/platform/PlatformDisplayImage';
+import { CustomerBookingReceiptBanner } from '@/components/CustomerBookingReceiptBanner';
 import { buildWhatsAppChatHref } from '@/lib/saudiWhatsAppPhone';
 
 interface BarberCardProps {
@@ -234,6 +235,7 @@ export function BarberCard({ barber, userLocation, imagePriority = false }: Barb
           className="overflow-visible"
         >
           <Card className={cn('overflow-hidden bg-gradient-to-br from-card via-card to-muted/25 border-border hover:shadow-lg transition-all duration-200', specialistRing, specialistSurface)}>
+            <CustomerBookingReceiptBanner barberId={barber.id} className="mx-3 mt-3" />
             <div className={BARBER_CARD_HERO_FRAME_BRONZE_CLASS}>
               <PlatformDisplayImage
                 src={barber.images[0]}
@@ -337,6 +339,7 @@ export function BarberCard({ barber, userLocation, imagePriority = false }: Barb
       >
         <Card className="overflow-hidden bg-gradient-to-br from-card via-card to-muted/20 border-border hover:shadow-lg transition-all duration-200">
           <div className="p-4">
+            <CustomerBookingReceiptBanner barberId={barber.id} className="mb-3" />
             <div className="flex items-start justify-between mb-3">
               <div className="flex-1">
                 <h3 className="text-lg font-semibold text-foreground mb-1">
@@ -440,6 +443,7 @@ export function BarberCard({ barber, userLocation, imagePriority = false }: Barb
         transition={{ type: "spring", stiffness: 300, damping: 35 }}
       >
         <Card className={cn('overflow-hidden bg-gradient-to-br from-card via-card to-accent/5 border-accent/25 shadow-md hover:shadow-xl hover:shadow-accent/10 transition-all duration-200 ring-1 ring-accent/20', specialistRing, specialistSurface)}>
+          <CustomerBookingReceiptBanner barberId={barber.id} className="mx-3 mt-3" />
           <div className={BARBER_CARD_HERO_FRAME_GOLD_CLASS}>
             <PlatformDisplayImage
               src={barber.images[0]}
@@ -551,6 +555,7 @@ export function BarberCard({ barber, userLocation, imagePriority = false }: Barb
       transition={{ type: "spring", stiffness: 300, damping: 35 }}
     >
       <Card className={cn('overflow-hidden bg-gradient-to-br from-card via-accent/5 to-accent/10 border-accent/30 hover:shadow-2xl hover:shadow-accent/20 transition-all duration-200 ring-2 ring-accent/20', showcaseCardRing, specialistRing, specialistSurface)}>
+        <CustomerBookingReceiptBanner barberId={barber.id} className="mx-3 mt-3" />
         <div className={BARBER_CARD_HERO_FRAME_DIAMOND_CLASS}>
           <PlatformDisplayImage
             src={barber.images[0]}

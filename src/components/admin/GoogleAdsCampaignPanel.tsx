@@ -20,6 +20,7 @@ import {
   GOOGLE_ADS_CLEAN_LANDING_URLS,
   GOOGLE_ADS_CONVERSION_ID,
   GOOGLE_ADS_PAGE_VIEW_CONVERSION_SEND_TO,
+  GOOGLE_ADS_PURCHASE_SEND_TO,
   GOOGLE_ADS_TAG_CHECK_URL,
   GOOGLE_ADS_TAG_LABEL_AR,
   GOOGLE_ANALYTICS_MEASUREMENT_ID,
@@ -153,9 +154,15 @@ export function GoogleAdsCampaignPanel() {
               <li>ارجع لـ Ads واضغط «تم» بعد ظهور التحقق (قد يستغرق دقائق إلى 24 ساعة).</li>
             </ol>
             <p className="mt-2 text-xs text-muted-foreground">
-              تسمية التحويل الحالية:{' '}
+              تسمية تحويل مشاهدة الصفحة:{' '}
               <code className="font-mono" dir="ltr">
                 {GOOGLE_ADS_PAGE_VIEW_CONVERSION_SEND_TO || 'غير مضبوطة بعد'}
+              </code>
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              تسمية تحويل الشراء/الاشتراك:{' '}
+              <code className="font-mono" dir="ltr">
+                {GOOGLE_ADS_PURCHASE_SEND_TO || 'غير مضبوطة — أضف VITE_GOOGLE_ADS_PURCHASE_SEND_TO'}
               </code>
             </p>
             <div className="mt-3 rounded-md border border-amber-500/30 bg-amber-500/5 p-2.5 text-xs leading-relaxed">
@@ -173,9 +180,21 @@ export function GoogleAdsCampaignPanel() {
                     {GOOGLE_ADS_CLEAN_LANDING_URLS.partners}
                   </a>
                 </li>
+                <li>
+                  <a className="text-primary underline" href={GOOGLE_ADS_CLEAN_LANDING_URLS.paymentSuccess} target="_blank" rel="noreferrer">
+                    {GOOGLE_ADS_CLEAN_LANDING_URLS.paymentSuccess}
+                  </a>
+                </li>
               </ul>
               <p className="mt-1 text-muted-foreground">
                 لا تستخدم الروابط التي تحتوي <code className="font-mono">#/</code> — تُرفض من Ads.
+              </p>
+              <p className="mt-2 text-muted-foreground">
+                تحويل الشراء يُطلق فقط من صفحة النجاح بعد تأكيد الدفع، بحدث{' '}
+                <code className="font-mono" dir="ltr">subscription_purchase</code>
+                {' '}في `dataLayer` مع `value` و`currency=SAR` و`transaction_id`. لإنهاء ربط Ads:
+                أنشئ إجراء تحويل شراء ثم ضع `send_to` في{' '}
+                <code className="font-mono" dir="ltr">VITE_GOOGLE_ADS_PURCHASE_SEND_TO</code>.
               </p>
             </div>
           </div>

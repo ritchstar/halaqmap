@@ -24,6 +24,7 @@ import { getOrderedWeekHoursForDisplay, SAUDI_WEEK_DAY_LABELS } from '@/lib/saud
 import { useDiamondAppointmentSchedulingShown } from '@/lib/diamondSchedulingVisibility';
 import { DiamondAppointmentBooking } from '@/components/DiamondAppointmentBooking';
 import { bookBarberPath, resolveCardCta } from '@/lib/namedBarberBookingRemote';
+import { CustomerBookingReceiptBanner } from '@/components/CustomerBookingReceiptBanner';
 import { CustomerBarberChatPreview } from '@/components/CustomerBarberChatPreview';
 import { HomeServiceContactRequestForm } from '@/components/HomeServiceContactRequestForm';
 import { GroomPrepContactRequestForm } from '@/components/GroomPrepContactRequestForm';
@@ -308,6 +309,7 @@ export function BarberDetailModal({
         transition={{ duration: 0.3 }}
         className="barber-contact-inner mt-4 min-w-0 max-w-full overflow-x-clip space-y-5 sm:space-y-6"
       >
+          <CustomerBookingReceiptBanner barberId={barber.id} />
           {showMensGroomingCenter ? (
             <MensGroomingCenterDetailBanner lines={barber.groomingCenterBannerLines ?? []} />
           ) : null}

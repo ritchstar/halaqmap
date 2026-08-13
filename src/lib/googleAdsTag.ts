@@ -4,6 +4,8 @@
 import {
   GOOGLE_ADS_CONVERSION_ID,
   GOOGLE_ADS_PAGE_VIEW_CONVERSION_SEND_TO,
+  GOOGLE_ADS_PURCHASE_CURRENCY,
+  GOOGLE_ADS_PURCHASE_SEND_TO,
   GOOGLE_ANALYTICS_MEASUREMENT_ID,
 } from '@/config/googleAdsTag';
 
@@ -18,6 +20,7 @@ export type GoogleAdsTrackedEvent = {
 const EVENT_LOG_KEY = 'halaqmap.googleAdsTag.events.v1';
 const EVENT_LOG_CAP = 80;
 const PAGE_CONV_SESSION_KEY = 'halaqmap.googleAds.pageViewConversion.v1';
+const PURCHASE_DEDUP_KEY_PREFIX = 'halaqmap.googleAds.purchaseTxn.v1:';
 
 declare global {
   interface Window {
@@ -84,12 +87,13 @@ export function clearGoogleAdsEventLog(): void {
 
 /**
  * إرسال إحالة ناجحة (`conversion`) إلى Google Ads.
- * `sendTo` يجب أن يكون بالشكل `AW-…/LABEL` لإجراء «مشاهدة صفحة».
+ * `sendTo` يجب أن يكون بالشكل `AW-…/LABEL`.
  */
 export function trackGoogleAdsConversion(opts: {
   sendTo: string;
   value?: number;
   currency?: string;
+  transactionId?: string;
   detail?: string;
 }): void {
   if (typeof window === 'undefined' || typeof window.gtag !== 'function') return;
@@ -99,6 +103,7 @@ export function trackGoogleAdsConversion(opts: {
     const payload: Record<string, unknown> = { send_to: sendTo };
     if (opts.value != null) payload.value = opts.value;
     if (opts.currency) payload.currency = opts.currency;
+    if (opts.transactionId) payload.transaction_id = opts.transactionId;
     window.gtag('event', 'conversion', payload);
     appendEvent({
       name: 'conversion',
@@ -107,6 +112,123 @@ export function trackGoogleAdsConversion(opts: {
     });
   } catch {
     /* ignore */
+  }
+}
+
+function adsSubscriptionItemName(tier?: string, digitalShiftAddon?: boolean): string {
+  const t = (tier || '').trim().toLowerCase();
+  if (t === 'diamond' && digitalShiftAddon) return 'ماسي + مناوبة';
+  if (t === 'diamond') return 'ماسي';
+  if (t === 'gold') return 'ذهبي';
+  return 'برونزي';
+}
+
+function hasFiredPurchaseConversion(transactionId: string): boolean {
+  if (typeof localStorage === 'undefined') return false;
+  try {
+    return localStorage.getItem(`${PURCHASE_DEDUP_KEY_PREFIX}${transactionId}`) === '1';
+  } catch {
+    return false;
+  }
+}
+
+function markPurchaseConversionFired(transactionId: string): void {
+  if (typeof localStorage === 'undefined') return;
+  try {
+    localStorage.setItem(`${PURCHASE_DEDUP_KEY_PREFIX}${transactionId}`, '1');
+  } catch {
+    /* private mode / quota */
+  }
+}
+
+export type GoogleAdsSubscriptionPurchaseInput = {
+  transactionId: string;
+  value: number;
+  currency?: string;
+  tier?: string;
+  qty?: number;
+  digitalShiftAddon?: boolean;
+};
+
+/**
+ * تحويل شراء/اشتراك بعد تأكيد الدفع فقط.
+ * يُدفع إلى dataLayer (GTM) + حدث `purchase` لـ GA4،
+ * وحدث `conversion` لـ Ads إن وُجدت تسمية الشراء.
+ * `transaction_id` يمنع احتساب نفس العملية مرتين عند إعادة تحميل صفحة النجاح.
+ */
+export function trackGoogleAdsSubscriptionPurchase(
+  input: GoogleAdsSubscriptionPurchaseInput,
+): boolean {
+  if (typeof window === 'undefined') return false;
+  const transactionId = input.transactionId.trim();
+  if (!transactionId || transactionId.toLowerCase() === 'paid') return false;
+  const value = Number(input.value);
+  if (!Number.isFinite(value) || value <= 0) return false;
+  if (hasFiredPurchaseConversion(transactionId)) return false;
+
+  const currency = (input.currency || GOOGLE_ADS_PURCHASE_CURRENCY).trim() || GOOGLE_ADS_PURCHASE_CURRENCY;
+  const qty = Math.max(1, Number.isFinite(input.qty) ? Math.trunc(Number(input.qty)) : 1);
+  const unitPrice = Math.round((value / qty) * 100) / 100;
+  const itemName = adsSubscriptionItemName(input.tier, input.digitalShiftAddon);
+  const tierKey = (input.tier || 'bronze').trim().toLowerCase() || 'bronze';
+  const items = [
+    {
+      item_id: `listing_license_${tierKey}${input.digitalShiftAddon ? '_shift' : ''}`,
+      item_name: itemName,
+      item_category: 'subscription',
+      price: unitPrice,
+      quantity: qty,
+    },
+  ];
+
+  markPurchaseConversionFired(transactionId);
+
+  try {
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({ ecommerce: null });
+    window.dataLayer.push({
+      event: 'subscription_purchase',
+      value,
+      currency,
+      transaction_id: transactionId,
+      ecommerce: {
+        transaction_id: transactionId,
+        value,
+        currency,
+        items,
+      },
+    });
+
+    if (typeof window.gtag === 'function') {
+      window.gtag('event', 'purchase', {
+        transaction_id: transactionId,
+        value,
+        currency,
+        items,
+      });
+      const sendTo = GOOGLE_ADS_PURCHASE_SEND_TO;
+      if (sendTo.startsWith('AW-') && sendTo.includes('/')) {
+        trackGoogleAdsConversion({
+          sendTo,
+          value,
+          currency,
+          transactionId,
+          detail: `purchase:${transactionId}:${value}${currency}`,
+        });
+      }
+    }
+
+    appendEvent({
+      name: 'subscription_purchase',
+      path:
+        typeof window.location.hash === 'string'
+          ? window.location.hash.replace(/^#/, '')
+          : undefined,
+      detail: `${transactionId} · ${value} ${currency} · ${itemName}`,
+    });
+    return true;
+  } catch {
+    return false;
   }
 }
 
@@ -191,6 +313,7 @@ export function getGoogleAdsTagSnapshot(): {
   conversionId: string;
   analyticsId: string;
   pageViewSendTo: string;
+  purchaseSendTo: string;
   dataLayerSize: number;
   eventCount: number;
   lastEventAt: string | null;
@@ -201,6 +324,7 @@ export function getGoogleAdsTagSnapshot(): {
     conversionId: GOOGLE_ADS_CONVERSION_ID,
     analyticsId: GOOGLE_ANALYTICS_MEASUREMENT_ID,
     pageViewSendTo: GOOGLE_ADS_PAGE_VIEW_CONVERSION_SEND_TO,
+    purchaseSendTo: GOOGLE_ADS_PURCHASE_SEND_TO,
     dataLayerSize: Array.isArray(window.dataLayer) ? window.dataLayer.length : 0,
     eventCount: events.length,
     lastEventAt: events[0]?.at ?? null,

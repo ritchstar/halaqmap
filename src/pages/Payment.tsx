@@ -1061,12 +1061,27 @@ export default function Payment() {
       ProductEvents.paymentCompleted({ tier: String(tier) });
     });
     if (isWalletTopup) return;
-    const pid = readMoyasarPaidReceipt(requestId) || readMoyasarLastPaymentId() || 'paid';
-    markPaymentSuccessGate(pid, purchasePurpose);
+    const rawPid = (readMoyasarPaidReceipt(requestId) || readMoyasarLastPaymentId()).trim();
+    const transactionId =
+      rawPid && rawPid.toLowerCase() !== 'paid'
+        ? rawPid
+        : `hm-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+    markPaymentSuccessGate({
+      paymentId: transactionId,
+      purpose: purchasePurpose,
+      value: computeListingLicenseTotalSar(tier, licenseQuantity, listingPricingOptions),
+      currency: 'SAR',
+      tier,
+      qty: licenseQuantity,
+      digitalShiftAddon: digitalShiftAddonSelected,
+    });
     navigate(ROUTE_PATHS.PAYMENT_SUCCESS, { replace: true });
   }, [
     paymentReturnPaid,
     tier,
+    licenseQuantity,
+    listingPricingOptions,
+    digitalShiftAddonSelected,
     isWalletTopup,
     requestId,
     purchasePurpose,

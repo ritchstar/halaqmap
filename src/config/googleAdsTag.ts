@@ -16,6 +16,18 @@ export const GOOGLE_ADS_PAGE_VIEW_CONVERSION_SEND_TO = String(
     'AW-18240041811/0ftrCIGbkL8cENPmw_lD',
 ).trim();
 
+/**
+ * تسمية تحويل «شراء/اشتراك» من Google Ads بالشكل `AW-…/LABEL`.
+ * تُضبط بعد إنشاء إجراء التحويل في Ads عبر `VITE_GOOGLE_ADS_PURCHASE_SEND_TO`.
+ * حتى لو كانت فارغة: يُدفع `dataLayer` + حدث `purchase` لـ GA4 من صفحة النجاح.
+ */
+export const GOOGLE_ADS_PURCHASE_SEND_TO = String(
+  import.meta.env.VITE_GOOGLE_ADS_PURCHASE_SEND_TO ||
+    'AW-18240041811/bTi4CLfOk-ECENPmw_1D',
+).trim();
+
+export const GOOGLE_ADS_PURCHASE_CURRENCY = 'SAR';
+
 /** صفحة تحقق ثابتة (بدون HashRouter) لتمرير فحص العلامة في Ads */
 export const GOOGLE_ADS_TAG_CHECK_URL = 'https://www.halaqmap.com/ads-tag-check.html';
 

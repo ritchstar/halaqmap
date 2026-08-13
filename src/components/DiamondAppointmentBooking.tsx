@@ -2,7 +2,7 @@
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
 import { useMemo, useState, useCallback, useEffect } from 'react';
-import { Calendar, Clock, Smartphone, Send, Loader2 } from 'lucide-react';
+import { Calendar, CheckCircle2, Clock, Home, Loader2, Send, Smartphone, Store } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -10,6 +10,13 @@ import { Card, CardContent } from '@/components/ui/card';
 import { toast } from '@/components/ui/sonner';
 import { isSupabaseConfigured } from '@/integrations/supabase/client';
 import { createDiamondAppointmentBookingRemote } from '@/lib/diamondAppointmentBookingRemote';
+import { Link } from 'react-router-dom';
+import { ROUTE_PATHS } from '@/lib/routePaths';
+import {
+  formatCustomerBookingRef,
+  homeWithSalonPath,
+  persistCustomerNamedBookingReceipt,
+} from '@/lib/customerNamedBookingReceipt';
 
 function todayIso(): string {
   const d = new Date();
@@ -51,6 +58,7 @@ export function DiamondAppointmentBooking({ barberId, barberName, compact }: Dia
   const [time, setTime] = useState('10:00');
   const [phone, setPhone] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [bookingRef, setBookingRef] = useState('');
 
   const slots = useMemo(() => buildSlotsForDate(date), [date]);
 
@@ -83,9 +91,52 @@ export function DiamondAppointmentBooking({ barberId, barberName, compact }: Dia
       toast.error(result.error);
       return;
     }
-    toast.success('تم إرسال طلب الحجز. سيُراجعه الصالون ويتم التأكيد على رقمك.', { duration: 5000 });
+    persistCustomerNamedBookingReceipt({
+      bookingId: result.bookingId,
+      barberId,
+      barberName,
+      date,
+      time,
+    });
+    setBookingRef(formatCustomerBookingRef(result.bookingId));
     setPhone('');
-  }, [barberId, date, time, phone]);
+    toast.success('تم إرسال طلب الحجز. سيُراجعه الصالون ويتم التأكيد على رقمك.', { duration: 5000 });
+  }, [barberId, barberName, date, time, phone]);
+
+  if (bookingRef) {
+    return (
+      <Card className="barber-contact-inner min-w-0 max-w-full overflow-hidden border-emerald-400/40 bg-emerald-500/10">
+        <CardContent className={compact ? 'space-y-3 p-3' : 'space-y-4 p-4'}>
+          <div className="flex items-start gap-2">
+            <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600" aria-hidden />
+            <div>
+              <p className="font-bold text-foreground">تم إرسال الطلب</p>
+              <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                وصل طلبك إلى {barberName}. رقم الموعد{' '}
+                <span className="font-mono font-bold text-foreground" dir="ltr">
+                  {bookingRef}
+                </span>
+              </p>
+            </div>
+          </div>
+          <div className="flex flex-col gap-2">
+            <Button asChild size="sm" className="w-full gap-1 font-bold">
+              <Link to={homeWithSalonPath(barberId)}>
+                <Store className="h-3.5 w-3.5" />
+                المتابعة مع الصالون
+              </Link>
+            </Button>
+            <Button asChild size="sm" variant="outline" className="w-full gap-1">
+              <Link to={ROUTE_PATHS.HOME}>
+                <Home className="h-3.5 w-3.5" />
+                العودة للرئيسية
+              </Link>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   if (compact) {
     return (

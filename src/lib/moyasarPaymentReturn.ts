@@ -124,20 +124,47 @@ export type PaymentSuccessGate = {
   paymentId: string;
   at: string;
   purpose?: string;
+  /** قيمة الاشتراك بالريال حسب الباقة المدفوعة (بدون ضريبة) */
+  value?: number;
+  currency?: string;
+  tier?: string;
+  qty?: number;
+  digitalShiftAddon?: boolean;
+};
+
+export type MarkPaymentSuccessGateInput = {
+  paymentId: string;
+  purpose?: string;
+  value: number;
+  currency?: string;
+  tier?: string;
+  qty?: number;
+  digitalShiftAddon?: boolean;
 };
 
 /** يُفتح مسار /partners/payment/success فقط بعد تحقق دفع ناجح في هذه الجلسة. */
-export function markPaymentSuccessGate(paymentId: string, purpose?: string): void {
+export function markPaymentSuccessGate(input: MarkPaymentSuccessGateInput): void {
   if (typeof window === 'undefined') return;
-  const id = paymentId.trim();
+  const id = input.paymentId.trim();
   if (!id) return;
+  const value = Number(input.value);
+  if (!Number.isFinite(value) || value <= 0) return;
+  const currency = (input.currency || 'SAR').trim() || 'SAR';
+  const purpose = input.purpose?.trim();
+  const tier = input.tier?.trim();
+  const qty = Number.isFinite(input.qty) ? Math.trunc(Number(input.qty)) : undefined;
   try {
     sessionStorage.setItem(
       PAYMENT_SUCCESS_GATE_STORAGE_KEY,
       JSON.stringify({
         paymentId: id,
         at: new Date().toISOString(),
+        value,
+        currency,
         ...(purpose ? { purpose } : {}),
+        ...(tier ? { tier } : {}),
+        ...(qty && qty > 0 ? { qty } : {}),
+        ...(input.digitalShiftAddon ? { digitalShiftAddon: true } : {}),
       } satisfies PaymentSuccessGate),
     );
   } catch {

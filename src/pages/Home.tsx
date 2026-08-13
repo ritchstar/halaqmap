@@ -195,6 +195,16 @@ export default function Home() {
   const showcaseActive =
     remoteStatus === 'ready' && filteredBarbers.length === 0 && showcaseFallback != null;
 
+  useEffect(() => {
+    const salonId = readHashQueryParam('salon');
+    if (!salonId || selectedBarber) return;
+    const found =
+      filteredBarbers.find((row) => row.id === salonId) ||
+      remoteBarbers.find((row) => row.id === salonId) ||
+      (showcaseFallback?.barber.id === salonId ? showcaseFallback.barber : null);
+    if (found) setSelectedBarber(found);
+  }, [filteredBarbers, remoteBarbers, showcaseFallback, selectedBarber]);
+
   useShowcaseWhenSearchEmpty({
     remoteStatus,
     filteredCount: filteredBarbers.length,
