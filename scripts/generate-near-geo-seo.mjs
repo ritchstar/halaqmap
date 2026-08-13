@@ -24,6 +24,13 @@ import {
   citySeoBranchesHtml,
 } from './lib/fazaaCitySeoBranches.mjs';
 import {
+  featuredPartnersCss,
+  featuredPartnerKeywords,
+  featuredPartnersForPlace,
+  featuredPartnersMetaBlurb,
+  featuredPartnersSectionHtml,
+} from './data/fazaaFeaturedPartners.mjs';
+import {
   cityPillarSectionsHtml,
   exportFazaaCityMarketingJsonList,
   getFazaaCityMarketing,
@@ -382,20 +389,42 @@ function renderPage({ node, nodes, isHub = false }) {
     node.kind === 'city' ? getFazaaCityMarketing(node.slug) : null;
   const premiumCopy =
     node.kind === 'neighborhood' && city ? neighborhoodSeoCopy(node, city) : null;
+  const partnerCitySlug = node.kind === 'city' ? node.slug : city?.slug || null;
+  const partnerNeighSlug = node.kind === 'neighborhood' ? node.slug : null;
+  const pagePartners = partnerCitySlug
+    ? featuredPartnersForPlace(partnerCitySlug, partnerNeighSlug)
+    : [];
+  const partnerBlurb = partnerCitySlug
+    ? featuredPartnersMetaBlurb(partnerCitySlug, partnerNeighSlug, node.nameAr)
+    : '';
+  const partnerKeywords = partnerCitySlug
+    ? featuredPartnerKeywords(partnerCitySlug, partnerNeighSlug)
+    : '';
+  const partnerSection = partnerCitySlug
+    ? featuredPartnersSectionHtml({
+        citySlug: partnerCitySlug,
+        neighborhoodSlug: partnerNeighSlug,
+        placeNameAr: node.nameAr,
+      })
+    : '';
+
   const title = cityMarketing
     ? cityMarketing.title
     : premiumCopy
       ? premiumCopy.title
       : node.kind === 'neighborhood' && city
-        ? `اقرب حلاق في ${node.nameAr} · حلاق قريب | ${city.nameAr} | حلاق ماب`
+        ? pagePartners.length > 0
+          ? `اقرب حلاق في ${node.nameAr} · شركاء حلاق ماب | ${city.nameAr} | حلاق ماب`
+          : `اقرب حلاق في ${node.nameAr} · حلاق قريب | ${city.nameAr} | حلاق ماب`
         : `اقرب حلاق في ${node.nameAr} · حلاق قريب | حلاق ماب`;
-  const description = cityMarketing
+  const baseDescription = cityMarketing
     ? cityMarketing.description
     : premiumCopy
       ? premiumCopy.description
       : node.kind === 'neighborhood' && city
         ? `اقرب حلاق وحلاق قريب في حي ${node.nameAr} بمدينة ${city.nameAr} — حلاق قريب مني، حلاق قريب من موقعي، صالون قريب عبر فزعة حلاق ماب.`
         : `اقرب حلاق وحلاق قريب في ${node.nameAr} — حلاق قريب مني، حلاق قريب من موقعي، صالون قريب عبر فزعة حلاق ماب.`;
+  const description = partnerBlurb ? `${baseDescription} ${partnerBlurb}` : baseDescription;
   const canonical = absoluteUrl(path);
   const cta = `${ORIGIN}/#/?near=${encodeURIComponent([...node.parentSlugs, node.slug].join('/'))}`;
 
@@ -445,7 +474,18 @@ function renderPage({ node, nodes, isHub = false }) {
     childBlock = `<p class="note">عد إلى صفحة <a href="${escapeHtml(nodePath(city))}">${escapeHtml(city.nameAr)}</a> لرؤية الاتجاهات والأحياء.</p>`;
   }
 
-  const faqHtml = faqs
+  const pageFaqs =
+    pagePartners.length > 0
+      ? [
+          ...faqs,
+          {
+            q: `هل يوجد شركاء حلاق ماب في ${node.nameAr}؟`,
+            a: `نعم — من الشركاء الذهبيين في هذا النطاق: ${pagePartners.map((p) => p.nameAr).join('، ')}. ابدأ فزعة الاستعلام لعرض الخيارات الحيّة المتاحة لحظة الطلب.`,
+          },
+        ]
+      : faqs;
+
+  const faqHtml = pageFaqs
     .map(
       (f) => `
       <details>
@@ -499,9 +539,9 @@ function renderPage({ node, nodes, isHub = false }) {
     ? cityMarketing.h1
     : premiumCopy?.h1 || `اقرب حلاق في ${node.nameAr} · حلاق قريب`;
 
-  const keywordsMeta = cityMarketing?.keywords_extra
-    ? `${NEAR_SEARCH_KEYWORDS_META}, ${cityMarketing.keywords_extra}`
-    : NEAR_SEARCH_KEYWORDS_META;
+  const keywordsMeta = [NEAR_SEARCH_KEYWORDS_META, cityMarketing?.keywords_extra, partnerKeywords]
+    .filter(Boolean)
+    .join(', ');
 
   return htmlShell({
     title,
@@ -512,6 +552,7 @@ function renderPage({ node, nodes, isHub = false }) {
     bodyInner: `
       <nav class="crumbs" aria-label="مسار التنقل">${crumbs.join(' <span aria-hidden="true">/</span> ')}</nav>
       ${lead}
+      ${partnerSection}
       ${pillarSections}
       ${branches}
       ${isCityPillar ? '' : nearSearchPhrasesSectionHtml({ compact: true })}
@@ -534,7 +575,7 @@ function renderPage({ node, nodes, isHub = false }) {
               .filter((n) => n.slug !== node.slug)
               .slice(0, SIBLING_LIMIT)
           : neighborhoods,
-      faqs,
+      faqs: pageFaqs,
       pageName: pageH1,
     }),
   });
@@ -585,6 +626,7 @@ ${brandPageTypeCss()}
     details { border:1px solid var(--line); border-radius:12px; padding:.75rem 1rem; margin:.55rem 0; background:rgba(12,26,46,.7); }
     summary { cursor:pointer; font-weight:700; }
     footer { margin-top:2.5rem; padding-top:1rem; border-top:1px solid var(--line); color:var(--muted); font-size:.85rem; }
+${featuredPartnersCss()}
   </style>
 ${fazaaMeasurementTagHtml()}
 </head>

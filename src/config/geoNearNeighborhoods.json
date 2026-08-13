@@ -3468,6 +3468,17 @@
       "priority": 76
     },
     {
+      "slug": "rawnah",
+      "nameAr": "الرونة",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "khamis-mushait"
+      ],
+      "lat": 18.218133,
+      "lng": 42.809622,
+      "priority": 85
+    },
+    {
       "slug": "wasat",
       "nameAr": "وسط خميس مشيط",
       "kind": "neighborhood",
@@ -3476,7 +3487,7 @@
       ],
       "lat": 18.306,
       "lng": 42.7298,
-      "priority": 85
+      "priority": 84
     },
     {
       "slug": "rawdah",
@@ -3487,7 +3498,7 @@
       ],
       "lat": 18.326,
       "lng": 42.7398,
-      "priority": 84
+      "priority": 83
     },
     {
       "slug": "aziziyah",
@@ -3498,7 +3509,7 @@
       ],
       "lat": 18.291,
       "lng": 42.7448,
-      "priority": 83
+      "priority": 82
     },
     {
       "slug": "nakheel",
@@ -3509,7 +3520,7 @@
       ],
       "lat": 18.331,
       "lng": 42.7198,
-      "priority": 82
+      "priority": 81
     },
     {
       "slug": "industrial",
@@ -3520,7 +3531,7 @@
       ],
       "lat": 18.286,
       "lng": 42.7498,
-      "priority": 81
+      "priority": 80
     },
     {
       "slug": "khalidiyah",
@@ -3531,7 +3542,7 @@
       ],
       "lat": 18.316,
       "lng": 42.7548,
-      "priority": 80
+      "priority": 79
     },
     {
       "slug": "murooj",
@@ -3542,7 +3553,7 @@
       ],
       "lat": 18.321,
       "lng": 42.7098,
-      "priority": 79
+      "priority": 78
     },
     {
       "slug": "qadisiyah",
@@ -3553,7 +3564,7 @@
       ],
       "lat": 18.296,
       "lng": 42.7148,
-      "priority": 78
+      "priority": 77
     },
     {
       "slug": "wasat",

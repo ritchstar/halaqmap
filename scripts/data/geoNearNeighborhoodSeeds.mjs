@@ -383,6 +383,7 @@ export const NEIGHBORHOOD_SEEDS = {
     ['nakheel', 'النخيل', 0.0, 0.03],
   ],
   'khamis-mushait': [
+    ['rawnah', 'الرونة', 18.218133, 42.809622, true],
     ['wasat', 'وسط خميس مشيط', 0.0, 0.0],
     ['rawdah', 'الروضة', 0.02, 0.01],
     ['aziziyah', 'العزيزية', -0.015, 0.015],
