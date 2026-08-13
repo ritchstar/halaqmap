@@ -1040,10 +1040,10 @@ export default function BarberDashboard({
                 size="sm"
                 className="shrink-0 gap-1.5 text-sm"
                 onClick={() => navigate(ROUTE_PATHS.PARTNER_APP)}
-                title="تطبيق الصالون"
+                title="تطبيق الصالون على Google Play"
               >
                 <Smartphone className="h-4 w-4" />
-                <span className="hidden sm:inline">تطبيق الصالون</span>
+                <span className="hidden sm:inline">تطبيق Play</span>
               </Button>
               <Button variant="ghost" onClick={handleLogout} className="shrink-0 gap-2 text-sm">
                 <LogOut className="h-4 w-4" />

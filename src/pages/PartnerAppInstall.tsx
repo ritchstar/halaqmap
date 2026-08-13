@@ -18,6 +18,8 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { HalaqmapBrandMark } from '@/components/HalaqmapBrandMark';
 import {
   PARTNER_ANDROID_PLAY_STORE_URL,
+  PARTNER_APP_ABOUT_AR,
+  PARTNER_APP_BULLETS_AR,
   PARTNER_APP_DISPLAY_NAME_AR,
   PARTNER_APP_TAGLINE_AR,
 } from '@/config/partnerAppShell';
@@ -30,13 +32,13 @@ import { toast } from '@/components/ui/sonner';
 const PARTNER_MANIFEST_HREF = '/manifest-partner.json';
 
 /**
- * صفحة تثبيت تطبيق الصالون (PWA أولاً) + جسر سريع للوحة التحكم.
- * Manifest الشريك يُفعَّل هنا فقط حتى يبدأ التطبيق على /partners/app.
+ * صفحة تطبيق الصالون: Google Play الرسمي أولاً + تثبيت من المتصفح كبديل.
  */
 export default function PartnerAppInstall() {
   useDocumentTitle(PARTNER_APP_DISPLAY_NAME_AR);
   const { canPrompt, installed, prompting, promptInstall, isIos } = usePartnerAppInstallPrompt();
   const session = useMemo(() => readBarberAuthSession(), []);
+  const playUrl = PARTNER_ANDROID_PLAY_STORE_URL.trim();
 
   useEffect(() => {
     const existing = document.querySelector('link[rel="manifest"]') as HTMLLinkElement | null;
@@ -61,7 +63,7 @@ export default function PartnerAppInstall() {
       toast.message(
         isIos
           ? 'على آيفون: شارك ← «إضافة إلى الشاشة الرئيسية»'
-          : 'استخدم قائمة المتصفح ← «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية»',
+          : 'يفضّل التحميل من Google Play، أو استخدم قائمة المتصفح ← «تثبيت التطبيق»',
       );
     }
   };
@@ -83,6 +85,18 @@ export default function PartnerAppInstall() {
           </div>
         </div>
 
+        <div className="rounded-2xl border border-teal-300/25 bg-black/30 p-4 text-sm leading-relaxed text-teal-50/90">
+          <p>{PARTNER_APP_ABOUT_AR}</p>
+          <ul className="mt-3 space-y-1.5 text-[13px] text-teal-50/75">
+            {PARTNER_APP_BULLETS_AR.map((line) => (
+              <li key={line} className="flex gap-2">
+                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-teal-300" aria-hidden />
+                <span>{line}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
         {installed ? (
           <Alert className="border-emerald-400/35 bg-emerald-500/10 text-emerald-50">
             <Smartphone className="h-4 w-4" />
@@ -93,11 +107,25 @@ export default function PartnerAppInstall() {
         ) : null}
 
         <div className="grid gap-3">
+          {playUrl ? (
+            <Button
+              asChild
+              size="lg"
+              className="h-12 gap-2 bg-gradient-to-l from-teal-600 to-cyan-600 text-base font-bold shadow-lg shadow-teal-500/25"
+            >
+              <a href={playUrl} target="_blank" rel="noopener noreferrer">
+                <ExternalLink className="h-5 w-5" />
+                تحميل من Google Play
+              </a>
+            </Button>
+          ) : null}
+
           {!installed ? (
             <Button
               type="button"
               size="lg"
-              className="h-12 gap-2 bg-gradient-to-l from-teal-600 to-cyan-600 text-base font-bold shadow-lg shadow-teal-500/25"
+              variant="outline"
+              className="h-12 gap-2 border-teal-300/35 bg-white/5 text-teal-50 hover:bg-white/10"
               disabled={prompting}
               onClick={() => void handleInstall()}
             >
@@ -105,28 +133,10 @@ export default function PartnerAppInstall() {
               {canPrompt
                 ? prompting
                   ? 'جاري التثبيت…'
-                  : 'تثبيت التطبيق من المتصفح'
-                : 'تعليمات التثبيت على الجهاز'}
+                  : 'تثبيت من المتصفح (بديل)'
+                : 'تعليمات التثبيت من المتصفح'}
             </Button>
           ) : null}
-
-          {PARTNER_ANDROID_PLAY_STORE_URL ? (
-            <Button
-              asChild
-              variant="outline"
-              size="lg"
-              className="h-12 gap-2 border-teal-300/35 bg-white/5 text-teal-50 hover:bg-white/10"
-            >
-              <a href={PARTNER_ANDROID_PLAY_STORE_URL} target="_blank" rel="noopener noreferrer">
-                <ExternalLink className="h-4 w-4" />
-                تحميل من Google Play
-              </a>
-            </Button>
-          ) : (
-            <p className="rounded-xl border border-white/10 bg-black/25 px-3 py-2 text-center text-[11px] text-teal-100/70">
-              نسخة Google Play قيد التجهيز — ثبّت الآن من المتصفح بتحديث فوري من المنصة.
-            </p>
-          )}
 
           <Button
             asChild
@@ -155,12 +165,12 @@ export default function PartnerAppInstall() {
             {
               icon: Bell,
               title: 'إشعارات فورية',
-              body: 'تنبيهات الرسائل والمواعيد حتى بعد إغلاق التبويب — عبر Web Push.',
+              body: 'تنبيهات الرسائل والمواعيد حتى بعد إغلاق التبويب.',
             },
             {
               icon: LayoutDashboard,
               title: 'دخول سريع للوحة',
-              body: 'اختصار من الشاشة الرئيسية مباشرة إلى بوابة الصالون.',
+              body: 'من أيقونة التطبيق مباشرة إلى بوابة الصالون.',
             },
             {
               icon: ShieldCheck,
@@ -169,8 +179,8 @@ export default function PartnerAppInstall() {
             },
             {
               icon: Share2,
-              title: 'تحديث فوري',
-              body: 'الغلاف خفيف ويعرض آخر نسخة من المنصة دون انتظار رفع تطبيق جديد كل مرة.',
+              title: 'تحديثات المنصة',
+              body: 'نسخة Play الرسمية للشركاء، مع خيار التثبيت من المتصفح عند الحاجة.',
             },
           ].map((item) => (
             <li key={item.title} className="flex gap-3">
@@ -187,20 +197,29 @@ export default function PartnerAppInstall() {
           <Alert className="border-cyan-400/30 bg-cyan-500/10 text-cyan-50">
             <Share2 className="h-4 w-4" />
             <AlertDescription className="text-xs leading-relaxed">
-              على آيفون/سفاري: اضغط زر المشاركة ثم «إضافة إلى الشاشة الرئيسية» لتثبيت تطبيق الصالون.
+              على آيفون/سفاري: اضغط زر المشاركة ثم «إضافة إلى الشاشة الرئيسية». نسخة Google Play متاحة لأندرويد.
             </AlertDescription>
           </Alert>
         ) : !canPrompt && !installed ? (
           <Alert className="border-white/15 bg-white/5 text-slate-100">
             <Download className="h-4 w-4" />
             <AlertDescription className="text-xs leading-relaxed">
-              من Chrome/Edge على أندرويد: القائمة ⋮ ← «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية».
+              لأندرويد: حمّل من{' '}
+              <a href={playUrl} target="_blank" rel="noopener noreferrer" className="font-semibold text-teal-200 underline">
+                Google Play
+              </a>
+              ، أو من Chrome القائمة ⋮ ← «تثبيت التطبيق».
             </AlertDescription>
           </Alert>
         ) : null}
 
         <p className="text-center text-[11px] text-teal-100/55">
-          الزبائن يستمرون على تجربة الويب السريعة — هذا الغلاف مخصّص للصالون (B2B).
+          الزبائن يستمرون على تجربة الويب السريعة — هذا التطبيق مخصّص للصالون (B2B) فقط.
+        </p>
+        <p className="text-center text-[11px]">
+          <Link to={ROUTE_PATHS.BARBERS_LANDING} className="text-teal-200/80 underline-offset-2 hover:underline">
+            العودة لمسار الشركاء
+          </Link>
         </p>
       </div>
     </div>

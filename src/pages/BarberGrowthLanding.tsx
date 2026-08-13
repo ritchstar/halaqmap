@@ -18,6 +18,7 @@ import {
   MapPinned,
   MessageCircle,
   Shield,
+  Smartphone,
   Sparkles,
   Star,
   TrendingUp,
@@ -33,6 +34,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ROUTE_PATHS } from '@/lib';
 import { getSiteOrigin } from '@/config/siteOrigin';
 import { IMAGES } from '@/assets/images';
+import { PARTNER_ANDROID_PLAY_STORE_URL } from '@/config/partnerAppShell';
 import {
   PARTNER_LANDING_BEFORE_AFTER,
   PARTNER_LANDING_BENEFITS_SECTION,
@@ -174,6 +176,16 @@ export default function BarberGrowthLanding() {
                   <MessageCircle className="h-4 w-4" />
                 </Button>
               </a>
+              <NavLink to={ROUTE_PATHS.PARTNER_APP}>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="w-full gap-2 border-emerald-300/50 bg-emerald-950/40 text-emerald-50 hover:bg-emerald-900/50 sm:w-auto"
+                >
+                  <Smartphone className="h-4 w-4" />
+                  تطبيق الصالون على Play
+                </Button>
+              </NavLink>
               <PartnerSupportStudioLink />
             </div>
             <motion.div
@@ -718,6 +730,22 @@ export default function BarberGrowthLanding() {
                     واتساب فريق حلاق ماب
                   </Button>
                 </a>
+                <NavLink to={ROUTE_PATHS.PARTNER_APP}>
+                  <Button size="lg" variant="outline" className="w-full gap-2 border-primary/40">
+                    <Smartphone className="h-4 w-4" />
+                    تطبيق الصالون — شرح وتحميل Play
+                  </Button>
+                </NavLink>
+                {PARTNER_ANDROID_PLAY_STORE_URL ? (
+                  <a
+                    href={PARTNER_ANDROID_PLAY_STORE_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-center text-sm font-semibold text-primary underline-offset-2 hover:underline"
+                  >
+                    فتح صفحة Google Play مباشرة
+                  </a>
+                ) : null}
                 <PartnerSupportStudioLink variant="footer" />
                 <NavLink to={ROUTE_PATHS.PARTNER_WHY}>
                   <Button size="lg" variant="ghost" className="w-full text-muted-foreground">

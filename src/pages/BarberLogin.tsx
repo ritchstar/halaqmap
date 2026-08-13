@@ -176,7 +176,7 @@ export default function BarberLogin() {
               className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:underline"
             >
               <Smartphone className="h-4 w-4" />
-              تثبيت تطبيق الصالون — دخول أسرع وإشعارات
+              تطبيق الصالون على Google Play — إدارة ومواعيد
             </Link>
             <div>
               <button type="button" onClick={() => navigate(ROUTE_PATHS.HOME)} className="text-sm text-primary hover:underline">
