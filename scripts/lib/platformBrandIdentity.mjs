@@ -12,27 +12,24 @@ export const BRAND_SITE_NAME = 'حلاق ماب | HALAQ MAP';
 export const FAZAA_NAME_AR = 'فزعة';
 export const FAZAA_NAME_EN = 'FAZAA';
 export const FAZAA_SERVICE_LINE = 'خدمة بحث سريعة من حلاق ماب';
-export const BRAND_LOGO_PATH = '/images/halaqmap_logo_refined.png';
+/** شعار العرض في الواجهة (صغير) — الملف الكامل يبقى للمشاركة/OG */
+export const BRAND_LOGO_PATH = '/images/halaqmap-logo-mark-128.webp';
+export const BRAND_LOGO_PATH_2X = '/images/halaqmap-logo-mark-256.webp';
 /** يُرفع عند كل تحديث شعار/أيقونة لكسر كاش Google وCDN */
-export const BRAND_ICON_VERSION = '20260811';
+export const BRAND_ICON_VERSION = '20260813';
 export const ORIGIN = 'https://www.halaqmap.com';
-export const BRAND_LOGO_ABS = `${ORIGIN}${BRAND_LOGO_PATH}`;
+/** OG/المشاركة تبقى PNG كامل الدقة */
+export const BRAND_OG_LOGO_PATH = '/images/halaqmap_logo_refined.png';
+export const BRAND_LOGO_ABS = `${ORIGIN}${BRAND_OG_LOGO_PATH}`;
 
-/** عائلات خطوط الهوية: عربي عرض فاخر + لاتيني مميّز للمنصة */
-export const BRAND_FONT_IMPORT =
-  '@import url("https://fonts.googleapis.com/css2?family=El+Messiri:wght@600;700&family=IBM+Plex+Sans+Arabic:wght@400;600;700&family=Syne:wght@700;800&display=swap");';
+/** عائلات خطوط الهوية: نظام الجهاز أولاً حتى لا يُحجب LCP بـ Google Fonts */
+export const BRAND_FONT_IMPORT = '';
 
 export function brandIconLinks() {
   const v = BRAND_ICON_VERSION;
   return `  <link rel="icon" href="/favicon.ico?v=${v}" sizes="any" />
-  <link rel="shortcut icon" href="/favicon.ico?v=${v}" />
-  <link rel="icon" href="/favicon-48.png?v=${v}" type="image/png" sizes="48x48" />
-  <link rel="icon" href="/favicon-96.png?v=${v}" type="image/png" sizes="96x96" />
-  <link rel="icon" href="/favicon-32.png?v=${v}" type="image/png" sizes="32x32" />
-  <link rel="icon" href="/icons/icon-192.png?v=${v}" type="image/png" sizes="192x192" />
-  <link rel="icon" href="/favicon.svg?v=${v}" type="image/svg+xml" sizes="any" />
-  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png?v=${v}" sizes="180x180" />
-  <link rel="apple-touch-icon" href="/icons/icon-152.png?v=${v}" sizes="152x152" />`;
+  <link rel="icon" href="/favicon.svg?v=${v}" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png?v=${v}" sizes="180x180" />`;
 }
 
 /**
@@ -41,7 +38,7 @@ export function brandIconLinks() {
 export function brandHeaderHtml() {
   return `    <header class="brand fazaa-header">
       <a class="brand-mark" href="${ORIGIN}/" aria-label="${BRAND_NAME_AR} — إلى الرئيسية">
-        <img src="${BRAND_LOGO_PATH}?v=${BRAND_ICON_VERSION}" width="56" height="56" alt="${BRAND_NAME_AR}" />
+        <img src="${BRAND_LOGO_PATH}?v=${BRAND_ICON_VERSION}" srcset="${BRAND_LOGO_PATH}?v=${BRAND_ICON_VERSION} 1x, ${BRAND_LOGO_PATH_2X}?v=${BRAND_ICON_VERSION} 2x" width="56" height="56" alt="${BRAND_NAME_AR}" decoding="async" fetchpriority="high" />
       </a>
       <a class="brand-lockup" href="${ORIGIN}/" aria-label="${BRAND_NAME_AR} — ابدأ من الرئيسية">
         <span class="brand-ar">${BRAND_NAME_AR}</span>
@@ -59,12 +56,11 @@ export function brandHeaderHtml() {
 }
 
 export function brandHeaderCss() {
-  return `    ${BRAND_FONT_IMPORT}
-    header.brand { display:flex; align-items:center; gap:.9rem; margin-bottom:.85rem; }
+  return `    header.brand { display:flex; align-items:center; gap:.9rem; margin-bottom:.85rem; }
     header.brand img { width:56px; height:56px; border-radius:16px; object-fit:cover; box-shadow:0 0 0 2px rgba(45,212,191,.45), 0 10px 28px rgba(13,148,136,.28); }
     .brand-lockup { display:flex; flex-direction:column; gap:.12rem; text-decoration:none; line-height:1.12; }
     .brand-ar {
-      font-family: "El Messiri", "IBM Plex Sans Arabic", "Segoe UI", Tahoma, sans-serif;
+      font-family: "Segoe UI", Tahoma, "Noto Naskh Arabic", sans-serif;
       font-weight:700;
       font-size:1.75rem;
       letter-spacing:-0.01em;
@@ -74,7 +70,7 @@ export function brandHeaderCss() {
       color:transparent;
     }
     .brand-en {
-      font-family: "Syne", system-ui, sans-serif;
+      font-family: system-ui, sans-serif;
       font-weight:800;
       font-size:.72rem;
       letter-spacing:.22em;
@@ -82,7 +78,7 @@ export function brandHeaderCss() {
       text-transform:uppercase;
     }
     .fazaa-sub {
-      font-family: "IBM Plex Sans Arabic", "Segoe UI", sans-serif;
+      font-family: "Segoe UI", Tahoma, sans-serif;
       font-weight:600;
       font-size:.8rem;
       color:#94a3b8;
@@ -98,7 +94,7 @@ export function brandHeaderCss() {
       background:rgba(12,26,46,.65);
       color:#e2e8f0;
       text-decoration:none;
-      font-family:"IBM Plex Sans Arabic",sans-serif;
+      font-family:"Segoe UI",Tahoma,sans-serif;
       font-weight:700;
       font-size:.82rem;
     }
@@ -115,11 +111,11 @@ export function brandHeaderCss() {
  * الخلفية تُترك لكل مولّد (ألوان المناسبات/نسك تختلف).
  */
 export function brandPageTypeCss(background = 'linear-gradient(180deg,#061223,#0a1f33 55%,#061223)') {
-  return `    body { margin:0; font-family: "IBM Plex Sans Arabic", "Segoe UI", Tahoma, Arial, sans-serif; background: ${background}; color:var(--text); line-height:1.8; }
-    h1 { font-family: "El Messiri", "IBM Plex Sans Arabic", sans-serif; font-size: clamp(1.6rem, 4.2vw, 2.25rem); line-height:1.35; margin: .5rem 0 1rem; font-weight:700; letter-spacing:-0.01em; }
-    h2 { font-family: "El Messiri", "IBM Plex Sans Arabic", sans-serif; font-size:1.2rem; margin: 1.75rem 0 .75rem; color:var(--accent); font-weight:700; }
+  return `    body { margin:0; font-family: "Segoe UI", Tahoma, Arial, sans-serif; background: ${background}; color:var(--text); line-height:1.8; }
+    h1 { font-family: "Segoe UI", Tahoma, sans-serif; font-size: clamp(1.6rem, 4.2vw, 2.25rem); line-height:1.35; margin: .5rem 0 1rem; font-weight:700; letter-spacing:-0.01em; }
+    h2 { font-family: "Segoe UI", Tahoma, sans-serif; font-size:1.2rem; margin: 1.75rem 0 .75rem; color:var(--accent); font-weight:700; }
     .lead { font-size:1.06rem; font-weight:600; }
-    .cta { font-family: "El Messiri", "IBM Plex Sans Arabic", sans-serif; }`;
+    .cta { font-family: "Segoe UI", Tahoma, sans-serif; }`;
 }
 
 /** صياغة موحّدة: فزعة من حلاق ماب */
@@ -158,9 +154,9 @@ export function fazaaMeasurementTagHtml() {
       }
       function schedule(){
         if (typeof window.requestIdleCallback === 'function') {
-          window.requestIdleCallback(bootGtag, { timeout: 4500 });
+          window.requestIdleCallback(bootGtag, { timeout: 8000 });
         } else {
-          window.setTimeout(bootGtag, 2200);
+          window.setTimeout(bootGtag, 5000);
         }
       }
       if (document.readyState === 'complete') schedule();

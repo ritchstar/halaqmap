@@ -40,7 +40,11 @@ export function HalaqmapBrandMark({
       <span className={cn('halaqmap-brand-mark', className)}>
         <img
           src={IMAGES.HALAQMAP_LOGO_20260409_073322_83}
+          srcSet="/images/halaqmap-logo-mark-128.webp 128w, /images/halaqmap-logo-mark-256.webp 256w"
+          sizes="56px"
           alt={alt}
+          width={56}
+          height={56}
           className={cn(
             'relative z-[1] block h-full w-full object-cover object-center',
             imgClassName,

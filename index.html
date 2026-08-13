@@ -431,9 +431,9 @@
         }
         function schedule() {
           if (typeof window.requestIdleCallback === 'function') {
-            window.requestIdleCallback(bootGtag, { timeout: 4500 });
+            window.requestIdleCallback(bootGtag, { timeout: 8000 });
           } else {
-            window.setTimeout(bootGtag, 2200);
+            window.setTimeout(bootGtag, 5000);
           }
         }
         if (document.readyState === 'complete') schedule();
@@ -499,50 +499,8 @@
         } catch (e) {}
       })();
     </script>
-    <!-- شاشة إقلاع: علامة مائية دوّارة — تُخفى بعد إقلاع React -->
-    <div id="hm-boot-splash" aria-hidden="true">
-      <style>
-        #hm-boot-splash {
-          position: fixed;
-          inset: 0;
-          z-index: 2147483000;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          background: #0a4f4a;
-          transition: opacity 0.35s ease, visibility 0.35s ease;
-        }
-        #hm-boot-splash.hm-boot-splash--hide {
-          opacity: 0;
-          visibility: hidden;
-          pointer-events: none;
-        }
-        #hm-boot-splash .hm-boot-mark {
-          width: min(48vw, 196px);
-          height: min(48vw, 196px);
-          object-fit: contain;
-          opacity: 0.92;
-          animation: hm-boot-spin 5.2s linear infinite;
-          will-change: transform;
-        }
-        @keyframes hm-boot-spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-        @media (prefers-reduced-motion: reduce) {
-          #hm-boot-splash .hm-boot-mark { animation: none; }
-        }
-      </style>
-      <img
-        class="hm-boot-mark"
-        src="/images/halaqmap-youtube-watermark-source.png"
-        width="196"
-        height="196"
-        alt=""
-        decoding="async"
-        fetchpriority="high"
-      />
-    </div>
+    <!-- شاشة إقلاع للغلاف فقط — لا تُدرج صورة fetchpriority على الموقع العام (تسرق LCP) -->
+    <div id="hm-boot-splash" hidden aria-hidden="true"></div>
     <script>
       (function () {
         try {
@@ -557,16 +515,23 @@
             hashPath.indexOf('/partners/app') === 0 ||
             hashPath.indexOf('/barber/') === 0 ||
             hashPath.indexOf('/partners/login') === 0;
-          // على الموقع العام في المتصفح لا نعرض شاشة الإقلاع المتحركة
           if (!twaOrPartner) {
             if (splash.parentNode) splash.parentNode.removeChild(splash);
             return;
           }
+          splash.removeAttribute('hidden');
+          splash.setAttribute('aria-hidden', 'true');
+          splash.style.cssText =
+            'position:fixed;inset:0;z-index:2147483000;display:flex;align-items:center;justify-content:center;background:#0a4f4a';
+          splash.innerHTML =
+            '<div style="width:72px;height:72px;border-radius:18px;background:linear-gradient(135deg,#2dd4bf,#0d9488);box-shadow:0 0 0 3px rgba(45,212,191,.35)"></div>';
           var hide = function () {
-            splash.classList.add('hm-boot-splash--hide');
+            splash.style.opacity = '0';
+            splash.style.visibility = 'hidden';
+            splash.style.pointerEvents = 'none';
             window.setTimeout(function () {
               if (splash && splash.parentNode) splash.parentNode.removeChild(splash);
-            }, 420);
+            }, 280);
           };
           var root = document.getElementById('root');
           var done = false;

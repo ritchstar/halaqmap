@@ -821,13 +821,13 @@ export default function PartnerMarketingPreview() {
           isMobile ? 'py-10' : 'grid items-center gap-12 py-20 lg:grid-cols-2 lg:gap-20 lg:py-28',
         )}>
           {/* Text */}
-          <motion.div initial={{ opacity: 0, x: isMobile ? 0 : 40 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.7 }}>
+          <motion.div initial={false} animate={{ opacity: 1, x: 0 }}>
 
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}
+            <div
               className="mb-4 inline-flex items-center gap-2 rounded-full border border-teal-200 bg-teal-50 px-4 py-1.5 text-[0.68rem] font-semibold text-teal-800 sm:text-xs">
               <Sparkles className="h-3 w-3 shrink-0" />
               {PARTNER_JOIN_PATH_BADGE_AR}
-            </motion.div>
+            </div>
 
             <h1 className={cn(
               'mb-3 font-black leading-[1.1] text-slate-950',

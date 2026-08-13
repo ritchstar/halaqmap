@@ -1008,7 +1008,7 @@ export default function LandingPreview() {
         >
           {/* عمود النص (يمين في RTL) — min-w-0 يمنع انهيار العمود أمام الرادار */}
           <motion.div
-            initial={skipHeroMotion ? false : { opacity: 0, x: 40 }}
+            initial={false}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: skipHeroMotion ? 0 : 0.7, ease: 'easeOut' }}
             className="min-w-0 w-full"
