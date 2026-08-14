@@ -850,6 +850,17 @@
       "priority": 78
     },
     {
+      "slug": "sulaymaniyah",
+      "nameAr": "السليمانية",
+      "kind": "neighborhood",
+      "parentSlugs": [
+        "jeddah"
+      ],
+      "lat": 21.506,
+      "lng": 39.247,
+      "priority": 77
+    },
+    {
       "slug": "khalidiyah",
       "nameAr": "الخالدية",
       "kind": "neighborhood",
@@ -858,7 +869,7 @@
       ],
       "lat": 21.4758,
       "lng": 39.2025,
-      "priority": 77
+      "priority": 76
     },
     {
       "slug": "balad",
@@ -869,7 +880,7 @@
       ],
       "lat": 21.4558,
       "lng": 39.1925,
-      "priority": 76
+      "priority": 75
     },
     {
       "slug": "historic-jeddah",
@@ -880,7 +891,7 @@
       ],
       "lat": 21.4508,
       "lng": 39.1875,
-      "priority": 75
+      "priority": 74
     },
     {
       "slug": "corniche",
@@ -891,7 +902,7 @@
       ],
       "lat": 21.5358,
       "lng": 39.1525,
-      "priority": 74
+      "priority": 73
     },
     {
       "slug": "obhur",
@@ -902,7 +913,7 @@
       ],
       "lat": 21.5658,
       "lng": 39.1625,
-      "priority": 73
+      "priority": 72
     },
     {
       "slug": "obhur-north",
@@ -913,7 +924,7 @@
       ],
       "lat": 21.5858,
       "lng": 39.1725,
-      "priority": 72
+      "priority": 71
     },
     {
       "slug": "nuzlah",
@@ -924,7 +935,7 @@
       ],
       "lat": 21.4458,
       "lng": 39.2125,
-      "priority": 71
+      "priority": 70
     },
     {
       "slug": "rehab",
@@ -935,7 +946,7 @@
       ],
       "lat": 21.5058,
       "lng": 39.2225,
-      "priority": 70
+      "priority": 69
     },
     {
       "slug": "faisaliyah",
@@ -946,7 +957,7 @@
       ],
       "lat": 21.4858,
       "lng": 39.2175,
-      "priority": 69
+      "priority": 68
     },
     {
       "slug": "safa",
@@ -957,7 +968,7 @@
       ],
       "lat": 21.4658,
       "lng": 39.2225,
-      "priority": 68
+      "priority": 67
     },
     {
       "slug": "marwah",
@@ -968,7 +979,7 @@
       ],
       "lat": 21.4708,
       "lng": 39.2275,
-      "priority": 67
+      "priority": 66
     },
     {
       "slug": "bawadi",
@@ -979,7 +990,7 @@
       ],
       "lat": 21.5108,
       "lng": 39.2075,
-      "priority": 66
+      "priority": 65
     },
     {
       "slug": "aziziyah",

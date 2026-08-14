@@ -128,6 +128,7 @@ import {
 import { getOrderedWeekHoursForDisplay } from '@/lib/saudiWorkingWeek';
 import { formatBarberMemberNumber } from '@/lib/barberMemberNumber';
 import { mapCoordinateSaveError, parseMapCoordinates } from '@/lib/parseMapCoordinates';
+import { nearestPlatformCity, resolvePlatformCity } from '@/config/platformCoveredCities';
 import { fetchPublicPaymentPageConfig } from '@/lib/publicPaymentPageConfigRemote';
 import { ZatcaTaxActivationAlert } from '@/components/admin/ZatcaTaxActivationAlert';
 import { toast } from '@/hooks/use-toast';
@@ -3306,7 +3307,7 @@ function BarberHardEditDialog({
     const nameTrim = name.trim();
     const emailTrim = email.trim().toLowerCase();
     const phoneTrim = phone.trim();
-    const cityTrim = city.trim() || null;
+    let cityTrim = city.trim() || null;
     const addressTrim = address.trim() || 'غير محدد';
     const specialties = specialtiesText
       .split(/[,،]/)
@@ -3349,6 +3350,14 @@ function BarberHardEditDialog({
         coordHint = coords.swapped
           ? ' — صُحّحت الإحداثيات (فاصلة عشرية + تبديل العرض/الطول).'
           : ' — صُحّحت الإحداثيات من صيغة الخرائط الصحيحة.';
+      }
+      if (!resolvePlatformCity(cityTrim) && latitude != null && longitude != null) {
+        const nearest = nearestPlatformCity(latitude, longitude);
+        if (nearest) {
+          cityTrim = nearest.nameAr;
+          setCity(nearest.nameAr);
+          coordHint += ` — المدينة: ${nearest.nameAr}.`;
+        }
       }
     }
 

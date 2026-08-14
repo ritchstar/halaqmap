@@ -100,6 +100,36 @@ export const FAZAA_FEATURED_PARTNERS = [
       'حلاق رجالي مكة حلا VIP',
     ],
   },
+  {
+    nameAr: 'صالون إيبيكس آند بليد',
+    citySlug: 'jeddah',
+    cityNameAr: 'جدة',
+    neighborhoodSlugs: ['sulaymaniyah'],
+    areaLabelAr: 'حي السليمانية',
+    specialtyHintAr: 'حلاقة رجالي · لحية · أطفال · عناية بالبشرة · 24 ساعة',
+    phrases: [
+      'صالون إيبيكس آند بليد جدة',
+      'حلاق السليمانية جدة',
+      'اقرب حلاق حي السليمانية جدة',
+      'حلاق شارع عبدالقدوس الأنصاري',
+      'Apex and Blade جدة',
+    ],
+  },
+  {
+    nameAr: 'ROUTE 77 Barbershop',
+    citySlug: 'qatif',
+    cityNameAr: 'القطيف',
+    neighborhoodSlugs: ['tarut'],
+    areaLabelAr: 'تاروت',
+    specialtyHintAr: 'حلاقة رجالي · تقليدية · أطفال · احتياجات خاصة',
+    phrases: [
+      'ROUTE 77 Barbershop القطيف',
+      'حلاق تاروت ROUTE 77',
+      'اقرب حلاق تاروت القطيف',
+      'حلاق شارع طلحة بن مالك تاروت',
+      'صالون ROUTE 77 تاروت',
+    ],
+  },
 ];
 
 export function featuredPartnersForPlace(citySlug, neighborhoodSlug = null) {

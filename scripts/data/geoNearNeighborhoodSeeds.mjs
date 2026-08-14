@@ -87,6 +87,7 @@ export const NEIGHBORHOOD_SEEDS = {
     ['zahra', 'الزهراء', 0.03, -0.02],
     ['salamah', 'السلامة', 0.04, 0.0],
     ['mohammadiyah', 'المحمدية', 0.015, 0.02],
+    ['sulaymaniyah', 'السليمانية', 21.506, 39.247, true],
     ['khalidiyah', 'الخالدية', -0.01, 0.01],
     ['balad', 'البلد', -0.03, 0.0],
     ['historic-jeddah', 'جدة التاريخية', -0.035, -0.005],
