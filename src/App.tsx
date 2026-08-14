@@ -101,6 +101,8 @@ const BronzeTrialApplyLanding = lazy(() => import("@/pages/BronzeTrialApplyLandi
 const BronzeTrialConfirmLanding = lazy(() => import("@/pages/BronzeTrialConfirmLanding"));
 const PartnerWhyPage = lazy(() => import("@/pages/PartnerWhyPage"));
 const PartnerMarketingCommitmentsPage = lazy(() => import("@/pages/PartnerMarketingCommitmentsPage"));
+const CoiffeurLanding = lazy(() => import("@/pages/coiffeur/CoiffeurLanding"));
+const CoiffeurPartnersLanding = lazy(() => import("@/pages/coiffeur/CoiffeurPartnersLanding"));
 const PartnerStoryPage = lazy(() => import("@/pages/PartnerStoryPage"));
 const BarberPortalEnter = lazy(() => import("@/pages/BarberPortalEnter"));
 const BarberLogin = lazy(() => import("@/pages/BarberLogin"));
@@ -260,6 +262,36 @@ function NotaCouncilRedirect() {
   return null;
 }
 
+/** كوافير ماب — قمر صناعي تحت مظلة halaqmap.com. الدفع يُعاد إلى النطاق الأم. */
+function CoiffeurDomainRedirect() {
+  if (typeof window === 'undefined') return null;
+
+  const host = window.location.hostname.toLowerCase();
+  if (host !== 'coiffeur.halaqmap.com') return null;
+
+  const hash = window.location.hash.replace(/^#/, '');
+  const pathOnly = (hash.split('?')[0] || '/').trim();
+  const isPaymentPath =
+    pathOnly === ROUTE_PATHS.PAYMENT ||
+    pathOnly === ROUTE_PATHS.PAYMENT_SUCCESS ||
+    pathOnly.startsWith(`${ROUTE_PATHS.PAYMENT}/`);
+
+  if (isPaymentPath) {
+    window.location.replace(`https://www.halaqmap.com/${window.location.hash}`);
+    return null;
+  }
+
+  if (!window.location.hash || pathOnly === '/' || pathOnly === '') {
+    window.location.replace(`/#${ROUTE_PATHS.COIFFEUR_LANDING}`);
+  }
+
+  return null;
+}
+
+function CoiffeurRegisterRedirect() {
+  return <Navigate to={`${ROUTE_PATHS.REGISTER}?surface=coiffeur`} replace />;
+}
+
 /** partners.halaqmap.com — صفحة هبوط B2B الافتراضية */
 function PartnersDomainRedirect() {
   if (typeof window === 'undefined') return null;
@@ -287,6 +319,7 @@ export function App() {
       <HashRouter>
         <RouteScopedErrorBoundary>
         <NotaCouncilRedirect />
+        <CoiffeurDomainRedirect />
         <PartnersDomainRedirect />
         <AdminAuthHashGate>
         <ScrollToTop />
@@ -406,6 +439,9 @@ export function App() {
           {/* ????? ????????? ??? ??????? ????????? */}
           <Route path={ROUTE_PATHS.PARTNERS_B2B_LANDING} element={<LazyRoute><PartnersB2BLanding /></LazyRoute>} />
           <Route path={ROUTE_PATHS.BARBERS_LANDING} element={<LazyRoute><PartnerMarketingPreview /></LazyRoute>} />
+          <Route path={ROUTE_PATHS.COIFFEUR_LANDING} element={<LazyRoute><CoiffeurLanding /></LazyRoute>} />
+          <Route path={ROUTE_PATHS.COIFFEUR_PARTNERS} element={<LazyRoute><CoiffeurPartnersLanding /></LazyRoute>} />
+          <Route path={ROUTE_PATHS.COIFFEUR_REGISTER} element={<CoiffeurRegisterRedirect />} />
           <Route
             path={ROUTE_PATHS.PARTNER_INTEREST}
             element={

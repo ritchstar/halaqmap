@@ -24,6 +24,14 @@ export const ROUTE_PATHS = {
   /** فزعة دائمة — تحضير الجمعة وزحمة الخميس */
   FRIDAY_PREP: '/occasions/friday-prep',
   BARBERS_LANDING: '/partners',
+  /**
+   * كوافير ماب — سطح قطاعي نسائي تحت مظلة حلاق ماب.
+   * الدفع لا يُنسَخ هنا: يُحوَّل دائماً إلى PAYMENT على www.halaqmap.com.
+   */
+  COIFFEUR_LANDING: '/coiffeur',
+  COIFFEUR_PARTNERS: '/coiffeur/partners',
+  /** إعادة توجيه إلى REGISTER مع surface=coiffeur — لا فورم مستقل */
+  COIFFEUR_REGISTER: '/coiffeur/partners/register',
   /** صفحة هبوط B2B (Skywork) — partners.halaqmap.com */
   PARTNERS_B2B_LANDING: '/partners/b2b',
   /** إقناع عميق: لماذا حلاق ماب وليس مجرد «حجز» */
