@@ -48,7 +48,8 @@ export type CoiffeurInquiryIntentId =
   | 'spa'
   | 'makeup'
   | 'nails'
-  | 'skin';
+  | 'skin'
+  | 'independents';
 
 export const COIFFEUR_INQUIRY_INTENTS: ReadonlyArray<{
   id: CoiffeurInquiryIntentId;
@@ -61,12 +62,19 @@ export const COIFFEUR_INQUIRY_INTENTS: ReadonlyArray<{
   { id: 'makeup', label: 'مكياج وسهرات' },
   { id: 'nails', label: 'عناية أظافر' },
   { id: 'skin', label: 'عناية بشرة' },
+  { id: 'independents', label: 'مستقلات' },
 ];
 
+/**
+ * كوافيرة مستقلة بوثيقة عمل حر، أو متعهّدة: التأشير على التعهد القانوني كافٍ لإدراجها في تصنيف مستقلات.
+ */
+export const COIFFEUR_INDEPENDENT_LISTING_RULE_AR =
+  'المستقلة بوثيقة عمل حر أو المتعهّدة تُدرَج في تصنيف مستقلات بعد التأشير على التعهد القانوني.';
+
 export const COIFFEUR_INQUIRY_COPY = {
-  documentTitle: 'استعلام كوافير ماب — مشاغل وتجميل نسائي فقط',
-  badge: 'مجاني · بلا تسجيل · قطاع نسائي',
-  isolationBadge: 'منفصل عن بحث حلاق ماب للرجال',
+  documentTitle: 'كوافير ماب — قطاع نسائي',
+  sectorBadge: 'قطاع نسائي',
+  freeBadge: 'مجاني بلا تسجيل',
   title: 'أقرب مشغل',
   titleAccent: 'قريب منك',
   kicker: 'استعلامك',
@@ -74,13 +82,11 @@ export const COIFFEUR_INQUIRY_COPY = {
   searchHeaderLong: 'استعلمي الآن',
   searchHero: 'ابحثي عن الصالونات',
   searchRadarIdle: 'ابدئي الآن',
-  mobileTagline: 'ابحثي عن مشغل قريب',
   searchBusy: 'يجري التحديد…',
-  locateDenied: 'لم يُسمح بالموقع. اختاري نوع الخدمة؛ النتائج تبقى نسائية فقط.',
-  located: 'تم تحديد موقعك — البحث داخل المشاغل والكوافير والسبا فقط.',
-  emptyTitle: 'جاهزات للظهور عند أول تسكين نسائي',
-  emptyBody:
-    'هذا الاستعلام لا يعرض صالونات حلاقة رجالية. عند تفعيل مشغل أو كوافير أو سبا في نطاقك سيظهر هنا.',
+  locateDenied: 'لم يُسمح بالموقع. اختاري نوع الخدمة ثم أعيدي المحاولة.',
+  located: 'تم تحديد موقعك.',
+  emptyTitle: 'جاهزات للظهور عند أول تسكين',
+  emptyBody: 'عند تفعيل مشغل أو كوافير أو مستقلة في نطاقك سيظهر هنا.',
 } as const;
 
 export const COIFFEUR_LANDING_COPY = {
@@ -88,8 +94,8 @@ export const COIFFEUR_LANDING_COPY = {
   title: 'أقرب صالون كوافير يناسب حاجتك',
   lead:
     'استجابة ذكية تربط المستعلمة بصالونات التجميل والكوافير النسائي المفعّلة عند الطلب — حسب الموقع ونوع الخدمة. ليست وساطة حجز ولا عمولة على الخدمة.',
-  searchCta: 'ابحثي الآن — استعلام نسائي فقط',
-  searchHint: 'الاستعلام منفصل تماماً عن بحث حلاق ماب للرجال: مشاغل، كوافير، سبا، وتجميل.',
+  searchCta: 'ابحثي عن الصالونات',
+  searchHint: 'مشغل، كوافير، سبا، تجميل، ومستقلات.',
   partnerCta: 'سجّلي صالونك الآن — دقيقتين',
   partnerSecondary: 'صاحبة صالون؟ مسار الانضمام هنا',
   trust: [

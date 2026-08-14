@@ -3,15 +3,14 @@
  */
 /**
  * تجربة المستعلمة — بحث واستعلام بطابع نسائي.
- * الجوال: شرائح أفقية + رصيف بحث. سطح المكتب: رادار. النتائج الحية مرحلة لاحقة.
  */
 import { useCallback, useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
 import { Sparkles } from 'lucide-react';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { fetchCoiffeurInquiryListings } from '@/lib/coiffeurInquiryIsolation';
-import { CoiffeurRadarButton, type CoiffeurRadarPhase } from '@/components/coiffeur/CoiffeurRadarButton';
+import { type CoiffeurRadarPhase } from '@/components/coiffeur/CoiffeurRadarButton';
+import { CoiffeurInquiryStage } from '@/components/coiffeur/CoiffeurInquiryStage';
 import {
   CoiffeurMobileSearchDock,
   CoiffeurVisitorFooter,
@@ -20,7 +19,6 @@ import {
 } from '@/components/coiffeur/CoiffeurVisitorChrome';
 import {
   COIFFEUR_INQUIRY_COPY,
-  COIFFEUR_INQUIRY_INTENTS,
   type CoiffeurInquiryIntentId,
 } from '@/config/coiffeurMapUmbrella';
 
@@ -61,67 +59,24 @@ export default function CoiffeurInquiryPage() {
     );
   };
 
+  const locateMessage =
+    locate === 'ready'
+      ? COIFFEUR_INQUIRY_COPY.located
+      : locate === 'denied'
+        ? COIFFEUR_INQUIRY_COPY.locateDenied
+        : null;
+
   return (
     <CoiffeurVisitorShell>
-      <CoiffeurVisitorHeader
-        brandTo={ROUTE_PATHS.COIFFEUR_LANDING}
-        searchBusy={locate === 'pending'}
-        onSearch={requestSearch}
+      <div id="coiffeur-search" className="absolute top-8" />
+      <CoiffeurVisitorHeader brandTo={ROUTE_PATHS.COIFFEUR_LANDING} />
+      <CoiffeurInquiryStage
+        phase={radarPhase}
+        intent={intent}
+        onIntentChange={setIntent}
+        onInquire={requestSearch}
+        locateMessage={locateMessage}
       />
-
-      <section className="relative mx-auto max-w-6xl px-5 pb-6 pt-8 md:min-h-[72svh] md:pb-8 md:pt-24">
-        <div id="coiffeur-search" className="absolute top-8" />
-        <span className="inline-flex rounded-full border border-rose-200/25 bg-rose-400/10 px-3 py-1.5 text-xs font-semibold text-rose-100">
-          {COIFFEUR_INQUIRY_COPY.badge}
-        </span>
-        <motion.h1
-          initial={{ opacity: 0, y: 14 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mt-4 text-[clamp(1.75rem,8vw,2.25rem)] font-black leading-[1.12] text-white md:mt-5 md:text-[clamp(2.1rem,7vw,4.2rem)]"
-        >
-          {COIFFEUR_INQUIRY_COPY.title}
-          <span className="mt-1 block bg-gradient-to-l from-rose-200 via-[#f4d4c0] to-amber-200 bg-clip-text text-transparent">
-            {COIFFEUR_INQUIRY_COPY.titleAccent}
-          </span>
-        </motion.h1>
-
-        <div className="mt-8 grid items-start gap-8 lg:mt-10 lg:grid-cols-[minmax(0,1.1fr)_auto] lg:gap-10">
-          <div className="min-w-0 max-w-xl">
-            <p className="mb-3 text-[0.7rem] font-black tracking-[0.18em] text-[#e8b4a2]">{COIFFEUR_INQUIRY_COPY.kicker}</p>
-            <div className="-mx-5 flex gap-2 overflow-x-auto px-5 pb-1 [scrollbar-width:none] md:mx-0 md:flex-wrap md:overflow-visible md:px-0 [&::-webkit-scrollbar]:hidden">
-              {COIFFEUR_INQUIRY_INTENTS.map((item) => {
-                const active = intent === item.id;
-                return (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => setIntent(item.id)}
-                    className={
-                      active
-                        ? 'shrink-0 whitespace-nowrap rounded-full border border-[#f4d4c0]/70 bg-[#e8b4a2]/20 px-3.5 py-2 text-xs font-black text-[#f7efe8]'
-                        : 'shrink-0 whitespace-nowrap rounded-full border border-white/10 bg-white/[0.04] px-3.5 py-2 text-xs font-bold text-rose-100/70'
-                    }
-                  >
-                    {item.label}
-                  </button>
-                );
-              })}
-            </div>
-            <p className="min-h-6 text-xs leading-6 text-rose-100/55">
-              {locate === 'ready' ? COIFFEUR_INQUIRY_COPY.located : null}
-              {locate === 'denied' ? COIFFEUR_INQUIRY_COPY.locateDenied : null}
-            </p>
-          </div>
-          <div className="hidden justify-center overflow-x-clip md:flex">
-            <CoiffeurRadarButton
-              phase={radarPhase}
-              onClick={requestSearch}
-              idleTitle={COIFFEUR_INQUIRY_COPY.searchRadarIdle}
-              idleHint={COIFFEUR_INQUIRY_COPY.searchHero}
-            />
-          </div>
-        </div>
-      </section>
 
       <section className="relative mx-auto max-w-6xl px-5 pb-8 md:pb-20">
         <div className="overflow-hidden rounded-3xl border border-rose-200/15 bg-gradient-to-b from-white/[0.06] to-white/[0.02] px-5 py-8 text-center shadow-[inset_0_1px_0_rgba(244,212,192,0.18)] md:rounded-[2rem] md:px-6 md:py-14">

@@ -236,7 +236,7 @@ export function CoiffeurRadarButton({
         />
       ) : null}
       <p className="max-w-[19rem] text-center text-[0.72rem] leading-5 text-rose-100/45">
-        الاستعلام يستخدم إذن الموقع لعرض المشاغل والكوافير القريبة — قطاع نسائي فقط.
+        الاستعلام يستخدم إذن الموقع لعرض الأقرب في نطاقك.
       </p>
     </div>
   );

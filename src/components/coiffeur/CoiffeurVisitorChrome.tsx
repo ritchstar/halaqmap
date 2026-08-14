@@ -22,31 +22,21 @@ import { cn } from '@/lib/utils';
 
 type HeaderProps = {
   brandTo?: string;
-  searchBusy?: boolean;
-  onSearch: () => void;
 };
 
-export function CoiffeurVisitorHeader({ brandTo, searchBusy = false, onSearch }: HeaderProps) {
+export function CoiffeurVisitorHeader({ brandTo }: HeaderProps) {
   const brand = (
     <div className="flex min-w-0 items-center gap-2">
       <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[#f4d4c0]/30 bg-[#2a1218]">
         <Sparkles className="h-4 w-4 text-[#f4d4c0]" />
       </div>
-      <div className="min-w-0 leading-tight">
-        <p className="truncate text-[1rem] font-black tracking-wide text-[#f7efe8]">{COIFFEUR_BRAND_AR}</p>
-        <p className="truncate text-[0.58rem] font-bold text-[#e8b4a2]/75 md:hidden">
-          {COIFFEUR_INQUIRY_COPY.mobileTagline}
-        </p>
-        <p className="hidden truncate text-[10px] text-rose-100/50 md:block">
-          {COIFFEUR_INQUIRY_COPY.isolationBadge}
-        </p>
-      </div>
+      <p className="truncate text-[1rem] font-black tracking-wide text-[#f7efe8]">{COIFFEUR_BRAND_AR}</p>
     </div>
   );
 
   return (
     <header className="relative sticky top-0 z-40 border-b border-rose-200/10 bg-[#14080e]/92 backdrop-blur-md">
-      <div className="mx-auto flex h-[3.5rem] max-w-6xl items-center justify-between gap-3 px-4 md:h-16">
+      <div className="mx-auto flex h-[3.5rem] max-w-6xl items-center px-4 md:h-16">
         {brandTo ? (
           <Link to={brandTo} className="min-w-0 no-underline">
             {brand}
@@ -54,14 +44,6 @@ export function CoiffeurVisitorHeader({ brandTo, searchBusy = false, onSearch }:
         ) : (
           brand
         )}
-        <CoiffeurSearchButton
-          size="header"
-          className="hidden shrink-0 md:inline-flex"
-          label={COIFFEUR_INQUIRY_COPY.searchHeaderLong}
-          shortLabel={COIFFEUR_INQUIRY_COPY.searchHeader}
-          busy={searchBusy}
-          onClick={onSearch}
-        />
       </div>
       <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-[#f4d4c0]/40 to-transparent" />
     </header>
