@@ -57,9 +57,12 @@ export default function CoiffeurLanding() {
           {COIFFEUR_LANDING_COPY.lead}
         </p>
         <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-          <p className="rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-slate-300">
+          <Link
+            to={ROUTE_PATHS.COIFFEUR_INQUIRE}
+            className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-l from-teal-500 to-cyan-500 px-6 py-3 text-sm font-black text-white"
+          >
             {COIFFEUR_LANDING_COPY.searchCta}
-          </p>
+          </Link>
           <Link
             to={ROUTE_PATHS.COIFFEUR_PARTNERS}
             className="inline-flex items-center gap-2 rounded-xl border border-amber-300/40 bg-amber-500/10 px-6 py-3 text-sm font-black text-amber-100"

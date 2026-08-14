@@ -29,6 +29,8 @@ export const ROUTE_PATHS = {
    * الدفع لا يُنسَخ هنا: يُحوَّل دائماً إلى PAYMENT على www.halaqmap.com.
    */
   COIFFEUR_LANDING: '/coiffeur',
+  /** استعلام المستعلمة — قطاع نسائي فقط، منفصل عن بحث حلاق ماب للرجال */
+  COIFFEUR_INQUIRE: '/coiffeur/need',
   COIFFEUR_PARTNERS: '/coiffeur/partners',
   /** إعادة توجيه إلى REGISTER مع surface=coiffeur — لا فورم مستقل */
   COIFFEUR_REGISTER: '/coiffeur/partners/register',

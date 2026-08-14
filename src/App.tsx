@@ -102,6 +102,7 @@ const BronzeTrialConfirmLanding = lazy(() => import("@/pages/BronzeTrialConfirmL
 const PartnerWhyPage = lazy(() => import("@/pages/PartnerWhyPage"));
 const PartnerMarketingCommitmentsPage = lazy(() => import("@/pages/PartnerMarketingCommitmentsPage"));
 const CoiffeurLanding = lazy(() => import("@/pages/coiffeur/CoiffeurLanding"));
+const CoiffeurInquiryPage = lazy(() => import("@/pages/coiffeur/CoiffeurInquiryPage"));
 const CoiffeurPartnersLanding = lazy(() => import("@/pages/coiffeur/CoiffeurPartnersLanding"));
 const PartnerStoryPage = lazy(() => import("@/pages/PartnerStoryPage"));
 const BarberPortalEnter = lazy(() => import("@/pages/BarberPortalEnter"));
@@ -440,6 +441,7 @@ export function App() {
           <Route path={ROUTE_PATHS.PARTNERS_B2B_LANDING} element={<LazyRoute><PartnersB2BLanding /></LazyRoute>} />
           <Route path={ROUTE_PATHS.BARBERS_LANDING} element={<LazyRoute><PartnerMarketingPreview /></LazyRoute>} />
           <Route path={ROUTE_PATHS.COIFFEUR_LANDING} element={<LazyRoute><CoiffeurLanding /></LazyRoute>} />
+          <Route path={ROUTE_PATHS.COIFFEUR_INQUIRE} element={<LazyRoute><CoiffeurInquiryPage /></LazyRoute>} />
           <Route path={ROUTE_PATHS.COIFFEUR_PARTNERS} element={<LazyRoute><CoiffeurPartnersLanding /></LazyRoute>} />
           <Route path={ROUTE_PATHS.COIFFEUR_REGISTER} element={<CoiffeurRegisterRedirect />} />
           <Route

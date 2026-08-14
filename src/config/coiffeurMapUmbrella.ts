@@ -39,13 +39,52 @@ export const COIFFEUR_LANDING_META = {
   partnersTitle: 'انضمام صالون كوافير — تحت مظلة حلاق ماب',
 } as const;
 
+export const COIFFEUR_LISTING_SECTOR = 'coiffeur_women' as const;
+
+export type CoiffeurInquiryIntentId =
+  | 'near_open'
+  | 'coiffeur'
+  | 'beauty_salon'
+  | 'spa'
+  | 'makeup'
+  | 'nails'
+  | 'skin';
+
+export const COIFFEUR_INQUIRY_INTENTS: ReadonlyArray<{
+  id: CoiffeurInquiryIntentId;
+  label: string;
+}> = [
+  { id: 'near_open', label: 'مفتوح الآن قريباً' },
+  { id: 'coiffeur', label: 'كوافير نسائي' },
+  { id: 'beauty_salon', label: 'مشغل تجميل' },
+  { id: 'spa', label: 'سبا ومساج' },
+  { id: 'makeup', label: 'مكياج وسهرات' },
+  { id: 'nails', label: 'عناية أظافر' },
+  { id: 'skin', label: 'عناية بشرة' },
+];
+
+export const COIFFEUR_INQUIRY_COPY = {
+  documentTitle: 'استعلام كوافير ماب — مشاغل وتجميل نسائي فقط',
+  badge: 'استعلام منفصل عن حلاق ماب للرجال',
+  title: 'ابحثي عن مشغل أو كوافير أو سبا',
+  lead:
+    'هذا المسار للمستعلمات فقط: مشاغل نسائية، كوافير، سبا، وتجميل. لا يظهر هنا أي صالون حلاقة رجالي من حلاق ماب.',
+  locateCta: 'اسمحي بالموقع للبحث القريب',
+  locating: 'نحدد موقعك…',
+  locateDenied: 'لم يُسمح بالموقع. يمكنك اختيار نوع الخدمة والانتظار حتى تُسكَّن صالونات في نطاقك.',
+  emptyTitle: 'لا مشاغل نسائية مفعّلة في هذا النطاق بعد',
+  emptyBody:
+    'نتائج كوافير ماب لا تُخلط مع حلاق ماب للرجال. عند تفعيل منشآت نسائية مرخّصة في نطاقك ستظهر هنا فقط: مشغل، كوافير، سبا، وتجميل.',
+  isolationNote: 'الاستعلام هنا قطاع نسائي حصراً، ولا يمر عبر بحث الصالونات الرجالية.',
+} as const;
+
 export const COIFFEUR_LANDING_COPY = {
   badge: 'مجاني للمستعلمة · بلا حساب',
   title: 'أقرب صالون كوافير يناسب حاجتك',
   lead:
     'استجابة ذكية تربط المستعلمة بصالونات التجميل والكوافير النسائي المفعّلة عند الطلب — حسب الموقع ونوع الخدمة. ليست وساطة حجز ولا عمولة على الخدمة.',
-  searchCta: 'الاستعلام يُفعَّل مع تسكين الصالونات',
-  searchHint: 'خريطة المستعلمات تُفتح بعد تفعيل صالونات نسائية مرخّصة — لا تُحوَّل إلى مسار الحلاقة الرجالية.',
+  searchCta: 'ابحثي الآن — استعلام نسائي فقط',
+  searchHint: 'الاستعلام منفصل تماماً عن بحث حلاق ماب للرجال: مشاغل، كوافير، سبا، وتجميل.',
   partnerCta: 'سجّلي صالونك الآن — دقيقتين',
   partnerSecondary: 'صاحبة صالون؟ مسار الانضمام هنا',
   trust: [
