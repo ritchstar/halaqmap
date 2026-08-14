@@ -521,6 +521,7 @@ export default function PartnerMarketingPreview() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState<'bronze' | 'gold' | 'diamond'>('gold');
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [ideaAccordion, setIdeaAccordion] = useState<string | undefined>(undefined);
   const [deferMobilePartnerContent, setDeferMobilePartnerContent] = useState(
     () => typeof window === 'undefined' || window.innerWidth >= 768,
   );
@@ -536,6 +537,22 @@ export default function PartnerMarketingPreview() {
     warmRegisterRoute();
     navigate(ROUTE_PATHS.REGISTER);
   }, [navigate, warmRegisterRoute]);
+
+  const scrollToSection = useCallback((id: string) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, []);
+
+  const goToIdeaBrief = useCallback(() => {
+    setMobileNavOpen(false);
+    setIdeaAccordion('how');
+    setDeferMobilePartnerContent(true);
+    window.setTimeout(() => {
+      document.getElementById(PARTNER_JOIN_PATH_HOW_IT_WORKS.id)?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+    }, 80);
+  }, []);
 
   useEffect(() => {
     ProductEvents.partnerLandingView();
@@ -657,20 +674,22 @@ export default function PartnerMarketingPreview() {
               </div>
             </Link>
             <nav className="hidden items-center gap-1 md:flex" dir="rtl">
-              {[
-                { label: 'الأسعار', id: 'الأسعار', icon: Crown },
-                { label: 'الفكرة باختصار', id: 'فكرة-الانضمام', icon: Sparkles },
-              ].map((item) => (
-                <button
-                  key={item.id}
-                  type="button"
-                  onClick={() => document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-                  className="group flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-[0.78rem] font-semibold text-slate-300 transition-all hover:bg-white/10 hover:text-white cursor-pointer"
-                >
-                  <item.icon className="h-3.5 w-3.5 text-teal-300/80 transition-colors group-hover:text-teal-200" />
-                  {item.label}
-                </button>
-              ))}
+              <button
+                type="button"
+                onClick={goToIdeaBrief}
+                className="group flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-[0.78rem] font-semibold text-slate-300 transition-all hover:bg-white/10 hover:text-white cursor-pointer"
+              >
+                <Sparkles className="h-3.5 w-3.5 text-teal-300/80 transition-colors group-hover:text-teal-200" />
+                الفكرة باختصار
+              </button>
+              <button
+                type="button"
+                onClick={() => scrollToSection('الأسعار')}
+                className="group flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-[0.78rem] font-semibold text-slate-300 transition-all hover:bg-white/10 hover:text-white cursor-pointer"
+              >
+                <Crown className="h-3.5 w-3.5 text-teal-300/80 transition-colors group-hover:text-teal-200" />
+                الأسعار
+              </button>
               <Link
                 to={ROUTE_PATHS.PARTNER_MARKETING}
                 className="group flex items-center gap-1.5 rounded-xl border border-amber-300/30 bg-amber-500/10 px-3.5 py-2 text-[0.78rem] font-semibold text-amber-100 transition-all hover:bg-amber-500/20"
@@ -750,16 +769,20 @@ export default function PartnerMarketingPreview() {
                 className="relative border-t border-white/10 bg-[#020912]/95 px-4 py-3 md:hidden"
               >
                 <div className="flex flex-col gap-1">
-                  {[
-                    { label: 'الفكرة باختصار', id: 'فكرة-الانضمام' },
-                    { label: 'الأسعار', id: 'الأسعار' },
-                  ].map(item => (
-                    <button key={item.id} type="button"
-                      onClick={() => { setMobileNavOpen(false); document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth' }); }}
-                      className="rounded-xl px-4 py-2.5 text-right text-sm font-semibold text-slate-200 hover:bg-white/10 hover:text-white transition-all">
-                      {item.label}
-                    </button>
-                  ))}
+                  <button
+                    type="button"
+                    onClick={goToIdeaBrief}
+                    className="rounded-xl px-4 py-2.5 text-right text-sm font-semibold text-slate-200 hover:bg-white/10 hover:text-white transition-all"
+                  >
+                    الفكرة باختصار
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setMobileNavOpen(false); scrollToSection('الأسعار'); }}
+                    className="rounded-xl px-4 py-2.5 text-right text-sm font-semibold text-slate-200 hover:bg-white/10 hover:text-white transition-all"
+                  >
+                    الأسعار
+                  </button>
                   <Link
                     to={ROUTE_PATHS.PARTNER_MARKETING}
                     onClick={() => setMobileNavOpen(false)}
@@ -959,8 +982,8 @@ export default function PartnerMarketingPreview() {
         <div className="mx-auto max-w-5xl px-5" dir="rtl">
           <div className="mb-8 grid gap-3 sm:grid-cols-3">
             {[
-              { icon: TrendingUp, title: PARTNER_JOIN_PATH_WHY_NOW.kicker, body: PARTNER_JOIN_PATH_WHY_NOW.points[0].title },
               { icon: Sparkles, title: PARTNER_JOIN_PATH_HOW_IT_WORKS.kicker, body: PARTNER_JOIN_PATH_HOW_IT_WORKS.points[0].title },
+              { icon: TrendingUp, title: PARTNER_JOIN_PATH_WHY_NOW.kicker, body: PARTNER_JOIN_PATH_WHY_NOW.points[0].title },
               { icon: Zap, title: PARTNER_JOIN_PATH_STEPS.kicker, body: PARTNER_JOIN_PATH_STEPS.steps[0].title },
             ].map((item) => (
               <div
@@ -973,24 +996,14 @@ export default function PartnerMarketingPreview() {
               </div>
             ))}
           </div>
-          <Accordion type="single" collapsible className="rounded-2xl border border-white/10 bg-[#041018] px-4">
-            <AccordionItem value="why" id={PARTNER_JOIN_PATH_WHY_NOW.id} className="border-white/10">
-              <AccordionTrigger className="text-right text-white hover:no-underline">
-                {PARTNER_JOIN_PATH_WHY_NOW.title}
-              </AccordionTrigger>
-              <AccordionContent className="text-slate-300">
-                <p className="mb-3 leading-7">{PARTNER_JOIN_PATH_WHY_NOW.lead}</p>
-                <ul className="space-y-2">
-                  {PARTNER_JOIN_PATH_WHY_NOW.points.map((point) => (
-                    <li key={point.title}>
-                      <span className="font-bold text-teal-200">{point.title}: </span>
-                      {point.body}
-                    </li>
-                  ))}
-                </ul>
-              </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="how" id={PARTNER_JOIN_PATH_HOW_IT_WORKS.id} className="border-white/10">
+          <Accordion
+            type="single"
+            collapsible
+            value={ideaAccordion}
+            onValueChange={setIdeaAccordion}
+            className="rounded-2xl border border-white/10 bg-[#041018] px-4"
+          >
+            <AccordionItem value="how" id={PARTNER_JOIN_PATH_HOW_IT_WORKS.id} className="scroll-mt-28 border-white/10">
               <AccordionTrigger className="text-right text-white hover:no-underline">
                 {PARTNER_JOIN_PATH_HOW_IT_WORKS.title}
               </AccordionTrigger>
@@ -1006,7 +1019,23 @@ export default function PartnerMarketingPreview() {
                 </ul>
               </AccordionContent>
             </AccordionItem>
-            <AccordionItem value="steps" id={PARTNER_JOIN_PATH_STEPS.id} className="border-white/10">
+            <AccordionItem value="why" id={PARTNER_JOIN_PATH_WHY_NOW.id} className="scroll-mt-28 border-white/10">
+              <AccordionTrigger className="text-right text-white hover:no-underline">
+                {PARTNER_JOIN_PATH_WHY_NOW.title}
+              </AccordionTrigger>
+              <AccordionContent className="text-slate-300">
+                <p className="mb-3 leading-7">{PARTNER_JOIN_PATH_WHY_NOW.lead}</p>
+                <ul className="space-y-2">
+                  {PARTNER_JOIN_PATH_WHY_NOW.points.map((point) => (
+                    <li key={point.title}>
+                      <span className="font-bold text-teal-200">{point.title}: </span>
+                      {point.body}
+                    </li>
+                  ))}
+                </ul>
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="steps" id={PARTNER_JOIN_PATH_STEPS.id} className="scroll-mt-28 border-white/10">
               <AccordionTrigger className="text-right text-white hover:no-underline">
                 {PARTNER_JOIN_PATH_STEPS.title}
               </AccordionTrigger>
