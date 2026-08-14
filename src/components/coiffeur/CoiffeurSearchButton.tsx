@@ -36,7 +36,7 @@ export function CoiffeurSearchButton({
       whileHover={reduceMotion ? undefined : { scale: 1.03 }}
       whileTap={reduceMotion ? undefined : { scale: 0.97 }}
       className={cn(
-        'group relative overflow-hidden font-black text-[#2a1218] disabled:opacity-80',
+        'group relative shrink-0 overflow-hidden whitespace-nowrap font-black text-[#2a1218] disabled:opacity-80',
         'border border-[#f7efe8]/35 bg-gradient-to-l from-[#f7efe8] via-[#f4d4c0] to-[#c98b96]',
         compact
           ? 'rounded-xl px-4 py-2.5 text-[0.94rem] shadow-[0_0_20px_rgba(232,180,162,0.38)] hover:shadow-[0_0_32px_rgba(244,212,192,0.55)]'

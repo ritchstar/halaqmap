@@ -86,8 +86,8 @@ function SearchingRing() {
 export function CoiffeurRadarButton({
   phase = 'idle',
   onClick,
-  idleTitle = 'ابحثي عن الصالونات',
-  idleHint = 'ابدئي الاستعلام',
+  idleTitle = 'ابدئي الآن',
+  idleHint = 'ابحثي عن الصالونات',
 }: Props) {
   const isMobile = useIsMobile();
   const reduceMotion = useReducedMotion();
@@ -99,8 +99,8 @@ export function CoiffeurRadarButton({
   const isIdle = phase === 'idle';
 
   return (
-    <div className="flex flex-col items-center gap-4 select-none" dir="rtl">
-      <div className="relative" style={{ width: SIZE, height: SIZE }}>
+    <div className="flex max-w-full flex-col items-center gap-4 overflow-x-clip select-none" dir="rtl">
+      <div className="relative overflow-visible" style={{ width: SIZE, height: SIZE }}>
         <AnimatePresence>
           {(isIdle || isSearching) && !isMobile && !reduceMotion ? (
             <>
@@ -148,7 +148,7 @@ export function CoiffeurRadarButton({
           style={{
             background: theme.bg,
             borderColor: theme.border,
-            boxShadow: `0 0 55px 12px ${theme.glow}, 0 0 110px 24px rgba(232,180,162,0.08)`,
+            boxShadow: `0 0 28px 6px ${theme.glow}`,
           }}
           aria-label={idleTitle}
           aria-busy={isSearching}

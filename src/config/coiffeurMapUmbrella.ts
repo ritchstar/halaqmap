@@ -73,6 +73,8 @@ export const COIFFEUR_INQUIRY_COPY = {
   searchHeader: 'استعلمي',
   searchHeaderLong: 'استعلمي الآن',
   searchHero: 'ابحثي عن الصالونات',
+  searchRadarIdle: 'ابدئي الآن',
+  mobileTagline: 'ابحثي عن مشغل قريب',
   searchBusy: 'يجري التحديد…',
   locateDenied: 'لم يُسمح بالموقع. اختاري نوع الخدمة؛ النتائج تبقى نسائية فقط.',
   located: 'تم تحديد موقعك — البحث داخل المشاغل والكوافير والسبا فقط.',
