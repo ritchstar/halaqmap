@@ -61,6 +61,7 @@ import {
   PARTNER_JOIN_PATH_SECONDARY_LINKS,
   PARTNER_JOIN_PATH_STEPS,
   PARTNER_JOIN_PATH_TRUST_LINE_AR,
+  PARTNER_SISTER_SURFACE_LINE_AR,
   PARTNER_JOIN_PATH_WHY_NOW,
 } from '@/config/partnerJoinPathCopy';
 import { LEGAL_ECOMMERCE_AUTH_FOOTER_LINE_AR, PARTNER_SUPPORT_WHATSAPP_URL } from '@/config/partnerLegal';
@@ -877,8 +878,11 @@ export default function PartnerMarketingPreview() {
             <p className="mb-3 text-sm font-semibold text-amber-200/90">
               يقتصر الاشتراك على المنشآت فقط · بوابة الدفع بعد اكتمال التعهدات
             </p>
-            <p className="mb-5 text-sm font-semibold text-teal-100/90">
+            <p className="mb-3 text-sm font-semibold text-teal-100/90">
               {PARTNER_JOIN_PATH_TRUST_LINE_AR}
+            </p>
+            <p className="mb-5 max-w-xl text-sm leading-7 text-slate-300">
+              {PARTNER_SISTER_SURFACE_LINE_AR}
             </p>
 
             {!isMobile ? (

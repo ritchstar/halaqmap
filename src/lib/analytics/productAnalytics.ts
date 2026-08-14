@@ -234,4 +234,20 @@ export const ProductEvents = {
     trackProductEvent('partner_register_submit', { tier: props?.tier }),
   ambassadorApplicationSubmitted: () => trackProductEvent('ambassador_application_submitted'),
   hospitalityRequestStarted: () => trackProductEvent('hospitality_request_started'),
+  coiffeurLandingView: (props?: { source?: string }) =>
+    trackProductEvent('coiffeur_landing_view', { source: props?.source }),
+  coiffeurCategoryClick: (props: { intent: string; source?: string }) =>
+    trackProductEvent('coiffeur_category_click', { intent: props.intent, source: props.source }),
+  coiffeurCtaClick: (props?: { source?: string }) =>
+    trackProductEvent('coiffeur_cta_click', { source: props?.source }),
+  coiffeurInterestView: (props?: { source?: string }) =>
+    trackProductEvent('coiffeur_interest_view', { source: props?.source }),
+  coiffeurInterestSubmit: (props?: { role?: string; intent?: string; source?: string }) =>
+    trackProductEvent('coiffeur_interest_submit', {
+      role: props?.role,
+      intent: props?.intent,
+      source: props?.source,
+    }),
+  coiffeurKitDownload: (props: { kind: string }) =>
+    trackProductEvent('coiffeur_kit_download', { kind: props.kind }),
 } as const;

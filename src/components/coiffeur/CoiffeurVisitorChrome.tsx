@@ -85,16 +85,28 @@ export function CoiffeurVisitorGlows() {
 
 type FooterProps = {
   showPartnersLater?: boolean;
+  showInterest?: boolean;
 };
 
-export function CoiffeurVisitorFooter({ showPartnersLater = false }: FooterProps) {
+export function CoiffeurVisitorFooter({
+  showPartnersLater = false,
+  showInterest = true,
+}: FooterProps) {
   return (
     <footer className="hidden border-t border-rose-200/10 px-5 py-8 text-center md:block">
       <p className="text-xs leading-7 text-rose-100/45">{COIFFEUR_UMBRELLA_LINE_AR}</p>
       <p className="mt-2 text-[11px] text-rose-100/30">{COIFFEUR_FOOTER_LEGAL_AR}</p>
       <p className="mt-1 text-[11px] text-rose-100/30">{COIFFEUR_FOOTER_ECOMMERCE_AR}</p>
+      <Link to={ROUTE_PATHS.USER_PRIVACY_POLICY} className="mt-3 inline-block text-[11px] text-rose-100/40">
+        السياسات
+      </Link>
+      {showInterest ? (
+        <Link to={ROUTE_PATHS.COIFFEUR_INTEREST} className="mt-3 block text-[11px] text-rose-100/40">
+          سجّلي اهتمامك وتلقّي التحديثات
+        </Link>
+      ) : null}
       {showPartnersLater ? (
-        <Link to={ROUTE_PATHS.COIFFEUR_PARTNERS} className="mt-4 inline-block text-[11px] text-rose-100/40">
+        <Link to={ROUTE_PATHS.COIFFEUR_PARTNERS} className="mt-3 block text-[11px] text-rose-100/40">
           مسار المنشآت — مرحلة لاحقة
         </Link>
       ) : null}
@@ -102,9 +114,18 @@ export function CoiffeurVisitorFooter({ showPartnersLater = false }: FooterProps
   );
 }
 
-export function CoiffeurVisitorShell({ children }: { children: ReactNode }) {
+export function CoiffeurVisitorShell({
+  children,
+  withMobileDock = true,
+}: {
+  children: ReactNode;
+  withMobileDock?: boolean;
+}) {
   return (
-    <div dir="rtl" className={cn(COIFFEUR_VISITOR_CANVAS_CLASS, 'md:pb-0', MOBILE_DOCK_CLEARANCE)}>
+    <div
+      dir="rtl"
+      className={cn(COIFFEUR_VISITOR_CANVAS_CLASS, 'md:pb-0', withMobileDock && MOBILE_DOCK_CLEARANCE)}
+    >
       <CoiffeurVisitorGlows />
       {children}
     </div>

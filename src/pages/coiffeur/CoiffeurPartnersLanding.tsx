@@ -72,6 +72,12 @@ export default function CoiffeurPartnersLanding() {
         <p className="text-xs leading-7 text-slate-400">{COIFFEUR_UMBRELLA_LINE_AR}</p>
         <p className="mt-2 text-[11px] text-slate-500">{COIFFEUR_FOOTER_LEGAL_AR}</p>
         <p className="mt-1 text-[11px] text-slate-500">{COIFFEUR_FOOTER_ECOMMERCE_AR}</p>
+        <Link to={ROUTE_PATHS.USER_PRIVACY_POLICY} className="mt-3 inline-block text-[11px] text-slate-500">
+          السياسات
+        </Link>
+        <Link to={ROUTE_PATHS.COIFFEUR_INTEREST} className="mt-3 block text-[11px] text-slate-500">
+          سجّلي اهتمامك وتلقّي التحديثات
+        </Link>
       </footer>
     </div>
   );

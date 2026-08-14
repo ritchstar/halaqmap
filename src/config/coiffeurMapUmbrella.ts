@@ -26,6 +26,8 @@ export const COIFFEUR_SATELLITE_HOST = 'coiffeur.halaqmap.com' as const;
 
 export const COIFFEUR_BRAND_AR = 'كوافير ماب' as const;
 
+export const COIFFEUR_CORE_PROJECT_AR = 'حلاق ماب' as const;
+
 export const COIFFEUR_UMBRELLA_LINE_AR =
   'كوافير ماب سطح قطاعي تابع لمنصة حلاق ماب — الكيان التجاري والتوثيق ونظام الدفع جميعها لدى حلاق ماب.' as const;
 

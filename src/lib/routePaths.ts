@@ -34,6 +34,8 @@ export const ROUTE_PATHS = {
   COIFFEUR_PARTNERS: '/coiffeur/partners',
   /** إعادة توجيه إلى REGISTER مع surface=coiffeur — لا فورم مستقل */
   COIFFEUR_REGISTER: '/coiffeur/partners/register',
+  /** اهتمام مسبق + تحديثات بريد + عدة كروت برمجية — تحويل يوتيوب */
+  COIFFEUR_INTEREST: '/coiffeur/interest',
   /** صفحة هبوط B2B (Skywork) — partners.halaqmap.com */
   PARTNERS_B2B_LANDING: '/partners/b2b',
   /** إقناع عميق: لماذا حلاق ماب وليس مجرد «حجز» */

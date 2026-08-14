@@ -94,7 +94,7 @@ function rateLimitMaxForRoute(routeId: string): number {
     return envInt('PARTNER_ASSISTANT_RATE_LIMIT_MAX', 20);
   }
   // ── حملة إعلانية / تسجيل عام: حدود أضيق من الافتراضي 45 ──
-  if (routeId === 'interest-signup') {
+  if (routeId === 'interest-signup' || routeId === 'coiffeur-interest-signup') {
     return envInt('INTEREST_SIGNUP_RATE_LIMIT_MAX', 8);
   }
   if (routeId === 'register-submission') {
