@@ -2,15 +2,18 @@
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
 /**
- * استعلام كوافير ماب — قطاع نسائي فقط (مشغل / كوافير / سبا / تجميل).
- * لا يستخدم بحث حلاق ماب للرجال ولا /api/public-barbers.
+ * تجربة المستعلمة — بحث واستعلام بطابع نسائي فاخر.
+ * مرحلة أولى: الزر والنوايا والعزل عن بحث الرجال. النتائج الحية مرحلة لاحقة.
  */
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, Scissors, Search, Sparkles } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Sparkles } from 'lucide-react';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { fetchCoiffeurInquiryListings } from '@/lib/coiffeurInquiryIsolation';
+import { CoiffeurSearchButton, COIFFEUR_VISITOR_CANVAS_CLASS } from '@/components/coiffeur/CoiffeurSearchButton';
+import { CoiffeurRadarButton, type CoiffeurRadarPhase } from '@/components/coiffeur/CoiffeurRadarButton';
 import {
   COIFFEUR_BRAND_AR,
   COIFFEUR_FOOTER_ECOMMERCE_AR,
@@ -31,18 +34,18 @@ export default function CoiffeurInquiryPage() {
 
   const runInquiry = useCallback(async () => {
     const { listings, isolatedFromMensBarbers } = await fetchCoiffeurInquiryListings();
-    if (!isolatedFromMensBarbers) {
-      setResultCount(0);
-      return;
-    }
-    setResultCount(listings.length);
+    setResultCount(isolatedFromMensBarbers ? listings.length : 0);
   }, []);
 
   useEffect(() => {
     void runInquiry();
   }, [intent, runInquiry]);
 
-  const requestLocation = () => {
+  const radarPhase: CoiffeurRadarPhase =
+    locate === 'pending' ? 'searching' : locate === 'ready' ? 'found' : locate === 'denied' ? 'denied' : 'idle';
+
+  const requestSearch = () => {
+    document.getElementById('coiffeur-search')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     if (!navigator.geolocation) {
       setLocate('denied');
       return;
@@ -59,90 +62,92 @@ export default function CoiffeurInquiryPage() {
   };
 
   return (
-    <div dir="rtl" className="relative min-h-screen overflow-x-clip bg-[linear-gradient(165deg,#020912_0%,#041422_48%,#020912_100%)] text-slate-100">
-      <header className="sticky top-0 z-40 border-b border-white/10 bg-[#020912]/90 backdrop-blur">
-        <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3">
-          <Link to={ROUTE_PATHS.COIFFEUR_LANDING} className="text-sm font-black text-teal-300">
-            {COIFFEUR_BRAND_AR}
+    <div dir="rtl" className={COIFFEUR_VISITOR_CANVAS_CLASS}>
+      <div className="pointer-events-none absolute -left-24 top-24 h-[22rem] w-[22rem] rounded-full bg-rose-400/12 blur-[110px]" aria-hidden />
+      <div className="pointer-events-none absolute -right-16 top-10 h-[26rem] w-[26rem] rounded-full bg-amber-200/10 blur-[120px]" aria-hidden />
+
+      <header className="relative sticky top-0 z-40 border-b border-rose-200/10 bg-[#14080e]/88 backdrop-blur-md">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3">
+          <Link to={ROUTE_PATHS.COIFFEUR_LANDING} className="min-w-0">
+            <p className="text-sm font-black tracking-wide text-[#f4d4c0]">{COIFFEUR_BRAND_AR}</p>
+            <p className="text-[10px] text-rose-100/50">{COIFFEUR_INQUIRY_COPY.isolationBadge}</p>
           </Link>
-          <span className="rounded-full border border-teal-400/35 bg-teal-500/10 px-3 py-1 text-[11px] font-bold text-teal-100">
-            {COIFFEUR_INQUIRY_COPY.badge}
-          </span>
+          <CoiffeurSearchButton
+            size="header"
+            label={COIFFEUR_INQUIRY_COPY.searchHeaderLong}
+            shortLabel={COIFFEUR_INQUIRY_COPY.searchHeader}
+            busy={locate === 'pending'}
+            onClick={requestSearch}
+          />
         </div>
+        <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-[#f4d4c0]/40 to-transparent" />
       </header>
 
-      <main className="mx-auto max-w-5xl px-5 py-10">
-        <p className="text-xs font-black tracking-wide text-teal-200">{COIFFEUR_INQUIRY_COPY.badge}</p>
-        <h1 className="mt-3 text-3xl font-black leading-tight text-white">{COIFFEUR_INQUIRY_COPY.title}</h1>
-        <p className="mt-4 max-w-2xl text-sm leading-8 text-slate-300">{COIFFEUR_INQUIRY_COPY.lead}</p>
+      <section className="relative mx-auto max-w-6xl px-5 pb-8 pt-16 md:min-h-[72svh] md:pt-24">
+        <div id="coiffeur-search" className="absolute top-8" />
+        <span className="inline-flex rounded-full border border-rose-200/25 bg-rose-400/10 px-3 py-1.5 text-xs font-semibold text-rose-100">
+          {COIFFEUR_INQUIRY_COPY.badge}
+        </span>
+        <motion.h1
+          initial={{ opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mt-5 text-[clamp(2.1rem,7vw,4.2rem)] font-black leading-[1.12] text-white"
+        >
+          {COIFFEUR_INQUIRY_COPY.title}
+          <span className="mt-1 block bg-gradient-to-l from-rose-200 via-[#f4d4c0] to-amber-200 bg-clip-text text-transparent">
+            {COIFFEUR_INQUIRY_COPY.titleAccent}
+          </span>
+        </motion.h1>
 
-        <div className="mt-6 flex flex-wrap gap-2">
-          {COIFFEUR_INQUIRY_INTENTS.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() => setIntent(item.id)}
-              className={
-                intent === item.id
-                  ? 'rounded-full border border-teal-300 bg-teal-500/20 px-3.5 py-2 text-xs font-black text-teal-50'
-                  : 'rounded-full border border-white/15 bg-white/5 px-3.5 py-2 text-xs font-bold text-slate-300'
-              }
-            >
-              {item.label}
-            </button>
-          ))}
-        </div>
-
-        <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
-          <button
-            type="button"
-            onClick={requestLocation}
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-l from-teal-500 to-cyan-500 px-5 py-3 text-sm font-black text-white"
-          >
-            <MapPin className="h-4 w-4" />
-            {locate === 'pending' ? COIFFEUR_INQUIRY_COPY.locating : COIFFEUR_INQUIRY_COPY.locateCta}
-          </button>
-          <p className="text-xs leading-6 text-slate-500">
-            {locate === 'ready' ? 'تم تحديد الموقع — النتائج تبقى داخل القطاع النسائي فقط.' : null}
-            {locate === 'denied' ? COIFFEUR_INQUIRY_COPY.locateDenied : null}
-          </p>
-        </div>
-
-        <section className="mt-10 rounded-3xl border border-teal-400/25 bg-white/[0.03] px-5 py-10 text-center">
-          <Search className="mx-auto h-8 w-8 text-teal-300" />
-          <h2 className="mt-4 text-xl font-black text-white">{COIFFEUR_INQUIRY_COPY.emptyTitle}</h2>
-          <p className="mx-auto mt-3 max-w-xl text-sm leading-8 text-slate-300">{COIFFEUR_INQUIRY_COPY.emptyBody}</p>
-          <p className="mt-3 text-xs text-slate-500">النتائج المعروضة في هذا المسار: {resultCount}</p>
-          <p className="mx-auto mt-2 max-w-lg text-[11px] leading-6 text-slate-600">{COIFFEUR_INQUIRY_COPY.isolationNote}</p>
-          <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <Link
-              to={ROUTE_PATHS.COIFFEUR_PARTNERS}
-              className="inline-flex items-center gap-2 rounded-xl border border-amber-300/40 bg-amber-500/10 px-5 py-3 text-sm font-black text-amber-100"
-            >
-              <Scissors className="h-4 w-4" />
-              سجّلي منشأتك النسائية
-            </Link>
-            <Link
-              to={ROUTE_PATHS.COIFFEUR_LANDING}
-              className="inline-flex items-center gap-2 text-sm font-bold text-teal-200"
-            >
-              <Sparkles className="h-4 w-4" />
-              العودة لهبوط كوافير ماب
-            </Link>
+        <div className="mt-10 grid items-start gap-10 lg:grid-cols-[minmax(0,1.1fr)_auto]">
+          <div className="max-w-xl">
+            <p className="mb-3 text-[0.7rem] font-black tracking-[0.18em] text-[#e8b4a2]">{COIFFEUR_INQUIRY_COPY.kicker}</p>
+            <div className="mb-4 flex flex-wrap gap-2">
+              {COIFFEUR_INQUIRY_INTENTS.map((item) => {
+                const active = intent === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => setIntent(item.id)}
+                    className={
+                      active
+                        ? 'rounded-full border border-[#f4d4c0]/70 bg-[#e8b4a2]/20 px-3.5 py-2 text-xs font-black text-[#f7efe8]'
+                        : 'rounded-full border border-white/10 bg-white/[0.04] px-3.5 py-2 text-xs font-bold text-rose-100/70'
+                    }
+                  >
+                    {item.label}
+                  </button>
+                );
+              })}
+            </div>
+            <p className="min-h-6 text-xs leading-6 text-rose-100/55">
+              {locate === 'ready' ? COIFFEUR_INQUIRY_COPY.located : null}
+              {locate === 'denied' ? COIFFEUR_INQUIRY_COPY.locateDenied : null}
+            </p>
           </div>
-        </section>
-      </main>
+          <CoiffeurRadarButton
+            phase={radarPhase}
+            onClick={requestSearch}
+            idleTitle={COIFFEUR_INQUIRY_COPY.searchHero}
+            idleHint={COIFFEUR_INQUIRY_COPY.searchHeaderLong}
+          />
+        </div>
+      </section>
 
-      <footer className="border-t border-white/10 px-5 py-8 text-center">
-        <p className="text-xs leading-7 text-slate-400">{COIFFEUR_UMBRELLA_LINE_AR}</p>
-        <p className="mt-2 text-[11px] text-slate-500">{COIFFEUR_FOOTER_LEGAL_AR}</p>
-        <p className="mt-1 text-[11px] text-slate-500">{COIFFEUR_FOOTER_ECOMMERCE_AR}</p>
-        <p className="mt-3 text-[11px] text-slate-600">
-          بحث الرجال يبقى على حلاق ماب فقط —
-          <Link to={ROUTE_PATHS.HOME} className="mx-1 font-bold text-slate-500 underline">
-            www.halaqmap.com
-          </Link>
-        </p>
+      <section className="relative mx-auto max-w-6xl px-5 pb-20">
+        <div className="overflow-hidden rounded-[2rem] border border-rose-200/15 bg-gradient-to-b from-white/[0.06] to-white/[0.02] px-6 py-14 text-center shadow-[inset_0_1px_0_rgba(244,212,192,0.18)]">
+          <Sparkles className="mx-auto h-7 w-7 text-[#f4d4c0]" />
+          <h2 className="mt-4 text-xl font-black text-white md:text-2xl">{COIFFEUR_INQUIRY_COPY.emptyTitle}</h2>
+          <p className="mx-auto mt-3 max-w-lg text-sm leading-8 text-rose-50/70">{COIFFEUR_INQUIRY_COPY.emptyBody}</p>
+          <p className="mt-4 text-[11px] text-rose-100/35">نتائج هذا المسار حالياً: {resultCount}</p>
+        </div>
+      </section>
+
+      <footer className="border-t border-rose-200/10 px-5 py-8 text-center">
+        <p className="text-xs leading-7 text-rose-100/45">{COIFFEUR_UMBRELLA_LINE_AR}</p>
+        <p className="mt-2 text-[11px] text-rose-100/30">{COIFFEUR_FOOTER_LEGAL_AR}</p>
+        <p className="mt-1 text-[11px] text-rose-100/30">{COIFFEUR_FOOTER_ECOMMERCE_AR}</p>
       </footer>
     </div>
   );

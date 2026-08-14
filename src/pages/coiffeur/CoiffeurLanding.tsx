@@ -2,99 +2,86 @@
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
 /**
- * هبوط كوافير ماب — سطح قطاعي تحت مظلة حلاق ماب.
- * لا بوابة دفع محلية. التسجيل يعيد استخدام /partners/register.
+ * بوابة المستعلمة لكوافير ماب — مرحلة البحث أولاً.
  */
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Scissors, ShieldCheck, Sparkles, Wallet } from 'lucide-react';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
+import { CoiffeurSearchButton, COIFFEUR_VISITOR_CANVAS_CLASS } from '@/components/coiffeur/CoiffeurSearchButton';
+import { CoiffeurRadarButton } from '@/components/coiffeur/CoiffeurRadarButton';
 import {
   COIFFEUR_BRAND_AR,
   COIFFEUR_FOOTER_ECOMMERCE_AR,
   COIFFEUR_FOOTER_LEGAL_AR,
-  COIFFEUR_LANDING_COPY,
+  COIFFEUR_INQUIRY_COPY,
   COIFFEUR_LANDING_META,
   COIFFEUR_UMBRELLA_LINE_AR,
 } from '@/config/coiffeurMapUmbrella';
 
-const TRUST_ICONS = [Sparkles, Wallet, ShieldCheck] as const;
-
 export default function CoiffeurLanding() {
+  const navigate = useNavigate();
   useDocumentTitle(COIFFEUR_LANDING_META.documentTitle);
 
+  const goInquire = () => {
+    navigate(ROUTE_PATHS.COIFFEUR_INQUIRE);
+  };
+
   return (
-    <div dir="rtl" className="relative min-h-screen overflow-x-clip bg-[linear-gradient(165deg,#020912_0%,#041422_48%,#020912_100%)] text-slate-100">
-      <header className="sticky top-0 z-40 border-b border-white/10 bg-[#020912]/90 backdrop-blur">
+    <div dir="rtl" className={COIFFEUR_VISITOR_CANVAS_CLASS}>
+      <div className="pointer-events-none absolute -left-24 top-24 h-[22rem] w-[22rem] rounded-full bg-rose-400/12 blur-[110px]" aria-hidden />
+      <div className="pointer-events-none absolute -right-16 top-10 h-[26rem] w-[26rem] rounded-full bg-amber-200/10 blur-[120px]" aria-hidden />
+
+      <header className="relative sticky top-0 z-40 border-b border-rose-200/10 bg-[#14080e]/88 backdrop-blur-md">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3">
           <div>
-            <p className="text-sm font-black text-teal-300">{COIFFEUR_BRAND_AR}</p>
-            <p className="text-[11px] text-slate-400">سطح قطاعي تابع لمنصة حلاق ماب</p>
+            <p className="text-sm font-black tracking-wide text-[#f4d4c0]">{COIFFEUR_BRAND_AR}</p>
+            <p className="text-[10px] text-rose-100/50">{COIFFEUR_INQUIRY_COPY.isolationBadge}</p>
           </div>
-          <Link
-            to={ROUTE_PATHS.COIFFEUR_PARTNERS}
-            className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-l from-teal-500 to-cyan-500 px-4 py-2.5 text-xs font-black text-white"
-          >
-            <Scissors className="h-3.5 w-3.5" />
-            {COIFFEUR_LANDING_COPY.partnerCta}
-          </Link>
+          <CoiffeurSearchButton
+            size="header"
+            label={COIFFEUR_INQUIRY_COPY.searchHeaderLong}
+            shortLabel={COIFFEUR_INQUIRY_COPY.searchHeader}
+            onClick={goInquire}
+          />
         </div>
+        <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-[#f4d4c0]/40 to-transparent" />
       </header>
 
-      <section className="mx-auto max-w-3xl px-5 pb-10 pt-14 text-center">
-        <span className="inline-flex rounded-full border border-teal-400/40 bg-teal-500/10 px-3 py-1 text-xs font-bold text-teal-200">
-          {COIFFEUR_LANDING_COPY.badge}
-        </span>
-        <motion.h1
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mt-5 text-3xl font-black leading-tight text-white sm:text-4xl"
-        >
-          {COIFFEUR_LANDING_COPY.title}
-        </motion.h1>
-        <p className="mx-auto mt-4 max-w-xl text-sm leading-8 text-slate-300 sm:text-base">
-          {COIFFEUR_LANDING_COPY.lead}
-        </p>
-        <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-          <Link
-            to={ROUTE_PATHS.COIFFEUR_INQUIRE}
-            className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-l from-teal-500 to-cyan-500 px-6 py-3 text-sm font-black text-white"
-          >
-            {COIFFEUR_LANDING_COPY.searchCta}
-          </Link>
-          <Link
-            to={ROUTE_PATHS.COIFFEUR_PARTNERS}
-            className="inline-flex items-center gap-2 rounded-xl border border-amber-300/40 bg-amber-500/10 px-6 py-3 text-sm font-black text-amber-100"
-          >
-            {COIFFEUR_LANDING_COPY.partnerSecondary}
-            <ArrowLeft className="h-4 w-4" />
-          </Link>
+      <section className="relative mx-auto max-w-6xl px-5 pb-16 pt-16 md:min-h-[78svh] md:pt-24">
+        <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,1.15fr)_auto]">
+          <div>
+            <span className="inline-flex rounded-full border border-rose-200/25 bg-rose-400/10 px-3 py-1.5 text-xs font-semibold text-rose-100">
+              {COIFFEUR_INQUIRY_COPY.badge}
+            </span>
+            <motion.h1
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-5 text-[clamp(2.1rem,7vw,4.2rem)] font-black leading-[1.12] text-white"
+            >
+              {COIFFEUR_INQUIRY_COPY.title}
+              <span className="mt-1 block bg-gradient-to-l from-rose-200 via-[#f4d4c0] to-amber-200 bg-clip-text text-transparent">
+                {COIFFEUR_INQUIRY_COPY.titleAccent}
+              </span>
+            </motion.h1>
+            <p className="mt-8 max-w-xl text-sm leading-8 text-rose-50/70">
+              استعلام للمستعلمات فقط: مشغل، كوافير، سبا، وتجميل — بلا خلط مع حلاقة الرجال.
+            </p>
+          </div>
+          <CoiffeurRadarButton
+            onClick={goInquire}
+            idleTitle={COIFFEUR_INQUIRY_COPY.searchHero}
+            idleHint={COIFFEUR_INQUIRY_COPY.searchHeaderLong}
+          />
         </div>
-        <p className="mx-auto mt-3 max-w-lg text-xs leading-6 text-slate-500">
-          {COIFFEUR_LANDING_COPY.searchHint}
-        </p>
       </section>
 
-      <section className="mx-auto grid max-w-5xl gap-4 px-5 pb-16 sm:grid-cols-3">
-        {COIFFEUR_LANDING_COPY.trust.map((point, index) => {
-          const Icon = TRUST_ICONS[index] ?? Sparkles;
-          return (
-            <div key={point.title} className="rounded-2xl border border-teal-400/20 bg-white/[0.03] p-5">
-              <Icon className="h-5 w-5 text-teal-300" />
-              <h2 className="mt-3 text-sm font-black text-white">{point.title}</h2>
-              <p className="mt-2 text-xs leading-7 text-slate-400">{point.body}</p>
-            </div>
-          );
-        })}
-      </section>
-
-      <footer className="border-t border-white/10 px-5 py-8 text-center">
-        <p className="text-xs leading-7 text-slate-400">{COIFFEUR_UMBRELLA_LINE_AR}</p>
-        <p className="mt-2 text-[11px] text-slate-500">{COIFFEUR_FOOTER_LEGAL_AR}</p>
-        <p className="mt-1 text-[11px] text-slate-500">{COIFFEUR_FOOTER_ECOMMERCE_AR}</p>
-        <Link to={ROUTE_PATHS.HOME} className="mt-3 inline-block text-xs font-bold text-teal-300">
-          العودة لحلاق ماب
+      <footer className="border-t border-rose-200/10 px-5 py-8 text-center">
+        <p className="text-xs leading-7 text-rose-100/45">{COIFFEUR_UMBRELLA_LINE_AR}</p>
+        <p className="mt-2 text-[11px] text-rose-100/30">{COIFFEUR_FOOTER_LEGAL_AR}</p>
+        <p className="mt-1 text-[11px] text-rose-100/30">{COIFFEUR_FOOTER_ECOMMERCE_AR}</p>
+        <Link to={ROUTE_PATHS.COIFFEUR_PARTNERS} className="mt-4 inline-block text-[11px] text-rose-100/40">
+          مسار المنشآت — مرحلة لاحقة
         </Link>
       </footer>
     </div>
