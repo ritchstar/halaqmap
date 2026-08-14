@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { NavLink } from 'react-router-dom';
-import { ArrowLeft, BookOpen, ChevronDown, MapPin } from 'lucide-react';
+import { ArrowLeft, BookOpen, ChevronDown, MapPin, Megaphone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ROUTE_PATHS } from '@/lib';
@@ -49,6 +49,12 @@ export default function PartnerWhyPage() {
                 <Button size="lg" variant="secondary" className="gap-2">
                   القصة والمسار
                   <BookOpen className="h-4 w-4" />
+                </Button>
+              </NavLink>
+              <NavLink to={ROUTE_PATHS.PARTNER_MARKETING}>
+                <Button size="lg" variant="outline" className="gap-2">
+                  <Megaphone className="h-4 w-4" />
+                  خطط التسويق
                 </Button>
               </NavLink>
             </div>

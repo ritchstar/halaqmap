@@ -100,6 +100,7 @@ const MapContactCardPage = lazy(() => import("@/pages/MapContactCardPage"));
 const BronzeTrialApplyLanding = lazy(() => import("@/pages/BronzeTrialApplyLanding"));
 const BronzeTrialConfirmLanding = lazy(() => import("@/pages/BronzeTrialConfirmLanding"));
 const PartnerWhyPage = lazy(() => import("@/pages/PartnerWhyPage"));
+const PartnerMarketingCommitmentsPage = lazy(() => import("@/pages/PartnerMarketingCommitmentsPage"));
 const PartnerStoryPage = lazy(() => import("@/pages/PartnerStoryPage"));
 const BarberPortalEnter = lazy(() => import("@/pages/BarberPortalEnter"));
 const BarberLogin = lazy(() => import("@/pages/BarberLogin"));
@@ -435,6 +436,7 @@ export function App() {
             }
           />
           <Route path={ROUTE_PATHS.PARTNER_WHY} element={<WithPartnerLayout><LazyRoute><PartnerWhyPage /></LazyRoute></WithPartnerLayout>} />
+          <Route path={ROUTE_PATHS.PARTNER_MARKETING} element={<WithPartnerLayout><LazyRoute><PartnerMarketingCommitmentsPage /></LazyRoute></WithPartnerLayout>} />
           <Route path={ROUTE_PATHS.PARTNER_STORY} element={<WithPartnerLayout><LazyRoute><PartnerStoryPage /></LazyRoute></WithPartnerLayout>} />
           <Route path={ROUTE_PATHS.REGISTER} element={<WithPartnerLayout><LazyRoute><Register /></LazyRoute></WithPartnerLayout>} />
           <Route path={ROUTE_PATHS.REGISTER_GUIDE} element={<WithPartnerLayout><LazyRoute><PartnerRegistrationGuide /></LazyRoute></WithPartnerLayout>} />

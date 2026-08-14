@@ -7,8 +7,15 @@
  * لا أرقام انتشار وهمية — صياغة نوعية آمنة فقط.
  */
 
-/** دعوة مختصرة أعلى مسار الشركاء — تفتح طلب الاشتراك */
-export const PARTNER_JOIN_PATH_LIVELIHOOD_CTA_AR = 'افتح باب رزق جديد لصالونك' as const;
+/** CTA الموحّد لمسار الانضمام — الهيرو والشريط والجوال */
+export const PARTNER_JOIN_PATH_PRIMARY_CTA_AR = 'سجّل صالونك الآن — دقيقتين' as const;
+
+/** مرادف للتوافق مع الاستدعاءات القديمة — نفس النص الموحّد */
+export const PARTNER_JOIN_PATH_LIVELIHOOD_CTA_AR = PARTNER_JOIN_PATH_PRIMARY_CTA_AR;
+
+/** سطر ثقة نوعي بجانب الزر — بلا أرقام انتشار */
+export const PARTNER_JOIN_PATH_TRUST_LINE_AR =
+  'مستعلمون بنية حقيقية · طلب رسمي ثم تفعيل بعد اكتمال الإجراءات' as const;
 
 /** شارة فوق العنوان */
 export const PARTNER_JOIN_PATH_BADGE_AR = 'مسار انضمام المنشآت' as const;
@@ -23,9 +30,6 @@ export const PARTNER_JOIN_PATH_HERO_HEADLINE_AR =
 /** جملة داعمة قصيرة للعامة */
 export const PARTNER_JOIN_PATH_HERO_LEAD_AR =
   'المنصة تربط مستعلمين يبحثون عن حلاق مناسب بصالونات مرخّصة. الانضمام يتم بطلب رسمي ثم تفعيل بعد اكتمال الإجراءات.' as const;
-
-/** CTA الرئيسي المتكرر */
-export const PARTNER_JOIN_PATH_PRIMARY_CTA_AR = 'ابدأ تعبئة طلب الانضمام' as const;
 
 /** قسم لماذا الآن */
 export const PARTNER_JOIN_PATH_WHY_NOW = {
@@ -112,6 +116,7 @@ export const PARTNER_JOIN_PATH_REGISTER_PAY_AFTER_COMMITMENTS_AR =
 /** روابط ثانوية تحت CTA */
 export const PARTNER_JOIN_PATH_SECONDARY_LINKS = {
   why: 'لماذا نحن؟',
+  marketing: 'خطط التسويق',
   guide: 'دليل تعبئة الطلب',
   story: 'اقرأ المزيد عن المسار',
   app: 'تطبيق الصالون على Play',

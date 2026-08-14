@@ -224,6 +224,14 @@ export const ProductEvents = {
     trackProductEvent('payment_completed', { tier: props?.tier, amount: props?.amount }),
   partnerLogin: (props?: { tier?: string }) =>
     trackProductEvent('partner_login', { tier: props?.tier }),
+  partnerLandingView: () => trackProductEvent('partner_landing_view'),
+  partnerJoinCtaClick: (props?: { source?: string }) =>
+    trackProductEvent('partner_join_cta_click', { source: props?.source }),
+  partnerRegisterStart: () => trackProductEvent('partner_register_start'),
+  partnerRegisterStep: (props: { step: number }) =>
+    trackProductEvent('partner_register_step', { step: props.step }),
+  partnerRegisterSubmit: (props?: { tier?: string }) =>
+    trackProductEvent('partner_register_submit', { tier: props?.tier }),
   ambassadorApplicationSubmitted: () => trackProductEvent('ambassador_application_submitted'),
   hospitalityRequestStarted: () => trackProductEvent('hospitality_request_started'),
 } as const;

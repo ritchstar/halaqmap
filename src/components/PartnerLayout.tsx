@@ -11,6 +11,7 @@ import {
   type LucideIcon,
   LogIn,
   Mail,
+  Megaphone,
   Menu,
   MessageCircle,
   Phone,
@@ -25,6 +26,7 @@ import { PLATFORM_IDENTITY_BOILERPLATE_AR } from '@/config/platformIdentity';
 import { PlatformTrustStrip } from '@/components/PlatformTrustStrip';
 import { DOMAIN_VERIFICATION_META_CONTENT, ensureDomainVerificationMeta } from '@/config/domainVerification';
 import { SOFTWARE_SERVICES_PORTAL_HEADING, SOFTWARE_SERVICES_PORTAL_LABEL } from '@/config/partnerPortal';
+import { PARTNER_MARKETING_PAGE_META } from '@/config/partnerMarketingCommitmentsCopy';
 import { usePartnerTutorialSectionVisible } from '@/lib/partnerTutorialVideosPublic';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { LicenseRechargeWidget } from '@/components/billing/LicenseRechargeWidget';
@@ -64,6 +66,7 @@ type PartnerNavItem = {
 
 const partnerNavItems: PartnerNavItem[] = [
   { path: ROUTE_PATHS.BARBERS_LANDING, label: 'الصفحة التسويقية' },
+  { path: ROUTE_PATHS.PARTNER_MARKETING, label: PARTNER_MARKETING_PAGE_META.navLabel, Icon: Megaphone },
   { path: ROUTE_PATHS.PARTNER_WHY, label: 'لماذا تنضم؟' },
   { path: ROUTE_PATHS.PARTNER_STORY, label: 'القصة والمسار' },
   { path: ROUTE_PATHS.PARTNER_TUTORIALS, label: 'فيديوهات رخصة النفاذ' },
@@ -185,7 +188,13 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
   const shouldTrimMobileChrome = isMobile && isCompactHeaderPage;
   const compactTitle = compactPartnerHeaderTitle(location.pathname);
 
-  useDocumentTitle(isMapCommunityPage ? 'مجتمع ماب' : SOFTWARE_SERVICES_PORTAL_HEADING);
+  useDocumentTitle(
+    isMapCommunityPage
+      ? 'مجتمع ماب'
+      : location.pathname === ROUTE_PATHS.PARTNER_MARKETING
+        ? PARTNER_MARKETING_PAGE_META.documentTitle
+        : SOFTWARE_SERVICES_PORTAL_HEADING,
+  );
 
   useEffect(() => {
     capturePartnerAttributionFromLocation();

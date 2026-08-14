@@ -118,6 +118,12 @@ export function getAmbassadorMarketingKitGroups(): AmbassadorKitGroup[] {
           'لماذا حلاق ماب؟',
           'إقناع عميق: لماذا المنصة وليست مجرد «حجز» أو عمولة على القص.',
         ),
+        page(
+          ROUTE_PATHS.PARTNER_MARKETING,
+          'partner-marketing',
+          'تعهداتنا التسويقية لشركائنا',
+          'خطط الانتشار: بحث، إعلانات، ميدان، مواسم، وكلاء ذكاء، وكروت طلب.',
+        ),
       ],
     },
     {

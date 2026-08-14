@@ -34,6 +34,7 @@ import {
   isRegistrationPageReload,
 } from '@/lib/registrationFormDraft';
 import { mintRegistrationIntentTokenRemote } from '@/lib/registrationIntentRemote';
+import { ProductEvents } from '@/lib/analytics/productAnalytics';
 import {
   BARBER_DASHBOARD_DEVICE_REQUIREMENT_NOTE_AR,
   BARBER_DASHBOARD_DIAMOND_PORTAL_LINE,
@@ -517,6 +518,14 @@ export function RegistrationForm() {
       formTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
     return () => window.cancelAnimationFrame(id);
+  }, [currentStep]);
+
+  useEffect(() => {
+    ProductEvents.partnerRegisterStart();
+  }, []);
+
+  useEffect(() => {
+    ProductEvents.partnerRegisterStep({ step: currentStep });
   }, [currentStep]);
 
   const progress = (currentStep / STEPS.length) * 100;
@@ -1125,6 +1134,7 @@ export function RegistrationForm() {
       });
 
       toast.success('✅ تم تقديم الطلب — يمكنك الآن الانتقال إلى الدفع لبدء مسار التفعيل.');
+      ProductEvents.partnerRegisterSubmit({ tier: String(formData.tier || '') });
       clearRegistrationFormDraft();
       await new Promise((r) => setTimeout(r, 600));
       navigate(ROUTE_PATHS.REGISTER_SUCCESS);

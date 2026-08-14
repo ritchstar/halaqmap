@@ -28,6 +28,8 @@ export const ROUTE_PATHS = {
   PARTNERS_B2B_LANDING: '/partners/b2b',
   /** إقناع عميق: لماذا حلاق ماب وليس مجرد «حجز» */
   PARTNER_WHY: '/partners/why',
+  /** تعهدات التسويق والانتشار لشركاء الصالونات */
+  PARTNER_MARKETING: '/partners/marketing',
   /** قصة المنصة ومنطق المسار */
   PARTNER_STORY: '/partners/story',
   /** فيديوهات تعليم تفعيل الرخصة للشركاء */

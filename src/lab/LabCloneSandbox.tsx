@@ -32,6 +32,7 @@ const RegisterSuccess = lazy(() => import('@/pages/RegisterSuccess'));
 const ShopOpenStatus = lazy(() => import('@/pages/ShopOpenStatus'));
 const PartnerInterestLanding = lazy(() => import('@/pages/PartnerInterestLanding'));
 const PartnerWhyPage = lazy(() => import('@/pages/PartnerWhyPage'));
+const PartnerMarketingCommitmentsPage = lazy(() => import('@/pages/PartnerMarketingCommitmentsPage'));
 const PartnerStoryPage = lazy(() => import('@/pages/PartnerStoryPage'));
 const BarberPortalEnter = lazy(() => import('@/pages/BarberPortalEnter'));
 const BarberDashboard = lazy(() => import('@/pages/BarberDashboard'));
@@ -153,6 +154,7 @@ function buildLabRoutes(): RouteObject[] {
         { path: 'partners', element: <LazyRoute><PartnerMarketingPreview /></LazyRoute> },
         { path: 'partners/interest', element: withPartnerLayout(<PartnerInterestLanding />) },
         { path: 'partners/why', element: withPartnerLayout(<PartnerWhyPage />) },
+        { path: 'partners/marketing', element: withPartnerLayout(<PartnerMarketingCommitmentsPage />) },
         { path: 'partners/story', element: withPartnerLayout(<PartnerStoryPage />) },
         { path: 'partners/register', element: withPartnerLayout(<Register />) },
         { path: 'partners/register/success', element: withPartnerLayout(<RegisterSuccess />) },

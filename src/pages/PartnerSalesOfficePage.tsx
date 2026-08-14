@@ -250,6 +250,12 @@ export default function PartnerSalesOfficePage() {
                     لماذا تنضم؟
                   </Link>
                   <Link
+                    to={ROUTE_PATHS.PARTNER_MARKETING}
+                    className="inline-flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50/90 px-5 py-3 text-sm font-bold text-amber-800 transition-colors hover:border-amber-300 hover:text-amber-950"
+                  >
+                    خطط التسويق
+                  </Link>
+                  <Link
                     to={ROUTE_PATHS.BARBERS_LANDING}
                     className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-bold text-slate-700 transition-colors hover:border-slate-300 hover:text-slate-950"
                   >
