@@ -555,8 +555,10 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
 
       <main
         className={cn(
-          'b2b-nebula-scope relative z-10 min-h-0 w-full flex-1',
-          isMapCommunityPage && 'flex flex-col overflow-hidden',
+          'b2b-nebula-scope relative z-10 w-full flex-1',
+          isMapCommunityPage
+            ? 'flex min-h-0 flex-col overflow-hidden'
+            : 'min-h-min overflow-x-clip overflow-y-visible',
           /* Single bottom clearance for fixed mobile nav — do not also pad the outer shell */
           !isMapCommunityPage && `${MOBILE_PARTNER_NAV_CLEARANCE} md:pb-0`,
         )}

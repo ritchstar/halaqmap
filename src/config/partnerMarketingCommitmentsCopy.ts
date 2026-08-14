@@ -27,7 +27,7 @@ export const PARTNER_MARKETING_PAGE = {
 } as const;
 
 export const PARTNER_MARKETING_ACTIVITIES = {
-  id: 'قائمة-الأنشطة',
+  id: 'licensed-activities',
   title: 'قائمة الأنشطة',
   lead: 'الأنشطة المعتمدة في السجل التجاري — أساس خطط التسويق والانتشار التقني للمنصة.',
   columns: {

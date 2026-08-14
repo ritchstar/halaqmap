@@ -41,6 +41,10 @@ const ARABIC_SERIAL = ['١', '٢', '٣', '٤', '٥', '٦', '٧'] as const;
 /** ترتيب السجل التجاري الرسمي — فردي يمين / زوجي يسار في العرض المكتبي */
 const CR_ACTIVITY_ORDER = ['474151', '620101', '620102', '620111', '631121', '731011', '731013'] as const;
 
+function scrollToSection(id: string) {
+  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
 function highlightGoogleAr(text: string) {
   const parts = text.split(/(جوجل)/g);
   return parts.map((part, i) =>
@@ -79,12 +83,12 @@ function ActivityRows({
       {rows.map((row) => (
         <tr key={row.code} className="border-t border-teal-400/20">
           <td className="w-10 px-3 py-3 text-center text-sm font-black text-teal-200">{row.serial}</td>
-          <td className="w-28 px-3 py-3 text-center">
+          <td className="w-[7.5rem] px-3 py-3 text-center">
             <span dir="ltr" className="inline-block font-mono text-sm tracking-wide text-teal-100">
               {row.code}
             </span>
           </td>
-          <td className="px-3 py-3 text-sm font-semibold leading-7 text-slate-100">
+          <td className="min-w-0 px-3 py-3 text-sm font-semibold leading-7 text-slate-100 break-words">
             {row.label}
             {row.primary ? (
               <span className="ms-2 inline-block rounded-md border border-teal-400/40 bg-teal-500/15 px-1.5 py-0.5 text-[0.65rem] font-black text-teal-200">
@@ -112,8 +116,6 @@ function ActivitiesTableHead() {
 
 function MarketingActivitiesTable() {
   const rows = orderedLicensedActivities();
-  const rightCol = rows.filter((_, i) => i % 2 === 0);
-  const leftCol = rows.filter((_, i) => i % 2 === 1);
 
   return (
     <motion.section
@@ -121,27 +123,17 @@ function MarketingActivitiesTable() {
       initial={{ opacity: 0, y: 18 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-48px' }}
-      className="scroll-mt-28 overflow-hidden rounded-3xl border border-teal-400/40 bg-[#03151c] shadow-[0_0_48px_rgba(20,184,166,0.12)]"
+      className="scroll-mt-28 overflow-x-clip rounded-3xl border border-teal-400/40 bg-[#03151c] shadow-[0_0_48px_rgba(20,184,166,0.12)]"
     >
       <div className="border-b border-teal-400/30 bg-gradient-to-l from-teal-500/20 via-teal-500/8 to-transparent px-6 py-5">
         <h2 className="text-xl font-black text-teal-100 md:text-2xl">{PARTNER_MARKETING_ACTIVITIES.title}</h2>
         <p className="mt-2 text-sm leading-7 text-slate-300 md:text-base">{PARTNER_MARKETING_ACTIVITIES.lead}</p>
       </div>
       <div className="p-3 md:p-5">
-        <div className="overflow-hidden rounded-xl border border-teal-400/30 md:hidden">
-          <table className="w-full border-collapse">
+        <div className="overflow-x-auto rounded-xl border border-teal-400/30">
+          <table className="w-full table-fixed border-collapse">
             <ActivitiesTableHead />
             <ActivityRows rows={rows} />
-          </table>
-        </div>
-        <div className="hidden overflow-hidden rounded-xl border border-teal-400/30 md:grid md:grid-cols-2">
-          <table className="w-full border-collapse border-l border-teal-400/25">
-            <ActivitiesTableHead />
-            <ActivityRows rows={rightCol} />
-          </table>
-          <table className="w-full border-collapse">
-            <ActivitiesTableHead />
-            <ActivityRows rows={leftCol} />
           </table>
         </div>
       </div>
@@ -165,7 +157,7 @@ export default function PartnerMarketingCommitmentsPage() {
   return (
     <div
       dir="rtl"
-      className="relative min-h-screen overflow-x-hidden bg-[linear-gradient(165deg,#020912_0%,#041422_48%,#020912_100%)] text-slate-100"
+      className="relative min-h-0 overflow-x-clip overflow-y-visible bg-[linear-gradient(165deg,#020912_0%,#041422_48%,#020912_100%)] text-slate-100 [touch-action:pan-y]"
     >
       <div
         className="pointer-events-none absolute inset-0 opacity-[0.04]"
@@ -228,20 +220,22 @@ export default function PartnerMarketingCommitmentsPage() {
         className="relative z-20 border-b border-teal-400/20 bg-[#020912]/80 backdrop-blur-md"
       >
         <div className="mx-auto flex max-w-5xl gap-2 overflow-x-auto px-4 py-3 md:flex-wrap md:justify-center">
-          <a
-            href={`#${PARTNER_MARKETING_ACTIVITIES.id}`}
+          <button
+            type="button"
+            onClick={() => scrollToSection(PARTNER_MARKETING_ACTIVITIES.id)}
             className="shrink-0 rounded-full border border-teal-400/40 bg-teal-500/15 px-3 py-1.5 text-xs font-bold text-teal-100 hover:border-teal-300/70 hover:text-white"
           >
             {PARTNER_MARKETING_ACTIVITIES.title}
-          </a>
+          </button>
           {PARTNER_MARKETING_PILLARS.map((pillar) => (
-            <a
+            <button
+              type="button"
               key={pillar.id}
-              href={`#${pillar.id}`}
+              onClick={() => scrollToSection(pillar.id)}
               className="shrink-0 rounded-full border border-teal-400/25 bg-teal-500/10 px-3 py-1.5 text-xs font-bold text-slate-200 hover:border-teal-300/60 hover:text-white"
             >
               {pillar.numeral} · {pillar.kicker}
-            </a>
+            </button>
           ))}
         </div>
       </nav>
@@ -259,7 +253,7 @@ export default function PartnerMarketingCommitmentsPage() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: '-48px' }}
               transition={{ duration: 0.45 }}
-              className="scroll-mt-28 overflow-hidden rounded-3xl border border-teal-400/30 bg-white/[0.035] shadow-[0_24px_60px_rgba(2,9,18,0.45)]"
+              className="scroll-mt-28 overflow-x-clip rounded-3xl border border-teal-400/30 bg-white/[0.035] shadow-[0_24px_60px_rgba(2,9,18,0.45)]"
             >
               <div className="flex flex-col gap-6 border-r-4 border-teal-400/70 p-6 md:flex-row md:p-8">
                 <div className="flex shrink-0 flex-col items-start gap-3 md:w-36">
