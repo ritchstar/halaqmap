@@ -36,6 +36,7 @@ import {
   Home,
   RefreshCw,
   Smartphone,
+  LayoutTemplate,
 } from 'lucide-react';
 import { SaudiBishtIcon } from '@/components/icons/SaudiBishtIcon';
 import { ChildrenSpecialistIcon } from '@/components/icons/ChildrenSpecialistIcon';
@@ -114,6 +115,7 @@ import { MENS_GROOMING_CENTER_DASHBOARD_TAB_AR } from '@/config/mensGroomingCent
 import { ChildrenServicesPartnerSettingsCard } from '@/components/barber/ChildrenServicesPartnerSettingsCard';
 import { ChildrenSpecialistDashboardPanel } from '@/components/barber/ChildrenSpecialistDashboardPanel';
 import { MensGroomingCenterDashboardPanel } from '@/components/barber/MensGroomingCenterDashboardPanel';
+import { SalonPrivatePageIntakePanel } from '@/components/barber/SalonPrivatePageIntakePanel';
 import { BarberServicesPartnerSettingsCard } from '@/components/barber/BarberServicesPartnerSettingsCard';
 import { BarberTeamBookingSection } from '@/components/barber/BarberTeamBookingSection';
 import { SAUDI_WEEK_DAY_LABELS } from '@/lib/saudiWorkingWeek';
@@ -416,6 +418,7 @@ export default function BarberDashboard({
         showServicesMenu: true,
         showQrRatings: true,
         showDigitalShift: false,
+        showSalonPrivatePage: true,
         showTeamBooking: true,
         isGoldLite: false,
         showChildrenSpecialistTab: true,
@@ -432,6 +435,7 @@ export default function BarberDashboard({
         showServicesMenu: true,
         showQrRatings: true,
         showDigitalShift: false,
+        showSalonPrivatePage: false,
         showTeamBooking: true,
         isGoldLite: false,
         showChildrenSpecialistTab: false,
@@ -448,6 +452,7 @@ export default function BarberDashboard({
         showServicesMenu: false,
         showQrRatings: false,
         showDigitalShift: false,
+        showSalonPrivatePage: false,
         showTeamBooking: false,
         isGoldLite: false,
         showChildrenSpecialistTab: false,
@@ -464,6 +469,7 @@ export default function BarberDashboard({
         showServicesMenu: true,
         showQrRatings: true,
         showDigitalShift: true,
+        showSalonPrivatePage: true,
         showTeamBooking: true,
         isGoldLite: false,
         showChildrenSpecialistTab: true,
@@ -480,6 +486,7 @@ export default function BarberDashboard({
         showServicesMenu: true,
         showQrRatings: true,
         showDigitalShift: true,
+        showSalonPrivatePage: true,
         showTeamBooking: false,
         isGoldLite: true,
         showChildrenSpecialistTab: false,
@@ -495,6 +502,7 @@ export default function BarberDashboard({
       showServicesMenu: false,
       showQrRatings: false,
       showDigitalShift: false,
+      showSalonPrivatePage: false,
       showTeamBooking: false,
       isGoldLite: false,
       showChildrenSpecialistTab: false,
@@ -536,6 +544,7 @@ export default function BarberDashboard({
       'social-share',
       'posts',
       'digital-shift',
+      'salon-page',
       'services-menu',
     ]);
     if (!allowed.has(activeTab)) {
@@ -1239,6 +1248,18 @@ export default function BarberDashboard({
                 <span>الحجز بالاسم</span>
               </TabsTrigger>
             ) : null}
+            {tierTabs.showSalonPrivatePage ? (
+              <TabsTrigger
+                value="salon-page"
+                className={cn(
+                  DASHBOARD_VITAL_TAB_TRIGGER,
+                  'data-[state=active]:border-teal-500 data-[state=active]:bg-teal-500/12',
+                )}
+              >
+                <LayoutTemplate className="h-5 w-5 shrink-0" />
+                <span>صفحة خاصة</span>
+              </TabsTrigger>
+            ) : null}
             {tierTabs.showDigitalShift ? (
               <TabsTrigger
                 value="digital-shift"
@@ -1532,6 +1553,16 @@ export default function BarberDashboard({
               barberEmail={barberData.email}
               subscriptionTier={effectiveListingTier ?? barberData.subscription}
               onChange={persistPosts}
+            />
+          </TabsContent>
+          ) : null}
+
+          {tierTabs.showSalonPrivatePage && barberData ? (
+          <TabsContent value="salon-page" className="space-y-6">
+            <SalonPrivatePageIntakePanel
+              barberId={barberData.id}
+              barberEmail={barberData.email}
+              salonName={barberData.name}
             />
           </TabsContent>
           ) : null}
