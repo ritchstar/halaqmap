@@ -6,8 +6,8 @@ import { IMAGES } from '@/assets/images';
 import { STANDARD_MOCK_WORKING_HOURS } from '@/lib/saudiWorkingWeek';
 
 /**
- * ملف دعائي للبنرات الافتراضية (مرجع للشروحات والعروض التوضيحية).
- * لا يُستخدم في مسار التشغيل الرئيسي للصفحة الرئيسية في الإنتاج.
+ * عيّنات البنرات حسب الباقة.
+ * الذهبي والبرونزي يظهران تحت نموذج الماسي عند غياب صالون في استعلام الزائر.
  */
 export const demoShowcaseBarbers: Barber[] = [
   {
@@ -69,6 +69,8 @@ export const demoShowcaseBarbers: Barber[] = [
     verified: true,
     categories: ['رجالي', 'تقليدي'],
     ratingInviteToken: '9a0b1c2d3e4f5061728394a5b6c7d8e9',
+    showcasePreview: true,
+    hasActiveSubscription: true,
   },
   {
     id: 'demo-showcase-bronze',
@@ -99,5 +101,7 @@ export const demoShowcaseBarbers: Barber[] = [
     verified: false,
     categories: ['رجالي'],
     showcaseTopBanner: true,
+    showcasePreview: true,
+    hasActiveSubscription: true,
   },
 ];

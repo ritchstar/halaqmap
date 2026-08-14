@@ -6,9 +6,11 @@ import { motion } from 'framer-motion';
 
 type ShowcaseEducationBannerProps = {
   intro: string;
+  /** عند غياب نتائج حقيقية: نذكّر أن الذهبي والبرونزي يظهران كعيّنات تحت الماسي */
+  showTierSamplesHint?: boolean;
 };
 
-export function ShowcaseEducationBanner({ intro }: ShowcaseEducationBannerProps) {
+export function ShowcaseEducationBanner({ intro, showTierSamplesHint }: ShowcaseEducationBannerProps) {
   return (
     <motion.div
       className="container mx-auto px-4 pb-5"
@@ -28,7 +30,9 @@ export function ShowcaseEducationBanner({ intro }: ShowcaseEducationBannerProps)
             <p className="text-sm font-bold text-teal-200">نموذج تعليمي من المنصة</p>
             <p className="text-sm leading-relaxed text-slate-300">{intro}</p>
             <p className="text-xs text-slate-500">
-              عند انضمام صالونات حقيقية في منطقتك ستظهر نتائج فعلية وفق استعلامك وفلترتك.
+              {showTierSamplesHint
+                ? 'أسفل بطاقة الماسي عيّنتا الذهبي والبرونزي كما تظهران في بطاقة الاستعلام — عند انضمام صالونات حقيقية ستظهر نتائج فعلية وفق فلترتك.'
+                : 'عند انضمام صالونات حقيقية في منطقتك ستظهر نتائج فعلية وفق استعلامك وفلترتك.'}
             </p>
           </div>
         </div>

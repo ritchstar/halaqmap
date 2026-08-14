@@ -17,6 +17,8 @@ import { fetchNearbyPublicBarbersFromSupabase } from '@/lib/publicBarbersFromSup
 import { resolveShowcaseForEmptyDisplay } from '@/lib/platformShowcaseRemote';
 import { useShowcaseWhenSearchEmpty } from '@/lib/useShowcaseWhenSearchEmpty';
 import { ShowcaseEducationBanner } from '@/components/ShowcaseEducationBanner';
+import { InquiryEmptySearchTierSamples } from '@/components/InquiryEmptySearchTierSamples';
+import { findInquiryTierSampleById } from '@/lib/inquiryEmptySearchTierSamples';
 import { CoverageNominateCta } from '@/components/CoverageNominateCta';
 import { MapContactCardCta } from '@/components/MapContactCardCta';
 import { toast } from '@/components/ui/sonner';
@@ -201,7 +203,8 @@ export default function Home() {
     const found =
       filteredBarbers.find((row) => row.id === salonId) ||
       remoteBarbers.find((row) => row.id === salonId) ||
-      (showcaseFallback?.barber.id === salonId ? showcaseFallback.barber : null);
+      (showcaseFallback?.barber.id === salonId ? showcaseFallback.barber : null) ||
+      findInquiryTierSampleById(salonId);
     if (found) setSelectedBarber(found);
   }, [filteredBarbers, remoteBarbers, showcaseFallback, selectedBarber]);
 
@@ -543,9 +546,10 @@ export default function Home() {
             {/* النتائج */}
             {showcaseActive && showcaseFallback && userLocation ? (
               <>
-                <ShowcaseEducationBanner intro={showcaseFallback.intro} />
+                <ShowcaseEducationBanner intro={showcaseFallback.intro} showTierSamplesHint />
                 <div className="container mx-auto px-4 pb-12">
                   <div className="mx-auto max-w-lg">
+                    <p className="mb-2 text-sm font-bold text-teal-200">نموذج الماسي</p>
                     <motion.div
                       initial={{ opacity: 0, y: 24 }}
                       animate={{ opacity: 1, y: 0 }}
@@ -559,6 +563,10 @@ export default function Home() {
                         imagePriority
                       />
                     </motion.div>
+                    <InquiryEmptySearchTierSamples
+                      userLocation={userLocation}
+                      onSelectBarber={setSelectedBarber}
+                    />
                     <CoverageNominateCta />
                     <MapContactCardCta />
                   </div>

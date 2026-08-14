@@ -8,6 +8,7 @@ import { FilterBar } from '@/components/FilterBar';
 import { BarberMap } from '@/components/BarberMap';
 import { BarberCard } from '@/components/BarberCards';
 import { ShowcaseEducationBanner } from '@/components/ShowcaseEducationBanner';
+import { InquiryEmptySearchTierSamples } from '@/components/InquiryEmptySearchTierSamples';
 import { CoverageNominateCta } from '@/components/CoverageNominateCta';
 import { MapContactCardCta } from '@/components/MapContactCardCta';
 import { VisitorMobileQueryLens } from '@/components/landing/VisitorMobileQueryLens';
@@ -70,8 +71,9 @@ export function LandingSearchResults({
 
       {showcaseActive && showcaseFallback ? (
         <>
-          <ShowcaseEducationBanner intro={showcaseFallback.intro} />
+          <ShowcaseEducationBanner intro={showcaseFallback.intro} showTierSamplesHint />
           <div className="mx-auto max-w-lg px-5 pb-12">
+            <p className="mb-2 text-sm font-bold text-teal-200">نموذج الماسي</p>
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -85,6 +87,10 @@ export function LandingSearchResults({
                 imagePriority
               />
             </motion.div>
+            <InquiryEmptySearchTierSamples
+              userLocation={userLocation}
+              onSelectBarber={onSelectBarber}
+            />
             <CoverageNominateCta />
             <MapContactCardCta />
           </div>
