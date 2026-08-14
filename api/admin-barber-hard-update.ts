@@ -10,6 +10,7 @@ import { verifyPlatformAdminFromRequestAny } from './_lib/adminManageBarbersAuth
 import { applyApprovedBronzeTrialGeoToBarber } from './_lib/bronzeTrialGeoSync.js';
 import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
 import { runSecurityGuard } from './_lib/securityGuard.js';
+import { mapCoordinateDbError, normalizeMapCoordinatePair } from './_lib/parseMapCoordinates.js';
 
 export const config = { maxDuration: 30 };
 
@@ -23,13 +24,6 @@ const UUID_RE =
 
 function corsHeaders(request: Request): Record<string, string> {
   return buildPublicApiCorsHeaders(request, CORS_OPTS).headers;
-}
-
-function parseCoord(raw: unknown): number | null {
-  if (raw === null) return null;
-  if (raw === undefined || raw === '') return null;
-  const n = typeof raw === 'number' ? raw : Number(raw);
-  return Number.isFinite(n) ? n : null;
 }
 
 const ALLOWED_PATCH_KEYS = [
@@ -61,7 +55,7 @@ function sanitizePatch(raw: unknown): Record<string, unknown> | { error: string 
     if (!(key in src)) continue;
     const v = src[key];
     if (key === 'latitude' || key === 'longitude') {
-      out[key] = parseCoord(v);
+      out[key] = v;
       continue;
     }
     if (key === 'is_active' || key === 'is_verified' || key === 'open_for_customers') {
@@ -176,7 +170,23 @@ export async function POST(request: Request): Promise<Response> {
   if ('error' in patchOrErr) {
     return Response.json({ error: patchOrErr.error }, { status: 400, headers });
   }
-  const patch = patchOrErr as Record<PatchKey, unknown>;
+  const patch = patchOrErr as Record<string, unknown>;
+  if ('latitude' in patch || 'longitude' in patch) {
+    const coords = normalizeMapCoordinatePair(patch.latitude, patch.longitude);
+    if (!coords.ok) {
+      return Response.json(
+        {
+          error:
+            coords.error === 'coordinates_out_of_range'
+              ? 'الإحداثيات خارج النطاق. خط العرض بين -90 و90، وخط الطول بين -180 و180 — مثال: 21.54 و 39.17.'
+              : 'أدخل خط العرض والطول معاً، أو اتركهما فارغين لإزالة الإحداثيات.',
+        },
+        { status: 400, headers },
+      );
+    }
+    patch.latitude = coords.latitude;
+    patch.longitude = coords.longitude;
+  }
   if (Object.keys(patch).length === 0) {
     return Response.json({ error: 'empty_patch' }, { status: 400, headers });
   }
@@ -192,7 +202,7 @@ export async function POST(request: Request): Promise<Response> {
     .maybeSingle();
 
   if (error) {
-    return Response.json({ error: error.message }, { status: 500, headers });
+    return Response.json({ error: mapCoordinateDbError(error.message) }, { status: 500, headers });
   }
   if (!updated?.id) {
     return Response.json({ error: 'barber_not_found' }, { status: 404, headers });

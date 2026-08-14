@@ -127,6 +127,7 @@ import {
 } from '@/lib/barberOnboardingEmailRemote';
 import { getOrderedWeekHoursForDisplay } from '@/lib/saudiWorkingWeek';
 import { formatBarberMemberNumber } from '@/lib/barberMemberNumber';
+import { mapCoordinateSaveError, parseMapCoordinates } from '@/lib/parseMapCoordinates';
 import { fetchPublicPaymentPageConfig } from '@/lib/publicPaymentPageConfigRemote';
 import { ZatcaTaxActivationAlert } from '@/components/admin/ZatcaTaxActivationAlert';
 import { toast } from '@/hooks/use-toast';
@@ -2440,8 +2441,6 @@ function RequestReviewDialog({
     const emailTrim = editEmail.trim().toLowerCase();
     const phoneTrim = editPhone.trim();
     const addressTrim = editAddress.trim() || 'غير محدد';
-    const latN = Number(editLat.trim());
-    const lngN = Number(editLng.trim());
     if (!nameTrim) {
       toast({ title: 'اسم الصالون مطلوب', variant: 'destructive' });
       return;
@@ -2454,17 +2453,20 @@ function RequestReviewDialog({
       toast({ title: 'رقم الجوال غير مكتمل', variant: 'destructive' });
       return;
     }
-    if (!Number.isFinite(latN) || !Number.isFinite(lngN)) {
-      toast({ title: 'إحداثيات غير صالحة', variant: 'destructive' });
+    const coords = parseMapCoordinates(editLat, editLng);
+    if (!coords.ok) {
+      toast({ title: 'إحداثيات غير صالحة', description: coords.error, variant: 'destructive' });
       return;
     }
+    setEditLat(String(coords.latitude));
+    setEditLng(String(coords.longitude));
 
     setSaving(true);
     const res = await patchRegistrationSubmissionPayloadRemote(request.id, {
       barberName: nameTrim,
       email: emailTrim,
       phone: phoneTrim,
-      location: { lat: latN, lng: lngN, address: addressTrim },
+      location: { lat: coords.latitude, lng: coords.longitude, address: addressTrim },
     });
     setSaving(false);
     if (!res.ok) {
@@ -2917,9 +2919,11 @@ function RequestReviewDialog({
                 <Input
                   id="req-edit-lat"
                   dir="ltr"
+                  inputMode="decimal"
                   value={editLat}
                   onChange={(e) => setEditLat(e.target.value)}
                   disabled={!canReviewRequests || saving}
+                  placeholder="مثال: 21.5433"
                 />
               </div>
               <div className="space-y-2">
@@ -2927,9 +2931,11 @@ function RequestReviewDialog({
                 <Input
                   id="req-edit-lng"
                   dir="ltr"
+                  inputMode="decimal"
                   value={editLng}
                   onChange={(e) => setEditLng(e.target.value)}
                   disabled={!canReviewRequests || saving}
+                  placeholder="مثال: 39.1728"
                 />
               </div>
               <div className="sm:col-span-2">
@@ -3324,23 +3330,26 @@ function BarberHardEditDialog({
     const lngTrim = lngText.trim();
     let latitude: number | null = null;
     let longitude: number | null = null;
+    let coordHint = '';
     if (latTrim || lngTrim) {
-      if (!latTrim || !lngTrim) {
+      const coords = parseMapCoordinates(latText, lngText);
+      if (!coords.ok) {
         toast({
-          title: 'إحداثيات غير مكتملة',
-          description: 'أدخل خط العرض والطول معاً، أو اتركهما فارغين لإزالة الإحداثيات.',
+          title: 'إحداثيات غير صالحة',
+          description: coords.error,
           variant: 'destructive',
         });
         return;
       }
-      const latN = Number(latTrim);
-      const lngN = Number(lngTrim);
-      if (!Number.isFinite(latN) || !Number.isFinite(lngN)) {
-        toast({ title: 'إحداثيات غير صالحة', variant: 'destructive' });
-        return;
+      latitude = coords.latitude;
+      longitude = coords.longitude;
+      setLatText(String(coords.latitude));
+      setLngText(String(coords.longitude));
+      if (coords.fromE7 || coords.swapped) {
+        coordHint = coords.swapped
+          ? ' — صُحّحت الإحداثيات (فاصلة عشرية + تبديل العرض/الطول).'
+          : ' — صُحّحت الإحداثيات من صيغة الخرائط الصحيحة.';
       }
-      latitude = latN;
-      longitude = lngN;
     }
 
     const profileTrim = profileImage.trim();
@@ -3367,7 +3376,7 @@ function BarberHardEditDialog({
     if (!res.ok) {
       toast({
         title: 'تعذر حفظ التعديلات',
-        description: errorText(res, 'تعذر تحديث بيانات الحلاق.'),
+        description: mapCoordinateSaveError(errorText(res, 'تعذر تحديث بيانات الحلاق.')),
         variant: 'destructive',
       });
       return;
@@ -3429,7 +3438,7 @@ function BarberHardEditDialog({
       profile_image: profileTrim ? profileTrim : null,
       cover_image: coverTrim ? coverTrim : null,
     };
-    toast({ title: 'تم حفظ التعديلات', description: `${nameTrim}${submissionSyncHint}` });
+    toast({ title: 'تم حفظ التعديلات', description: `${nameTrim}${coordHint}${submissionSyncHint}` });
     onSaved(next);
     onOpenChange(false);
   };
@@ -3477,12 +3486,30 @@ function BarberHardEditDialog({
             </div>
             <div className="space-y-2">
               <Label htmlFor="hard-edit-lat">خط العرض</Label>
-              <Input id="hard-edit-lat" dir="ltr" value={latText} onChange={(e) => setLatText(e.target.value)} placeholder="مثال: 24.7136" />
+              <Input
+                id="hard-edit-lat"
+                dir="ltr"
+                inputMode="decimal"
+                value={latText}
+                onChange={(e) => setLatText(e.target.value)}
+                placeholder="مثال جدّة: 21.5433"
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="hard-edit-lng">خط الطول</Label>
-              <Input id="hard-edit-lng" dir="ltr" value={lngText} onChange={(e) => setLngText(e.target.value)} placeholder="مثال: 46.6753" />
+              <Input
+                id="hard-edit-lng"
+                dir="ltr"
+                inputMode="decimal"
+                value={lngText}
+                onChange={(e) => setLngText(e.target.value)}
+                placeholder="مثال جدّة: 39.1728"
+              />
             </div>
+            <p className="sm:col-span-2 text-xs leading-6 text-muted-foreground">
+              درجات عشرية فقط (بين ‎-90 و90 للعرض، و‎-180 و180 للطول). الأرقام الصحيحة الطويلة مثل
+              `392473932` تُفسَّر تلقائياً كصيغة خرائط وتُصحَّح قبل الحفظ.
+            </p>
             <div className="sm:col-span-2">
               <Button
                 type="button"
