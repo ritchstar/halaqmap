@@ -26,6 +26,9 @@ function corsHeaders(request: Request): Record<string, string> {
   return buildPublicApiCorsHeaders(request, CORS_OPTS).headers;
 }
 
+const PUBLIC_BARBER_ID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 function isTruthyBoolean(raw: string | null): boolean {
   if (!raw) return false;
   return raw === '1' || raw.toLowerCase() === 'true';
@@ -142,6 +145,7 @@ export async function OPTIONS(request: Request): Promise<Response> {
 /**
  * /api/public-barbers
  * - الوضع العادي: يرجع الحلاقين النشطين ذوي الإحداثيات.
+ * - صالون واحد: /api/public-barbers?id=<uuid>
  * - وضع التشخيص: /api/public-barbers?health=1
  */
 export async function GET(request: Request): Promise<Response> {
@@ -158,6 +162,7 @@ export async function GET(request: Request): Promise<Response> {
 
   const requestUrl = new URL(request.url);
   const isHealth = isTruthyBoolean(requestUrl.searchParams.get('health'));
+  const requestedId = (requestUrl.searchParams.get('id') || '').trim();
   const lat = parseFinite(requestUrl.searchParams.get('lat'));
   const lng = parseFinite(requestUrl.searchParams.get('lng'));
   const radiusKm = clamp(
@@ -232,6 +237,54 @@ export async function GET(request: Request): Promise<Response> {
   const supabase = createClient(url, serviceRole, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
+
+  if (requestedId) {
+    if (!PUBLIC_BARBER_ID_RE.test(requestedId)) {
+      return Response.json({ error: 'Invalid salon id' }, { status: 400, headers });
+    }
+    const { data, error } = await supabase
+      .from('barbers_public_directory')
+      .select(
+        `
+      id,
+      name,
+      phone,
+      latitude,
+      longitude,
+      address,
+      tier,
+      rating,
+      total_reviews,
+      profile_image,
+      cover_image,
+      is_active,
+      is_verified,
+      specialties,
+      inclusive_care_offered,
+      inclusive_care_price_sar,
+      inclusive_care_public_visible,
+      inclusive_care_restrict_days,
+      inclusive_care_days,
+      inclusive_care_customer_note,
+      open_for_customers,
+      user_id,
+      has_active_subscription,
+      gallery_count,
+      featured_images
+      `
+      )
+      .eq('id', requestedId)
+      .eq('is_active', true)
+      .maybeSingle();
+    if (error) {
+      return Response.json({ error: error.message }, { status: 500, headers });
+    }
+    const rows = data ? [data] : [];
+    return Response.json(
+      { ok: true, mode: 'by_id', rows: await enrichPublicRows(supabase, rows) },
+      { headers },
+    );
+  }
 
   // المسار السريع/الدقيق: بحث قريب مرتب على الخادم (PostGIS + score هجين)
   if (lat !== null && lng !== null) {

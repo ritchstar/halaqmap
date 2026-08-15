@@ -173,6 +173,40 @@ function getPublicBarbersEndpoint(): string {
   return String(import.meta.env.VITE_PUBLIC_BARBERS_URL || PUBLIC_BARBERS_API).trim();
 }
 
+/** بطاقة دليل عامة لصالون واحد — للمتابعة بعد الحجز بالاسم دون كشف حقول خاصة. */
+export async function fetchPublicBarberById(id: string): Promise<Barber | null> {
+  const barberId = id.trim();
+  if (!UUID_RE.test(barberId)) return null;
+
+  const client = getSupabaseClient();
+  if (client) {
+    try {
+      const { data, error } = await client
+        .from('barbers_public_directory')
+        .select('*')
+        .eq('id', barberId)
+        .eq('is_active', true)
+        .maybeSingle();
+      if (!error && data) {
+        const withHours = await attachWeeklyHoursToBarberRows(client, [data as BarberRow]);
+        const rows = await attachCardCtaToBarberRows(client, withHours);
+        const mapped = rows.map(mapRow)[0];
+        if (mapped) return mapped;
+      }
+    } catch {
+      /* جرّب مسار الخادم */
+    }
+  }
+
+  try {
+    const viaServer = await fetchPublicBarberByIdViaServer(barberId);
+    if (viaServer) return viaServer;
+  } catch {
+    return null;
+  }
+  return null;
+}
+
 function parseFeaturedImages(raw: unknown): string[] {
   if (!Array.isArray(raw)) return [];
   const out: string[] = [];
@@ -598,6 +632,30 @@ type PublicBarbersServerFetch = {
   showcaseBarber: Barber | null;
   showcaseIntroAr?: string;
 };
+
+async function fetchPublicBarberByIdViaServer(barberId: string): Promise<Barber | null> {
+  const endpoint = getPublicBarbersEndpoint();
+  if (!endpoint) return null;
+
+  const anonKey = String(import.meta.env.VITE_SUPABASE_ANON_KEY || '').trim();
+  const supabaseUrl = String(import.meta.env.VITE_SUPABASE_URL || '').trim();
+  const headers: Record<string, string> = { Accept: 'application/json' };
+  if (anonKey) headers['x-supabase-anon'] = anonKey;
+  if (supabaseUrl) headers['x-client-supabase-url'] = supabaseUrl;
+
+  const url = new URL(endpoint, window.location.origin);
+  url.searchParams.set('id', barberId);
+  const response = await fetch(url.toString(), { headers });
+  if (!response.ok) return null;
+  const payload = (await response.json().catch(() => ({}))) as { rows?: unknown; barbers?: unknown };
+  const raw = Array.isArray(payload.rows)
+    ? payload.rows
+    : Array.isArray(payload.barbers)
+      ? payload.barbers
+      : [];
+  const mapped = (raw as BarberRow[]).map(mapRow);
+  return mapped[0] ?? null;
+}
 
 async function fetchPublicBarbersViaServer(input?: NearbySearchInput): Promise<PublicBarbersServerFetch> {
   const endpoint = getPublicBarbersEndpoint();

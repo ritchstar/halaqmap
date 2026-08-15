@@ -1,7 +1,7 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
-import { useState, useMemo, useEffect, useCallback } from 'react';
+import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MapPin, Sparkles, Search, MessageCircle, Shield } from 'lucide-react';
 import { LocationStatusBar } from '@/components/LocationStatusBar';
@@ -13,7 +13,7 @@ import { BarberDetailModal } from '@/components/BarberDetailModal';
 import { IMAGES } from '@/assets/images';
 import { isSupabaseConfigured } from '@/integrations/supabase/client';
 import { BarberMap } from '@/components/BarberMap';
-import { fetchNearbyPublicBarbersFromSupabase } from '@/lib/publicBarbersFromSupabase';
+import { fetchNearbyPublicBarbersFromSupabase, fetchPublicBarberById } from '@/lib/publicBarbersFromSupabase';
 import { resolveShowcaseForEmptyDisplay } from '@/lib/platformShowcaseRemote';
 import { useShowcaseWhenSearchEmpty } from '@/lib/useShowcaseWhenSearchEmpty';
 import { ShowcaseEducationBanner } from '@/components/ShowcaseEducationBanner';
@@ -53,6 +53,7 @@ export default function Home() {
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [nearHintAr, setNearHintAr] = useState<string | null>(null);
   const [selectedBarber, setSelectedBarber] = useState<Barber | null>(null);
+  const openedSalonRef = useRef<string | null>(null);
   const [remoteBarbers, setRemoteBarbers] = useState<Barber[]>([]);
   const [showcaseFallback, setShowcaseFallback] = useState<{ barber: Barber; intro: string } | null>(null);
   const [remoteStatus, setRemoteStatus] = useState<'unused' | 'loading' | 'ready' | 'error'>('unused');
@@ -199,13 +200,27 @@ export default function Home() {
 
   useEffect(() => {
     const salonId = readHashQueryParam('salon');
-    if (!salonId || selectedBarber) return;
+    if (!salonId || openedSalonRef.current === salonId) return;
     const found =
       filteredBarbers.find((row) => row.id === salonId) ||
       remoteBarbers.find((row) => row.id === salonId) ||
       (showcaseFallback?.barber.id === salonId ? showcaseFallback.barber : null) ||
-      findInquiryTierSampleById(salonId);
-    if (found) setSelectedBarber(found);
+      findInquiryTierSampleById(salonId) ||
+      (selectedBarber?.id === salonId ? selectedBarber : null);
+    if (found) {
+      openedSalonRef.current = salonId;
+      setSelectedBarber(found);
+      return;
+    }
+    let cancelled = false;
+    void fetchPublicBarberById(salonId).then((barber) => {
+      if (cancelled || !barber) return;
+      openedSalonRef.current = salonId;
+      setSelectedBarber(barber);
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [filteredBarbers, remoteBarbers, showcaseFallback, selectedBarber]);
 
   useShowcaseWhenSearchEmpty({

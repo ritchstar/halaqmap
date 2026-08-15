@@ -10,6 +10,7 @@ import { ROUTE_PATHS } from '@/lib/routePaths';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { ProductEvents } from '@/lib/analytics/productAnalytics';
 import { CoiffeurInquiryStage } from '@/components/coiffeur/CoiffeurInquiryStage';
+import { CoiffeurVisitorHowItWorks } from '@/components/coiffeur/CoiffeurVisitorHowItWorks';
 import { CoiffeurBannerGallery } from '@/components/coiffeur/CoiffeurBannerGallery';
 import { CoiffeurMoodGallery } from '@/components/coiffeur/CoiffeurMoodGallery';
 import { CoiffeurInterestCta } from '@/components/coiffeur/CoiffeurInterestCta';
@@ -49,6 +50,7 @@ export default function CoiffeurLanding() {
         }}
         onInquire={goInquire}
       />
+      <CoiffeurVisitorHowItWorks />
       <CoiffeurInterestCta source="landing_stage" />
       <CoiffeurMoodGallery />
       <CoiffeurBannerGallery />

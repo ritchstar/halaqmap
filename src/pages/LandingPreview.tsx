@@ -18,7 +18,7 @@ import {
   X,
   Phone, Heart,
 } from 'lucide-react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import type { Barber, FilterState } from '@/lib/index';
 import { filterBarbersByDistance } from '@/lib/index';
@@ -54,7 +54,7 @@ import { EcommerceVerifiedFooterBadge } from '@/components/EcommerceVerifiedFoot
 import { PlatformAmbientToggle } from '@/components/PlatformAmbientToggle';
 import { usePlatformAmbient } from '@/context/PlatformAmbientContext';
 import { isSupabaseConfigured } from '@/integrations/supabase/client';
-import { fetchNearbyPublicBarbersFromSupabase } from '@/lib/publicBarbersFromSupabase';
+import { fetchNearbyPublicBarbersFromSupabase, fetchPublicBarberById } from '@/lib/publicBarbersFromSupabase';
 import { resolveShowcaseForEmptyDisplay } from '@/lib/platformShowcaseRemote';
 import { useShowcaseWhenSearchEmpty } from '@/lib/useShowcaseWhenSearchEmpty';
 import { readStoredUserCoords, clearStoredUserCoords, storeUserCoords } from '@/lib/userRegionWeather';
@@ -528,6 +528,8 @@ function StatsStrip() {
 // ─── Main page ───────────────────────────────────────────────────────────────
 export default function LandingPreview() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const openedSalonRef = useRef<string | null>(null);
   const reduceMotion = useReducedMotion();
   const isMobile = useIsMobile();
   const skipHeroMotion = reduceMotion || isMobile;
@@ -587,6 +589,45 @@ export default function LandingPreview() {
       });
     }
   }, []);
+
+  /** متابعة الصالون بعد الحجز بالاسم: `#/?salon=` يفتح بطاقة الصالون بدل بحث جديد */
+  useEffect(() => {
+    const salonId = readHashQueryParam('salon');
+    if (!salonId || openedSalonRef.current === salonId) return;
+
+    const fromMemory =
+      remoteBarbers.find((row) => row.id === salonId)
+      ?? (showcaseFallback?.barber.id === salonId ? showcaseFallback.barber : null)
+      ?? (selectedBarber?.id === salonId ? selectedBarber : null);
+
+    const openSalon = (barber: Barber) => {
+      openedSalonRef.current = salonId;
+      setSelectedBarber(barber);
+      setUserLocation((prev) => {
+        if (prev) return prev;
+        const lat = barber.location?.lat;
+        const lng = barber.location?.lng;
+        if (Number.isFinite(lat) && Number.isFinite(lng) && (lat !== 0 || lng !== 0)) {
+          return { lat, lng };
+        }
+        return prev;
+      });
+    };
+
+    if (fromMemory) {
+      openSalon(fromMemory);
+      return;
+    }
+
+    let cancelled = false;
+    void fetchPublicBarberById(salonId).then((barber) => {
+      if (cancelled || !barber) return;
+      openSalon(barber);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [location.hash, location.search, location.pathname, remoteBarbers, showcaseFallback, selectedBarber]);
 
   useEffect(() => {
     if (!isMobile) {

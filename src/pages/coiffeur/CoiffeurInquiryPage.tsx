@@ -12,6 +12,7 @@ import { ProductEvents } from '@/lib/analytics/productAnalytics';
 import { fetchCoiffeurInquiryListings } from '@/lib/coiffeurInquiryIsolation';
 import { type CoiffeurRadarPhase } from '@/components/coiffeur/CoiffeurRadarButton';
 import { CoiffeurInquiryStage } from '@/components/coiffeur/CoiffeurInquiryStage';
+import { CoiffeurVisitorHowItWorks } from '@/components/coiffeur/CoiffeurVisitorHowItWorks';
 import { CoiffeurInterestCta } from '@/components/coiffeur/CoiffeurInterestCta';
 import {
   CoiffeurMobileSearchDock,
@@ -83,6 +84,7 @@ export default function CoiffeurInquiryPage() {
         onInquire={requestSearch}
         locateMessage={locateMessage}
       />
+      <CoiffeurVisitorHowItWorks />
 
       <section className="relative mx-auto max-w-6xl px-5 pb-8 md:pb-20">
         <div className="overflow-hidden rounded-3xl border border-rose-200/15 bg-gradient-to-b from-white/[0.06] to-white/[0.02] px-5 py-8 text-center shadow-[inset_0_1px_0_rgba(244,212,192,0.18)] md:rounded-[2rem] md:px-6 md:py-14">

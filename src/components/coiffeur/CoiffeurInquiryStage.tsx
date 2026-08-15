@@ -57,6 +57,9 @@ export function CoiffeurInquiryStage({
               {COIFFEUR_INQUIRY_COPY.titleAccent}
             </span>
           </motion.h1>
+          <p className="mt-4 max-w-md text-sm leading-7 text-[#f7efe8] md:text-base md:leading-8">
+            {COIFFEUR_INQUIRY_COPY.lead}
+          </p>
         </div>
 
         <div className="min-w-0">
