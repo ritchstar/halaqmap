@@ -13,6 +13,7 @@ Allow: /
 User-agent: *
 Allow: /
 Allow: /near/
+Allow: /en/
 Allow: /nusuk/
 Allow: /need/
 Allow: /occasions/

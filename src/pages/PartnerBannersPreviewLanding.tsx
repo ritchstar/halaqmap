@@ -13,6 +13,7 @@ import { BannerPreviewTierSection } from '@/components/partner/banners-preview/B
 import { PartnerProductHubSectionNav } from '@/components/partner/banners-preview/PartnerProductHubSectionNav';
 import { PartnerTierComparisonGrid } from '@/components/partner/banners-preview/PartnerTierComparisonGrid';
 import { Button } from '@/components/ui/button';
+import { RegisterSalonGlowIcon } from '@/components/partner/RegisterSalonGlowIcon';
 import {
   PARTNER_BANNERS_PREVIEW_TIERS,
   PARTNER_FEATURE_PREVIEW_DASHBOARD,
@@ -157,9 +158,10 @@ export default function PartnerBannersPreviewLanding() {
               </div>
               <div className="flex flex-wrap gap-3">
                 <Button
-                  className="bg-emerald-500 font-black text-black shadow-[0_10px_22px_rgba(16,185,129,0.14)] hover:bg-emerald-400"
+                  className="inline-flex items-center gap-2 bg-emerald-500 font-black text-black shadow-[0_10px_22px_rgba(16,185,129,0.14)] hover:bg-emerald-400"
                   onClick={() => navigate(PARTNER_PRODUCT_HUB_CTA.registerPath)}
                 >
+                  <RegisterSalonGlowIcon size="sm" tone="teal" />
                   سجّل صالونك
                 </Button>
                 <Button
@@ -424,9 +426,10 @@ export default function PartnerBannersPreviewLanding() {
           <p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-slate-600">{PARTNER_PRODUCT_HUB_CTA.subtitle}</p>
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
             <Button
-              className="bg-emerald-500 font-black text-black shadow-[0_10px_22px_rgba(16,185,129,0.14)] hover:bg-emerald-400"
+              className="inline-flex items-center gap-2 bg-emerald-500 font-black text-black shadow-[0_10px_22px_rgba(16,185,129,0.14)] hover:bg-emerald-400"
               onClick={() => navigate(PARTNER_PRODUCT_HUB_CTA.registerPath)}
             >
+              <RegisterSalonGlowIcon size="sm" tone="teal" />
               سجّل صالونك
             </Button>
             <Button

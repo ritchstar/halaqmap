@@ -9,6 +9,7 @@ import {
   shouldShowPartnerPlatformLaunchBanner,
 } from '@/config/partnerPlatformLaunchBanner';
 import { cn } from '@/lib/utils';
+import { RegisterSalonGlowIcon } from '@/components/partner/RegisterSalonGlowIcon';
 
 type PartnerPlatformLaunchTickerProps = {
   className?: string;
@@ -98,10 +99,11 @@ export function PartnerPlatformLaunchTicker({
         <Link
           to={ROUTE_PATHS.REGISTER}
           className={cn(
-            'relative z-20 shrink-0 rounded-full border px-2.5 py-1 text-[0.62rem] font-bold transition-colors sm:px-3 sm:text-[0.68rem]',
+            'relative z-20 inline-flex shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-1 text-[0.62rem] font-bold transition-colors sm:px-3 sm:text-[0.68rem]',
             ctaClass,
           )}
         >
+          <RegisterSalonGlowIcon size="sm" tone="gold" />
           سجّل الآن
         </Link>
       </div>

@@ -18,7 +18,6 @@ import {
   Megaphone,
   QrCode,
   Radio,
-  Scissors,
   Search,
   ShieldCheck,
   Sparkles,
@@ -34,6 +33,7 @@ import {
   PARTNER_MARKETING_PILLARS,
 } from '@/config/partnerMarketingCommitmentsCopy';
 import { LICENSED_COMMERCIAL_ACTIVITIES } from '@/config/licensedCommercialActivities';
+import { RegisterSalonGlowIcon } from '@/components/partner/RegisterSalonGlowIcon';
 
 const PILLAR_ICONS = [Search, Radio, QrCode, Landmark, Bot, CreditCard, ShieldCheck] as const;
 const ARABIC_SERIAL = ['١', '٢', '٣', '٤', '٥', '٦', '٧'] as const;
@@ -207,7 +207,7 @@ export default function PartnerMarketingCommitmentsPage() {
               onClick={() => goRegister('marketing_hero')}
               className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-l from-teal-500 to-cyan-500 px-8 py-4 text-sm font-black text-white shadow-[0_16px_36px_rgba(20,184,166,0.28)]"
             >
-              <Scissors className="h-4 w-4" />
+              <RegisterSalonGlowIcon size="md" tone="gold" />
               {PARTNER_JOIN_PATH_PRIMARY_CTA_AR}
             </button>
             <Link
@@ -322,7 +322,7 @@ export default function PartnerMarketingCommitmentsPage() {
               onClick={() => goRegister('marketing_close')}
               className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-l from-teal-500 to-cyan-500 px-8 py-4 text-sm font-black text-white shadow-[0_16px_36px_rgba(20,184,166,0.28)]"
             >
-              <Scissors className="h-4 w-4" />
+              <RegisterSalonGlowIcon size="md" tone="gold" />
               {PARTNER_MARKETING_PAGE.ctaPrimary}
             </button>
             <Link

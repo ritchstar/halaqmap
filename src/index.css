@@ -2778,3 +2778,148 @@ html.platform-radar-fullscreen #root {
     scroll-snap-align: start;
   }
 }
+
+/* ── أيقونة سجّل صالونك: وهج يحثّ على الإجراء ── */
+.register-salon-glow {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  isolation: isolate;
+}
+
+.register-salon-glow__halo {
+  position: absolute;
+  inset: -38%;
+  border-radius: 999px;
+  pointer-events: none;
+  animation: register-salon-glow-pulse 1.8s ease-in-out infinite;
+}
+
+.register-salon-glow__disc {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  height: 100%;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  animation: register-salon-icon-breathe 1.8s ease-in-out infinite;
+}
+
+.register-salon-glow__spark {
+  position: absolute;
+  z-index: 2;
+  pointer-events: none;
+  animation: register-salon-spark 2.2s ease-in-out infinite;
+}
+
+.register-salon-glow__spark--a {
+  top: -18%;
+  inset-inline-end: -10%;
+}
+
+.register-salon-glow__spark--b {
+  bottom: -14%;
+  inset-inline-start: -8%;
+  animation-delay: 0.7s;
+}
+
+.register-salon-glow--gold .register-salon-glow__halo {
+  background: radial-gradient(circle, rgba(251, 191, 36, 0.7) 0%, rgba(245, 158, 11, 0.18) 55%, transparent 72%);
+}
+
+.register-salon-glow--gold .register-salon-glow__disc {
+  color: #1c1003;
+  background: linear-gradient(145deg, #fff7d6 0%, #fbbf24 42%, #f59e0b 100%);
+  box-shadow:
+    0 0 0 1px rgba(255, 247, 214, 0.7),
+    0 0 10px rgba(251, 191, 36, 0.85),
+    0 0 18px rgba(245, 158, 11, 0.45);
+}
+
+.register-salon-glow--gold .register-salon-glow__spark {
+  color: #fde68a;
+  filter: drop-shadow(0 0 4px rgba(253, 224, 71, 0.95));
+}
+
+.register-salon-glow--frost .register-salon-glow__halo {
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.72) 0%, rgba(165, 243, 252, 0.22) 55%, transparent 72%);
+}
+
+.register-salon-glow--frost .register-salon-glow__disc {
+  color: #042f2e;
+  background: linear-gradient(145deg, #ffffff 0%, #a5f3fc 48%, #22d3ee 100%);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.85),
+    0 0 10px rgba(165, 243, 252, 0.8),
+    0 0 16px rgba(34, 211, 238, 0.4);
+}
+
+.register-salon-glow--frost .register-salon-glow__spark {
+  color: #ecfeff;
+  filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.95));
+}
+
+.register-salon-glow--teal .register-salon-glow__halo {
+  background: radial-gradient(circle, rgba(45, 212, 191, 0.65) 0%, rgba(13, 148, 136, 0.2) 55%, transparent 72%);
+}
+
+.register-salon-glow--teal .register-salon-glow__disc {
+  color: #ecfdf5;
+  background: linear-gradient(145deg, #5eead4 0%, #0d9488 55%, #0f766e 100%);
+  box-shadow:
+    0 0 0 1px rgba(153, 246, 228, 0.7),
+    0 0 10px rgba(45, 212, 191, 0.75),
+    0 0 16px rgba(13, 148, 136, 0.4);
+}
+
+.register-salon-glow--teal .register-salon-glow__spark {
+  color: #99f6e4;
+  filter: drop-shadow(0 0 4px rgba(45, 212, 191, 0.95));
+}
+
+@keyframes register-salon-glow-pulse {
+  0%,
+  100% {
+    opacity: 0.42;
+    transform: scale(0.88);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.16);
+  }
+}
+
+@keyframes register-salon-icon-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.08);
+  }
+}
+
+@keyframes register-salon-spark {
+  0%,
+  62%,
+  100% {
+    opacity: 0.15;
+    transform: scale(0.65) rotate(0deg);
+  }
+  74% {
+    opacity: 1;
+    transform: scale(1.2) rotate(12deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .register-salon-glow__halo,
+  .register-salon-glow__disc,
+  .register-salon-glow__spark {
+    animation: none;
+  }
+}

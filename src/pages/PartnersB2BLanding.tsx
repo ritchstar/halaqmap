@@ -10,6 +10,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { MapPin, Phone, MessageCircle, Check, X, Star, Scissors, Shield, Zap, Users, ArrowLeft, Building2 } from 'lucide-react';
 import { ROUTE_PATHS } from '@/lib/index';
+import { RegisterSalonGlowIcon } from '@/components/partner/RegisterSalonGlowIcon';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { PARTNER_EARLY_WAVE_SUBLINE_AR } from '@/config/partnerEarlyWaveCopy';
 import {
@@ -87,9 +88,10 @@ export default function PartnersB2BLanding() {
           </div>
           <Link
             to={ROUTE_PATHS.REGISTER}
-            className={`${ctaClass} text-sm font-bold px-4 py-2 rounded-lg`}
+            className={`${ctaClass} inline-flex items-center gap-2 text-sm font-bold px-4 py-2 rounded-lg`}
             style={{ background: '#0D9488', color: '#F8FAFC' }}
           >
+            <RegisterSalonGlowIcon size="sm" tone="gold" />
             سجّل صالونك
           </Link>
         </div>
@@ -172,7 +174,8 @@ export default function PartnersB2BLanding() {
 
           {/* CTA buttons */}
           <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.5 }} className="flex flex-wrap justify-center gap-4">
-            <Link to={ROUTE_PATHS.REGISTER} className={`${ctaClass} hover:scale-105 px-8 py-4 rounded-xl font-bold text-base`} style={{ background: '#0D9488', color: '#fff', boxShadow: '0 0 24px rgba(13,148,136,0.35)' }}>
+            <Link to={ROUTE_PATHS.REGISTER} className={`${ctaClass} inline-flex items-center hover:scale-105 px-8 py-4 rounded-xl font-bold text-base`} style={{ background: '#0D9488', color: '#fff', boxShadow: '0 0 24px rgba(13,148,136,0.35)' }}>
+              <RegisterSalonGlowIcon size="md" tone="gold" />
               <span>سجّل طلبك الآن</span>
               <ArrowLeft size={18} />
             </Link>
@@ -485,9 +488,10 @@ export default function PartnersB2BLanding() {
             <motion.div variants={fadeUp}>
               <Link
                 to={ROUTE_PATHS.REGISTER}
-                className={`${ctaClass} hover:scale-105 gap-3 px-10 py-4 rounded-2xl font-black text-lg`}
+                className={`${ctaClass} inline-flex items-center hover:scale-105 gap-3 px-10 py-4 rounded-2xl font-black text-lg`}
                 style={{ background: '#0D9488', color: '#fff', boxShadow: '0 0 40px rgba(13,148,136,0.4)' }}
               >
+                <RegisterSalonGlowIcon size="lg" tone="gold" />
                 <span>سجّل طلبك الآن</span>
                 <ArrowLeft size={22} />
               </Link>

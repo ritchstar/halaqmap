@@ -64,6 +64,7 @@ import {
   PARTNER_SISTER_SURFACE_LINE_AR,
   PARTNER_JOIN_PATH_WHY_NOW,
 } from '@/config/partnerJoinPathCopy';
+import { RegisterSalonGlowIcon } from '@/components/partner/RegisterSalonGlowIcon';
 import { LEGAL_ECOMMERCE_AUTH_FOOTER_LINE_AR, PARTNER_SUPPORT_WHATSAPP_URL } from '@/config/partnerLegal';
 import { ProductEvents } from '@/lib/analytics/productAnalytics';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
@@ -733,7 +734,7 @@ export default function PartnerMarketingPreview() {
                 onClick={() => goRegister('header')}
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
-                className="group relative overflow-hidden rounded-xl bg-gradient-to-l from-amber-400 via-amber-300 to-yellow-300 px-4 py-2.5 text-xs font-black text-slate-950 shadow-[0_12px_30px_rgba(245,158,11,0.22)] transition-all hover:shadow-[0_18px_34px_rgba(245,158,11,0.28)]"
+                className="group relative overflow-visible rounded-xl bg-gradient-to-l from-amber-400 via-amber-300 to-yellow-300 px-4 py-2.5 text-xs font-black text-slate-950 shadow-[0_12px_30px_rgba(245,158,11,0.22)] transition-all hover:shadow-[0_18px_34px_rgba(245,158,11,0.28)]"
               >
                 <motion.div
                   className="absolute inset-0 bg-gradient-to-l from-transparent via-white/20 to-transparent"
@@ -741,7 +742,7 @@ export default function PartnerMarketingPreview() {
                   transition={{ duration: 2.5, repeat: Infinity, ease: 'linear', repeatDelay: 1.5 }}
                 />
                   <span className="relative flex items-center gap-1.5">
-                  <Scissors className="h-3.5 w-3.5" />
+                  <RegisterSalonGlowIcon size="sm" tone="frost" />
                   <span className="hidden lg:inline">{PARTNER_JOIN_PATH_PRIMARY_CTA_AR}</span>
                   <span className="lg:hidden">سجّل الآن</span>
                 </span>
@@ -807,7 +808,8 @@ export default function PartnerMarketingPreview() {
                     onPointerDown={warmRegisterRoute}
                     onTouchStart={warmRegisterRoute}
                     onClick={() => { setMobileNavOpen(false); goRegister('mobile_nav'); }}
-                    className="mt-1 w-full rounded-xl border border-teal-400/40 bg-teal-500/15 py-2.5 text-sm font-black text-teal-100">
+                    className="mt-1 flex w-full items-center justify-center gap-2 rounded-xl border border-teal-400/40 bg-teal-500/15 py-2.5 text-sm font-black text-teal-100">
+                    <RegisterSalonGlowIcon size="sm" tone="gold" />
                     {PARTNER_JOIN_PATH_PRIMARY_CTA_AR}
                   </button>
                   <Link
@@ -898,7 +900,7 @@ export default function PartnerMarketingPreview() {
                 onClick={() => goRegister('hero')}
                 className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-l from-teal-500 to-cyan-500 px-8 py-4 font-bold text-white shadow-xl shadow-cyan-500/15 hover:from-teal-400"
               >
-                <Scissors className="h-4 w-4" /> {PARTNER_JOIN_PATH_PRIMARY_CTA_AR}
+                <RegisterSalonGlowIcon size="md" tone="gold" /> {PARTNER_JOIN_PATH_PRIMARY_CTA_AR}
               </button>
               <a
                 href={`${PARTNER_SUPPORT_WHATSAPP_URL}?text=${encodeURIComponent('مرحباً، أريد تسجيل صالوني في حلاق ماب.')}`}
@@ -1157,7 +1159,7 @@ export default function PartnerMarketingPreview() {
               onClick={() => goRegister('pricing')}
               className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-l from-teal-500 to-cyan-500 px-8 py-3.5 text-sm font-bold text-white shadow-lg shadow-cyan-500/15"
             >
-              <Scissors className="h-4 w-4" /> {PARTNER_JOIN_PATH_PRIMARY_CTA_AR}
+              <RegisterSalonGlowIcon size="md" tone="gold" /> {PARTNER_JOIN_PATH_PRIMARY_CTA_AR}
             </button>
             <Link
               to={ROUTE_PATHS.REGISTER_GUIDE}
@@ -1390,7 +1392,7 @@ export default function PartnerMarketingPreview() {
                 onClick={() => goRegister('footer_cta')}
                 className="flex items-center gap-2 rounded-xl bg-gradient-to-l from-teal-500 to-cyan-500 px-10 py-4 font-bold text-white shadow-2xl shadow-cyan-500/18 hover:from-teal-400 transition-all"
               >
-                <Scissors className="h-5 w-5" /> {PARTNER_JOIN_PATH_PRIMARY_CTA_AR}
+                <RegisterSalonGlowIcon size="lg" tone="gold" /> {PARTNER_JOIN_PATH_PRIMARY_CTA_AR}
               </button>
               <button
                 onClick={() => navigate(ROUTE_PATHS.PARTNER_WHY)}

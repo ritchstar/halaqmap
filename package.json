@@ -5,8 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "cross-env VITE_ENABLE_ROUTE_MESSAGING=true vite",
-    "build": "vite build && node scripts/export-fazaa-consented-partners.mjs && node scripts/generate-near-geo-seo.mjs && node scripts/generate-hajj-nusuk-seo.mjs && node scripts/generate-filter-intent-seo.mjs && node scripts/generate-eid-adha-seo.mjs",
-    "seo:near": "node scripts/export-fazaa-consented-partners.mjs && node scripts/generate-near-geo-seo.mjs",
+    "build": "vite build && node scripts/export-fazaa-consented-partners.mjs && node scripts/generate-near-geo-seo.mjs && node scripts/generate-en-near-seo.mjs && node scripts/generate-hajj-nusuk-seo.mjs && node scripts/generate-filter-intent-seo.mjs && node scripts/generate-eid-adha-seo.mjs",
+    "seo:near": "node scripts/export-fazaa-consented-partners.mjs && node scripts/generate-near-geo-seo.mjs && node scripts/generate-en-near-seo.mjs",
+    "seo:en": "node scripts/generate-en-near-seo.mjs",
     "seo:near:neighborhoods": "node scripts/build-geo-near-neighborhoods.mjs",
     "seo:near:validate": "node scripts/validate-geo-near-registry.mjs",
     "seo:nusuk": "node scripts/generate-hajj-nusuk-seo.mjs",

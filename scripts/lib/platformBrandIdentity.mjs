@@ -34,8 +34,24 @@ export function brandIconLinks() {
 
 /**
  * ترويسة فزعة — براند حلاق ماب بخط عربي فاخر + HALAQ MAP بخط المنصة، ثم اسم الخدمة.
+ * @param {{ lang?: 'ar' | 'en' }} [opts]
  */
-export function brandHeaderHtml() {
+export function brandHeaderHtml(opts = {}) {
+  if (opts.lang === 'en') {
+    return `    <header class="brand fazaa-header">
+      <a class="brand-mark" href="${ORIGIN}/" aria-label="${BRAND_NAME_EN} — home">
+        <img src="${BRAND_LOGO_PATH}?v=${BRAND_ICON_VERSION}" srcset="${BRAND_LOGO_PATH}?v=${BRAND_ICON_VERSION} 1x, ${BRAND_LOGO_PATH_2X}?v=${BRAND_ICON_VERSION} 2x" width="56" height="56" alt="${BRAND_NAME_AR}" decoding="async" fetchpriority="high" />
+      </a>
+      <a class="brand-lockup" href="${ORIGIN}/" aria-label="${BRAND_NAME_EN} — start from home">
+        <span class="brand-ar" dir="rtl" lang="ar">${BRAND_NAME_AR}</span>
+        <span class="brand-en" dir="ltr">${BRAND_NAME_EN}</span>
+        <span class="fazaa-sub">${FAZAA_NAME_EN} · instant nearby search from HalaqMap</span>
+      </a>
+    </header>
+    <nav class="fazaa-shortcuts" aria-label="Start search">
+      <a class="fazaa-chip fazaa-chip-primary" href="${ORIGIN}/#/">Search from your location</a>
+    </nav>`;
+  }
   return `    <header class="brand fazaa-header">
       <a class="brand-mark" href="${ORIGIN}/" aria-label="${BRAND_NAME_AR} — إلى الرئيسية">
         <img src="${BRAND_LOGO_PATH}?v=${BRAND_ICON_VERSION}" srcset="${BRAND_LOGO_PATH}?v=${BRAND_ICON_VERSION} 1x, ${BRAND_LOGO_PATH_2X}?v=${BRAND_ICON_VERSION} 2x" width="56" height="56" alt="${BRAND_NAME_AR}" decoding="async" fetchpriority="high" />

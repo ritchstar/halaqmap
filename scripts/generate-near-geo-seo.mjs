@@ -19,6 +19,7 @@ import {
   nearSearchPhrasesCss,
 } from './lib/platformBrandIdentity.mjs';
 import { FAZAA_MARKETING_FOOTER_AR } from './lib/fazaaCitySeoBranches.mjs';
+import { hreflangLinksForArPath, languageSwitchForArPath } from './lib/fazaaEnNearPages.mjs';
 import {
   featuredPartnersCss,
   featuredPartnerKeywords,
@@ -462,6 +463,9 @@ function renderPage({ node, nodes, isHub = false }) {
 function htmlShell({ title, description, canonical, h1, bodyInner, jsonLd, keywords, ogImage }) {
   const keywordsMeta = keywords || NEAR_SEARCH_KEYWORDS_META;
   const shareImage = ogImage || BRAND_LOGO_ABS;
+  const arPath = canonical.replace(ORIGIN, '');
+  const hreflangHtml = hreflangLinksForArPath(arPath);
+  const langSwitchHtml = languageSwitchForArPath(arPath);
   return `<!DOCTYPE html>
 <html lang="ar-SA" dir="rtl">
 <head>
@@ -472,14 +476,14 @@ function htmlShell({ title, description, canonical, h1, bodyInner, jsonLd, keywo
   <meta name="keywords" content="${escapeHtml(keywordsMeta)}" />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="${escapeHtml(canonical)}" />
-  <meta property="og:title" content="${escapeHtml(title)}" />
+${hreflangHtml ? `${hreflangHtml}\n` : ''}  <meta property="og:title" content="${escapeHtml(title)}" />
   <meta property="og:description" content="${escapeHtml(description)}" />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="${escapeHtml(canonical)}" />
   <meta property="og:image" content="${escapeHtml(shareImage)}" />
   <meta property="og:image:alt" content="${escapeHtml(title)}" />
   <meta property="og:locale" content="ar_SA" />
-  <meta property="og:site_name" content="${BRAND_SITE_NAME}" />
+${hreflangHtml ? `  <meta property="og:locale:alternate" content="en_US" />\n` : ''}  <meta property="og:site_name" content="${BRAND_SITE_NAME}" />
   <meta name="application-name" content="${BRAND_SITE_NAME}" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="${escapeHtml(title)}" />
@@ -507,6 +511,8 @@ ${brandPageTypeCss()}
     details { border:1px solid var(--line); border-radius:12px; padding:.75rem 1rem; margin:.55rem 0; background:rgba(12,26,46,.7); }
     summary { cursor:pointer; font-weight:700; }
     footer { margin-top:2.5rem; padding-top:1rem; border-top:1px solid var(--line); color:var(--muted); font-size:.85rem; }
+    .lang-switch { margin:.65rem 0 0; }
+    .lang-switch a { color:var(--accent); }
 ${featuredPartnersCss()}
   </style>
 ${fazaaMeasurementTagHtml()}
@@ -520,6 +526,7 @@ ${brandHeaderHtml()}
     </main>
     <footer>
       <p>${FAZAA_MARKETING_FOOTER_AR}</p>
+      ${langSwitchHtml}
     </footer>
   </div>
 </body>

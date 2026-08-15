@@ -6,7 +6,8 @@
  * طلب الانضمام = نفس /partners/register. الدفع = www.halaqmap.com.
  */
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Scissors, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, ShieldCheck } from 'lucide-react';
+import { RegisterSalonGlowIcon } from '@/components/partner/RegisterSalonGlowIcon';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { CoiffeurBrandMark } from '@/components/coiffeur/CoiffeurBrandMark';
@@ -51,7 +52,7 @@ export default function CoiffeurPartnersLanding() {
             to={ROUTE_PATHS.COIFFEUR_REGISTER}
             className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-l from-teal-500 to-cyan-500 px-7 py-3.5 text-sm font-black text-white"
           >
-            <Scissors className="h-4 w-4" />
+            <RegisterSalonGlowIcon size="md" tone="gold" />
             {COIFFEUR_PARTNERS_COPY.registerCta}
           </Link>
           <a

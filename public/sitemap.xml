@@ -6,4 +6,7 @@
   <sitemap>
     <loc>https://www.halaqmap.com/sitemap-geo.xml</loc>
   </sitemap>
+  <sitemap>
+    <loc>https://www.halaqmap.com/sitemap-en.xml</loc>
+  </sitemap>
 </sitemapindex>

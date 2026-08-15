@@ -34,7 +34,7 @@ if (!/\/assets\/[^"']+\.(js|css)\?v=/.test(html)) {
   errors.push('missing ?v= on /assets/*.js or *.css');
 }
 
-for (const name of ['sitemap.xml', 'sitemap-pages.xml', 'sitemap-geo.xml']) {
+for (const name of ['sitemap.xml', 'sitemap-pages.xml', 'sitemap-geo.xml', 'sitemap-en.xml']) {
   const path = join(dist, name);
   if (!existsSync(path)) {
     errors.push(`missing ${name}`);
@@ -50,8 +50,32 @@ for (const name of ['sitemap.xml', 'sitemap-pages.xml', 'sitemap-geo.xml']) {
   if (name === 'sitemap.xml' && !body.includes('sitemap-geo.xml')) {
     errors.push('sitemap.xml index must reference sitemap-geo.xml');
   }
+  if (name === 'sitemap.xml' && !body.includes('sitemap-en.xml')) {
+    errors.push('sitemap.xml index must reference sitemap-en.xml');
+  }
   if (name === 'sitemap-geo.xml' && !body.includes('/near')) {
     errors.push('sitemap-geo.xml missing /near URLs');
+  }
+  if (name === 'sitemap-en.xml' && !body.includes('/en/near')) {
+    errors.push('sitemap-en.xml missing /en/near URLs');
+  }
+}
+
+for (const rel of ['en/near/index.html', 'en/near/riyadh/index.html', 'en/near/makkah/index.html']) {
+  const path = join(dist, rel);
+  if (!existsSync(path)) {
+    errors.push(`missing ${rel}`);
+    continue;
+  }
+  const body = readFileSync(path, 'utf8');
+  if (!body.includes('lang="en"')) {
+    errors.push(`${rel} must be lang=en`);
+  }
+  if (!/Find a barber/i.test(body)) {
+    errors.push(`${rel} missing Find a barber heading`);
+  }
+  if (/Saudi tourism|Visit Saudi/i.test(body)) {
+    errors.push(`${rel} must not target tourism keywords`);
   }
 }
 
