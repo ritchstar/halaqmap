@@ -92,7 +92,7 @@ function ActivityRows({
             {row.label}
             {row.primary ? (
               <span className="ms-1.5 inline-block rounded border border-teal-400/40 bg-teal-500/15 px-1 py-px text-[0.58rem] font-black text-teal-200">
-                النشاط المعتمد
+                النشاط الرئيسي
               </span>
             ) : null}
           </td>

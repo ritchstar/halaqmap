@@ -190,7 +190,7 @@ export default function About() {
             <div className="text-center mb-8">
               <h2 className="text-3xl font-bold text-foreground mb-3">الأنشطة التجارية</h2>
               <p className="text-sm text-muted-foreground">
-                الأنشطة المرتبطة بالمؤسسة كما تظهر في السجلات الرسمية، مع تمييز النشاط الرسمي المعتمد للمنصة.
+                الأنشطة المرتبطة بالمؤسسة كما تظهر في السجلات الرسمية، مع تمييز النشاط الرئيسي.
               </p>
             </div>
 
