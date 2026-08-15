@@ -17,6 +17,7 @@ const PulseMapPage = lazy(() => import('@/pages/PulseMapPage'));
 const AdminRadarFullScreenPage = lazy(() => import('@/app/admin/radar/full-screen/page'));
 const AdminCyberOperationsPage = lazy(() => import('@/app/admin/cyber/page'));
 const StaffHubPage = lazy(() => import('@/app/admin/staff-hub/page'));
+const CoiffeurHubPage = lazy(() => import('@/app/admin/coiffeur-hub/page'));
 const AdminDashboard = lazy(() => import('@/pages/AdminDashboard'));
 const SaudiAgentLanding = lazy(() => import('@/pages/SaudiAgentLanding'));
 const About = lazy(() => import('@/pages/About'));
@@ -130,6 +131,7 @@ function buildLabRoutes(): RouteObject[] {
     { path: `${adminBase.slice(1)}/radar/full-screen`, element: <LazyRoute><AdminRadarFullScreenPage /></LazyRoute> },
     { path: `${adminBase.slice(1)}/cyber`, element: <LazyRoute><AdminCyberOperationsPage /></LazyRoute> },
     { path: `${adminBase.slice(1)}/staff-hub`, element: <LazyRoute><StaffHubPage /></LazyRoute> },
+    { path: `${adminBase.slice(1)}/coiffeur-hub`, element: <LazyRoute><CoiffeurHubPage /></LazyRoute> },
   ]));
 
   return [
@@ -187,6 +189,7 @@ function buildLabRoutes(): RouteObject[] {
         { path: 'admin/radar/full-screen', element: <LazyRoute><AdminRadarFullScreenPage /></LazyRoute> },
         { path: 'admin/cyber', element: <LazyRoute><AdminCyberOperationsPage /></LazyRoute> },
         { path: 'admin/staff-hub', element: <LazyRoute><StaffHubPage /></LazyRoute> },
+        { path: 'admin/coiffeur-hub', element: <LazyRoute><CoiffeurHubPage /></LazyRoute> },
         { path: 'admin', element: <Navigate to="/admin/in" replace /> },
 
         ...adminAliasRoutes,

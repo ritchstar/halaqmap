@@ -48,6 +48,7 @@ import {
   ChevronUp,
   Megaphone,
 } from 'lucide-react';
+import { CoiffeurBrandMark } from '@/components/coiffeur/CoiffeurBrandMark';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -759,6 +760,20 @@ export default function AdminDashboard() {
                 />
               </div>
             ) : null}
+            {can('view_overview') ? (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="h-9 shrink-0 gap-1.5 border border-[#f4d4c0]/35 bg-[#2a1218] px-2.5 text-[#f4d4c0] hover:bg-[#3a1820] hover:text-[#f7efe8]"
+                title="مركز كوافير ماب"
+                aria-label="مركز كوافير ماب"
+                onClick={() => navigate(`${getAdminPortalBasePath()}${ROUTE_PATHS.ADMIN_COIFFEUR_HUB}`)}
+              >
+                <CoiffeurBrandMark className="h-6 w-6" sizes="24px" showWordmark={false} />
+                <span className="hidden md:inline">كوافير ماب</span>
+              </Button>
+            ) : null}
             {isFounderView ? (
               <SystemCrisisPanicButton
                 onActivate={() => {
@@ -952,6 +967,23 @@ export default function AdminDashboard() {
                 فتح الشاشة
               </Badge>
             </button>
+
+            <div className="flex items-center justify-between rounded-xl border border-[#f4d4c0]/25 bg-[#2a1218] px-4 py-3">
+              <div className="flex items-center gap-2.5">
+                <CoiffeurBrandMark className="h-10 w-10" sizes="40px" showWordmark={false} />
+                <div>
+                  <p className="text-sm font-bold text-white">كوافير ماب</p>
+                  <p className="text-[0.62rem] text-[#f4d4c0]/75">هبوط · اهتمام · مهتمات · ود</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => navigate(`${getAdminPortalBasePath()}${ROUTE_PATHS.ADMIN_COIFFEUR_HUB}`)}
+                className="flex items-center gap-1.5 rounded-xl border border-[#f4d4c0]/35 bg-[#3a1820] px-4 py-2 text-xs font-bold text-[#f4d4c0] hover:bg-[#4a2030] transition-all"
+              >
+                فتح المركز
+              </button>
+            </div>
 
             {/* رابط مركز الوكلاء */}
             <div className="flex items-center justify-between rounded-xl border border-teal-400/20 bg-teal-500/8 px-4 py-3">

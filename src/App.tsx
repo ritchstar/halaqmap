@@ -49,6 +49,7 @@ const PulseMapPage = lazy(() => import("@/pages/PulseMapPage"));
 const AdminRadarFullScreenPage = lazy(() => import("@/app/admin/radar/full-screen/page"));
 const AdminCyberOperationsPage = lazy(() => import("@/app/admin/cyber/page"));
 const StaffHubPage = lazy(() => import("@/app/admin/staff-hub/page"));
+const CoiffeurHubPage = lazy(() => import("@/app/admin/coiffeur-hub/page"));
 const AdminDashboard = lazy(async () => {
   const mod = await import("@/pages/AdminDashboard");
   const C = mod.default;
@@ -561,6 +562,7 @@ export function App() {
               <Route path={`${adminBase}/radar/full-screen`} element={<LazyRoute><AdminRadarFullScreenPage /></LazyRoute>} />
               <Route path={`${adminBase}/cyber`} element={<LazyRoute><AdminCyberOperationsPage /></LazyRoute>} />
               <Route path={`${adminBase}/staff-hub`} element={<LazyRoute><StaffHubPage /></LazyRoute>} />
+              <Route path={`${adminBase}/coiffeur-hub`} element={<LazyRoute><CoiffeurHubPage /></LazyRoute>} />
             </Fragment>
           ))}
           {/* Safety net for legacy invitation links built before VITE_ADMIN_PORTAL_BASE alignment. */}
@@ -570,6 +572,7 @@ export function App() {
           <Route path="/admin/radar/full-screen" element={<LegacyAdminRedirect suffix="/radar/full-screen" />} />
           <Route path="/admin/cyber" element={<LegacyAdminRedirect suffix="/cyber" />} />
           <Route path="/admin/staff-hub" element={<LegacyAdminRedirect suffix="/staff-hub" />} />
+          <Route path="/admin/coiffeur-hub" element={<LegacyAdminRedirect suffix="/coiffeur-hub" />} />
           <Route path="/admin" element={<LegacyAdminRedirect suffix="/in" />} />
           <Route path={ROUTE_PATHS.RATE_BARBER} element={<LazyRoute><RateBarber /></LazyRoute>} />
           <Route path={ROUTE_PATHS.BOOK_BARBER} element={<LazyRoute><BookBarber /></LazyRoute>} />
