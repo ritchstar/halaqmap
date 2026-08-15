@@ -68,6 +68,7 @@ function orderedLicensedActivities() {
       serial: ARABIC_SERIAL[index] ?? String(index + 1),
       code,
       label: row?.label ?? code,
+      definition: row?.definition,
       primary: row?.primary ?? false,
     };
   });
@@ -89,10 +90,15 @@ function ActivityRows({
             </span>
           </td>
           <td className="min-w-0 px-2 py-1.5 text-[0.75rem] font-semibold leading-6 text-slate-100 break-words">
-            {row.label}
+            <span>{row.label}</span>
             {row.primary ? (
               <span className="ms-1.5 inline-block rounded border border-teal-400/40 bg-teal-500/15 px-1 py-px text-[0.58rem] font-black text-teal-200">
                 النشاط الرئيسي
+              </span>
+            ) : null}
+            {row.definition ? (
+              <span className="mt-0.5 block text-[0.65rem] font-medium leading-5 text-slate-400">
+                {row.definition}
               </span>
             ) : null}
           </td>

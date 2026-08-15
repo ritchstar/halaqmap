@@ -204,7 +204,10 @@ export default function About() {
                       : 'rounded-2xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-slate-300'
                   }
                 >
-                  {activity.label} ({activity.code})
+                  <span>{activity.label} ({activity.code})</span>
+                  {activity.definition ? (
+                    <span className="mt-1 block text-[0.7rem] font-medium text-slate-400">{activity.definition}</span>
+                  ) : null}
                 </div>
               ))}
             </div>

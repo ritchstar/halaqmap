@@ -1,18 +1,25 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
-import { ISIC_ACTIVITY_CODE } from '@/config/geospatialLicenseDoctrine';
+import { ISIC_ACTIVITY_CODE, ISIC_MOC_ACTIVITY_NAME_AR } from '@/config/geospatialLicenseDoctrine';
 
 export type LicensedCommercialActivity = {
   code: string;
   label: string;
+  /** شرح قصير يظهر تحت اسم النشاط الرسمي */
+  definition?: string;
   /** النشاط الرئيسي المعروض في قائمة السجل */
   primary: boolean;
 };
 
 /** الأنشطة كما في السجل التجاري — مصدر واحد للعرض العام */
 export const LICENSED_COMMERCIAL_ACTIVITIES: readonly LicensedCommercialActivity[] = [
-  { code: ISIC_ACTIVITY_CODE, label: 'نشاط الموقع الإلكتروني', primary: false },
+  {
+    code: ISIC_ACTIVITY_CODE,
+    label: ISIC_MOC_ACTIVITY_NAME_AR,
+    definition: 'نشاط الموقع الإلكتروني',
+    primary: false,
+  },
   { code: '620101', label: 'تكامل الأنظمة', primary: true },
   { code: '620102', label: 'تصميم وبرمجة البرمجيات الخاصة', primary: false },
   { code: '620111', label: 'تطوير التطبيقات', primary: false },
