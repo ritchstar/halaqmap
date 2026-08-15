@@ -3,9 +3,13 @@
  *
  * عزل سطح كوافير ماب عن نطاق الرجال:
  * صفحات سمي ومسارات /coiffeur على www تُحوَّل إلى النطاق الفرعي.
+ *
+ * لا تستورد coiffeurMapUmbrella من هنا — App يستدعي هذا الملف عند الإقلاع،
+ * وسحب مظلة كوافير/الشؤون القانونية إلى حزمة App يكسر التحميل الكسول (تعذّر تحميل المنصة).
  */
-import { COIFFEUR_SATELLITE_HOST } from '@/config/coiffeurMapUmbrella';
 import { ROUTE_PATHS } from '@/lib/routePaths';
+
+const COIFFEUR_SATELLITE_HOST = 'coiffeur.halaqmap.com';
 
 const MENS_HOSTS = new Set(['www.halaqmap.com', 'halaqmap.com']);
 

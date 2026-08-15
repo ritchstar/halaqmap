@@ -307,6 +307,9 @@ export default defineConfig(({ mode }) => {
       host: '127.0.0.1',
       port: 5173,
       strictPort: true,
+      watch: {
+        ignored: ['**/dist/**', '**/.git/**'],
+      },
       // يفتح المتصفح على الرابط الصحيح تلقائياً عند npm run dev
       open: true,
       // اختياري: مع `vercel dev` على منفذ آخر، عيّن VITE_PROXY_API_TO=http://127.0.0.1:3000 لتوجيه /api/* إلى نفس المشروع
@@ -476,7 +479,8 @@ export default defineConfig(({ mode }) => {
               norm.includes('/src/components/PolicySectionHashRedirect') ||
               norm.includes('/src/components/MoyasarPaymentReturnGate') ||
               norm.includes('/src/components/RouteScopedErrorBoundary') ||
-              norm.includes('/src/components/AdminAuthHashGate')
+              norm.includes('/src/components/AdminAuthHashGate') ||
+              norm.includes('/src/lib/coiffeurHostRedirect')
             ) {
               return 'app-shell';
             }
