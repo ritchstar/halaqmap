@@ -15,6 +15,7 @@ import { MoyasarPaymentReturnGate } from "@/components/MoyasarPaymentReturnGate"
 import { ConsumerNativeShellGate } from "@/components/consumer/ConsumerNativeShellGate";
 import { RouteScopedErrorBoundary } from "@/components/RouteScopedErrorBoundary";
 import { LEGACY_PARTNER_ROUTE_PATHS, ROUTE_PATHS } from "@/lib/routePaths";
+import { resolveMensHostCoiffeurRedirect } from "@/lib/coiffeurHostRedirect";
 import { buildMapContactPartnerInterestPath } from "@/config/mapContactCardCopy";
 import { getAdminPortalBasePath, getAdminPortalBasePaths } from "@/config/adminAuth";
 import { PUBLIC_PULSE_EXPERIENCE_ENABLED } from '@/config/publicPulseExperience';
@@ -267,6 +268,23 @@ function NotaCouncilRedirect() {
   return null;
 }
 
+/** من نطاق الرجال: سمي ومسار كوافير يذهبان إلى النطاق الفرعي. */
+function HalaqmapToCoiffeurSurfaceRedirect() {
+  if (typeof window === 'undefined') return null;
+  const hash = window.location.hash.replace(/^#/, '');
+  const pathOnly = (hash.split('?')[0] || '/').trim() || '/';
+  const search = hash.includes('?') ? hash.slice(hash.indexOf('?')) : '';
+  const target = resolveMensHostCoiffeurRedirect({
+    host: window.location.hostname,
+    hashPath: pathOnly,
+    hashSearch: search,
+  });
+  if (target) {
+    window.location.replace(target);
+  }
+  return null;
+}
+
 /** كوافير ماب — قمر صناعي تحت مظلة halaqmap.com. الدفع يُعاد إلى النطاق الأم. */
 function CoiffeurDomainRedirect() {
   if (typeof window === 'undefined') return null;
@@ -324,6 +342,7 @@ export function App() {
       <HashRouter>
         <RouteScopedErrorBoundary>
         <NotaCouncilRedirect />
+        <HalaqmapToCoiffeurSurfaceRedirect />
         <CoiffeurDomainRedirect />
         <PartnersDomainRedirect />
         <AdminAuthHashGate>

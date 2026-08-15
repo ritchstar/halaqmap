@@ -17,6 +17,7 @@ import {
   COIFFEUR_INQUIRY_COPY,
   COIFFEUR_UMBRELLA_LINE_AR,
 } from '@/config/coiffeurMapUmbrella';
+import { SUMMI_SITE_ORIGIN } from '@/config/summiCoiffeurRegistry';
 import { cn } from '@/lib/utils';
 
 type HeaderProps = {
@@ -105,7 +106,7 @@ export function CoiffeurVisitorFooter({
           سجّلي اهتمامك وتلقّي التحديثات
         </Link>
       ) : null}
-      <a href="/summi" className="mt-3 block text-sm text-[#f4d4c0]">
+      <a href={`${SUMMI_SITE_ORIGIN}/summi`} className="mt-3 block text-sm text-[#f4d4c0]">
         أقرب كوافير حسب حاجتك
       </a>
       {showPartnersLater ? (
