@@ -252,7 +252,7 @@ export const PARTNER_LANDING_PROCESS_STEPS = PARTNER_JOIN_PATH_STEPS.steps.map((
 }));
 
 export const PARTNER_LANDING_PLANS_SECTION = {
-  title: 'حزم رخصة النفاذ — اختر ما يخدم مرحلة صالونك',
+  title: PARTNER_SECTION_INTROS.plans.title,
   lead: PARTNER_SECTION_INTROS.plans.lead,
 } as const;
 

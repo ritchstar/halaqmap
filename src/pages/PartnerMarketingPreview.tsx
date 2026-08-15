@@ -1075,7 +1075,7 @@ export default function PartnerMarketingPreview() {
             </motion.div>
             <motion.h2 initial={{ opacity: 0, y: 14 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
               className="mb-3 text-3xl font-black text-white md:text-4xl">
-              سعر واضح · لا مفاجآت
+              {PARTNER_SECTION_INTROS.plans.title}
             </motion.h2>
             <p className="text-slate-300">{PARTNER_SECTION_INTROS.plans.lead}</p>
           </div>
