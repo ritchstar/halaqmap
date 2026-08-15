@@ -16,7 +16,6 @@ import {
   brandPageTypeCss,
   fazaaMeasurementTagHtml,
   nearSearchPhrasesCss,
-  nearSearchPhrasesSectionHtml,
 } from './lib/platformBrandIdentity.mjs';
 import { FAZAA_MARKETING_FOOTER_AR } from './lib/fazaaCitySeoBranches.mjs';
 
@@ -139,43 +138,19 @@ function renderHub() {
     title,
     description,
     canonical,
-    h1: 'اقرب حلاق · حلاق قريب حسب حاجتك',
+    h1: 'اقرب حلاق من موقعك',
     bodyInner: `
-      <p class="lead">فزعات من <strong>حلاق ماب</strong> لمن يقول <strong>اقرب حلاق</strong> أو <strong>حلاق قريب</strong> أو <strong>حلاق قريب مني</strong> أو <strong>حلاق قريب من موقعي</strong> بما يوافق حاجته — اختر نيتك ثم ابدأ الاستعلام، أو ارجع للرئيسية من أعلى الصفحة.</p>
-      <p class="note">بعض الكلمات الشائعة (نظيف، فخم، فنان، لحية، فيد، رخيص) تُربط بأقرب فلتر بيانات متاح — اختر نيتك وابدأ الاستعلام.</p>
-      ${nearSearchPhrasesSectionHtml()}
+      <p class="lead">ابحث من موقعك الآن — نعرض أقرب حلاق يناسب مكانك دون أن تختار فلترًا أو مسارًا مسبقاً.</p>
+      <p class="cta-wrap"><a class="cta" href="${ORIGIN}/#/">ابحث من موقعك</a></p>
       <ul class="grid">${links}</ul>
-      <p class="note"><a href="/near">أقرب حلاق من موقعي حسب المدينة</a> · <a href="/nusuk">نسك الحج</a> · <a href="/occasions">المناسبات والزحام</a> · <a href="/occasions/friday-prep">الجمعة</a> · <a href="/occasions/ramadan">رمضان</a></p>
     `,
     jsonLd,
   });
 }
 
-function renderRelatedNearLinks(page) {
-  const links = page.relatedNearLinks;
-  if (!Array.isArray(links) || links.length === 0) return '';
-  const items = links
-    .map((l) => '<li><a href="' + escapeHtml(l.href) + '">' + escapeHtml(l.labelAr) + '</a></li>')
-    .join("\n");
-  return (
-    "\n      <section>\n" +
-    "        <h2>روابط قريبة ومساعدة</h2>\n" +
-    "        <ul class=\"grid\">" +
-    items +
-    "</ul>\n" +
-    "      </section>"
-  );
-}
-
 function renderPage(page) {
   const path = `${HUB}/${page.slug}`;
   const canonical = `${ORIGIN}${path}`;
-  const cta = `${ORIGIN}/#/?need=${encodeURIComponent(page.slug)}`;
-  const aliases = page.aliases.map((a) => `<span class="chip">${escapeHtml(a)}</span>`).join('');
-  const siblings = PAGES.filter((p) => p.slug !== page.slug)
-    .slice(0, 8)
-    .map((p) => `<li><a href="${HUB}/${p.slug}">${escapeHtml(p.h1)}</a></li>`)
-    .join('\n');
   const jsonLd = {
     '@context': 'https://schema.org',
     '@graph': [
@@ -204,7 +179,7 @@ function renderPage(page) {
             name: `كيف أبدأ استعلام ${page.h1} من موقعي؟`,
             acceptedAnswer: {
               '@type': 'Answer',
-              text: 'افتح فزعة الصفحة ثم اضغط ابدأ الاستعلام. تُفلتر النتائج حسب البيانات المتاحة من الشركاء، وتكمل معهم مباشرة.',
+              text: 'اضغط «ابحث من موقعك» للانتقال فوراً إلى صفحة الاستعلام، ثم اسمح بمعرفة مكانك.',
             },
           },
           {
@@ -226,18 +201,8 @@ function renderPage(page) {
     h1: page.h1,
     bodyInner: `
       <nav class="crumbs"><a href="${ORIGIN}/">الرئيسية</a> / <a href="${HUB}">حسب الحاجة</a> / <span>${escapeHtml(page.h1)}</span></nav>
-      <p class="lead">${escapeHtml(page.lead)}</p>
-      <p>${escapeHtml(page.body)}</p>
-      <div class="card"><p class="note">${escapeHtml(page.filterNote)}</p></div>
-      <p>${aliases}</p>
-      ${nearSearchPhrasesSectionHtml({ compact: true })}
-      <p class="cta-wrap" style="margin:1.5rem 0"><a class="cta" href="${escapeHtml(cta)}">ابدأ الاستعلام — ${escapeHtml(page.h1)}</a></p>
-      ${renderRelatedNearLinks(page)}
-      <section>
-        <h2>نيات بحث أخرى</h2>
-        <ul class="grid">${siblings}</ul>
-      </section>
-      <p class="note"><a href="${HUB}">كل الفلاتر</a> · <a href="/near">أقرب حلاق من موقعي</a> · <a href="${ORIGIN}/">الرئيسية</a></p>
+      <p class="lead">تبحث عن ${escapeHtml(page.h1)}؟ اضغط «ابحث من موقعك» للانتقال فوراً إلى صفحة الاستعلام.</p>
+      <p class="cta-wrap"><a class="cta" href="${ORIGIN}/#/">ابحث من موقعك</a></p>
     `,
     jsonLd,
   });

@@ -46,12 +46,8 @@ export function brandHeaderHtml() {
         <span class="fazaa-sub">${FAZAA_NAME_AR} · ${FAZAA_SERVICE_LINE}</span>
       </a>
     </header>
-    <nav class="fazaa-shortcuts" aria-label="اختصارات سريعة">
-      <a class="fazaa-chip fazaa-chip-primary" href="${ORIGIN}/">إلى الرئيسية</a>
-      <a class="fazaa-chip" href="${ORIGIN}/#/">ابدأ الاستعلام</a>
-      <a class="fazaa-chip" href="/near">اختر مدينتك</a>
-      <a class="fazaa-chip" href="/need">حسب حاجتك</a>
-      <a class="fazaa-chip" href="${ORIGIN}/#/map-contact-card">بطاقة تواصل ماب</a>
+    <nav class="fazaa-shortcuts" aria-label="ابدأ البحث">
+      <a class="fazaa-chip fazaa-chip-primary" href="${ORIGIN}/#/">ابحث من موقعك</a>
     </nav>`;
 }
 

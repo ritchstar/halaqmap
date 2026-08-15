@@ -272,7 +272,7 @@ ${brandHeaderHtml()}
       <section class="card">
         <h2>أقرب حلاق مكة 🕋 بعد النسك</h2>
         <p>بعد فهم الحلق والتقصير، انتقل لعمود <a href="/near/makkah">أقرب حلاق في مكة 🕋</a> لبدء استعلام لحظي عن صالون قريب أو مفتوح الآن حول مكة وأحيائها — ثم تواصل مع الصالون مباشرة.</p>
-        <p class="cta-wrap"><a class="cta" href="/near/makkah">افتح أقرب حلاق مكة 🕋</a></p>
+        <p class="cta-wrap"><a class="cta" href="${ORIGIN}/#/">ابحث من موقعك</a></p>
       </section>
 
       <section>

@@ -75,4 +75,4 @@ export function citySeoBranchesHtml(opts) {
 }
 
 export const FAZAA_MARKETING_FOOTER_AR =
-  '© حلاق ماب — فزعة استعلام لحظي عن أقرب حلاق وصالون قريب في مدنك وحيّك.';
+  '© حلاق ماب — ابحث من موقعك عن أقرب حلاق.';
