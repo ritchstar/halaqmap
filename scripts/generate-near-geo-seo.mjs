@@ -26,8 +26,11 @@ import {
 import {
   featuredPartnersCss,
   featuredPartnerKeywords,
+  featuredPartnerOgImage,
   featuredPartnersForPlace,
+  featuredPartnersJsonLd,
   featuredPartnersMetaBlurb,
+  featuredPartnerSitemapImages,
   featuredPartnersSectionHtml,
 } from './data/fazaaFeaturedPartners.mjs';
 import {
@@ -183,7 +186,7 @@ function linkList(items) {
     .join('\n');
 }
 
-function jsonLdGraph({ node, path, city, directions, neighborhoods, faqs, pageName }) {
+function jsonLdGraph({ node, path, city, directions, neighborhoods, faqs, pageName, pagePartners = [], ogImage = null }) {
   const pageUrl = absoluteUrl(path);
   const placeName = node.nameAr;
   const collectionName =
@@ -262,6 +265,9 @@ function jsonLdGraph({ node, path, city, directions, neighborhoods, faqs, pageNa
       spatialCoverage: { '@id': `${pageUrl}#place` },
       description: collectionDesc,
       mainEntity: { '@id': `${ORIGIN}/#webapp` },
+      ...(ogImage
+        ? { primaryImageOfPage: { '@type': 'ImageObject', contentUrl: ogImage, url: ogImage } }
+        : {}),
     },
     place,
     {
@@ -299,6 +305,9 @@ function jsonLdGraph({ node, path, city, directions, neighborhoods, faqs, pageNa
       })),
     });
   }
+
+  const shops = featuredPartnersJsonLd(pagePartners, { pageUrl });
+  if (shops.length > 0) graph.push(...shops);
 
   return {
     '@context': 'https://schema.org',
@@ -407,6 +416,9 @@ function renderPage({ node, nodes, isHub = false }) {
         placeNameAr: node.nameAr,
       })
     : '';
+  const ogImage = partnerCitySlug
+    ? featuredPartnerOgImage(partnerCitySlug, partnerNeighSlug)
+    : null;
 
   const title = cityMarketing
     ? cityMarketing.title
@@ -577,12 +589,16 @@ function renderPage({ node, nodes, isHub = false }) {
           : neighborhoods,
       faqs: pageFaqs,
       pageName: pageH1,
+      pagePartners,
+      ogImage,
     }),
+    ogImage,
   });
 }
 
-function htmlShell({ title, description, canonical, h1, bodyInner, jsonLd, keywords }) {
+function htmlShell({ title, description, canonical, h1, bodyInner, jsonLd, keywords, ogImage }) {
   const keywordsMeta = keywords || NEAR_SEARCH_KEYWORDS_META;
+  const shareImage = ogImage || BRAND_LOGO_ABS;
   return `<!DOCTYPE html>
 <html lang="ar-SA" dir="rtl">
 <head>
@@ -597,14 +613,15 @@ function htmlShell({ title, description, canonical, h1, bodyInner, jsonLd, keywo
   <meta property="og:description" content="${escapeHtml(description)}" />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="${escapeHtml(canonical)}" />
-  <meta property="og:image" content="${BRAND_LOGO_ABS}" />
+  <meta property="og:image" content="${escapeHtml(shareImage)}" />
+  <meta property="og:image:alt" content="${escapeHtml(title)}" />
   <meta property="og:locale" content="ar_SA" />
   <meta property="og:site_name" content="${BRAND_SITE_NAME}" />
   <meta name="application-name" content="${BRAND_SITE_NAME}" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="${escapeHtml(title)}" />
   <meta name="twitter:description" content="${escapeHtml(description)}" />
-  <meta name="twitter:image" content="${BRAND_LOGO_ABS}" />
+  <meta name="twitter:image" content="${escapeHtml(shareImage)}" />
 ${brandIconLinks()}
   <script type="application/ld+json">${JSON.stringify(jsonLd)}</script>
   <style>
@@ -672,26 +689,41 @@ function main() {
   const hubHtml = renderPage({ node: null, nodes, isHub: true });
   writeFileDeep(join(DIST, 'near', 'index.html'), hubHtml);
 
-  const urlEntries = [{ loc: `${ORIGIN}/near`, priority: '0.9' }];
+  const urlEntries = [{ loc: `${ORIGIN}/near`, priority: '0.9', images: [] }];
   for (const node of nodes) {
     const path = nodePath(node);
     const html = renderPage({ node, nodes, isHub: false });
     writeFileDeep(join(DIST, ...path.split('/').filter(Boolean), 'index.html'), html);
-    urlEntries.push({ loc: absoluteUrl(path), priority: sitemapPriority(node) });
+    const city = node.kind === 'city' ? node : findCity(nodes, node.parentSlugs[0]);
+    const citySlug = node.kind === 'city' ? node.slug : city?.slug || null;
+    const neighSlug = node.kind === 'neighborhood' ? node.slug : null;
+    urlEntries.push({
+      loc: absoluteUrl(path),
+      priority: sitemapPriority(node),
+      images: citySlug ? featuredPartnerSitemapImages(citySlug, neighSlug) : [],
+    });
   }
 
   const lastmod = new Date().toISOString().slice(0, 10);
   const sitemapGeo = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
 ${urlEntries
-  .map(
-    (u) => `  <url>
+  .map((u) => {
+    const imageXml = (u.images || [])
+      .map(
+        (img) => `    <image:image>
+      <image:loc>${escapeHtml(img.loc)}</image:loc>
+      <image:title>${escapeHtml(img.title)}</image:title>
+    </image:image>`,
+      )
+      .join('\n');
+    return `  <url>
     <loc>${u.loc}</loc>
     <lastmod>${lastmod}</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>${u.priority}</priority>
-  </url>`,
-  )
+    <priority>${u.priority}</priority>${imageXml ? `\n${imageXml}` : ''}
+  </url>`;
+  })
   .join('\n')}
 </urlset>
 `;

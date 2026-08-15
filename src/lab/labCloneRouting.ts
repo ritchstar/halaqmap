@@ -22,6 +22,7 @@ const STATIC_LAB_CLONE_PATHS = new Set<string>([
   ROUTE_PATHS.RADAR_SHOWCASE,
   ROUTE_PATHS.BARBERS_LANDING,
   ROUTE_PATHS.PARTNER_INTEREST,
+  ROUTE_PATHS.FAZAA_LISTING_CONSENT,
   ROUTE_PATHS.PARTNER_WHY,
   ROUTE_PATHS.PARTNER_MARKETING,
   ROUTE_PATHS.PARTNER_STORY,
@@ -54,6 +55,7 @@ const STATIC_LAB_CLONE_PATHS = new Set<string>([
   '/admin/cyber',
   '/admin/staff-hub',
   '/admin/coiffeur-hub',
+  '/admin/fazaa-listing',
   '/admin',
 ]);
 
@@ -103,7 +105,8 @@ function isAdminPortalPath(pathname: string): boolean {
       || pathname === `${adminBase}/radar/full-screen`
       || pathname === `${adminBase}/cyber`
       || pathname === `${adminBase}/staff-hub`
-      || pathname === `${adminBase}/coiffeur-hub`,
+      || pathname === `${adminBase}/coiffeur-hub`
+      || pathname === `${adminBase}/fazaa-listing`,
   );
 }
 

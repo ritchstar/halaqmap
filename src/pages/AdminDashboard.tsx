@@ -774,6 +774,20 @@ export default function AdminDashboard() {
                 <span className="hidden md:inline">كوافير ماب</span>
               </Button>
             ) : null}
+            {can('view_overview') || can('view_partner_marketing') ? (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="h-9 shrink-0 gap-1.5 border border-teal-400/35 bg-teal-500/10 px-2.5 text-teal-100 hover:bg-teal-500/20 hover:text-white"
+                title="موافقات إبراز فزعة"
+                aria-label="موافقات إبراز فزعة"
+                onClick={() => navigate(`${getAdminPortalBasePath()}${ROUTE_PATHS.ADMIN_FAZAA_LISTING}`)}
+              >
+                <MapPin className="h-4 w-4" />
+                <span className="hidden md:inline">فزعة</span>
+              </Button>
+            ) : null}
             {isFounderView ? (
               <SystemCrisisPanicButton
                 onActivate={() => {
@@ -980,6 +994,25 @@ export default function AdminDashboard() {
                 type="button"
                 onClick={() => navigate(`${getAdminPortalBasePath()}${ROUTE_PATHS.ADMIN_COIFFEUR_HUB}`)}
                 className="flex items-center gap-1.5 rounded-xl border border-[#f4d4c0]/35 bg-[#3a1820] px-4 py-2 text-xs font-bold text-[#f4d4c0] hover:bg-[#4a2030] transition-all"
+              >
+                فتح المركز
+              </button>
+            </div>
+
+            <div className="flex items-center justify-between rounded-xl border border-teal-400/25 bg-teal-500/8 px-4 py-3">
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-teal-400/30 bg-teal-500/15">
+                  <MapPin className="h-4 w-4 text-teal-300" />
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-white">موافقات إبراز فزعة</p>
+                  <p className="text-[0.62rem] text-teal-200/70">دعوة بريد رسمي · موافقة صريحة قبل النشر على جوجل</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => navigate(`${getAdminPortalBasePath()}${ROUTE_PATHS.ADMIN_FAZAA_LISTING}`)}
+                className="flex items-center gap-1.5 rounded-xl border border-teal-400/35 bg-teal-500/15 px-4 py-2 text-xs font-bold text-teal-100 hover:bg-teal-500/25 transition-all"
               >
                 فتح المركز
               </button>

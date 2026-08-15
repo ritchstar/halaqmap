@@ -116,7 +116,8 @@ function rateLimitMaxForRoute(routeId: string): number {
   if (
     routeId === 'bronze-trial-redeem' ||
     routeId === 'listing-license-redeem' ||
-    routeId === 'bronze-trial-confirm-email'
+    routeId === 'bronze-trial-confirm-email' ||
+    routeId === 'public-fazaa-listing-consent'
   ) {
     return envInt('PUBLIC_REDEEM_RATE_LIMIT_MAX', 5);
   }

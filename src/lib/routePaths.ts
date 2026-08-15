@@ -66,6 +66,8 @@ export const ROUTE_PATHS = {
   BRONZE_TRIAL_APPLY: '/partners/bronze-trial',
   /** تأكيد بريد طلب التجربة (?c=token) */
   BRONZE_TRIAL_CONFIRM: '/partners/bronze-trial/confirm',
+  /** موافقة صريحة على إبراز الصالون في صفحات فزعة (?c=token) */
+  FAZAA_LISTING_CONSENT: '/partners/fazaa-listing-consent',
   REGISTER_SUCCESS: '/partners/register/success',
   ABOUT: '/about',
   /** سياسة خصوصية المستخدم (موجزة — الموقع الجغرافي وعدم المشاركة الخارجية) */
@@ -145,6 +147,8 @@ export const ROUTE_PATHS = {
   ADMIN_STAFF_HUB: '/staff-hub',
   /** مركز كوافير ماب — مراقبة الهبوط والاهتمام والمهتمات */
   ADMIN_COIFFEUR_HUB: '/coiffeur-hub',
+  /** مركز موافقات إبراز فزعة على الصفحات العامة */
+  ADMIN_FAZAA_LISTING: '/fazaa-listing',
   /** شرح مفصّل للمناوب الرقمي الذكي */
   DIGITAL_SHIFT_FEATURE: '/partners/digital-shift',
   /** دليل إضافة المكتب الخاص — تعليمات الاستخدام المفصّلة */

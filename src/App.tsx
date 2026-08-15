@@ -50,6 +50,8 @@ const AdminRadarFullScreenPage = lazy(() => import("@/app/admin/radar/full-scree
 const AdminCyberOperationsPage = lazy(() => import("@/app/admin/cyber/page"));
 const StaffHubPage = lazy(() => import("@/app/admin/staff-hub/page"));
 const CoiffeurHubPage = lazy(() => import("@/app/admin/coiffeur-hub/page"));
+const FazaaListingAdminPage = lazy(() => import("@/app/admin/fazaa-listing/page"));
+const FazaaListingConsentLanding = lazy(() => import("@/pages/FazaaListingConsentLanding"));
 const AdminDashboard = lazy(async () => {
   const mod = await import("@/pages/AdminDashboard");
   const C = mod.default;
@@ -476,6 +478,14 @@ export function App() {
               </WithPartnerLayout>
             }
           />
+          <Route
+            path={ROUTE_PATHS.FAZAA_LISTING_CONSENT}
+            element={
+              <WithPartnerLayout>
+                <LazyRoute><FazaaListingConsentLanding /></LazyRoute>
+              </WithPartnerLayout>
+            }
+          />
           <Route path={ROUTE_PATHS.PARTNER_WHY} element={<WithPartnerLayout><LazyRoute><PartnerWhyPage /></LazyRoute></WithPartnerLayout>} />
           <Route path={ROUTE_PATHS.PARTNER_MARKETING} element={<WithPartnerLayout><LazyRoute><PartnerMarketingCommitmentsPage /></LazyRoute></WithPartnerLayout>} />
           <Route path={ROUTE_PATHS.PARTNER_STORY} element={<WithPartnerLayout><LazyRoute><PartnerStoryPage /></LazyRoute></WithPartnerLayout>} />
@@ -563,6 +573,7 @@ export function App() {
               <Route path={`${adminBase}/cyber`} element={<LazyRoute><AdminCyberOperationsPage /></LazyRoute>} />
               <Route path={`${adminBase}/staff-hub`} element={<LazyRoute><StaffHubPage /></LazyRoute>} />
               <Route path={`${adminBase}/coiffeur-hub`} element={<LazyRoute><CoiffeurHubPage /></LazyRoute>} />
+              <Route path={`${adminBase}/fazaa-listing`} element={<LazyRoute><FazaaListingAdminPage /></LazyRoute>} />
             </Fragment>
           ))}
           {/* Safety net for legacy invitation links built before VITE_ADMIN_PORTAL_BASE alignment. */}
@@ -573,6 +584,7 @@ export function App() {
           <Route path="/admin/cyber" element={<LegacyAdminRedirect suffix="/cyber" />} />
           <Route path="/admin/staff-hub" element={<LegacyAdminRedirect suffix="/staff-hub" />} />
           <Route path="/admin/coiffeur-hub" element={<LegacyAdminRedirect suffix="/coiffeur-hub" />} />
+          <Route path="/admin/fazaa-listing" element={<LegacyAdminRedirect suffix="/fazaa-listing" />} />
           <Route path="/admin" element={<LegacyAdminRedirect suffix="/in" />} />
           <Route path={ROUTE_PATHS.RATE_BARBER} element={<LazyRoute><RateBarber /></LazyRoute>} />
           <Route path={ROUTE_PATHS.BOOK_BARBER} element={<LazyRoute><BookBarber /></LazyRoute>} />

@@ -142,3 +142,6 @@ ios/App/App/capacitor.config.json
 *.ipa
 *.dSYM.zip
 
+# --- Fazaa consented partners (generated at build from accepted consents) ---
+scripts/data/fazaaFeaturedPartners.consented.json
+
