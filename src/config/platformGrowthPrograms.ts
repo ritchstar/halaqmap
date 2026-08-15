@@ -88,7 +88,7 @@ export const PLATFORM_GROWTH_PARTNER_FULL_PITCH_AR =
   'وبعد تفعيلك يبدأ **محيط المدار** — ' +
   PLATFORM_GROWTH_PERIMETER_TAGLINE_AR +
   '\n\n' +
-  '**لا نتركك تنتظر الحظ.** من يفعّل مبكراً يبني موضعاً قبل اتساع الطلب في منطقته — لا وعود بعدد زبائن مضمون.';
+  '**لا نتركك تنتظر الحظ.** الجماهيرية قائمة والمزيد قادم — من يفعّل رخصته يظهر عند الاستعلام في منطقته. لا وعود بعدد زبائن مضمون.';
 
 /** سطر الهيرو القصير */
 export const PLATFORM_GROWTH_PARTNER_HERO_LINE_AR = PARTNER_HERO_TAGLINE_REPUTATION_AR;

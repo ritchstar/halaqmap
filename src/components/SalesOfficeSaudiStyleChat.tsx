@@ -24,7 +24,7 @@ const PITCH_LINES = [...PARTNER_FIELD_SALES_PITCH_LINES_AR];
 function getGreeting(): string {
   const hour = new Date().getHours();
   const greeting = hour < 12 ? 'صباح المبيعات' : hour < 17 ? 'مساء الإنجاز' : 'مساء الإقفال الذكي';
-  return `${greeting}.\n\nأنا مدير المبيعات التجاري لمنصة حلاق ماب.\nمهمتي هنا أن أوضح لك الباقات الفعلية الحالية، منطق التواجد المبكر، وخطة المنصة في تجهيز الحلاقين قبل توسيع الوصول للمستخدمين داخل مناطق المملكة.\n\n${PARTNER_EARLY_PRESENCE_DOCTRINE_SIMPLE_AR}\n\nاذكر لي ما الذي تريد حسمه أولاً: السعر، الباقة، أم ميزة الدخول المبكر؟`;
+  return `${greeting}.\n\nأنا مدير المبيعات التجاري لمنصة حلاق ماب.\nمهمتي هنا أن أوضح لك الباقات الحالية، نموذج الظهور عند الطلب، وأن الجماهيرية والسيو قائمان والمزيد من الباحثين في الطريق.\n\n${PARTNER_EARLY_PRESENCE_DOCTRINE_SIMPLE_AR}\n\nاذكر لي ما الذي تريد حسمه أولاً: السعر، الباقة، أم تفعيل موضعك الآن؟`;
 }
 
 async function sendMsg(msg: string, history: Turn[]): Promise<string> {

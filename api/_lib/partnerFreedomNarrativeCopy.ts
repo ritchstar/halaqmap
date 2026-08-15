@@ -23,7 +23,7 @@ export const PARTNER_FREEDOM_SECTION_KICKER_AR = 'معادلة الشراكة';
 export const PARTNER_FREEDOM_SECTION_TITLE_AR = 'أربع حريات — لا أربعة قيود';
 
 export const PARTNER_FREEDOM_SECTION_LEAD_AR =
-  'الفرق بين «منصة حجز» و«شريك تقني»: الأولى تربطك بعمولة وعقد؛ الثانية تمنحك أدوات ظهور وتترك القرار لك.';
+  'نموذجنا واضح: استعلام حي، ظهور عند الطلب، واتفاق مباشر بينك وبين المستعلم. أنت تضبط الوقت والسعر؛ المنصة توفّر البنية.';
 
 export const PARTNER_FREEDOM_PILLARS = [
   {
@@ -36,7 +36,7 @@ export const PARTNER_FREEDOM_PILLARS = [
     id: 'direct',
     title: 'تواصل بلا وسيط',
     description:
-      'اتصال أو واتساب مع زبونك مباشرة — المنصة للاكتشاف والاستجابة البرمجية، لا لحجز بالعمولة.',
+      'اتصال أو واتساب مع المستعلم مباشرة — المنصة للاكتشاف والاستجابة البرمجية؛ الاتفاق يتم بينك وبينه.',
   },
   {
     id: 'control',

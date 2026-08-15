@@ -156,7 +156,7 @@ export default function MerchantSettlementLanding() {
           <section className="rounded-2xl border border-white/10 bg-white/[0.04] p-5 sm:p-6">
             <h2 className="flex items-center gap-2 text-lg font-bold text-white sm:text-xl">
               <Rocket className="h-5 w-5 text-teal-300" />
-              لماذا أوقفنا الحملات الآن؟
+              لماذا تفعّل صالونك الآن؟
             </h2>
             <ul className="mt-4 space-y-3">
               {MERCHANT_SETTLEMENT_WHY_PAUSE.map((line) => (
@@ -170,7 +170,7 @@ export default function MerchantSettlementLanding() {
           <section className="rounded-2xl border border-white/10 bg-white/[0.04] p-5 sm:p-6">
             <h2 className="flex items-center gap-2 text-lg font-bold text-white sm:text-xl">
               <QrCode className="h-5 w-5 text-amber-300" />
-              بعد التسكين — نشر تكتيكي على الأرض
+              والمزيد في الطريق — قنوات وصول إضافية
             </h2>
             <ul className="mt-4 space-y-3">
               {MERCHANT_SETTLEMENT_GROUND_TACTICS.map((line) => (
@@ -193,7 +193,7 @@ export default function MerchantSettlementLanding() {
             شاهد التجربة دون مغادرة الصفحة
           </h2>
           <p className="mb-4 max-w-2xl text-base leading-relaxed text-slate-400">
-            مقطع تجربة المستخدم كان كافياً لإثبات إمكانية نشر المنصة. شغّله هنا، ثم أكمل طلب الاشتراك.
+            شاهد كيف يعمل الاستعلام أمام الباحث. شغّله هنا، ثم أكمل طلب الاشتراك.
           </p>
           {videos.length > 1 ? (
             <div className="mb-3 flex flex-wrap gap-2">
@@ -239,7 +239,7 @@ export default function MerchantSettlementLanding() {
             ناقش معنا — شات مكتوب ثابت
           </h2>
           <p className="mb-4 max-w-2xl text-base leading-relaxed text-slate-400">
-            اسأل عن الباقات، التسكين، أو خطوات التسجيل. للإقفال السريع استخدم زر طلب الاشتراك أعلاه.
+            اسأل عن الباقات، نموذج الظهور، أو خطوات التسجيل. للإقفال السريع استخدم زر طلب الاشتراك أعلاه.
           </p>
           <SalesOfficeSaudiStyleChat />
         </section>
