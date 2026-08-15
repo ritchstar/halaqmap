@@ -97,6 +97,20 @@ export function AiStaffAgentWorkspace({
 
         {agent.workspaceKind === 'partner_analytics' ? <PartnerLiaisonAnalyticsPanel /> : null}
 
+        {agent.workspaceKind === 'coiffeur_wudd_desk' ? (
+          <div className="space-y-3 text-right text-sm leading-7 text-slate-300">
+            <p className="font-semibold text-rose-200/90">مكتب ود — كوافير ماب</p>
+            <p>
+              قناة استعلام على `/#/coiffeur/interest` فقط. تشرح الفكرة والاستجابة الذكية. لا عقود الآن ولا إغلاق تسجيل في الشات.
+            </p>
+            <ul className="list-disc space-y-1 pr-5 text-slate-400">
+              {(agent.doctrineNotes ?? []).map((note) => (
+                <li key={note}>{note}</li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
+
         {agent.workspaceKind === 'fleet_intelligence' ? <FleetDirectorIntelligenceFeed /> : null}
 
         {agent.workspaceKind === 'prosecutor_governance' ? (

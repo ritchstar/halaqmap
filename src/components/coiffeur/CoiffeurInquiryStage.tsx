@@ -31,10 +31,10 @@ export function CoiffeurInquiryStage({
   return (
     <section className="relative mx-auto max-w-6xl px-5 pb-6 pt-6 md:min-h-[78svh] md:pb-12 md:pt-10">
       <div className="flex flex-col items-center">
-        <span className="inline-flex rounded-full border border-rose-200/25 bg-rose-400/10 px-4 py-1.5 text-xs font-semibold tracking-wide text-rose-100">
+        <span className="inline-flex rounded-full border border-rose-200/40 bg-rose-400/15 px-4 py-1.5 text-sm font-semibold tracking-wide text-[#f7efe8]">
           {COIFFEUR_INQUIRY_COPY.sectorBadge}
         </span>
-        <p className="mt-8 text-sm font-bold text-[#f4d4c0]">{COIFFEUR_INQUIRY_COPY.freeBadge}</p>
+        <p className="mt-8 text-base font-bold text-[#f4d4c0]">{COIFFEUR_INQUIRY_COPY.freeBadge}</p>
         <div className="mt-3 flex justify-center overflow-x-clip">
           <CoiffeurRadarButton
             phase={phase}
@@ -60,7 +60,7 @@ export function CoiffeurInquiryStage({
         </div>
 
         <div className="min-w-0">
-          <p className="mb-3 text-[0.7rem] font-black tracking-[0.18em] text-[#e8b4a2]">
+          <p className="mb-3 text-sm font-black tracking-[0.12em] text-[#f4d4c0]">
             {COIFFEUR_INQUIRY_COPY.kicker}
           </p>
           <div className="grid grid-cols-3 gap-2">
@@ -72,10 +72,10 @@ export function CoiffeurInquiryStage({
                   type="button"
                   onClick={() => onIntentChange(item.id)}
                   className={cn(
-                    'min-h-[3rem] rounded-xl px-2 py-2 text-center text-[0.7rem] leading-5 font-bold sm:text-xs',
+                    'min-h-[3.25rem] rounded-xl px-2 py-2 text-center text-sm leading-5 font-bold',
                     active
-                      ? 'border border-[#f4d4c0]/70 bg-[#e8b4a2]/20 text-[#f7efe8]'
-                      : 'border border-white/10 bg-white/[0.04] text-rose-100/75',
+                      ? 'border border-[#f4d4c0] bg-[#e8b4a2]/25 text-[#f7efe8]'
+                      : 'border border-white/20 bg-white/[0.06] text-[#f7efe8]',
                   )}
                 >
                   {item.label}
@@ -84,7 +84,7 @@ export function CoiffeurInquiryStage({
             })}
           </div>
           {locateMessage ? (
-            <p className="mt-3 text-xs leading-6 text-rose-100/55">{locateMessage}</p>
+            <p className="mt-3 text-sm leading-6 text-rose-50">{locateMessage}</p>
           ) : null}
         </div>
       </div>

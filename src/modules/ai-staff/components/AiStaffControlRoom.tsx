@@ -273,6 +273,15 @@ export function AiStaffControlRoom({
       setWorkspaceAgentId(null);
       return;
     }
+    if (agent.id === 'coiffeur_wudd' || agent.workspaceKind === 'coiffeur_wudd_desk') {
+      setWorkspaceAgentId(agent.id);
+      setBillingOpen(false);
+      setDigitalShiftLabOpen(false);
+      setZatcaLabOpen(false);
+      setPartnerLiaisonLabOpen(false);
+      setFleetDirectorLabOpen(false);
+      return;
+    }
     if (agent.workspaceKind === 'fleet_intelligence') {
       setWorkspaceAgentId(agent.id);
     }

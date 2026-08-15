@@ -7,12 +7,11 @@
  */
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { Sparkles } from 'lucide-react';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { MOBILE_DOCK_CLEARANCE } from '@/lib/mobilePageShell';
+import { CoiffeurBrandMark } from '@/components/coiffeur/CoiffeurBrandMark';
 import { CoiffeurSearchButton, COIFFEUR_VISITOR_CANVAS_CLASS } from '@/components/coiffeur/CoiffeurSearchButton';
 import {
-  COIFFEUR_BRAND_AR,
   COIFFEUR_FOOTER_ECOMMERCE_AR,
   COIFFEUR_FOOTER_LEGAL_AR,
   COIFFEUR_INQUIRY_COPY,
@@ -26,17 +25,12 @@ type HeaderProps = {
 
 export function CoiffeurVisitorHeader({ brandTo }: HeaderProps) {
   const brand = (
-    <div className="flex min-w-0 items-center gap-2">
-      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[#f4d4c0]/30 bg-[#2a1218]">
-        <Sparkles className="h-4 w-4 text-[#f4d4c0]" />
-      </div>
-      <p className="truncate text-[1rem] font-black tracking-wide text-[#f7efe8]">{COIFFEUR_BRAND_AR}</p>
-    </div>
+    <CoiffeurBrandMark className="h-20 w-20 ring-1 ring-[#f4d4c0]/45" sizes="80px" />
   );
 
   return (
     <header className="relative sticky top-0 z-40 border-b border-rose-200/10 bg-[#14080e]/92 backdrop-blur-md">
-      <div className="mx-auto flex h-[3.5rem] max-w-6xl items-center px-4 md:h-16">
+      <div className="mx-auto flex min-h-[7.25rem] max-w-6xl items-center px-4 py-3">
         {brandTo ? (
           <Link to={brandTo} className="min-w-0 no-underline">
             {brand}
@@ -94,19 +88,19 @@ export function CoiffeurVisitorFooter({
 }: FooterProps) {
   return (
     <footer className="hidden border-t border-rose-200/10 px-5 py-8 text-center md:block">
-      <p className="text-xs leading-7 text-rose-100/45">{COIFFEUR_UMBRELLA_LINE_AR}</p>
-      <p className="mt-2 text-[11px] text-rose-100/30">{COIFFEUR_FOOTER_LEGAL_AR}</p>
-      <p className="mt-1 text-[11px] text-rose-100/30">{COIFFEUR_FOOTER_ECOMMERCE_AR}</p>
-      <Link to={ROUTE_PATHS.USER_PRIVACY_POLICY} className="mt-3 inline-block text-[11px] text-rose-100/40">
+      <p className="text-sm leading-7 text-rose-50/90">{COIFFEUR_UMBRELLA_LINE_AR}</p>
+      <p className="mt-2 text-sm text-rose-100/80">{COIFFEUR_FOOTER_LEGAL_AR}</p>
+      <p className="mt-1 text-sm text-rose-100/80">{COIFFEUR_FOOTER_ECOMMERCE_AR}</p>
+      <Link to={ROUTE_PATHS.USER_PRIVACY_POLICY} className="mt-3 inline-block text-sm text-[#f4d4c0]">
         السياسات
       </Link>
       {showInterest ? (
-        <Link to={ROUTE_PATHS.COIFFEUR_INTEREST} className="mt-3 block text-[11px] text-rose-100/40">
+        <Link to={ROUTE_PATHS.COIFFEUR_INTEREST} className="mt-3 block text-sm text-[#f4d4c0]">
           سجّلي اهتمامك وتلقّي التحديثات
         </Link>
       ) : null}
       {showPartnersLater ? (
-        <Link to={ROUTE_PATHS.COIFFEUR_PARTNERS} className="mt-3 block text-[11px] text-rose-100/40">
+        <Link to={ROUTE_PATHS.COIFFEUR_PARTNERS} className="mt-3 block text-sm text-[#f4d4c0]">
           مسار المنشآت — مرحلة لاحقة
         </Link>
       ) : null}

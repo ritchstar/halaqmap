@@ -28,7 +28,8 @@ export type AiStaffAgentId =
   | 'b2b_marketing_strategist'
   | 'media_spokesperson'
   | 'legal_observer'
-  | 'partner_assistant_legacy';
+  | 'partner_assistant_legacy'
+  | 'coiffeur_wudd';
 
 export type AiStaffAgentIconKind =
   | 'cyber_defense'
@@ -43,7 +44,8 @@ export type AiStaffAgentIconKind =
   | 'marketing_b2c'
   | 'marketing_b2b'
   | 'media_spokesperson'
-  | 'legal_observer';
+  | 'legal_observer'
+  | 'coiffeur_wudd';
 
 export type AiStaffWorkspaceKind =
   | 'cyber_defense_command'
@@ -58,7 +60,8 @@ export type AiStaffWorkspaceKind =
   | 'marketing_b2c_lab'
   | 'marketing_b2b_lab'
   | 'media_spokesperson_lab'
-  | 'legal_observer_lab';
+  | 'legal_observer_lab'
+  | 'coiffeur_wudd_desk';
 
 /** Links scattered product code into one registry row (no hardcoded card copy in components). */
 export type AiStaffProductRef = {

@@ -59,8 +59,8 @@ export const AI_STAFF_BOUNDARIES: AiStaffBoundaryDef[] = [
   {
     id: 'external_partner_ops',
     titleAr: 'ب — عمليات الشركاء الخارجية',
-    subtitleAr: 'المناوب الميداني · مساعد الشركاء — نشر ميداني وعلاقات بدون العبث بالماليات',
-    gridClassName: 'sm:grid-cols-2',
+    subtitleAr: 'المناوب الميداني · مساعد الشركاء · ود لكوافير ماب — نشر ميداني وعلاقات بدون العبث بالماليات',
+    gridClassName: 'sm:grid-cols-2 lg:grid-cols-3',
   },
   {
     id: 'covert_sovereign',
@@ -479,6 +479,33 @@ export const AI_STAFF_AGENT_REGISTRY: AiStaffAgentDef[] = [
     productRef: {
       configModule: '@/api/_lib/partnerAssistantKnowledge',
       apiRoutes: ['/api/partner-assistant-chat', '/api/admin-partner-liaison-lab-chat'],
+    },
+  },
+  {
+    id: 'coiffeur_wudd',
+    boundary: 'external_partner_ops',
+    shortName: 'ود',
+    title: 'ود — وكيلة استعلام كوافير ماب',
+    statusBadgeAr: 'استعلام · شرح الفكرة',
+    ctaLabelAr: 'مكتب ود',
+    roleDescription:
+      'وكيلة استعلام كوافير ماب. ترد على العميلات في حدود فكرة المشروع ونظام الاستجابة الذكية. لا عقود الآن، ولا تظهر في صفحات تسجيل الحساب. لا تجمع بيانات في الشات ولا تختلق أعداد مشاغل.',
+    accentClass: staffTheme.accentCoiffeur,
+    requiredAny: ['view_partner_marketing', 'view_messages', 'manage_partner_marketing'],
+    available: true,
+    iconKind: 'coiffeur_wudd',
+    workspaceKind: 'coiffeur_wudd_desk',
+    consultAgents: ['legal_observer', 'zatca_tax_advisor', 'media_spokesperson', 'partner_relations_liaison'],
+    doctrineNotes: [
+      'قناة مستقلة: /api/public-coiffeur-wudd-chat — ليست مدير مبيعات B2B.',
+      'لا حقن من جدول barbers ولا قصص نجاح رجالية ولا أعداد مهتمات مخترعة.',
+      'الظهور الميداني: /#/coiffeur/interest فقط. لا عقود الآن ولا صفحات تسجيل حساب.',
+      'عزل الاستعلام النسائي عن /api/public-barbers حتى يتوفر قطاع coiffeur_women.',
+    ],
+    productRef: {
+      configModule: 'api/_lib/coiffeurWuddDoctrine.ts',
+      apiRoutes: ['/api/public-coiffeur-wudd-chat'],
+      systemPromptBuilder: 'buildCoiffeurWuddSystemPrompt',
     },
   },
   {

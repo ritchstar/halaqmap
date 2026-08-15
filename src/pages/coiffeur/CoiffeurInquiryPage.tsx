@@ -6,13 +6,13 @@
  */
 import { useCallback, useEffect, useState } from 'react';
 import { Sparkles } from 'lucide-react';
-import { Link } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { ProductEvents } from '@/lib/analytics/productAnalytics';
 import { fetchCoiffeurInquiryListings } from '@/lib/coiffeurInquiryIsolation';
 import { type CoiffeurRadarPhase } from '@/components/coiffeur/CoiffeurRadarButton';
 import { CoiffeurInquiryStage } from '@/components/coiffeur/CoiffeurInquiryStage';
+import { CoiffeurInterestCta } from '@/components/coiffeur/CoiffeurInterestCta';
 import {
   CoiffeurMobileSearchDock,
   CoiffeurVisitorFooter,
@@ -88,13 +88,12 @@ export default function CoiffeurInquiryPage() {
         <div className="overflow-hidden rounded-3xl border border-rose-200/15 bg-gradient-to-b from-white/[0.06] to-white/[0.02] px-5 py-8 text-center shadow-[inset_0_1px_0_rgba(244,212,192,0.18)] md:rounded-[2rem] md:px-6 md:py-14">
           <Sparkles className="mx-auto h-6 w-6 text-[#f4d4c0] md:h-7 md:w-7" />
           <h2 className="mt-3 text-lg font-black text-white md:mt-4 md:text-2xl">{COIFFEUR_INQUIRY_COPY.emptyTitle}</h2>
-          <p className="mx-auto mt-2 max-w-lg text-sm leading-7 text-rose-50/70 md:mt-3 md:leading-8">{COIFFEUR_INQUIRY_COPY.emptyBody}</p>
-          <Link
-            to={`${ROUTE_PATHS.COIFFEUR_INTEREST}?utm_source=inquiry_empty`}
-            className="mt-4 inline-block text-sm font-semibold text-[#f4d4c0]/85 underline-offset-4 hover:underline"
-          >
-            سجّلي اهتمامك وتلقّي التحديثات عند التسكين
-          </Link>
+          <p className="mx-auto mt-2 max-w-lg text-base leading-7 text-[#f7efe8] md:mt-3 md:leading-8">{COIFFEUR_INQUIRY_COPY.emptyBody}</p>
+          <CoiffeurInterestCta
+            source="inquiry_empty"
+            label="سجّلي اهتمامك وتلقّي التحديثات عند التسكين"
+            className="px-0 pb-0 pt-6"
+          />
           {resultCount > 0 ? (
             <p className="mt-4 text-[11px] text-rose-100/35">نتائج هذا المسار حالياً: {resultCount}</p>
           ) : null}

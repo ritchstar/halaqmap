@@ -25,6 +25,12 @@ export const COIFFEUR_HALAQMAP_PAYMENT_SUCCESS_URL =
 export const COIFFEUR_SATELLITE_HOST = 'coiffeur.halaqmap.com' as const;
 
 export const COIFFEUR_BRAND_AR = 'كوافير ماب' as const;
+export const COIFFEUR_BRAND_EN = 'Coiffeur Map' as const;
+
+/** ختم كوافير ماب الدائري — مقترح معتمد للتقييم، بلا كتابة على الرسم */
+export const COIFFEUR_BRAND_LOGO_PATH = '/images/coiffeur-map-logo-seal-512.webp' as const;
+export const COIFFEUR_BRAND_LOGO_SRCSET =
+  '/images/coiffeur-map-logo-seal-128.webp 128w, /images/coiffeur-map-logo-seal-256.webp 256w, /images/coiffeur-map-logo-seal-512.webp 512w' as const;
 
 export const COIFFEUR_CORE_PROJECT_AR = 'حلاق ماب' as const;
 

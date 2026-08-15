@@ -11,6 +11,7 @@ import {
   Mic,
   Moon,
   Scale,
+  Sparkles,
   Shield,
   ShieldAlert,
   Siren,
@@ -130,6 +131,13 @@ function StaffIcon({ kind, shortName }: { kind?: AiStaffAgentIconKind; shortName
     return (
       <span className={cn(base, 'border-yellow-600/60 bg-yellow-950/50 relative')}>
         <Scale className="h-5 w-5 text-yellow-200" strokeWidth={2} />
+      </span>
+    );
+  }
+  if (kind === 'coiffeur_wudd') {
+    return (
+      <span className={cn(base, 'border-rose-800/60 bg-rose-950/50')}>
+        <Sparkles className="h-5 w-5 text-rose-200" strokeWidth={2} />
       </span>
     );
   }

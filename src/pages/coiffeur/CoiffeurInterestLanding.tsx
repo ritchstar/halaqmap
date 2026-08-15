@@ -2,12 +2,14 @@
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
 /**
- * صفحة اهتمام كوافير ماب — تحويل يوتيوب وتسجيل بريد + عدّة كروت برمجية.
+ * صفحة اهتمام كوافير ماب — تحويل يوتيوب وتسجيل بريد + أدوات كروت برمجية.
  * لا تستبدل استعلام الرئيسية؛ المسار مستقل.
  */
 import { useEffect, useState, type FormEvent } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { Bell, Download, Mail, Share2, Shield, Sparkles } from 'lucide-react';
+import { Bell, Download, Mail, Share2, Shield } from 'lucide-react';
+import { CoiffeurBrandMark } from '@/components/coiffeur/CoiffeurBrandMark';
+import { CoiffeurWuddChat } from '@/components/coiffeur/CoiffeurWuddChat';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -29,7 +31,6 @@ import {
   COIFFEUR_INTEREST_ROLES,
 } from '@/config/coiffeurInterestCopy';
 import {
-  COIFFEUR_BRAND_AR,
   COIFFEUR_INQUIRY_INTENTS,
 } from '@/config/coiffeurMapUmbrella';
 import {
@@ -124,19 +125,19 @@ export default function CoiffeurInterestLanding() {
       <section className="border-b border-rose-200/10 px-4 py-10 md:py-14">
         <div className="mx-auto max-w-3xl text-center">
           <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[#f4d4c0]/30 bg-[#2a1218] px-4 py-1.5 text-sm font-semibold text-[#f4d4c0]">
-            <Sparkles className="h-4 w-4" />
+            <CoiffeurBrandMark className="h-6 w-6" sizes="24px" showWordmark={false} />
             {COPY.badge}
           </div>
           <h1 className="text-balance text-3xl font-extrabold tracking-tight text-[#f7efe8] md:text-5xl">
             {COPY.title}
           </h1>
-          <p className="mx-auto mt-4 max-w-2xl text-lg leading-relaxed text-rose-100/75">
+          <p className="mx-auto mt-4 max-w-2xl text-lg leading-relaxed text-[#f7efe8]">
             {COPY.lead}
           </p>
         </div>
       </section>
 
-      <div className="mx-auto max-w-3xl space-y-8 px-4 py-10">
+      <div className="mx-auto max-w-3xl space-y-8 px-4 py-10 pb-36">
         <Alert className="border-amber-500/40 bg-amber-50/90 text-amber-950 dark:bg-amber-950/30 dark:text-amber-50">
           <Shield className="h-4 w-4" />
           <AlertTitle>{COPY.legalTitle}</AlertTitle>
@@ -161,18 +162,17 @@ export default function CoiffeurInterestLanding() {
                 ماذا يحدث بعد التسجيل؟
               </CardTitle>
             </CardHeader>
-            <CardContent className="text-sm leading-relaxed text-rose-100/70">
+            <CardContent className="text-base leading-relaxed text-[#f7efe8]">
               نخزّن بريدك على الخادم بشكل محمي، ونستخدمه لتحديثات رسمية عن الإطلاق والشروط — دون بريد دعائي عشوائي.
             </CardContent>
           </Card>
           <Card className="border-[#f4d4c0]/20 bg-[#2a1218]/60 text-[#f7efe8]">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
-                <Sparkles className="h-5 w-5 text-[#f4d4c0]" />
-                {COIFFEUR_BRAND_AR}
+                <CoiffeurBrandMark className="h-8 w-8" sizes="32px" />
               </CardTitle>
             </CardHeader>
-            <CardContent className="text-sm leading-relaxed text-rose-100/70">
+            <CardContent className="text-base leading-relaxed text-[#f7efe8]">
               سطح قطاعي نسائي تحت مظلة حلاق ماب. الاستعلام على الرئيسية يبقى مجانياً. هذه الصفحة للتحديثات والكروت فقط.
             </CardContent>
           </Card>
@@ -184,7 +184,7 @@ export default function CoiffeurInterestLanding() {
               <Mail className="h-5 w-5 text-[#f4d4c0]" />
               {COPY.formTitle}
             </CardTitle>
-            <CardDescription className="text-rose-100/60">{COPY.formHint}</CardDescription>
+            <CardDescription className="text-base text-[#f7efe8]">{COPY.formHint}</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={onSubmit} className="space-y-5">
@@ -320,7 +320,7 @@ export default function CoiffeurInterestLanding() {
         <Card className="border-[#f4d4c0]/30 bg-[#2a1218]/80 text-[#f7efe8]">
           <CardHeader>
             <CardTitle>{COPY.kitTitle}</CardTitle>
-            <CardDescription className="text-rose-100/60">{COPY.kitLead}</CardDescription>
+            <CardDescription className="text-base text-[#f7efe8]">{COPY.kitLead}</CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
             <Button
@@ -358,6 +358,7 @@ export default function CoiffeurInterestLanding() {
       </div>
 
       <CoiffeurVisitorFooter showPartnersLater showInterest={false} />
+      <CoiffeurWuddChat />
     </CoiffeurVisitorShell>
   );
 }

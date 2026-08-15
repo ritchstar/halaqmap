@@ -9,8 +9,8 @@ import { Link } from 'react-router-dom';
 import { ArrowLeft, Scissors, ShieldCheck } from 'lucide-react';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
+import { CoiffeurBrandMark } from '@/components/coiffeur/CoiffeurBrandMark';
 import {
-  COIFFEUR_BRAND_AR,
   COIFFEUR_FOOTER_ECOMMERCE_AR,
   COIFFEUR_FOOTER_LEGAL_AR,
   COIFFEUR_HALAQMAP_PAYMENT_URL,
@@ -26,8 +26,8 @@ export default function CoiffeurPartnersLanding() {
     <div dir="rtl" className="relative min-h-screen overflow-x-clip bg-[linear-gradient(165deg,#020912_0%,#041422_48%,#020912_100%)] text-slate-100">
       <header className="border-b border-white/10 px-4 py-3">
         <div className="mx-auto flex max-w-3xl items-center justify-between">
-          <Link to={ROUTE_PATHS.COIFFEUR_LANDING} className="text-sm font-black text-teal-300">
-            {COIFFEUR_BRAND_AR}
+          <Link to={ROUTE_PATHS.COIFFEUR_LANDING} className="inline-flex no-underline">
+            <CoiffeurBrandMark className="h-20 w-20" sizes="80px" wordmarkClassName="text-teal-100" />
           </Link>
           <span className="text-[11px] text-slate-400">{COIFFEUR_PARTNERS_COPY.badge}</span>
         </div>
