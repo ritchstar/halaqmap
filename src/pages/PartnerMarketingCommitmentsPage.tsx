@@ -82,16 +82,16 @@ function ActivityRows({
     <tbody>
       {rows.map((row) => (
         <tr key={row.code} className="border-t border-teal-400/20">
-          <td className="w-10 px-3 py-3 text-center text-sm font-black text-teal-200">{row.serial}</td>
-          <td className="w-[7.5rem] px-3 py-3 text-center">
-            <span dir="ltr" className="inline-block font-mono text-sm tracking-wide text-teal-100">
+          <td className="w-8 px-2 py-1.5 text-center text-[0.7rem] font-black text-teal-200">{row.serial}</td>
+          <td className="w-[6.25rem] px-2 py-1.5 text-center">
+            <span dir="ltr" className="inline-block font-mono text-[0.7rem] tracking-wide text-teal-100">
               {row.code}
             </span>
           </td>
-          <td className="min-w-0 px-3 py-3 text-sm font-semibold leading-7 text-slate-100 break-words">
+          <td className="min-w-0 px-2 py-1.5 text-[0.75rem] font-semibold leading-6 text-slate-100 break-words">
             {row.label}
             {row.primary ? (
-              <span className="ms-2 inline-block rounded-md border border-teal-400/40 bg-teal-500/15 px-1.5 py-0.5 text-[0.65rem] font-black text-teal-200">
+              <span className="ms-1.5 inline-block rounded border border-teal-400/40 bg-teal-500/15 px-1 py-px text-[0.58rem] font-black text-teal-200">
                 النشاط المعتمد
               </span>
             ) : null}
@@ -106,9 +106,9 @@ function ActivitiesTableHead() {
   return (
     <thead>
       <tr className="bg-teal-500/20 text-teal-100">
-        <th className="px-3 py-3 text-center text-xs font-black">{PARTNER_MARKETING_ACTIVITIES.columns.serial}</th>
-        <th className="px-3 py-3 text-center text-xs font-black">{PARTNER_MARKETING_ACTIVITIES.columns.code}</th>
-        <th className="px-3 py-3 text-start text-xs font-black">{PARTNER_MARKETING_ACTIVITIES.columns.name}</th>
+        <th className="px-2 py-2 text-center text-[0.65rem] font-black">{PARTNER_MARKETING_ACTIVITIES.columns.serial}</th>
+        <th className="px-2 py-2 text-center text-[0.65rem] font-black">{PARTNER_MARKETING_ACTIVITIES.columns.code}</th>
+        <th className="px-2 py-2 text-start text-[0.65rem] font-black">{PARTNER_MARKETING_ACTIVITIES.columns.name}</th>
       </tr>
     </thead>
   );
@@ -120,17 +120,17 @@ function MarketingActivitiesTable() {
   return (
     <motion.section
       id={PARTNER_MARKETING_ACTIVITIES.id}
-      initial={{ opacity: 0, y: 18 }}
+      initial={{ opacity: 0, y: 12 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '-48px' }}
-      className="scroll-mt-28 overflow-x-clip rounded-3xl border border-teal-400/40 bg-[#03151c] shadow-[0_0_48px_rgba(20,184,166,0.12)]"
+      viewport={{ once: true, margin: '-32px' }}
+      className="mx-auto max-w-xl scroll-mt-28 overflow-x-clip rounded-2xl border border-teal-400/30 bg-[#03151c]"
     >
-      <div className="border-b border-teal-400/30 bg-gradient-to-l from-teal-500/20 via-teal-500/8 to-transparent px-6 py-5">
-        <h2 className="text-xl font-black text-teal-100 md:text-2xl">{PARTNER_MARKETING_ACTIVITIES.title}</h2>
-        <p className="mt-2 text-sm leading-7 text-slate-300 md:text-base">{PARTNER_MARKETING_ACTIVITIES.lead}</p>
+      <div className="border-b border-teal-400/25 px-4 py-3">
+        <h2 className="text-sm font-black text-teal-100">{PARTNER_MARKETING_ACTIVITIES.title}</h2>
+        <p className="mt-1 text-[0.7rem] leading-6 text-slate-400">{PARTNER_MARKETING_ACTIVITIES.lead}</p>
       </div>
-      <div className="p-3 md:p-5">
-        <div className="overflow-x-auto rounded-xl border border-teal-400/30">
+      <div className="p-2.5">
+        <div className="overflow-x-auto rounded-lg border border-teal-400/25">
           <table className="w-full table-fixed border-collapse">
             <ActivitiesTableHead />
             <ActivityRows rows={rows} />
@@ -220,13 +220,6 @@ export default function PartnerMarketingCommitmentsPage() {
         className="relative z-20 border-b border-teal-400/20 bg-[#020912]/80 backdrop-blur-md"
       >
         <div className="mx-auto flex max-w-5xl gap-2 overflow-x-auto px-4 py-3 md:flex-wrap md:justify-center">
-          <button
-            type="button"
-            onClick={() => scrollToSection(PARTNER_MARKETING_ACTIVITIES.id)}
-            className="shrink-0 rounded-full border border-teal-400/40 bg-teal-500/15 px-3 py-1.5 text-xs font-bold text-teal-100 hover:border-teal-300/70 hover:text-white"
-          >
-            {PARTNER_MARKETING_ACTIVITIES.title}
-          </button>
           {PARTNER_MARKETING_PILLARS.map((pillar) => (
             <button
               type="button"
@@ -237,12 +230,17 @@ export default function PartnerMarketingCommitmentsPage() {
               {pillar.numeral} · {pillar.kicker}
             </button>
           ))}
+          <button
+            type="button"
+            onClick={() => scrollToSection(PARTNER_MARKETING_ACTIVITIES.id)}
+            className="shrink-0 rounded-full border border-teal-400/40 bg-teal-500/15 px-3 py-1.5 text-xs font-bold text-teal-100 hover:border-teal-300/70 hover:text-white"
+          >
+            {PARTNER_MARKETING_ACTIVITIES.title}
+          </button>
         </div>
       </nav>
 
       <div className="relative z-10 mx-auto max-w-5xl space-y-8 px-5 py-12 md:py-16">
-        <MarketingActivitiesTable />
-
         {PARTNER_MARKETING_PILLARS.map((pillar, index) => {
           const Icon = PILLAR_ICONS[index] ?? Sparkles;
           return (
@@ -330,6 +328,10 @@ export default function PartnerMarketingCommitmentsPage() {
             </Link>
           </div>
         </motion.div>
+      </section>
+
+      <section className="relative z-10 px-5 pb-16">
+        <MarketingActivitiesTable />
       </section>
     </div>
   );

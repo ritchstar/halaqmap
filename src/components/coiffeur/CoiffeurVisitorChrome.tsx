@@ -21,15 +21,21 @@ import { cn } from '@/lib/utils';
 
 type HeaderProps = {
   brandTo?: string;
+  sticky?: boolean;
 };
 
-export function CoiffeurVisitorHeader({ brandTo }: HeaderProps) {
+export function CoiffeurVisitorHeader({ brandTo, sticky = true }: HeaderProps) {
   const brand = (
     <CoiffeurBrandMark className="h-20 w-20 ring-1 ring-[#f4d4c0]/45" sizes="80px" />
   );
 
   return (
-    <header className="relative sticky top-0 z-40 border-b border-rose-200/10 bg-[#14080e]/92 backdrop-blur-md">
+    <header
+      className={cn(
+        'relative z-40 border-b border-rose-200/10 bg-[#14080e]/92 backdrop-blur-md',
+        sticky && 'sticky top-0',
+      )}
+    >
       <div className="mx-auto flex min-h-[7.25rem] max-w-6xl items-center px-4 py-3">
         {brandTo ? (
           <Link to={brandTo} className="min-w-0 no-underline">

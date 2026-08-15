@@ -43,6 +43,12 @@ function clipSource(raw: string | null): string {
   return (raw || '').trim().slice(0, 40).replace(/[^\w.-]/g, '') || 'direct';
 }
 
+/** يمنع انزياح الصفحة أفقياً عند انتقال التركيز من حقل عربي إلى بريد/جوال. */
+function pinInterestFormViewport() {
+  if (typeof window === 'undefined') return;
+  if (window.scrollX !== 0) window.scrollTo(0, window.scrollY);
+}
+
 export default function CoiffeurInterestLanding() {
   useDocumentTitle(COPY.documentTitle);
   const [params] = useSearchParams();
@@ -57,10 +63,30 @@ export default function CoiffeurInterestLanding() {
   const [honeypot, setHoneypot] = useState('');
   const [loading, setLoading] = useState(false);
   const [kitBusy, setKitBusy] = useState<'intro' | 'share' | 'brief' | null>(null);
+  const [formActive, setFormActive] = useState(false);
+
+  const fieldClass =
+    'h-12 min-w-0 w-full touch-manipulation border-[#f4d4c0]/25 bg-[#14080e] text-[16px] leading-normal text-[#f7efe8] md:text-[16px]';
+  const fieldStyle = { fontSize: 16 } as const;
 
   useEffect(() => {
     ProductEvents.coiffeurInterestView({ source });
   }, [source]);
+
+  useEffect(() => {
+    if (!formActive) return;
+    pinInterestFormViewport();
+    const pin = () => pinInterestFormViewport();
+    window.addEventListener('scroll', pin, { passive: true });
+    const vv = window.visualViewport;
+    vv?.addEventListener('resize', pin);
+    vv?.addEventListener('scroll', pin);
+    return () => {
+      window.removeEventListener('scroll', pin);
+      vv?.removeEventListener('resize', pin);
+      vv?.removeEventListener('scroll', pin);
+    };
+  }, [formActive]);
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -120,7 +146,7 @@ export default function CoiffeurInterestLanding() {
 
   return (
     <CoiffeurVisitorShell withMobileDock={false}>
-      <CoiffeurVisitorHeader brandTo={ROUTE_PATHS.COIFFEUR_LANDING} />
+      <CoiffeurVisitorHeader brandTo={ROUTE_PATHS.COIFFEUR_LANDING} sticky={false} />
 
       <section className="border-b border-rose-200/10 px-4 py-10 md:py-14">
         <div className="mx-auto max-w-3xl text-center">
@@ -178,7 +204,7 @@ export default function CoiffeurInterestLanding() {
           </Card>
         </div>
 
-        <Card className="border-[#f4d4c0]/30 bg-[#2a1218]/80 text-[#f7efe8] shadow-md">
+        <Card className="min-w-0 overflow-x-clip border-[#f4d4c0]/30 bg-[#2a1218]/80 text-[#f7efe8] shadow-md">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Mail className="h-5 w-5 text-[#f4d4c0]" />
@@ -187,28 +213,92 @@ export default function CoiffeurInterestLanding() {
             <CardDescription className="text-base text-[#f7efe8]">{COPY.formHint}</CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={onSubmit} className="space-y-5">
-              <div className="space-y-2">
+            <form
+              onSubmit={onSubmit}
+              className="min-w-0 space-y-5 overflow-x-clip [contain:inline-size] [overflow-anchor:none]"
+              onFocusCapture={() => {
+                setFormActive(true);
+                pinInterestFormViewport();
+              }}
+              onBlurCapture={(e) => {
+                const next = e.relatedTarget as Node | null;
+                if (!next || !e.currentTarget.contains(next)) setFormActive(false);
+              }}
+            >
+              <div className="min-w-0 space-y-2">
                 <Label htmlFor="coiffeur-interest-name">الاسم أو الاسم المستعار (اختياري)</Label>
                 <Input
                   id="coiffeur-interest-name"
-                  autoComplete="nickname"
+                  name="name"
+                  autoComplete="name"
+                  autoCapitalize="words"
+                  enterKeyHint="next"
                   maxLength={80}
                   placeholder="يظهر على الكرت التعريفي"
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
-                  className="border-[#f4d4c0]/25 bg-[#14080e] text-[#f7efe8]"
+                  onFocus={pinInterestFormViewport}
+                  style={fieldStyle}
+                  className={fieldClass}
                 />
               </div>
 
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
+              <div className="min-w-0 space-y-2">
+                <Label htmlFor="coiffeur-interest-email">البريد الإلكتروني</Label>
+                <div className="min-w-0 overflow-hidden" dir="ltr">
+                  <Input
+                    id="coiffeur-interest-email"
+                    name="email"
+                    type="email"
+                    autoComplete="email"
+                    autoCapitalize="none"
+                    autoCorrect="off"
+                    spellCheck={false}
+                    inputMode="email"
+                    enterKeyHint="next"
+                    placeholder="you@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    onFocus={pinInterestFormViewport}
+                    required
+                    style={fieldStyle}
+                    className={`${fieldClass} text-left`}
+                  />
+                </div>
+              </div>
+
+              <div className="min-w-0 space-y-2">
+                <Label htmlFor="coiffeur-interest-phone">الجوال (اختياري)</Label>
+                <div className="min-w-0 overflow-hidden" dir="ltr">
+                  <Input
+                    id="coiffeur-interest-phone"
+                    name="tel"
+                    type="tel"
+                    autoComplete="tel"
+                    inputMode="tel"
+                    enterKeyHint="done"
+                    maxLength={20}
+                    placeholder="05xxxxxxxx"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    onFocus={pinInterestFormViewport}
+                    style={fieldStyle}
+                    className={`${fieldClass} text-left tabular-nums`}
+                  />
+                </div>
+              </div>
+
+              <div className="grid min-w-0 grid-cols-1 gap-4">
+                <div className="min-w-0 space-y-2">
                   <Label htmlFor="coiffeur-interest-role">صفتك</Label>
                   <select
                     id="coiffeur-interest-role"
+                    name="role"
                     value={role}
                     onChange={(e) => setRole(e.target.value)}
-                    className="flex h-10 w-full rounded-md border border-[#f4d4c0]/25 bg-[#14080e] px-3 text-sm text-[#f7efe8]"
+                    onFocus={pinInterestFormViewport}
+                    style={fieldStyle}
+                    className={`flex rounded-md border px-3 ${fieldClass}`}
                   >
                     {COIFFEUR_INTEREST_ROLES.map((item) => (
                       <option key={item.id} value={item.id}>
@@ -217,13 +307,16 @@ export default function CoiffeurInterestLanding() {
                     ))}
                   </select>
                 </div>
-                <div className="space-y-2">
+                <div className="min-w-0 space-y-2">
                   <Label htmlFor="coiffeur-interest-intent">الفئة التي تهمّك</Label>
                   <select
                     id="coiffeur-interest-intent"
+                    name="intent"
                     value={intentId}
                     onChange={(e) => setIntentId(e.target.value)}
-                    className="flex h-10 w-full rounded-md border border-[#f4d4c0]/25 bg-[#14080e] px-3 text-sm text-[#f7efe8]"
+                    onFocus={pinInterestFormViewport}
+                    style={fieldStyle}
+                    className={`flex rounded-md border px-3 ${fieldClass}`}
                   >
                     {COIFFEUR_INQUIRY_INTENTS.map((item) => (
                       <option key={item.id} value={item.id}>
@@ -232,38 +325,6 @@ export default function CoiffeurInterestLanding() {
                     ))}
                   </select>
                 </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="coiffeur-interest-email">البريد الإلكتروني</Label>
-                <Input
-                  id="coiffeur-interest-email"
-                  type="email"
-                  autoComplete="email"
-                  inputMode="email"
-                  placeholder="you@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  dir="ltr"
-                  className="border-[#f4d4c0]/25 bg-[#14080e] text-left text-[#f7efe8]"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="coiffeur-interest-phone">الجوال (اختياري)</Label>
-                <Input
-                  id="coiffeur-interest-phone"
-                  type="tel"
-                  autoComplete="tel"
-                  inputMode="tel"
-                  maxLength={20}
-                  placeholder="05xxxxxxxx"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  dir="ltr"
-                  className="border-[#f4d4c0]/25 bg-[#14080e] text-left text-[#f7efe8]"
-                />
               </div>
 
               <div className="flex items-start gap-3 rounded-lg border border-[#f4d4c0]/20 bg-[#14080e]/80 p-4">
@@ -358,7 +419,7 @@ export default function CoiffeurInterestLanding() {
       </div>
 
       <CoiffeurVisitorFooter showPartnersLater showInterest={false} />
-      <CoiffeurWuddChat />
+      {formActive ? null : <CoiffeurWuddChat />}
     </CoiffeurVisitorShell>
   );
 }
