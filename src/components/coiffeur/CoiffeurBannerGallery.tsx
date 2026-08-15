@@ -1,23 +1,18 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
+ *
+ * بنرات الباقات الثلاث الافتراضية — معاينة عاملة كبنر حلاق ماب.
  */
-/**
- * معرض الحزم: نوافذ دائرية على الويب، وبطاقات مكدّسة على الجوال كحلاق ماب.
- */
-import { useState } from 'react';
 import {
   COIFFEUR_BANNER_GALLERY_COPY,
   COIFFEUR_BANNER_SAMPLES,
-  type CoiffeurBannerTierId,
 } from '@/config/coiffeurBannerSamples';
 import { CoiffeurPackageBanner } from '@/components/coiffeur/CoiffeurPackageBanner';
 
 export function CoiffeurBannerGallery() {
-  const [preview, setPreview] = useState<CoiffeurBannerTierId>('gold');
-
   return (
     <section className="relative mx-auto max-w-6xl px-5 pb-10 md:pb-20">
-      <div className="mb-6 text-center md:mb-12">
+      <div className="mb-6 text-center md:mb-10">
         <p className="text-sm font-black tracking-[0.12em] text-[#f4d4c0]">{COIFFEUR_BANNER_GALLERY_COPY.kicker}</p>
         <h2 className="mt-2 text-2xl font-black text-white md:text-3xl">
           {COIFFEUR_BANNER_GALLERY_COPY.title}
@@ -25,29 +20,14 @@ export function CoiffeurBannerGallery() {
             {COIFFEUR_BANNER_GALLERY_COPY.titleAccent}
           </span>
         </h2>
+        <p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-[#f7efe8]/80">
+          {COIFFEUR_BANNER_GALLERY_COPY.hint}
+        </p>
       </div>
 
-      <div className="space-y-6 md:hidden">
+      <div className="grid gap-6 md:grid-cols-3 md:gap-5">
         {COIFFEUR_BANNER_SAMPLES.map((item) => (
-          <CoiffeurPackageBanner
-            key={`card-${item.id}`}
-            tierId={item.id}
-            layout="card"
-            selected={preview === item.id}
-            onSelect={() => setPreview(item.id)}
-          />
-        ))}
-      </div>
-
-      <div className="hidden justify-center gap-14 md:flex lg:gap-16 xl:gap-20">
-        {COIFFEUR_BANNER_SAMPLES.map((item) => (
-          <CoiffeurPackageBanner
-            key={`window-${item.id}`}
-            tierId={item.id}
-            layout="window"
-            selected={preview === item.id}
-            onSelect={() => setPreview(item.id)}
-          />
+          <CoiffeurPackageBanner key={item.id} tierId={item.id} sample={item} />
         ))}
       </div>
     </section>
