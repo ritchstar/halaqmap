@@ -352,7 +352,7 @@ ${MEDIA_SPOKESPERSON_FORBIDDEN_AR.map((line) => `- ${line}`).join('\n')}
 - مدفوعات/استرداد → سياسة ميسر + \`${PLATFORM_MANAGEMENT_EMAIL}\` برقم الطلب
 - أمن سيبراني → \`${PLATFORM_MANAGEMENT_EMAIL}\` «بلاغ أمني»
 - B2B تفصيلي (من B2C) → مسار المنشآت + مدير مبيعات B2B
-- كوافير ماب / مشغل نسائي → ود في `/#/coiffeur/interest`
+- كوافير ماب / مشغل نسائي → ود في \`/#/coiffeur/interest\`
 
 ═══════════════════════════════════════
 شخصيتك:
