@@ -15,6 +15,8 @@ export const ROUTE_PATHS = {
   HAJJ_NUSUK: '/nusuk',
   /** فزعات حسب الحاجة — نية البحث (HTML ثابت على /need) */
   FILTER_INTENT_HUB: '/need',
+  /** سمي — صفحات نوايا كوافير ماب (HTML ثابت على /summi) */
+  SUMMI_HUB: '/summi',
   /** فزعات المناسبات وأوقات الزحام (HTML ثابت) */
   OCCASIONS_HUB: '/occasions',
   /** فزعة عيد الأضحى — حلاقة النسك بعد الأضحية */

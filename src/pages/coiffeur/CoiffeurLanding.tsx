@@ -36,7 +36,8 @@ export default function CoiffeurLanding() {
 
   const goInquire = () => {
     ProductEvents.coiffeurCtaClick({ source: 'landing' });
-    navigate(ROUTE_PATHS.COIFFEUR_INQUIRE);
+    const next = intent === 'near_open' ? ROUTE_PATHS.COIFFEUR_INQUIRE : `${ROUTE_PATHS.COIFFEUR_INQUIRE}?intent=${intent}`;
+    navigate(next);
   };
 
   return (

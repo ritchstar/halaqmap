@@ -1,8 +1,8 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
- * صفحات فزعة الثابتة (`/need`, `/occasions`, `/nusuk`, `/near`) تُخدم خارج HashRouter.
- * إن فُتح المسار كـ `/#/need` نخرج من الهاش إلى الرابط النظيف فوراً.
+ * صفحات فزعة الثابتة (`/need`, `/occasions`, `/nusuk`, `/near`) وسمي (`/summi`) تُخدم خارج HashRouter.
+ * إن فُتح المسار كـ `/#/need` أو `/#/summi` نخرج من الهاش إلى الرابط النظيف فوراً.
  */
 import { useEffect } from 'react';
 import { useParams } from 'react-router-dom';

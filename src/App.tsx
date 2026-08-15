@@ -416,6 +416,14 @@ export function App() {
             element={<LazyRoute><StaticSeoRedirect path="/need/:slug" /></LazyRoute>}
           />
           <Route
+            path={ROUTE_PATHS.SUMMI_HUB}
+            element={<LazyRoute><StaticSeoRedirect path="/summi" /></LazyRoute>}
+          />
+          <Route
+            path={`${ROUTE_PATHS.SUMMI_HUB}/:slug`}
+            element={<LazyRoute><StaticSeoRedirect path="/summi/:slug" /></LazyRoute>}
+          />
+          <Route
             path={ROUTE_PATHS.OCCASIONS_HUB}
             element={<LazyRoute><StaticSeoRedirect path="/occasions" /></LazyRoute>}
           />

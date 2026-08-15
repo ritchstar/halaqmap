@@ -34,7 +34,7 @@ if (!/\/assets\/[^"']+\.(js|css)\?v=/.test(html)) {
   errors.push('missing ?v= on /assets/*.js or *.css');
 }
 
-for (const name of ['sitemap.xml', 'sitemap-pages.xml', 'sitemap-geo.xml', 'sitemap-en.xml']) {
+for (const name of ['sitemap.xml', 'sitemap-pages.xml', 'sitemap-geo.xml', 'sitemap-en.xml', 'sitemap-summi.xml']) {
   const path = join(dist, name);
   if (!existsSync(path)) {
     errors.push(`missing ${name}`);
@@ -52,6 +52,12 @@ for (const name of ['sitemap.xml', 'sitemap-pages.xml', 'sitemap-geo.xml', 'site
   }
   if (name === 'sitemap.xml' && !body.includes('sitemap-en.xml')) {
     errors.push('sitemap.xml index must reference sitemap-en.xml');
+  }
+  if (name === 'sitemap.xml' && !body.includes('sitemap-summi.xml')) {
+    errors.push('sitemap.xml index must reference sitemap-summi.xml');
+  }
+  if (name === 'sitemap-summi.xml' && !body.includes('coiffeur.halaqmap.com/summi')) {
+    errors.push('sitemap-summi.xml missing coiffeur.halaqmap.com/summi URLs');
   }
   if (name === 'sitemap-geo.xml' && !body.includes('/near')) {
     errors.push('sitemap-geo.xml missing /near URLs');
@@ -76,6 +82,24 @@ for (const rel of ['en/near/index.html', 'en/near/riyadh/index.html', 'en/near/m
   }
   if (/Saudi tourism|Visit Saudi/i.test(body)) {
     errors.push(`${rel} must not target tourism keywords`);
+  }
+}
+
+for (const rel of ['summi/index.html', 'summi/near-me/index.html', 'summi/beauty-salon/index.html']) {
+  const path = join(dist, rel);
+  if (!existsSync(path)) {
+    errors.push(`missing ${rel}`);
+    continue;
+  }
+  const body = readFileSync(path, 'utf8');
+  if (!body.includes('lang="ar-SA"')) {
+    errors.push(`${rel} must be lang=ar-SA`);
+  }
+  if (!body.includes('ابحثي من موقعك')) {
+    errors.push(`${rel} missing Coiffeur inquire CTA`);
+  }
+  if (/أقرب حلاق|barber near me/i.test(body)) {
+    errors.push(`${rel} must stay isolated from mens Fazaa keywords`);
   }
 }
 

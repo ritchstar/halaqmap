@@ -5,6 +5,7 @@
  * تجربة المستعلمة — بحث واستعلام بطابع نسائي.
  */
 import { useCallback, useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Sparkles } from 'lucide-react';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
@@ -24,14 +25,23 @@ import {
   COIFFEUR_INQUIRY_COPY,
   type CoiffeurInquiryIntentId,
 } from '@/config/coiffeurMapUmbrella';
+import { readCoiffeurIntentFromQuery } from '@/config/summiCoiffeurRegistry';
 
 type LocateState = 'idle' | 'pending' | 'ready' | 'denied';
 
 export default function CoiffeurInquiryPage() {
   useDocumentTitle(COIFFEUR_INQUIRY_COPY.documentTitle);
-  const [intent, setIntent] = useState<CoiffeurInquiryIntentId>('near_open');
+  const location = useLocation();
+  const [intent, setIntent] = useState<CoiffeurInquiryIntentId>(
+    () => readCoiffeurIntentFromQuery() ?? 'near_open',
+  );
   const [locate, setLocate] = useState<LocateState>('idle');
   const [resultCount, setResultCount] = useState(0);
+
+  useEffect(() => {
+    const fromQuery = readCoiffeurIntentFromQuery();
+    if (fromQuery) setIntent(fromQuery);
+  }, [location.hash, location.search, location.pathname]);
 
   const runInquiry = useCallback(async () => {
     const { listings, isolatedFromMensBarbers } = await fetchCoiffeurInquiryListings();

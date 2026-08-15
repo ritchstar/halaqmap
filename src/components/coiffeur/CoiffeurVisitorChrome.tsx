@@ -105,6 +105,9 @@ export function CoiffeurVisitorFooter({
           سجّلي اهتمامك وتلقّي التحديثات
         </Link>
       ) : null}
+      <a href="/summi" className="mt-3 block text-sm text-[#f4d4c0]">
+        أقرب كوافير حسب حاجتك
+      </a>
       {showPartnersLater ? (
         <Link to={ROUTE_PATHS.COIFFEUR_PARTNERS} className="mt-3 block text-sm text-[#f4d4c0]">
           مسار المنشآت — مرحلة لاحقة

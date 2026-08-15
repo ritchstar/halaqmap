@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "hub": {
+    "path": "/summi",
+    "h1": "أقرب كوافير من موقعك",
+    "title": "أقرب كوافير · مشغل تجميل · مصففة شعر | كوافير ماب",
+    "description": "سمي من كوافير ماب: ابحثي من موقعك عن كوافير أو مشغل أو مصففة شعر. بلا تطبيق وبلا حساب. نعرض المشاغل النسائية المفعّلة فقط.",
+    "lead": "اختاري حاجتك أو اضغطي البحث مباشرة. الموقع يُستخدم لتحديد محيطك، ثم تظهر بنرات الشريكات المفعّلة."
+  },
+  "pages": [
+    {
+      "slug": "near-me",
+      "intentId": "near_open",
+      "path": "/summi/near-me",
+      "h1": "أقرب كوافير من موقعك"
+    },
+    {
+      "slug": "coiffeur",
+      "intentId": "coiffeur",
+      "path": "/summi/coiffeur",
+      "h1": "كوافير نسائي قريب"
+    },
+    {
+      "slug": "beauty-salon",
+      "intentId": "beauty_salon",
+      "path": "/summi/beauty-salon",
+      "h1": "مشغل تجميل قريب"
+    },
+    {
+      "slug": "spa",
+      "intentId": "spa",
+      "path": "/summi/spa",
+      "h1": "سبا ومساج قريب"
+    },
+    {
+      "slug": "makeup",
+      "intentId": "makeup",
+      "path": "/summi/makeup",
+      "h1": "مكياج وسهرات قريب"
+    },
+    {
+      "slug": "nails",
+      "intentId": "nails",
+      "path": "/summi/nails",
+      "h1": "عناية أظافر قريبة"
+    },
+    {
+      "slug": "skin",
+      "intentId": "skin",
+      "path": "/summi/skin",
+      "h1": "عناية بشرة قريبة"
+    },
+    {
+      "slug": "independents",
+      "intentId": "independents",
+      "path": "/summi/independents",
+      "h1": "مستقلات تجميل قريبات"
+    }
+  ]
+}

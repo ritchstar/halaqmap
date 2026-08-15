@@ -17,5 +17,6 @@ Allow: /en/
 Allow: /nusuk/
 Allow: /need/
 Allow: /occasions/
+Allow: /summi/
 
 Sitemap: https://www.halaqmap.com/sitemap.xml
