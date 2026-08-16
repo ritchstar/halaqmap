@@ -45,22 +45,6 @@ function scrollToSection(id: string) {
   document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-function highlightGoogleAr(text: string) {
-  const parts = text.split(/(جوجل)/g);
-  return parts.map((part, i) =>
-    part === 'جوجل' ? (
-      <span
-        key={`g-${i}`}
-        className="mx-0.5 inline-block rounded-md border border-teal-400/40 bg-teal-500/20 px-1.5 py-0.5 font-black text-teal-100"
-      >
-        جوجل
-      </span>
-    ) : (
-      <span key={`t-${i}`}>{part}</span>
-    ),
-  );
-}
-
 function orderedLicensedActivities() {
   return CR_ACTIVITY_ORDER.map((code, index) => {
     const row = LICENSED_COMMERCIAL_ACTIVITIES.find((activity) => activity.code === code);
@@ -271,10 +255,10 @@ export default function PartnerMarketingCommitmentsPage() {
                 </div>
                 <div className="min-w-0 flex-1">
                   <h2 className="text-xl font-black leading-snug text-white md:text-2xl">
-                    {highlightGoogleAr(pillar.title)}
+                    {pillar.title}
                   </h2>
                   <p className="mt-4 text-base leading-8 text-slate-300 md:text-lg">
-                    {highlightGoogleAr(pillar.body)}
+                    {pillar.body}
                   </p>
                   <ul className="mt-5 space-y-2.5">
                     {pillar.points.map((point) => (
