@@ -54,10 +54,10 @@ function indexHtmlAssetCacheBustPlugin(): Plugin {
     apply: 'build',
     enforce: 'post',
     transformIndexHtml(html) {
-      const raw = (process.env.VITE_INDEX_ASSET_CACHE_QUERY ?? '7').trim();
-      // لا نسمح بقيمة أقدم من 7 حتى لا يبقى عملاء عالقين على ?v=4 بعد إصلاح الإقلاع
-      const parsed = Number.parseInt(raw.length > 0 ? raw : '7', 10);
-      const q = String(Number.isFinite(parsed) ? Math.max(parsed, 7) : 7);
+      const raw = (process.env.VITE_INDEX_ASSET_CACHE_QUERY ?? '8').trim();
+      // لا نسمح بقيمة أقدم من 8 حتى لا يبقى عملاء عالقين على ?v=7 بعد مسار مكتب المؤسس
+      const parsed = Number.parseInt(raw.length > 0 ? raw : '8', 10);
+      const q = String(Number.isFinite(parsed) ? Math.max(parsed, 8) : 8);
       const suffix = `?v=${encodeURIComponent(q)}`;
       let out = html
         .replace(/src="(\/assets\/[^"?]+\.js)"/g, `src="$1${suffix}"`)

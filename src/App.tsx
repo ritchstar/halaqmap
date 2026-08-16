@@ -15,6 +15,10 @@ import { MoyasarPaymentReturnGate } from "@/components/MoyasarPaymentReturnGate"
 import { ConsumerNativeShellGate } from "@/components/consumer/ConsumerNativeShellGate";
 import { RouteScopedErrorBoundary } from "@/components/RouteScopedErrorBoundary";
 import { LEGACY_PARTNER_ROUTE_PATHS, ROUTE_PATHS } from "@/lib/routePaths";
+
+/** حرفي احتياطي — حزمة `route-paths` منفصلة؛ مفتاح جديد + كاش قديم = path undefined ويُسقط التوجيه. */
+const FOUNDER_DESK_LANDING_PATH =
+  (ROUTE_PATHS as { FOUNDER_DESK_LANDING?: string }).FOUNDER_DESK_LANDING || "/m/hm-desk-k7q3";
 import { resolveMensHostCoiffeurRedirect } from "@/lib/coiffeurHostRedirect";
 import { buildMapContactPartnerInterestPath } from "@/config/mapContactCardCopy";
 import { getAdminPortalBasePath, getAdminPortalBasePaths } from "@/config/adminAuth";
@@ -401,7 +405,7 @@ export function App() {
           <Route path={ROUTE_PATHS.LANDING_PREVIEW} element={<LazyRoute><LandingPreview /></LazyRoute>} />
           <Route path={ROUTE_PATHS.LANDING_PARTNERS_PREVIEW} element={<LazyRoute><PartnerMarketingPreview /></LazyRoute>} />
           <Route path={ROUTE_PATHS.INTERNAL_PARTNER_PATH_PRINT_CARD} element={<LazyRoute><InternalPartnerPathPrintCard /></LazyRoute>} />
-          <Route path={ROUTE_PATHS.FOUNDER_DESK_LANDING} element={<LazyRoute><FounderDeskLandingPage /></LazyRoute>} />
+          <Route path={FOUNDER_DESK_LANDING_PATH} element={<LazyRoute><FounderDeskLandingPage /></LazyRoute>} />
           <Route path={ROUTE_PATHS.INVOICE_PREVIEW_SAMPLES} element={<LazyRoute><InvoicePreviewSamples /></LazyRoute>} />
           <Route path={ROUTE_PATHS.GROWTH_PITCH_DECK} element={<LazyRoute><GrowthPitchDeckPage /></LazyRoute>} />
           <Route path={ROUTE_PATHS.PLATFORM_DISCOVER} element={<LazyRoute><PlatformDiscoverLandingPage /></LazyRoute>} />

@@ -10,7 +10,7 @@
  * يعتمد نفس نظام التصميم الداكن لصفحة /preview مع محتوى موجَّه للشريك.
  */
 
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, lazy, Suspense } from 'react';
 import { motion, useInView, AnimatePresence } from 'framer-motion';
 import {
   Scissors, Star, CheckCircle2, Clock, ArrowLeft,
@@ -84,7 +84,6 @@ import { PartnerPlatformInspectionTicker } from '@/components/partner/PartnerPla
 import { PartnerPlatformLaunchTicker } from '@/components/partner/PartnerPlatformLaunchTicker';
 import { MobilePartnerActionDock } from '@/components/partner/MobilePartnerActionDock';
 import { PartnerSharedTrialOfferBanner } from '@/components/partner/PartnerSharedTrialOfferBanner';
-import { FounderDeskBanner } from '@/components/partner/FounderDeskBanner';
 import {
   OWNER_WATCH_LISTING_DIAMOND_HIGHLIGHT_AR,
   OWNER_WATCH_LISTING_GOLD_HIGHLIGHT_AR,
@@ -117,6 +116,10 @@ function preloadRegisterRoute(): Promise<unknown> {
   }
   return registerPreloadPromise;
 }
+
+const FounderDeskBannerLazy = lazy(() =>
+  import('@/components/partner/FounderDeskBanner').then((m) => ({ default: m.FounderDeskBanner })),
+);
 
 function FoundersOfferBanner({ onRegister }: { onRegister: () => void }) {
   void onRegister;
@@ -967,7 +970,9 @@ export default function PartnerMarketingPreview() {
             </p>
 
             <div className="mt-8">
-              <FounderDeskBanner />
+              <Suspense fallback={null}>
+                <FounderDeskBannerLazy />
+              </Suspense>
             </div>
 
           </motion.div>
