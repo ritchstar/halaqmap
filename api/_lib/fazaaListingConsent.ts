@@ -8,6 +8,7 @@ import {
   FAZAA_LISTING_CONSENT_COPY,
   FAZAA_LISTING_CONSENT_VERSION,
 } from './fazaaListingConsentCopy.js';
+import { PLATFORM_COVERED_CITIES, resolvePlatformCity } from './platformCoveredCities.js';
 
 export const FAZAA_LISTING_CONSENT_TABLE = 'fazaa_seo_listing_consents';
 export const FAZAA_LISTING_CONSENT_TTL_DAYS = 21;
@@ -85,30 +86,47 @@ export function publicConsentPreview(row: FazaaListingConsentRow, now = new Date
   };
 }
 
+function stripBidiMarks(value: string): string {
+  return String(value || '')
+    .replace(/[\u200e\u200f\u202a-\u202e\u2066-\u2069]/g, '')
+    .trim();
+}
+
 function normalizeSlugList(raw: unknown): string[] {
   const list = Array.isArray(raw)
     ? raw
     : String(raw || '')
         .split(/[,\s]+/);
-  return [...new Set(list.map((s) => String(s || '').trim().toLowerCase()).filter((s) => /^[a-z0-9-]{2,64}$/.test(s)))];
+  return [...new Set(list.map((s) => stripBidiMarks(String(s || '')).toLowerCase()).filter((s) => /^[a-z0-9-]{2,64}$/.test(s)))];
+}
+
+function resolveInviteCity(citySlugRaw: string, cityNameArRaw: string) {
+  const slug = stripBidiMarks(citySlugRaw).toLowerCase();
+  const nameAr = stripBidiMarks(cityNameArRaw);
+  const bySlug = PLATFORM_COVERED_CITIES.find((city) => city.id === slug);
+  const byName = resolvePlatformCity(slug) || resolvePlatformCity(nameAr);
+  return bySlug || byName || null;
 }
 
 export function normalizeInviteInput(body: Record<string, unknown>) {
   const barberId = String(body.barberId || '').trim();
-  const citySlug = String(body.citySlug || '').trim().toLowerCase();
-  const cityNameAr = String(body.cityNameAr || '').trim();
-  const areaLabelAr = String(body.areaLabelAr || '').trim();
+  const city = resolveInviteCity(String(body.citySlug || ''), String(body.cityNameAr || ''));
+  let cityNameAr = stripBidiMarks(String(body.cityNameAr || ''));
+  const areaLabelAr = stripBidiMarks(String(body.areaLabelAr || ''));
   const specialtyHintAr = String(body.specialtyHintAr || '').trim();
   const neighborhoodSlugs = normalizeSlugList(body.neighborhoodSlugs);
   if (!/^[0-9a-f-]{36}$/i.test(barberId)) return { ok: false as const, error: 'invalid_barber' };
-  if (!/^[a-z0-9-]{2,64}$/.test(citySlug)) return { ok: false as const, error: 'invalid_city' };
+  if (!city) return { ok: false as const, error: 'invalid_city' };
+  if (!cityNameAr || cityNameAr.length > 80 || /حي|طريق|شارع/.test(cityNameAr)) {
+    cityNameAr = city.nameAr;
+  }
   if (cityNameAr.length < 2 || cityNameAr.length > 80) return { ok: false as const, error: 'invalid_city_name' };
   if (areaLabelAr.length < 2 || areaLabelAr.length > 80) return { ok: false as const, error: 'invalid_area' };
   if (neighborhoodSlugs.length === 0) return { ok: false as const, error: 'invalid_neighborhoods' };
   return {
     ok: true as const,
     barberId,
-    citySlug,
+    citySlug: city.id,
     cityNameAr,
     areaLabelAr,
     specialtyHintAr: specialtyHintAr.slice(0, 120) || 'حلاقة رجالي',

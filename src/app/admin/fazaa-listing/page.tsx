@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ArrowRight, Mail, RefreshCw, ShieldCheck } from 'lucide-react';
 import { getAdminDashboardPathFor } from '@/config/adminAuth';
+import { PLATFORM_COVERED_CITIES } from '@/config/platformCoveredCities';
 import { getSupabaseClient, isSupabaseConfigured } from '@/integrations/supabase/client';
 import { resolveAdminAccess } from '@/lib/adminAccessRemote';
 import {
@@ -16,6 +17,7 @@ import {
   type FazaaListingAdminPayload,
   type FazaaListingCandidate,
 } from '@/lib/adminFazaaListingRemote';
+import { inferFazaaInviteScope } from '@/lib/fazaaListingInvitePrefill';
 
 type AuthPhase = 'loading' | 'ok' | 'denied';
 
@@ -26,6 +28,25 @@ const STATUS_AR: Record<string, string> = {
   revoked: 'مسحوب',
   expired: 'منتهٍ',
 };
+
+const INVITE_ERROR_AR: Record<string, string> = {
+  invalid_city: 'اختر المدينة من القائمة. رمز المدينة الإنجليزي مطلوب، والعنوان لا يُعد مدينة.',
+  invalid_city_name: 'اسم المدينة يجب أن يكون مثل الرياض أو جدة، لا عنوان الحي أو الشارع.',
+  invalid_area: 'اكتب وصف النطاق مثل حي المونسية وقرطبة.',
+  invalid_neighborhoods: 'أدخل رموز الأحياء بالإنجليزي مثل munsiyah,qurtubah.',
+  invalid_barber: 'اختر صالوناً من نتائج البحث أولاً.',
+  barber_not_eligible: 'هذا الصالون غير مؤهل للإبراز (ذهبي أو ماسي ونشط).',
+  barber_email_missing: 'لا يوجد بريد مسجّل لهذا الصالون، لذلك لا يمكن إرسال الدعوة.',
+  already_accepted: 'هذا الصالون وافق مسبقاً.',
+  resend_not_configured: 'بريد الإرسال غير مُعد على الخادم. لم تُرسل رسالة ولم يُحفظ سجل.',
+  insert_failed: 'تعذّر حفظ الدعوة في القاعدة.',
+  not_signed_in: 'انتهت الجلسة. ادخل مرة أخرى.',
+  network_error: 'تعذّر الاتصال بالخادم.',
+};
+
+function explainInviteError(code: string): string {
+  return INVITE_ERROR_AR[code] || `تعذّر الإرسال: ${code}`;
+}
 
 function formatWhen(iso: string): string {
   if (!iso) return '—';
@@ -41,6 +62,7 @@ export default function FazaaListingAdminPage() {
   const [payload, setPayload] = useState<FazaaListingAdminPayload | null>(null);
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState('');
+  const [noticeOk, setNoticeOk] = useState(false);
   const [query, setQuery] = useState('');
   const [selected, setSelected] = useState<FazaaListingCandidate | null>(null);
   const [citySlug, setCitySlug] = useState('');
@@ -86,9 +108,34 @@ export default function FazaaListingAdminPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const applyCity = (slug: string) => {
+    const city = PLATFORM_COVERED_CITIES.find((item) => item.id === slug);
+    setCitySlug(slug);
+    setCityNameAr(city?.nameAr || '');
+  };
+
+  const selectCandidate = (candidate: FazaaListingCandidate) => {
+    setSelected(candidate);
+    const hint = inferFazaaInviteScope(candidate.city);
+    applyCity(hint.citySlug);
+    if (hint.neighborhoodSlugs.length) setNeighborhoods(hint.neighborhoodSlugs.join(','));
+    if (hint.areaLabelAr) setAreaLabelAr(hint.areaLabelAr);
+  };
+
   const invite = async () => {
     if (!selected) {
+      setNoticeOk(false);
       setNotice('اختر صالوناً أولاً.');
+      return;
+    }
+    if (!selected.email || !selected.email.includes('@')) {
+      setNoticeOk(false);
+      setNotice(explainInviteError('barber_email_missing'));
+      return;
+    }
+    if (!citySlug) {
+      setNoticeOk(false);
+      setNotice(explainInviteError('invalid_city'));
       return;
     }
     setBusy(true);
@@ -101,7 +148,12 @@ export default function FazaaListingAdminPage() {
       areaLabelAr,
     });
     setBusy(false);
-    setNotice(res.ok ? 'أُرسلت الرسالة الرسمية إلى بريد الصالون.' : `تعذّر الإرسال: ${res.error}`);
+    setNoticeOk(res.ok);
+    setNotice(
+      res.ok
+        ? `أُرسلت الرسالة الرسمية إلى ${selected.email}. تظهر في السجل أدناه بحالة بانتظار الموافقة.`
+        : `${explainInviteError(res.error)} لم تُرسل رسالة ولم يُحفظ شيء في السجل.`,
+    );
     if (res.ok) await load();
   };
 
@@ -109,7 +161,8 @@ export default function FazaaListingAdminPage() {
     setBusy(true);
     const res = await postAdminFazaaListing({ action, id });
     setBusy(false);
-    setNotice(res.ok ? 'تم التحديث.' : `تعذّر التحديث: ${res.error}`);
+    setNoticeOk(res.ok);
+    setNotice(res.ok ? 'تم التحديث.' : explainInviteError(res.error));
     if (res.ok) await load();
   };
 
@@ -167,7 +220,22 @@ export default function FazaaListingAdminPage() {
             طبّق الهجرة `160_fazaa_seo_listing_consents.sql` على القاعدة أولاً.
           </p>
         ) : null}
-        {notice ? <p className="text-sm text-teal-100">{notice}</p> : null}
+        {payload && !payload.ok ? (
+          <p className="rounded-xl border border-amber-400/40 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
+            تعذّر تحميل السجل: {explainInviteError(payload.error)}
+          </p>
+        ) : null}
+        {notice ? (
+          <p
+            className={`rounded-xl border px-4 py-3 text-sm ${
+              noticeOk
+                ? 'border-teal-400/40 bg-teal-500/10 text-teal-50'
+                : 'border-amber-400/40 bg-amber-500/10 text-amber-50'
+            }`}
+          >
+            {notice}
+          </p>
+        ) : null}
 
         <section className="rounded-2xl border border-teal-400/25 bg-[#0c1a2e] p-5">
           <h2 className="text-lg font-black">إرسال دعوة رسمية</h2>
@@ -192,10 +260,7 @@ export default function FazaaListingAdminPage() {
               <li key={c.id}>
                 <button
                   type="button"
-                  onClick={() => {
-                    setSelected(c);
-                    if (c.city && !cityNameAr) setCityNameAr(c.city);
-                  }}
+                  onClick={() => selectCandidate(c)}
                   className={`w-full rounded-lg px-3 py-2 text-right ${selected?.id === c.id ? 'bg-teal-500/20' : 'hover:bg-white/5'}`}
                 >
                   {c.name} · {c.tier} · {c.city || 'بدون مدينة'} {c.hasBanner ? '· بنر جاهز' : '· بلا بنر'}
@@ -203,22 +268,40 @@ export default function FazaaListingAdminPage() {
               </li>
             ))}
           </ul>
+          {selected ? (
+            <p className="mt-3 text-sm text-slate-300">
+              الوجهة: <span className="font-bold text-teal-100">{selected.name}</span>
+              {' · '}
+              <span dir="ltr">{selected.email || 'لا يوجد بريد'}</span>
+            </p>
+          ) : null}
           <div className="mt-4 grid gap-3 md:grid-cols-2">
             <label className="text-sm">
-              رمز المدينة
-              <input value={citySlug} onChange={(e) => setCitySlug(e.target.value)} placeholder="riyadh" className="mt-1 h-11 w-full rounded-xl border border-white/10 bg-[#061223] px-3" dir="ltr" />
+              المدينة
+              <select
+                value={citySlug}
+                onChange={(e) => applyCity(e.target.value)}
+                className="mt-1 h-11 w-full rounded-xl border border-white/10 bg-[#061223] px-3"
+              >
+                <option value="">اختر المدينة</option>
+                {PLATFORM_COVERED_CITIES.map((city) => (
+                  <option key={city.id} value={city.id}>
+                    {city.nameAr}
+                  </option>
+                ))}
+              </select>
             </label>
             <label className="text-sm">
-              اسم المدينة
-              <input value={cityNameAr} onChange={(e) => setCityNameAr(e.target.value)} placeholder="الرياض" className="mt-1 h-11 w-full rounded-xl border border-white/10 bg-[#061223] px-3" />
+              اسم المدينة في الرسالة
+              <input value={cityNameAr} readOnly className="mt-1 h-11 w-full rounded-xl border border-white/10 bg-[#061223] px-3 text-slate-300" />
             </label>
             <label className="text-sm">
               رموز الأحياء
-              <input value={neighborhoods} onChange={(e) => setNeighborhoods(e.target.value)} placeholder="narjis" className="mt-1 h-11 w-full rounded-xl border border-white/10 bg-[#061223] px-3" dir="ltr" />
+              <input value={neighborhoods} onChange={(e) => setNeighborhoods(e.target.value)} placeholder="munsiyah,qurtubah" className="mt-1 h-11 w-full rounded-xl border border-white/10 bg-[#061223] px-3" dir="ltr" />
             </label>
             <label className="text-sm">
               وصف النطاق
-              <input value={areaLabelAr} onChange={(e) => setAreaLabelAr(e.target.value)} placeholder="حي النرجس" className="mt-1 h-11 w-full rounded-xl border border-white/10 bg-[#061223] px-3" />
+              <input value={areaLabelAr} onChange={(e) => setAreaLabelAr(e.target.value)} placeholder="حي المونسية وقرطبة" className="mt-1 h-11 w-full rounded-xl border border-white/10 bg-[#061223] px-3" />
             </label>
           </div>
           <button
@@ -252,6 +335,13 @@ export default function FazaaListingAdminPage() {
                 </tr>
               </thead>
               <tbody>
+                {consents.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className="px-2 py-8 text-center text-slate-400">
+                      لا توجد دعوات مسجّلة. الإرسال الفاشل لا يصل للصالون ولا يظهر هنا.
+                    </td>
+                  </tr>
+                ) : null}
                 {consents.map((row) => (
                   <tr key={row.id} className="border-t border-white/10">
                     <td className="px-2 py-2">
