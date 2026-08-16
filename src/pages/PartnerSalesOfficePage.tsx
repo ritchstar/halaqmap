@@ -17,6 +17,7 @@ import {
   PARTNER_WHY_ACTIVATE_SALES_CLOSE,
   PARTNER_WHY_ACTIVATE_SALES_PAGE,
   PARTNER_WHY_ACTIVATE_SALES_PILLARS,
+  PARTNER_WHY_ACTIVATE_SALES_UX_GATEWAY,
 } from '@/config/partnerWhyActivateSalesCopy';
 
 const MOMENTUM_STRIPS = [
@@ -204,6 +205,15 @@ export default function PartnerSalesOfficePage() {
                   </li>
                 ))}
               </ul>
+            </article>
+
+            <article className="rounded-[1.6rem] border border-cyan-200 bg-[linear-gradient(155deg,rgba(236,254,255,0.95),rgba(255,255,255,0.98))] p-5 shadow-[0_12px_28px_rgba(34,211,238,0.08)] md:p-6">
+              <h2 className="text-lg font-black leading-8 text-slate-950">
+                {PARTNER_WHY_ACTIVATE_SALES_UX_GATEWAY.title}
+              </h2>
+              <p className="mt-3 text-sm leading-8 text-slate-700 md:text-base">
+                {PARTNER_WHY_ACTIVATE_SALES_UX_GATEWAY.body}
+              </p>
             </article>
 
             {PARTNER_WHY_ACTIVATE_SALES_PILLARS.map((pillar) => (

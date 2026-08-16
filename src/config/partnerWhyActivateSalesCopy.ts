@@ -28,6 +28,13 @@ export const PARTNER_WHY_ACTIVATE_SALES_PAGE = {
   ],
 } as const;
 
+/** تجربة المستعلم — البوابة التي تجعل قنوات الوصول تعمل لصالح الشريك. */
+export const PARTNER_WHY_ACTIVATE_SALES_UX_GATEWAY = {
+  title: 'تجربة المستخدم هي البوابة الكبرى للتسويق',
+  body:
+    'ما توفّره المنصة للمستعلم لم يُعهد له من قبل: الاستعلام مجاني، بلا تسجيل، بلا إجبار على تحميل تطبيق، بلا طلب رقمه الخاص، وبلا طلب بريده. يسمح بموقعه فقط. نُظهرك له إن كنت مفعّلاً وفي محيطه. يتواصل معك من بنرك. لا وساطة ولا عمولة. التعامل بينك وبينه مباشرة.',
+} as const;
+
 export const PARTNER_WHY_ACTIVATE_SALES_PILLARS = [
   {
     id: 'google-search',
@@ -128,6 +135,9 @@ export function partnerWhyActivateSalesPlainAr(): string {
     '',
     page.frameTitle,
     ...page.frame.map((line) => `• ${line}`),
+    '',
+    PARTNER_WHY_ACTIVATE_SALES_UX_GATEWAY.title,
+    PARTNER_WHY_ACTIVATE_SALES_UX_GATEWAY.body,
     '',
     ...PARTNER_WHY_ACTIVATE_SALES_PILLARS.flatMap((p) => [pillarBlock(p), '']),
     close.title,
