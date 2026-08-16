@@ -26,7 +26,7 @@ import { PUBLIC_PULSE_EXPERIENCE_ENABLED } from '@/config/publicPulseExperience'
 import { PULSE_MAP_LINK_LABEL_AR } from '@/config/pulseMapConfig';
 import { cn } from '@/lib/utils';
 import { MOBILE_QUERY_DOCK_CLEARANCE, MOBILE_SAFE_BOTTOM_MIN } from '@/lib/mobilePageShell';
-import { PLATFORM_ECOMMERCE_AUTH_FOOTER_LINE } from '@/config/platformGrowthNarrative';
+import { LEGAL_ECOMMERCE_AUTH_FOOTER_LINE_AR } from '@/config/partnerLegal';
 import {
   VISITOR_HERO_BADGE_AR,
   VISITOR_HERO_LEAD_DESKTOP_AR,
@@ -1551,7 +1551,7 @@ export default function LandingPreview() {
             تراخيص الهيئة العامة لتنظيم الإعلام 167220 - 167221 - 167222
           </div>
           <div className="mt-2 text-center text-sm font-bold text-white/85 [text-shadow:0_0_10px_rgba(255,255,255,0.08)] sm:text-base">
-            {PLATFORM_ECOMMERCE_AUTH_FOOTER_LINE}
+            {LEGAL_ECOMMERCE_AUTH_FOOTER_LINE_AR}
           </div>
           <div className="mt-5">
             <EcommerceVerifiedFooterBadge variant="landing" />

@@ -67,9 +67,10 @@
     <script>
       (function () {
         try {
-          var flag = 'hm-sw-reset-v16';
+          var flag = 'hm-sw-reset-v17';
           if (localStorage.getItem(flag)) return;
           localStorage.setItem(flag, '1');
+          localStorage.removeItem('hm-sw-reset-v16');
           localStorage.removeItem('hm-sw-reset-v15');
           localStorage.removeItem('hm-sw-reset-v14');
           localStorage.removeItem('hm-sw-reset-v13');
@@ -91,7 +92,8 @@
           sessionStorage.removeItem('hm-sw-reset-v11-reload');
           /* بعد مسح الكاش: امنح الإقلاع البارد مهلة أطول ولا تمسح الكاش ثانيةً من الـ watchdog */
           sessionStorage.setItem('hm-boot-grace-after-sw-reset', String(Date.now()));
-          var reloadFlag = 'hm-sw-reset-v16-reload';
+          var reloadFlag = 'hm-sw-reset-v17-reload';
+          sessionStorage.removeItem('hm-sw-reset-v16-reload');
           sessionStorage.removeItem('hm-sw-reset-v15-reload');
           var tasks = [];
           if ('serviceWorker' in navigator) {

@@ -480,6 +480,7 @@ export default defineConfig(({ mode }) => {
               norm.includes('/src/components/MoyasarPaymentReturnGate') ||
               norm.includes('/src/components/RouteScopedErrorBoundary') ||
               norm.includes('/src/components/AdminAuthHashGate') ||
+              norm.includes('/src/components/consumer/ConsumerNativeShellGate') ||
               norm.includes('/src/lib/coiffeurHostRedirect')
             ) {
               return 'app-shell';
