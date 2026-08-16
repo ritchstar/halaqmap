@@ -64,10 +64,12 @@ import {
   PARTNER_SISTER_SURFACE_LINE_AR,
   PARTNER_JOIN_PATH_WHY_NOW,
 } from '@/config/partnerJoinPathCopy';
+import { PARTNER_WHY_ACTIVATE_SALES_UX_GATEWAY } from '@/config/partnerWhyActivateSalesCopy';
 import { RegisterSalonGlowIcon } from '@/components/partner/RegisterSalonGlowIcon';
 import { LEGAL_ECOMMERCE_AUTH_FOOTER_LINE_AR, PARTNER_SUPPORT_WHATSAPP_URL } from '@/config/partnerLegal';
 import { ProductEvents } from '@/lib/analytics/productAnalytics';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { SiWhatsapp } from 'react-icons/si';
 import { EcommerceVerifiedFooterBadge } from '@/components/EcommerceVerifiedFooterBadge';
 import { HalaqmapBrandMark } from '@/components/HalaqmapBrandMark';
@@ -81,6 +83,7 @@ import { PartnerOrderReceptionTicker } from '@/components/partner/PartnerOrderRe
 import { PartnerPlatformInspectionTicker } from '@/components/partner/PartnerPlatformInspectionTicker';
 import { PartnerPlatformLaunchTicker } from '@/components/partner/PartnerPlatformLaunchTicker';
 import { MobilePartnerActionDock } from '@/components/partner/MobilePartnerActionDock';
+import { PartnerSharedTrialOfferBanner } from '@/components/partner/PartnerSharedTrialOfferBanner';
 import {
   OWNER_WATCH_LISTING_DIAMOND_HIGHLIGHT_AR,
   OWNER_WATCH_LISTING_GOLD_HIGHLIGHT_AR,
@@ -524,6 +527,7 @@ export default function PartnerMarketingPreview() {
   const [activeTab, setActiveTab] = useState<'bronze' | 'gold' | 'diamond'>('gold');
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [ideaAccordion, setIdeaAccordion] = useState<string | undefined>(undefined);
+  const [ideaBriefOpen, setIdeaBriefOpen] = useState(false);
   const [deferMobilePartnerContent, setDeferMobilePartnerContent] = useState(
     () => typeof window === 'undefined' || window.innerWidth >= 768,
   );
@@ -546,14 +550,7 @@ export default function PartnerMarketingPreview() {
 
   const goToIdeaBrief = useCallback(() => {
     setMobileNavOpen(false);
-    setIdeaAccordion('how');
-    setDeferMobilePartnerContent(true);
-    window.setTimeout(() => {
-      document.getElementById(PARTNER_JOIN_PATH_HOW_IT_WORKS.id)?.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start',
-      });
-    }, 80);
+    setIdeaBriefOpen(true);
   }, []);
 
   useEffect(() => {
@@ -591,6 +588,48 @@ export default function PartnerMarketingPreview() {
       data-ambient-phase={effectivePhase}
       data-ambient-control={control}
     >
+      <Dialog open={ideaBriefOpen} onOpenChange={setIdeaBriefOpen}>
+        <DialogContent
+          dir="rtl"
+          className="max-h-[85vh] overflow-y-auto border-teal-400/30 bg-[#041018] text-slate-100 sm:max-w-lg"
+        >
+          <DialogHeader className="space-y-3 text-right">
+            <DialogTitle className="text-right text-xl font-black leading-8 text-white">
+              الفكرة باختصار
+            </DialogTitle>
+            <DialogDescription className="text-right text-sm leading-8 text-slate-300">
+              {PARTNER_WHY_ACTIVATE_SALES_UX_GATEWAY.body}
+            </DialogDescription>
+          </DialogHeader>
+          <ol className="space-y-3">
+            {PARTNER_JOIN_PATH_HOW_IT_WORKS.points.map((point) => (
+              <li key={point.title} className="rounded-xl border border-white/10 bg-white/5 px-4 py-3">
+                <p className="text-sm font-black text-teal-200">{point.title}</p>
+                <p className="mt-1 text-sm leading-7 text-slate-300">{point.body}</p>
+              </li>
+            ))}
+          </ol>
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <button
+              type="button"
+              onClick={() => {
+                setIdeaBriefOpen(false);
+                goRegister('idea_brief');
+              }}
+              className="inline-flex flex-1 items-center justify-center rounded-xl bg-gradient-to-l from-teal-500 to-cyan-500 px-4 py-3 text-sm font-black text-white"
+            >
+              {PARTNER_JOIN_PATH_PRIMARY_CTA_AR}
+            </button>
+            <Link
+              to={ROUTE_PATHS.PARTNER_SALES_OFFICE}
+              onClick={() => setIdeaBriefOpen(false)}
+              className="inline-flex flex-1 items-center justify-center rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm font-bold text-slate-100"
+            >
+              التفاصيل في مكتب المبيعات
+            </Link>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* أزرار عائمة */}
       {deferMobilePartnerContent && !isMobile ? <FloatingPlatformActions /> : null}
@@ -845,8 +884,10 @@ export default function PartnerMarketingPreview() {
 
         <div className={cn(
           'relative z-10 mx-auto max-w-7xl px-5',
-          isMobile ? 'py-10' : 'grid items-center gap-12 py-20 lg:grid-cols-2 lg:gap-20 lg:py-28',
+          isMobile ? 'py-10' : 'py-20 lg:py-28',
         )}>
+          <PartnerSharedTrialOfferBanner onRegister={() => goRegister('shared_trial_offer')} />
+          <div className={cn(!isMobile && 'grid items-center gap-12 lg:grid-cols-2 lg:gap-20')}>
           {/* Text */}
           <motion.div initial={false} animate={{ opacity: 1, x: 0 }}>
 
@@ -974,6 +1015,7 @@ export default function PartnerMarketingPreview() {
             </p>
           </motion.div>
           ) : null}
+          </div>
         </div>
 
         <motion.div animate={{ y: [0, 6, 0] }} transition={{ duration: 2, repeat: Infinity }}
