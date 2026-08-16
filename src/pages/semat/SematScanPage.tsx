@@ -4,9 +4,12 @@
 import { useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { AlertTriangle, Scissors } from 'lucide-react';
-import { useDocumentTitle } from '@/hooks/useDocumentTitle';
-import { ROUTE_PATHS } from '@/lib';
+import { cityNameAr, INQUIRER_PREFERENCE_CARD_NAME_AR } from '@/config/inquirerPreferenceCardCopy';
 import { SEMAT_CARD_PRODUCT_NAME_AR } from '@/config/sematCardLegalPolicy';
+import { useDocumentTitle } from '@/hooks/useDocumentTitle';
+import { readHashQueryParam } from '@/lib/hashQueryParams';
+import { decodeInquirerPreferenceCard } from '@/lib/inquirerPreferenceCardShare';
+import { ROUTE_PATHS } from '@/lib';
 import { readSematDraft } from '@/lib/sematCardDraft';
 import {
   SEMAT_BEARD_STYLE_OPTIONS,
@@ -27,8 +30,27 @@ function optionLabel(
 export default function SematScanPage() {
   useDocumentTitle(`${SEMAT_CARD_PRODUCT_NAME_AR} · عرض للحلاق`);
   const { publicId = '' } = useParams<{ publicId: string }>();
+  const shared = decodeInquirerPreferenceCard(readHashQueryParam('c') || '');
   const draft = readSematDraft();
-  const match = draft && draft.publicId === publicId ? draft : null;
+  const match = shared
+    ? {
+        displayName: shared.displayName,
+        cityLabel: cityNameAr(shared.cityId),
+        hairPreset: shared.hairPreset,
+        hairDetail: shared.hairDetail,
+        beardStyle: shared.beardStyle,
+        notes: shared.notes,
+      }
+    : draft && draft.publicId === publicId
+      ? {
+          displayName: draft.displayName,
+          cityLabel: '',
+          hairPreset: draft.hairPreset,
+          hairDetail: draft.hairDetail,
+          beardStyle: draft.beardStyle,
+          notes: draft.notes,
+        }
+      : null;
 
   useEffect(() => {
     const meta = document.createElement('meta');
@@ -45,7 +67,9 @@ export default function SematScanPage() {
       <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_70%_40%_at_50%_0%,rgba(20,184,166,0.1),transparent_50%)]" />
 
       <main className="relative z-10 container mx-auto max-w-lg px-4 py-10">
-        <p className="mb-2 text-center text-[10px] font-bold tracking-wide text-teal-300/80">HALAQMAP · سمات</p>
+        <p className="mb-2 text-center text-[10px] font-bold tracking-wide text-teal-300/80">
+          HALAQMAP · {shared ? INQUIRER_PREFERENCE_CARD_NAME_AR : 'سمات'}
+        </p>
         <h1 className="mb-2 text-center text-2xl font-black text-white">تفضيلات العميل</h1>
         <p className="mb-8 text-center text-sm leading-relaxed text-slate-400">
           هذه الصفحة للعرض فقط. تحقق من المقصود مع العميل عند الحاجة. الترجمة الآلية تُضاف لاحقاً.
@@ -55,13 +79,13 @@ export default function SematScanPage() {
           <div className="rounded-2xl border border-amber-400/25 bg-amber-500/5 p-6 text-center">
             <AlertTriangle className="mx-auto mb-3 h-8 w-8 text-amber-300" aria-hidden />
             <p className="text-sm leading-relaxed text-slate-300">
-              البطاقة غير متاحة على هذا الجهاز بعد. بعد ربط الخادم ستُفتح تفاصيل البطاقة المفعّلة من أي جوال.
+              الكرت غير متاح في هذا الرابط. اطلب من العميل إعادة إرسال رابط الكرت التفضيلي.
             </p>
             <Link
-              to={ROUTE_PATHS.SEMAT_LEGAL}
+              to={ROUTE_PATHS.INQUIRER_PREFERENCE_CARD}
               className="mt-5 inline-block text-sm font-medium text-amber-200 underline-offset-4 hover:underline"
             >
-              إنشاء بطاقة سمات
+              إنشاء كرت تفضيلي
             </Link>
           </div>
         ) : (
@@ -75,6 +99,7 @@ export default function SematScanPage() {
                 <p className="text-xl font-bold text-white">{match.displayName}</p>
               </div>
             </div>
+            {match.cityLabel ? <Field label="المدينة" value={match.cityLabel} /> : null}
             <Field
               label="شعر الرأس"
               value={[
@@ -84,10 +109,12 @@ export default function SematScanPage() {
                 .filter(Boolean)
                 .join(' · ')}
             />
-            <Field
-              label="اللحية"
-              value={optionLabel(SEMAT_BEARD_STYLE_OPTIONS, match.beardStyle)}
-            />
+            {match.beardStyle ? (
+              <Field
+                label="اللحية"
+                value={optionLabel(SEMAT_BEARD_STYLE_OPTIONS, match.beardStyle)}
+              />
+            ) : null}
             {match.notes ? <Field label="ملاحظات" value={match.notes} /> : null}
           </div>
         )}

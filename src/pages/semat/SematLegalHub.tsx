@@ -116,6 +116,14 @@ export default function SematLegalHub() {
             {SEMAT_CARD_LEGAL_HUB_SUBTITLE_AR}
           </p>
           <p className="mt-3 text-xs text-slate-500">نسخة السياسات: {SEMAT_CARD_POLICY_VERSION}</p>
+          <p className="mt-4">
+            <Link
+              to={ROUTE_PATHS.INQUIRER_PREFERENCE_CARD}
+              className="text-sm font-semibold text-teal-300 underline-offset-4 hover:underline"
+            >
+              أو أنشئ كرتاً تفضيلياً تجريبياً مجاناً الآن
+            </Link>
+          </p>
         </motion.div>
 
         <div className="space-y-5">

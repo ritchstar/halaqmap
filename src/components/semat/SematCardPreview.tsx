@@ -20,6 +20,10 @@ export type SematCardPreviewProps = {
   beardStyle: string;
   notes: string;
   publicId: string;
+  cityLabel?: string;
+  productNameAr?: string;
+  /** رابط المشاركة الكامل — إن وُجد يُستخدم في QR بدل مسار المسح الافتراضي */
+  shareUrl?: string;
   /** معاينة قبل الدفع: غباش على QR وبعض الحقول */
   locked?: boolean;
   referenceImageUrl?: string | null;
@@ -40,14 +44,17 @@ export function SematCardPreview({
   beardStyle,
   notes,
   publicId,
+  cityLabel,
+  productNameAr = SEMAT_CARD_PRODUCT_NAME_AR,
+  shareUrl,
   locked = true,
   referenceImageUrl,
   className,
 }: SematCardPreviewProps) {
   const scanPath = ROUTE_PATHS.SEMAT_SCAN.replace(':publicId', encodeURIComponent(publicId));
-  const scanUrl = buildAbsoluteHashRoute(scanPath);
+  const scanUrl = shareUrl || buildAbsoluteHashRoute(scanPath);
   const hairLabel = labelFor(SEMAT_HAIR_PRESET_OPTIONS, hairPreset);
-  const beardLabel = labelFor(SEMAT_BEARD_STYLE_OPTIONS, beardStyle);
+  const beardLabel = beardStyle ? labelFor(SEMAT_BEARD_STYLE_OPTIONS, beardStyle) : '';
 
   return (
     <div
@@ -66,7 +73,7 @@ export function SematCardPreview({
         <div className="mb-5 flex items-start justify-between gap-3">
           <div>
             <p className="text-[10px] font-bold tracking-[0.2em] text-amber-400/80">HALAQMAP</p>
-            <p className="mt-1 text-xs text-slate-400">{SEMAT_CARD_PRODUCT_NAME_AR}</p>
+            <p className="mt-1 text-xs text-slate-400">{productNameAr}</p>
           </div>
           <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-amber-400/30 bg-amber-500/10">
             <Sparkles className="h-5 w-5 text-amber-300" aria-hidden />
@@ -83,18 +90,28 @@ export function SematCardPreview({
         </h3>
 
         <div className="space-y-3">
+          {cityLabel ? (
+            <SpecRow
+              icon={<span className="text-xs font-bold">مدينة</span>}
+              title="المدينة"
+              body={cityLabel}
+              locked={locked}
+            />
+          ) : null}
           <SpecRow
             icon={<Scissors className="h-4 w-4" aria-hidden />}
             title="شعر الرأس"
             body={[hairLabel, hairDetail.trim()].filter(Boolean).join(' · ')}
             locked={locked}
           />
-          <SpecRow
-            icon={<span className="text-xs font-bold">ذقن</span>}
-            title="اللحية"
-            body={beardLabel}
-            locked={locked}
-          />
+          {beardLabel ? (
+            <SpecRow
+              icon={<span className="text-xs font-bold">ذقن</span>}
+              title="اللحية"
+              body={beardLabel}
+              locked={locked}
+            />
+          ) : null}
           {notes.trim() ? (
             <SpecRow
               icon={<span className="text-xs font-bold">ملاحظة</span>}

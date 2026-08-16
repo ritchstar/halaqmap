@@ -130,6 +130,7 @@ const PrivateOfficeGuide = lazy(() => import("@/pages/PrivateOfficeGuide"));
 const SematLegalHub = lazy(() => import("@/pages/semat/SematLegalHub"));
 const SematCardSetup = lazy(() => import("@/pages/semat/SematCardSetup"));
 const SematScanPage = lazy(() => import("@/pages/semat/SematScanPage"));
+const InquirerPreferenceCardLanding = lazy(() => import("@/pages/semat/InquirerPreferenceCardLanding"));
 const AmbassadorRulesHub = lazy(() => import("@/pages/ambassador/AmbassadorRulesHub"));
 const AmbassadorEnter = lazy(() => import("@/pages/ambassador/AmbassadorEnter"));
 const AmbassadorDashboard = lazy(() => import("@/pages/ambassador/AmbassadorDashboard"));
@@ -619,6 +620,7 @@ export function App() {
           <Route path={ROUTE_PATHS.SEMAT_LEGAL} element={<LazyRoute><SematLegalHub /></LazyRoute>} />
           <Route path={ROUTE_PATHS.SEMAT_SETUP} element={<LazyRoute><SematCardSetup /></LazyRoute>} />
           <Route path={ROUTE_PATHS.SEMAT_SCAN} element={<LazyRoute><SematScanPage /></LazyRoute>} />
+          <Route path={ROUTE_PATHS.INQUIRER_PREFERENCE_CARD} element={<LazyRoute><InquirerPreferenceCardLanding /></LazyRoute>} />
           <Route
             path={ROUTE_PATHS.AMBASSADOR_HOME}
             element={<Navigate to={ROUTE_PATHS.AMBASSADOR_ENTER} replace />}

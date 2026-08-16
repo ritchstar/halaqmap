@@ -170,6 +170,8 @@ export const ROUTE_PATHS = {
   SEMAT_SETUP: '/semat/setup',
   /** بطاقة سمات — صفحة المسح للحلاق (عرض فقط) */
   SEMAT_SCAN: '/s/:publicId',
+  /** كرت تفضيلي للمستعلم — إنتاج تجريبي مجاني فوق سمات */
+  INQUIRER_PREFERENCE_CARD: '/card',
   /**
    * جذر سفراء المنصة — يُعاد توجيهه إلى صفحة الدخول/الطلب.
    * يدعم الروابط النظيفة: https://www.halaqmap.com/ambassadors
