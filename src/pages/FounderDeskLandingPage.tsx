@@ -4,7 +4,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Hourglass, Loader2, MessageCircle, Send } from 'lucide-react';
 import { FounderDeskBanner } from '@/components/partner/FounderDeskBanner';
-import { FOUNDER_DESK_COPY, FOUNDER_DESK_MAX_BODY } from '@/config/founderDeskCopy';
+import { FOUNDER_DESK_ADMIN_COPY, FOUNDER_DESK_COPY, FOUNDER_DESK_MAX_BODY } from '@/config/founderDeskCopy';
 import { getSupabaseClient, isSupabaseConfigured } from '@/integrations/supabase/client';
 import { resolveAdminAccess } from '@/lib/adminAccessRemote';
 import {
@@ -131,9 +131,9 @@ function FounderDeskInbox() {
         <div>
           <h1 className="flex items-center gap-2 text-xl font-black text-[#184955]">
             <MessageCircle className="h-5 w-5" />
-            {FOUNDER_DESK_COPY.inboxTitleAr}
+            {FOUNDER_DESK_ADMIN_COPY.inboxTitleAr}
           </h1>
-          <p className="mt-1 text-xs leading-6 text-slate-600">{FOUNDER_DESK_COPY.inboxHintAr}</p>
+          <p className="mt-1 text-xs leading-6 text-slate-600">{FOUNDER_DESK_ADMIN_COPY.inboxHintAr}</p>
         </div>
         {selected ? (
           <span className="inline-flex items-center gap-1 rounded-full bg-[#18687a]/10 px-2 py-1 text-[0.65rem] font-bold text-[#18687a]">
@@ -145,7 +145,7 @@ function FounderDeskInbox() {
 
       {tableMissing ? (
         <p className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
-          {hint || FOUNDER_DESK_COPY.tableMissingAr}
+          {hint || FOUNDER_DESK_ADMIN_COPY.tableMissingAr}
         </p>
       ) : null}
       {notice ? <p className="mb-3 text-sm text-rose-700">{notice}</p> : null}
@@ -154,7 +154,7 @@ function FounderDeskInbox() {
         <aside className="space-y-2">
           {conversations.length === 0 ? (
             <p className="rounded-xl border border-dashed border-slate-200 p-3 text-center text-xs text-slate-500">
-              {FOUNDER_DESK_COPY.inboxEmptyAr}
+              {FOUNDER_DESK_ADMIN_COPY.inboxEmptyAr}
             </p>
           ) : (
             conversations.map((row) => (
@@ -201,7 +201,7 @@ function FounderDeskInbox() {
                       )}
                     >
                       <p className="mb-1 text-[10px] opacity-80">
-                        {mine ? FOUNDER_DESK_COPY.founderAr : FOUNDER_DESK_COPY.visitorAr}
+                        {mine ? FOUNDER_DESK_ADMIN_COPY.founderAr : FOUNDER_DESK_COPY.visitorAr}
                       </p>
                       <p dir="rtl" className="chat-arabic-text whitespace-pre-wrap break-words">
                         {message.body}
@@ -245,7 +245,9 @@ function FounderDeskInbox() {
 
 export default function FounderDeskLandingPage() {
   const [phase, setPhase] = useState<Phase>('loading');
-  useNoIndexTitle('حلاق ماب — مكتب المؤسس');
+  useNoIndexTitle(
+    phase === 'inbox' ? FOUNDER_DESK_ADMIN_COPY.pageTitleAr : FOUNDER_DESK_COPY.visitorPageTitleAr,
+  );
 
   useEffect(() => {
     let cancelled = false;

@@ -161,7 +161,7 @@ export function FounderDeskVisitorChat({ className, compact }: Props) {
                   )}
                 >
                   <p className="mb-1 text-[10px] opacity-80">
-                    {mine ? FOUNDER_DESK_COPY.youAr : FOUNDER_DESK_COPY.founderAr}
+                    {mine ? FOUNDER_DESK_COPY.youAr : FOUNDER_DESK_COPY.deskReplyAr}
                   </p>
                   <p dir="rtl" className="chat-arabic-text whitespace-pre-wrap break-words">
                     {message.body}
