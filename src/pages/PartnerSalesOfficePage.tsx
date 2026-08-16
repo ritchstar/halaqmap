@@ -13,6 +13,11 @@ import { PartnerOrderReceptionTicker } from '@/components/partner/PartnerOrderRe
 import { PartnerPlatformInspectionTicker } from '@/components/partner/PartnerPlatformInspectionTicker';
 import { PartnerPlatformLaunchTicker } from '@/components/partner/PartnerPlatformLaunchTicker';
 import { PARTNER_LAYOUT_FOOTER_LINE } from '@/lib/partnerMarketingCopy';
+import {
+  PARTNER_WHY_ACTIVATE_SALES_CLOSE,
+  PARTNER_WHY_ACTIVATE_SALES_PAGE,
+  PARTNER_WHY_ACTIVATE_SALES_PILLARS,
+} from '@/config/partnerWhyActivateSalesCopy';
 
 const MOMENTUM_STRIPS = [
   'المنصة تملك جماهيرية بحث وسيوًا واسعاً — والمزيد من المستعلمين في الطريق.',
@@ -176,6 +181,53 @@ export default function PartnerSalesOfficePage() {
             <ArrowLeft className="h-4 w-4" />
             العودة لصفحة الشركاء
           </Link>
+
+          <section className="mb-8 space-y-4" aria-labelledby="sales-why-activate-title">
+            <article className="rounded-[1.8rem] border border-amber-200/80 bg-white/95 p-5 shadow-[0_18px_38px_rgba(245,158,11,0.08)] md:p-7">
+              <p className="text-[0.72rem] font-black tracking-[0.14em] text-amber-700">
+                {PARTNER_WHY_ACTIVATE_SALES_PAGE.kicker}
+              </p>
+              <h1 id="sales-why-activate-title" className="mt-2 text-2xl font-black leading-10 text-slate-950 md:text-3xl">
+                {PARTNER_WHY_ACTIVATE_SALES_PAGE.title}
+              </h1>
+              <p className="mt-4 text-sm leading-8 text-slate-700 md:text-base">
+                {PARTNER_WHY_ACTIVATE_SALES_PAGE.lead}
+              </p>
+            </article>
+
+            <article className="rounded-[1.6rem] border border-slate-200 bg-white/90 p-5 md:p-6">
+              <h2 className="text-lg font-black text-slate-950">{PARTNER_WHY_ACTIVATE_SALES_PAGE.frameTitle}</h2>
+              <ul className="mt-3 space-y-2.5">
+                {PARTNER_WHY_ACTIVATE_SALES_PAGE.frame.map((line) => (
+                  <li key={line} className="text-sm leading-8 text-slate-700">
+                    {line}
+                  </li>
+                ))}
+              </ul>
+            </article>
+
+            {PARTNER_WHY_ACTIVATE_SALES_PILLARS.map((pillar) => (
+              <article
+                key={pillar.id}
+                className="rounded-[1.6rem] border border-slate-200 bg-white/90 p-5 shadow-[0_12px_28px_rgba(148,163,184,0.08)] md:p-6"
+              >
+                <p className="text-[0.72rem] font-black text-emerald-700">{pillar.numeralAr}</p>
+                <h2 className="mt-1 text-lg font-black leading-8 text-slate-950">{pillar.title}</h2>
+                <p className="mt-3 text-sm leading-8 text-slate-700">{pillar.body}</p>
+                <p className="mt-4 rounded-2xl border border-emerald-100 bg-emerald-50/80 px-4 py-3 text-sm font-semibold leading-8 text-emerald-950">
+                  الفائدة لصالونك: {pillar.benefit}
+                </p>
+              </article>
+            ))}
+
+            <article className="rounded-[1.6rem] border border-amber-200 bg-[linear-gradient(155deg,rgba(255,251,235,0.98),rgba(255,255,255,0.98))] p-5 md:p-6">
+              <h2 className="text-lg font-black text-slate-950">{PARTNER_WHY_ACTIVATE_SALES_CLOSE.title}</h2>
+              <p className="mt-3 text-sm leading-8 text-slate-700">{PARTNER_WHY_ACTIVATE_SALES_CLOSE.body}</p>
+              <p className="mt-3 text-sm leading-8 text-slate-600">{PARTNER_WHY_ACTIVATE_SALES_CLOSE.disclaimer}</p>
+              <p className="mt-4 text-base font-black text-amber-800">{PARTNER_WHY_ACTIVATE_SALES_CLOSE.cta}</p>
+            </article>
+          </section>
+
           <SalesOfficeSaudiStyleChat />
 
           <section className="mt-8 space-y-5 pb-10">
