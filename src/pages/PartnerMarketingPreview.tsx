@@ -84,6 +84,7 @@ import { PartnerPlatformInspectionTicker } from '@/components/partner/PartnerPla
 import { PartnerPlatformLaunchTicker } from '@/components/partner/PartnerPlatformLaunchTicker';
 import { MobilePartnerActionDock } from '@/components/partner/MobilePartnerActionDock';
 import { PartnerSharedTrialOfferBanner } from '@/components/partner/PartnerSharedTrialOfferBanner';
+import { FounderDeskBanner } from '@/components/partner/FounderDeskBanner';
 import {
   OWNER_WATCH_LISTING_DIAMOND_HIGHLIGHT_AR,
   OWNER_WATCH_LISTING_GOLD_HIGHLIGHT_AR,
@@ -964,6 +965,10 @@ export default function PartnerMarketingPreview() {
             <p className="mt-3 max-w-xl text-xs leading-relaxed text-slate-400 sm:text-sm">
               {PARTNER_JOIN_PATH_APP_HINT_AR}
             </p>
+
+            <div className="mt-8">
+              <FounderDeskBanner />
+            </div>
 
           </motion.div>
 

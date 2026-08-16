@@ -114,6 +114,11 @@ export const ROUTE_PATHS = {
    * لا تُضاف روابط لها في الرئيسية أو مسار الخدمات البرمجية للمنصة أو القوائم.
    */
   INTERNAL_PARTNER_PATH_PRINT_CARD: '/m/hm-partner-path-card-q7',
+  /**
+   * مكتب المؤسس — بنر + شات ٦٠ دقيقة، ومستقبل المحادثات.
+   * noindex، بدون رابط من القوائم العامة.
+   */
+  FOUNDER_DESK_LANDING: '/m/hm-desk-k7q3',
   /** معاينة فواتير رخصة النفاذ (PDF) — داخلي، بدون ربط من القوائم */
   INVOICE_PREVIEW_SAMPLES: '/m/invoice-preview-samples',
   /** صفحة هبوط تسويقية — عرض شرائح قصة المنصة (B2C · حملات · مشاركة) */

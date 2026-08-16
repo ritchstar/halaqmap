@@ -169,6 +169,9 @@ function rateLimitMaxForRoute(routeId: string): number {
   if (routeId === 'customer-private-chat') {
     return envInt('CUSTOMER_PRIVATE_CHAT_RATE_LIMIT_MAX', 30);
   }
+  if (routeId === 'founder-desk-chat') {
+    return envInt('FOUNDER_DESK_CHAT_RATE_LIMIT_MAX', 24);
+  }
   if (routeId === 'diamond-appointment-booking') {
     return envInt('DIAMOND_APPOINTMENT_BOOKING_RATE_LIMIT_MAX', 20);
   }
