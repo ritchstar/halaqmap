@@ -1,8 +1,8 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
-import { useEffect, useMemo, useState } from 'react';
-import { Hourglass, Loader2, MessageCircle, Send } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Bell, Hourglass, Loader2, MessageCircle, Send, Volume2 } from 'lucide-react';
 import { FounderDeskBanner } from '@/components/partner/FounderDeskBanner';
 import { FOUNDER_DESK_ADMIN_COPY, FOUNDER_DESK_COPY, FOUNDER_DESK_MAX_BODY } from '@/config/founderDeskCopy';
 import { getSupabaseClient, isSupabaseConfigured } from '@/integrations/supabase/client';
@@ -12,8 +12,13 @@ import {
   listFounderDeskInboxMessages,
   sendFounderDeskInboxReply,
 } from '@/lib/adminFounderDeskRemote';
+import { DEFAULT_BARBER_CHAT_ALERT_PREFS } from '@/lib/barberDashboardChatAlertPrefs';
+import {
+  playBarberChatAlert,
+  unlockBarberChatAudioFromGesture,
+} from '@/lib/barberDashboardChatAlertSound';
 import type { FounderDeskConversation, FounderDeskMessage } from '@/lib/founderDeskChatRemote';
-import { isPollingTabActive, POLL_MS } from '@/lib/pollingPolicy';
+import { POLL_MS } from '@/lib/pollingPolicy';
 import { cn } from '@/lib/utils';
 
 type Phase = 'loading' | 'visitor' | 'inbox';
@@ -48,6 +53,10 @@ function useNoIndexTitle(title: string) {
   }, [title]);
 }
 
+function conversationHasVisitorSignal(row: FounderDeskConversation): boolean {
+  return (row.unread_visitor ?? 0) > 0 || Boolean(row.visitor_preview?.trim());
+}
+
 function FounderDeskInbox() {
   const [conversations, setConversations] = useState<FounderDeskConversation[]>([]);
   const [tableMissing, setTableMissing] = useState(false);
@@ -58,11 +67,64 @@ function FounderDeskInbox() {
   const [draft, setDraft] = useState('');
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState('');
+  const [flashIds, setFlashIds] = useState<string[]>([]);
+  const [alertBanner, setAlertBanner] = useState('');
+  const [soundReady, setSoundReady] = useState(false);
+  const seenRef = useRef<{
+    ready: boolean;
+    ids: Set<string>;
+    unread: Map<string, number>;
+  }>({ ready: false, ids: new Set(), unread: new Map() });
+  const flashTimerRef = useRef<number>(0);
+  const bannerTimerRef = useRef<number>(0);
+  const lastVisitorCountRef = useRef(0);
+  const selectedIdRef = useRef<string | null>(null);
+  selectedIdRef.current = selectedId;
 
   const selected = useMemo(
     () => conversations.find((row) => row.id === selectedId) ?? null,
     [conversations, selectedId],
   );
+  const unreadTotal = useMemo(
+    () => conversations.reduce((sum, row) => sum + (row.unread_visitor ?? 0), 0),
+    [conversations],
+  );
+
+  const rememberSnapshot = (rows: FounderDeskConversation[]) => {
+    seenRef.current.ids = new Set(rows.map((row) => row.id));
+    seenRef.current.unread = new Map(rows.map((row) => [row.id, row.unread_visitor ?? 0]));
+    seenRef.current.ready = true;
+  };
+
+  const signalArrival = (ids: string[], kind: 'new' | 'reply') => {
+    if (!ids.length) return;
+    void playBarberChatAlert('message', DEFAULT_BARBER_CHAT_ALERT_PREFS);
+    setFlashIds(ids);
+    setAlertBanner(kind === 'new' ? FOUNDER_DESK_ADMIN_COPY.newArrivalAr : FOUNDER_DESK_ADMIN_COPY.newReplyAr);
+    window.clearTimeout(flashTimerRef.current);
+    window.clearTimeout(bannerTimerRef.current);
+    flashTimerRef.current = window.setTimeout(() => setFlashIds([]), 8000);
+    bannerTimerRef.current = window.setTimeout(() => setAlertBanner(''), 7000);
+  };
+
+  const detectArrivals = (rows: FounderDeskConversation[]) => {
+    if (!seenRef.current.ready) {
+      rememberSnapshot(rows);
+      return;
+    }
+    const newIds: string[] = [];
+    const replyIds: string[] = [];
+    for (const row of rows) {
+      const unread = row.unread_visitor ?? 0;
+      const known = seenRef.current.ids.has(row.id);
+      const prevUnread = seenRef.current.unread.get(row.id) ?? 0;
+      if (!known && conversationHasVisitorSignal(row)) newIds.push(row.id);
+      else if (known && unread > prevUnread && row.id !== selectedIdRef.current) replyIds.push(row.id);
+    }
+    rememberSnapshot(rows);
+    if (newIds.length) signalArrival(newIds, 'new');
+    else if (replyIds.length) signalArrival(replyIds, 'reply');
+  };
 
   const loadInbox = async () => {
     const payload = await fetchFounderDeskInbox();
@@ -72,6 +134,7 @@ function FounderDeskInbox() {
     }
     setTableMissing(payload.tableMissing);
     setHint(payload.hint || '');
+    detectArrivals(payload.conversations);
     setConversations(payload.conversations);
     setSelectedId((prev) => {
       if (prev && payload.conversations.some((row) => row.id === prev)) return prev;
@@ -85,6 +148,11 @@ function FounderDeskInbox() {
       setNotice(result.error);
       return;
     }
+    const visitorCount = result.messages.filter((message) => message.sender === 'visitor').length;
+    if (lastVisitorCountRef.current > 0 && visitorCount > lastVisitorCountRef.current) {
+      signalArrival([id], 'reply');
+    }
+    lastVisitorCountRef.current = visitorCount;
     setMessages(result.messages);
     setExpired(result.expired);
   };
@@ -94,6 +162,7 @@ function FounderDeskInbox() {
   }, []);
 
   useEffect(() => {
+    lastVisitorCountRef.current = 0;
     if (!selectedId) {
       setMessages([]);
       return;
@@ -103,12 +172,23 @@ function FounderDeskInbox() {
 
   useEffect(() => {
     const timer = window.setInterval(() => {
-      if (!isPollingTabActive()) return;
       void loadInbox();
       if (selectedId) void loadMessages(selectedId);
     }, POLL_MS.PRIVATE_CHAT_LIST);
     return () => window.clearInterval(timer);
   }, [selectedId]);
+
+  useEffect(() => {
+    return () => {
+      window.clearTimeout(flashTimerRef.current);
+      window.clearTimeout(bannerTimerRef.current);
+    };
+  }, []);
+
+  useEffect(() => {
+    const base = FOUNDER_DESK_ADMIN_COPY.pageTitleAr;
+    document.title = unreadTotal > 0 ? `(${unreadTotal}) ${base}` : base;
+  }, [unreadTotal]);
 
   const reply = async () => {
     if (!selectedId || !draft.trim() || busy || expired) return;
@@ -132,16 +212,46 @@ function FounderDeskInbox() {
           <h1 className="flex items-center gap-2 text-xl font-black text-[#184955]">
             <MessageCircle className="h-5 w-5" />
             {FOUNDER_DESK_ADMIN_COPY.inboxTitleAr}
+            {unreadTotal > 0 ? (
+              <span className="inline-flex animate-pulse items-center gap-1 rounded-full bg-rose-600 px-2 py-0.5 text-[0.65rem] font-black text-white">
+                <Bell className="h-3 w-3" />
+                {unreadTotal} {FOUNDER_DESK_ADMIN_COPY.unreadLabelAr}
+              </span>
+            ) : null}
           </h1>
           <p className="mt-1 text-xs leading-6 text-slate-600">{FOUNDER_DESK_ADMIN_COPY.inboxHintAr}</p>
         </div>
-        {selected ? (
-          <span className="inline-flex items-center gap-1 rounded-full bg-[#18687a]/10 px-2 py-1 text-[0.65rem] font-bold text-[#18687a]">
-            <Hourglass className="h-3 w-3" />
-            {remainingLabel(selected.expires_at)}
-          </span>
-        ) : null}
+        <div className="flex shrink-0 flex-col items-end gap-2">
+          <button
+            type="button"
+            onClick={() => {
+              unlockBarberChatAudioFromGesture();
+              setSoundReady(true);
+            }}
+            className={cn(
+              'inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[0.65rem] font-bold',
+              soundReady
+                ? 'border-emerald-300 bg-emerald-50 text-emerald-800'
+                : 'border-amber-300 bg-amber-50 text-amber-900',
+            )}
+          >
+            <Volume2 className="h-3 w-3" />
+            {soundReady ? FOUNDER_DESK_ADMIN_COPY.soundReadyAr : FOUNDER_DESK_ADMIN_COPY.enableSoundAr}
+          </button>
+          {selected ? (
+            <span className="inline-flex items-center gap-1 rounded-full bg-[#18687a]/10 px-2 py-1 text-[0.65rem] font-bold text-[#18687a]">
+              <Hourglass className="h-3 w-3" />
+              {remainingLabel(selected.expires_at)}
+            </span>
+          ) : null}
+        </div>
       </div>
+
+      {alertBanner ? (
+        <p className="mb-3 animate-pulse rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-bold text-rose-800">
+          {alertBanner}
+        </p>
+      ) : null}
 
       {tableMissing ? (
         <p className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
@@ -167,6 +277,7 @@ function FounderDeskInbox() {
                   selectedId === row.id
                     ? 'border-[#18687a] bg-[#18687a]/8 text-[#184955]'
                     : 'border-slate-200 bg-white text-slate-700',
+                  flashIds.includes(row.id) && 'animate-pulse ring-2 ring-rose-400',
                 )}
               >
                 <div className="flex items-center justify-between gap-2">

@@ -42,4 +42,9 @@ export const FOUNDER_DESK_ADMIN_COPY = {
   inboxEmptyAr: 'لا محادثات بعد.',
   tableMissingAr: 'طبّق ترحيل القاعدة `161_founder_desk_chat.sql` ثم أعد التحميل.',
   pageTitleAr: 'حلاق ماب — مكتب المؤسس',
+  newArrivalAr: 'وصلت محادثة جديدة.',
+  newReplyAr: 'وصلت رسالة جديدة من زائر.',
+  enableSoundAr: 'تفعيل الصوت',
+  soundReadyAr: 'الصوت جاهز',
+  unreadLabelAr: 'غير مقروء',
 } as const;
