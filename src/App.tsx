@@ -101,8 +101,22 @@ const ShopOpenStatusRotateRequest = lazy(() => import("@/pages/ShopOpenStatusRot
 const ShopOpenStatusRotateConfirm = lazy(() => import("@/pages/ShopOpenStatusRotateConfirm"));
 const BarberGrowthLanding = lazy(() => import("@/pages/BarberGrowthLanding"));
 const InternalPartnerPathPrintCard = lazy(() => import("@/pages/InternalPartnerPathPrintCard"));
-const FounderDeskLandingPage = lazy(() => import("@/pages/FounderDeskLandingPage"));
-const FounderDeskVisitorChatPage = lazy(() => import("@/pages/FounderDeskVisitorChatPage"));
+const FounderDeskLandingPage = lazy(async () => {
+  const mod = await import("@/pages/FounderDeskLandingPage");
+  const C = mod.default;
+  if (typeof C !== "function") {
+    throw new Error("FounderDeskLandingPage failed to load");
+  }
+  return { default: C };
+});
+const FounderDeskVisitorChatPage = lazy(async () => {
+  const mod = await import("@/pages/FounderDeskVisitorChatPage");
+  const C = mod.default;
+  if (typeof C !== "function") {
+    throw new Error("FounderDeskVisitorChatPage failed to load");
+  }
+  return { default: C };
+});
 const InvoicePreviewSamples = lazy(() => import("@/pages/InvoicePreviewSamples"));
 const GrowthPitchDeckPage = lazy(() => import("@/pages/GrowthPitchDeckPage"));
 const PlatformDiscoverLandingPage = lazy(() => import("@/pages/PlatformDiscoverLandingPage"));

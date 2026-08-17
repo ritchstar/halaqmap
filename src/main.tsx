@@ -6,7 +6,7 @@ import type { ComponentType } from 'react'
 import './index.css'
 import { ensureDomainVerificationMeta } from '@/config/domainVerification'
 import { RootErrorBoundary } from '@/components/RootErrorBoundary'
-import { initPlatformBuildSync } from '@/lib/platformBuildSync'
+import { initPlatformBuildSync, forceHardRefresh } from '@/lib/platformBuildSync'
 import { assertRuntimeEnvSafety } from '@/config/runtimeEnvGuard'
 import { applyPlatformDocumentLocale } from '@/lib/platformLocale'
 
@@ -259,18 +259,12 @@ function renderBootstrapFailure(rootEl: HTMLElement, reason: unknown): void {
         className="rounded-xl border border-cyan-400/40 bg-cyan-500/10 px-5 py-2 text-sm font-semibold text-cyan-200"
         onClick={() => {
           try {
-            if ('serviceWorker' in navigator) {
-              void navigator.serviceWorker.getRegistrations().then((regs) =>
-                Promise.all(regs.map((r) => r.unregister())),
-              )
-            }
-            if ('caches' in window) {
-              void caches.keys().then((keys) => Promise.all(keys.map((k) => caches.delete(k))))
-            }
+            localStorage.removeItem('hm-sw-reset-v18')
+            localStorage.removeItem('hm-sw-reset-v17')
           } catch {
             /* ignore */
           }
-          window.location.reload()
+          void forceHardRefresh().catch(() => window.location.reload())
         }}
       >
         إعادة التحميل

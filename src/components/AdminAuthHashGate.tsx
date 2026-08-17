@@ -7,7 +7,7 @@ import { getSupabaseClient, isSupabaseConfigured } from '@/integrations/supabase
 import { getAdminDashboardPath, getAdminLoginPath } from '@/config/adminAuth';
 import { resolveAdminAccess } from '@/lib/adminAccessRemote';
 import { fetchAdminSentinelPreflight } from '@/lib/adminSentinelRemote';
-import { ROUTE_PATHS } from '@/lib';
+import { ROUTE_PATHS } from '@/lib/routePaths';
 
 function authReturnNeedsHandling(): boolean {
   if (typeof window === 'undefined') return false;

@@ -3,7 +3,7 @@
  */
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ROUTE_PATHS } from '@/lib';
+import { ROUTE_PATHS } from '@/lib/routePaths';
 import {
   PRICING_POLICY_SECTION_ID,
   REFUND_POLICY_SECTION_ID,

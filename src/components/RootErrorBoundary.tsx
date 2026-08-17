@@ -12,6 +12,8 @@ const RECOVER_FLAG = 'hm-dom-recover-v2';
 const AMBIENT_RECOVER_FLAG = 'hm-ambient-recover-v1';
 const REACT_HOOK_RECOVER_FLAG = 'hm-react-hook-recover-v1';
 const LAZY_DEFAULT_RECOVER_FLAG = 'hm-lazy-default-recover-v1';
+/** يجب أن يطابق علم المسح النووي في `index.html` */
+const ACTIVE_SW_RESET_FLAG = 'hm-sw-reset-v18';
 
 function isDomRemoveChildError(error: Error): boolean {
   return /removeChild/i.test(error.message) || /not a child of this node/i.test(error.message);
@@ -31,19 +33,49 @@ function isAmbientProviderError(error: Error): boolean {
 
 /** حلقة lazy / كاش SW قديم بعد النشر — غالباً `reading 'default'` */
 function isLazyDefaultExportError(error: Error): boolean {
+  const msg = error.message;
   return (
-    /reading ['"]default['"]/i.test(error.message) ||
-    /failed to load$/i.test(error.message) ||
-    /AdminDashboard failed to load/i.test(error.message) ||
-    /BarberDashboard failed to load/i.test(error.message) ||
-    /LandingPreview failed to load/i.test(error.message) ||
-    /normalizeLocationHash/i.test(error.message)
+    /reading ['"]default['"]/i.test(msg) ||
+    /AdminDashboard failed to load/i.test(msg) ||
+    /BarberDashboard failed to load/i.test(msg) ||
+    /LandingPreview failed to load/i.test(msg) ||
+    /FounderDeskLandingPage failed to load/i.test(msg) ||
+    /FounderDeskVisitorChatPage failed to load/i.test(msg) ||
+    /LandingAgentPanelBody failed to load/i.test(msg) ||
+    /normalizeLocationHash/i.test(msg) ||
+    // رسائل React.lazy / Vite عند فشل الحزمة — أضيق من `/failed to load$/`
+    /failed to fetch dynamically imported module/i.test(msg) ||
+    /Importing a module script failed/i.test(msg) ||
+    /ChunkLoadError/i.test(msg) ||
+    /Loading chunk [\w.-]+ failed/i.test(msg)
   );
 }
 
 function currentRecoverPathKey(): string {
   if (typeof window === 'undefined') return '';
   return `${window.location.pathname}${window.location.search}${window.location.hash}`;
+}
+
+function clearRecoverSessionFlags(): void {
+  if (typeof window === 'undefined') return;
+  const pathKey = currentRecoverPathKey();
+  try {
+    sessionStorage.removeItem(RECOVER_FLAG);
+    sessionStorage.removeItem(`${RECOVER_FLAG}:${pathKey}`);
+    sessionStorage.removeItem(AMBIENT_RECOVER_FLAG);
+    sessionStorage.removeItem(`${AMBIENT_RECOVER_FLAG}:${pathKey}`);
+    sessionStorage.removeItem(REACT_HOOK_RECOVER_FLAG);
+    sessionStorage.removeItem(`${REACT_HOOK_RECOVER_FLAG}:${pathKey}`);
+    sessionStorage.removeItem(LAZY_DEFAULT_RECOVER_FLAG);
+    sessionStorage.removeItem(`${LAZY_DEFAULT_RECOVER_FLAG}:${pathKey}`);
+    // أعد تفعيل المسح النووي في index.html عند الإقلاع التالي
+    localStorage.removeItem(ACTIVE_SW_RESET_FLAG);
+    localStorage.removeItem('hm-sw-reset-v17');
+    localStorage.removeItem('hm-sw-reset-v5');
+    localStorage.removeItem('hm-sw-reset-v3');
+  } catch {
+    /* ignore */
+  }
 }
 
 /** يمنع الشاشة البيضاء الصامتة ويعرض رسالة خطأ قابلة للفهم */
@@ -122,29 +154,10 @@ export class RootErrorBoundary extends Component<Props, State> {
   }
 
   private handleRecoverClick = (): void => {
-    try {
-      sessionStorage.removeItem(RECOVER_FLAG);
-      sessionStorage.removeItem(`${RECOVER_FLAG}:${currentRecoverPathKey()}`);
-      sessionStorage.removeItem(AMBIENT_RECOVER_FLAG);
-      sessionStorage.removeItem(`${AMBIENT_RECOVER_FLAG}:${currentRecoverPathKey()}`);
-      sessionStorage.removeItem(REACT_HOOK_RECOVER_FLAG);
-      sessionStorage.removeItem(`${REACT_HOOK_RECOVER_FLAG}:${currentRecoverPathKey()}`);
-      sessionStorage.removeItem(LAZY_DEFAULT_RECOVER_FLAG);
-      sessionStorage.removeItem(`${LAZY_DEFAULT_RECOVER_FLAG}:${currentRecoverPathKey()}`);
-      localStorage.removeItem('hm-sw-reset-v5');
-      localStorage.removeItem('hm-sw-reset-v3');
-      if ('serviceWorker' in navigator) {
-        void navigator.serviceWorker.getRegistrations().then((regs) =>
-          Promise.all(regs.map((r) => r.unregister())),
-        );
-      }
-      if ('caches' in window) {
-        void caches.keys().then((keys) => Promise.all(keys.map((k) => caches.delete(k))));
-      }
-    } catch {
-      /* ignore */
-    }
-    window.location.reload();
+    clearRecoverSessionFlags();
+    void forceHardRefresh().catch(() => {
+      window.location.reload();
+    });
   };
 
   render() {
