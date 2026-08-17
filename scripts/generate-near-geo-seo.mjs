@@ -274,10 +274,10 @@ function jsonLdGraph({ node, path, city, directions, neighborhoods, faqs, pageNa
 function renderPage({ node, nodes, isHub = false }) {
   if (isHub) {
     const cities = nodes.filter((n) => n.kind === 'city').sort((a, b) => b.priority - a.priority);
-    // عنوان يبدأ بعبارات GSC ذات أعلى نقر عضوي: اقرب حلاق · حلاق قريب
-    const title = 'اقرب حلاق · ابحث من موقعك | حلاق ماب';
+    // دليل مدن/أحياء — لا يزاحم /need/near-me على «حلاق قريب مني / من موقعك».
+    const title = 'أقرب حلاق حسب المدينة والحي | حلاق ماب';
     const description =
-      'ابحث من موقعك عن أقرب حلاق قريب منك. استعلام لحظي من حلاق ماب دون اختيار مسارات أو فلاتر مسبقة.';
+      'اختر مدينتك أو حيك ثم اعثر على أقرب حلاق رجالي. صفحات الرياض وجدة ومكة والمدينة وأكثر. بلا تطبيق وبلا حساب.';
     const canonical = `${ORIGIN}/near`;
     const cityLinks = linkList(cities);
     const graph = {
@@ -306,9 +306,9 @@ function renderPage({ node, nodes, isHub = false }) {
       title,
       description,
       canonical,
-      h1: 'اقرب حلاق من موقعك',
+      h1: 'أقرب حلاق حسب المدينة والحي',
       bodyInner: `
-        <p class="lead">ابحث من موقعك الآن — نعرض أقرب حلاق يناسب مكانك دون أن تختار مساراً أو فلترًا مسبقاً.</p>
+        <p class="lead">اختر المدينة أو الحي، ثم ابحث عن أقرب حلاق رجالي حولك.</p>
         ${inquireCtaHtml()}
         <section>
           <h2>مدن يمكن البحث منها</h2>

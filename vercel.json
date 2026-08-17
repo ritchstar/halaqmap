@@ -67,6 +67,21 @@
       "source": "/near/riyadh/manfuha/",
       "destination": "/near/riyadh/hittin",
       "permanent": true
+    },
+    {
+      "source": "/near/",
+      "destination": "/near",
+      "permanent": true
+    },
+    {
+      "source": "/need/near-me/",
+      "destination": "/need/near-me",
+      "permanent": true
+    },
+    {
+      "source": "/need/open-now/",
+      "destination": "/need/open-now",
+      "permanent": true
     }
   ],
   "rewrites": [
