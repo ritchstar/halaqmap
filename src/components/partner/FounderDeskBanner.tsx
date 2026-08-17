@@ -13,7 +13,6 @@ import {
 } from '@/config/barberBannerImagePolicy';
 import { FOUNDER_DESK_COPY, FOUNDER_DESK_WHATSAPP_E164 } from '@/config/founderDeskCopy';
 import { PLATFORM_BRAND_LOGO_PATH } from '@/config/platformBrandIdentity';
-import { ROUTE_PATHS } from '@/lib/routePaths';
 import { buildWhatsAppChatHref } from '@/lib/saudiWhatsAppPhone';
 import { cn } from '@/lib/utils';
 
@@ -25,9 +24,8 @@ type Props = {
   standalone?: boolean;
 };
 
-const VISITOR_CHAT_PATH =
-  (ROUTE_PATHS as { FOUNDER_DESK_VISITOR_CHAT?: string }).FOUNDER_DESK_VISITOR_CHAT ||
-  '/partners/live-chat';
+/** ثابت — لا تعتمد على حزمة route-paths (الـ minifier يحذف ||). */
+const VISITOR_CHAT_PATH = '/partners/live-chat';
 
 export function FounderDeskBanner({ className, startOpen = false, standalone = false }: Props) {
   const [chatOpen, setChatOpen] = useState(startOpen);
