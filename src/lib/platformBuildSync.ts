@@ -59,11 +59,8 @@ async function clearWorkboxCaches(): Promise<void> {
   if (typeof caches === 'undefined') return;
   try {
     const names = await caches.keys();
-    await Promise.all(
-      names
-        .filter((n) => n.startsWith('workbox-') || n.includes('halaqmap') || n.includes('precache'))
-        .map((n) => caches.delete(n).catch(() => false)),
-    );
+    // امسح كل Cache Storage — حزم Vite المختلطة قد تُخدم من مفاتيح لا تحمل workbox/halaqmap
+    await Promise.all(names.map((n) => caches.delete(n).catch(() => false)));
   } catch {
     /* ignore */
   }

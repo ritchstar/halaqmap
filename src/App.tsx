@@ -21,11 +21,19 @@ import { getAdminPortalBasePath, getAdminPortalBasePaths } from "@/config/adminA
 import { PUBLIC_PULSE_EXPERIENCE_ENABLED } from '@/config/publicPulseExperience';
 import { AdminAuthHashGate, AdminSentinelSecurityGate } from "@/components/AdminAuthHashGate";
 
-/** حرفي احتياطي — حزمة `route-paths` منفصلة؛ مفتاح جديد + كاش قديم = path undefined ويُسقط التوجيه. */
-const FOUNDER_DESK_LANDING_PATH =
-  (ROUTE_PATHS as { FOUNDER_DESK_LANDING?: string }).FOUNDER_DESK_LANDING || "/m/hm-desk-k7q3";
-const FOUNDER_DESK_VISITOR_CHAT_PATH =
-  (ROUTE_PATHS as { FOUNDER_DESK_VISITOR_CHAT?: string }).FOUNDER_DESK_VISITOR_CHAT || "/partners/live-chat";
+/** مسارات ثابتة داخل حزمة App — لا تُقرأ من `route-paths` المنفصلة.
+ * الـ minifier يثبت وجود المفاتيح ويحذف `|| fallback`، فيبقى `path={undefined}` مع كاش قديم ويُسقط التوجيه. */
+const FOUNDER_DESK_LANDING_PATH = "/m/hm-desk-k7q3";
+const FOUNDER_DESK_VISITOR_CHAT_PATH = "/partners/live-chat";
+
+if (import.meta.env.DEV) {
+  if (ROUTE_PATHS.FOUNDER_DESK_LANDING !== FOUNDER_DESK_LANDING_PATH) {
+    console.warn("[halaqmap] FOUNDER_DESK_LANDING drift vs App literal");
+  }
+  if (ROUTE_PATHS.FOUNDER_DESK_VISITOR_CHAT !== FOUNDER_DESK_VISITOR_CHAT_PATH) {
+    console.warn("[halaqmap] FOUNDER_DESK_VISITOR_CHAT drift vs App literal");
+  }
+}
 
 /** اختصار /i و /i/:city → مسار اهتمام الشركاء من بطاقة تواصل ماب */
 function MapContactShortJoinRedirect() {
@@ -101,8 +109,22 @@ const ShopOpenStatusRotateRequest = lazy(() => import("@/pages/ShopOpenStatusRot
 const ShopOpenStatusRotateConfirm = lazy(() => import("@/pages/ShopOpenStatusRotateConfirm"));
 const BarberGrowthLanding = lazy(() => import("@/pages/BarberGrowthLanding"));
 const InternalPartnerPathPrintCard = lazy(() => import("@/pages/InternalPartnerPathPrintCard"));
-const FounderDeskLandingPage = lazy(() => import("@/pages/FounderDeskLandingPage"));
-const FounderDeskVisitorChatPage = lazy(() => import("@/pages/FounderDeskVisitorChatPage"));
+const FounderDeskLandingPage = lazy(async () => {
+  const mod = await import("@/pages/FounderDeskLandingPage");
+  const C = mod.default;
+  if (typeof C !== "function") {
+    throw new Error("FounderDeskLandingPage failed to load");
+  }
+  return { default: C };
+});
+const FounderDeskVisitorChatPage = lazy(async () => {
+  const mod = await import("@/pages/FounderDeskVisitorChatPage");
+  const C = mod.default;
+  if (typeof C !== "function") {
+    throw new Error("FounderDeskVisitorChatPage failed to load");
+  }
+  return { default: C };
+});
 const InvoicePreviewSamples = lazy(() => import("@/pages/InvoicePreviewSamples"));
 const GrowthPitchDeckPage = lazy(() => import("@/pages/GrowthPitchDeckPage"));
 const PlatformDiscoverLandingPage = lazy(() => import("@/pages/PlatformDiscoverLandingPage"));

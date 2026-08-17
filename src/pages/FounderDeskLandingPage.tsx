@@ -20,7 +20,6 @@ import {
 } from '@/lib/barberDashboardChatAlertSound';
 import type { FounderDeskConversation, FounderDeskMessage } from '@/lib/founderDeskChatRemote';
 import { POLL_MS } from '@/lib/pollingPolicy';
-import { ROUTE_PATHS } from '@/lib/routePaths';
 import { cn } from '@/lib/utils';
 
 type Phase = 'loading' | 'inbox' | 'gate';
@@ -381,8 +380,7 @@ export default function FounderDeskLandingPage() {
   const [phase, setPhase] = useState<Phase>('loading');
   useNoIndexTitle(FOUNDER_DESK_ADMIN_COPY.pageTitleAr);
 
-  const inboxPath =
-    (ROUTE_PATHS as { FOUNDER_DESK_LANDING?: string }).FOUNDER_DESK_LANDING || '/m/hm-desk-k7q3';
+  const inboxPath = '/m/hm-desk-k7q3';
 
   useEffect(() => {
     let cancelled = false;

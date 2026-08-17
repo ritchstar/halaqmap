@@ -56,9 +56,9 @@ function main(): void {
     detail: cssPath || 'missing_css_link',
   });
   checks.push({
-    name: 'sw_not_v13_loop',
-    ok: swFlag !== 'v13',
-    detail: `sw=${swFlag || 'none'}`,
+    name: 'sw_not_stale_reset',
+    ok: swFlag !== 'v13' && swFlag !== 'v17',
+    detail: `sw=${swFlag || 'none'} (expect v18+ after founder-desk chat split)`,
   });
   checks.push({
     name: 'deploy_has_register_fix',

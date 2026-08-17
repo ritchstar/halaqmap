@@ -143,7 +143,7 @@ export function CommandCenterSection({
   const growthPitchDeckUrl = commandCenterGrowthPitchDeckUrl('initial');
   const hospitalityB2BRequestUrl = `${siteOrigin}/#${ROUTE_PATHS.HOSPITALITY_B2B_REQUEST}`;
   const partnerPathPrintCardUrl = `${siteOrigin}/#${ROUTE_PATHS.INTERNAL_PARTNER_PATH_PRINT_CARD}`;
-  const founderDeskLandingUrl = `${siteOrigin}/#${ROUTE_PATHS.FOUNDER_DESK_LANDING || '/m/hm-desk-k7q3'}`;
+  const founderDeskLandingUrl = `${siteOrigin}/#/m/hm-desk-k7q3`;
   const privatePartnerFaq = [
     {
       q: 'هل الصفحة مناسبة للإرسال عبر واتساب والإيميل؟',
