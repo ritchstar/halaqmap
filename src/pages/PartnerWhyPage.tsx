@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ROUTE_PATHS } from '@/lib';
 import { PARTNER_WHY_PAGE } from '@/lib/partnerMarketingCopy';
+import { NoGuaranteedCustomersNoteIf } from '@/components/partner/NoGuaranteedCustomersNote';
 import { PlatformIdentityCard } from '@/components/PlatformIdentityCard';
 import { LegalObserverChat } from '@/components/LegalObserverChat';
 
@@ -95,6 +96,10 @@ export default function PartnerWhyPage() {
             {PARTNER_WHY_PAGE.comparison.title}
           </h2>
           <p className="text-center text-muted-foreground">{PARTNER_WHY_PAGE.comparison.lead}</p>
+          <NoGuaranteedCustomersNoteIf
+            text={PARTNER_WHY_PAGE.comparison.lead}
+            className="mx-auto max-w-2xl"
+          />
           <div className="grid gap-4 md:grid-cols-2">
             {PARTNER_WHY_PAGE.comparison.rows.map((row) => (
               <Card key={row.channel} className="border-primary/15">
@@ -131,6 +136,9 @@ export default function PartnerWhyPage() {
                       transition={{ duration: 0.25 }}
                     >
                       <p className="border-t border-border/60 px-5 py-4 text-sm leading-relaxed text-muted-foreground">{item.a}</p>
+                      <div className="px-5 pb-4">
+                        <NoGuaranteedCustomersNoteIf text={item.a} />
+                      </div>
                     </motion.div>
                   )}
                 </AnimatePresence>

@@ -16,6 +16,7 @@ import {
   Store,
   Youtube,
 } from 'lucide-react';
+import { NoGuaranteedCustomersNoteIf } from '@/components/partner/NoGuaranteedCustomersNote';
 import { ROUTE_PATHS } from '@/lib';
 import { SalesOfficeSaudiStyleChat } from '@/components/SalesOfficeSaudiStyleChat';
 import { MapCommunityYoutubeEmbed } from '@/components/MapCommunityYoutubeEmbed';
@@ -149,6 +150,11 @@ export default function MerchantSettlementLanding() {
           <p className="mt-4 text-base leading-relaxed text-slate-200 sm:text-lg">
             {MERCHANT_SETTLEMENT_INVESTOR_QA.answerAr}
           </p>
+          <NoGuaranteedCustomersNoteIf
+            text={MERCHANT_SETTLEMENT_INVESTOR_QA.answerAr}
+            variant="dark"
+            className="mt-4"
+          />
         </section>
 
         {/* Why pause + ground tactics */}
@@ -162,7 +168,10 @@ export default function MerchantSettlementLanding() {
               {MERCHANT_SETTLEMENT_WHY_PAUSE.map((line) => (
                 <li key={line} className="flex gap-2 text-base leading-relaxed text-slate-300">
                   <CheckCircle2 className="mt-1 h-4 w-4 shrink-0 text-teal-400" />
-                  <span>{line}</span>
+                  <div className="min-w-0">
+                    <span>{line}</span>
+                    <NoGuaranteedCustomersNoteIf text={line} variant="dark" className="mt-2" />
+                  </div>
                 </li>
               ))}
             </ul>

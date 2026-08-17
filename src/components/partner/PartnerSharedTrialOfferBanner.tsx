@@ -1,6 +1,7 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
+import { NoGuaranteedCustomersNoteIf } from '@/components/partner/NoGuaranteedCustomersNote';
 import {
   PARTNER_SHARED_TRIAL_OFFER,
   isPartnerSharedTrialOfferLive,
@@ -43,6 +44,7 @@ export function PartnerSharedTrialOfferBanner({ onRegister }: Props) {
         <p className="mt-3 text-xs leading-7 text-amber-100/80">
           {copy.disclaimer}
         </p>
+        <NoGuaranteedCustomersNoteIf text={copy.disclaimer} variant="dark" className="mt-3" />
         {onRegister ? (
           <button
             type="button"

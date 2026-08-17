@@ -2,6 +2,7 @@
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
 import { motion } from 'framer-motion';
+import { NoGuaranteedCustomersNoteIf } from '@/components/partner/NoGuaranteedCustomersNote';
 import { PARTNER_B2B_URGENCY_AR } from '@/config/partnerMallNarrativeCopy';
 import { cn } from '@/lib/utils';
 
@@ -65,6 +66,11 @@ export function PartnerB2BUrgencyBand({ variant = 'light', className }: Props) {
           >
             {PARTNER_B2B_URGENCY_AR.lead}
           </p>
+          <NoGuaranteedCustomersNoteIf
+            text={PARTNER_B2B_URGENCY_AR.lead}
+            variant={isDark ? 'dark' : 'light'}
+            className="mt-4 text-right"
+          />
         </motion.div>
 
         <div className="space-y-3">
@@ -82,7 +88,12 @@ export function PartnerB2BUrgencyBand({ variant = 'light', className }: Props) {
                   : 'border-slate-200 bg-white text-slate-700',
               )}
             >
-              {point}
+              <p>{point}</p>
+              <NoGuaranteedCustomersNoteIf
+                text={point}
+                variant={isDark ? 'dark' : 'compact'}
+                className="mt-3"
+              />
             </motion.div>
           ))}
         </div>

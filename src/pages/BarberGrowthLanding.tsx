@@ -54,6 +54,7 @@ import {
   PARTNER_LANDING_WHY_SECTION,
 } from '@/lib/partnerMarketingCopy';
 import { PlatformGrowthProgramsPanel } from '@/components/partner/PlatformGrowthProgramsPanel';
+import { NoGuaranteedCustomersNoteIf } from '@/components/partner/NoGuaranteedCustomersNote';
 import { generatePartnerSupportThreadToken } from '@/lib/partnerSupportChat';
 import { LicenseRechargeWidget } from '@/components/billing/LicenseRechargeWidget';
 
@@ -571,6 +572,10 @@ export default function BarberGrowthLanding() {
           <div className="mb-8 text-center md:text-right">
             <h2 className="text-2xl font-bold text-foreground md:text-3xl">{PARTNER_LANDING_COMPARISON_SECTION.title}</h2>
             <p className="mt-3 text-muted-foreground">{PARTNER_LANDING_COMPARISON_SECTION.lead}</p>
+            <NoGuaranteedCustomersNoteIf
+              text={PARTNER_LANDING_COMPARISON_SECTION.lead}
+              className="mx-auto mt-4 max-w-2xl text-right"
+            />
           </div>
           <div className="mx-auto grid max-w-4xl gap-4 md:grid-cols-2">
             {PARTNER_LANDING_COMPARISON_SECTION.rows.map((row) => (
@@ -673,6 +678,9 @@ export default function BarberGrowthLanding() {
                       transition={{ duration: 0.25 }}
                     >
                       <p className="border-t border-border/60 px-5 py-4 text-sm leading-relaxed text-muted-foreground">{item.a}</p>
+                      <div className="px-5 pb-4">
+                        <NoGuaranteedCustomersNoteIf text={item.a} />
+                      </div>
                     </motion.div>
                   )}
                 </AnimatePresence>

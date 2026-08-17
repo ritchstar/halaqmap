@@ -33,6 +33,7 @@ import { REGISTRATION_COMPLIANCE_DOCTRINE_AR } from './_lib/registrationComplian
 import { PARTNER_EARLY_WAVE_TAGLINE_AR, PARTNER_EARLY_PRESENCE_DOCTRINE_SIMPLE_AR } from './_lib/partnerEarlyWaveCopy.js';
 import { PARTNER_MALL_DOCTRINE_SIMPLE_AR, PARTNER_MALL_TAGLINE_AR } from './_lib/partnerMallNarrativeCopy.js';
 import { PARTNER_FIELD_SALES_DOCTRINE_AR, composePartnerFieldSalesKnowledgePack } from './_lib/partnerFieldSalesCopy.js';
+import { noGuaranteedCustomersExplainAr } from './_lib/noGuaranteedCustomersCopy.js';
 
 // أسعار الباقات (مصدر الحقيقة: src/config/subscriptionPricing.ts)
 const PRICE_BRONZE = 100;
@@ -129,6 +130,8 @@ ${REGULATORY_FRAMEWORK_DOCTRINE_AR}
 【كيف تستخدم هذه الحجة داخل الردود؟】
 - إذا اعترض العميل بأنه يريد الانتظار: اشرح أن الاستعلام يعمل الآن، والتأخير يعني غياباً عن لحظة البحث الحالية.
 - إذا سأل عن القيمة القريبة: اربط الرخصة بالظهور عند الاستعلام المناسب في منطقته — بلا وعد بعدد زبائن.
+- إذا ذكر «بلا وعد بعدد زبائن مضمون» أو بدا متردداً من العبارة: اشرح فوراً بهذا النص:
+${noGuaranteedCustomersExplainAr()}
 - إذا سأل عن الآخرين أو عن منصات ثانية: ابقَ على نموذجنا فقط — استعلام حي، ظهور عند الطلب، تواصل مباشر. لا تصف نماذج الآخرين.
 - إذا كان مقتنعاً لكنه متردد زمنياً: استخدم صيغة «كل شهر تأخير قد يعني أن موضعاً أفضل داخل المنصة سبقك إليه منافس في نفس المنطقة».
 

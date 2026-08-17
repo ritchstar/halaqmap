@@ -4,6 +4,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
+import { NoGuaranteedCustomersNoteIf } from '@/components/partner/NoGuaranteedCustomersNote';
 import { cn } from '@/lib/utils';
 
 type FaqItem = { readonly q: string; readonly a: string };
@@ -83,16 +84,25 @@ export function PartnerLandingFaqAccordion({
                   exit={{ height: 0, opacity: 0 }}
                   transition={{ duration: 0.25 }}
                 >
-                  <p
+                  <div
                     className={cn(
-                      'border-t px-5 py-4 text-sm leading-relaxed',
-                      isDark
-                        ? 'border-white/8 text-slate-400'
-                        : 'border-border/60 text-muted-foreground',
+                      'space-y-3 border-t px-5 py-4',
+                      isDark ? 'border-white/8' : 'border-border/60',
                     )}
                   >
-                    {item.a}
-                  </p>
+                    <p
+                      className={cn(
+                        'text-sm leading-relaxed',
+                        isDark ? 'text-slate-400' : 'text-muted-foreground',
+                      )}
+                    >
+                      {item.a}
+                    </p>
+                    <NoGuaranteedCustomersNoteIf
+                      text={item.a}
+                      variant={isDark ? 'dark' : 'light'}
+                    />
+                  </div>
                 </motion.div>
               )}
             </AnimatePresence>

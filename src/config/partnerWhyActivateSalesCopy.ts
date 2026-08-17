@@ -5,6 +5,7 @@
  * منطق المنصة فقط: ظهور عند الطلب، بلا عمولة، بلا وساطة حجز، بلا وعد بعدد زبائن.
  * موضع النشر: مكتب المبيعات — نصوص عمودية فوق بعضها. لا تُخلط في صفحات المستعلم `/need`.
  */
+import { noGuaranteedCustomersExplainAr } from '@/config/noGuaranteedCustomersCopy';
 import { PARTNER_EARLY_WAVE_TAGLINE_AR } from '@/config/partnerEarlyWaveCopy';
 
 export const PARTNER_WHY_ACTIVATE_SALES_META = {
@@ -143,6 +144,8 @@ export function partnerWhyActivateSalesPlainAr(): string {
     close.title,
     close.body,
     close.disclaimer,
+    '',
+    noGuaranteedCustomersExplainAr(),
     '',
     close.cta,
   ].join('\n');

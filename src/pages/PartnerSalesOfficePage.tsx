@@ -9,6 +9,7 @@ import { ROUTE_PATHS } from '@/lib';
 import { SalesOfficeSaudiStyleChat } from '@/components/SalesOfficeSaudiStyleChat';
 import { PlatformOfficialFooterStrip } from '@/components/PlatformOfficialFooterStrip';
 import { AppBuildStamp } from '@/components/AppBuildStamp';
+import { NoGuaranteedCustomersNoteIf } from '@/components/partner/NoGuaranteedCustomersNote';
 import { PartnerOrderReceptionTicker } from '@/components/partner/PartnerOrderReceptionTicker';
 import { PartnerPlatformInspectionTicker } from '@/components/partner/PartnerPlatformInspectionTicker';
 import { PartnerPlatformLaunchTicker } from '@/components/partner/PartnerPlatformLaunchTicker';
@@ -194,6 +195,10 @@ export default function PartnerSalesOfficePage() {
               <p className="mt-4 text-sm leading-8 text-slate-700 md:text-base">
                 {PARTNER_WHY_ACTIVATE_SALES_PAGE.lead}
               </p>
+              <NoGuaranteedCustomersNoteIf
+                text={PARTNER_WHY_ACTIVATE_SALES_PAGE.lead}
+                className="mt-4"
+              />
             </article>
 
             <article className="rounded-[1.6rem] border border-slate-200 bg-white/90 p-5 md:p-6">
@@ -234,6 +239,10 @@ export default function PartnerSalesOfficePage() {
               <h2 className="text-lg font-black text-slate-950">{PARTNER_WHY_ACTIVATE_SALES_CLOSE.title}</h2>
               <p className="mt-3 text-sm leading-8 text-slate-700">{PARTNER_WHY_ACTIVATE_SALES_CLOSE.body}</p>
               <p className="mt-3 text-sm leading-8 text-slate-600">{PARTNER_WHY_ACTIVATE_SALES_CLOSE.disclaimer}</p>
+              <NoGuaranteedCustomersNoteIf
+                text={PARTNER_WHY_ACTIVATE_SALES_CLOSE.disclaimer}
+                className="mt-3"
+              />
               <p className="mt-4 text-base font-black text-amber-800">{PARTNER_WHY_ACTIVATE_SALES_CLOSE.cta}</p>
             </article>
           </section>

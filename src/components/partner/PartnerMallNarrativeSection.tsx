@@ -11,6 +11,7 @@ import {
   PARTNER_MALL_SECTION_TITLE_AR,
   PARTNER_MALL_WHY_NOW,
 } from '@/config/partnerMallNarrativeCopy';
+import { NoGuaranteedCustomersNoteIf } from '@/components/partner/NoGuaranteedCustomersNote';
 import { cn } from '@/lib/utils';
 
 const PHASE_ICONS = [Building2, Store, DoorOpen] as const;
@@ -140,6 +141,11 @@ export function PartnerMallNarrativeSection({
                 >
                   {phase.description}
                 </p>
+                <NoGuaranteedCustomersNoteIf
+                  text={phase.description}
+                  variant={isDark ? 'dark' : 'compact'}
+                  className="mt-3"
+                />
               </motion.div>
             );
           })}
@@ -181,6 +187,11 @@ export function PartnerMallNarrativeSection({
                 >
                   {item.body}
                 </p>
+                <NoGuaranteedCustomersNoteIf
+                  text={item.body}
+                  variant={isDark ? 'dark' : 'compact'}
+                  className="mt-3"
+                />
               </motion.div>
             );
           })}

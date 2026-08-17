@@ -84,6 +84,7 @@ import { PartnerPlatformInspectionTicker } from '@/components/partner/PartnerPla
 import { PartnerPlatformLaunchTicker } from '@/components/partner/PartnerPlatformLaunchTicker';
 import { MobilePartnerActionDock } from '@/components/partner/MobilePartnerActionDock';
 import { PartnerSharedTrialOfferBanner } from '@/components/partner/PartnerSharedTrialOfferBanner';
+import { NoGuaranteedCustomersNoteIf } from '@/components/partner/NoGuaranteedCustomersNote';
 import {
   OWNER_WATCH_LISTING_DIAMOND_HIGHLIGHT_AR,
   OWNER_WATCH_LISTING_GOLD_HIGHLIGHT_AR,
@@ -1367,7 +1368,12 @@ export default function PartnerMarketingPreview() {
             className="mb-2 text-center text-2xl font-black text-white">
             {PARTNER_SECTION_INTROS.comparison.title}
           </motion.h2>
-          <p className="mb-8 text-center text-sm leading-relaxed text-slate-300">{PARTNER_SECTION_INTROS.comparison.lead}</p>
+          <p className="mb-4 text-center text-sm leading-relaxed text-slate-300">{PARTNER_SECTION_INTROS.comparison.lead}</p>
+          <NoGuaranteedCustomersNoteIf
+            text={PARTNER_SECTION_INTROS.comparison.lead}
+            variant="dark"
+            className="mx-auto mb-8 max-w-2xl text-right"
+          />
           <div className="grid gap-4 md:grid-cols-2">
             {PARTNER_SOCIAL_VS_PLATFORM_ROWS_AR.map((row) => (
               <div key={row.channel} className="rounded-xl border border-white/10 bg-white/[0.04] px-5 py-4">
@@ -1409,6 +1415,9 @@ export default function PartnerMarketingPreview() {
                   {openFaq === i && (
                     <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.25 }}>
                       <p className="border-t border-white/10 px-5 py-4 text-sm leading-relaxed text-slate-300">{item.a}</p>
+                      <div className="px-5 pb-4">
+                        <NoGuaranteedCustomersNoteIf text={item.a} variant="dark" />
+                      </div>
                     </motion.div>
                   )}
                 </AnimatePresence>
