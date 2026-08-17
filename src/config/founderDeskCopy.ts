@@ -32,6 +32,9 @@ export const FOUNDER_DESK_COPY = {
   limitAr: 'بلغت حد الرسائل لهذه الجلسة.',
   visitorLandingHintAr: 'هذه صفحة هبوط غير معلنة. المحادثة هنا تصل مباشرة إلى الإدارة.',
   visitorPageTitleAr: 'حلاق ماب — محادثة خاصة',
+  openStandaloneAr: 'فتح المحادثة في صفحة مستقلة',
+  standaloneHintAr: 'صفحة هادئة للتركيز على المحادثة مع الإدارة.',
+  backToPartnersAr: 'العودة لمسار الشركاء',
 } as const;
 
 /** لقب داخلي — صندوق الإدارة ومركز القيادة فقط. */
@@ -47,4 +50,8 @@ export const FOUNDER_DESK_ADMIN_COPY = {
   enableSoundAr: 'تفعيل الصوت',
   soundReadyAr: 'الصوت جاهز',
   unreadLabelAr: 'غير مقروء',
+  loginGateTitleAr: 'صندوق محادثات الشركاء',
+  loginGateBodyAr: 'هذه الصفحة لمتابعة الرد على محادثات بنر الشركاء من متصفح الجوال. يلزم دخول الإدارة أولاً.',
+  loginGateCtaAr: 'دخول الصندوق',
+  backToListAr: 'المحادثات',
 } as const;

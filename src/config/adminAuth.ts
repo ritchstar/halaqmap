@@ -135,3 +135,15 @@ export function getAdminPlatformRadarFullScreenPathFor(pathname: string): string
 export function getAdminCyberOperationsPathFor(pathname: string): string {
   return `${resolveAdminPortalBase(pathname)}/cyber`;
 }
+
+const SAFE_ADMIN_NEXT_PATHS = new Set([
+  '/m/hm-desk-k7q3',
+]);
+
+/** بعد دخول الإدارة: أعد فقط إلى مسارات داخلية مسموحة صراحة. */
+export function resolveSafeAdminNext(raw: string | null | undefined, fallback: string): string {
+  const path = String(raw || '').trim();
+  if (!path.startsWith('/') || path.startsWith('//') || path.includes('://')) return fallback;
+  if (SAFE_ADMIN_NEXT_PATHS.has(path)) return path;
+  return fallback;
+}

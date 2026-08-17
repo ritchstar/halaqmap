@@ -11,33 +11,45 @@ import { Label } from '@/components/ui/label';
 import { ROUTE_PATHS } from '@/lib';
 import { IMAGES } from '@/assets/images';
 import { getSupabaseClient, isSupabaseConfigured } from '@/integrations/supabase/client';
-import { getAdminAllowedEmail, getAdminDashboardPathFor } from '@/config/adminAuth';
+import { getAdminAllowedEmail, getAdminDashboardPathFor, resolveSafeAdminNext } from '@/config/adminAuth';
 import { resolveAdminAccess } from '@/lib/adminAccessRemote';
 import { requestAdminPasswordReset } from '@/lib/adminInvitationRemote';
 import { toast } from '@/components/ui/sonner';
 
-/**
- * Read `?email=` from either the standard query string OR from the
- * post-hash query string used by HashRouter (`/#/path?email=foo`).
- */
-function readPrefilledEmail(rawLocationSearch: string): string {
-  const direct = new URLSearchParams(rawLocationSearch).get('email');
+function readQueryParam(rawLocationSearch: string, key: string): string {
+  const direct = new URLSearchParams(rawLocationSearch).get(key);
   if (direct?.trim()) return direct.trim();
   if (typeof window !== 'undefined') {
     const hash = window.location.hash || '';
     const idx = hash.indexOf('?');
     if (idx >= 0) {
-      const fromHash = new URLSearchParams(hash.slice(idx)).get('email');
+      const fromHash = new URLSearchParams(hash.slice(idx)).get(key);
       if (fromHash?.trim()) return fromHash.trim();
     }
   }
   return '';
 }
 
+/**
+ * Read `?email=` from either the standard query string OR from the
+ * post-hash query string used by HashRouter (`/#/path?email=foo`).
+ */
+function readPrefilledEmail(rawLocationSearch: string): string {
+  return readQueryParam(rawLocationSearch, 'email');
+}
+
 export default function AdminLogin() {
   const navigate = useNavigate();
   const location = useLocation();
   const prefilledEmail = useMemo(() => readPrefilledEmail(location.search), [location.search]);
+  const afterLoginPath = useMemo(
+    () =>
+      resolveSafeAdminNext(
+        readQueryParam(location.search, 'next'),
+        getAdminDashboardPathFor(location.pathname),
+      ),
+    [location.search, location.pathname],
+  );
   const [email, setEmail] = useState(prefilledEmail || getAdminAllowedEmail());
   const [password, setPassword] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -50,10 +62,10 @@ export default function AdminLogin() {
     void client.auth.getSession().then(({ data: { session } }) => {
       if (!session?.user?.email) return;
       void resolveAdminAccess(session.user.email).then((access) => {
-        if (access.allowed) navigate(getAdminDashboardPathFor(location.pathname), { replace: true });
+        if (access.allowed) navigate(afterLoginPath, { replace: true });
       });
     });
-  }, [navigate, location.pathname]);
+  }, [navigate, afterLoginPath]);
 
   const handlePasswordSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -91,7 +103,7 @@ export default function AdminLogin() {
     }
 
     toast.success('تم تسجيل الدخول.');
-    navigate(getAdminDashboardPathFor(location.pathname), { replace: true });
+    navigate(afterLoginPath, { replace: true });
   };
 
   const handleForgotPassword = async () => {

@@ -119,6 +119,11 @@ export const ROUTE_PATHS = {
    * noindex، بدون رابط من القوائم العامة.
    */
   FOUNDER_DESK_LANDING: '/m/hm-desk-k7q3',
+  /**
+   * محادثة الزائر في صفحة مستقلة من بنر مسار الشركاء.
+   * noindex، تُفتح من زر تحت صندوق الشات فقط.
+   */
+  FOUNDER_DESK_VISITOR_CHAT: '/partners/live-chat',
   /** معاينة فواتير رخصة النفاذ (PDF) — داخلي، بدون ربط من القوائم */
   INVOICE_PREVIEW_SAMPLES: '/m/invoice-preview-samples',
   /** صفحة هبوط تسويقية — عرض شرائح قصة المنصة (B2C · حملات · مشاركة) */

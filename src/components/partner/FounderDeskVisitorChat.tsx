@@ -32,9 +32,11 @@ function remainingMs(expiresAt: string): number {
 type Props = {
   className?: string;
   compact?: boolean;
+  /** صفحة مستقلة — مساحة أطول للتركيز */
+  expanded?: boolean;
 };
 
-export function FounderDeskVisitorChat({ className, compact }: Props) {
+export function FounderDeskVisitorChat({ className, compact, expanded }: Props) {
   const [conversation, setConversation] = useState<FounderDeskConversation | null>(null);
   const [messages, setMessages] = useState<FounderDeskMessage[]>([]);
   const [draft, setDraft] = useState('');
@@ -134,7 +136,12 @@ export function FounderDeskVisitorChat({ className, compact }: Props) {
       </div>
       <p className="px-3 pt-2 text-[0.68rem] leading-6 text-slate-600">{FOUNDER_DESK_COPY.chatIntroAr}</p>
 
-      <div className={cn('space-y-2 overflow-y-auto px-3 py-2', compact ? 'max-h-48' : 'max-h-64')}>
+      <div
+        className={cn(
+          'space-y-2 overflow-y-auto px-3 py-2',
+          expanded ? 'min-h-[42dvh] max-h-[58dvh]' : compact ? 'max-h-48' : 'max-h-64',
+        )}
+      >
         {loading ? (
           <div className="flex items-center justify-center py-6 text-[#18687a]">
             <Loader2 className="h-4 w-4 animate-spin" />

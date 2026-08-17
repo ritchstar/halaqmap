@@ -666,7 +666,7 @@ export function CommandCenterSection({
                   </a>
                 </p>
                 <p>
-                  مكتب المؤسس — مستقبل محادثات البنر (صفحة داخلية — لا تظهر في القوائم العامة):{' '}
+                  صندوق محادثات الشركاء على الجوال (صفحة داخلية — لا تظهر في القوائم العامة):{' '}
                   <a className="underline" href={founderDeskLandingUrl} target="_blank" rel="noopener noreferrer">
                     {founderDeskLandingUrl}
                   </a>

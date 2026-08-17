@@ -2,7 +2,8 @@
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
 import { useState } from 'react';
-import { MessageCircle, Shield, Sparkles } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { ExternalLink, MessageCircle, Shield, Sparkles } from 'lucide-react';
 import { SiWhatsapp } from 'react-icons/si';
 import { BannerRadiationField } from '@/components/BannerRadiationField';
 import { FounderDeskVisitorChat } from '@/components/partner/FounderDeskVisitorChat';
@@ -12,16 +13,23 @@ import {
 } from '@/config/barberBannerImagePolicy';
 import { FOUNDER_DESK_COPY, FOUNDER_DESK_WHATSAPP_E164 } from '@/config/founderDeskCopy';
 import { PLATFORM_BRAND_LOGO_PATH } from '@/config/platformBrandIdentity';
+import { ROUTE_PATHS } from '@/lib/routePaths';
 import { buildWhatsAppChatHref } from '@/lib/saudiWhatsAppPhone';
 import { cn } from '@/lib/utils';
 
 type Props = {
   className?: string;
-  /** يفتح الشات مباشرة — لصفحة الهبوط السرية */
+  /** يفتح الشات مباشرة */
   startOpen?: boolean;
+  /** إخفاء زر الصفحة المستقلة عندما نكون فيها أصلاً */
+  standalone?: boolean;
 };
 
-export function FounderDeskBanner({ className, startOpen = false }: Props) {
+const VISITOR_CHAT_PATH =
+  (ROUTE_PATHS as { FOUNDER_DESK_VISITOR_CHAT?: string }).FOUNDER_DESK_VISITOR_CHAT ||
+  '/partners/live-chat';
+
+export function FounderDeskBanner({ className, startOpen = false, standalone = false }: Props) {
   const [chatOpen, setChatOpen] = useState(startOpen);
   const whatsappHref = buildWhatsAppChatHref(
     FOUNDER_DESK_WHATSAPP_E164,
@@ -98,7 +106,20 @@ export function FounderDeskBanner({ className, startOpen = false }: Props) {
               ) : null}
             </div>
 
-            {chatOpen ? <FounderDeskVisitorChat className="mt-3" compact /> : null}
+            {chatOpen ? (
+              <>
+                <FounderDeskVisitorChat className="mt-3" compact={!standalone} expanded={standalone} />
+                {standalone ? null : (
+                  <Link
+                    to={VISITOR_CHAT_PATH}
+                    className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-xl border border-[#18687a]/25 bg-white/80 py-2 text-[0.72rem] font-bold text-[#18687a]"
+                  >
+                    <ExternalLink className="h-3.5 w-3.5" />
+                    {FOUNDER_DESK_COPY.openStandaloneAr}
+                  </Link>
+                )}
+              </>
+            ) : null}
 
             <div className="mt-3 flex items-center justify-center gap-1.5 border-t border-slate-200/80 pt-2.5">
               <div className="h-1.5 w-1.5 rounded-full bg-[#18687a]/70" />

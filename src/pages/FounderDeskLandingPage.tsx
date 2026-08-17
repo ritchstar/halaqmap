@@ -2,9 +2,10 @@
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Bell, Hourglass, Loader2, MessageCircle, Send, Volume2 } from 'lucide-react';
-import { FounderDeskBanner } from '@/components/partner/FounderDeskBanner';
+import { Bell, ChevronRight, Hourglass, Loader2, MessageCircle, Send, Volume2 } from 'lucide-react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { FOUNDER_DESK_ADMIN_COPY, FOUNDER_DESK_COPY, FOUNDER_DESK_MAX_BODY } from '@/config/founderDeskCopy';
+import { getAdminLoginPathFor } from '@/config/adminAuth';
 import { getSupabaseClient, isSupabaseConfigured } from '@/integrations/supabase/client';
 import { resolveAdminAccess } from '@/lib/adminAccessRemote';
 import {
@@ -19,9 +20,10 @@ import {
 } from '@/lib/barberDashboardChatAlertSound';
 import type { FounderDeskConversation, FounderDeskMessage } from '@/lib/founderDeskChatRemote';
 import { POLL_MS } from '@/lib/pollingPolicy';
+import { ROUTE_PATHS } from '@/lib/routePaths';
 import { cn } from '@/lib/utils';
 
-type Phase = 'loading' | 'visitor' | 'inbox';
+type Phase = 'loading' | 'inbox' | 'gate';
 
 function formatWhen(iso: string | null): string {
   if (!iso) return '—';
@@ -70,6 +72,7 @@ function FounderDeskInbox() {
   const [flashIds, setFlashIds] = useState<string[]>([]);
   const [alertBanner, setAlertBanner] = useState('');
   const [soundReady, setSoundReady] = useState(false);
+  const [mobileThread, setMobileThread] = useState(false);
   const seenRef = useRef<{
     ready: boolean;
     ids: Set<string>;
@@ -261,7 +264,7 @@ function FounderDeskInbox() {
       {notice ? <p className="mb-3 text-sm text-rose-700">{notice}</p> : null}
 
       <div className="grid gap-4 lg:grid-cols-[16rem_1fr]">
-        <aside className="space-y-2">
+        <aside className={cn('space-y-2', mobileThread && 'hidden lg:block')}>
           {conversations.length === 0 ? (
             <p className="rounded-xl border border-dashed border-slate-200 p-3 text-center text-xs text-slate-500">
               {FOUNDER_DESK_ADMIN_COPY.inboxEmptyAr}
@@ -271,7 +274,10 @@ function FounderDeskInbox() {
               <button
                 key={row.id}
                 type="button"
-                onClick={() => setSelectedId(row.id)}
+                onClick={() => {
+                  setSelectedId(row.id);
+                  setMobileThread(true);
+                }}
                 className={cn(
                   'w-full rounded-xl border px-3 py-2 text-right text-xs',
                   selectedId === row.id
@@ -294,7 +300,22 @@ function FounderDeskInbox() {
           )}
         </aside>
 
-        <div className="flex min-h-[22rem] flex-col rounded-xl border border-[#d5e9f0] bg-[#fbfeff]">
+        <div
+          className={cn(
+            'min-h-[22rem] flex-col rounded-xl border border-[#d5e9f0] bg-[#fbfeff]',
+            mobileThread ? 'flex min-h-[70dvh]' : 'hidden lg:flex',
+          )}
+        >
+          {mobileThread ? (
+            <button
+              type="button"
+              onClick={() => setMobileThread(false)}
+              className="flex items-center gap-1 border-b border-[#deeff4] px-3 py-2 text-sm font-bold text-[#18687a] lg:hidden"
+            >
+              <ChevronRight className="h-4 w-4" />
+              {FOUNDER_DESK_ADMIN_COPY.backToListAr}
+            </button>
+          ) : null}
           <div className="flex-1 space-y-2 overflow-y-auto p-3">
             {messages.length === 0 ? (
               <p className="py-10 text-center text-xs text-slate-500">{FOUNDER_DESK_COPY.emptyAr}</p>
@@ -323,7 +344,7 @@ function FounderDeskInbox() {
               })
             )}
           </div>
-          <div className="flex items-center gap-2 border-t border-[#deeff4] p-2.5">
+          <div className="sticky bottom-0 flex items-center gap-2 border-t border-[#deeff4] bg-[#fbfeff] p-2.5 pb-[max(0.65rem,env(safe-area-inset-bottom))]">
             <input
               value={draft}
               onChange={(e) => setDraft(e.target.value.slice(0, FOUNDER_DESK_MAX_BODY))}
@@ -355,44 +376,51 @@ function FounderDeskInbox() {
 }
 
 export default function FounderDeskLandingPage() {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [phase, setPhase] = useState<Phase>('loading');
-  useNoIndexTitle(
-    phase === 'inbox' ? FOUNDER_DESK_ADMIN_COPY.pageTitleAr : FOUNDER_DESK_COPY.visitorPageTitleAr,
-  );
+  useNoIndexTitle(FOUNDER_DESK_ADMIN_COPY.pageTitleAr);
+
+  const inboxPath =
+    (ROUTE_PATHS as { FOUNDER_DESK_LANDING?: string }).FOUNDER_DESK_LANDING || '/m/hm-desk-k7q3';
 
   useEffect(() => {
     let cancelled = false;
     void (async () => {
       if (!isSupabaseConfigured()) {
-        if (!cancelled) setPhase('visitor');
+        if (!cancelled) setPhase('gate');
         return;
       }
       const client = getSupabaseClient();
       if (!client) {
-        if (!cancelled) setPhase('visitor');
+        if (!cancelled) setPhase('gate');
         return;
       }
       const { data } = await client.auth.getSession();
       const email = data.session?.user?.email;
       if (!email) {
-        if (!cancelled) setPhase('visitor');
+        if (!cancelled) setPhase('gate');
         return;
       }
       const access = await resolveAdminAccess(email);
       const allowed =
         access.allowed &&
         (access.bootstrap || access.permissions.view_overview || access.permissions.view_partner_marketing);
-      if (!cancelled) setPhase(allowed ? 'inbox' : 'visitor');
+      if (!cancelled) setPhase(allowed ? 'inbox' : 'gate');
     })();
     return () => {
       cancelled = true;
     };
   }, []);
 
+  const goLogin = () => {
+    const login = getAdminLoginPathFor(location.pathname);
+    navigate(`${login}?next=${encodeURIComponent(inboxPath)}`);
+  };
+
   return (
-    <div className="min-h-screen bg-[#061223] px-4 py-8" dir="rtl" style={{ fontFamily: 'Tajawal, system-ui' }}>
+    <div className="min-h-dvh bg-[#061223] px-3 py-4 sm:px-4 sm:py-8" dir="rtl" style={{ fontFamily: 'Tajawal, system-ui' }}>
       <div className="mx-auto flex max-w-5xl flex-col gap-6">
-        <p className="text-center text-xs text-slate-400">{FOUNDER_DESK_COPY.visitorLandingHintAr}</p>
         {phase === 'loading' ? (
           <div className="flex justify-center py-16 text-teal-100">
             <Loader2 className="h-6 w-6 animate-spin" />
@@ -400,7 +428,17 @@ export default function FounderDeskLandingPage() {
         ) : phase === 'inbox' ? (
           <FounderDeskInbox />
         ) : (
-          <FounderDeskBanner startOpen />
+          <section className="mx-auto max-w-md rounded-[1.6rem] border border-teal-400/25 bg-white/5 p-6 text-center text-slate-100">
+            <h1 className="text-xl font-black text-teal-100">{FOUNDER_DESK_ADMIN_COPY.loginGateTitleAr}</h1>
+            <p className="mt-3 text-sm leading-7 text-slate-300">{FOUNDER_DESK_ADMIN_COPY.loginGateBodyAr}</p>
+            <button
+              type="button"
+              onClick={goLogin}
+              className="mt-5 inline-flex items-center justify-center rounded-xl border border-teal-400/40 bg-teal-500/15 px-5 py-3 text-sm font-black text-teal-50"
+            >
+              {FOUNDER_DESK_ADMIN_COPY.loginGateCtaAr}
+            </button>
+          </section>
         )}
       </div>
     </div>
