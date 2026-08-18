@@ -10,7 +10,8 @@
  * يعتمد نفس نظام التصميم الداكن لصفحة /preview مع محتوى موجَّه للشريك.
  */
 
-import { useState, useRef, useEffect, useCallback, lazy, Suspense } from 'react';
+import { Component, useState, useRef, useEffect, useCallback, lazy, Suspense, type ReactNode } from 'react';
+import { pickPageComponent } from '@/lib/resolveLazyPage';
 import { motion, useInView, AnimatePresence } from 'framer-motion';
 import {
   Scissors, Star, CheckCircle2, Clock, ArrowLeft,
@@ -118,9 +119,20 @@ function preloadRegisterRoute(): Promise<unknown> {
   return registerPreloadPromise;
 }
 
-const FounderDeskBannerLazy = lazy(() =>
-  import('@/components/partner/FounderDeskBanner').then((m) => ({ default: m.FounderDeskBanner })),
-);
+const FounderDeskBannerLazy = lazy(async () => {
+  const m = await import('@/components/partner/FounderDeskBanner');
+  return { default: pickPageComponent(m, 'FounderDeskBanner') };
+});
+
+class SilentBannerGuard extends Component<{ children: ReactNode }, { failed: boolean }> {
+  state = { failed: false };
+  static getDerivedStateFromError(): { failed: boolean } {
+    return { failed: true };
+  }
+  render() {
+    return this.state.failed ? null : this.props.children;
+  }
+}
 
 function FoundersOfferBanner({ onRegister }: { onRegister: () => void }) {
   void onRegister;
@@ -979,9 +991,11 @@ export default function PartnerMarketingPreview() {
             </p>
 
             <div className="mt-8">
-              <Suspense fallback={null}>
-                <FounderDeskBannerLazy />
-              </Suspense>
+              <SilentBannerGuard>
+                <Suspense fallback={null}>
+                  <FounderDeskBannerLazy />
+                </Suspense>
+              </SilentBannerGuard>
             </div>
 
           </motion.div>

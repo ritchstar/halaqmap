@@ -157,8 +157,9 @@ export class RootErrorBoundary extends Component<Props, State> {
         showTechDetails && typeof this.state.error.stack === 'string'
           ? this.state.error.stack.split('\n').slice(0, 8).join('\n')
           : null;
-      const userMessage =
-        domMismatch || lazyDefaultMismatch
+      const userMessage = lazyDefaultMismatch
+        ? 'تعذّر تحميل صفحة المسار. اضغط إعادة التحميل — إن استمر الأمر بعد ذلك تواصل مع الدعم.'
+        : domMismatch
           ? 'يبدو أن نسخة قديمة من التطبيق ما زالت في الكاش بعد تحديث المنصة. اضغط إعادة التحميل للتنظيف والمتابعة.'
           : 'حدث خلل مؤقت أثناء التحميل. أعد المحاولة — إن استمر الأمر تواصل مع الدعم.';
       return (

@@ -281,8 +281,9 @@ function renderBootstrapFailure(rootEl: HTMLElement, reason: unknown): void {
 }
 
 if (typeof window !== 'undefined') {
-  window.addEventListener('vite:preloadError', (event) => {
-    ;(event as Event).preventDefault()
+  window.addEventListener('vite:preloadError', () => {
+    // لا preventDefault: Vite عند الإلغاء يُرجع undefined من __vitePreload
+    // فيصبح (undefined).default → شاشة «كاش قديم» بعد أول إعادة تحميل.
     reloadOnceForChunkError()
   })
 
@@ -414,9 +415,13 @@ async function bootstrapApp(rootEl: HTMLElement): Promise<void> {
       markAppMounted()
       schedulePlatformBuildSync();
       if (isPartnerAdsLandingPath()) {
-        window.setTimeout(() => {
-          void import('@/lib/registerAppServiceWorker').then((m) => m.registerAppServiceWorker());
-        }, 12_000);
+        // هبوط الإعلانات يجب أن يبقى من الشبكة مباشرة — عامل الخدمة يُظهر
+        // شريط «إعادة التحميل للتحديث» ويخلط أجيال الحزم حتى في نافذة خاصة.
+        if ('serviceWorker' in navigator) {
+          void navigator.serviceWorker.getRegistrations().then((regs) =>
+            Promise.all(regs.map((r) => r.unregister().catch(() => undefined))),
+          );
+        }
       } else {
         void import('@/lib/registerAppServiceWorker').then((m) => m.registerAppServiceWorker());
       }

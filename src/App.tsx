@@ -6,6 +6,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Fragment, lazy, Suspense, useEffect, useState, type ReactNode } from "react";
+import { lazyPage } from "@/lib/resolveLazyPage";
 import { HashRouter, Routes, Route, Navigate, useLocation, useParams, Link } from "react-router-dom";
 import { PlatformAmbientProvider } from "@/context/PlatformAmbientContext";
 import { ScrollToTop } from "@/components/ScrollToTop";
@@ -42,23 +43,12 @@ const PartnerLayout = lazy(() =>
   import("@/components/PartnerLayout").then((m) => ({ default: m.PartnerLayout })),
 );
 
-const LandingPreview = lazy(async () => {
-  const mod = await import("@/pages/LandingPreview");
-  const C = mod.default;
-  if (typeof C !== "function") {
-    throw new Error("LandingPreview failed to load");
-  }
-  return { default: C };
-});
+const LandingPreview = lazyPage(() => import("@/pages/LandingPreview"), "LandingPreview");
 const HospitalityB2BRequestLanding = lazy(() => import("@/pages/HospitalityB2BRequestLanding"));
-const PartnerMarketingPreview = lazy(async () => {
-  const mod = await import("@/pages/PartnerMarketingPreview");
-  const C = mod.default;
-  if (typeof C !== "function") {
-    throw new Error("PartnerMarketingPreview failed to load");
-  }
-  return { default: C };
-});
+const PartnerMarketingPreview = lazyPage(
+  () => import("@/pages/PartnerMarketingPreview"),
+  "PartnerMarketingPreview",
+);
 const PartnersB2BLanding = lazy(() => import("@/pages/PartnersB2BLanding"));
 const PulseMapPage = lazy(() => import("@/pages/PulseMapPage"));
 const AdminRadarFullScreenPage = lazy(() => import("@/app/admin/radar/full-screen/page"));
@@ -67,22 +57,8 @@ const StaffHubPage = lazy(() => import("@/app/admin/staff-hub/page"));
 const CoiffeurHubPage = lazy(() => import("@/app/admin/coiffeur-hub/page"));
 const FazaaListingAdminPage = lazy(() => import("@/app/admin/fazaa-listing/page"));
 const FazaaListingConsentLanding = lazy(() => import("@/pages/FazaaListingConsentLanding"));
-const AdminDashboard = lazy(async () => {
-  const mod = await import("@/pages/AdminDashboard");
-  const C = mod.default;
-  if (typeof C !== "function") {
-    throw new Error("AdminDashboard failed to load");
-  }
-  return { default: C };
-});
-const BarberDashboard = lazy(async () => {
-  const mod = await import("@/pages/BarberDashboard");
-  const C = mod.default;
-  if (typeof C !== "function") {
-    throw new Error("BarberDashboard failed to load");
-  }
-  return { default: C };
-});
+const AdminDashboard = lazyPage(() => import("@/pages/AdminDashboard"), "AdminDashboard");
+const BarberDashboard = lazyPage(() => import("@/pages/BarberDashboard"), "BarberDashboard");
 const SaudiAgentLanding = lazy(() => import("@/pages/SaudiAgentLanding"));
 const About = lazy(() => import("@/pages/About"));
 const Privacy = lazy(() => import("@/pages/Privacy"));
