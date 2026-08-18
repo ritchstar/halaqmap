@@ -222,10 +222,14 @@ function PricingCard({
             ))}
           </div>
           <div className="mt-2 flex gap-2">
-            <button onClick={() => navigate(ROUTE_PATHS.PRIVATE_OFFICE_GUIDE)}
-              className="text-[0.6rem] text-violet-700 underline transition-colors hover:text-violet-900">
+            <a
+              href={`#${ROUTE_PATHS.PRIVATE_OFFICE_GUIDE}`}
+              target="_blank"
+              rel="noreferrer noopener"
+              className="text-[0.6rem] text-violet-700 underline transition-colors hover:text-violet-900"
+            >
               دليل الاستخدام ←
-            </button>
+            </a>
             <span className="text-slate-300">·</span>
             <button onClick={() => navigate(ROUTE_PATHS.DIGITAL_SHIFT_FEATURE)}
               className="text-[0.6rem] text-violet-700 underline transition-colors hover:text-violet-900">
