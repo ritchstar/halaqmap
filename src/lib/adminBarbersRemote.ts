@@ -13,6 +13,10 @@ import {
   resolveMensGroomingCenterFlag,
 } from '@/config/mensGroomingCenterPolicy';
 import { resolveBarberPublicCoverAndFeatured } from '@/lib/barberPublicBannerImages';
+import {
+  COIFFEUR_LISTING_SECTOR,
+  MENS_LISTING_SECTOR,
+} from '@/config/coiffeurPartnerSector';
 
 const APPROVE_BARBER_API = '/api/approve-barber';
 
@@ -377,6 +381,10 @@ export async function upsertBarberFromApprovedRequest(
     shopImages: request.shopImages ?? [],
   });
 
+  const listingSector =
+    request.listingSector === COIFFEUR_LISTING_SECTOR ? COIFFEUR_LISTING_SECTOR : MENS_LISTING_SECTOR;
+  const isCoiffeur = listingSector === COIFFEUR_LISTING_SECTOR;
+
   const row = {
     name: request.barberName.trim() || 'صالون بدون اسم',
     email: request.email.trim(),
@@ -394,6 +402,7 @@ export async function upsertBarberFromApprovedRequest(
       ? { featured_images: publicImages.featured_images }
       : {}),
     specialties: request.categories?.length ? request.categories : null,
+    listing_sector: listingSector,
     inclusive_care_offered: request.inclusiveAccessibleCare?.offered === true,
     inclusive_care_price_sar:
       request.inclusiveAccessibleCare?.offered === true &&
@@ -406,13 +415,21 @@ export async function upsertBarberFromApprovedRequest(
     inclusive_care_restrict_days: false,
     inclusive_care_days: {},
     inclusive_care_customer_note: null,
-    children_specialist: resolveChildrenSpecialistFlag({
-      requested: request.childrenSpecialist === true,
-      acceptsChildren:
-        request.categories?.some((c) => c === 'حلاقة أطفال' || c === 'أطفال') ?? false,
-      tier: request.tier,
-    }),
+    children_specialist: isCoiffeur
+      ? false
+      : resolveChildrenSpecialistFlag({
+          requested: request.childrenSpecialist === true,
+          acceptsChildren:
+            request.categories?.some((c) => c === 'حلاقة أطفال' || c === 'أطفال') ?? false,
+          tier: request.tier,
+        }),
     ...(() => {
+      if (isCoiffeur) {
+        return {
+          mens_grooming_center: false,
+          grooming_center_banner_lines: [],
+        };
+      }
       const categories = request.categories ?? [];
       const bannerLines = normalizeGroomingCenterBannerLines(request.groomingCenterBannerLines);
       const mensGroomingRequested =

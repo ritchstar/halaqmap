@@ -33,8 +33,22 @@ import {
   shouldResumeRegistrationStep,
   isRegistrationPageReload,
 } from '@/lib/registrationFormDraft';
+import {
+  isCoiffeurRegistrationSurface,
+  sanitizeCategoriesForRegistrationSurface,
+  resolveCoiffeurRegistrationCategories,
+  COIFFEUR_REGISTRATION_CATEGORIES,
+  COIFFEUR_INDEPENDENTS_CATEGORY,
+  COIFFEUR_INDEPENDENT_REGISTER_HINT_AR,
+  COIFFEUR_REGISTER_COPY,
+  COIFFEUR_REGISTER_THEME,
+  COIFFEUR_LISTING_SECTOR,
+  MENS_LISTING_SECTOR,
+  type CoiffeurRegistrationTrack,
+} from '@/config/coiffeurPartnerSector';
 import { mintRegistrationIntentTokenRemote } from '@/lib/registrationIntentRemote';
 import { ProductEvents } from '@/lib/analytics/productAnalytics';
+import { trackTikTokCompleteRegistration } from '@/lib/tiktokPixel';
 import {
   BARBER_DASHBOARD_DEVICE_REQUIREMENT_NOTE_AR,
   BARBER_DASHBOARD_DIAMOND_PORTAL_LINE,
@@ -46,9 +60,9 @@ import {
 import {
   DIGITAL_SHIFT_MONTHLY_ADDON_SAR,
   SOFTWARE_PACKAGE_FOUNDATION_LABEL_AR,
-  SOFTWARE_PACKAGE_GEO_PRESENCE_TITLE_AR,
   SOFTWARE_PACKAGE_UNIT_LABEL_AR,
 } from '@/config/subscriptionPricing';
+import { softwareLicenseFormNameAr } from '@/config/softwareLicenseTerminology';
 import { LISTING_LICENSE_PRICING_DISPLAY_ORDER } from '@/config/listingLicenseCards';
 import {
   OWNER_WATCH_FEATURE_DIAMOND_LINE,
@@ -132,26 +146,38 @@ import {
 } from 'lucide-react';
 import { TIER_MONTHLY_SAR } from '@/config/subscriptionPricing';
 
-const regFieldClass =
+const MEN_REG_FIELD_CLASS =
   'border-slate-600 bg-slate-800 text-slate-100 placeholder:text-slate-500 focus-visible:ring-slate-400';
-const regLabelClass = 'text-slate-300';
-const regMutedClass = 'text-slate-400';
-const regAlertClass = 'rounded-lg border border-slate-600 bg-slate-800/80 p-4 text-slate-300';
+const MEN_REG_LABEL_CLASS = 'text-slate-300';
+const MEN_REG_MUTED_CLASS = 'text-slate-400';
+const MEN_REG_ALERT_CLASS = 'rounded-lg border border-slate-600 bg-slate-800/80 p-4 text-slate-300';
 
 function RegStepShell({
   title,
   description,
   children,
+  coiffeur = false,
 }: {
   title: string;
   description?: string;
   children: ReactNode;
+  coiffeur?: boolean;
 }) {
   return (
-    <div className="rounded-xl border border-slate-700 bg-slate-900 p-6 md:p-8 text-slate-100">
+    <div
+      className={
+        coiffeur
+          ? `${COIFFEUR_REGISTER_THEME.card} p-6 md:p-8`
+          : 'rounded-xl border border-slate-700 bg-slate-900 p-6 md:p-8 text-slate-100'
+      }
+    >
       <header className="mb-6 space-y-2 text-right">
-        <h2 className="text-2xl font-bold text-white">{title}</h2>
-        {description ? <p className={`text-sm leading-relaxed ${regMutedClass}`}>{description}</p> : null}
+        <h2 className={`text-2xl font-bold ${coiffeur ? 'text-[#f7efe8]' : 'text-white'}`}>{title}</h2>
+        {description ? (
+          <p className={`text-sm leading-relaxed ${coiffeur ? COIFFEUR_REGISTER_THEME.muted : MEN_REG_MUTED_CLASS}`}>
+            {description}
+          </p>
+        ) : null}
       </header>
       {children}
     </div>
@@ -172,6 +198,8 @@ interface FormData {
   categories: string[];
   /** مسار التخصص: عام أو متخصص أطفال (ماسي) أو مركز عناية بالرجل */
   specialtyTrack: BarberSpecialtyTrack;
+  /** مسار كوافير ماب — مشغل أو مستقلة */
+  coiffeurTrack: CoiffeurRegistrationTrack;
   /** أسماء خدمات بنر مسار مراكز العناية بالرجل */
   groomingCenterBannerLines: string[];
   /** تعهد قانوني إلزامي قبل إتمام التسجيل */
@@ -338,6 +366,7 @@ function buildDefaultFormData(opts: {
     taxNumber: '',
     categories: [],
     specialtyTrack: 'general',
+    coiffeurTrack: 'salon',
     groomingCenterBannerLines: [MENS_GROOMING_MANDATORY_HAIRCUT_AR, ''],
     legalDisclaimerAccepted: false,
     professionalCommitmentAccepted: false,
@@ -389,6 +418,11 @@ export function RegistrationForm() {
   const urlQty = clampListingLicenseQuantity(urlParams.get('qty'));
   const urlAddonSelected =
     parseDigitalShiftAddonParam(urlParams.get('aiAddon')) || urlParams.get('addon')?.trim().toLowerCase() === 'office';
+  const isCoiffeurSurface = isCoiffeurRegistrationSurface(location.search);
+  const regFieldClass = isCoiffeurSurface ? COIFFEUR_REGISTER_THEME.field : MEN_REG_FIELD_CLASS;
+  const regLabelClass = isCoiffeurSurface ? COIFFEUR_REGISTER_THEME.label : MEN_REG_LABEL_CLASS;
+  const regMutedClass = isCoiffeurSurface ? COIFFEUR_REGISTER_THEME.muted : MEN_REG_MUTED_CLASS;
+  const regAlertClass = isCoiffeurSurface ? COIFFEUR_REGISTER_THEME.alert : MEN_REG_ALERT_CLASS;
   const entryFingerprint = buildRegistrationEntryFingerprint(location.search);
   const resumeRegistrationDraft = Boolean(
     (location.state as { resumeRegistrationDraft?: boolean } | null)?.resumeRegistrationDraft,
@@ -432,8 +466,13 @@ export function RegistrationForm() {
       phone: data.phone,
       whatsapp: data.whatsapp,
       taxNumber: data.taxNumber,
-      categories: data.categories,
-      specialtyTrack: data.specialtyTrack || 'general',
+      categories: sanitizeCategoriesForRegistrationSurface(data.categories, isCoiffeurSurface),
+      specialtyTrack: isCoiffeurSurface
+        ? 'general'
+        : data.specialtyTrack === 'children' || data.specialtyTrack === 'mens_grooming_center'
+          ? data.specialtyTrack
+          : 'general',
+      coiffeurTrack: isCoiffeurSurface && data.coiffeurTrack === 'independents' ? 'independents' : 'salon',
       groomingCenterBannerLines:
         data.groomingCenterBannerLines?.length
           ? data.groomingCenterBannerLines
@@ -487,6 +526,8 @@ export function RegistrationForm() {
           taxNumber: rest.taxNumber,
           categories: rest.categories,
           specialtyTrack: rest.specialtyTrack,
+          coiffeurTrack: rest.coiffeurTrack,
+          listingSector: isCoiffeurSurface ? COIFFEUR_LISTING_SECTOR : MENS_LISTING_SECTOR,
           groomingCenterBannerLines: rest.groomingCenterBannerLines,
           legalDisclaimerAccepted: rest.legalDisclaimerAccepted,
           professionalCommitmentAccepted: rest.professionalCommitmentAccepted,
@@ -506,7 +547,16 @@ export function RegistrationForm() {
       window.clearTimeout(timer);
       persist();
     };
-  }, [formData, currentStep, entryFingerprint]);
+  }, [formData, currentStep, entryFingerprint, isCoiffeurSurface]);
+
+  useEffect(() => {
+    setFormData((prev) => ({
+      ...prev,
+      specialtyTrack: isCoiffeurSurface ? 'general' : prev.specialtyTrack,
+      coiffeurTrack: isCoiffeurSurface ? prev.coiffeurTrack : 'salon',
+      categories: sanitizeCategoriesForRegistrationSurface(prev.categories, isCoiffeurSurface),
+    }));
+  }, [isCoiffeurSurface]);
 
   /** عند الانتقال بين خطوات التسجيل يُمرَّر العرض لأعلى النموذج (وليس للفوتر). */
   useEffect(() => {
@@ -541,6 +591,16 @@ export function RegistrationForm() {
         alert('يرجى تعبئة جميع الحقول المطلوبة');
         return;
       }
+      if (isCoiffeurSurface) {
+        const coiffeurCategories = resolveCoiffeurRegistrationCategories({
+          track: formData.coiffeurTrack,
+          categories: formData.categories,
+        });
+        if (coiffeurCategories.length === 0) {
+          alert('يرجى اختيار نوع خدمة واحد على الأقل للمشغل النسائي');
+          return;
+        }
+      } else {
       if (formData.specialtyTrack === 'children' && formData.tier !== SubscriptionTier.DIAMOND) {
         alert('مسار «متخصص أطفال» متاح للباقة الماسية فقط. اختر الماسي أو حدّد «تخصص عام».');
         return;
@@ -566,6 +626,7 @@ export function RegistrationForm() {
       if (formData.specialtyTrack === 'general' && formData.categories.length === 0) {
         alert('يرجى اختيار نوع خدمة واحد على الأقل.');
         return;
+      }
       }
       // Email validation
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -971,6 +1032,16 @@ export function RegistrationForm() {
           ? { inclusiveAccessibleCare: inclusiveAccessibleCarePayload }
           : {}),
         ...(() => {
+          if (isCoiffeurSurface) {
+            return {
+              listingSector: COIFFEUR_LISTING_SECTOR,
+              categories: resolveCoiffeurRegistrationCategories({
+                track: formData.coiffeurTrack,
+                categories: formData.categories,
+              }),
+              specialtyTrack: 'general' as const,
+            };
+          }
           const childrenResolved = resolveRegistrationChildrenFields({
             specialtyTrack: formData.specialtyTrack,
             tier: formData.tier as SubscriptionTier,
@@ -986,7 +1057,9 @@ export function RegistrationForm() {
             ? mensResolved.categories
             : childrenResolved.categories;
           return {
+            listingSector: MENS_LISTING_SECTOR,
             categories,
+            specialtyTrack: formData.specialtyTrack,
             ...(childrenResolved.childrenSpecialist ? { childrenSpecialist: true } : {}),
             ...(mensResolved.mensGroomingCenter
               ? {
@@ -996,7 +1069,6 @@ export function RegistrationForm() {
               : {}),
           };
         })(),
-        specialtyTrack: formData.specialtyTrack,
         registrationTermsAccepted: true,
         registrationTermsAcceptedAtIso: submittedAtIso,
         professionalCommitmentAccepted: true,
@@ -1129,12 +1201,17 @@ export function RegistrationForm() {
         digitalShiftAddonSelected:
           formData.tier === SubscriptionTier.DIAMOND &&
           isDigitalShiftAddonAllowed(SubscriptionTier.DIAMOND, formData.digitalShiftAddon),
+        listingSector: isCoiffeurSurface ? COIFFEUR_LISTING_SECTOR : MENS_LISTING_SECTOR,
         summaryForDownload,
         mailtoBodyShort,
       });
 
       toast.success('✅ تم تقديم الطلب — يمكنك الآن الانتقال إلى الدفع لبدء مسار التفعيل.');
       ProductEvents.partnerRegisterSubmit({ tier: String(formData.tier || '') });
+      trackTikTokCompleteRegistration({
+        orderId,
+        tier: String(formData.tier || ''),
+      });
       clearRegistrationFormDraft();
       await new Promise((r) => setTimeout(r, 600));
       navigate(ROUTE_PATHS.REGISTER_SUCCESS);
@@ -1178,8 +1255,10 @@ export function RegistrationForm() {
       ref={formTopRef}
       className="w-full max-w-4xl mx-auto py-4 px-1 sm:px-2 scroll-mt-24 min-w-0 overflow-x-hidden text-slate-100"
     >
-      <div className="mb-8 w-full min-w-0 rounded-xl border border-slate-700 bg-slate-900 p-4 md:p-6">
-        <p className="text-center text-sm font-medium text-slate-400 mb-3 md:hidden">
+      <div className={`mb-8 w-full min-w-0 rounded-xl p-4 md:p-6 ${
+        isCoiffeurSurface ? COIFFEUR_REGISTER_THEME.card : 'border border-slate-700 bg-slate-900'
+      }`}>
+        <p className={`text-center text-sm font-medium mb-3 md:hidden ${isCoiffeurSurface ? COIFFEUR_REGISTER_THEME.muted : 'text-slate-400'}`}>
           الخطوة {currentStep} من {STEPS.length}
         </p>
         <div className="overflow-x-auto overscroll-x-contain touch-pan-x [-webkit-overflow-scrolling:touch] pb-2 md:overflow-visible">
@@ -1198,17 +1277,29 @@ export function RegistrationForm() {
                     <div
                       className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-colors ${
                         isActive
-                          ? 'bg-slate-100 text-slate-900'
+                          ? isCoiffeurSurface
+                            ? COIFFEUR_REGISTER_THEME.stepperActive
+                            : 'bg-slate-100 text-slate-900'
                           : isCompleted
-                            ? 'bg-slate-700 text-slate-100'
-                            : 'bg-slate-800 text-slate-500 border border-slate-600'
+                            ? isCoiffeurSurface
+                              ? COIFFEUR_REGISTER_THEME.stepperDone
+                              : 'bg-slate-700 text-slate-100'
+                            : isCoiffeurSurface
+                              ? COIFFEUR_REGISTER_THEME.stepperIdle
+                              : 'bg-slate-800 text-slate-500 border border-slate-600'
                       }`}
                     >
                       {isCompleted ? <Check className="w-4 h-4 sm:w-5 sm:h-5" /> : <Icon className="w-4 h-4 sm:w-5 sm:h-5" />}
                     </div>
                     <span
                       className={`text-[10px] sm:text-xs mt-1.5 text-center leading-tight px-0.5 line-clamp-2 max-w-[4.5rem] sm:max-w-none ${
-                        isActive ? 'text-white font-semibold' : 'text-slate-500'
+                        isActive
+                          ? isCoiffeurSurface
+                            ? 'text-[#f4d4c0] font-semibold'
+                            : 'text-white font-semibold'
+                          : isCoiffeurSurface
+                            ? 'text-rose-100/45'
+                            : 'text-slate-500'
                       }`}
                     >
                       {step.title}
@@ -1217,7 +1308,13 @@ export function RegistrationForm() {
                   {index < STEPS.length - 1 && (
                     <div
                       className={`h-0.5 w-6 sm:w-8 md:flex-1 shrink-0 mx-1 sm:mx-2 transition-colors ${
-                        isCompleted ? 'bg-slate-400' : 'bg-slate-700'
+                        isCompleted
+                          ? isCoiffeurSurface
+                            ? 'bg-[#f4d4c0]/70'
+                            : 'bg-slate-400'
+                          : isCoiffeurSurface
+                            ? 'bg-[#f4d4c0]/20'
+                            : 'bg-slate-700'
                       }`}
                     />
                   )}
@@ -1226,15 +1323,18 @@ export function RegistrationForm() {
             })}
           </div>
         </div>
-        <Progress value={progress} className="h-2 bg-slate-800 [&>div]:bg-slate-300" />
+        <Progress
+          value={progress}
+          className={isCoiffeurSurface ? COIFFEUR_REGISTER_THEME.progress : 'h-2 bg-slate-800 [&>div]:bg-slate-300'}
+        />
       </div>
 
       <div key={currentStep} className="min-w-0">
           {currentStep === 1 && (
-            <div className="rounded-xl border border-slate-700 bg-slate-900 p-5 md:p-7 text-slate-100">
+            <div className={isCoiffeurSurface ? `${COIFFEUR_REGISTER_THEME.card} p-5 md:p-7` : 'rounded-xl border border-slate-700 bg-slate-900 p-5 md:p-7 text-slate-100'}>
               <header className="mb-5 text-right">
-                <h2 className="text-xl font-black text-white">اختر حزمتك</h2>
-                <p className="mt-1 text-sm text-slate-400">اختر الحزمة الشهرية المناسبة ثم أكمل بيانات الطلب.</p>
+                <h2 className={`text-xl font-black ${isCoiffeurSurface ? 'text-[#f7efe8]' : 'text-white'}`}>اختر حزمتك</h2>
+                <p className={`mt-1 text-sm ${isCoiffeurSurface ? COIFFEUR_REGISTER_THEME.muted : 'text-slate-400'}`}>اختر الحزمة الشهرية المناسبة ثم أكمل بيانات الطلب.</p>
               </header>
 
               <div>
@@ -1279,11 +1379,20 @@ export function RegistrationForm() {
                       ) : null}
                       <div
                         className={[
-                          'flex h-full flex-col rounded-lg bg-slate-800 p-5 text-right',
+                          'flex h-full flex-col rounded-lg p-5 text-right',
+                          isCoiffeurSurface ? 'bg-[#2a1218]' : 'bg-slate-800',
                           isStrategic
-                            ? 'border-2 border-slate-500'
-                            : 'border border-slate-700',
-                          isSelected ? 'ring-1 ring-slate-400' : '',
+                            ? isCoiffeurSurface
+                              ? 'border-2 border-[#f4d4c0]/40'
+                              : 'border-2 border-slate-500'
+                            : isCoiffeurSurface
+                              ? 'border border-[#f4d4c0]/20'
+                              : 'border border-slate-700',
+                          isSelected
+                            ? isCoiffeurSurface
+                              ? 'ring-1 ring-[#f4d4c0]/70'
+                              : 'ring-1 ring-slate-400'
+                            : '',
                         ].join(' ')}
                       >
                         <div className="mb-3 flex items-start gap-3">
@@ -1295,7 +1404,7 @@ export function RegistrationForm() {
                           <div className="min-w-0 flex-1 space-y-1">
                             <p className={planTierLevelClass(plan.tier)}>{plan.tierLevel}</p>
                             <h3 className="text-base font-bold leading-snug text-white">
-                              {SOFTWARE_PACKAGE_GEO_PRESENCE_TITLE_AR}
+                              {softwareLicenseFormNameAr(isCoiffeurSurface ? 'coiffeur' : 'halaqmap')}
                             </h3>
                             <p className="text-2xl font-bold text-white">
                               {unitSar}{' '}
@@ -1391,15 +1500,18 @@ export function RegistrationForm() {
             </div>
           )}
           {currentStep === 2 && (
-            <RegStepShell title="بيانات المحل" description="أدخل معلومات محل الحلاقة">
+            <RegStepShell coiffeur={isCoiffeurSurface}
+              title={isCoiffeurSurface ? COIFFEUR_REGISTER_COPY.shopStepTitle : 'بيانات المحل'}
+              description={isCoiffeurSurface ? COIFFEUR_REGISTER_COPY.shopStepDescription : 'أدخل معلومات محل الحلاقة'}
+            >
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="shopName" className={regLabelClass}>
-                    اسم المحل *
+                    {isCoiffeurSurface ? COIFFEUR_REGISTER_COPY.shopNameLabel : 'اسم المحل *'}
                   </Label>
                   <Input
                     id="shopName"
-                    placeholder="مثال: صالون الأناقة"
+                    placeholder={isCoiffeurSurface ? COIFFEUR_REGISTER_COPY.shopNamePlaceholder : 'مثال: صالون الأناقة'}
                     value={formData.shopName}
                     onChange={(e) =>
                       setFormData((prev) => ({ ...prev, shopName: e.target.value }))
@@ -1480,7 +1592,48 @@ export function RegistrationForm() {
                   </Alert>
                 </div>
                 <div className="space-y-3">
-                  <Label className={regLabelClass}>مسار التخصص *</Label>
+                  <Label className={regLabelClass}>
+                    {isCoiffeurSurface ? COIFFEUR_REGISTER_COPY.specialtyLabel : 'مسار التخصص *'}
+                  </Label>
+                  {isCoiffeurSurface ? (
+                  <RadioGroup
+                    value={formData.coiffeurTrack}
+                    onValueChange={(value) => {
+                      const track = value as CoiffeurRegistrationTrack;
+                      setFormData((prev) => ({
+                        ...prev,
+                        coiffeurTrack: track,
+                        specialtyTrack: 'general',
+                        categories:
+                          track === 'independents'
+                            ? [COIFFEUR_INDEPENDENTS_CATEGORY]
+                            : prev.categories.filter((c) => c !== COIFFEUR_INDEPENDENTS_CATEGORY),
+                      }));
+                    }}
+                    className="grid gap-3"
+                  >
+                    <label className={`flex cursor-pointer items-start gap-3 rounded-lg border p-3 ${
+                      isCoiffeurSurface ? 'border-[#f4d4c0]/25 bg-[#2a1218]/70' : 'border-slate-600 bg-slate-800/60'
+                    }`}>
+                      <RadioGroupItem value="salon" id="coiffeur-track-salon" className="mt-1" />
+                      <div>
+                        <span className={`font-semibold ${regLabelClass}`}>{COIFFEUR_REGISTER_COPY.salonTrackTitle}</span>
+                        <p className={`mt-1 text-xs leading-relaxed ${regMutedClass}`}>
+                          {COIFFEUR_REGISTER_COPY.salonTrackHint}
+                        </p>
+                      </div>
+                    </label>
+                    <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-[#f4d4c0]/35 bg-[#f4d4c0]/10 p-3">
+                      <RadioGroupItem value="independents" id="coiffeur-track-independents" className="mt-1" />
+                      <div>
+                        <span className={`font-semibold ${regLabelClass}`}>{COIFFEUR_REGISTER_COPY.independentsTrackTitle}</span>
+                        <p className={`mt-1 text-xs leading-relaxed ${regMutedClass}`}>
+                          {COIFFEUR_INDEPENDENT_REGISTER_HINT_AR}
+                        </p>
+                      </div>
+                    </label>
+                  </RadioGroup>
+                  ) : (
                   <RadioGroup
                     value={formData.specialtyTrack}
                     onValueChange={(value) => {
@@ -1563,9 +1716,45 @@ export function RegistrationForm() {
                       </div>
                     </label>
                   </RadioGroup>
+                  )}
                 </div>
 
-                {formData.specialtyTrack === 'general' ? (
+                {isCoiffeurSurface ? (
+                formData.coiffeurTrack === 'independents' ? (
+                  <Alert className={regAlertClass}>
+                    <AlertCircle className="h-4 w-4 text-rose-200" />
+                    <AlertDescription className="text-slate-300 leading-relaxed">
+                      {COIFFEUR_INDEPENDENT_REGISTER_HINT_AR} يُسجَّل التصنيف «{COIFFEUR_INDEPENDENTS_CATEGORY}».
+                    </AlertDescription>
+                  </Alert>
+                ) : (
+                <div className="space-y-2">
+                  <Label className={regLabelClass}>{COIFFEUR_REGISTER_COPY.categoriesLabel}</Label>
+                  <div className="grid grid-cols-2 gap-3">
+                    {COIFFEUR_REGISTRATION_CATEGORIES.map((category) => (
+                      <div key={category} className="flex items-center space-x-2 space-x-reverse">
+                        <Checkbox
+                          id={`coiffeur-${category}`}
+                          checked={formData.categories.includes(category)}
+                          onCheckedChange={(checked) => {
+                            setFormData((prev) => ({
+                              ...prev,
+                              categories: checked
+                                ? [...prev.categories, category]
+                                : prev.categories.filter((c) => c !== category),
+                            }));
+                          }}
+                          className="border-[#f4d4c0]/50 data-[state=checked]:bg-[#f4d4c0] data-[state=checked]:text-[#2a1218]"
+                        />
+                        <Label htmlFor={`coiffeur-${category}`} className={`cursor-pointer ${regLabelClass}`}>
+                          {category}
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                )
+                ) : formData.specialtyTrack === 'general' ? (
                 <div className="space-y-2">
                   <Label className={regLabelClass}>نوع الخدمات *</Label>
                   <p className="text-xs leading-relaxed text-slate-400">
@@ -1667,7 +1856,7 @@ export function RegistrationForm() {
           )}
 
           {currentStep === 3 && (
-            <RegStepShell title="تحديد الموقع" description="حدد موقع محلك بدقة عبر نظام الرصد الذكي">
+            <RegStepShell coiffeur={isCoiffeurSurface} title="تحديد الموقع" description="حدد موقع محلك بدقة عبر نظام الرصد الذكي">
               <div className="space-y-4">
                 <SaudiRegionCityDistrictFields
                   value={formData.location.saudi}
@@ -1764,7 +1953,7 @@ export function RegistrationForm() {
           )}
 
           {currentStep === 4 && (
-            <RegStepShell
+            <RegStepShell coiffeur={isCoiffeurSurface}
               title="صور المحل والبنر"
               description="لجميع الباقات: صورتان أساسيتان (خارج وداخل) وأربع صور مخصّصة لمنطقة البنر في بطاقة المحل"
             >
@@ -1911,7 +2100,7 @@ export function RegistrationForm() {
           )}
 
           {currentStep === 5 && (
-            <RegStepShell
+            <RegStepShell coiffeur={isCoiffeurSurface}
               title="أوقات العمل (الأسبوع كاملاً)"
               description="من السبت إلى الجمعة — صفٌّ مضغوط لكل يوم. الباقة البرونزية: إلزامي ويُعرَض للعملاء كما تُدخله هنا."
             >
@@ -1999,7 +2188,7 @@ export function RegistrationForm() {
           )}
 
           {currentStep === 6 && (
-            <RegStepShell
+            <RegStepShell coiffeur={isCoiffeurSurface}
               title="منيو الحلاقة والأسعار"
               description="أضف الخدمات الاعتيادية، ثم — اختيارياً — أعلن إن كنت تُوفّر تسهيلات داخل المحل و/أو زيارة منزلية لكبار السن والمرضى وذوي الاحتياجات الخاصة بحسب ظروف العميل."
             >
@@ -2112,7 +2301,7 @@ export function RegistrationForm() {
           )}
 
           {currentStep === 7 && (
-            <RegStepShell title="طريقة الدفع" description="اختر طريقة الدفع المناسبة">
+            <RegStepShell coiffeur={isCoiffeurSurface} title="طريقة الدفع" description="اختر طريقة الدفع المناسبة">
               <div className="space-y-4">
                 {selectedPlan && (
                   <Alert className={`${regAlertClass} border-slate-500`}>
@@ -2247,7 +2436,7 @@ export function RegistrationForm() {
           variant="outline"
           onClick={handlePrevious}
           disabled={currentStep === 1 || isSubmitting}
-          className="border-slate-600 bg-slate-800 text-slate-100 hover:bg-slate-700"
+          className={isCoiffeurSurface ? COIFFEUR_REGISTER_THEME.prev : 'border-slate-600 bg-slate-800 text-slate-100 hover:bg-slate-700'}
         >
           <ChevronLeft className="w-4 h-4 ml-2" />
           السابق
@@ -2256,9 +2445,14 @@ export function RegistrationForm() {
           <Button
             onClick={handleNext}
             disabled={isSubmitting}
-            className={currentStep === 1 && formData.tier
-              ? 'bg-gradient-to-l from-amber-500 to-amber-600 text-black font-black shadow-[0_4px_20px_rgba(245,158,11,0.40)] hover:from-amber-400 px-6 py-2.5 text-base'
-              : 'bg-slate-100 text-slate-900 hover:bg-white'
+            className={
+              currentStep === 1 && formData.tier
+                ? isCoiffeurSurface
+                  ? `${COIFFEUR_REGISTER_THEME.next} px-6 py-2.5 text-base shadow-[0_4px_20px_rgba(201,139,150,0.35)]`
+                  : 'bg-gradient-to-l from-amber-500 to-amber-600 text-black font-black shadow-[0_4px_20px_rgba(245,158,11,0.40)] hover:from-amber-400 px-6 py-2.5 text-base'
+                : isCoiffeurSurface
+                  ? COIFFEUR_REGISTER_THEME.next
+                  : 'bg-slate-100 text-slate-900 hover:bg-white'
             }
           >
             {currentStep === 1 && formData.tier
@@ -2277,7 +2471,7 @@ export function RegistrationForm() {
               !formData.professionalCommitmentAccepted ||
               !formData.softwareProductAcknowledged
             }
-            className="bg-slate-100 text-slate-900 hover:bg-white"
+            className={isCoiffeurSurface ? COIFFEUR_REGISTER_THEME.next : 'bg-slate-100 text-slate-900 hover:bg-white'}
           >
             {isSubmitting ? (
               <>

@@ -3,6 +3,7 @@
  */
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { whitelistBarberUpsertRow } from './approveBarberUpsertWhitelist.js';
+import { normalizeListingSector } from './coiffeurListingSector.js';
 import {
   isBarberUpsertMissingInclusiveCareColumnError,
   stripInclusiveCareKeysFromBarberUpsertRow,
@@ -271,6 +272,8 @@ export function buildBarberUpsertRowFromRegistrationPayload(
   const categories = Array.isArray(payload.categories)
     ? payload.categories.filter((x) => typeof x === 'string')
     : [];
+  const listingSector = normalizeListingSector(payload.listingSector);
+  const isCoiffeur = listingSector === 'coiffeur_women';
   const tierRaw = String(tierOverride ?? payload.tier ?? 'bronze').trim().toLowerCase();
   const tier = tierRaw === 'gold' || tierRaw === 'diamond' ? tierRaw : 'bronze';
   const bannerUrls = attachments.banners?.length
@@ -300,18 +303,27 @@ export function buildBarberUpsertRowFromRegistrationPayload(
       ? { featured_images: publicImages.featured_images }
       : {}),
     specialties: categories.length ? categories : null,
+    listing_sector: listingSector,
     inclusive_care_offered: care.offered,
     inclusive_care_price_sar: care.offered && care.price ? care.price : null,
     inclusive_care_public_visible: true,
     inclusive_care_restrict_days: false,
     inclusive_care_days: {},
     inclusive_care_customer_note: null,
-    children_specialist: resolveChildrenSpecialistFlag({
-      requested: payload.childrenSpecialist === true,
-      acceptsChildren: categories.some((c) => c === 'حلاقة أطفال' || c === 'أطفال'),
-      tier,
-    }),
+    children_specialist: isCoiffeur
+      ? false
+      : resolveChildrenSpecialistFlag({
+          requested: payload.childrenSpecialist === true,
+          acceptsChildren: categories.some((c) => c === 'حلاقة أطفال' || c === 'أطفال'),
+          tier,
+        }),
     ...(() => {
+      if (isCoiffeur) {
+        return {
+          mens_grooming_center: false,
+          grooming_center_banner_lines: [],
+        };
+      }
       const bannerLines = normalizeGroomingCenterBannerLines(payload.groomingCenterBannerLines);
       const mensGroomingRequested =
         payload.mensGroomingCenter === true && payload.digitalShiftAddonSelected === true;
@@ -346,6 +358,7 @@ export function buildMinimalBarberUpsertRowFromPayment(input: {
     phone: (input.phone ?? '').trim() || '0500000000',
     address: 'يُستكمل من لوحة التحكم',
     city: null,
+    listing_sector: 'mens_barber',
     tier,
     is_active: true,
     is_verified: true,

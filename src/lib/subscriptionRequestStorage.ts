@@ -123,6 +123,7 @@ export interface RegisterOrderConfirmation {
   paymentMethod: 'monthly' | 'bank_transfer';
   licenseQuantity: number;
   digitalShiftAddonSelected?: boolean;
+  listingSector?: 'mens_barber' | 'coiffeur_women';
   receiptFileName?: string;
   summaryForDownload: string;
   mailtoBodyShort: string;

@@ -12,17 +12,24 @@ import { motion } from 'framer-motion';
 import { RegistrationForm } from '@/components/RegistrationForm';
 import { RegistrationErrorBoundary } from '@/components/RegistrationErrorBoundary';
 import { ROUTE_PATHS } from '@/lib/index';
-import { Scissors, Shield, ChevronRight, BookOpenCheck } from 'lucide-react';
+import { Scissors, Sparkles, Shield, ChevronRight, BookOpenCheck } from 'lucide-react';
 import { PartnerLandingFaqAccordion } from '@/components/partner/PartnerLandingFaqAccordion';
 import { PartnerFormWhatsAppSupport } from '@/components/partner/PartnerFormWhatsAppSupport';
 import { PartnerRegistrationYoutubeGuideCta } from '@/components/partner/PartnerRegistrationYoutubeGuideCta';
 import { PARTNER_REGISTER_PAGE } from '@/lib/partnerMarketingCopy';
 import { PARTNER_REGISTRATION_GUIDE } from '@/config/partnerRegistrationGuideCopy';
+import { COIFFEUR_REGISTER_COPY, COIFFEUR_REGISTER_THEME, isCoiffeurRegistrationSurface } from '@/config/coiffeurPartnerSector';
+import { softwareLicenseFormNameAr } from '@/config/softwareLicenseTerminology';
+import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 
 export default function Register() {
   const location = useLocation();
   const params = new URLSearchParams(location.search);
   const tierParam = params.get('tier'); // 'bronze' | 'gold' | 'diamond'
+  const isCoiffeurSurface = isCoiffeurRegistrationSurface(location.search);
+  useDocumentTitle(
+    isCoiffeurSurface ? COIFFEUR_REGISTER_COPY.documentTitle : 'تسجيل الشركاء — رخصة برمجية حلاق ماب',
+  );
   const scrollToForm = Boolean(
     (location.state as { scrollToForm?: boolean } | null)?.scrollToForm,
   );
@@ -38,33 +45,57 @@ export default function Register() {
   return (
     <div
       dir="rtl"
-      className="min-h-screen overflow-x-hidden"
-      style={{ background: 'linear-gradient(160deg, #020912 0%, #040d1a 50%, #020912 100%)', fontFamily: 'Tajawal, system-ui' }}
+      className={isCoiffeurSurface ? COIFFEUR_REGISTER_THEME.pageClass : 'min-h-screen overflow-x-hidden'}
+      style={
+        isCoiffeurSurface
+          ? { fontFamily: 'Tajawal, system-ui' }
+          : { background: 'linear-gradient(160deg, #020912 0%, #040d1a 50%, #020912 100%)', fontFamily: 'Tajawal, system-ui' }
+      }
     >
+      {isCoiffeurSurface ? (
+        <>
+          <div className="pointer-events-none absolute -left-24 top-24 hidden h-[22rem] w-[22rem] rounded-full bg-rose-400/12 blur-[110px] md:block" aria-hidden />
+          <div className="pointer-events-none absolute -right-16 top-10 hidden h-[26rem] w-[26rem] rounded-full bg-amber-200/10 blur-[120px] md:block" aria-hidden />
+        </>
+      ) : null}
       {/* ── شريط التنقل العلوي ── */}
-      <header className="sticky top-0 z-40 border-b border-white/5 bg-[#020912]/90 pt-[env(safe-area-inset-top)] backdrop-blur-md">
+      <header className={isCoiffeurSurface ? COIFFEUR_REGISTER_THEME.header : 'sticky top-0 z-40 border-b border-white/5 bg-[#020912]/90 pt-[env(safe-area-inset-top)] backdrop-blur-md'}>
         <div className="relative mx-auto grid max-w-5xl grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2 px-3 py-3 sm:px-4">
           {/* يمين بصري (RTL start) */}
           <div className="flex min-w-0 justify-start">
             <Link
-              to={ROUTE_PATHS.BARBERS_LANDING}
-              className="flex min-w-0 items-center gap-1.5 text-sm text-slate-400 transition-colors hover:text-white sm:gap-2"
+              to={isCoiffeurSurface ? ROUTE_PATHS.COIFFEUR_PARTNERS : ROUTE_PATHS.BARBERS_LANDING}
+              className={`flex min-w-0 items-center gap-1.5 text-sm transition-colors sm:gap-2 ${
+                isCoiffeurSurface ? 'text-rose-100/70 hover:text-[#f4d4c0]' : 'text-slate-400 hover:text-white'
+              }`}
             >
               <ChevronRight className="h-4 w-4 shrink-0" />
-              <span className="truncate">العودة للشركاء</span>
+              <span className="truncate">{isCoiffeurSurface ? COIFFEUR_REGISTER_COPY.backToPartners : 'العودة للشركاء'}</span>
             </Link>
           </div>
           {/* الوسط */}
           <div className="flex shrink-0 items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-xl border border-amber-400/25 bg-amber-500/10">
-              <Scissors className="h-4 w-4 text-amber-300" />
+            <div className={`flex h-8 w-8 items-center justify-center rounded-xl border ${
+              isCoiffeurSurface
+                ? 'border-rose-400/25 bg-rose-500/10'
+                : 'border-amber-400/25 bg-amber-500/10'
+            }`}>
+              {isCoiffeurSurface ? (
+                <Sparkles className="h-4 w-4 text-rose-200" />
+              ) : (
+                <Scissors className="h-4 w-4 text-amber-300" />
+              )}
             </div>
-            <span className="text-sm font-black text-white">حلاق ماب</span>
-            <span className="hidden md:inline text-[0.6rem] text-slate-500">· مسار الشركاء</span>
+            <span className="text-sm font-black text-white">
+              {isCoiffeurSurface ? COIFFEUR_REGISTER_COPY.brand : 'حلاق ماب'}
+            </span>
+            <span className={`hidden md:inline text-[0.6rem] ${isCoiffeurSurface ? 'text-rose-100/45' : 'text-slate-500'}`}>· مسار الشركاء</span>
           </div>
           {/* يسار بصري — مساحة لزر يوتيوب دون تداخل مع النموذج */}
           <div className="relative flex min-h-10 min-w-0 items-center justify-end pe-0 ps-1">
-            <PartnerRegistrationYoutubeGuideCta variant="header" className="max-w-full" />
+            {isCoiffeurSurface ? null : (
+              <PartnerRegistrationYoutubeGuideCta variant="header" className="max-w-full" />
+            )}
           </div>
         </div>
       </header>
@@ -76,18 +107,26 @@ export default function Register() {
           className="mb-8 text-center"
         >
           <h1 className="mb-3 text-3xl font-black leading-tight text-white sm:text-4xl">
-            {PARTNER_REGISTER_PAGE.title}
+            {isCoiffeurSurface ? COIFFEUR_REGISTER_COPY.title : PARTNER_REGISTER_PAGE.title}
           </h1>
-          <div className="mx-auto mt-4 max-w-2xl space-y-3 text-sm leading-7 text-slate-400">
-            {PARTNER_REGISTER_PAGE.introParagraphs.map((paragraph) => (
-              <p key={paragraph.slice(0, 48)}>{paragraph}</p>
-            ))}
+          <div className={`mx-auto mt-4 max-w-2xl space-y-3 text-sm leading-7 ${isCoiffeurSurface ? 'text-rose-50/80' : 'text-slate-400'}`}>
+            {isCoiffeurSurface ? (
+              <p>{COIFFEUR_REGISTER_COPY.kicker}</p>
+            ) : (
+              PARTNER_REGISTER_PAGE.introParagraphs.map((paragraph) => (
+                <p key={paragraph.slice(0, 48)}>{paragraph}</p>
+              ))
+            )}
           </div>
-          <p className="mx-auto mt-3 max-w-xl rounded-xl border border-teal-400/25 bg-teal-500/[0.08] px-3 py-2.5 text-xs font-semibold leading-6 text-teal-100/95">
+          <p className={`mx-auto mt-3 max-w-xl rounded-xl px-3 py-2.5 text-xs font-semibold leading-6 ${
+            isCoiffeurSurface
+              ? 'border border-[#f4d4c0]/25 bg-[#2a1218]/80 text-[#f7efe8]'
+              : 'border border-teal-400/25 bg-teal-500/[0.08] text-teal-100/95'
+          }`}>
             {PARTNER_REGISTER_PAGE.payAfterCommitmentsLine}
           </p>
-          <p className="mx-auto mt-2 max-w-xl text-xs leading-6 text-slate-500">
-            {`حزمة ${tierParam === 'bronze' ? 'برونزي' : tierParam === 'gold' ? 'ذهبي' : tierParam === 'diamond' ? 'ماسي' : 'مناسبة'} — رخصة نفاذ رقمية مسبقة الدفع تُفعَّل وفق الحزمة التي تختارها.`}
+          <p className={`mx-auto mt-2 max-w-xl text-xs leading-6 ${isCoiffeurSurface ? 'text-rose-100/50' : 'text-slate-500'}`}>
+            {`حزمة ${tierParam === 'bronze' ? 'برونزي' : tierParam === 'gold' ? 'ذهبي' : tierParam === 'diamond' ? 'ماسي' : 'مناسبة'} — ${softwareLicenseFormNameAr(isCoiffeurSurface ? 'coiffeur' : 'halaqmap')} مسبقة الدفع تُفعَّل وفق الحزمة التي تختارها.`}
           </p>
 
           {/* مراحل الشراء */}
@@ -95,24 +134,28 @@ export default function Register() {
             {PARTNER_REGISTER_PAGE.steps.map((s, i, arr) => (
               <div key={s} className="flex items-center">
                 <span className={`rounded-full px-2.5 py-1 text-[0.6rem] font-bold ${
-                  i === 0 ? 'bg-amber-500/15 text-amber-300 border border-amber-400/30' :
-                  i === arr.length - 1 ? 'bg-emerald-500/12 text-emerald-300 border border-emerald-400/25' :
-                  'bg-white/5 text-slate-500 border border-white/8'
+                  isCoiffeurSurface
+                    ? (i === 0 ? 'bg-[#f4d4c0]/15 text-[#f4d4c0] border border-[#f4d4c0]/30' :
+                       i === arr.length - 1 ? 'bg-rose-400/15 text-rose-100 border border-rose-200/25' :
+                       'bg-white/5 text-rose-100/50 border border-[#f4d4c0]/15')
+                    : (i === 0 ? 'bg-amber-500/15 text-amber-300 border border-amber-400/30' :
+                       i === arr.length - 1 ? 'bg-emerald-500/12 text-emerald-300 border border-emerald-400/25' :
+                       'bg-white/5 text-slate-500 border border-white/8')
                 }`}>{s}</span>
-                {i < arr.length - 1 && <ChevronRight className="h-3 w-3 text-slate-700 mx-0.5" />}
+                {i < arr.length - 1 && <ChevronRight className={`h-3 w-3 mx-0.5 ${isCoiffeurSurface ? 'text-[#f4d4c0]/30' : 'text-slate-700'}`} />}
               </div>
             ))}
           </div>
 
           {/* تأكيدات */}
-          <div className="mt-4 flex flex-wrap justify-center gap-x-3 gap-y-1 text-[0.6rem] text-slate-600">
+          <div className={`mt-4 flex flex-wrap justify-center gap-x-3 gap-y-1 text-[0.6rem] ${isCoiffeurSurface ? 'text-rose-100/45' : 'text-slate-600'}`}>
             {PARTNER_REGISTER_PAGE.assuranceChips.map((t) => (
               <span key={t}>✅ {t}</span>
             ))}
           </div>
         </motion.header>
 
-        {/* ── رحلة الزبون (Pitch Deck · شريحة 3) ── */}
+        {isCoiffeurSurface ? null : (
         <motion.section
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -140,6 +183,7 @@ export default function Register() {
             </ol>
           </div>
         </motion.section>
+        )}
 
         {/* ── نموذج التسجيل + شريط دعم واتساب + أيقونة تعليمات الاشتراك ── */}
         <motion.section
@@ -148,21 +192,31 @@ export default function Register() {
           id="register-form"
         >
           {/* شرح يوتيوب فوق النموذج — لا يدخل داخل حقول الطلب */}
+          {isCoiffeurSurface ? null : (
           <div className="mb-3">
             <PartnerRegistrationYoutubeGuideCta variant="form" />
           </div>
-          <div className="mb-3 flex items-center justify-between gap-3 rounded-xl border border-sky-400/20 bg-sky-500/[0.07] px-3 py-2.5 sm:px-4">
+          )}
+          <div className={`mb-3 flex items-center justify-between gap-3 rounded-xl px-3 py-2.5 sm:px-4 ${
+            isCoiffeurSurface
+              ? 'border border-[#f4d4c0]/25 bg-[#2a1218]/70'
+              : 'border border-sky-400/20 bg-sky-500/[0.07]'
+          }`}>
             <div className="min-w-0 text-right">
-              <p className="text-xs font-bold text-sky-200 sm:text-sm">
+              <p className={`text-xs font-bold sm:text-sm ${isCoiffeurSurface ? 'text-[#f4d4c0]' : 'text-sky-200'}`}>
                 {PARTNER_REGISTRATION_GUIDE.openGuideCta}
               </p>
-              <p className="mt-0.5 text-[0.65rem] leading-snug text-slate-400 sm:text-xs">
+              <p className={`mt-0.5 text-[0.65rem] leading-snug sm:text-xs ${isCoiffeurSurface ? 'text-rose-100/55' : 'text-slate-400'}`}>
                 {PARTNER_REGISTRATION_GUIDE.openGuideHint}
               </p>
             </div>
             <Link
               to={ROUTE_PATHS.REGISTER_GUIDE}
-              className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-sky-400/35 bg-sky-500/20 px-3 py-2 text-[0.7rem] font-bold text-sky-100 transition hover:bg-sky-500/30 active:scale-[0.98] sm:px-3.5 sm:text-xs"
+              className={`inline-flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-2 text-[0.7rem] font-bold transition active:scale-[0.98] sm:px-3.5 sm:text-xs ${
+                isCoiffeurSurface
+                  ? 'border border-[#f4d4c0]/35 bg-[#f4d4c0]/15 text-[#f7efe8] hover:bg-[#f4d4c0]/25'
+                  : 'border border-sky-400/35 bg-sky-500/20 text-sky-100 hover:bg-sky-500/30'
+              }`}
               title={PARTNER_REGISTRATION_GUIDE.openGuideCta}
               aria-label={PARTNER_REGISTRATION_GUIDE.openGuideCta}
             >
@@ -170,13 +224,14 @@ export default function Register() {
               الدليل
             </Link>
           </div>
-          <PartnerFormWhatsAppSupport context="register" variant="dark">
+          <PartnerFormWhatsAppSupport context="register" variant={isCoiffeurSurface ? 'coiffeur' : 'dark'}>
             <RegistrationErrorBoundary>
               <RegistrationForm />
             </RegistrationErrorBoundary>
           </PartnerFormWhatsAppSupport>
         </motion.section>
 
+        {isCoiffeurSurface ? null : (
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -191,23 +246,28 @@ export default function Register() {
             headingClassName="text-center"
           />
         </motion.div>
+        )}
 
         {/* ── تذييل ── */}
         <footer className="mx-auto mt-10 max-w-3xl text-center">
           <div className="mb-4 flex items-center justify-center gap-2">
-            <Shield className="h-3.5 w-3.5 text-slate-600" />
-            <p className="text-slate-600 text-xs">
+            <Shield className={`h-3.5 w-3.5 ${isCoiffeurSurface ? 'text-[#f4d4c0]/40' : 'text-slate-600'}`} />
+            <p className={`text-xs ${isCoiffeurSurface ? 'text-rose-100/50' : 'text-slate-600'}`}>
               بالتسجيل توافق على{' '}
-              <Link to={ROUTE_PATHS.SUBSCRIPTION_POLICY} className="text-slate-400 underline hover:text-amber-300">
+              <Link to={ROUTE_PATHS.SUBSCRIPTION_POLICY} className={isCoiffeurSurface ? 'text-[#f4d4c0] underline hover:text-rose-50' : 'text-slate-400 underline hover:text-amber-300'}>
                 سياسة رخصة النفاذ
               </Link>
               {' '}و{' '}
-              <Link to={ROUTE_PATHS.PARTNER_PRIVACY} className="text-slate-400 underline hover:text-amber-300">
+              <Link to={ROUTE_PATHS.PARTNER_PRIVACY} className={isCoiffeurSurface ? 'text-[#f4d4c0] underline hover:text-rose-50' : 'text-slate-400 underline hover:text-amber-300'}>
                 سياسة الخصوصية
               </Link>
             </p>
           </div>
-          <p className="text-xs text-slate-700">ISIC4 474151 · حلاق ماب · B2B Technology Platform</p>
+          <p className={`text-xs ${isCoiffeurSurface ? 'text-rose-100/35' : 'text-slate-700'}`}>
+            {isCoiffeurSurface
+              ? 'ISIC4 474151 · كوافير ماب سطح قطاعي تابع لحلاق ماب'
+              : 'ISIC4 474151 · حلاق ماب · B2B Technology Platform'}
+          </p>
         </footer>
       </div>
     </div>

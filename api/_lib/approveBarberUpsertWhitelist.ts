@@ -36,6 +36,7 @@ const APPROVE_BARBER_UPSERT_KEYS = new Set([
   'children_specialist',
   'mens_grooming_center',
   'grooming_center_banner_lines',
+  'listing_sector',
   'home_service_offered',
   'home_service_price_sar',
   'home_service_radius_km',

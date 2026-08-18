@@ -8,16 +8,41 @@ import {
   INVOICE_DIAMOND_WITH_ADDON_LABEL_AR,
 } from '@/config/subscriptionPricing';
 
+/**
+ * التسمية التجارية على نماذج الاشتراك فقط (بيع تجزئة برمجيات).
+ * التعريف القانوني في السياسات والشروط والفواتير يبقى:
+ * «رخصة نفاذ حلاق ماب الرقمية (نظام الاستجابة الذكية)» — وينطبق على كوافير ماب.
+ */
+export type SoftwareLicenseFormSurface = 'halaqmap' | 'coiffeur';
+
+export const SOFTWARE_LICENSE_COMMERCIAL_GENERIC_AR = 'رخصة برمجية' as const;
+export const SOFTWARE_LICENSE_FORM_NAME_HALAQMAP_AR = 'رخصة برمجية حلاق ماب' as const;
+export const SOFTWARE_LICENSE_FORM_NAME_COIFFEUR_AR = 'رخصة برمجية كوافير ماب' as const;
+
+export function softwareLicenseFormNameAr(
+  surface: SoftwareLicenseFormSurface = 'halaqmap',
+): string {
+  return surface === 'coiffeur'
+    ? SOFTWARE_LICENSE_FORM_NAME_COIFFEUR_AR
+    : SOFTWARE_LICENSE_FORM_NAME_HALAQMAP_AR;
+}
+
+export function softwareLicenseFormSurfaceFromCoiffeur(
+  isCoiffeur: boolean,
+): SoftwareLicenseFormSurface {
+  return isCoiffeur ? 'coiffeur' : 'halaqmap';
+}
+
 /** تسمية المنتج الرسمية في واجهة الشركاء */
-export const TERM_PACKAGE_ACTIVATION_AR = 'تفعيل حزمة رخصة النفاذ' as const;
+export const TERM_PACKAGE_ACTIVATION_AR = 'تفعيل حزمة الرخصة البرمجية' as const;
 export const TERM_LICENSE_ACTIVATION_AR = 'تفعيل الرخصة' as const;
 export const TERM_DIGITAL_RIGHT_RENEWAL_AR = 'تجديد الحق الرقمي' as const;
 export const TERM_LICENSE_POLICY_AR = 'سياسة رخصة النفاذ الرقمية' as const;
 export const TERM_LICENSE_REQUEST_AR = 'طلب تفعيل الرخصة' as const;
 export const TERM_ACTIVE_LICENSE_AR = 'رخصة نشطة' as const;
 
-/** أزرار الشراء — بيع فوري للمنتج الرقمي */
-export const TERM_BUY_LICENSE_AR = 'شراء رخصة نفاذ' as const;
+/** أزرار الشراء على نماذج الاشتراك — بيع فوري للمنتج الرقمي */
+export const TERM_BUY_LICENSE_AR = 'شراء رخصة برمجية' as const;
 export const TERM_ACTIVATE_NOW_AR = 'تفعيل الآن' as const;
 
 /** UI/UX — بديل «إعلان» في سياق الإدراج الجغرافي */

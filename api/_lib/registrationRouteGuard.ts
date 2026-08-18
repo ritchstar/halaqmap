@@ -127,7 +127,7 @@ function rateLimitMaxForRoute(routeId: string): number {
   if (routeId === 'send-registration-payment-summary') {
     return envInt('REGISTRATION_PAYMENT_SUMMARY_RATE_LIMIT_MAX', 3);
   }
-  if (routeId === 'public-barbers-get') {
+  if (routeId === 'public-barbers-get' || routeId === 'public-coiffeur-listings-get') {
     return envInt('PUBLIC_BARBERS_RATE_LIMIT_MAX', 90);
   }
   if (routeId === 'public-pulse-map') {

@@ -3,8 +3,9 @@
  */
 import { ROUTE_PATHS } from '@/lib/index';
 import {
+  LEGAL_ECOMMERCE_STORE_NAME,
+  LEGAL_FIRST_SOFTWARE_PRODUCT_AR,
   LEGAL_NATIONAL_UNIFIED_NUMBER,
-  LEGAL_TRADE_NAME_AR,
   PARTNER_SUPPORT_EMAIL,
   PARTNER_SUPPORT_PHONE_E164,
 } from '@/config/partnerLegal';
@@ -34,7 +35,8 @@ export const MOYASAR_DIGITAL_DELIVERY_AR =
   'تسليم رقمي فوري: تفعيل حزمة رخصة النفاذ وكود التفعيل بعد التحقق من نجاح الدفع (عادةً خلال دقائق)' as const;
 
 export const MOYASAR_MERCHANT_IDENTITY_LINES_AR = [
-  LEGAL_TRADE_NAME_AR,
+  LEGAL_ECOMMERCE_STORE_NAME,
+  LEGAL_FIRST_SOFTWARE_PRODUCT_AR,
   `الرقم الوطني الموحد: ${LEGAL_NATIONAL_UNIFIED_NUMBER}`,
   `البريد: ${PARTNER_SUPPORT_EMAIL}`,
   `الهاتف: +${PARTNER_SUPPORT_PHONE_E164}`,

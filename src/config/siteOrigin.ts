@@ -62,6 +62,7 @@ export function buildAbsolutePartnerPaymentUrl(opts: {
   requestId: string;
   qty?: number;
   aiAddon?: boolean;
+  surface?: string;
 }): string {
   const base = getSiteOrigin().replace(/\/+$/, '');
   const q = new URLSearchParams();
@@ -73,6 +74,10 @@ export function buildAbsolutePartnerPaymentUrl(opts: {
   }
   if (opts.aiAddon === true) {
     q.set('aiAddon', '1');
+  }
+  const surface = (opts.surface ?? '').trim().toLowerCase();
+  if (surface === 'coiffeur') {
+    q.set('surface', 'coiffeur');
   }
   return `${base}/#${PARTNER_PAYMENT_PATH}?${q.toString()}`;
 }

@@ -1,6 +1,8 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
+import { validateRegistrationListingSector } from './coiffeurListingSector.js';
+
 export type RegistrationTier = 'bronze' | 'gold' | 'diamond';
 
 const TIER_SET = new Set<RegistrationTier>(['bronze', 'gold', 'diamond']);
@@ -53,6 +55,15 @@ export function validateRegistrationBusinessPayload(
       ok: false,
       error: 'الإضافة البرمجية المتقدمة متاحة للباقة الماسية فقط.',
       code: 'invalid_digital_shift_addon',
+    };
+  }
+
+  const listingSectorCheck = validateRegistrationListingSector(payload);
+  if (!listingSectorCheck.ok) {
+    return {
+      ok: false,
+      error: listingSectorCheck.error,
+      code: listingSectorCheck.code,
     };
   }
 

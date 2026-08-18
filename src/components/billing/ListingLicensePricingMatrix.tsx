@@ -10,10 +10,12 @@ import {
   DIAMOND_PRODUCT_SMART_LABEL_AR,
   DIAMOND_PRODUCT_STANDARD_LABEL_AR,
   SOFTWARE_PACKAGE_FOUNDATION_LABEL_AR,
-  SOFTWARE_PACKAGE_GEO_PRESENCE_TITLE_AR,
-  SOFTWARE_PACKAGE_GEO_PRESENCE_TITLE_PLURAL_AR,
   TIER_MONTHLY_SAR,
 } from '@/config/subscriptionPricing';
+import {
+  softwareLicenseFormNameAr,
+  type SoftwareLicenseFormSurface,
+} from '@/config/softwareLicenseTerminology';
 import { DigitalShiftAddonToggle } from '@/components/billing/DigitalShiftAddonToggle';
 import {
   LISTING_LICENSE_LEGAL_FOOTNOTE,
@@ -65,12 +67,14 @@ type Props = {
   variant?: Variant;
   className?: string;
   showHeader?: boolean;
+  licenseSurface?: SoftwareLicenseFormSurface;
 };
 
 export function ListingLicensePricingMatrix({
   variant = 'embedded-light',
   className,
   showHeader = true,
+  licenseSurface = 'halaqmap',
 }: Props) {
   const [quantities, setQuantities] = useState(initialQuantities);
   const [digitalShiftAddon, setDigitalShiftAddon] = useState(false);
@@ -110,10 +114,10 @@ export function ListingLicensePricingMatrix({
             B2B · ISIC4 474151
           </p>
           <h2 id="listing-license-pricing-heading" className="mt-2 text-2xl font-bold text-white md:text-3xl">
-            {SOFTWARE_PACKAGE_GEO_PRESENCE_TITLE_AR}
+            {softwareLicenseFormNameAr(licenseSurface)}
           </h2>
           <p className="mt-3 max-w-2xl text-sm leading-relaxed text-slate-400">
-            {SOFTWARE_PACKAGE_GEO_PRESENCE_TITLE_PLURAL_AR} مبنية على{' '}
+            حزم {softwareLicenseFormNameAr(licenseSurface)} مبنية على{' '}
             <strong className="font-semibold text-slate-200">{SOFTWARE_PACKAGE_FOUNDATION_LABEL_AR}</strong>: حضور جغرافي غير ثابت يُفعَّل برمجياً عند تنشّط الطلب في محيطك. اختر المستوى وعدد الحزم (كل حزمة = 30 يوم نفاذ).
           </p>
         </header>
@@ -135,6 +139,7 @@ export function ListingLicensePricingMatrix({
             qty: String(qty),
           });
           if (diamondAddonActive) paymentParams.set('aiAddon', '1');
+          if (licenseSurface === 'coiffeur') paymentParams.set('surface', 'coiffeur');
           const paymentTo = `${ROUTE_PATHS.PAYMENT}?${paymentParams.toString()}`;
           const radiationTier: BannerRadiationTier =
             card.accent === 'diamond' ? 'diamond' : card.accent === 'gold' ? 'gold' : 'bronze';
@@ -162,7 +167,9 @@ export function ListingLicensePricingMatrix({
                 </span>
               </div>
 
-              <p className="text-sm font-semibold leading-snug text-slate-200">{card.productTitleAr}</p>
+              <p className="text-sm font-semibold leading-snug text-slate-200">
+                {softwareLicenseFormNameAr(licenseSurface)}
+              </p>
               <p className="mt-1 text-sm leading-relaxed text-slate-400">{card.subtitleAr}</p>
 
               {card.digitalShiftAddonAvailable ? (

@@ -15,9 +15,47 @@ export type CoiffeurInterestSignupRow = {
   consent: boolean;
 };
 
+export type CoiffeurOpsListingRow = {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  city: string;
+  address: string;
+  latitude: number | null;
+  longitude: number | null;
+  tier: string;
+  isActive: boolean;
+  isVerified: boolean;
+  openForCustomers: boolean;
+  specialties: string[];
+  listingSector: string;
+  createdAt: string;
+  isTrial: boolean;
+};
+
+export type CoiffeurHubSeeded = {
+  barberId: string;
+  email: string;
+  listingGranted?: boolean;
+  listingError?: string;
+  validUntil?: string;
+};
+
 export type CoiffeurHubPayload =
-  | { ok: true; tableMissing: boolean; total: number; rows: CoiffeurInterestSignupRow[]; hint?: string }
-  | { ok: false; error: string };
+  | {
+      ok: true;
+      tableMissing: boolean;
+      total: number;
+      rows: CoiffeurInterestSignupRow[];
+      hint?: string;
+      listingsMissing?: boolean;
+      listingsHint?: string;
+      listingTotal: number;
+      listings: CoiffeurOpsListingRow[];
+      seeded?: CoiffeurHubSeeded;
+    }
+  | { ok: false; error: string; hint?: string };
 
 function endpoint(): string {
   const base = String(import.meta.env.VITE_VERCEL_API_ORIGIN || '').trim().replace(/\/$/, '');
@@ -39,16 +77,41 @@ async function authHeaders(): Promise<Record<string, string> | null> {
   return headers;
 }
 
+function asPayload(json: CoiffeurHubPayload & { error?: string }, res: Response): CoiffeurHubPayload {
+  if (!res.ok || json.ok === false) {
+    return { ok: false, error: json.error || `http_${res.status}`, hint: json.hint };
+  }
+  return json;
+}
+
 export async function fetchAdminCoiffeurHub(): Promise<CoiffeurHubPayload> {
   const headers = await authHeaders();
   if (!headers) return { ok: false, error: 'not_signed_in' };
   try {
     const res = await fetch(endpoint(), { headers });
     const json = (await res.json()) as CoiffeurHubPayload & { error?: string };
-    if (!res.ok || json.ok === false) {
-      return { ok: false, error: json.error || `http_${res.status}` };
-    }
-    return json;
+    return asPayload(json, res);
+  } catch {
+    return { ok: false, error: 'network_error' };
+  }
+}
+
+export async function postAdminCoiffeurHub(body: {
+  action: 'seed_trial' | 'patch_listing';
+  barberId?: string;
+  isActive?: boolean;
+  openForCustomers?: boolean;
+}): Promise<CoiffeurHubPayload> {
+  const headers = await authHeaders();
+  if (!headers) return { ok: false, error: 'not_signed_in' };
+  try {
+    const res = await fetch(endpoint(), {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(body),
+    });
+    const json = (await res.json()) as CoiffeurHubPayload & { error?: string };
+    return asPayload(json, res);
   } catch {
     return { ok: false, error: 'network_error' };
   }

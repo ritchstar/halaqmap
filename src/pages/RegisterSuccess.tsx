@@ -14,6 +14,7 @@ import { Label } from '@/components/ui/label';
 import { ROUTE_PATHS, SubscriptionTier } from '@/lib/index';
 import { buildAbsolutePartnerPaymentUrl } from '@/config/siteOrigin';
 import { paymentActivateNowCtaAr } from '@/config/softwareLicenseTerminology';
+import { COIFFEUR_REGISTRATION_SURFACE } from '@/config/coiffeurPartnerSector';
 import {
   loadLastOrderConfirmation,
   clearLastOrderConfirmation,
@@ -87,6 +88,7 @@ export default function RegisterSuccess() {
       qty: String(data.licenseQuantity ?? 1),
     });
     if (data.digitalShiftAddonSelected) q.set('aiAddon', '1');
+    if (data.listingSector === 'coiffeur_women') q.set('surface', COIFFEUR_REGISTRATION_SURFACE);
     return `${ROUTE_PATHS.PAYMENT}?${q.toString()}`;
   }, [data]);
 
@@ -98,6 +100,7 @@ export default function RegisterSuccess() {
             requestId: data.orderId,
             qty: data.licenseQuantity,
             aiAddon: data.digitalShiftAddonSelected,
+            surface: data.listingSector === 'coiffeur_women' ? COIFFEUR_REGISTRATION_SURFACE : undefined,
           })
         : '',
     [data],

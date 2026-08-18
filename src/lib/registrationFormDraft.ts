@@ -35,6 +35,9 @@ export type RegistrationFormDraftSerializable = {
   taxNumber: string;
   categories: string[];
   specialtyTrack: BarberSpecialtyTrack;
+  /** مسار كوافير ماب — لا يُخلط مع تخصصات الرجال */
+  coiffeurTrack?: 'salon' | 'independents';
+  listingSector?: 'mens_barber' | 'coiffeur_women';
   groomingCenterBannerLines: string[];
   legalDisclaimerAccepted: boolean;
   professionalCommitmentAccepted: boolean;
@@ -72,7 +75,16 @@ export function buildRegistrationEntryFingerprint(search: string): string {
   const purpose = (p.get('purpose') || '').trim().toLowerCase();
   const aiAddon = (p.get('aiAddon') || p.get('addon') || '').trim().toLowerCase();
   const plan = (p.get('plan') || '').trim().toLowerCase();
-  return [tier, qty, ref, purpose, aiAddon, plan].join('|');
+  let surface = (p.get('surface') || '').trim().toLowerCase();
+  if (!surface && typeof window !== 'undefined') {
+    const hash = window.location.hash || '';
+    if (hash.includes('?')) {
+      surface = (new URLSearchParams(hash.slice(hash.indexOf('?') + 1)).get('surface') || '')
+        .trim()
+        .toLowerCase();
+    }
+  }
+  return [tier, qty, ref, purpose, aiAddon, plan, surface].join('|');
 }
 
 /**

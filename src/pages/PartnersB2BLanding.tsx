@@ -143,7 +143,7 @@ export default function PartnersB2BLanding() {
               {PARTNER_MALL_HERO_LEAD_DESKTOP_AR}
             </p>
             <p className="text-base" style={{ color: "#94A3B8" }}>
-              تدفع مقابل رخصة نفاذ رقمية — لا وساطة حجز ولا عقد يربطك.
+              تدفع مقابل رخصة برمجية حلاق ماب — لا وساطة حجز ولا عقد يربطك.
             </p>
           </motion.div>
 

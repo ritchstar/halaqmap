@@ -8,10 +8,13 @@
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import {
   LEGAL_ECOMMERCE_AUTH_FOOTER_LINE_AR,
+  LEGAL_ECOMMERCE_STORE_MARK_AR,
+  LEGAL_FIRST_SOFTWARE_PRODUCT_AR,
   LEGAL_NATIONAL_UNIFIED_NUMBER,
-  LEGAL_TRADE_NAME_AR,
   LEGAL_UNIFIED_NUMBER_LABEL_AR,
 } from '@/config/partnerLegal';
+
+export { COIFFEUR_LISTING_SECTOR } from '@/config/coiffeurPartnerSector';
 
 /** أصل الدفع الإلزامي — لا يُستبدل بأصل الدومين القمر الصناعي */
 export const COIFFEUR_HALAQMAP_ORIGIN = 'https://www.halaqmap.com' as const;
@@ -35,19 +38,17 @@ export const COIFFEUR_BRAND_LOGO_SRCSET =
 export const COIFFEUR_CORE_PROJECT_AR = 'حلاق ماب' as const;
 
 export const COIFFEUR_UMBRELLA_LINE_AR =
-  'كوافير ماب سطح قطاعي تابع لمنصة حلاق ماب — الكيان التجاري والتوثيق ونظام الدفع جميعها لدى حلاق ماب.' as const;
+  `كوافير ماب منتج قطاعي ضمن متجر ${LEGAL_ECOMMERCE_STORE_MARK_AR} الإلكتروني. المنتج الأول للمتجر هو ${LEGAL_FIRST_SOFTWARE_PRODUCT_AR}. التوثيق وبوابة الدفع واحدة للمتجر.` as const;
 
 export const COIFFEUR_FOOTER_LEGAL_AR =
-  `${LEGAL_TRADE_NAME_AR} · ${LEGAL_UNIFIED_NUMBER_LABEL_AR}: ${LEGAL_NATIONAL_UNIFIED_NUMBER}` as const;
+  `متجر ${LEGAL_ECOMMERCE_STORE_MARK_AR} · ${LEGAL_UNIFIED_NUMBER_LABEL_AR}: ${LEGAL_NATIONAL_UNIFIED_NUMBER}` as const;
 
 export const COIFFEUR_FOOTER_ECOMMERCE_AR = LEGAL_ECOMMERCE_AUTH_FOOTER_LINE_AR;
 
 export const COIFFEUR_LANDING_META = {
-  documentTitle: 'كوافير ماب — تابع لمنصة حلاق ماب',
-  partnersTitle: 'انضمام صالون كوافير — تحت مظلة حلاق ماب',
+  documentTitle: 'كوافير ماب — منتج ضمن متجر halaqmap',
+  partnersTitle: 'انضمام صالون كوافير — ضمن متجر halaqmap',
 } as const;
-
-export const COIFFEUR_LISTING_SECTOR = 'coiffeur_women' as const;
 
 export type CoiffeurInquiryIntentId =
   | 'near_open'
@@ -147,7 +148,7 @@ export const COIFFEUR_LANDING_COPY = {
     },
     {
       title: 'بلا عمولة على الخدمة',
-      body: 'المنشأة تشتري رخصة نفاذ مسبقة الدفع. ريال الخدمة يبقى للصالون.',
+      body: 'المنشأة تشتري رخصة برمجية مسبقة الدفع. ريال الخدمة يبقى للصالون.',
     },
     {
       title: 'الدفع لدى حلاق ماب',
@@ -158,13 +159,13 @@ export const COIFFEUR_LANDING_COPY = {
 
 export const COIFFEUR_PARTNERS_COPY = {
   badge: 'سطح قطاعي تحت مظلة حلاق ماب',
-  title: 'رخصة نفاذ رقمية لصالونك النسائي',
+  title: 'رخصة برمجية كوافير ماب',
   lead:
-    'نفس منتج حلاق ماب: رخصة نفاذ على نظام الاستجابة الذكية. نفس التعهدات، نفس الفورم، ثم الدفع على نطاق حلاق ماب بعد اكتمال الطلب.',
+    'رخصة برمجية كوافير ماب على نماذج الاشتراك. التعريف القانوني في السياسات هو رخصة نفاذ حلاق ماب الرقمية (نظام الاستجابة الذكية). نفس التعهدات، نفس الفورم، ثم الدفع على نطاق حلاق ماب بعد اكتمال الطلب.',
   stepsTitle: 'ثلاث خطوات — لا تُختصر',
   steps: [
     'أكمل طلب الانضمام والتعهدات في مسار الشركاء المعتمد.',
-    'ادفع رخصة النفاذ عبر ميسر على www.halaqmap.com بعد اكتمال الطلب فقط.',
+    'ادفعي الرخصة البرمجية عبر ميسر على www.halaqmap.com بعد اكتمال الطلب فقط.',
     'بعد نجاح الدفع يُفعَّل ظهور صالونك عند الطلب المناسب.',
   ],
   registerCta: 'ابدئي طلب الانضمام',

@@ -17,6 +17,8 @@ import {
 import {
   LEGAL_COMMERCIAL_REGISTRATION_ISSUED_AT_AR,
   LEGAL_ENTITY_TYPE_AR,
+  LEGAL_ECOMMERCE_STORE_MARK_AR,
+  LEGAL_FIRST_SOFTWARE_PRODUCT_AR,
   LEGAL_NATIONAL_UNIFIED_NUMBER,
   LEGAL_REGISTRATION_ISSUING_AUTHORITY_AR,
   LEGAL_REGISTRATION_STATUS_AR,
@@ -45,7 +47,7 @@ export const LICENSED_ACTIVITY_ISIC_HIERARCHY_AR =
   `- النشاط (${ISIC_ACTIVITY_CODE}): ${ISIC_MOC_ACTIVITY_NAME_AR}`;
 
 export const LICENSED_ACTIVITY_SCOPE_OPENING_AR =
-  `تعمل **منصة حلاق ماب** بموجب نشاط **${ISIC_ACTIVITY_LABEL_AR}** (${ISIC_ACTIVITY_CODE_LABEL_AR}: **${ISIC_ACTIVITY_CODE}**)، وفق تعريف **الهيئة العامة للإحصاء (GaStat)**.`;
+  `يعمل متجر ${LEGAL_ECOMMERCE_STORE_MARK_AR} الإلكتروني بموجب نشاط **${ISIC_ACTIVITY_LABEL_AR}** (${ISIC_ACTIVITY_CODE_LABEL_AR}: **${ISIC_ACTIVITY_CODE}**)، وفق تعريف **الهيئة العامة للإحصاء (GaStat)**. **${LEGAL_FIRST_SOFTWARE_PRODUCT_AR}** المنتج البرمجي الأول لهذا المتجر.`;
 
 export const LICENSED_ACTIVITY_SCOPE_PARAGRAPH_AR =
   `${LICENSED_ACTIVITY_SCOPE_OPENING_AR}\n\n${ISIC_ACTIVITY_GASTAT_DEFINITION_AR}\n\n` +
@@ -70,7 +72,7 @@ export const LICENSED_ACTIVITY_OUT_OF_SCOPE_AR: readonly string[] = [
 ];
 
 export const SOFTWARE_PRODUCT_PURCHASE_ACK_AR =
-  `أقر أنني أشتري **منتجاً برمجياً رقمياً** (رخصة نفاذ و/أو إضافة برمجية) بموجب نشاط **${ISIC_ACTIVITY_LABEL_AR}** (${ISIC_ACTIVITY_CODE_LABEL_AR}: ${ISIC_ACTIVITY_CODE})، ` +
+  `أقر أنني أشتري **منتجاً برمجياً رقمياً** (رخصة برمجية و/أو إضافة برمجية) بموجب نشاط **${ISIC_ACTIVITY_LABEL_AR}** (${ISIC_ACTIVITY_CODE_LABEL_AR}: ${ISIC_ACTIVITY_CODE})، ` +
   'وليس خدمة حلاقة أو حجزاً أو وساطة تجارية.';
 
 export const SOFTWARE_PRODUCT_PURCHASE_ACK_SHORT_AR =

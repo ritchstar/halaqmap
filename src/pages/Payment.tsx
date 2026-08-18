@@ -20,7 +20,7 @@ import { Badge } from '@/components/ui/badge';
 import { ROUTE_PATHS, SubscriptionTier } from '@/lib';
 import { IMAGES } from '@/assets/images';
 import { resolvePaymentGateway } from '@/config/paymentGateway';
-import { LEGAL_TRADE_NAME_AR } from '@/config/partnerLegal';
+import { LEGAL_ECOMMERCE_STORE_NAME } from '@/config/partnerLegal';
 import {
   clampListingLicenseQuantity,
   computeListingLicenseTotalSar,
@@ -60,11 +60,19 @@ import { PaymentCheckoutAcknowledgment } from '@/components/billing/PaymentCheck
 import { PaymentLicenseTotalPanel } from '@/components/billing/PaymentLicenseTotalPanel';
 import { MoyasarOfficialTrustChip } from '@/components/billing/MoyasarOfficialTrustChip';
 import { PartnerExternalCheckoutGate } from '@/components/partner/PartnerExternalCheckoutGate';
+import { lockPartnerDarkCanvas } from '@/lib/partnerDarkCanvas';
 import { MadaBadgeIcon, VisaMastercardBadgeIcon } from '@/components/billing/PaymentMethodBadgeIcons';
 import { REGISTRATION_STORAGE_ORDER_ID_RE } from '@/lib/registrationFileUploads';
 import { PlatformTlsTrustBadge } from '@/components/PlatformTlsTrustBadge';
 import { PlatformTrustStrip } from '@/components/PlatformTrustStrip';
-import { paymentActivateNowCtaAr, TERM_ACTIVATE_NOW_AR } from '@/config/softwareLicenseTerminology';
+import {
+  paymentActivateNowCtaAr,
+  softwareLicenseFormNameAr,
+  type SoftwareLicenseFormSurface,
+  TERM_ACTIVATE_NOW_AR,
+} from '@/config/softwareLicenseTerminology';
+import { COIFFEUR_REGISTRATION_SURFACE } from '@/config/coiffeurPartnerSector';
+import { loadLastOrderConfirmation } from '@/lib/subscriptionRequestStorage';
 import {
   PAYMENT_INCOMPLETE_ADMIN_GRANT_BODY_AR,
   PAYMENT_INCOMPLETE_ADMIN_GRANT_TITLE_AR,
@@ -117,6 +125,14 @@ export default function Payment() {
     () => clampListingLicenseQuantity(searchParams.get('qty')),
     [searchParams],
   );
+  const licenseSurface: SoftwareLicenseFormSurface = useMemo(() => {
+    const fromUrl = (searchParams.get('surface') ?? '').trim().toLowerCase();
+    if (fromUrl === COIFFEUR_REGISTRATION_SURFACE) return 'coiffeur';
+    const lastOrder = loadLastOrderConfirmation();
+    if (lastOrder?.listingSector === 'coiffeur_women') return 'coiffeur';
+    return 'halaqmap';
+  }, [searchParams]);
+  const licenseFormNameAr = softwareLicenseFormNameAr(licenseSurface);
 
   const setLicenseQuantity = useCallback(
     (nextRaw: number) => {
@@ -186,6 +202,8 @@ export default function Payment() {
   );
   const walletPkg = useMemo(() => walletTopupPackageBySku(walletSku), [walletSku]);
   const buyerEmail = useMemo(() => searchParams.get('buyerEmail')?.trim() ?? '', [searchParams]);
+
+  useEffect(() => lockPartnerDarkCanvas(), []);
 
   /** بعد عودة ميسر: ادمج tier/requestId من sessionStorage قبل التحقق من الخادم. */
   const [moyasarReturnHydrated, setMoyasarReturnHydrated] = useState(
@@ -916,7 +934,7 @@ export default function Payment() {
               ? {
                   apple_pay: {
                     country: 'SA',
-                    label: LEGAL_TRADE_NAME_AR,
+                    label: LEGAL_ECOMMERCE_STORE_NAME,
                     validate_merchant_url: MOYASAR_APPLE_PAY_VALIDATE_URL,
                   },
                 }
@@ -1118,7 +1136,12 @@ export default function Payment() {
   }, [searchParams]);
 
   return (
-    <div className="min-h-screen overflow-x-hidden bg-background" dir="rtl">
+    <div
+      className="min-h-screen overflow-x-hidden bg-[#020912]"
+      dir="rtl"
+      role="application"
+      aria-label="إتمام دفع رخصة الإدراج"
+    >
       {/* Header */}
       <div className="relative overflow-hidden bg-gradient-to-b from-primary/10 via-background to-background py-10 sm:py-16">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(13,148,136,0.15),transparent_50%)]" />
@@ -1164,7 +1187,7 @@ export default function Payment() {
                 ? 'شحن محفظة المناوب الرقمي'
                 : purchasePurpose === 'recharge'
                   ? 'تجديد / شحن حزمة الرخصة'
-                  : 'إتمام شراء رخصة النفاذ'
+                  : `إتمام شراء ${licenseFormNameAr}`
               }
             </h1>
             <p className="mx-auto max-w-2xl text-base font-medium leading-relaxed text-foreground/90 sm:text-xl">
@@ -1402,7 +1425,7 @@ export default function Payment() {
               <Card className="border-primary/25">
                 <CardHeader>
                   <CardTitle className="text-xl sm:text-2xl">
-                    {isWalletTopup ? 'ملخص شحن محفظة المناوب الرقمي' : 'ملخص حزمة رخصة النفاذ الرقمية'}
+                    {isWalletTopup ? 'ملخص شحن محفظة المناوب الرقمي' : `ملخص ${licenseFormNameAr}`}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-5">

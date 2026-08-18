@@ -9,7 +9,7 @@ export const CORPORATE_PRODUCT_COMPLIANCE_SECTIONS = [
   {
     id: 'owner',
     label: 'الجهة المالكة والمطورة',
-    body: 'منصة حلاق ماب — الجهة المرخّصة لتشغيل المنصة وفق ISIC4 474151',
+    body: 'متجر `halaqmap` الإلكتروني — بيع بالتجزئة للبرمجيات وفق ISIC4 474151. منصة حلاق ماب المنتج البرمجي الأول للمتجر.',
   },
   {
     id: 'product',

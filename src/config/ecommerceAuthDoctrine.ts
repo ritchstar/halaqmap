@@ -13,6 +13,8 @@ import {
   LEGAL_ECOMMERCE_AUTH_STATUS_AR,
   LEGAL_ECOMMERCE_INQUIRY_URL,
   LEGAL_NATIONAL_UNIFIED_NUMBER,
+  LEGAL_ECOMMERCE_STORE_MARK_AR,
+  LEGAL_ECOMMERCE_STORE_ROLE_AR,
 } from '@/config/partnerLegal';
 
 export {
@@ -25,7 +27,7 @@ export {
 
 /** ملخص واحد — للنصوص القصيرة والوكلاء */
 export const ECOMMERCE_AUTH_VERIFIED_SUMMARY_AR =
-  `المنصة موثّقة للعمل بالتجارة الإلكترونية لدى ${LEGAL_ECOMMERCE_AUTH_ISSUER_AR} — رقم التوثيق ${LEGAL_ECOMMERCE_AUTH_NUMBER} (${LEGAL_ECOMMERCE_AUTH_STATUS_AR}).`;
+  `متجر ${LEGAL_ECOMMERCE_STORE_MARK_AR} موثّق للعمل بالتجارة الإلكترونية لدى ${LEGAL_ECOMMERCE_AUTH_ISSUER_AR} — رقم التوثيق ${LEGAL_ECOMMERCE_AUTH_NUMBER} (${LEGAL_ECOMMERCE_AUTH_STATUS_AR}). ${LEGAL_ECOMMERCE_STORE_ROLE_AR}.`;
 
 /** قالب جاهز — مدير المبيعات / المتحدث / الناظر */
 export const ECOMMERCE_AUTH_CANONICAL_REPLY_AR =
@@ -41,14 +43,15 @@ export const ECOMMERCE_AUTH_DOCTRINE_AR = `
 ═══════════════════════════════════════════════════
 【توثيق التجارة الإلكترونية — قواعد إلزامية · مكتمل】
 ═══════════════════════════════════════════════════
-- المنصة **موثّقة رسمياً** للعمل بالتجارة الإلكترونية لدى **${LEGAL_ECOMMERCE_AUTH_ISSUER_AR}**.
+- المتجر الإلكتروني الموثّق هو **${LEGAL_ECOMMERCE_STORE_MARK_AR}** لدى **${LEGAL_ECOMMERCE_AUTH_ISSUER_AR}**.
+- لا تُعرِّب اسم المتجر ولا تستبدله بـ «حلاق ماب»؛ حلاق ماب منتج المتجر الأول.
 - رقم التوثيق: **${LEGAL_ECOMMERCE_AUTH_NUMBER}** — الحالة: **${LEGAL_ECOMMERCE_AUTH_STATUS_AR}**.
 - لا تذكر تاريخ انتهاء ولا «ساري حتى» في ردك على توثيق التجارة الإلكترونية.
 - الرقم الوطني الموحد (السجل التجاري): **${LEGAL_NATIONAL_UNIFIED_NUMBER}**.
 - سطر التذييل العام: «${LEGAL_ECOMMERCE_AUTH_FOOTER_LINE_AR}».
 
 【ما يجب قوله】
-✅ «المنصة موثّقة للتجارة الإلكترونية من ${LEGAL_ECOMMERCE_AUTH_ISSUER_AR} — رقم ${LEGAL_ECOMMERCE_AUTH_NUMBER} (ساري)».
+✅ «متجر ${LEGAL_ECOMMERCE_STORE_MARK_AR} موثّق للتجارة الإلكترونية من ${LEGAL_ECOMMERCE_AUTH_ISSUER_AR} — رقم ${LEGAL_ECOMMERCE_AUTH_NUMBER} (ساري)».
 ✅ «يمكنك التحقق من رقم التوثيق في تذييل الموقع — الرئيسية، مسار الشركاء، وصفحات الخصوصية».
 ✅ اربط التوثيق بثقة الشريك دون مبالغة: امتثال رسمي + شفافية + مسار تسجيل واضح.
 
@@ -57,7 +60,7 @@ export const ECOMMERCE_AUTH_DOCTRINE_AR = `
 ❌ لا تؤجّل «التشغيل التجاري» أو «فتح تفعيل الرخصة» بسبب انتظار توثيق التجارة — التوثيق **ساري**.
 ❌ **ممنوع** ذكر **تاريخ انتهاء** أو **ساري حتى** أو **صلاحية الشهادة** (من–إلى) لتوثيق التجارة الإلكترونية.
 ❌ لا تختلق أرقاماً أو جهات أو تواريخ غير المذكورة أعلاه.
-❌ لا تخلط بين «توثيق التجارة الإلكترونية للمنصة» وبين «امتثال صالون الشريك لاشتراطاته» — الأخير مسؤولية الشريك بالتعهد القانوني.
+❌ لا تخلط بين «توثيق التجارة الإلكترونية لمتجر ${LEGAL_ECOMMERCE_STORE_MARK_AR}» وبين «امتثال صالون الشريك لاشتراطاته» — الأخير مسؤولية الشريك بالتعهد القانوني.
 
 【قالب جاهز — استخدمه أو ما يعادله】
 ${ECOMMERCE_AUTH_CANONICAL_REPLY_AR}

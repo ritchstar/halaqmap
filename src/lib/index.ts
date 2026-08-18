@@ -309,6 +309,8 @@ export interface SubscriptionRequest {
   /** تسهيلات بالمحل و/أو زيارة منزلية للفئات الحسّاسة — اختياري؛ عند التفعيل يلزم سعر معروض */
   inclusiveAccessibleCare?: InclusiveAccessibleCareOffer;
   categories?: string[];
+  /** قطاع الإدراج: رجال (افتراضي) أو كوافير ماب النسائي */
+  listingSector?: 'mens_barber' | 'coiffeur_women';
   /** مسار التخصص عند التسجيل */
   specialtyTrack?: 'general' | 'children' | 'mens_grooming_center';
   mensGroomingCenter?: boolean;

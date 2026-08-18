@@ -2,11 +2,29 @@
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
 /**
- * الاسم المعروض للجهة — المنصّة هي الممثّل النظامي للخدمة.
- * لا يُدرَج اسم المؤسسة الصريح؛ يُكتفى بالرقم الوطني الموحد كمعرّف رسمي
- * يتيح للجهات المختصّة معرفة المنشأة المالكة عند الحاجة.
+ * الاسم الرسمي لمتجر البيع الإلكتروني — لاتيني كما في توثيق التجارة الإلكترونية.
+ * لا يُعرَّب اسم المتجر ولا يُستبدل بحروف عربية.
  */
-export const LEGAL_TRADE_NAME_AR = 'منصة حلاق ماب';
+export const LEGAL_ECOMMERCE_STORE_NAME = 'halaqmap' as const;
+
+/** للمتجر داخل جملة عربية — لاتيني معزول حتى لا ينكسر الاتجاه */
+export const LEGAL_ECOMMERCE_STORE_MARK_AR = '`halaqmap`' as const;
+
+export const LEGAL_ECOMMERCE_STORE_ROLE_AR =
+  'متجر `halaqmap` الإلكتروني للبيع بالتجزئة للبرمجيات';
+
+/**
+ * المنتج البرمجي الأول للمتجر — الاسم العربي للجمهور.
+ * الخدمة للمستعلم مجانية، وللصالون حزم نفاذ برمجية.
+ */
+export const LEGAL_FIRST_SOFTWARE_PRODUCT_AR = 'منصة حلاق ماب' as const;
+
+/**
+ * توافق قديم: كان يُخلط مع اسم المتجر.
+ * يبقى اسم المنتج الأول فقط. للمتجر استخدم `LEGAL_ECOMMERCE_STORE_NAME`.
+ * لا يُدرَج اسم المؤسسة الصريح؛ يُكتفى بالرقم الوطني الموحد كمعرّف رسمي.
+ */
+export const LEGAL_TRADE_NAME_AR = LEGAL_FIRST_SOFTWARE_PRODUCT_AR;
 
 /** الرقم الوطني الموحد — معرّف السجل التجاري المعتمد وفق وزارة التجارة */
 export const LEGAL_NATIONAL_UNIFIED_NUMBER = '7054117093';
@@ -50,7 +68,7 @@ export const LEGAL_MEDIA_LICENSE_FOOTER_LINE_AR =
 
 /** يُعرض في تذييل صفحة «من نحن» فقط — خط صغير */
 export const LEGAL_ENTITY_ABOUT_FOOTER_LINE_AR =
-  `${LEGAL_TRADE_NAME_AR} · الرقم الوطني الموحد: ${LEGAL_NATIONAL_UNIFIED_NUMBER}`;
+  `متجر ${LEGAL_ECOMMERCE_STORE_MARK_AR} · الرقم الوطني الموحد: ${LEGAL_NATIONAL_UNIFIED_NUMBER}`;
 
 /** تسمية العرض الرسمية — الرقم الموحد هو السجل المعتمد حالياً */
 export const LEGAL_UNIFIED_NUMBER_LABEL_AR =
@@ -81,3 +99,10 @@ export const PARTNER_SUPPORT_WHATSAPP_URL = `https://wa.me/${PARTNER_SUPPORT_PHO
 /** عنوان سياسة حزم الرخصة — موحّد في الوثائق القانونية والتذييل والتسجيل */
 export const DIGITAL_SOFTWARE_PACKAGES_POLICY_TITLE_AR =
   'سياسة رخصة نفاذ حلاق ماب الرقمية (نظام الاستجابة الذكية)';
+
+/**
+ * صياغة إلزامية في السياسات: المتجر ≠ المنتج.
+ * بوابة ميسر واحدة للمتجر؛ كل منتج برمجي يُسمّى ويُسعَّر ثم يُربط بها.
+ */
+export const LEGAL_STORE_PRODUCT_GATEWAY_DOCTRINE_AR =
+  'المتجر الإلكتروني الموثّق هو `halaqmap`، ويعمل بنشاط البيع بالتجزئة للبرمجيات. **منصة حلاق ماب** المنتج البرمجي الأول لهذا المتجر. قد تُسمّى منتجات برمجية لاحقة وتُسعَّر ثم تُربط ببوابة الدفع المعتمدة نفسها، كما رُبط شحن المناوب، دون فتح بوابة ثانية.';

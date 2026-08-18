@@ -5,11 +5,11 @@ import { SubscriptionTier } from '@/lib';
 import {
   DIAMOND_ADDON_OPTION_LINE_AR,
   DIAMOND_LICENSE_TECHNICAL_VALUE_AR,
-  SOFTWARE_PACKAGE_GEO_PRESENCE_TITLE_AR,
   SOFTWARE_PACKAGE_UNIT_LABEL_AR,
   SOFTWARE_PACKAGE_VALIDITY_LABEL_AR,
   TIER_MONTHLY_SAR,
 } from '@/config/subscriptionPricing';
+import { SOFTWARE_LICENSE_FORM_NAME_HALAQMAP_AR } from '@/config/softwareLicenseTerminology';
 import {
   OWNER_WATCH_LISTING_DIAMOND_HIGHLIGHT_AR,
   OWNER_WATCH_LISTING_GOLD_HIGHLIGHT_AR,
@@ -64,7 +64,7 @@ export const LISTING_LICENSE_PRICING_CARDS: readonly ListingLicenseCardConfig[] 
     title: 'برونزي',
     nameAr: 'برونزي',
     badge: '🥉',
-    productTitleAr: SOFTWARE_PACKAGE_GEO_PRESENCE_TITLE_AR,
+    productTitleAr: SOFTWARE_LICENSE_FORM_NAME_HALAQMAP_AR,
     subtitleAr: PARTNER_TIER_MARKETING_HOOKS_AR.bronze,
     priceSar: TIER_MONTHLY_SAR[SubscriptionTier.BRONZE],
     packageUnitLabelAr: SOFTWARE_PACKAGE_UNIT_LABEL_AR,
@@ -86,7 +86,7 @@ export const LISTING_LICENSE_PRICING_CARDS: readonly ListingLicenseCardConfig[] 
     nameAr: 'الباقة الماسية',
     badge: '💎',
     premiumRibbonAr: 'أقوى رخصة نفاذ + Add-on اختياري',
-    productTitleAr: SOFTWARE_PACKAGE_GEO_PRESENCE_TITLE_AR,
+    productTitleAr: SOFTWARE_LICENSE_FORM_NAME_HALAQMAP_AR,
     subtitleAr: PARTNER_TIER_MARKETING_HOOKS_AR.diamond,
     priceSar: TIER_MONTHLY_SAR[SubscriptionTier.DIAMOND],
     packageUnitLabelAr: SOFTWARE_PACKAGE_UNIT_LABEL_AR,
@@ -113,7 +113,7 @@ export const LISTING_LICENSE_PRICING_CARDS: readonly ListingLicenseCardConfig[] 
     title: 'ذهبي',
     nameAr: 'ذهبي',
     badge: '🥇',
-    productTitleAr: SOFTWARE_PACKAGE_GEO_PRESENCE_TITLE_AR,
+    productTitleAr: SOFTWARE_LICENSE_FORM_NAME_HALAQMAP_AR,
     subtitleAr: PARTNER_TIER_MARKETING_HOOKS_AR.gold,
     priceSar: TIER_MONTHLY_SAR[SubscriptionTier.GOLD],
     packageUnitLabelAr: SOFTWARE_PACKAGE_UNIT_LABEL_AR,

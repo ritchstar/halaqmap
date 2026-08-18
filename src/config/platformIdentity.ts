@@ -23,6 +23,7 @@
 
 import { LICENSED_ACTIVITY_SCOPE_OPENING_AR } from '@/config/legalActivityScope';
 import { ECOMMERCE_AUTH_VERIFIED_SUMMARY_AR } from '@/config/ecommerceAuthDoctrine';
+import { LEGAL_STORE_PRODUCT_GATEWAY_DOCTRINE_AR } from '@/config/partnerLegal';
 
 /** الشارة القصيرة المعروضة على البطاقات والبادجات. */
 export const PLATFORM_IDENTITY_BADGE_AR = 'مزوّد حلول تقنية، لا وسيط تجاري';
@@ -37,6 +38,7 @@ export const PLATFORM_IDENTITY_SUBHEADLINE_AR =
 
 /** الفقرة الرسمية الموحّدة — تُستخدم حرفياً في السياسات والشروط. */
 export const PLATFORM_IDENTITY_PARAGRAPH_AR =
+  `${LEGAL_STORE_PRODUCT_GATEWAY_DOCTRINE_AR}\n\n` +
   `${LICENSED_ACTIVITY_SCOPE_OPENING_AR} ` +
   'تختص المنصة في **تطوير وبيع منتجات برمجية رقمية** — تحديداً **حزم إدراج برمجية مسبقة الدفع** على **نظام الاستجابة الذكية**. ' +
   'هذه المنصة **لا تعمل بصفة وسيط تجاري**: فلا تتعاقد نيابة عن العميل، ولا تحجز نيابة عنه، ولا تتقاضى عمولة على خدمة الحلاقة أو القص أو أي خدمة بدنية، ولا تتدخّل في تسعير الصالون أو إدارة محفظته. ' +
