@@ -527,6 +527,14 @@ export default function PartnerMarketingPreview() {
   const isStrictPartnerPath =
     location.pathname === ROUTE_PATHS.BARBERS_LANDING || location.pathname.startsWith('/partners/');
   useDocumentTitle(SOFTWARE_SERVICES_PORTAL_HEADING);
+  useEffect(() => {
+    document.documentElement.classList.add('hm-app-dark-canvas');
+    document.documentElement.style.background = '#020912';
+    return () => {
+      document.documentElement.classList.remove('hm-app-dark-canvas');
+      document.documentElement.style.background = '';
+    };
+  }, []);
   const { effectivePhase, control } = usePlatformAmbient();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState<'bronze' | 'gold' | 'diamond'>('gold');

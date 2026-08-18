@@ -43,6 +43,7 @@ import {
   DIAMOND_PRODUCT_STANDARD_LABEL_AR,
 } from '@/config/subscriptionPricing';
 import { fetchPublicPaymentPageConfig, type PublicPaymentPageConfig } from '@/lib/publicPaymentPageConfigRemote';
+import { trackTikTokInitiateCheckout } from '@/lib/tiktokPixel';
 import { getUnifiedPaymentProvider } from '@/lib/payment/providers';
 import { verifyMoyasarPaymentRemote } from '@/lib/moyasarPaymentVerifyRemote';
 import {
@@ -156,6 +157,29 @@ export default function Payment() {
     return p === 'recharge' ? 'recharge' : 'new';
   }, [searchParams]);
   const isWalletTopup = purchasePurpose === 'wallet_topup';
+  const gatewayReturnPaymentId = searchParams.get('id')?.trim() ?? '';
+
+  useEffect(() => {
+    if (isWalletTopup) return;
+    if (gatewayReturnPaymentId) return;
+    const value = computeListingLicenseTotalSar(tier, licenseQuantity, listingPricingOptions);
+    trackTikTokInitiateCheckout({
+      contentId: `listing_license_${tier}${digitalShiftAddonSelected ? '_shift' : ''}`,
+      value,
+      currency: 'SAR',
+      dedupeKey: requestId || `${purchasePurpose}:${tier}:${licenseQuantity}`,
+    });
+  }, [
+    isWalletTopup,
+    gatewayReturnPaymentId,
+    tier,
+    licenseQuantity,
+    listingPricingOptions,
+    digitalShiftAddonSelected,
+    requestId,
+    purchasePurpose,
+  ]);
+
   const walletSku = useMemo(
     () => (searchParams.get('walletSku') ?? '').trim().toLowerCase(),
     [searchParams],

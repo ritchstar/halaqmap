@@ -16,6 +16,7 @@ import { ConsumerNativeShellGate } from "@/components/consumer/ConsumerNativeShe
 import { RouteScopedErrorBoundary } from "@/components/RouteScopedErrorBoundary";
 import { LEGACY_PARTNER_ROUTE_PATHS, ROUTE_PATHS } from "@/lib/routePaths";
 import { resolveMensHostCoiffeurRedirect } from "@/lib/coiffeurHostRedirect";
+import { readHashQueryParam } from "@/lib/hashQueryParams";
 import { buildMapContactPartnerInterestPath } from "@/config/mapContactCardCopy";
 import { getAdminPortalBasePath, getAdminPortalBasePaths } from "@/config/adminAuth";
 import { PUBLIC_PULSE_EXPERIENCE_ENABLED } from '@/config/publicPulseExperience';
@@ -50,7 +51,14 @@ const LandingPreview = lazy(async () => {
   return { default: C };
 });
 const HospitalityB2BRequestLanding = lazy(() => import("@/pages/HospitalityB2BRequestLanding"));
-const PartnerMarketingPreview = lazy(() => import("@/pages/PartnerMarketingPreview"));
+const PartnerMarketingPreview = lazy(async () => {
+  const mod = await import("@/pages/PartnerMarketingPreview");
+  const C = mod.default;
+  if (typeof C !== "function") {
+    throw new Error("PartnerMarketingPreview failed to load");
+  }
+  return { default: C };
+});
 const PartnersB2BLanding = lazy(() => import("@/pages/PartnersB2BLanding"));
 const PulseMapPage = lazy(() => import("@/pages/PulseMapPage"));
 const AdminRadarFullScreenPage = lazy(() => import("@/app/admin/radar/full-screen/page"));
@@ -147,7 +155,10 @@ const AmbassadorTrainingDeck = lazy(() => import("@/pages/ambassador/AmbassadorT
 const queryClient = new QueryClient();
 
 const RouteBusy = () => (
-  <div dir="rtl" className="flex min-h-[48vh] items-center justify-center text-sm text-muted-foreground">
+  <div
+    dir="rtl"
+    className="flex min-h-[100svh] items-center justify-center bg-[#020912] text-sm text-slate-300"
+  >
     جاري التحميل…
   </div>
 );
@@ -321,7 +332,32 @@ function CoiffeurDomainRedirect() {
 }
 
 function CoiffeurRegisterRedirect() {
-  return <Navigate to={`${ROUTE_PATHS.REGISTER}?surface=coiffeur`} replace />;
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  if (!params.get('surface')) {
+    const fromHash = readHashQueryParam('surface');
+    if (fromHash) params.set('surface', fromHash);
+  }
+  params.set('surface', 'coiffeur');
+  return <Navigate to={`${ROUTE_PATHS.REGISTER}?${params.toString()}`} replace />;
+}
+
+function RegisterRoute() {
+  const location = useLocation();
+  const surface = (
+    new URLSearchParams(location.search).get('surface') ||
+    readHashQueryParam('surface') ||
+    ''
+  )
+    .trim()
+    .toLowerCase();
+  const page = (
+    <LazyRoute>
+      <Register />
+    </LazyRoute>
+  );
+  if (surface === 'coiffeur') return page;
+  return <WithPartnerLayout>{page}</WithPartnerLayout>;
 }
 
 /** partners.halaqmap.com — صفحة هبوط B2B الافتراضية */
@@ -527,7 +563,7 @@ export function App() {
           <Route path={ROUTE_PATHS.PARTNER_WHY} element={<WithPartnerLayout><LazyRoute><PartnerWhyPage /></LazyRoute></WithPartnerLayout>} />
           <Route path={ROUTE_PATHS.PARTNER_MARKETING} element={<WithPartnerLayout><LazyRoute><PartnerMarketingCommitmentsPage /></LazyRoute></WithPartnerLayout>} />
           <Route path={ROUTE_PATHS.PARTNER_STORY} element={<WithPartnerLayout><LazyRoute><PartnerStoryPage /></LazyRoute></WithPartnerLayout>} />
-          <Route path={ROUTE_PATHS.REGISTER} element={<WithPartnerLayout><LazyRoute><Register /></LazyRoute></WithPartnerLayout>} />
+          <Route path={ROUTE_PATHS.REGISTER} element={<RegisterRoute />} />
           <Route path={ROUTE_PATHS.REGISTER_GUIDE} element={<WithPartnerLayout><LazyRoute><PartnerRegistrationGuide /></LazyRoute></WithPartnerLayout>} />
           <Route path={ROUTE_PATHS.REGISTER_SUCCESS} element={<WithPartnerLayout><LazyRoute><RegisterSuccess /></LazyRoute></WithPartnerLayout>} />
           <Route path={ROUTE_PATHS.SHOP_OPEN_STATUS} element={<WithPartnerLayout><LazyRoute><ShopOpenStatus /></LazyRoute></WithPartnerLayout>} />

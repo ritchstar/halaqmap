@@ -17,6 +17,24 @@
     <meta name="theme-color" content="#0d9488" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#061223" media="(prefers-color-scheme: dark)" />
     <meta name="format-detection" content="telephone=no" />
+    <!-- مسار الشركاء / إعلانات: خلفية داكنة من أول إطار حتى لا تُرى شاشة بيضاء قبل React -->
+    <script>
+      (function () {
+        try {
+          var path = (window.location.pathname || '').replace(/\/+$/, '') || '/';
+          var hashPath = (window.location.hash || '').replace(/^#/, '').split('?')[0] || '';
+          if (
+            path === '/partners' ||
+            path.indexOf('/partners/') === 0 ||
+            hashPath === '/partners' ||
+            hashPath.indexOf('/partners/') === 0
+          ) {
+            document.documentElement.classList.add('hm-app-dark-canvas');
+            document.documentElement.style.background = '#020912';
+          }
+        } catch (e) {}
+      })();
+    </script>
     <!-- توحيد النطاق: حفظ الإحالة الخارجية ثم halaqmap.com → www (مع #/...) -->
     <script>
       (function () {
@@ -460,7 +478,10 @@
           /* صفحات SEO جغرافية ثابتة — لا تُحوَّل إلى HashRouter */
           if (path === '/near' || path.indexOf('/near/') === 0) return;
           if (/\.[a-zA-Z0-9]{1,12}$/.test(path)) return;
-          window.location.replace(window.location.origin + '/#' + path + search);
+          /* replaceState لا يعيد تحميل الصفحة — location.replace كان يفتح الحزمة مرتين ويتصادم مع عامل الخدمة. */
+          var next = '/#' + path + search;
+          if (window.location.pathname + window.location.search + window.location.hash === next) return;
+          window.history.replaceState(null, '', next);
         } catch (e) {}
       })();
     </script>

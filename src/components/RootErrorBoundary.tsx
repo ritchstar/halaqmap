@@ -37,6 +37,7 @@ function isLazyDefaultExportError(error: Error): boolean {
     /AdminDashboard failed to load/i.test(error.message) ||
     /BarberDashboard failed to load/i.test(error.message) ||
     /LandingPreview failed to load/i.test(error.message) ||
+    /PartnerMarketingPreview failed to load/i.test(error.message) ||
     /normalizeLocationHash/i.test(error.message)
   );
 }

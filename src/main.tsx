@@ -314,6 +314,19 @@ if (import.meta.env.DEV) {
     })
 }
 
+function isPartnerAdsLandingPath(): boolean {
+  const hashPath = currentHashPath();
+  const path = (window.location.pathname || '').replace(/\/+$/, '') || '/';
+  return (
+    hashPath === '/partners' ||
+    hashPath === '/partners/register' ||
+    hashPath.startsWith('/partners/register/') ||
+    path === '/partners' ||
+    path === '/partners/register' ||
+    path.startsWith('/partners/register/')
+  );
+}
+
 function markAppMounted(): void {
   const bootMarker = window as Window & { [APP_MOUNTED_FLAG]?: boolean }
   if (bootMarker[APP_MOUNTED_FLAG] === true) return
@@ -400,7 +413,13 @@ async function bootstrapApp(rootEl: HTMLElement): Promise<void> {
       // أوقف watchdog فور استدعاء React — لا تنتظر DOM (Suspense/الجوال البطيء)
       markAppMounted()
       schedulePlatformBuildSync();
-      void import('@/lib/registerAppServiceWorker').then((m) => m.registerAppServiceWorker());
+      if (isPartnerAdsLandingPath()) {
+        window.setTimeout(() => {
+          void import('@/lib/registerAppServiceWorker').then((m) => m.registerAppServiceWorker());
+        }, 12_000);
+      } else {
+        void import('@/lib/registerAppServiceWorker').then((m) => m.registerAppServiceWorker());
+      }
     } catch (error) {
       if (isDynamicImportChunkError(error)) {
         reloadOnceForChunkError()

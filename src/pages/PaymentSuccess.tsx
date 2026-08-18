@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { hasPaymentSuccessGate, readPaymentSuccessGate } from '@/lib/moyasarPaymentReturn';
 import { trackGoogleAdsSubscriptionPurchase } from '@/lib/googleAdsTag';
+import { trackTikTokCompletePayment } from '@/lib/tiktokPixel';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 
 /**
@@ -24,14 +25,16 @@ export default function PaymentSuccess() {
     if (!gate?.paymentId) return;
     if (gate.purpose === 'wallet_topup') return;
     if (typeof gate.value !== 'number' || !Number.isFinite(gate.value) || gate.value <= 0) return;
-    trackGoogleAdsSubscriptionPurchase({
+    const purchase = {
       transactionId: gate.paymentId,
       value: gate.value,
       currency: gate.currency || 'SAR',
       tier: gate.tier,
       qty: gate.qty,
       digitalShiftAddon: gate.digitalShiftAddon,
-    });
+    };
+    trackGoogleAdsSubscriptionPurchase(purchase);
+    trackTikTokCompletePayment(purchase);
   }, [gate]);
 
   if (!allowed) {

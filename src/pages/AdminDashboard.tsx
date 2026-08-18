@@ -102,6 +102,7 @@ import { BronzeTrialApplicationsPanel } from '@/components/admin/BronzeTrialAppl
 import { EnterpriseAnchorCohortPanel } from '@/components/admin/EnterpriseAnchorCohortPanel';
 import { AmbassadorApplicationsPanel } from '@/components/admin/AmbassadorApplicationsPanel';
 import { GoogleAdsCampaignPanel } from '@/components/admin/GoogleAdsCampaignPanel';
+import { TikTokPixelCampaignPanel } from '@/components/admin/TikTokPixelCampaignPanel';
 import { CoverageSalonNominationsPanel } from '@/components/admin/CoverageSalonNominationsPanel';
 import {
   listBarbersForAdmin,
@@ -872,7 +873,7 @@ export default function AdminDashboard() {
             {(can('view_overview') || can('view_command_center')) && (
             <TabsTrigger value="google-ads" className={`${shellTheme.navItem} ${shellTheme.navItemActive} gap-2`}>
               <Megaphone className="w-4 h-4" />
-              <span className="hidden sm:inline">حملة Google</span>
+              <span className="hidden sm:inline">حملات الإعلانات</span>
             </TabsTrigger>
             )}
             {can('view_requests') && (
@@ -971,9 +972,9 @@ export default function AdminDashboard() {
                   <Megaphone className="h-4 w-4 text-amber-300" />
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-white">حملة Google Ads</p>
-                  <p className="text-[0.62rem] text-amber-200/70" dir="ltr">
-                    AW-18240041811 · حالة الوسم ونتائج التتبع
+                  <p className="text-sm font-bold text-white">حملات الإعلانات</p>
+                  <p className="text-[0.62rem] text-amber-200/70">
+                    Google Ads · بكسل تيك توك · حالة التتبع
                   </p>
                 </div>
               </div>
@@ -1056,6 +1057,7 @@ export default function AdminDashboard() {
           {(can('view_overview') || can('view_command_center')) && (
             <TabsContent value="google-ads" className="space-y-6">
               <GoogleAdsCampaignPanel />
+              <TikTokPixelCampaignPanel />
               <CoverageSalonNominationsPanel />
             </TabsContent>
           )}
