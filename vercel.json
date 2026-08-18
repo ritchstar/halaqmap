@@ -86,6 +86,14 @@
   ],
   "rewrites": [
     {
+      "source": "/c/:token",
+      "destination": "/api/public-coiffeur-card?c=:token"
+    },
+    {
+      "source": "/c/:token/",
+      "destination": "/api/public-coiffeur-card?c=:token"
+    },
+    {
       "source": "/rate/:path*",
       "destination": "/index.html"
     },

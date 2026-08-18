@@ -27,6 +27,9 @@ export function resolveMensHostCoiffeurRedirect(input: {
   const rawSearch = String(input.hashSearch || '').trim();
   const search = rawSearch && rawSearch !== '?' ? (rawSearch.startsWith('?') ? rawSearch : `?${rawSearch}`) : '';
 
+  if (path === '/c' || path.startsWith('/c/')) {
+    return `https://${COIFFEUR_SATELLITE_HOST}${path}${search}`;
+  }
   if (path === ROUTE_PATHS.SUMMI_HUB || path.startsWith(`${ROUTE_PATHS.SUMMI_HUB}/`)) {
     return `https://${COIFFEUR_SATELLITE_HOST}${path}${search}`;
   }

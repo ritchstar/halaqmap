@@ -43,6 +43,7 @@ import {
   shareCoiffeurIntroCardNative,
   shouldPreferNativeShare,
 } from '@/lib/coiffeurIntroCard';
+import { encodeCoiffeurCardToken } from '@/lib/coiffeurCardShare';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { cn } from '@/lib/utils';
 
@@ -59,6 +60,10 @@ export default function CoiffeurCardStudioPage() {
   const displayName = sanitizeCoiffeurCardName(name);
   const displayRole = sanitizeCoiffeurCardRole(role);
   const ready = displayName.length >= 2 && displayRole.length >= 2;
+  const shareToken = useMemo(
+    () => (ready ? encodeCoiffeurCardToken(displayName, displayRole) : null),
+    [ready, displayName, displayRole],
+  );
   const landingUrl = useMemo(() => coiffeurCardLandingUrl(), []);
   const cardUrl = useMemo(
     () => (ready ? coiffeurCardPublicUrl(displayName, displayRole) : landingUrl),
@@ -345,8 +350,8 @@ export default function CoiffeurCardStudioPage() {
             >
               تيليجرام
             </a>
-            {ready ? (
-              <Link to={`${ROUTE_PATHS.COIFFEUR_CARD_VIEW}?n=${encodeURIComponent(displayName)}&r=${encodeURIComponent(displayRole)}`}>
+            {shareToken ? (
+              <Link to={`${ROUTE_PATHS.COIFFEUR_CARD_VIEW}?c=${encodeURIComponent(shareToken)}`}>
                 {COPY.openPreviewCta}
               </Link>
             ) : null}

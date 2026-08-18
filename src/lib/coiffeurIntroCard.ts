@@ -10,11 +10,19 @@ import {
 } from '@/config/coiffeurMapUmbrella';
 import { COIFFEUR_VISUALS } from '@/config/coiffeurVisuals';
 import {
-  COIFFEUR_CARD_NAME_MAX,
-  COIFFEUR_CARD_ROLE_MAX,
   COIFFEUR_INTRO_CARD_COPY as COPY,
   COIFFEUR_SATELLITE_HOST,
 } from '@/config/coiffeurIntroCardCopy';
+import {
+  sanitizeCoiffeurCardName,
+  sanitizeCoiffeurCardRole,
+} from '@/lib/coiffeurCardShare';
+
+export {
+  sanitizeCoiffeurCardName,
+  sanitizeCoiffeurCardRole,
+  sanitizeCoiffeurCardText,
+} from '@/lib/coiffeurCardShare';
 
 export type CoiffeurIntroCardSaveResult =
   | { ok: true; method: 'download' | 'share' | 'preview' }
@@ -32,30 +40,6 @@ const WINE = {
   rose: '#e8b4a2',
   line: 'rgba(244, 212, 192, 0.55)',
 } as const;
-
-export function sanitizeCoiffeurCardText(raw: string, max: number): string {
-  const stripped = Array.from(String(raw || ''))
-    .filter((ch) => {
-      const code = ch.codePointAt(0) ?? 0;
-      return code >= 32 && code !== 127;
-    })
-    .join('');
-  return stripped
-    .replace(/<[^>]*>/g, '')
-    .replace(/[<>"'`]/g, '')
-    .replace(/%/g, '')
-    .replace(/\s+/g, ' ')
-    .trim()
-    .slice(0, max);
-}
-
-export function sanitizeCoiffeurCardName(raw: string): string {
-  return sanitizeCoiffeurCardText(raw, COIFFEUR_CARD_NAME_MAX);
-}
-
-export function sanitizeCoiffeurCardRole(raw: string): string {
-  return sanitizeCoiffeurCardText(raw, COIFFEUR_CARD_ROLE_MAX);
-}
 
 function safePngName(fileName: string): string {
   const raw = (fileName || 'coiffeur-map-card.png').trim();

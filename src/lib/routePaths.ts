@@ -40,8 +40,10 @@ export const ROUTE_PATHS = {
   COIFFEUR_INTEREST: '/coiffeur/interest',
   /** استوديو كروت كوافير ماب — اسم وصفة ثم توليد بطاقة للمشاركة */
   COIFFEUR_CARD_STUDIO: '/coiffeur/cards',
-  /** بطاقة عامة قابلة للضغط — ?n= الاسم و ?r= الصفة */
+  /** بطاقة عامة قابلة للضغط — ?n= الاسم و ?r= الصفة أو ?c= الرمز */
   COIFFEUR_CARD_VIEW: '/coiffeur/card',
+  /** رابط مشاركة مختصر للكرت — /c/{token} بلا هاش حتى تظهر صورة واتساب */
+  COIFFEUR_CARD_SHARE: '/c',
   /** صفحة هبوط B2B (Skywork) — partners.halaqmap.com */
   PARTNERS_B2B_LANDING: '/partners/b2b',
   /** إقناع عميق: لماذا حلاق ماب وليس مجرد «حجز» */

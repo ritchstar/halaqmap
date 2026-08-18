@@ -4,6 +4,7 @@
  * كروت كوافير ماب للمشاركة — عبارات للمستعلمة فقط، بلا أسماء منتجات داخلية.
  */
 import { ROUTE_PATHS } from '@/lib/routePaths';
+import { encodeCoiffeurCardToken } from '@/lib/coiffeurCardShare';
 import {
   COIFFEUR_BRAND_AR,
   COIFFEUR_BRAND_EN,
@@ -25,7 +26,8 @@ export const COIFFEUR_INTRO_CARD_COPY = {
   roleLabel: 'الصفة',
   rolePlaceholder: 'مثال: صديقة',
   previewHint: 'هكذا تظهر البطاقة قبل الإرسال',
-  generateHint: 'الصورة للمشاركة البصرية، والرابط هو ما يُضغط للدخول إلى المنصة.',
+  generateHint:
+    'الرابط المختصر يظهر في واتساب بصورة كوافير ماب. حمّلي الصورة أيضاً إن أردت إرسالها مع الرسالة.',
   downloadCta: 'تحميل الصورة',
   shareCta: 'مشاركة',
   whatsappCta: 'واتساب',
@@ -72,10 +74,9 @@ export function coiffeurCardLandingUrl(): string {
 
 export function coiffeurCardPublicUrl(name: string, role: string): string {
   const origin = coiffeurSatelliteOrigin();
-  const params = new URLSearchParams();
-  params.set('n', name);
-  params.set('r', role);
-  return `${origin}/#${ROUTE_PATHS.COIFFEUR_CARD_VIEW}?${params.toString()}`;
+  const token = encodeCoiffeurCardToken(name, role);
+  if (!token) return `${origin}/#${ROUTE_PATHS.COIFFEUR_LANDING}`;
+  return `${origin}${ROUTE_PATHS.COIFFEUR_CARD_SHARE}/${token}`;
 }
 
 export function buildCoiffeurCardWhatsAppText(input: {

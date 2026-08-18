@@ -4,7 +4,7 @@
  * بطاقة كوافير ماب العامة — الضغط يدخل المنصة.
  */
 import { useEffect, useMemo, useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
 import QRCode from 'qrcode';
 import { CoiffeurIntroCardPreview } from '@/components/coiffeur/CoiffeurIntroCardPreview';
 import { CoiffeurGlowFrame } from '@/components/coiffeur/CoiffeurGlowFrame';
@@ -21,18 +21,26 @@ import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { ProductEvents } from '@/lib/analytics/productAnalytics';
 import { readHashQueryParam } from '@/lib/hashQueryParams';
 import {
+  decodeCoiffeurCardToken,
   sanitizeCoiffeurCardName,
   sanitizeCoiffeurCardRole,
-} from '@/lib/coiffeurIntroCard';
+} from '@/lib/coiffeurCardShare';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 
 export default function CoiffeurCardViewPage() {
   const [params] = useSearchParams();
+  const routeParams = useParams();
+  const token =
+    routeParams.token ||
+    readHashQueryParam('c') ||
+    params.get('c') ||
+    '';
+  const decoded = decodeCoiffeurCardToken(token);
   const name = sanitizeCoiffeurCardName(
-    readHashQueryParam('n') || params.get('n') || '',
+    decoded?.name || readHashQueryParam('n') || params.get('n') || '',
   );
   const role = sanitizeCoiffeurCardRole(
-    readHashQueryParam('r') || params.get('r') || '',
+    decoded?.role || readHashQueryParam('r') || params.get('r') || '',
   );
   const landingUrl = useMemo(() => coiffeurCardLandingUrl(), []);
   const landingPath = `${ROUTE_PATHS.COIFFEUR_LANDING}?utm_source=intro_card&utm_medium=share&utm_campaign=coiffeur_card`;

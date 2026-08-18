@@ -502,6 +502,7 @@ export function App() {
           <Route path={ROUTE_PATHS.COIFFEUR_INTEREST} element={<LazyRoute><CoiffeurInterestLanding /></LazyRoute>} />
           <Route path={ROUTE_PATHS.COIFFEUR_CARD_STUDIO} element={<LazyRoute><CoiffeurCardStudioPage /></LazyRoute>} />
           <Route path={ROUTE_PATHS.COIFFEUR_CARD_VIEW} element={<LazyRoute><CoiffeurCardViewPage /></LazyRoute>} />
+          <Route path={`${ROUTE_PATHS.COIFFEUR_CARD_SHARE}/:token`} element={<LazyRoute><CoiffeurCardViewPage /></LazyRoute>} />
           <Route path={ROUTE_PATHS.COIFFEUR_REGISTER} element={<CoiffeurRegisterRedirect />} />
           <Route
             path={ROUTE_PATHS.PARTNER_INTEREST}
