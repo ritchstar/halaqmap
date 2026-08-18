@@ -478,11 +478,54 @@
           /* صفحات SEO جغرافية ثابتة — لا تُحوَّل إلى HashRouter */
           if (path === '/near' || path.indexOf('/near/') === 0) return;
           if (/\.[a-zA-Z0-9]{1,12}$/.test(path)) return;
-          /* replaceState لا يعيد تحميل الصفحة — location.replace كان يفتح الحزمة مرتين ويتصادم مع عامل الخدمة. */
-          var next = '/#' + path + search;
+          /* أبقِ ?query على أصل العنوان حتى يقرأ بكسل تيك توك/جوجل ttclid وtt_test_id.
+             السابق كان /#/path?query فيُفرَّغ location.search ويضيع اختبار الأحداث والإحالة. */
+          var next = '/' + search + '#' + path;
           if (window.location.pathname + window.location.search + window.location.hash === next) return;
           window.history.replaceState(null, '', next);
         } catch (e) {}
+      })();
+    </script>
+    <!-- إن وُضع ttclid/tt_test_id داخل الهاش (اختبار تيك توك / رابط قديم) انسخه إلى location.search قبل تحميل البكسل -->
+    <script>
+      (function () {
+        try {
+          var hash = window.location.hash || '';
+          var q = hash.indexOf('?');
+          if (q < 0) return;
+          var hashQuery = hash.slice(q + 1);
+          var pathHash = hash.slice(0, q) || '#';
+          var hp = new URLSearchParams(hashQuery);
+          var sp = new URLSearchParams(window.location.search);
+          var keys = [
+            'ttclid',
+            'tt_test_id',
+            'utm_source',
+            'utm_medium',
+            'utm_campaign',
+            'utm_term',
+            'utm_content',
+            'gclid',
+            'gbraid',
+            'wbraid',
+          ];
+          var moved = false;
+          for (var i = 0; i < keys.length; i++) {
+            var k = keys[i];
+            var v = hp.get(k);
+            if (v && !sp.get(k)) {
+              sp.set(k, v);
+              moved = true;
+            }
+          }
+          if (!moved) return;
+          var qs = sp.toString();
+          window.history.replaceState(
+            null,
+            '',
+            window.location.pathname + (qs ? '?' + qs : '') + pathHash,
+          );
+        } catch (e2) {}
       })();
     </script>
     <!-- HashRouter: إعادة توجيه عودة ميسر/SAB (?id= على أصل الموقع) قبل تحميل React -->

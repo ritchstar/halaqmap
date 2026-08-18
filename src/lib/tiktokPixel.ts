@@ -185,11 +185,55 @@ function installTtqStub(): TikTokQueue | null {
   return ttq;
 }
 
+const TRACKING_QUERY_KEYS = [
+  'ttclid',
+  'tt_test_id',
+  'utm_source',
+  'utm_medium',
+  'utm_campaign',
+  'utm_term',
+  'utm_content',
+  'gclid',
+  'gbraid',
+  'wbraid',
+] as const;
+
+/** بكسل تيك توك يقرأ `location.search` لا استعلام الهاش — انقل المعرّفات قبل `ttq.load`. */
+function exposeTrackingQueryOnSearch(): void {
+  if (typeof window === 'undefined') return;
+  try {
+    const hash = window.location.hash || '';
+    const q = hash.indexOf('?');
+    if (q < 0) return;
+    const hashParams = new URLSearchParams(hash.slice(q + 1));
+    const search = new URLSearchParams(window.location.search);
+    let moved = false;
+    for (const key of TRACKING_QUERY_KEYS) {
+      const value = hashParams.get(key);
+      if (value && !search.get(key)) {
+        search.set(key, value);
+        moved = true;
+      }
+    }
+    if (!moved) return;
+    const pathHash = hash.slice(0, q) || '#';
+    const qs = search.toString();
+    window.history.replaceState(
+      null,
+      '',
+      `${window.location.pathname}${qs ? `?${qs}` : ''}${pathHash}`,
+    );
+  } catch {
+    /* لا تُسقط البكسل بسبب عنوان الاختبار */
+  }
+}
+
 function bootTikTokPixelNow(): void {
   if (typeof window === 'undefined') return;
   if (!isTikTokPixelConfigured()) return;
   if (window.__hmTtqBooted) return;
   window.__hmTtqBooted = true;
+  exposeTrackingQueryOnSearch();
   const ttq = installTtqStub();
   if (!ttq?.load) return;
   ttq.load(TIKTOK_PIXEL_ID);
