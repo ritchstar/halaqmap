@@ -40,6 +40,12 @@ const SURFACES = [
     path: ROUTE_PATHS.COIFFEUR_INTEREST,
   },
   {
+    id: 'cards',
+    title: 'استوديو الكروت',
+    body: 'بطاقات اسم وصفة للمشاركة. الضغط يدخل المنصة.',
+    path: ROUTE_PATHS.COIFFEUR_CARD_STUDIO,
+  },
+  {
     id: 'inquire',
     title: 'الاستعلام',
     body: 'قطاع نسائي معزول عن بحث الرجال. قد يكون فارغاً حتى أول تسكين.',

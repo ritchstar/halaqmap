@@ -385,6 +385,13 @@ export default function CoiffeurInterestLanding() {
           </CardHeader>
           <CardContent className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
             <Button
+              asChild
+              variant="outline"
+              className="border-[#f4d4c0]/35 bg-transparent text-[#f7efe8]"
+            >
+              <Link to={ROUTE_PATHS.COIFFEUR_CARD_STUDIO}>استوديو الكروت الشخصية</Link>
+            </Button>
+            <Button
               type="button"
               variant="outline"
               disabled={kitBusy !== null}

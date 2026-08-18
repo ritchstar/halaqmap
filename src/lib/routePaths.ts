@@ -38,6 +38,10 @@ export const ROUTE_PATHS = {
   COIFFEUR_REGISTER: '/coiffeur/partners/register',
   /** اهتمام مسبق + تحديثات بريد + عدة كروت برمجية — تحويل يوتيوب */
   COIFFEUR_INTEREST: '/coiffeur/interest',
+  /** استوديو كروت كوافير ماب — اسم وصفة ثم توليد بطاقة للمشاركة */
+  COIFFEUR_CARD_STUDIO: '/coiffeur/cards',
+  /** بطاقة عامة قابلة للضغط — ?n= الاسم و ?r= الصفة */
+  COIFFEUR_CARD_VIEW: '/coiffeur/card',
   /** صفحة هبوط B2B (Skywork) — partners.halaqmap.com */
   PARTNERS_B2B_LANDING: '/partners/b2b',
   /** إقناع عميق: لماذا حلاق ماب وليس مجرد «حجز» */

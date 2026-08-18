@@ -250,4 +250,9 @@ export const ProductEvents = {
     }),
   coiffeurKitDownload: (props: { kind: string }) =>
     trackProductEvent('coiffeur_kit_download', { kind: props.kind }),
+  coiffeurCardStudioView: () => trackProductEvent('coiffeur_card_studio_view'),
+  coiffeurCardView: () => trackProductEvent('coiffeur_card_view'),
+  coiffeurCardShare: (props: { method: string }) =>
+    trackProductEvent('coiffeur_card_share', { method: props.method }),
+  coiffeurCardOpenLanding: () => trackProductEvent('coiffeur_card_open_landing'),
 } as const;
