@@ -5,7 +5,6 @@
  * يُحمَّل كسولاً مع صفحات المتجر، لا يُستورد من App.
  */
 import { ROUTE_PATHS } from '@/lib/routePaths';
-import { STORE_SATELLITE_HOST, STORE_ORIGIN } from '@/lib/storeHostRedirect';
 import {
   LEGAL_ECOMMERCE_AUTH_FOOTER_LINE_AR,
   LEGAL_ECOMMERCE_STORE_ENGLISH_LINE,
@@ -14,7 +13,9 @@ import {
   LEGAL_FIRST_SOFTWARE_PRODUCT_AR,
 } from '@/config/partnerLegal';
 
-export { STORE_SATELLITE_HOST, STORE_ORIGIN };
+/** يطابق storeHostRedirect — لا تستورد ذلك الملف من هنا حتى لا تُسحب الحزمة إلى App. */
+export const STORE_SATELLITE_HOST = 'store.halaqmap.com' as const;
+export const STORE_ORIGIN = `https://${STORE_SATELLITE_HOST}` as const;
 export const STORE_BRAND_LATIN = LEGAL_ECOMMERCE_STORE_NAME;
 export const STORE_PUBLIC_NAME_AR = LEGAL_ECOMMERCE_STORE_PUBLIC_NAME_AR;
 export const STORE_ENGLISH_LINE = LEGAL_ECOMMERCE_STORE_ENGLISH_LINE;

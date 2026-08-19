@@ -481,7 +481,8 @@ export default defineConfig(({ mode }) => {
               norm.includes('/src/components/RouteScopedErrorBoundary') ||
               norm.includes('/src/components/AdminAuthHashGate') ||
               norm.includes('/src/components/consumer/ConsumerNativeShellGate') ||
-              norm.includes('/src/lib/coiffeurHostRedirect')
+              norm.includes('/src/lib/coiffeurHostRedirect') ||
+              norm.includes('/src/lib/storeHostRedirect')
             ) {
               return 'app-shell';
             }
