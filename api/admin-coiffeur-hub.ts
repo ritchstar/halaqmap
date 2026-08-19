@@ -4,7 +4,7 @@
 /**
  * مكتب تشغيل كوافير ماب — مهتمات + إدراجات القطاع + زرع مشغل تجريبي.
  */
-import { createClient } from '@supabase/supabase-js';
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { verifyPlatformAdminFromRequestAny } from './_lib/adminManageBarbersAuth.js';
 import { COIFFEUR_LISTING_SECTOR } from './_lib/coiffeurListingSector.js';
 import { ensureBronzeListingAfterRegistrationApprove } from './_lib/listingLicenseService.js';
@@ -78,7 +78,7 @@ function mapListingRows(data: Record<string, unknown>[] | null) {
 }
 
 async function loadHubSnapshot(
-  supabase: ReturnType<typeof createClient>,
+  supabase: SupabaseClient,
 ): Promise<Record<string, unknown>> {
   const interest = await supabase
     .from(INTEREST_TABLE)
