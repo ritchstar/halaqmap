@@ -39,6 +39,8 @@ const STORE_REQUEST_PATH =
   (ROUTE_PATHS as { STORE_REQUEST?: string }).STORE_REQUEST || "/store/request";
 const STORE_CARDS_PATH =
   (ROUTE_PATHS as { STORE_CARDS?: string }).STORE_CARDS || "/store/cards";
+const STORE_ABOUT_PATH =
+  (ROUTE_PATHS as { STORE_ABOUT?: string }).STORE_ABOUT || "/store/about";
 
 /** اختصار /i و /i/:city → مسار اهتمام الشركاء من بطاقة تواصل ماب */
 function MapContactShortJoinRedirect() {
@@ -66,6 +68,7 @@ const AdminRadarFullScreenPage = lazy(() => import("@/app/admin/radar/full-scree
 const AdminCyberOperationsPage = lazy(() => import("@/app/admin/cyber/page"));
 const StaffHubPage = lazy(() => import("@/app/admin/staff-hub/page"));
 const CoiffeurHubPage = lazy(() => import("@/app/admin/coiffeur-hub/page"));
+const StoreDeskPage = lazy(() => import("@/app/admin/store-desk/page"));
 const FazaaListingAdminPage = lazy(() => import("@/app/admin/fazaa-listing/page"));
 const FazaaListingConsentLanding = lazy(() => import("@/pages/FazaaListingConsentLanding"));
 const AdminDashboard = lazyPage(() => import("@/pages/AdminDashboard"), "AdminDashboard");
@@ -117,6 +120,7 @@ const CoiffeurCardViewPage = lazy(() => import("@/pages/coiffeur/CoiffeurCardVie
 const StoreLanding = lazy(() => import("@/pages/store/StoreLanding"));
 const StoreRequestPage = lazy(() => import("@/pages/store/StoreRequestPage"));
 const StoreCardStudioPage = lazy(() => import("@/pages/store/StoreCardStudioPage"));
+const StoreAboutPage = lazy(() => import("@/pages/store/StoreAboutPage"));
 const PartnerStoryPage = lazy(() => import("@/pages/PartnerStoryPage"));
 const BarberPortalEnter = lazy(() => import("@/pages/BarberPortalEnter"));
 const BarberLogin = lazy(() => import("@/pages/BarberLogin"));
@@ -553,6 +557,7 @@ export function App() {
           <Route path={STORE_LANDING_PATH} element={<LazyRoute><StoreLanding /></LazyRoute>} />
           <Route path={STORE_REQUEST_PATH} element={<LazyRoute><StoreRequestPage /></LazyRoute>} />
           <Route path={STORE_CARDS_PATH} element={<LazyRoute><StoreCardStudioPage /></LazyRoute>} />
+          <Route path={STORE_ABOUT_PATH} element={<LazyRoute><StoreAboutPage /></LazyRoute>} />
           <Route path={ROUTE_PATHS.COIFFEUR_LANDING} element={<LazyRoute><CoiffeurLanding /></LazyRoute>} />
           <Route path={ROUTE_PATHS.COIFFEUR_INQUIRE} element={<LazyRoute><CoiffeurInquiryPage /></LazyRoute>} />
           <Route path={ROUTE_PATHS.COIFFEUR_PARTNERS} element={<LazyRoute><CoiffeurPartnersLanding /></LazyRoute>} />
@@ -685,6 +690,7 @@ export function App() {
               <Route path={`${adminBase}/cyber`} element={<LazyRoute><AdminCyberOperationsPage /></LazyRoute>} />
               <Route path={`${adminBase}/staff-hub`} element={<LazyRoute><StaffHubPage /></LazyRoute>} />
               <Route path={`${adminBase}/coiffeur-hub`} element={<LazyRoute><CoiffeurHubPage /></LazyRoute>} />
+              <Route path={`${adminBase}/store-desk`} element={<LazyRoute><StoreDeskPage /></LazyRoute>} />
               <Route path={`${adminBase}/fazaa-listing`} element={<LazyRoute><FazaaListingAdminPage /></LazyRoute>} />
             </Fragment>
           ))}
@@ -696,6 +702,7 @@ export function App() {
           <Route path="/admin/cyber" element={<LegacyAdminRedirect suffix="/cyber" />} />
           <Route path="/admin/staff-hub" element={<LegacyAdminRedirect suffix="/staff-hub" />} />
           <Route path="/admin/coiffeur-hub" element={<LegacyAdminRedirect suffix="/coiffeur-hub" />} />
+          <Route path="/admin/store-desk" element={<LegacyAdminRedirect suffix="/store-desk" />} />
           <Route path="/admin/fazaa-listing" element={<LegacyAdminRedirect suffix="/fazaa-listing" />} />
           <Route path="/admin" element={<LegacyAdminRedirect suffix="/in" />} />
           <Route path={ROUTE_PATHS.RATE_BARBER} element={<LazyRoute><RateBarber /></LazyRoute>} />

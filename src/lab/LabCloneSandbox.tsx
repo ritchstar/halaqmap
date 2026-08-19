@@ -18,6 +18,7 @@ const AdminRadarFullScreenPage = lazy(() => import('@/app/admin/radar/full-scree
 const AdminCyberOperationsPage = lazy(() => import('@/app/admin/cyber/page'));
 const StaffHubPage = lazy(() => import('@/app/admin/staff-hub/page'));
 const CoiffeurHubPage = lazy(() => import('@/app/admin/coiffeur-hub/page'));
+const StoreDeskPage = lazy(() => import('@/app/admin/store-desk/page'));
 const FazaaListingAdminPage = lazy(() => import('@/app/admin/fazaa-listing/page'));
 const FazaaListingConsentLanding = lazy(() => import('@/pages/FazaaListingConsentLanding'));
 const AdminDashboard = lazy(() => import('@/pages/AdminDashboard'));
@@ -134,6 +135,7 @@ function buildLabRoutes(): RouteObject[] {
     { path: `${adminBase.slice(1)}/cyber`, element: <LazyRoute><AdminCyberOperationsPage /></LazyRoute> },
     { path: `${adminBase.slice(1)}/staff-hub`, element: <LazyRoute><StaffHubPage /></LazyRoute> },
     { path: `${adminBase.slice(1)}/coiffeur-hub`, element: <LazyRoute><CoiffeurHubPage /></LazyRoute> },
+    { path: `${adminBase.slice(1)}/store-desk`, element: <LazyRoute><StoreDeskPage /></LazyRoute> },
     { path: `${adminBase.slice(1)}/fazaa-listing`, element: <LazyRoute><FazaaListingAdminPage /></LazyRoute> },
   ]));
 
@@ -194,6 +196,7 @@ function buildLabRoutes(): RouteObject[] {
         { path: 'admin/cyber', element: <LazyRoute><AdminCyberOperationsPage /></LazyRoute> },
         { path: 'admin/staff-hub', element: <LazyRoute><StaffHubPage /></LazyRoute> },
         { path: 'admin/coiffeur-hub', element: <LazyRoute><CoiffeurHubPage /></LazyRoute> },
+        { path: 'admin/store-desk', element: <LazyRoute><StoreDeskPage /></LazyRoute> },
         { path: 'admin/fazaa-listing', element: <LazyRoute><FazaaListingAdminPage /></LazyRoute> },
         { path: 'admin', element: <Navigate to="/admin/in" replace /> },
 

@@ -47,6 +47,7 @@ import {
   ChevronDown,
   ChevronUp,
   Megaphone,
+  Store,
 } from 'lucide-react';
 import { CoiffeurBrandMark } from '@/components/coiffeur/CoiffeurBrandMark';
 import { Button } from '@/components/ui/button';
@@ -766,6 +767,20 @@ export default function AdminDashboard() {
                 type="button"
                 variant="ghost"
                 size="sm"
+                className="h-9 shrink-0 gap-1.5 border border-[#e8c547]/35 bg-[#1a1508] px-2.5 text-[#e8c547] hover:bg-[#2a2010] hover:text-[#f4e4a4]"
+                title="مكتب طلبات المتجر"
+                aria-label="مكتب طلبات المتجر"
+                onClick={() => navigate(`${getAdminPortalBasePath()}${ROUTE_PATHS.ADMIN_STORE_DESK}`)}
+              >
+                <Store className="h-4 w-4" />
+                <span className="hidden md:inline">المتجر</span>
+              </Button>
+            ) : null}
+            {can('view_overview') ? (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
                 className="h-9 shrink-0 gap-1.5 border border-[#f4d4c0]/35 bg-[#2a1218] px-2.5 text-[#f4d4c0] hover:bg-[#3a1820] hover:text-[#f7efe8]"
                 title="مكتب تشغيل كوافير ماب"
                 aria-label="مكتب تشغيل كوافير ماب"
@@ -982,6 +997,25 @@ export default function AdminDashboard() {
                 فتح الشاشة
               </Badge>
             </button>
+
+            <div className="flex items-center justify-between rounded-xl border border-[#e8c547]/25 bg-[#1a1508] px-4 py-3">
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#e8c547]/30 bg-[#e8c547]/15">
+                  <Store className="h-4 w-4 text-[#e8c547]" />
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-white">مكتب طلبات المتجر</p>
+                  <p className="text-[0.62rem] text-[#e8c547]/75">داخلي · اجتماع وكلاء · عروض فاخرة · رد واتساب وبريد</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => navigate(`${getAdminPortalBasePath()}${ROUTE_PATHS.ADMIN_STORE_DESK}`)}
+                className="flex items-center gap-1.5 rounded-xl border border-[#e8c547]/35 bg-[#2a2010] px-4 py-2 text-xs font-bold text-[#e8c547] hover:bg-[#3a2c14] transition-all"
+              >
+                فتح المكتب
+              </button>
+            </div>
 
             <div className="flex items-center justify-between rounded-xl border border-[#f4d4c0]/25 bg-[#2a1218] px-4 py-3">
               <div className="flex items-center gap-2.5">

@@ -65,6 +65,17 @@ export function StoreVisitorFooter() {
   return (
     <footer className="border-t border-white/10 px-4 py-8">
       <div className="mx-auto flex max-w-5xl flex-col gap-4">
+        <nav className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm font-bold">
+          <Link to={ROUTE_PATHS.STORE_ABOUT} className="text-[#e8c547]">
+            {STORE_LANDING_COPY.aboutNavAr}
+          </Link>
+          <Link to={ROUTE_PATHS.STORE_REQUEST} className="text-white/80">
+            طلب خدمة
+          </Link>
+          <Link to={ROUTE_PATHS.STORE_LANDING} className="text-white/80">
+            واجهة المتجر
+          </Link>
+        </nav>
         <p className="text-sm leading-relaxed text-white/70">{STORE_LANDING_COPY.roleLine}</p>
         <p className="text-xs text-white/50">{STORE_ORIGIN}</p>
         <EcommerceVerifiedFooterBadge variant="dark" />

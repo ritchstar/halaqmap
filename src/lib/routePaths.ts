@@ -35,6 +35,8 @@ export const ROUTE_PATHS = {
   STORE_REQUEST: '/store/request',
   /** بطاقات تهنئة مجانية يصدرها العميل لنفسه */
   STORE_CARDS: '/store/cards',
+  /** تعريف المتجر والأنشطة والمنتجات البرمجية */
+  STORE_ABOUT: '/store/about',
   /**
    * كوافير ماب — سطح قطاعي نسائي تحت مظلة حلاق ماب.
    * الدفع لا يُنسَخ هنا: يُحوَّل دائماً إلى PAYMENT على www.halaqmap.com.
@@ -173,6 +175,8 @@ export const ROUTE_PATHS = {
   ADMIN_STAFF_HUB: '/staff-hub',
   /** مركز كوافير ماب — مراقبة الهبوط والاهتمام والمهتمات */
   ADMIN_COIFFEUR_HUB: '/coiffeur-hub',
+  /** مكتب طلبات متجر halaqmap — اجتماع وكلاء ومسودة الرد */
+  ADMIN_STORE_DESK: '/store-desk',
   /** مركز موافقات إبراز فزعة على الصفحات العامة */
   ADMIN_FAZAA_LISTING: '/fazaa-listing',
   /** شرح مفصّل للمناوب الرقمي الذكي */

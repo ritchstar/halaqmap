@@ -59,8 +59,18 @@ assert.match(coiffeurChrome, /SUMMI_HUB_PATH/);
 
 assert.doesNotMatch(
   app,
-  /FounderDeskBanner|StoreDeskChatCard|storeFront/,
+  /FounderDeskBanner|StoreDeskChatCard|StoreSeoProofCard|storeFront/,
   'App must not statically import store/desk UI',
+);
+assert.match(
+  app,
+  /@\/app\/admin\/store-desk\/page/,
+  'App must lazy-load the store desk page',
+);
+assert.match(
+  app,
+  /\$\{adminBase\}\/store-desk/,
+  'App must mount store desk under the admin portal',
 );
 assert.doesNotMatch(
   readFileSync(join(root, 'src/components/store/StoreDeskChatCard.tsx'), 'utf8'),
