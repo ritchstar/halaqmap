@@ -14,6 +14,15 @@ export const LEGAL_ECOMMERCE_STORE_ROLE_AR =
   'متجر `halaqmap` الإلكتروني للبيع بالتجزئة للبرمجيات';
 
 /**
+ * اسم عربي للجمهور على واجهة المتجر.
+ * ليس بديلاً عن الاسم اللاتيني الموثّق، ولا يُقدَّم على أنه ترجمة رسمية.
+ */
+export const LEGAL_ECOMMERCE_STORE_PUBLIC_NAME_AR = 'خريطة الحل' as const;
+
+/** سطر إنجليزي للعنوان العام — الاسم اللاتيني كما في التوثيق */
+export const LEGAL_ECOMMERCE_STORE_ENGLISH_LINE = 'halaqmap — retail software store' as const;
+
+/**
  * المنتج البرمجي الأول للمتجر — الاسم العربي للجمهور.
  * الخدمة للمستعلم مجانية، وللصالون حزم نفاذ برمجية.
  */

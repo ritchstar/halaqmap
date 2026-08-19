@@ -17,6 +17,11 @@ import { ConsumerNativeShellGate } from "@/components/consumer/ConsumerNativeShe
 import { RouteScopedErrorBoundary } from "@/components/RouteScopedErrorBoundary";
 import { LEGACY_PARTNER_ROUTE_PATHS, ROUTE_PATHS } from "@/lib/routePaths";
 import { resolveMensHostCoiffeurRedirect } from "@/lib/coiffeurHostRedirect";
+import {
+  isHalaqmapStoreHost,
+  isStoreHostPaymentPath,
+  resolveMensHostStoreRedirect,
+} from "@/lib/storeHostRedirect";
 import { readHashQueryParam } from "@/lib/hashQueryParams";
 import { buildMapContactPartnerInterestPath } from "@/config/mapContactCardCopy";
 import { getAdminPortalBasePath, getAdminPortalBasePaths } from "@/config/adminAuth";
@@ -28,6 +33,12 @@ const FOUNDER_DESK_LANDING_PATH =
   (ROUTE_PATHS as { FOUNDER_DESK_LANDING?: string }).FOUNDER_DESK_LANDING || "/m/hm-desk-k7q3";
 const FOUNDER_DESK_VISITOR_CHAT_PATH =
   (ROUTE_PATHS as { FOUNDER_DESK_VISITOR_CHAT?: string }).FOUNDER_DESK_VISITOR_CHAT || "/partners/live-chat";
+const STORE_LANDING_PATH =
+  (ROUTE_PATHS as { STORE_LANDING?: string }).STORE_LANDING || "/store";
+const STORE_REQUEST_PATH =
+  (ROUTE_PATHS as { STORE_REQUEST?: string }).STORE_REQUEST || "/store/request";
+const STORE_CARDS_PATH =
+  (ROUTE_PATHS as { STORE_CARDS?: string }).STORE_CARDS || "/store/cards";
 
 /** اختصار /i و /i/:city → مسار اهتمام الشركاء من بطاقة تواصل ماب */
 function MapContactShortJoinRedirect() {
@@ -103,6 +114,9 @@ const CoiffeurPartnersLanding = lazy(() => import("@/pages/coiffeur/CoiffeurPart
 const CoiffeurInterestLanding = lazy(() => import("@/pages/coiffeur/CoiffeurInterestLanding"));
 const CoiffeurCardStudioPage = lazy(() => import("@/pages/coiffeur/CoiffeurCardStudioPage"));
 const CoiffeurCardViewPage = lazy(() => import("@/pages/coiffeur/CoiffeurCardViewPage"));
+const StoreLanding = lazy(() => import("@/pages/store/StoreLanding"));
+const StoreRequestPage = lazy(() => import("@/pages/store/StoreRequestPage"));
+const StoreCardStudioPage = lazy(() => import("@/pages/store/StoreCardStudioPage"));
 const PartnerStoryPage = lazy(() => import("@/pages/PartnerStoryPage"));
 const BarberPortalEnter = lazy(() => import("@/pages/BarberPortalEnter"));
 const BarberLogin = lazy(() => import("@/pages/BarberLogin"));
@@ -283,6 +297,44 @@ function HalaqmapToCoiffeurSurfaceRedirect() {
   return null;
 }
 
+function HalaqmapToStoreSurfaceRedirect() {
+  if (typeof window === 'undefined') return null;
+  const hash = window.location.hash.replace(/^#/, '');
+  const pathOnly = (hash.split('?')[0] || '/').trim() || '/';
+  const search = hash.includes('?') ? hash.slice(hash.indexOf('?')) : '';
+  const target = resolveMensHostStoreRedirect({
+    host: window.location.hostname,
+    hashPath: pathOnly,
+    hashSearch: search,
+  });
+  if (target) {
+    window.location.replace(target);
+  }
+  return null;
+}
+
+/** متجر halaqmap — واجهة البيع على النطاق الفرعي. الدفع يُعاد إلى النطاق الأم. */
+function StoreDomainRedirect() {
+  if (typeof window === 'undefined') return null;
+
+  const host = window.location.hostname.toLowerCase();
+  if (!isHalaqmapStoreHost(host)) return null;
+
+  const hash = window.location.hash.replace(/^#/, '');
+  const pathOnly = (hash.split('?')[0] || '/').trim();
+
+  if (isStoreHostPaymentPath(pathOnly)) {
+    window.location.replace(`https://www.halaqmap.com/${window.location.hash}`);
+    return null;
+  }
+
+  if (!window.location.hash || pathOnly === '/' || pathOnly === '') {
+    window.location.replace(`/#${STORE_LANDING_PATH}`);
+  }
+
+  return null;
+}
+
 /** كوافير ماب — قمر صناعي تحت مظلة halaqmap.com. الدفع يُعاد إلى النطاق الأم. */
 function CoiffeurDomainRedirect() {
   if (typeof window === 'undefined') return null;
@@ -366,7 +418,9 @@ export function App() {
         <RouteScopedErrorBoundary>
         <NotaCouncilRedirect />
         <HalaqmapToCoiffeurSurfaceRedirect />
+        <HalaqmapToStoreSurfaceRedirect />
         <CoiffeurDomainRedirect />
+        <StoreDomainRedirect />
         <PartnersDomainRedirect />
         <AdminAuthHashGate>
         <ScrollToTop />
@@ -496,6 +550,9 @@ export function App() {
           {/* ????? ????????? ??? ??????? ????????? */}
           <Route path={ROUTE_PATHS.PARTNERS_B2B_LANDING} element={<LazyRoute><PartnersB2BLanding /></LazyRoute>} />
           <Route path={ROUTE_PATHS.BARBERS_LANDING} element={<LazyRoute><PartnerMarketingPreview /></LazyRoute>} />
+          <Route path={STORE_LANDING_PATH} element={<LazyRoute><StoreLanding /></LazyRoute>} />
+          <Route path={STORE_REQUEST_PATH} element={<LazyRoute><StoreRequestPage /></LazyRoute>} />
+          <Route path={STORE_CARDS_PATH} element={<LazyRoute><StoreCardStudioPage /></LazyRoute>} />
           <Route path={ROUTE_PATHS.COIFFEUR_LANDING} element={<LazyRoute><CoiffeurLanding /></LazyRoute>} />
           <Route path={ROUTE_PATHS.COIFFEUR_INQUIRE} element={<LazyRoute><CoiffeurInquiryPage /></LazyRoute>} />
           <Route path={ROUTE_PATHS.COIFFEUR_PARTNERS} element={<LazyRoute><CoiffeurPartnersLanding /></LazyRoute>} />

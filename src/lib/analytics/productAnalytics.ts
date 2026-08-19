@@ -255,4 +255,11 @@ export const ProductEvents = {
   coiffeurCardShare: (props: { method: string }) =>
     trackProductEvent('coiffeur_card_share', { method: props.method }),
   coiffeurCardOpenLanding: () => trackProductEvent('coiffeur_card_open_landing'),
+  storeLandingView: (props?: { source?: string }) =>
+    trackProductEvent('store_landing_view', { source: props?.source }),
+  storeRequestSubmit: () => trackProductEvent('store_request_submit'),
+  storeCardStudioView: (props?: { occasion?: string }) =>
+    trackProductEvent('store_card_studio_view', { occasion: props?.occasion }),
+  storeCardDownload: (props: { occasion: string }) =>
+    trackProductEvent('store_card_download', { occasion: props.occasion }),
 } as const;

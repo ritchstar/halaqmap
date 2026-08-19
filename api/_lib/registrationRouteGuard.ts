@@ -121,7 +121,7 @@ function rateLimitMaxForRoute(routeId: string): number {
   ) {
     return envInt('PUBLIC_REDEEM_RATE_LIMIT_MAX', 5);
   }
-  if (routeId === 'public-hospitality-b2b-request') {
+  if (routeId === 'public-hospitality-b2b-request' || routeId === 'public-store-service-request') {
     return envInt('HOSPITALITY_B2B_RATE_LIMIT_MAX', 6);
   }
   if (routeId === 'send-registration-payment-summary') {

@@ -26,8 +26,12 @@
           if (
             path === '/partners' ||
             path.indexOf('/partners/') === 0 ||
+            path === '/store' ||
+            path.indexOf('/store/') === 0 ||
             hashPath === '/partners' ||
-            hashPath.indexOf('/partners/') === 0
+            hashPath.indexOf('/partners/') === 0 ||
+            hashPath === '/store' ||
+            hashPath.indexOf('/store/') === 0
           ) {
             document.documentElement.classList.add('hm-app-dark-canvas');
             document.documentElement.style.background = '#020912';

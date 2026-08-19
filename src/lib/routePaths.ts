@@ -27,6 +27,15 @@ export const ROUTE_PATHS = {
   FRIDAY_PREP: '/occasions/friday-prep',
   BARBERS_LANDING: '/partners',
   /**
+   * واجهة متجر halaqmap — store.halaqmap.com
+   * هبوط الطلبات والخدمات البرمجية. الدفع يبقى على www.halaqmap.com.
+   */
+  STORE_LANDING: '/store',
+  /** نموذج طلب خدمات المتجر */
+  STORE_REQUEST: '/store/request',
+  /** بطاقات تهنئة مجانية يصدرها العميل لنفسه */
+  STORE_CARDS: '/store/cards',
+  /**
    * كوافير ماب — سطح قطاعي نسائي تحت مظلة حلاق ماب.
    * الدفع لا يُنسَخ هنا: يُحوَّل دائماً إلى PAYMENT على www.halaqmap.com.
    */
