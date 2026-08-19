@@ -5,7 +5,7 @@ import { createRoot } from 'react-dom/client'
 import type { ComponentType } from 'react'
 import './index.css'
 import { ensureDomainVerificationMeta } from '@/config/domainVerification'
-import { RootErrorBoundary } from '@/components/RootErrorBoundary'
+import { PLATFORM_REWORK_NOTICE_AR, RootErrorBoundary } from '@/components/RootErrorBoundary'
 import { initPlatformBuildSync } from '@/lib/platformBuildSync'
 import { assertRuntimeEnvSafety } from '@/config/runtimeEnvGuard'
 import { applyPlatformDocumentLocale } from '@/lib/platformLocale'
@@ -204,7 +204,7 @@ function renderBootstrapFailure(rootEl: HTMLElement, reason: unknown): void {
   const showTechDetails = import.meta.env.DEV
   const message = showTechDetails
     ? toErrorMessage(reason) || 'حدث خطأ غير متوقع أثناء تشغيل المنصة.'
-    : 'حدث خلل مؤقت أثناء التشغيل — غالباً بسبب كاش قديم بعد تحديث. اضغط إعادة التحميل.'
+    : PLATFORM_REWORK_NOTICE_AR
   const stack =
     showTechDetails && reason instanceof Error && typeof reason.stack === 'string'
       ? reason.stack.split('\n').slice(0, 7).join('\n')
@@ -236,8 +236,8 @@ function renderBootstrapFailure(rootEl: HTMLElement, reason: unknown): void {
       dir="rtl"
       className="flex min-h-dvh flex-col items-center justify-center gap-4 bg-[#061223] px-6 text-center text-slate-100"
     >
-      <p className="text-lg font-bold text-rose-300">تعذّر تشغيل المنصة</p>
-      <p className="max-w-md text-sm text-slate-400">{message}</p>
+      <p className="text-lg font-bold text-rose-300">{PLATFORM_REWORK_NOTICE_AR}</p>
+      {showTechDetails ? <p className="max-w-md text-sm text-slate-400">{message}</p> : null}
       {debugInfo ? (
         <pre
           dir="ltr"

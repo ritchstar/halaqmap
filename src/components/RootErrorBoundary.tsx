@@ -19,7 +19,8 @@ function isDomRemoveChildError(error: Error): boolean {
 
 function isReactHookDispatcherError(error: Error): boolean {
   return (
-    /reading 'useState'/i.test(error.message) ||
+    /reading 'use(State|Effect|Context|Memo|Callback|Ref)'/i.test(error.message) ||
+    /Cannot read properties of null \(reading 'use/i.test(error.message) ||
     /Invalid hook call/i.test(error.message) ||
     /hooks can only be called inside/i.test(error.message)
   );
@@ -46,6 +47,9 @@ function currentRecoverPathKey(): string {
   if (typeof window === 'undefined') return '';
   return `${window.location.pathname}${window.location.search}${window.location.hash}`;
 }
+
+/** عبارة عامة للزائر — بلا كلمة خلل. */
+export const PLATFORM_REWORK_NOTICE_AR = 'تجري إعادة عمل المنصة الآن، سوف نعود بعد دقائق.';
 
 /** يمنع الشاشة البيضاء الصامتة ويعرض رسالة خطأ قابلة للفهم */
 export class RootErrorBoundary extends Component<Props, State> {
@@ -161,14 +165,14 @@ export class RootErrorBoundary extends Component<Props, State> {
         ? 'تعذّر تحميل صفحة المسار. اضغط إعادة التحميل — إن استمر الأمر بعد ذلك تواصل مع الدعم.'
         : domMismatch
           ? 'يبدو أن نسخة قديمة من التطبيق ما زالت في الكاش بعد تحديث المنصة. اضغط إعادة التحميل للتنظيف والمتابعة.'
-          : 'حدث خلل مؤقت أثناء التحميل. أعد المحاولة — إن استمر الأمر تواصل مع الدعم.';
+          : null;
       return (
         <div
           dir="rtl"
           className="flex min-h-dvh flex-col items-center justify-center gap-4 bg-[#061223] px-6 text-center text-slate-100"
         >
-          <p className="text-lg font-bold text-rose-300">تجري تحديثات على المنصة سوف تعاود العمل خلال دقائق</p>
-          <p className="max-w-md text-sm text-slate-400">{userMessage}</p>
+          <p className="text-lg font-bold text-rose-300">{PLATFORM_REWORK_NOTICE_AR}</p>
+          {userMessage ? <p className="max-w-md text-sm text-slate-400">{userMessage}</p> : null}
           {showTechDetails ? (
             <p className="max-w-md text-xs text-amber-200/80" dir="ltr">
               {this.state.error.message}
