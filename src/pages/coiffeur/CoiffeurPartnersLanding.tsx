@@ -9,7 +9,7 @@ import { Link } from 'react-router-dom';
 import { ArrowLeft, ShieldCheck } from 'lucide-react';
 import { RegisterSalonGlowIcon } from '@/components/partner/RegisterSalonGlowIcon';
 import { ROUTE_PATHS } from '@/lib/routePaths';
-import { STORE_ORIGIN } from '@/lib/storeHostRedirect';
+import { STORE_ORIGIN } from '@/config/storeFront';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { CoiffeurBrandMark } from '@/components/coiffeur/CoiffeurBrandMark';
 import {

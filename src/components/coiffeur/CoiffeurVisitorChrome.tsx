@@ -17,8 +17,11 @@ import {
   COIFFEUR_INQUIRY_COPY,
   COIFFEUR_UMBRELLA_LINE_AR,
 } from '@/config/coiffeurMapUmbrella';
-import { STORE_ORIGIN } from '@/lib/storeHostRedirect';
+import { SUMMI_HUB_PATH, SUMMI_SITE_ORIGIN } from '@/config/summiCoiffeurRegistry';
 import { cn } from '@/lib/utils';
+
+/** يطابق storeFront — لا تستورد storeHostRedirect من هنا حتى لا تُسحب حزمة App إلى صفحة كوافير. */
+const STORE_ORIGIN = 'https://store.halaqmap.com';
 
 type HeaderProps = {
   brandTo?: string;
@@ -111,7 +114,7 @@ export function CoiffeurVisitorFooter({
           سجّلي اهتمامك وتلقّي التحديثات
         </Link>
       ) : null}
-      <a href={`${SUMMI_SITE_ORIGIN}/summi`} className="mt-3 block text-sm text-[#f4d4c0]">
+      <a href={`${SUMMI_SITE_ORIGIN}${SUMMI_HUB_PATH}`} className="mt-3 block text-sm text-[#f4d4c0]">
         أقرب كوافير حسب حاجتك
       </a>
       {showPartnersLater ? (

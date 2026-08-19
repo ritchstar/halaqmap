@@ -44,4 +44,17 @@ assert.doesNotMatch(
   'storeFront must not import storeHostRedirect (keeps partnerLegal out of App graph)',
 );
 
+const coiffeurChrome = readFileSync(
+  join(root, 'src/components/coiffeur/CoiffeurVisitorChrome.tsx'),
+  'utf8',
+);
+assert.doesNotMatch(
+  coiffeurChrome,
+  /from ['"]@\/lib\/storeHostRedirect['"]/,
+  'Coiffeur chrome must not import storeHostRedirect',
+);
+assert.match(coiffeurChrome, /from ['"]@\/config\/summiCoiffeurRegistry['"]/);
+assert.match(coiffeurChrome, /SUMMI_SITE_ORIGIN/);
+assert.match(coiffeurChrome, /SUMMI_HUB_PATH/);
+
 console.log('boot chunk isolation ok');
