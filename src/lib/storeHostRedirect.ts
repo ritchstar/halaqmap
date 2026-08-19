@@ -7,6 +7,7 @@
 import { ROUTE_PATHS } from '@/lib/routePaths';
 
 export const STORE_SATELLITE_HOST = 'store.halaqmap.com' as const;
+export const STORE_ORIGIN = `https://${STORE_SATELLITE_HOST}` as const;
 
 const MENS_HOSTS = new Set(['www.halaqmap.com', 'halaqmap.com']);
 

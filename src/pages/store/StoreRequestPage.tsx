@@ -7,7 +7,8 @@ import {
   StoreVisitorHeader,
   StoreVisitorShell,
 } from '@/components/store/StoreChrome';
-import { STORE_LANDING_COPY } from '@/config/storeFront';
+import { STORE_LANDING_COPY, STORE_VISUALS } from '@/config/storeFront';
+import { StoreShot } from '@/components/store/StoreShot';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 
 export default function StoreRequestPage() {
@@ -17,11 +18,19 @@ export default function StoreRequestPage() {
     <StoreVisitorShell>
       <StoreVisitorHeader />
       <section className="px-4 py-10">
-        <div className="mx-auto max-w-2xl rounded-2xl border border-white/12 bg-[#0b1a24]/80 p-5 md:p-6">
-          <h1 className="text-3xl font-extrabold">{STORE_LANDING_COPY.requestTitle}</h1>
-          <p className="mt-2 text-sm leading-relaxed text-white/70">{STORE_LANDING_COPY.requestLead}</p>
-          <div className="mt-6">
-            <StoreServiceRequestForm source="store-request" />
+        <div className="mx-auto max-w-2xl overflow-hidden rounded-2xl border border-white/12 bg-[#0b1a24]/80">
+          <StoreShot
+            src={STORE_VISUALS.dashboard}
+            alt="لوحة تشغيل برمجية — طلب خدمات المتجر"
+            className="aspect-[16/7]"
+            eager
+          />
+          <div className="p-5 md:p-6">
+            <h1 className="text-3xl font-extrabold">{STORE_LANDING_COPY.requestTitle}</h1>
+            <p className="mt-2 text-sm leading-relaxed text-white/70">{STORE_LANDING_COPY.requestLead}</p>
+            <div className="mt-6">
+              <StoreServiceRequestForm source="store-request" />
+            </div>
           </div>
         </div>
       </section>

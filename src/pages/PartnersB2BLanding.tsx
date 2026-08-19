@@ -37,6 +37,7 @@ import {
 } from '@/config/partnerFieldSalesCopy';
 import { PartnerLandingFaqAccordion } from '@/components/partner/PartnerLandingFaqAccordion';
 import { LEGAL_ECOMMERCE_AUTH_FOOTER_LINE_AR } from '@/config/partnerLegal';
+import { STORE_ORIGIN, STORE_SATELLITE_HOST } from '@/lib/storeHostRedirect';
 import { EcommerceVerifiedFooterBadge } from '@/components/EcommerceVerifiedFooterBadge';
 import { PartnerOrderReceptionTicker } from '@/components/partner/PartnerOrderReceptionTicker';
 import { PartnerPlatformInspectionTicker } from '@/components/partner/PartnerPlatformInspectionTicker';
@@ -514,6 +515,9 @@ export default function PartnersB2BLanding() {
       <footer className="relative z-10 py-8 px-6 text-center" style={{ borderTop: "1px solid rgba(13,148,136,0.15)", background: "rgba(0,0,0,0.2)" }}>
         <div className="flex flex-wrap justify-center items-center gap-x-6 gap-y-2 text-sm" style={{ color: "#475569" }}>
           <span style={{ color: "#0D9488", fontWeight: 700 }}>www.halaqmap.com</span>
+          <a href={STORE_ORIGIN} style={{ color: "#0D9488", fontWeight: 700 }}>
+            {STORE_SATELLITE_HOST}
+          </a>
           <span>لا عمولة</span>
           <span>·</span>
           <span>لا وسيط</span>

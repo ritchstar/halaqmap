@@ -161,7 +161,7 @@ export default function StoreCardStudioPage() {
             {STORE_LANDING_COPY.freeCardsLead}
           </p>
 
-          <div className="mt-5 flex flex-wrap gap-2">
+          <div className="mt-5 grid gap-3 sm:grid-cols-3">
             {STORE_GREETING_OCCASIONS.map((item) => (
               <button
                 key={item.id}
@@ -172,13 +172,21 @@ export default function StoreCardStudioPage() {
                   setParams(next, { replace: true });
                 }}
                 className={cn(
-                  'rounded-full border px-3 py-1.5 text-sm font-bold',
+                  'overflow-hidden rounded-xl border text-right transition',
                   occasion === item.id
-                    ? 'border-[#e8c547] bg-[#e8c547] text-[#061018]'
-                    : 'border-white/15 text-white/75 hover:border-[#e8c547]/40',
+                    ? 'border-[#e8c547] ring-1 ring-[#e8c547]/60'
+                    : 'border-white/15 hover:border-[#e8c547]/40',
                 )}
               >
-                {item.titleAr}
+                <img src={item.image} alt="" className="h-24 w-full object-cover" />
+                <span
+                  className={cn(
+                    'block px-3 py-2 text-sm font-bold',
+                    occasion === item.id ? 'bg-[#e8c547] text-[#061018]' : 'bg-[#0b1a24] text-white/80',
+                  )}
+                >
+                  {item.titleAr}
+                </span>
               </button>
             ))}
           </div>

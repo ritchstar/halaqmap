@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/lib/index';
+import { STORE_ORIGIN } from '@/lib/storeHostRedirect';
 import { PUBLIC_PULSE_EXPERIENCE_ENABLED } from '@/config/publicPulseExperience';
 import { PULSE_MAP_LINK_LABEL_AR } from '@/config/pulseMapConfig';
 import { KSACityClocksBar } from '@/components/KSACityClocksBar';
@@ -1530,13 +1531,16 @@ export default function PartnerMarketingPreview() {
             <div dir="rtl">
               <h4 className="mb-4 text-xs font-bold uppercase tracking-wider text-slate-400">مسار الشركاء</h4>
               <div className="flex flex-col gap-2.5 text-sm text-slate-300">
+                <a href={STORE_ORIGIN} className="hover:text-amber-200 transition-colors">
+                  المتجر الإلكتروني
+                </a>
                 {[
                   { label: 'التسجيل', to: ROUTE_PATHS.REGISTER, source: 'footer_link' },
                   { label: PARTNER_JOIN_PATH_SECONDARY_LINKS.marketing, to: ROUTE_PATHS.PARTNER_MARKETING },
                   { label: PARTNER_JOIN_PATH_SECONDARY_LINKS.app, to: ROUTE_PATHS.PARTNER_APP },
                   { label: 'الباقات والأسعار', to: ROUTE_PATHS.SUBSCRIPTION_POLICY },
                   { label: 'طلب ضيافة B2B (فنادق/شقق)', to: ROUTE_PATHS.HOSPITALITY_B2B_REQUEST },
-                  { label: 'سياسة الحزم', to: ROUTE_PATHS.SUBSCRIPTION_POLICY },
+                  { label: 'سياسة الحزم البرمجية', to: ROUTE_PATHS.SUBSCRIPTION_POLICY },
                   { label: 'مكتب مدير المبيعات', to: ROUTE_PATHS.PARTNER_SALES_OFFICE },
                   { label: 'خدمة العملاء', to: ROUTE_PATHS.PARTNER_SUPPORT },
                   { label: 'خصوصية الشركاء', to: ROUTE_PATHS.PARTNER_PRIVACY },

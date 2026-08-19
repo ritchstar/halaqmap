@@ -5,7 +5,7 @@
  * يُحمَّل كسولاً مع صفحات المتجر، لا يُستورد من App.
  */
 import { ROUTE_PATHS } from '@/lib/routePaths';
-import { STORE_SATELLITE_HOST } from '@/lib/storeHostRedirect';
+import { STORE_SATELLITE_HOST, STORE_ORIGIN } from '@/lib/storeHostRedirect';
 import {
   LEGAL_ECOMMERCE_AUTH_FOOTER_LINE_AR,
   LEGAL_ECOMMERCE_STORE_ENGLISH_LINE,
@@ -14,14 +14,43 @@ import {
   LEGAL_FIRST_SOFTWARE_PRODUCT_AR,
 } from '@/config/partnerLegal';
 
-export { STORE_SATELLITE_HOST };
-
-export const STORE_ORIGIN = `https://${STORE_SATELLITE_HOST}` as const;
+export { STORE_SATELLITE_HOST, STORE_ORIGIN };
 export const STORE_BRAND_LATIN = LEGAL_ECOMMERCE_STORE_NAME;
 export const STORE_PUBLIC_NAME_AR = LEGAL_ECOMMERCE_STORE_PUBLIC_NAME_AR;
 export const STORE_ENGLISH_LINE = LEGAL_ECOMMERCE_STORE_ENGLISH_LINE;
 
 export const COIFFEUR_PRODUCT_AR = 'كوافير ماب' as const;
+
+/** صور برمجية معتمدة من منتجات المتجر — لا صور مخزون عامة */
+export const STORE_VISUALS = {
+  logo: '/images/halaqmap_logo_refined.png',
+  hero: '/images/halaqmap-hero.jpg.png',
+  radar: '/images/partners/feature_radar_2.webp',
+  ops: '/images/platform-radar-night-map.jpg',
+  dashboard: '/images/partners/feature_autonomy_2.webp',
+  coiffeurHero: '/images/coiffeur/hero-atelier.webp',
+  coiffeurSeal: '/images/coiffeur-map-logo-seal-512.webp',
+  cardStudio: '/images/coiffeur/card-intro.webp',
+  cardMark: '/images/coiffeur/card-og.png',
+} as const;
+
+export const STORE_SOFTWARE_SHOTS = [
+  {
+    src: STORE_VISUALS.radar,
+    alt: 'رادار استعلام برمجي لمنصة حلاق ماب',
+    caption: 'استعلام مكاني حي',
+  },
+  {
+    src: STORE_VISUALS.dashboard,
+    alt: 'لوحة تشغيل برمجية لصالون شريك',
+    caption: 'تشغيل برمجي للصالون',
+  },
+  {
+    src: STORE_VISUALS.coiffeurHero,
+    alt: 'واجهة كوافير ماب القطاعية',
+    caption: 'منتج كوافير ماب',
+  },
+] as const;
 
 export const STORE_LANDING_COPY = {
   documentTitle: `${STORE_BRAND_LATIN} — ${STORE_PUBLIC_NAME_AR}`,
@@ -31,6 +60,9 @@ export const STORE_LANDING_COPY = {
   latinMark: STORE_BRAND_LATIN,
   heroLead:
     'متجر إلكتروني للبيع بالتجزئة للبرمجيات. تقدّم طلبك هنا لتُدرس الخدمة ويُرد عليك لاحقاً. المنتجات الحالية معروضة للتعريف، وخدمات برمجية أخرى تُجهَّز ثم تُعرض على هذه الواجهة.',
+  heroShotAlt: 'واجهة برمجية حية لمتجر halaqmap',
+  heroShotCaption: 'منتجات برمجية حية ضمن المتجر',
+  softwareStripTitle: 'طابع برمجي من المنتجات الحالية',
   roleLine: 'متجر إلكتروني للبيع بالتجزئة للبرمجيات.',
   requestTitle: 'طلب خدمات المتجر',
   requestLead:
@@ -51,12 +83,18 @@ export const STORE_LIVE_PRODUCTS = [
     nameAr: LEGAL_FIRST_SOFTWARE_PRODUCT_AR,
     blurb: 'المنتج البرمجي الأول للمتجر. استعلام مجاني للمستعلم، وحزم نفاذ برمجية للصالون.',
     href: 'https://www.halaqmap.com',
+    image: STORE_VISUALS.radar,
+    imageAlt: 'رادار حلاق ماب على الخريطة',
+    mark: STORE_VISUALS.logo,
   },
   {
     id: 'coiffeur-map',
     nameAr: COIFFEUR_PRODUCT_AR,
     blurb: 'منتج قطاعي نسائي ضمن المتجر نفسه. بوابة الدفع واحدة على النطاق الأم.',
     href: 'https://coiffeur.halaqmap.com',
+    image: STORE_VISUALS.coiffeurHero,
+    imageAlt: 'أتيليه كوافير ماب',
+    mark: STORE_VISUALS.coiffeurSeal,
   },
 ] as const;
 
@@ -66,21 +104,29 @@ export const STORE_GREETING_OCCASIONS: ReadonlyArray<{
   id: StoreGreetingOccasion;
   titleAr: string;
   subtitleAr: string;
+  image: string;
+  imageAlt: string;
 }> = [
   {
     id: 'national_day',
     titleAr: 'تهنئة باليوم الوطني',
     subtitleAr: 'بطاقة خضراء باسمك وبياناتك.',
+    image: STORE_VISUALS.radar,
+    imageAlt: 'معاينة برمجية لبطاقة اليوم الوطني',
   },
   {
     id: 'graduation',
     titleAr: 'تهنئة بالتخرج',
     subtitleAr: 'بطاقة تخرج باسمك وبياناتك.',
+    image: STORE_VISUALS.ops,
+    imageAlt: 'معاينة برمجية لبطاقة التخرج',
   },
   {
     id: 'greeting',
     titleAr: 'بطاقة معايدة',
     subtitleAr: 'بطاقة معايدة تصدرها لنفسك.',
+    image: STORE_VISUALS.cardMark,
+    imageAlt: 'معاينة برمجية لبطاقة المعايدة',
   },
 ];
 

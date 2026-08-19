@@ -9,6 +9,7 @@ import { Link } from 'react-router-dom';
 import { ArrowLeft, ShieldCheck } from 'lucide-react';
 import { RegisterSalonGlowIcon } from '@/components/partner/RegisterSalonGlowIcon';
 import { ROUTE_PATHS } from '@/lib/routePaths';
+import { STORE_ORIGIN } from '@/lib/storeHostRedirect';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { CoiffeurBrandMark } from '@/components/coiffeur/CoiffeurBrandMark';
 import {
@@ -73,9 +74,14 @@ export default function CoiffeurPartnersLanding() {
         <p className="text-xs leading-7 text-slate-400">{COIFFEUR_UMBRELLA_LINE_AR}</p>
         <p className="mt-2 text-[11px] text-slate-500">{COIFFEUR_FOOTER_LEGAL_AR}</p>
         <p className="mt-1 text-[11px] text-slate-500">{COIFFEUR_FOOTER_ECOMMERCE_AR}</p>
-        <Link to={ROUTE_PATHS.USER_PRIVACY_POLICY} className="mt-3 inline-block text-[11px] text-slate-500">
-          السياسات
-        </Link>
+        <div className="mt-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
+          <Link to={ROUTE_PATHS.USER_PRIVACY_POLICY} className="text-[11px] text-slate-500">
+            السياسات
+          </Link>
+          <a href={STORE_ORIGIN} className="text-[11px] text-slate-500">
+            المتجر الإلكتروني
+          </a>
+        </div>
         <Link to={ROUTE_PATHS.COIFFEUR_INTEREST} className="mt-3 block text-[11px] text-slate-500">
           سجّلي اهتمامك وتلقّي التحديثات
         </Link>

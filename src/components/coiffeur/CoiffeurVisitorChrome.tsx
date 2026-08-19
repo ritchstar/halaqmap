@@ -17,7 +17,7 @@ import {
   COIFFEUR_INQUIRY_COPY,
   COIFFEUR_UMBRELLA_LINE_AR,
 } from '@/config/coiffeurMapUmbrella';
-import { SUMMI_SITE_ORIGIN } from '@/config/summiCoiffeurRegistry';
+import { STORE_ORIGIN } from '@/lib/storeHostRedirect';
 import { cn } from '@/lib/utils';
 
 type HeaderProps = {
@@ -98,9 +98,14 @@ export function CoiffeurVisitorFooter({
       <p className="text-sm leading-7 text-rose-50/90">{COIFFEUR_UMBRELLA_LINE_AR}</p>
       <p className="mt-2 text-sm text-rose-100/80">{COIFFEUR_FOOTER_LEGAL_AR}</p>
       <p className="mt-1 text-sm text-rose-100/80">{COIFFEUR_FOOTER_ECOMMERCE_AR}</p>
-      <Link to={ROUTE_PATHS.USER_PRIVACY_POLICY} className="mt-3 inline-block text-sm text-[#f4d4c0]">
-        السياسات
-      </Link>
+      <div className="mt-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
+        <Link to={ROUTE_PATHS.USER_PRIVACY_POLICY} className="text-sm text-[#f4d4c0]">
+          السياسات
+        </Link>
+        <a href={STORE_ORIGIN} className="text-sm text-[#f4d4c0]">
+          المتجر الإلكتروني
+        </a>
+      </div>
       {showInterest ? (
         <Link to={ROUTE_PATHS.COIFFEUR_INTEREST} className="mt-3 block text-sm text-[#f4d4c0]">
           سجّلي اهتمامك وتلقّي التحديثات

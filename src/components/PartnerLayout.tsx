@@ -18,6 +18,7 @@ import {
   UserPlus,
 } from 'lucide-react';
 import { ROUTE_PATHS } from '@/lib';
+import { STORE_ORIGIN } from '@/lib/storeHostRedirect';
 import { REFUND_POLICY_PATH } from '@/config/moyasarMerchantCompliance';
 import { HalaqmapBrandMark } from '@/components/HalaqmapBrandMark';
 import { capturePartnerAttributionFromLocation } from '@/lib/partnerAttribution';
@@ -53,6 +54,7 @@ import { PartnerPlatformInspectionTicker } from '@/components/partner/PartnerPla
 import { PartnerPlatformLaunchTicker } from '@/components/partner/PartnerPlatformLaunchTicker';
 import { useMapCommunityBadge } from '@/hooks/useMapCommunityBadge';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { lockPartnerDarkCanvas } from '@/lib/partnerDarkCanvas';
 
 interface PartnerLayoutProps {
   children: React.ReactNode;
@@ -90,6 +92,7 @@ const COMPACT_PARTNER_HEADER_PATHS = new Set<string>([
   ROUTE_PATHS.REGISTER,
   ROUTE_PATHS.REGISTER_SUCCESS,
   ROUTE_PATHS.PAYMENT,
+  ROUTE_PATHS.PAYMENT_SUCCESS,
   ROUTE_PATHS.PARTNER_SUPPORT,
   ROUTE_PATHS.PARTNER_PRIVACY,
   ROUTE_PATHS.SUBSCRIPTION_POLICY,
@@ -101,6 +104,7 @@ function compactPartnerHeaderTitle(pathname: string): string {
   if (pathname === ROUTE_PATHS.REGISTER) return 'التسجيل في المنصة';
   if (pathname === ROUTE_PATHS.REGISTER_SUCCESS) return 'تم إرسال الطلب';
   if (pathname === ROUTE_PATHS.PAYMENT) return 'إتمام الدفع';
+  if (pathname === ROUTE_PATHS.PAYMENT_SUCCESS) return 'تم تأكيد الاشتراك';
   if (pathname === ROUTE_PATHS.PARTNER_SUPPORT) return 'الدعم الفني';
   if (pathname === ROUTE_PATHS.PARTNER_PRIVACY) return 'خصوصية الشركاء';
   if (pathname === ROUTE_PATHS.SUBSCRIPTION_POLICY) return DIGITAL_SOFTWARE_PACKAGES_POLICY_TITLE_AR;
@@ -187,6 +191,8 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
   const isCompactHeaderPage = COMPACT_PARTNER_HEADER_PATHS.has(location.pathname);
   const shouldTrimMobileChrome = isMobile && isCompactHeaderPage;
   const compactTitle = compactPartnerHeaderTitle(location.pathname);
+  const isFinancialPage =
+    location.pathname === ROUTE_PATHS.PAYMENT || location.pathname === ROUTE_PATHS.PAYMENT_SUCCESS;
 
   useDocumentTitle(
     isMapCommunityPage
@@ -199,6 +205,8 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
   useEffect(() => {
     capturePartnerAttributionFromLocation();
   }, [location.pathname, location.search, location.hash]);
+
+  useEffect(() => lockPartnerDarkCanvas(), []);
 
   useEffect(() => {
     setMobileNavOpen(false);
@@ -246,6 +254,8 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
       dir="rtl"
       data-ambient-phase={effectivePhase}
       data-ambient-control={control}
+      role={isFinancialPage ? 'application' : undefined}
+      aria-label={isFinancialPage ? 'إتمام دفع رخصة الإدراج' : undefined}
     >
       <div
         className="pointer-events-none fixed inset-0 z-0 opacity-[0.018]"
@@ -609,6 +619,9 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
             </a>
           </div>
           <div className="mt-3 flex flex-wrap justify-center gap-x-3 gap-y-1 border-t border-white/5 pt-3 text-[11px]">
+            <a href={STORE_ORIGIN} className="text-slate-500 hover:text-emerald-300 touch-manipulation">
+              المتجر الإلكتروني
+            </a>
             <NavLink to={ROUTE_PATHS.TERMS_OF_SERVICE} className="text-slate-500 hover:text-emerald-300 touch-manipulation">
               شروط الاستخدام
             </NavLink>
@@ -658,6 +671,9 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
             </div>
           </div>
           <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-white/5 pt-4 text-sm">
+            <a href={STORE_ORIGIN} className="text-slate-400 transition-colors hover:text-emerald-200">
+              المتجر الإلكتروني
+            </a>
             <NavLink to={ROUTE_PATHS.TERMS_OF_SERVICE} className="text-slate-400 transition-colors hover:text-emerald-200">
               شروط الاستخدام
             </NavLink>
