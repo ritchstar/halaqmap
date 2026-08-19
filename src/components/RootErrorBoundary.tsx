@@ -167,7 +167,7 @@ export class RootErrorBoundary extends Component<Props, State> {
           dir="rtl"
           className="flex min-h-dvh flex-col items-center justify-center gap-4 bg-[#061223] px-6 text-center text-slate-100"
         >
-          <p className="text-lg font-bold text-rose-300">تعذّر تحميل المنصة</p>
+          <p className="text-lg font-bold text-rose-300">تجري تحديثات على المنصة سوف تعاود العمل خلال دقائق</p>
           <p className="max-w-md text-sm text-slate-400">{userMessage}</p>
           {showTechDetails ? (
             <p className="max-w-md text-xs text-amber-200/80" dir="ltr">

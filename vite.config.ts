@@ -54,10 +54,10 @@ function indexHtmlAssetCacheBustPlugin(): Plugin {
     apply: 'build',
     enforce: 'post',
     transformIndexHtml(html) {
-      const raw = (process.env.VITE_INDEX_ASSET_CACHE_QUERY ?? '9').trim();
-      // لا نسمح بقيمة أقدم من 9 حتى يُكسر كاش HTML بعد إصلاح هبوط /partners
-      const parsed = Number.parseInt(raw.length > 0 ? raw : '9', 10);
-      const q = String(Number.isFinite(parsed) ? Math.max(parsed, 9) : 9);
+      const raw = (process.env.VITE_INDEX_ASSET_CACHE_QUERY ?? '10').trim();
+      // لا نسمح بقيمة أقدم من 10 حتى يُكسر كاش HTML بعد عزل إقلاع المتجر/app-shell
+      const parsed = Number.parseInt(raw.length > 0 ? raw : '10', 10);
+      const q = String(Number.isFinite(parsed) ? Math.max(parsed, 10) : 10);
       const suffix = `?v=${encodeURIComponent(q)}`;
       let out = html
         .replace(/src="(\/assets\/[^"?]+\.js)"/g, `src="$1${suffix}"`)
@@ -479,10 +479,17 @@ export default defineConfig(({ mode }) => {
               norm.includes('/src/components/PolicySectionHashRedirect') ||
               norm.includes('/src/components/MoyasarPaymentReturnGate') ||
               norm.includes('/src/components/RouteScopedErrorBoundary') ||
+              norm.includes('/src/components/RootErrorBoundary') ||
               norm.includes('/src/components/AdminAuthHashGate') ||
               norm.includes('/src/components/consumer/ConsumerNativeShellGate') ||
               norm.includes('/src/lib/coiffeurHostRedirect') ||
-              norm.includes('/src/lib/storeHostRedirect')
+              norm.includes('/src/lib/storeHostRedirect') ||
+              norm.includes('/src/lib/hashQueryParams') ||
+              norm.includes('/src/lib/resolveLazyPage') ||
+              norm.includes('/src/lib/platformBuildSync') ||
+              norm.includes('/src/config/publicPulseExperience') ||
+              norm.includes('/src/config/adminAuth') ||
+              norm.includes('/src/config/mapContactCardCopy')
             ) {
               return 'app-shell';
             }
