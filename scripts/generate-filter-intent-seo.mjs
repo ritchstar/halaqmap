@@ -7,7 +7,9 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { FILTER_INTENT_PAGES as PAGES } from './data/filterIntentLandingPages.mjs';
 import {
+  BRAND_LOGO_ABS,
   BRAND_SITE_NAME,
+  NEAR_SEARCH_KEYWORDS_META,
   brandHeaderCss,
   brandHeaderHtml,
   brandIconLinks,
@@ -16,12 +18,6 @@ import {
   nearSearchPhrasesCss,
 } from './lib/platformBrandIdentity.mjs';
 import { FAZAA_MARKETING_FOOTER_AR } from './lib/fazaaCitySeoBranches.mjs';
-import {
-  needPromoCss,
-  needPromoHtml,
-  needPromoShareMeta,
-  syncNeedPromoImage,
-} from './lib/needLandingPromo.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
@@ -61,13 +57,14 @@ function htmlShell({ title, description, canonical, h1, bodyInner, jsonLd }) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>${escapeHtml(title)}</title>
   <meta name="description" content="${escapeHtml(description)}" />
+  <meta name="keywords" content="${escapeHtml(NEAR_SEARCH_KEYWORDS_META)}" />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="${escapeHtml(canonical)}" />
   <meta property="og:title" content="${escapeHtml(title)}" />
   <meta property="og:description" content="${escapeHtml(description)}" />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="${escapeHtml(canonical)}" />
-${needPromoShareMeta({ origin: ORIGIN, title })}
+  <meta property="og:image" content="${BRAND_LOGO_ABS}" />
   <meta property="og:locale" content="ar_SA" />
   <meta property="og:site_name" content="${BRAND_SITE_NAME}" />
   <meta name="application-name" content="${BRAND_SITE_NAME}" />
@@ -76,7 +73,6 @@ ${brandIconLinks()}
   <style>
 ${brandHeaderCss()}
 ${nearSearchPhrasesCss()}
-${needPromoCss()}
     :root { color-scheme: dark; --card:#0c1a2e; --text:#e8eef7; --muted:#94a3b8; --accent:#2dd4bf; --line:rgba(45,212,191,.25); }
     * { box-sizing: border-box; }
 ${brandPageTypeCss()}
@@ -108,48 +104,10 @@ ${brandHeaderHtml()}
 </html>`;
 }
 
-const VISITOR_FAQ = [
-  {
-    name: 'كيف أجد حلاقاً قريباً؟',
-    text: 'اضغط «ابحث من موقعك» واسمح بالمكان مرة واحدة. تظهر الصالونات القريبة للتواصل والاتجاه.',
-  },
-  {
-    name: 'هل أحتاج تطبيقاً أو حساباً؟',
-    text: 'لا. البحث مجاني بلا تطبيق وبلا تسجيل.',
-  },
-  {
-    name: 'ماذا أرى بعد البحث؟',
-    text: 'تظهر الصالونات القريبة بالاسم والصور ورقم التواصل، وزر يفتح الخرائط للوصول إليها.',
-  },
-];
-
-function visitorFaqJsonLd() {
-  return {
-    '@type': 'FAQPage',
-    mainEntity: VISITOR_FAQ.map((item) => ({
-      '@type': 'Question',
-      name: item.name,
-      acceptedAnswer: { '@type': 'Answer', text: item.text },
-    })),
-  };
-}
-
-function visitorFaqHtml() {
-  return `<section>
-      <h2>أسئلة سريعة</h2>
-      ${VISITOR_FAQ.map(
-        (item) => `<details>
-        <summary>${escapeHtml(item.name)}</summary>
-        <p>${escapeHtml(item.text)}</p>
-      </details>`,
-      ).join('\n      ')}
-    </section>`;
-}
-
 function renderHub() {
-  const title = 'اقرب حلاق من موقعك | حلاق ماب';
+  const title = 'اقرب حلاق · حلاق قريب حسب حاجتك | حلاق ماب';
   const description =
-    'ابحث من موقعك عن أقرب حلاق رجالي. اضغط البحث واسمح بالمكان — تظهر الصالونات القريبة للتواصل والاتجاه. بلا تطبيق وبلا حساب.';
+    'اقرب حلاق، حلاق قريب، حلاق قريب مني، حلاق قريب من موقعي، مفتوح الآن و24 ساعة ومنزلي — اختر حاجتك عبر فزعات حلاق ماب ثم ابدأ الاستعلام.';
   const canonical = `${ORIGIN}${HUB}`;
   const links = PAGES.map(
     (p) => `<li><a href="${HUB}/${p.slug}">${escapeHtml(p.h1)}</a></li>`,
@@ -174,7 +132,6 @@ function renderHub() {
           url: `${ORIGIN}${HUB}/${p.slug}`,
         })),
       },
-      visitorFaqJsonLd(),
     ],
   };
   return htmlShell({
@@ -183,10 +140,9 @@ function renderHub() {
     canonical,
     h1: 'اقرب حلاق من موقعك',
     bodyInner: `
-      <p class="lead">تبحث عن أقرب حلاق؟ اضغط البحث واسمح بالمكان.</p>
-      ${needPromoHtml({ origin: ORIGIN })}
+      <p class="lead">ابحث من موقعك الآن — نعرض أقرب حلاق يناسب مكانك دون أن تختار فلترًا أو مسارًا مسبقاً.</p>
+      <p class="cta-wrap"><a class="cta" href="${ORIGIN}/#/">ابحث من موقعك</a></p>
       <ul class="grid">${links}</ul>
-      ${visitorFaqHtml()}
     `,
     jsonLd,
   });
@@ -204,17 +160,38 @@ function renderPage(page) {
         url: canonical,
         inLanguage: 'ar-SA',
         description: page.description,
+        about: page.aliases,
         isPartOf: { '@type': 'WebApplication', name: 'حلاق ماب', url: `${ORIGIN}/` },
       },
       {
         '@type': 'BreadcrumbList',
         itemListElement: [
           { '@type': 'ListItem', position: 1, name: 'حلاق ماب', item: `${ORIGIN}/` },
-          { '@type': 'ListItem', position: 2, name: 'أقرب حلاق', item: `${ORIGIN}${HUB}` },
+          { '@type': 'ListItem', position: 2, name: 'حسب الحاجة', item: `${ORIGIN}${HUB}` },
           { '@type': 'ListItem', position: 3, name: page.h1, item: canonical },
         ],
       },
-      visitorFaqJsonLd(),
+      {
+        '@type': 'FAQPage',
+        mainEntity: [
+          {
+            '@type': 'Question',
+            name: `كيف أبدأ استعلام ${page.h1} من موقعي؟`,
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: 'اضغط «ابحث من موقعك» للانتقال فوراً إلى صفحة الاستعلام، ثم اسمح بمعرفة مكانك.',
+            },
+          },
+          {
+            '@type': 'Question',
+            name: 'ماذا يحدث بعد الضغط على ابدأ الاستعلام؟',
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: `${page.filterNote} ثم تتابع داخل التطبيق حول موقعك أو النطاق الجغرافي.`,
+            },
+          },
+        ],
+      },
     ],
   };
   return htmlShell({
@@ -223,18 +200,15 @@ function renderPage(page) {
     canonical,
     h1: page.h1,
     bodyInner: `
-      <nav class="crumbs"><a href="${ORIGIN}/">الرئيسية</a> / <a href="${HUB}">أقرب حلاق</a> / <span>${escapeHtml(page.h1)}</span></nav>
-      <p class="lead">${escapeHtml(page.lead)}</p>
-      ${needPromoHtml({ origin: ORIGIN, slug: page.slug, fetchPriority: 'high' })}
-      <p class="note">${escapeHtml(page.body)}</p>
-      ${visitorFaqHtml()}
+      <nav class="crumbs"><a href="${ORIGIN}/">الرئيسية</a> / <a href="${HUB}">حسب الحاجة</a> / <span>${escapeHtml(page.h1)}</span></nav>
+      <p class="lead">تبحث عن ${escapeHtml(page.h1)}؟ اضغط «ابحث من موقعك» للانتقال فوراً إلى صفحة الاستعلام.</p>
+      <p class="cta-wrap"><a class="cta" href="${ORIGIN}/#/">ابحث من موقعك</a></p>
     `,
     jsonLd,
   });
 }
 
 function main() {
-  syncNeedPromoImage(DIST);
   syncLandingPagesJson();
   writeFileDeep(join(DIST, 'need', 'index.html'), renderHub());
   for (const page of PAGES) {

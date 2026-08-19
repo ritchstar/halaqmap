@@ -122,7 +122,7 @@ function siblingLinksHtml(currentSlug) {
       </section>`;
 }
 
-function htmlShell({ title, description, canonical, h1, bodyInner, jsonLd }) {
+function htmlShell({ title, description, keywords, canonical, h1, bodyInner, jsonLd }) {
   return `<!DOCTYPE html>
 <html lang="ar-SA" dir="rtl">
 <head>
@@ -130,6 +130,7 @@ function htmlShell({ title, description, canonical, h1, bodyInner, jsonLd }) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>${escapeHtml(title)}</title>
   <meta name="description" content="${escapeHtml(description)}" />
+  <meta name="keywords" content="${escapeHtml(keywords)}" />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="${escapeHtml(canonical)}" />
   <meta property="og:title" content="${escapeHtml(title)}" />
@@ -207,6 +208,7 @@ function renderHub() {
   return htmlShell({
     title: SUMMI_HUB.title,
     description: SUMMI_HUB.description,
+    keywords: SUMMI_INTENT_PAGES.flatMap((p) => p.aliases).join('، '),
     canonical,
     h1: SUMMI_HUB.h1,
     jsonLd,
@@ -230,6 +232,7 @@ function renderPage(page) {
         url: canonical,
         inLanguage: 'ar-SA',
         description: page.description,
+        about: page.aliases,
         isPartOf: { '@type': 'WebApplication', name: SUMMI_BRAND_AR, url: `${SUMMI_ORIGIN}/#/coiffeur` },
       },
       {
@@ -266,6 +269,7 @@ function renderPage(page) {
   return htmlShell({
     title: page.title,
     description: page.description,
+    keywords: page.keywords,
     canonical,
     h1: page.h1,
     jsonLd,

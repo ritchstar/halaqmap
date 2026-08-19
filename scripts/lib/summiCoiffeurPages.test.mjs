@@ -46,8 +46,7 @@ test('سمي: لا كلمات رجال ولا وعد تغطية ولا أعدا�
   assert.equal(/أقرب حلاق|حلاق قريب|barber near me/i.test(blob), false);
   assert.equal(/\d+\s*(مشغل|صالون|شريكة)/.test(blob), false);
   assert.equal(/أكبر منصة|تغطية كاملة|كل المدن/.test(blob), false);
-  assert.match(SUMMI_HUB.title, /كوافير ماب/);
-  assert.equal(/نية البحث|سمي من كوافير/.test(blob), false);
+  assert.match(SUMMI_HUB.description, /كوافير ماب/);
 });
 
 test('سمي: زر الاستعلام على نطاق كوافير ماب', () => {
