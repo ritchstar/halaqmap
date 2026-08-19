@@ -8,6 +8,7 @@
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/lib/routePaths';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { MOBILE_DOCK_CLEARANCE } from '@/lib/mobilePageShell';
 import { CoiffeurBrandMark } from '@/components/coiffeur/CoiffeurBrandMark';
 import { CoiffeurSearchButton, COIFFEUR_VISITOR_CANVAS_CLASS } from '@/components/coiffeur/CoiffeurSearchButton';
@@ -18,6 +19,8 @@ import {
   COIFFEUR_UMBRELLA_LINE_AR,
 } from '@/config/coiffeurMapUmbrella';
 import { SUMMI_HUB_PATH, SUMMI_SITE_ORIGIN } from '@/config/summiCoiffeurRegistry';
+import { KSACityClocksBar } from '@/components/KSACityClocksBar';
+import { CoiffeurStatusTicker } from '@/components/coiffeur/CoiffeurStatusTicker';
 import { cn } from '@/lib/utils';
 
 /** يطابق storeFront — لا تستورد storeHostRedirect من هنا حتى لا تُسحب حزمة App إلى صفحة كوافير. */
@@ -29,6 +32,7 @@ type HeaderProps = {
 };
 
 export function CoiffeurVisitorHeader({ brandTo, sticky = true }: HeaderProps) {
+  const isMobile = useIsMobile();
   const brand = (
     <CoiffeurBrandMark className="h-20 w-20 ring-1 ring-[#f4d4c0]/45" sizes="80px" />
   );
@@ -40,6 +44,8 @@ export function CoiffeurVisitorHeader({ brandTo, sticky = true }: HeaderProps) {
         sticky && 'sticky top-0',
       )}
     >
+      <CoiffeurStatusTicker />
+      {!isMobile ? <KSACityClocksBar /> : null}
       <div className="mx-auto flex min-h-[7.25rem] max-w-6xl items-center px-4 py-3">
         {brandTo ? (
           <Link to={brandTo} className="min-w-0 no-underline">

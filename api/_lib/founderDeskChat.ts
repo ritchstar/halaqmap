@@ -13,6 +13,9 @@ export const FOUNDER_DESK_CONVERSATIONS_TABLE = 'founder_desk_conversations';
 export const FOUNDER_DESK_MESSAGES_TABLE = 'founder_desk_messages';
 
 export type FounderDeskSender = 'visitor' | 'founder';
+export const FOUNDER_DESK_ORIGINS = ['partners', 'store'] as const;
+export type FounderDeskOrigin = (typeof FOUNDER_DESK_ORIGINS)[number];
+export const FOUNDER_DESK_ORIGIN_DEFAULT: FounderDeskOrigin = 'partners';
 
 export type FounderDeskConversationRow = {
   id: string;
@@ -25,6 +28,7 @@ export type FounderDeskConversationRow = {
   last_visitor_at: string | null;
   last_founder_at: string | null;
   visitor_preview: string | null;
+  origin?: FounderDeskOrigin;
   unread_visitor?: number;
 };
 
@@ -46,6 +50,27 @@ export function sanitizeFounderDeskBody(raw: string): string {
     .replace(/\u0000/g, '')
     .trim()
     .slice(0, FOUNDER_DESK_MAX_BODY);
+}
+
+export function sanitizeFounderDeskOrigin(raw: unknown): FounderDeskOrigin {
+  return String(raw ?? '').trim().toLowerCase() === 'store' ? 'store' : FOUNDER_DESK_ORIGIN_DEFAULT;
+}
+
+export function isFounderDeskOriginColumnMissing(
+  error: { code?: string; message?: string } | null | undefined,
+): boolean {
+  if (!error) return false;
+  const code = String(error.code || '').trim();
+  const message = String(error.message || '').toLowerCase();
+  if (!message.includes('origin')) return false;
+  return (
+    code === '42703' ||
+    code === 'PGRST204' ||
+    message.includes('schema cache') ||
+    message.includes('does not exist') ||
+    message.includes('could not find') ||
+    message.includes('column')
+  );
 }
 
 export function isFounderDeskTableMissing(error: { code?: string; message?: string } | null | undefined): boolean {
@@ -95,6 +120,7 @@ async function expireStaleInbox(supabase: SupabaseClient): Promise<void> {
 export async function startFounderDeskConversation(
   supabase: SupabaseClient,
   guestClientId: string,
+  originRaw: unknown = FOUNDER_DESK_ORIGIN_DEFAULT,
 ): Promise<
   | { ok: true; conversation: FounderDeskConversationRow }
   | { ok: false; error: string; status: number; tableMissing?: boolean }
@@ -128,15 +154,27 @@ export async function startFounderDeskConversation(
   }
 
   const expiresAt = new Date(Date.now() + FOUNDER_DESK_TTL_MS).toISOString();
-  const { data: inserted, error: insertErr } = await supabase
+  const origin = sanitizeFounderDeskOrigin(originRaw);
+  const baseInsert = {
+    guest_client_id: guestClientId,
+    status: 'active',
+    expires_at: expiresAt,
+  };
+  let { data: inserted, error: insertErr } = await supabase
     .from(FOUNDER_DESK_CONVERSATIONS_TABLE)
-    .insert({
-      guest_client_id: guestClientId,
-      status: 'active',
-      expires_at: expiresAt,
-    })
+    .insert({ ...baseInsert, origin })
     .select('*')
     .single();
+
+  if (insertErr && isFounderDeskOriginColumnMissing(insertErr)) {
+    const retry = await supabase
+      .from(FOUNDER_DESK_CONVERSATIONS_TABLE)
+      .insert(baseInsert)
+      .select('*')
+      .single();
+    inserted = retry.data;
+    insertErr = retry.error;
+  }
 
   if (insertErr || !inserted?.id) {
     if (isFounderDeskTableMissing(insertErr)) {

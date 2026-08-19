@@ -59,6 +59,12 @@ function conversationHasVisitorSignal(row: FounderDeskConversation): boolean {
   return (row.unread_visitor ?? 0) > 0 || Boolean(row.visitor_preview?.trim());
 }
 
+function deskOriginLabel(origin?: string): string {
+  return origin === 'store'
+    ? FOUNDER_DESK_ADMIN_COPY.originStoreAr
+    : FOUNDER_DESK_ADMIN_COPY.originPartnersAr;
+}
+
 function FounderDeskInbox() {
   const [conversations, setConversations] = useState<FounderDeskConversation[]>([]);
   const [tableMissing, setTableMissing] = useState(false);
@@ -244,7 +250,7 @@ function FounderDeskInbox() {
           {selected ? (
             <span className="inline-flex items-center gap-1 rounded-full bg-[#18687a]/10 px-2 py-1 text-[0.65rem] font-bold text-[#18687a]">
               <Hourglass className="h-3 w-3" />
-              {remainingLabel(selected.expires_at)}
+              {deskOriginLabel(selected.origin)} · {remainingLabel(selected.expires_at)}
             </span>
           ) : null}
         </div>
@@ -294,6 +300,14 @@ function FounderDeskInbox() {
                     </span>
                   ) : null}
                 </div>
+                <p
+                  className={cn(
+                    'mt-1 text-[10px] font-bold',
+                    row.origin === 'store' ? 'text-amber-800' : 'text-[#18687a]',
+                  )}
+                >
+                  {deskOriginLabel(row.origin)}
+                </p>
                 <p className="mt-1 line-clamp-2 text-slate-500">{row.visitor_preview || '—'}</p>
               </button>
             ))

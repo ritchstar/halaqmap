@@ -50,6 +50,19 @@ export const COIFFEUR_LANDING_META = {
   partnersTitle: 'انضمام صالون كوافير — ضمن متجر halaqmap',
 } as const;
 
+/** شريط كوافير ماب فقط — لا يخلط تشغيل اشتراك حلاق ماب. */
+export const COIFFEUR_STATUS_TICKER = {
+  badgeAr: 'كوافير ماب',
+  ariaAr: 'شريط كوافير ماب للمستعلمة والمنشآت',
+  ctaAr: 'سجّلي اهتمامك',
+  segments: [
+    'كوافير ماب — استعلام للمستعلمة حسب حاجتك',
+    'سجّلي اهتمام المنشأة لتصلك التحديثات',
+    'منتج قطاعي نسائي ضمن متجر halaqmap',
+    'الدفع عند الجاهزية على النطاق الأم فقط',
+  ],
+} as const;
+
 export type CoiffeurInquiryIntentId =
   | 'near_open'
   | 'coiffeur'

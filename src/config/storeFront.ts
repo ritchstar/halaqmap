@@ -24,7 +24,7 @@ export const COIFFEUR_PRODUCT_AR = 'كوافير ماب' as const;
 
 /** صور برمجية معتمدة من منتجات المتجر — لا صور مخزون عامة */
 export const STORE_VISUALS = {
-  logo: '/images/halaqmap_logo_refined.png',
+  logo: '/images/halaqmap-store-mark-radar-square-1200x1200.png',
   hero: '/images/halaqmap-hero.jpg.png',
   radar: '/images/partners/feature_radar_2.webp',
   ops: '/images/platform-radar-night-map.jpg',
@@ -71,11 +71,27 @@ export const STORE_LANDING_COPY = {
   requestSuccess: 'وصل الطلب. ستدرسه الإدارة وترد عبر البريد أو الجوال أو واتساب.',
   comingSoonTitle: 'خدمات برمجية لاحقة',
   comingSoonLead: 'ستُعرض هنا عند الجاهزية. لا أسعار ولا حزم في هذه المرحلة.',
+  deskChatTitle: 'محادثة مباشرة مع الإدارة',
+  deskChatLead: 'من واجهة المتجر. جلسة ستون دقيقة، والرد يصلك هنا.',
   freeCardsTitle: 'خدمات برمجية مجانية الآن',
   freeCardsLead:
     'أصدر بطاقة تهنئة لنفسك: الاسم ورقم الجوال والبريد ورابط صورة شخصية. يوم وطني، تخرج، أو معايدة. نسخة أولى قابلة للتعديل لاحقاً.',
   footerLegal: LEGAL_ECOMMERCE_AUTH_FOOTER_LINE_AR,
   consentLabel: 'أوافق على دراسة الطلب والرد عبر البريد أو الجوال أو واتساب.',
+} as const;
+
+/** شريط تشغيل منصة حلاق ماب — واجهة المتجر فقط، لا يُعرض على كوافير ماب. */
+export const STORE_HALAQMAP_OPS_TICKER = {
+  badgeAr: 'تشغيل',
+  ariaAr: 'إعلان بدء تشغيل منصة حلاق ماب واستقبال طلبات الاشتراك',
+  ctaAr: 'سجّل في حلاق ماب',
+  registerHref: 'https://www.halaqmap.com/#/partners/register',
+  segments: [
+    'بدأ تشغيل منصة حلاق ماب — نستقبل طلبات الاشتراك الآن',
+    'رخصة النفاذ الرقمية للمنتج الأول في متجر halaqmap',
+    'التسجيل والدفع عبر ميسر على النطاق الأم',
+    'منصة حلاق ماب · المنتج البرمجي الأول',
+  ],
 } as const;
 
 export const STORE_LIVE_PRODUCTS = [

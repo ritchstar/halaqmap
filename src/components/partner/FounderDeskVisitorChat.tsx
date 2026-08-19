@@ -2,9 +2,11 @@
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Hourglass, Loader2, Send } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Hourglass, Loader2, Lock, Send } from 'lucide-react';
 import { SiWhatsapp } from 'react-icons/si';
 import { FOUNDER_DESK_COPY, FOUNDER_DESK_MAX_BODY, FOUNDER_DESK_WHATSAPP_E164 } from '@/config/founderDeskCopy';
+import { ROUTE_PATHS } from '@/lib/routePaths';
 import { isPollingTabActive, POLL_MS } from '@/lib/pollingPolicy';
 import {
   listFounderDeskMessages,
@@ -29,14 +31,19 @@ function remainingMs(expiresAt: string): number {
   return Math.max(0, t - Date.now());
 }
 
+const PRIVACY_PATH =
+  (ROUTE_PATHS as { USER_PRIVACY_POLICY?: string }).USER_PRIVACY_POLICY || '/privacy-policy';
+
 type Props = {
   className?: string;
   compact?: boolean;
   /** صفحة مستقلة — مساحة أطول للتركيز */
   expanded?: boolean;
+  origin?: 'partners' | 'store';
 };
 
-export function FounderDeskVisitorChat({ className, compact, expanded }: Props) {
+export function FounderDeskVisitorChat({ className, compact, expanded, origin = 'partners' }: Props) {
+  const deskOrigin = origin === 'store' ? 'store' : 'partners';
   const [conversation, setConversation] = useState<FounderDeskConversation | null>(null);
   const [messages, setMessages] = useState<FounderDeskMessage[]>([]);
   const [draft, setDraft] = useState('');
@@ -49,12 +56,12 @@ export function FounderDeskVisitorChat({ className, compact, expanded }: Props) 
   const bottomRef = useRef<HTMLDivElement>(null);
   const whatsappHref = buildWhatsAppChatHref(
     FOUNDER_DESK_WHATSAPP_E164,
-    FOUNDER_DESK_COPY.whatsappPrefillAr,
+    deskOrigin === 'store' ? FOUNDER_DESK_COPY.whatsappPrefillStoreAr : FOUNDER_DESK_COPY.whatsappPrefillAr,
   );
 
   const boot = useCallback(async () => {
     setLoading(true);
-    const started = await startFounderDeskChat();
+    const started = await startFounderDeskChat(deskOrigin);
     if (!started.ok) {
       setUnavailable(started.tableMissing === true || started.error === FOUNDER_DESK_COPY.unavailableAr);
       setNotice(started.error);
@@ -63,7 +70,7 @@ export function FounderDeskVisitorChat({ className, compact, expanded }: Props) 
     }
     setConversation(started.conversation);
     setExpired(new Date(started.conversation.expires_at).getTime() <= Date.now());
-    const listed = await listFounderDeskMessages(started.conversation.id);
+    const listed = await listFounderDeskMessages(started.conversation.id, deskOrigin);
     if (listed.ok) {
       setMessages(listed.messages);
       setExpired(listed.expired);
@@ -72,7 +79,7 @@ export function FounderDeskVisitorChat({ className, compact, expanded }: Props) 
       setNotice(listed.error);
     }
     setLoading(false);
-  }, []);
+  }, [deskOrigin]);
 
   useEffect(() => {
     void boot();
@@ -87,14 +94,14 @@ export function FounderDeskVisitorChat({ className, compact, expanded }: Props) 
     if (!conversation?.id || expired || unavailable) return;
     const timer = window.setInterval(() => {
       if (!isPollingTabActive()) return;
-      void listFounderDeskMessages(conversation.id).then((listed) => {
+      void listFounderDeskMessages(conversation.id, deskOrigin).then((listed) => {
         if (!listed.ok) return;
         setMessages(listed.messages);
         setExpired(listed.expired);
       });
     }, POLL_MS.PRIVATE_CHAT_MESSAGES);
     return () => window.clearInterval(timer);
-  }, [conversation?.id, expired, unavailable]);
+  }, [conversation?.id, deskOrigin, expired, unavailable]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ block: 'end' });
@@ -107,7 +114,7 @@ export function FounderDeskVisitorChat({ className, compact, expanded }: Props) 
     const text = draft.trim();
     if (!text || !conversation || sending || expired || unavailable) return;
     setSending(true);
-    const result = await sendFounderDeskMessage(conversation.id, text);
+    const result = await sendFounderDeskMessage(conversation.id, text, deskOrigin);
     setSending(false);
     if (!result.ok) {
       setNotice(result.error);
@@ -135,6 +142,16 @@ export function FounderDeskVisitorChat({ className, compact, expanded }: Props) 
         </span>
       </div>
       <p className="px-3 pt-2 text-[0.68rem] leading-6 text-slate-600">{FOUNDER_DESK_COPY.chatIntroAr}</p>
+      <p className="flex items-start gap-1.5 px-3 pt-1 text-[0.62rem] leading-5 text-slate-500">
+        <Lock className="mt-0.5 h-3 w-3 shrink-0 text-[#18687a]" aria-hidden />
+        <span>
+          {FOUNDER_DESK_COPY.privacyNoticeAr}{' '}
+          <Link to={PRIVACY_PATH} className="font-bold text-[#18687a] underline underline-offset-2">
+            {FOUNDER_DESK_COPY.privacyPolicyLinkAr}
+          </Link>
+          .
+        </span>
+      </p>
 
       <div
         className={cn(

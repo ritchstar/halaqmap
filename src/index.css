@@ -1505,6 +1505,32 @@
   animation: partner-platform-launch-marquee 36s linear infinite;
 }
 
+@keyframes store-halaqmap-ops-marquee {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.store-halaqmap-ops-marquee-track {
+  animation: store-halaqmap-ops-marquee 36s linear infinite;
+}
+
+@keyframes coiffeur-status-marquee {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.coiffeur-status-marquee-track {
+  animation: coiffeur-status-marquee 34s linear infinite;
+}
+
 .barber-chat-tab-unread-glow {
   box-shadow: 0 0 0 1px rgba(244, 63, 94, 0.35), 0 0 14px rgba(244, 63, 94, 0.22);
 }
@@ -2675,6 +2701,10 @@ html.platform-radar-fullscreen #root {
     animation: none;
   }
   .ksa-clocks-scanline {
+    animation: none;
+  }
+  .store-halaqmap-ops-marquee-track,
+  .coiffeur-status-marquee-track {
     animation: none;
   }
   .tactical-heartbeat-ring {

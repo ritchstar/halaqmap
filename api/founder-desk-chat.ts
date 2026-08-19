@@ -80,7 +80,8 @@ export async function POST(request: Request): Promise<Response> {
   });
 
   if (action === 'start') {
-    const result = await startFounderDeskConversation(supabase, guestClientId);
+    const origin = (body as { origin?: unknown }).origin;
+    const result = await startFounderDeskConversation(supabase, guestClientId, origin);
     if (!result.ok) {
       return Response.json(
         { error: result.error, tableMissing: result.tableMissing === true },

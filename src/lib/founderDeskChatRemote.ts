@@ -11,6 +11,8 @@ const UUID_RE =
 
 export type FounderDeskSender = 'visitor' | 'founder';
 
+export type FounderDeskOrigin = 'partners' | 'store';
+
 export type FounderDeskConversation = {
   id: string;
   guest_client_id: string;
@@ -20,6 +22,7 @@ export type FounderDeskConversation = {
   closed_at: string | null;
   last_message_at: string | null;
   visitor_preview: string | null;
+  origin?: FounderDeskOrigin;
   unread_visitor?: number;
 };
 
@@ -46,13 +49,14 @@ function baseHeaders(): Record<string, string> {
   return headers;
 }
 
-export function getOrCreateFounderDeskGuestId(): string {
+export function getOrCreateFounderDeskGuestId(origin: FounderDeskOrigin = 'partners'): string {
   if (typeof window === 'undefined') return '';
+  const storageKey = origin === 'store' ? `${GUEST_CLIENT_ID_KEY}:store` : GUEST_CLIENT_ID_KEY;
   try {
-    const existing = window.localStorage.getItem(GUEST_CLIENT_ID_KEY)?.trim() ?? '';
+    const existing = window.localStorage.getItem(storageKey)?.trim() ?? '';
     if (UUID_RE.test(existing)) return existing;
     const next = crypto.randomUUID();
-    window.localStorage.setItem(GUEST_CLIENT_ID_KEY, next);
+    window.localStorage.setItem(storageKey, next);
     return next;
   } catch {
     return crypto.randomUUID();
@@ -92,20 +96,31 @@ async function postJson<T>(payload: Record<string, unknown>): Promise<
   }
 }
 
-export async function startFounderDeskChat(): Promise<
+function safeOrigin(origin: FounderDeskOrigin | undefined): FounderDeskOrigin {
+  return origin === 'store' ? 'store' : 'partners';
+}
+
+export async function startFounderDeskChat(
+  origin: FounderDeskOrigin = 'partners',
+): Promise<
   | { ok: true; conversation: FounderDeskConversation }
   | { ok: false; error: string; tableMissing?: boolean }
 > {
+  const originId = safeOrigin(origin);
   const res = await postJson<{ conversation?: FounderDeskConversation }>({
     action: 'start',
-    guestClientId: getOrCreateFounderDeskGuestId(),
+    guestClientId: getOrCreateFounderDeskGuestId(originId),
+    origin: originId,
   });
   if (!res.ok) return res;
   if (!res.json.conversation?.id) return { ok: false, error: FOUNDER_DESK_COPY.startFailedAr };
   return { ok: true, conversation: res.json.conversation };
 }
 
-export async function listFounderDeskMessages(conversationId: string): Promise<
+export async function listFounderDeskMessages(
+  conversationId: string,
+  origin: FounderDeskOrigin = 'partners',
+): Promise<
   | { ok: true; messages: FounderDeskMessage[]; expired: boolean; conversation?: FounderDeskConversation }
   | { ok: false; error: string; tableMissing?: boolean }
 > {
@@ -115,7 +130,7 @@ export async function listFounderDeskMessages(conversationId: string): Promise<
     conversation?: FounderDeskConversation;
   }>({
     action: 'list_messages',
-    guestClientId: getOrCreateFounderDeskGuestId(),
+    guestClientId: getOrCreateFounderDeskGuestId(safeOrigin(origin)),
     conversationId: conversationId.trim(),
   });
   if (!res.ok) return res;
@@ -130,13 +145,14 @@ export async function listFounderDeskMessages(conversationId: string): Promise<
 export async function sendFounderDeskMessage(
   conversationId: string,
   body: string,
+  origin: FounderDeskOrigin = 'partners',
 ): Promise<
   | { ok: true; message: FounderDeskMessage }
   | { ok: false; error: string; tableMissing?: boolean }
 > {
   const res = await postJson<{ message?: FounderDeskMessage }>({
     action: 'send',
-    guestClientId: getOrCreateFounderDeskGuestId(),
+    guestClientId: getOrCreateFounderDeskGuestId(safeOrigin(origin)),
     conversationId: conversationId.trim(),
     body: body.trim(),
   });

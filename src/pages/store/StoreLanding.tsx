@@ -12,6 +12,7 @@ import {
   StoreVisitorHeader,
   StoreVisitorShell,
 } from '@/components/store/StoreChrome';
+import { StoreDeskChatCard } from '@/components/store/StoreDeskChatCard';
 import { StoreShot } from '@/components/store/StoreShot';
 import {
   STORE_GREETING_OCCASIONS,
@@ -61,6 +62,16 @@ export default function StoreLanding() {
               {STORE_LANDING_COPY.heroShotCaption}
             </figcaption>
           </figure>
+        </div>
+      </section>
+
+      <section className="px-4 pb-10">
+        <div className="mx-auto max-w-sm">
+          <h2 className="text-center text-lg font-extrabold text-white/90">{STORE_LANDING_COPY.deskChatTitle}</h2>
+          <p className="mt-2 text-center text-sm leading-relaxed text-white/70">{STORE_LANDING_COPY.deskChatLead}</p>
+          <div className="mt-5">
+            <StoreDeskChatCard />
+          </div>
         </div>
       </section>
 

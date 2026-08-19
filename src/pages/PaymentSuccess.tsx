@@ -10,6 +10,7 @@ import { hasPaymentSuccessGate, readPaymentSuccessGate } from '@/lib/moyasarPaym
 import { trackGoogleAdsSubscriptionPurchase } from '@/lib/googleAdsTag';
 import { trackTikTokCompletePayment } from '@/lib/tiktokPixel';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
+import { lockPartnerDarkCanvas } from '@/lib/partnerDarkCanvas';
 
 /**
  * صفحة تأكيد الاشتراك — لا تُعرض إلا بعد تحقق دفع ناجح في الجلسة.
@@ -18,6 +19,7 @@ import { useDocumentTitle } from '@/hooks/useDocumentTitle';
  */
 export default function PaymentSuccess() {
   useDocumentTitle('تم تأكيد الاشتراك | حلاق ماب');
+  useEffect(() => lockPartnerDarkCanvas(), []);
   const [gate] = useState(() => readPaymentSuccessGate());
   const allowed = Boolean(gate?.paymentId) || hasPaymentSuccessGate();
 
@@ -42,7 +44,7 @@ export default function PaymentSuccess() {
   }
 
   return (
-    <div className="mx-auto max-w-lg px-4 py-12" dir="rtl">
+    <div className="mx-auto max-w-lg px-4 py-12" dir="rtl" role="application" aria-label="تأكيد الاشتراك">
       <div className="rounded-2xl border border-emerald-400/30 bg-emerald-500/10 p-6 text-center shadow-sm">
         <CheckCircle2 className="mx-auto h-12 w-12 text-emerald-600" aria-hidden />
         <h1 className="mt-4 text-2xl font-black text-foreground">تم تأكيد الاشتراك</h1>

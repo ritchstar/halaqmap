@@ -23,17 +23,28 @@ type Props = {
   startOpen?: boolean;
   /** إخفاء زر الصفحة المستقلة عندما نكون فيها أصلاً */
   standalone?: boolean;
+  /** مصدر الجلسة في صندوق الإدارة — الافتراضي مسار الشركاء */
+  origin?: 'partners' | 'store';
 };
 
 const VISITOR_CHAT_PATH =
   (ROUTE_PATHS as { FOUNDER_DESK_VISITOR_CHAT?: string }).FOUNDER_DESK_VISITOR_CHAT ||
   '/partners/live-chat';
+const PRIVACY_PATH =
+  (ROUTE_PATHS as { USER_PRIVACY_POLICY?: string }).USER_PRIVACY_POLICY || '/privacy-policy';
 
-export function FounderDeskBanner({ className, startOpen = false, standalone = false }: Props) {
+export function FounderDeskBanner({
+  className,
+  startOpen = false,
+  standalone = false,
+  origin = 'partners',
+}: Props) {
   const [chatOpen, setChatOpen] = useState(startOpen);
+  const deskOrigin = origin === 'store' ? 'store' : 'partners';
+  const hideStandalone = standalone || deskOrigin === 'store';
   const whatsappHref = buildWhatsAppChatHref(
     FOUNDER_DESK_WHATSAPP_E164,
-    FOUNDER_DESK_COPY.whatsappPrefillAr,
+    deskOrigin === 'store' ? FOUNDER_DESK_COPY.whatsappPrefillStoreAr : FOUNDER_DESK_COPY.whatsappPrefillAr,
   );
 
   return (
@@ -77,6 +88,17 @@ export function FounderDeskBanner({ className, startOpen = false, standalone = f
               <span className="h-1 w-1 rounded-full bg-[#18687a]" />
               {FOUNDER_DESK_COPY.statusAr}
             </div>
+            {chatOpen ? null : (
+              <p className="mt-2 text-[0.62rem] leading-5 text-slate-500">
+                {FOUNDER_DESK_COPY.privacyShortAr}{' '}
+                <Link
+                  to={PRIVACY_PATH}
+                  className="font-bold text-[#18687a] underline underline-offset-2"
+                >
+                  {FOUNDER_DESK_COPY.privacyPolicyLinkAr}
+                </Link>
+              </p>
+            )}
 
             <div className="mt-3.5 flex gap-2">
               <button
@@ -108,8 +130,13 @@ export function FounderDeskBanner({ className, startOpen = false, standalone = f
 
             {chatOpen ? (
               <>
-                <FounderDeskVisitorChat className="mt-3" compact={!standalone} expanded={standalone} />
-                {standalone ? null : (
+                <FounderDeskVisitorChat
+                  className="mt-3"
+                  compact={!standalone}
+                  expanded={standalone}
+                  origin={deskOrigin}
+                />
+                {hideStandalone ? null : (
                   <Link
                     to={VISITOR_CHAT_PATH}
                     className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-xl border border-[#18687a]/25 bg-white/80 py-2 text-[0.72rem] font-bold text-[#18687a]"

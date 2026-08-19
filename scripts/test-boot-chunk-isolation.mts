@@ -57,4 +57,18 @@ assert.match(coiffeurChrome, /from ['"]@\/config\/summiCoiffeurRegistry['"]/);
 assert.match(coiffeurChrome, /SUMMI_SITE_ORIGIN/);
 assert.match(coiffeurChrome, /SUMMI_HUB_PATH/);
 
+assert.doesNotMatch(
+  app,
+  /FounderDeskBanner|StoreDeskChatCard|storeFront/,
+  'App must not statically import store/desk UI',
+);
+assert.doesNotMatch(
+  readFileSync(join(root, 'src/components/store/StoreDeskChatCard.tsx'), 'utf8'),
+  /from ['"]@\/lib\/storeHostRedirect['"]/,
+);
+assert.match(
+  readFileSync(join(root, 'src/pages/store/StoreLanding.tsx'), 'utf8'),
+  /StoreDeskChatCard/,
+);
+
 console.log('boot chunk isolation ok');

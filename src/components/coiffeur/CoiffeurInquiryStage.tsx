@@ -6,11 +6,13 @@
  */
 import { motion } from 'framer-motion';
 import { CoiffeurRadarButton, type CoiffeurRadarPhase } from '@/components/coiffeur/CoiffeurRadarButton';
+import { CoiffeurStageFlankShot } from '@/components/coiffeur/CoiffeurStageFlankShot';
 import {
   COIFFEUR_INQUIRY_COPY,
   COIFFEUR_INQUIRY_INTENTS,
   type CoiffeurInquiryIntentId,
 } from '@/config/coiffeurMapUmbrella';
+import { COIFFEUR_VISUALS } from '@/config/coiffeurVisuals';
 import { cn } from '@/lib/utils';
 
 type Props = {
@@ -35,13 +37,29 @@ export function CoiffeurInquiryStage({
           {COIFFEUR_INQUIRY_COPY.sectorBadge}
         </span>
         <p className="mt-8 text-base font-bold text-[#f4d4c0]">{COIFFEUR_INQUIRY_COPY.freeBadge}</p>
-        <div className="mt-3 flex justify-center overflow-x-clip">
-          <CoiffeurRadarButton
-            phase={phase}
-            onClick={onInquire}
-            idleTitle={COIFFEUR_INQUIRY_COPY.searchRadarIdle}
-            idleHint={COIFFEUR_INQUIRY_COPY.searchHero}
-          />
+        <div className="mt-3 grid w-full max-w-5xl grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-start gap-1.5 sm:gap-4 md:gap-8">
+          <div className="max-[360px]:hidden">
+            <CoiffeurStageFlankShot
+              src={COIFFEUR_VISUALS.hero}
+              alt="أتيليه كوافير ماب"
+              align="end"
+            />
+          </div>
+          <div className="flex justify-center overflow-x-clip">
+            <CoiffeurRadarButton
+              phase={phase}
+              onClick={onInquire}
+              idleTitle={COIFFEUR_INQUIRY_COPY.searchRadarIdle}
+              idleHint={COIFFEUR_INQUIRY_COPY.searchHero}
+            />
+          </div>
+          <div className="max-[360px]:hidden">
+            <CoiffeurStageFlankShot
+              src={COIFFEUR_VISUALS.makeup}
+              alt="إطلالة مكياج وسهرات"
+              align="start"
+            />
+          </div>
         </div>
       </div>
 

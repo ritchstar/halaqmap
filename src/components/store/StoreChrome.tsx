@@ -5,7 +5,10 @@ import { Link } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { lockPartnerDarkCanvas } from '@/lib/partnerDarkCanvas';
 import { STORE_BRAND_LATIN, STORE_LANDING_COPY, STORE_ORIGIN, STORE_PUBLIC_NAME_AR, STORE_VISUALS } from '@/config/storeFront';
+import { KSACityClocksBar } from '@/components/KSACityClocksBar';
+import { StoreHalaqMapOpsTicker } from '@/components/store/StoreHalaqMapOpsTicker';
 import { EcommerceVerifiedFooterBadge } from '@/components/EcommerceVerifiedFooterBadge';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { useEffect, type ReactNode } from 'react';
 
 export function StoreVisitorShell({ children }: { children: ReactNode }) {
@@ -18,38 +21,43 @@ export function StoreVisitorShell({ children }: { children: ReactNode }) {
 }
 
 export function StoreVisitorHeader() {
+  const isMobile = useIsMobile();
   return (
-    <header className="border-b border-white/10 bg-[#061018]/90 backdrop-blur">
-      <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3">
-        <Link to={ROUTE_PATHS.STORE_LANDING} className="flex min-w-0 items-center gap-3">
-          <img
-            src={STORE_VISUALS.logo}
-            alt=""
-            width={44}
-            height={44}
-            className="h-11 w-11 shrink-0 rounded-xl border border-white/10 object-cover"
-          />
-          <span className="min-w-0">
-            <p className="text-[0.7rem] font-bold tracking-wide text-[#e8c547]">{STORE_BRAND_LATIN}</p>
-            <p className="truncate text-lg font-extrabold text-[#f4efe4]">{STORE_PUBLIC_NAME_AR}</p>
-          </span>
-        </Link>
-        <nav className="flex shrink-0 items-center gap-2 text-sm font-bold">
-          <Link
-            to={ROUTE_PATHS.STORE_REQUEST}
-            className="rounded-full border border-[#e8c547]/40 px-3 py-1.5 text-[#e8c547]"
-          >
-            طلب خدمة
+    <div className="border-b border-white/10 bg-[#061018]/90">
+      <StoreHalaqMapOpsTicker />
+      {!isMobile ? <KSACityClocksBar /> : null}
+      <header className="backdrop-blur">
+        <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3">
+          <Link to={ROUTE_PATHS.STORE_LANDING} className="flex min-w-0 items-center gap-3">
+            <img
+              src={STORE_VISUALS.logo}
+              alt=""
+              width={44}
+              height={44}
+              className="h-11 w-11 shrink-0 rounded-xl border border-white/10 object-cover"
+            />
+            <span className="min-w-0">
+              <p className="text-[0.7rem] font-bold tracking-wide text-[#e8c547]">{STORE_BRAND_LATIN}</p>
+              <p className="truncate text-lg font-extrabold text-[#f4efe4]">{STORE_PUBLIC_NAME_AR}</p>
+            </span>
           </Link>
-          <Link
-            to={ROUTE_PATHS.STORE_CARDS}
-            className="rounded-full bg-[#e8c547] px-3 py-1.5 text-[#061018]"
-          >
-            بطاقة مجانية
-          </Link>
-        </nav>
-      </div>
-    </header>
+          <nav className="flex shrink-0 items-center gap-2 text-sm font-bold">
+            <Link
+              to={ROUTE_PATHS.STORE_REQUEST}
+              className="rounded-full border border-[#e8c547]/40 px-3 py-1.5 text-[#e8c547]"
+            >
+              طلب خدمة
+            </Link>
+            <Link
+              to={ROUTE_PATHS.STORE_CARDS}
+              className="rounded-full bg-[#e8c547] px-3 py-1.5 text-[#061018]"
+            >
+              بطاقة مجانية
+            </Link>
+          </nav>
+        </div>
+      </header>
+    </div>
   );
 }
 

@@ -994,7 +994,7 @@ export default function PartnerMarketingPreview() {
             <div className="mt-8">
               <SilentBannerGuard>
                 <Suspense fallback={null}>
-                  <FounderDeskBannerLazy />
+                  <FounderDeskBannerLazy origin="partners" />
                 </Suspense>
               </SilentBannerGuard>
             </div>
