@@ -2,11 +2,10 @@
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
  * داخل غلاف Capacitor للمستخدم: يمنع مسارات الشريك/الدفع ويفتحها في Safari.
+ * إضافات Capacitor تُحمَّل كسولة — لا تُسحب إلى إقلاع متصفح الجوال.
  */
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { App as CapApp } from '@capacitor/app';
-import { StatusBar, Style } from '@capacitor/status-bar';
 import {
   breakOutConsumerExternalPath,
   isConsumerNativeShell,
@@ -24,31 +23,50 @@ export function ConsumerNativeShellGate() {
 
   useEffect(() => {
     if (!isConsumerNativeShell()) return;
+    let cancelled = false;
+    let removeListener: (() => void) | undefined;
 
-    void StatusBar.setStyle({ style: Style.Dark }).catch(() => undefined);
-    void StatusBar.setBackgroundColor({ color: '#0A4F4A' }).catch(() => undefined);
-
-    const sub = CapApp.addListener('appUrlOpen', (event) => {
-      const url = String(event.url || '').trim();
-      if (!url) return;
+    void (async () => {
       try {
-        const parsed = new URL(url);
-        const hashPath = pathFromHash(parsed.hash);
-        if (isConsumerAppExternalPath(hashPath)) {
-          void openConsumerExternalUrl(url);
+        const [{ App: CapApp }, { StatusBar, Style }] = await Promise.all([
+          import('@capacitor/app'),
+          import('@capacitor/status-bar'),
+        ]);
+        if (cancelled) return;
+        void StatusBar.setStyle({ style: Style.Dark }).catch(() => undefined);
+        void StatusBar.setBackgroundColor({ color: '#0A4F4A' }).catch(() => undefined);
+        const handle = await CapApp.addListener('appUrlOpen', (event) => {
+          const url = String(event.url || '').trim();
+          if (!url) return;
+          try {
+            const parsed = new URL(url);
+            const hashPath = pathFromHash(parsed.hash);
+            if (isConsumerAppExternalPath(hashPath)) {
+              void openConsumerExternalUrl(url);
+              return;
+            }
+            if (parsed.hash) {
+              window.location.hash = parsed.hash.replace(/^#/, '#');
+            }
+          } catch {
+            /* ignore malformed */
+          }
+        });
+        if (cancelled) {
+          void handle.remove();
           return;
         }
-        // روابط عميقة داخل النطاق — حوّل الهاش داخل الغلاف
-        if (parsed.hash) {
-          window.location.hash = parsed.hash.replace(/^#/, '#');
-        }
+        removeListener = () => {
+          void handle.remove();
+        };
       } catch {
-        /* ignore malformed */
+        /* غلاف أصلي بلا إضافات — لا تُسقط إقلاع الويب */
       }
-    });
+    })();
 
     return () => {
-      void sub.then((h) => h.remove());
+      cancelled = true;
+      removeListener?.();
     };
   }, []);
 

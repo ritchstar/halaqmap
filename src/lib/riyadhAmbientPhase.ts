@@ -14,25 +14,39 @@ function parseHm(hm: string): number {
 
 /** دقائق من منتصف الليل — بتوقيت الرياض */
 export function getRiyadhMinutesNow(now = new Date()): number {
-  const parts = new Intl.DateTimeFormat('en-GB', {
-    timeZone: RIYADH_TIMEZONE,
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false,
-  }).formatToParts(now);
+  try {
+    const parts = new Intl.DateTimeFormat('en-GB', {
+      timeZone: RIYADH_TIMEZONE,
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    }).formatToParts(now);
 
-  const hour = Number(parts.find((p) => p.type === 'hour')?.value ?? '0');
-  const minute = Number(parts.find((p) => p.type === 'minute')?.value ?? '0');
-  return hour * 60 + minute;
+    const hour = Number(parts.find((p) => p.type === 'hour')?.value ?? '0');
+    const minute = Number(parts.find((p) => p.type === 'minute')?.value ?? '0');
+    if (!Number.isFinite(hour) || !Number.isFinite(minute)) return 0;
+    return hour * 60 + minute;
+  } catch {
+    return now.getHours() * 60 + now.getMinutes();
+  }
 }
 
 export function formatRiyadhTime(now = new Date()): string {
-  return new Intl.DateTimeFormat('ar-SA-u-ca-gregory-nu-latn', {
+  const opts: Intl.DateTimeFormatOptions = {
     timeZone: RIYADH_TIMEZONE,
     hour: '2-digit',
     minute: '2-digit',
     hour12: false,
-  }).format(now);
+  };
+  try {
+    return new Intl.DateTimeFormat('ar-SA-u-ca-gregory-nu-latn', opts).format(now);
+  } catch {
+    try {
+      return new Intl.DateTimeFormat('en-GB', opts).format(now);
+    } catch {
+      return '';
+    }
+  }
 }
 
 /** يحدّد الوضع من جدول AMBIENT_PHASES_ORDER (آخر start <= الآن). */
@@ -50,5 +64,5 @@ export function resolveAmbientPhaseFromRiyadhTime(now = new Date()): AmbientPhas
 }
 
 export function getAmbientPhaseDefinition(phaseId: AmbientPhaseId) {
-  return AMBIENT_PHASES_ORDER.find((p) => p.id === phaseId)!;
+  return AMBIENT_PHASES_ORDER.find((p) => p.id === phaseId) ?? AMBIENT_PHASES_ORDER[0];
 }

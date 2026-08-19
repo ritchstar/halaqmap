@@ -39,8 +39,12 @@ const PlatformAmbientContext = createContext<PlatformAmbientContextValue | null>
 
 function readStoredControl(): AmbientControlMode {
   if (typeof window === 'undefined') return 'auto';
-  const raw = window.localStorage.getItem(PLATFORM_AMBIENT_STORAGE_KEY);
-  if (raw === 'bright' || raw === 'night' || raw === 'auto') return raw;
+  try {
+    const raw = window.localStorage.getItem(PLATFORM_AMBIENT_STORAGE_KEY);
+    if (raw === 'bright' || raw === 'night' || raw === 'auto') return raw;
+  } catch {
+    /* Safari خاص / WebView بلا تخزين — لا تُسقط إقلاع الجوال */
+  }
   return 'auto';
 }
 
@@ -103,14 +107,22 @@ export function PlatformAmbientProvider({ children }: { children: ReactNode }) {
 
   const setControl = useCallback((mode: AmbientControlMode) => {
     setControlState(mode);
-    window.localStorage.setItem(PLATFORM_AMBIENT_STORAGE_KEY, mode);
+    try {
+      window.localStorage.setItem(PLATFORM_AMBIENT_STORAGE_KEY, mode);
+    } catch {
+      /* ignore */
+    }
   }, []);
 
   const cycleControl = useCallback(() => {
     setControlState((prev) => {
       const idx = CONTROL_CYCLE.indexOf(prev);
       const next = CONTROL_CYCLE[(idx + 1) % CONTROL_CYCLE.length];
-      window.localStorage.setItem(PLATFORM_AMBIENT_STORAGE_KEY, next);
+      try {
+        window.localStorage.setItem(PLATFORM_AMBIENT_STORAGE_KEY, next);
+      } catch {
+        /* ignore */
+      }
       return next;
     });
   }, []);

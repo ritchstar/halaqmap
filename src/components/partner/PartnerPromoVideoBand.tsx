@@ -10,14 +10,23 @@ const STORAGE_PREFIX = 'halaqmap_partner_promo_autoplay_';
 const NARROW_MQ = '(max-width: 767px)';
 
 function useNarrowScreen() {
-  const [narrow, setNarrow] = useState(() =>
-    typeof window !== 'undefined' ? window.matchMedia(NARROW_MQ).matches : false,
-  );
+  const [narrow, setNarrow] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    try {
+      return window.matchMedia(NARROW_MQ).matches;
+    } catch {
+      return window.innerWidth < 768;
+    }
+  });
   useEffect(() => {
     const mql = window.matchMedia(NARROW_MQ);
     const fn = () => setNarrow(mql.matches);
-    mql.addEventListener('change', fn);
-    return () => mql.removeEventListener('change', fn);
+    if (typeof mql.addEventListener === 'function') {
+      mql.addEventListener('change', fn);
+      return () => mql.removeEventListener('change', fn);
+    }
+    mql.addListener(fn);
+    return () => mql.removeListener(fn);
   }, []);
   return narrow;
 }

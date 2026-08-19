@@ -89,9 +89,10 @@
     <script>
       (function () {
         try {
-          var flag = 'hm-sw-reset-v17';
+          var flag = 'hm-sw-reset-v18';
           if (localStorage.getItem(flag)) return;
           localStorage.setItem(flag, '1');
+          localStorage.removeItem('hm-sw-reset-v17');
           localStorage.removeItem('hm-sw-reset-v16');
           localStorage.removeItem('hm-sw-reset-v15');
           localStorage.removeItem('hm-sw-reset-v14');
@@ -114,7 +115,8 @@
           sessionStorage.removeItem('hm-sw-reset-v11-reload');
           /* بعد مسح الكاش: امنح الإقلاع البارد مهلة أطول ولا تمسح الكاش ثانيةً من الـ watchdog */
           sessionStorage.setItem('hm-boot-grace-after-sw-reset', String(Date.now()));
-          var reloadFlag = 'hm-sw-reset-v17-reload';
+          var reloadFlag = 'hm-sw-reset-v18-reload';
+          sessionStorage.removeItem('hm-sw-reset-v17-reload');
           sessionStorage.removeItem('hm-sw-reset-v16-reload');
           sessionStorage.removeItem('hm-sw-reset-v15-reload');
           var tasks = [];
@@ -166,6 +168,7 @@
           var isSlowClient = false;
           try {
             isSlowClient =
+              (typeof window.innerWidth === 'number' && window.innerWidth < 768) ||
               (window.matchMedia && window.matchMedia('(max-width: 767px)').matches) ||
               (navigator.connection && navigator.connection.saveData === true) ||
               (navigator.connection &&
@@ -230,8 +233,8 @@
             if (graceAt > 0) graceMs = Math.max(0, 60000 - (Date.now() - graceAt));
           } catch (e) {}
 
-          /* سطح المكتب 20ث · الجوال/شبكة بطيئة 45ث · بعد مسح الكاش 55ث */
-          var timeoutMs = graceMs > 0 ? 55000 : isSlowClient ? 45000 : 20000;
+          /* سطح المكتب 20ث · الجوال/شبكة بطيئة 70ث · بعد مسح الكاش 80ث */
+          var timeoutMs = graceMs > 0 ? 80000 : isSlowClient ? 70000 : 20000;
 
           var armWatchdog = function (ms, allowAutoRecover) {
             window.setTimeout(function () {
@@ -240,7 +243,7 @@
 
                 /* JS بدأ لكن لم يكتمل بعد — مدّد مرة واحدة بدل إنذار كاذب */
                 if (window[bootStartedFlag] === true && allowAutoRecover) {
-                  armWatchdog(isSlowClient ? 25000 : 15000, false);
+                  armWatchdog(isSlowClient ? 40000 : 15000, false);
                   return;
                 }
 
