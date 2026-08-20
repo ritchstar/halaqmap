@@ -10,6 +10,9 @@ export const STORE_PAID_INVITE_PRICES_SAR = {
   luxury: 59,
 } as const;
 
+/** التحصيل عبر ميسر مغلق حتى يُسعَّر المنتج ويُربط بفاتورته، دون خلط برخصة النفاذ. */
+export const STORE_PAID_INVITE_CHECKOUT_ENABLED = false;
+
 export type StorePaidInviteTier = keyof typeof STORE_PAID_INVITE_PRICES_SAR;
 
 export type StorePaidInviteFamily = 'seasons' | 'personal' | 'achievements' | 'luxury';
@@ -53,10 +56,13 @@ export const STORE_PAID_INVITE_COPY = {
   kicker: 'إصدار فوري لبطاقة مناسبة',
   titleAr: 'بطاقة مناسبة قابلة للمشاركة',
   leadAr:
-    'معاينة مجانية بلا حساب. تدفع عند طلب الرابط الحي عبر ميسر على النطاق الأم. المنصة لا ترسل الدعوة نيابة عنك ولا تدير قائمة ضيوف.',
+    'معاينة مجانية بلا حساب. الأسعار معتمدة: 12 و29 و59 ر.س. التحصيل عبر ميسر لا يُفتح حتى يُسعَّر هذا المنتج ويُربط بفاتورته، ولا يُخلط برخصة النفاذ. المنصة لا ترسل الدعوة نيابة عنك ولا تدير قائمة ضيوف.',
   stampAr: 'صُممت عبر halaqmap · خريطة الحل',
   createCtaAr: 'أنشئ بطاقتك',
   payAtPublishAr: 'ادفع للنشر',
+  checkoutClosedAr:
+    'بوابة الدفع غير مفتوحة لهذه البطاقة بعد. السعر ظاهر للمعاينة فقط، حتى يُسجَّل المنتج في ميسر ويُربط بفاتورته.',
+  checkoutClosedCtaAr: 'النشر بعد ربط الفاتورة',
   noPackAr: 'باقة الثلاث بطاقات غير متاحة في هذه النسخة.',
   deferredCommercialAr: 'افتتاح النشاط التجاري مؤجّل إلى موجة لاحقة.',
   legalGateAr: 'الموافقة على شروط إصدار البطاقات مطلوبة قبل الإنشاء.',

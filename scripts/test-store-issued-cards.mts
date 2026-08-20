@@ -7,6 +7,7 @@ import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
+  STORE_PAID_INVITE_CHECKOUT_ENABLED,
   STORE_PAID_INVITE_PRICES_SAR,
   STORE_PAID_INVITE_TEMPLATES,
   priceHalalasForTemplate,
@@ -26,6 +27,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const app = readFileSync(join(root, 'src/App.tsx'), 'utf8');
 const legalBlob = STORE_ISSUED_CARDS_LEGAL_SECTIONS.map((s) => `${s.title}\n${s.content}`).join('\n');
 
+assert.equal(STORE_PAID_INVITE_CHECKOUT_ENABLED, false);
 assert.equal(STORE_PAID_INVITE_TEMPLATES.length, 12);
 assert.equal(STORE_PAID_INVITE_PRICES_SAR.quick, 12);
 assert.equal(STORE_PAID_INVITE_PRICES_SAR.featured, 29);
@@ -79,7 +81,9 @@ assert.match(legalBlob, /12/);
 assert.match(legalBlob, /29/);
 assert.match(legalBlob, /59/);
 assert.match(legalBlob, /bereavement-notices/);
-assert.match(legalBlob, /إعلان وفاة وترتيبات الصلاة والدفن والعزاء/);
+assert.match(legalBlob, /اسم المسجد/);
+assert.match(legalBlob, /اسم المقبرة/);
+assert.match(legalBlob, /ما لا نجمعه في النسخة الأولى/);
 assert.match(legalBlob, /نظام حماية البيانات الشخصية/);
 assert.match(legalBlob, /ميسر/);
 assert.doesNotMatch(legalBlob, /المؤسس/);
@@ -95,7 +99,8 @@ assert.doesNotMatch(bereavementShareText('خالد', 'https://example.com'), /أ
 
 assert.equal(maskSaudiMobileDisplay('0559602685'), '05••• ••685');
 
-assert.match(STORE_LANDING_COPY.paidInvitesLeadAr, /12 أو 29 أو 59/);
+assert.match(legalBlob, /يُربط بفاتورته/);
+assert.match(STORE_LANDING_COPY.paidInvitesLeadAr, /12 و29 و59/);
 assert.match(STORE_LANDING_COPY.bereavementTitleAr, /الوفاة/);
 
 assert.match(app, /@\/pages\/store\/StoreIssuedCardsLegalHub/);

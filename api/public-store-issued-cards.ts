@@ -13,6 +13,7 @@ import {
   maskPhoneLast4,
   newAdminToken,
   newPublicToken,
+  OCCASION_CARD_CHECKOUT_ENABLED,
   parseBereavementBody,
   parsePaidInviteBody,
   publicBereavementView,
@@ -295,6 +296,13 @@ async function reportCard(db: Db, body: Record<string, unknown>, headers: Record
 }
 
 async function createPaidPending(db: Db, body: Record<string, unknown>, headers: Record<string, string>) {
+  if (!OCCASION_CARD_CHECKOUT_ENABLED) {
+    return json(
+      { error: 'تحصيل بطاقة المناسبة مغلق حتى يُسعَّر المنتج في ميسر ويُربط بفاتورته.' },
+      503,
+      headers,
+    );
+  }
   const parsed = parsePaidInviteBody(body);
   if (!parsed.ok) return json({ error: parsed.error }, 400, headers);
   const publicToken = newPublicToken();
@@ -324,6 +332,13 @@ async function createPaidPending(db: Db, body: Record<string, unknown>, headers:
 }
 
 async function activatePaid(db: Db, body: Record<string, unknown>, headers: Record<string, string>) {
+  if (!OCCASION_CARD_CHECKOUT_ENABLED) {
+    return json(
+      { error: 'تحصيل بطاقة المناسبة مغلق حتى يُسعَّر المنتج في ميسر ويُربط بفاتورته.' },
+      503,
+      headers,
+    );
+  }
   const token = String(body.token || '').trim();
   const paymentId = String(body.paymentId || '').trim();
   if (!token || !paymentId) return json({ error: 'مرجع الدفع ناقص' }, 400, headers);

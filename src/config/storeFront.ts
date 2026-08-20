@@ -105,7 +105,7 @@ export const STORE_LANDING_COPY = {
   trustStripCtaAr: 'فتح التصنيفات والتحقق',
   paidInvitesTitleAr: 'بطاقة مناسبة مدفوعة',
   paidInvitesLeadAr:
-    'معاينة مجانية ثم 12 أو 29 أو 59 ر.س عند النشر عبر ميسر. المنصة لا ترسل الدعوة نيابة عنك.',
+    'معاينة مجانية. الأسعار المعتمدة 12 و29 و59 ر.س. التحصيل عبر ميسر يُفتح بعد تسعير المنتج وربطه بفاتورته، ولا يُخلط برخصة النفاذ.',
   paidInvitesCtaAr: 'فتح إصدار البطاقة',
   bereavementTitleAr: 'بلاغات الوفاة والعزاء',
   bereavementLeadAr:

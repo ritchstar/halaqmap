@@ -13,6 +13,7 @@ import {
   StoreVisitorShell,
 } from '@/components/store/StoreChrome';
 import {
+  STORE_PAID_INVITE_CHECKOUT_ENABLED,
   STORE_PAID_INVITE_COPY,
   STORE_PAID_INVITE_FAMILIES,
   STORE_PAID_INVITE_PRICES_SAR,
@@ -22,9 +23,7 @@ import {
 } from '@/config/storeIssuedCardsCatalog';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { hasValidStoreIssuedConsent } from '@/lib/storeIssuedCardsConsent';
-import { createPaidInvitePending } from '@/lib/storeIssuedCardsRemote';
 import { ROUTE_PATHS } from '@/lib/routePaths';
-import { toast } from '@/components/ui/sonner';
 import { cn } from '@/lib/utils';
 
 const fieldClass =
@@ -41,12 +40,9 @@ export default function StorePaidInviteStudioPage() {
   const [whenText, setWhenText] = useState('');
   const [placeText, setPlaceText] = useState('');
   const [message, setMessage] = useState('');
-  const [busy, setBusy] = useState(false);
 
   const template = templateById(templateId);
   const price = priceSarForTemplate(templateId);
-
-  const previewReady = hostName.trim().length >= 2 && template;
 
   const preview = useMemo(
     () => ({
@@ -62,27 +58,6 @@ export default function StorePaidInviteStudioPage() {
   if (!consented) {
     return <Navigate to={`${ROUTE_PATHS.STORE_ISSUED_CARDS_LEGAL}?track=paid`} replace />;
   }
-
-  const onPublish = async () => {
-    if (!previewReady || price == null) return;
-    setBusy(true);
-    const result = await createPaidInvitePending({
-      templateId,
-      hostName,
-      occasionLine,
-      whenText,
-      placeText,
-      message,
-    });
-    setBusy(false);
-    if (!result.ok) {
-      toast.error(typeof result.error === 'string' ? result.error : 'تعذر إنشاء طلب النشر');
-      return;
-    }
-    const token = String(result.token || '');
-    const payPath = String(result.payPath || `/pay/occasion-card/${token}`);
-    window.location.assign(`https://www.halaqmap.com/#${payPath}`);
-  };
 
   return (
     <StoreVisitorShell>
@@ -145,17 +120,14 @@ export default function StorePaidInviteStudioPage() {
             </div>
           </div>
 
-          <Button
-            type="button"
-            disabled={!previewReady || busy}
-            onClick={() => void onPublish()}
-            className="mt-6 w-full bg-[#e8c547] text-[#061018] hover:bg-[#f0d36a]"
-          >
-            {STORE_PAID_INVITE_COPY.payAtPublishAr}
+          <Button type="button" disabled className="mt-6 w-full bg-[#e8c547] text-[#061018] opacity-60">
+            {STORE_PAID_INVITE_COPY.checkoutClosedCtaAr}
             {price != null ? ` — ${price} ر.س` : ''}
           </Button>
           <p className="mt-2 text-xs leading-relaxed text-white/45">
-            الدفع عبر ميسر على www.halaqmap.com. بعد نجاح الدفع يصبح الرابط حيّاً ولا يُسترد.
+            {STORE_PAID_INVITE_CHECKOUT_ENABLED
+              ? 'الدفع عبر ميسر على www.halaqmap.com. بعد نجاح الدفع يصبح الرابط حيّاً ولا يُسترد.'
+              : STORE_PAID_INVITE_COPY.checkoutClosedAr}
           </p>
           <Link to={`${ROUTE_PATHS.STORE_ISSUED_CARDS_LEGAL}?track=paid`} className="mt-3 inline-block text-xs text-white/50 underline">
             {STORE_PAID_INVITE_COPY.legalGateAr}

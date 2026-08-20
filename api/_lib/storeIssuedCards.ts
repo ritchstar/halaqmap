@@ -15,6 +15,9 @@ export const PAID_PRICE_HALALAS = {
   luxury: 5900,
 } as const;
 
+/** مغلق حتى يُسعَّر منتج البطاقة في ميسر ويُربط بفاتورته، دون خلط برخصة النفاذ. */
+export const OCCASION_CARD_CHECKOUT_ENABLED = false;
+
 const PAID_TEMPLATES: Record<string, keyof typeof PAID_PRICE_HALALAS> = {
   'season-short': 'quick',
   'season-eid-note': 'quick',
