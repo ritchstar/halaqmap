@@ -8,14 +8,15 @@ export const FOUNDER_DESK_MAX_BODY = 800;
 export const FOUNDER_DESK_TTL_MS = 60 * 60 * 1000;
 
 export const FOUNDER_DESK_COPY = {
-  nameAr: 'حلاق ماب',
+  brandLatin: 'halaqmap',
+  publicNameAr: 'خريطة الحل',
   badgeAr: 'شات مباشر ٦٠ دقيقة',
   statusAr: 'متاح للمحادثة',
   subtitleAr: 'محادثة خاصة مع الإدارة',
   whatsappAriaAr: 'واتساب مباشر',
   chatAriaAr: 'شات مباشر ستون دقيقة',
   chatCtaAr: 'محادثة ٦٠ دقيقة',
-  whatsappPrefillAr: 'مرحباً، أريد محادثة مباشرة مع حلاق ماب.',
+  whatsappPrefillAr: 'مرحباً، أريد محادثة مباشرة مع halaqmap — خريطة الحل.',
   chatTitleAr: 'محادثة خاصة مع الإدارة',
   chatIntroAr: 'جلسة مستقلة تنتهي تلقائياً بعد ستين دقيقة. الرد يصلك هنا من الإدارة مباشرة.',
   privacyNoticeAr: 'هذه المحادثة خاصة لكل عميل على حدة. لا يراها إلا أنت والإدارة، وفق',
@@ -35,7 +36,7 @@ export const FOUNDER_DESK_COPY = {
   sendFailedAr: 'تعذّر إرسال الرسالة.',
   limitAr: 'بلغت حد الرسائل لهذه الجلسة.',
   visitorLandingHintAr: 'هذه صفحة هبوط غير معلنة. المحادثة هنا تصل مباشرة إلى الإدارة.',
-  visitorPageTitleAr: 'حلاق ماب — محادثة خاصة',
+  visitorPageTitleAr: 'halaqmap — خريطة الحل — محادثة خاصة',
   openStandaloneAr: 'فتح المحادثة في صفحة مستقلة',
   standaloneHintAr: 'صفحة هادئة للتركيز. المحادثة خاصة بك وحدك مع الإدارة.',
   backToPartnersAr: 'العودة لمسار الشركاء',

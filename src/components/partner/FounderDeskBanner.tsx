@@ -66,7 +66,7 @@ export function FounderDeskBanner({
             <div className="absolute inset-0 bg-[linear-gradient(135deg,#f7fcfd_0%,#e8f4f8_55%,#d7ebf2_100%)]" />
             <img
               src={PLATFORM_BRAND_LOGO_PATH}
-              alt={FOUNDER_DESK_COPY.nameAr}
+              alt=""
               className={cn(BARBER_CARD_HERO_IMAGE_CLASS, 'object-contain p-5 sm:p-6')}
               loading="eager"
               decoding="async"
@@ -82,7 +82,10 @@ export function FounderDeskBanner({
           </div>
 
           <div className="p-4">
-            <h3 className="text-[1rem] font-black leading-tight text-slate-950">{FOUNDER_DESK_COPY.nameAr}</h3>
+            <p className="text-[0.7rem] font-bold tracking-wide text-[#18687a]" dir="ltr">
+              {FOUNDER_DESK_COPY.brandLatin}
+            </p>
+            <h3 className="text-[1rem] font-black leading-tight text-slate-950">{FOUNDER_DESK_COPY.publicNameAr}</h3>
             <p className="mt-1 text-[0.72rem] font-semibold text-[#18687a]">{FOUNDER_DESK_COPY.subtitleAr}</p>
             <div className="mt-1.5 inline-flex items-center gap-1 rounded-full border border-[#18687a]/20 bg-[#18687a]/8 px-2 py-0.5 text-[0.6rem] font-bold text-[#18687a]">
               <span className="h-1 w-1 rounded-full bg-[#18687a]" />
@@ -150,8 +153,12 @@ export function FounderDeskBanner({
 
             <div className="mt-3 flex items-center justify-center gap-1.5 border-t border-slate-200/80 pt-2.5">
               <div className="h-1.5 w-1.5 rounded-full bg-[#18687a]/70" />
-              <span className="text-[0.55rem] font-semibold tracking-[0.16em] text-[#18687a]/40">
-                حلاق ماب · HALAQ MAP
+              <span className="text-[0.55rem] font-semibold text-[#18687a]/40">
+                <span dir="ltr" className="tracking-[0.12em]">
+                  {FOUNDER_DESK_COPY.brandLatin}
+                </span>
+                <span className="mx-1">·</span>
+                {FOUNDER_DESK_COPY.publicNameAr}
               </span>
               <div className="h-1.5 w-1.5 rounded-full bg-[#18687a]/70" />
             </div>
