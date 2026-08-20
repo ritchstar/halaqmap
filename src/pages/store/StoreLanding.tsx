@@ -13,6 +13,7 @@ import {
   StoreVisitorShell,
 } from '@/components/store/StoreChrome';
 import { StoreDeskChatCard } from '@/components/store/StoreDeskChatCard';
+import { StoreLaterServicesSection } from '@/components/store/StoreLaterServicesSection';
 import { StoreLiveOpsBanner } from '@/components/store/StoreLiveOpsBanner';
 import { StoreShot } from '@/components/store/StoreShot';
 import {
@@ -155,6 +156,12 @@ export default function StoreLanding() {
         </div>
       </section>
 
+      <section className="px-4 pb-10">
+        <div className="mx-auto max-w-5xl">
+          <StoreLaterServicesSection onOpenForm={openRequestForm} />
+        </div>
+      </section>
+
       <section id="store-service-request" className="px-4 pb-12">
         <div className="mx-auto grid max-w-5xl gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
           <div className="rounded-2xl border border-white/12 bg-[#0b1a24]/80 p-5 md:p-6">
@@ -198,15 +205,9 @@ export default function StoreLanding() {
             <div className="overflow-hidden rounded-2xl border border-white/12 bg-white/[0.04]">
               <StoreShot
                 src={STORE_VISUALS.ops}
-                alt="لوحة تشغيل برمجية لخدمات لاحقة قيد التجهيز"
+                alt="لوحة تشغيل برمجية لحلول المنشآت"
                 className="aspect-[16/8]"
               />
-              <div className="p-5">
-                <h2 className="text-xl font-extrabold">{STORE_LANDING_COPY.comingSoonTitle}</h2>
-                <p className="mt-2 text-sm leading-relaxed text-white/70">
-                  {STORE_LANDING_COPY.comingSoonLead}
-                </p>
-              </div>
             </div>
           </div>
         </div>

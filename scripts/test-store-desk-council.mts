@@ -49,6 +49,9 @@ assert('isic', prompt.includes('ISIC4 474151'));
 assert('no_second_entity', prompt.includes('لا تخترع كياناً قانونياً ثانياً'));
 assert('coiffeur_marketing_page', prompt.includes('خطط الظهور'));
 assert('no_rank_in_client', prompt.includes('دون ذكر ترتيب صفحات البحث'));
+assert('three_doors', prompt.includes('ثلاثة أبواب فقط'));
+assert('no_any_system', prompt.includes('لا يعد بتصميم أي نظام'));
+assert('no_booking_on_behalf', prompt.includes('لا تعد بحجز أو تسعير أو تحصيل أجرة الخدمة'));
 
 assertEq(
   'extract_colon',

@@ -9,6 +9,7 @@ import {
   StoreVisitorHeader,
   StoreVisitorShell,
 } from '@/components/store/StoreChrome';
+import { StoreLaterServicesSection } from '@/components/store/StoreLaterServicesSection';
 import { StoreShot } from '@/components/store/StoreShot';
 import { LICENSED_COMMERCIAL_ACTIVITIES } from '@/config/licensedCommercialActivities';
 import {
@@ -169,6 +170,9 @@ export default function StoreAboutPage() {
             <p className="mt-3 max-w-3xl text-sm leading-7 text-white/75 md:text-base md:leading-8">
               {STORE_ABOUT_COPY.customBody}
             </p>
+            <div className="mt-8">
+              <StoreLaterServicesSection nested />
+            </div>
             <h3 className="mt-8 text-xl font-extrabold text-[#e8c547]">{STORE_ABOUT_COPY.processTitle}</h3>
             <ul className="mt-4 grid gap-3 md:grid-cols-3">
               {STORE_ABOUT_COPY.processSteps.map((step) => (

@@ -96,10 +96,20 @@ assert.doesNotMatch(
   'Store chrome must not duplicate the moving ops ticker',
 );
 
+assert.match(
+  readFileSync(join(root, 'src/pages/store/StoreLanding.tsx'), 'utf8'),
+  /StoreLaterServicesSection/,
+  'Store landing must mount the later software-services doors',
+);
+
 const storeFront = readFileSync(join(root, 'src/config/storeFront.ts'), 'utf8');
 assert.match(storeFront, /منشأة واحدة، منتجان قطاعيان/);
+assert.match(storeFront, /حلول تشغيل للمنشآت/);
+assert.match(storeFront, /طلب خاص يُدرس/);
 assert.doesNotMatch(storeFront, /منتج واحد، واجهتان/);
 assert.doesNotMatch(storeFront, /استثمار مجالي/);
 assert.doesNotMatch(storeFront, /نصمم لك نظام/);
+assert.doesNotMatch(storeFront, /ستُعرض هنا عند الجاهزية/);
+assert.doesNotMatch(storeFront, /يرغب العميل في تصميمه/);
 
 console.log('boot chunk isolation ok');
