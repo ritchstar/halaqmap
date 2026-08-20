@@ -11,6 +11,9 @@ import {
   LEGAL_ECOMMERCE_STORE_NAME,
   LEGAL_ECOMMERCE_STORE_PUBLIC_NAME_AR,
   LEGAL_FIRST_SOFTWARE_PRODUCT_AR,
+  PARTNER_SUPPORT_EMAIL,
+  PARTNER_SUPPORT_PHONE_E164,
+  PARTNER_SUPPORT_WHATSAPP_URL,
 } from '@/config/partnerLegal';
 
 /** يطابق storeHostRedirect — لا تستورد ذلك الملف من هنا حتى لا تُسحب الحزمة إلى App. */
@@ -19,6 +22,19 @@ export const STORE_ORIGIN = `https://${STORE_SATELLITE_HOST}` as const;
 export const STORE_BRAND_LATIN = LEGAL_ECOMMERCE_STORE_NAME;
 export const STORE_PUBLIC_NAME_AR = LEGAL_ECOMMERCE_STORE_PUBLIC_NAME_AR;
 export const STORE_ENGLISH_LINE = LEGAL_ECOMMERCE_STORE_ENGLISH_LINE;
+export const STORE_CONTACT_EMAIL = PARTNER_SUPPORT_EMAIL;
+export const STORE_CONTACT_PHONE_E164 = PARTNER_SUPPORT_PHONE_E164;
+export const STORE_CONTACT_PHONE_DISPLAY = '0559602685';
+export const STORE_CONTACT_WHATSAPP_URL = PARTNER_SUPPORT_WHATSAPP_URL;
+export const STORE_CONTACT_X_URL = 'https://x.com/halaqmap';
+export const STORE_CONTACT_X_HANDLE = '@halaqmap';
+
+export const STORE_FOOTER_CONTACT = {
+  emailLabelAr: 'البريد',
+  phoneLabelAr: 'الجوال',
+  whatsappLabelAr: 'واتساب',
+  xLabelAr: 'منصة X',
+} as const;
 
 export const COIFFEUR_PRODUCT_AR = 'كوافير ماب' as const;
 
@@ -232,6 +248,18 @@ export const STORE_LATER_SERVICES_COPY = {
       action: 'form',
     },
   ],
+} as const;
+
+/** فرصة مشاركة هادئة — ليست باب برمجة رابعاً، وتندرج تحت التسويق بالعمولة. */
+export const STORE_COMMISSION_COPY = {
+  kickerAr: 'مشاركة',
+  titleAr: 'التسويق بالعمولة',
+  leadAr:
+    'فرصة مستقلة عن أبواب البرمجة. عمولة على بيع رخصة النفاذ للمنشأة، لا على الخدمة الحرفية. كل نسخة مرتبطة بسطحها القطاعي.',
+  halaqLabelAr: 'مسوّقون لحلاق ماب',
+  coiffeurLabelAr: 'مسوّقات لكوافير ماب',
+  halaqHref: `https://www.halaqmap.com/#${ROUTE_PATHS.AMBASSADOR_ENTER}`,
+  coiffeurHref: `https://coiffeur.halaqmap.com/#${ROUTE_PATHS.COIFFEUR_AMBASSADORS}`,
 } as const;
 
 export const STORE_SECTOR_SPLIT_COPY = {

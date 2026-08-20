@@ -116,11 +116,19 @@ assert.doesNotMatch(storeFront, /استثمار مجالي/);
 assert.doesNotMatch(storeFront, /نصمم لك نظام/);
 assert.doesNotMatch(storeFront, /ستُعرض هنا عند الجاهزية/);
 assert.doesNotMatch(storeFront, /يرغب العميل في تصميمه/);
+assert.match(storeFront, /ثلاثة أبواب فقط/);
+assert.match(storeFront, /مسوّقات لكوافير ماب/);
+assert.match(storeFront, /التسويق بالعمولة/);
 
 assert.match(
   app,
   /@\/pages\/store\/StoreTrustPage/,
   'App must lazy-load the store trust page',
+);
+assert.match(
+  app,
+  /@\/pages\/coiffeur\/CoiffeurAmbassadorEnter/,
+  'App must lazy-load the coiffeur ambassador enter page',
 );
 
 console.log('boot chunk isolation ok');

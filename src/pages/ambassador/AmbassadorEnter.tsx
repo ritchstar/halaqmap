@@ -304,6 +304,16 @@ export default function AmbassadorEnter() {
         </motion.div>
 
         <AmbassadorMarketingKitPanel />
+
+        <p className="text-center text-xs text-slate-500">
+          مسار مقابل ·{' '}
+          <a
+            href="https://coiffeur.halaqmap.com/#/coiffeur/ambassadors"
+            className="text-teal-300/80 underline-offset-4 hover:underline"
+          >
+            نسخة المسوّقات لكوافير ماب
+          </a>
+        </p>
       </main>
     </div>
   );

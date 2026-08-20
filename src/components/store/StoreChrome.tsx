@@ -4,7 +4,7 @@
 import { Link } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { lockPartnerDarkCanvas } from '@/lib/partnerDarkCanvas';
-import { STORE_ABOUT_COPY, STORE_BRAND_LATIN, STORE_LANDING_COPY, STORE_ORIGIN, STORE_PUBLIC_NAME_AR, STORE_VISUALS } from '@/config/storeFront';
+import { STORE_ABOUT_COPY, STORE_BRAND_LATIN, STORE_CONTACT_EMAIL, STORE_CONTACT_PHONE_DISPLAY, STORE_CONTACT_PHONE_E164, STORE_CONTACT_WHATSAPP_URL, STORE_CONTACT_X_HANDLE, STORE_CONTACT_X_URL, STORE_FOOTER_CONTACT, STORE_LANDING_COPY, STORE_ORIGIN, STORE_PUBLIC_NAME_AR, STORE_VISUALS } from '@/config/storeFront';
 import { KSACityClocksBar } from '@/components/KSACityClocksBar';
 import { EcommerceVerifiedFooterBadge } from '@/components/EcommerceVerifiedFooterBadge';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -85,6 +85,36 @@ export function StoreVisitorFooter() {
         </nav>
         <p className="text-sm leading-relaxed text-white/70">{STORE_LANDING_COPY.roleLine}</p>
         <p className="text-xs text-white/50">{STORE_ORIGIN}</p>
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-white/70">
+          <a href={`mailto:${STORE_CONTACT_EMAIL}`} className="hover:text-[#e8c547]">
+            {STORE_FOOTER_CONTACT.emailLabelAr}
+            {' · '}
+            <span dir="ltr">{STORE_CONTACT_EMAIL}</span>
+          </a>
+          <a href={`tel:+${STORE_CONTACT_PHONE_E164}`} className="hover:text-[#e8c547]">
+            {STORE_FOOTER_CONTACT.phoneLabelAr}
+            {' · '}
+            <span dir="ltr">{STORE_CONTACT_PHONE_DISPLAY}</span>
+          </a>
+          <a
+            href={STORE_CONTACT_WHATSAPP_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-[#e8c547]"
+          >
+            {STORE_FOOTER_CONTACT.whatsappLabelAr}
+          </a>
+          <a
+            href={STORE_CONTACT_X_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-[#e8c547]"
+          >
+            {STORE_FOOTER_CONTACT.xLabelAr}
+            {' · '}
+            <span dir="ltr">{STORE_CONTACT_X_HANDLE}</span>
+          </a>
+        </div>
         <EcommerceVerifiedFooterBadge variant="dark" />
         <p className="text-xs leading-relaxed text-white/45">{STORE_LANDING_COPY.footerLegal}</p>
       </div>

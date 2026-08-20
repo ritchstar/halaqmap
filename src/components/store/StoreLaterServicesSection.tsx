@@ -4,7 +4,7 @@
  * أبواب الخدمات البرمجية اللاحقة — واجهة المتجر فقط.
  */
 import { Link } from 'react-router-dom';
-import { STORE_LATER_SERVICES_COPY } from '@/config/storeFront';
+import { STORE_COMMISSION_COPY, STORE_LATER_SERVICES_COPY } from '@/config/storeFront';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 
 type Props = {
@@ -60,6 +60,19 @@ export function StoreLaterServicesSection({ onOpenForm, nested = false }: Props)
         })}
       </ul>
       <p className="mt-4 text-sm leading-relaxed text-white/55">{STORE_LATER_SERVICES_COPY.outNoteAr}</p>
+      <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.03] p-4 md:p-5">
+        <p className="text-xs font-bold tracking-[0.14em] text-white/45">{STORE_COMMISSION_COPY.kickerAr}</p>
+        <p className="mt-1 text-base font-extrabold text-white/80">{STORE_COMMISSION_COPY.titleAr}</p>
+        <p className="mt-2 max-w-3xl text-sm leading-relaxed text-white/55">{STORE_COMMISSION_COPY.leadAr}</p>
+        <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-sm">
+          <a href={STORE_COMMISSION_COPY.halaqHref} className="text-white/70 underline-offset-4 hover:text-[#e8c547] hover:underline">
+            {STORE_COMMISSION_COPY.halaqLabelAr}
+          </a>
+          <a href={STORE_COMMISSION_COPY.coiffeurHref} className="text-white/70 underline-offset-4 hover:text-[#e8c547] hover:underline">
+            {STORE_COMMISSION_COPY.coiffeurLabelAr}
+          </a>
+        </div>
+      </div>
     </div>
   );
 }
