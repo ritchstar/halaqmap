@@ -21,6 +21,7 @@ import {
   maskPhoneLast4,
   newAdminToken,
   newPublicToken,
+  occasionCardInvoiceAuthorizesPayment,
   occasionCardInvoiceDescription,
   occasionCardInvoiceMetadata,
   occasionCardMetaProduct,
@@ -467,6 +468,36 @@ async function markPaidInviteLive(db: Db, cardId: string, paymentId: string): Pr
   return again?.status === 'live';
 }
 
+async function fetchInvoiceJson(invoiceId: string): Promise<{
+  status: number;
+  parsed:
+    | {
+        id?: string;
+        status?: string;
+        amount?: number;
+        metadata?: Record<string, unknown>;
+        payments?: Array<{ id?: unknown; status?: unknown }>;
+      }
+    | null;
+}> {
+  const upstream = await fetchMoyasarInvoiceForOccasionCard(invoiceId);
+  if (upstream.status >= 400) return { status: upstream.status, parsed: null };
+  try {
+    return {
+      status: upstream.status,
+      parsed: JSON.parse(upstream.text) as {
+        id?: string;
+        status?: string;
+        amount?: number;
+        metadata?: Record<string, unknown>;
+        payments?: Array<{ id?: unknown; status?: unknown }>;
+      },
+    };
+  } catch {
+    return { status: 502, parsed: null };
+  }
+}
+
 async function fulfillFromPaymentId(
   db: Db,
   token: string,
@@ -475,7 +506,7 @@ async function fulfillFromPaymentId(
 ) {
   const { data } = await db
     .from(STORE_ISSUED_CARDS_TABLE)
-    .select('id, status, price_halalas, kind')
+    .select('id, status, price_halalas, kind, payload')
     .eq('public_token', token)
     .maybeSingle();
   if (!data || data.kind !== 'paid_invite') return json({ error: 'البطاقة غير موجودة' }, 404, headers);
@@ -492,7 +523,12 @@ async function fulfillFromPaymentId(
 
   const upstream = await fetchMoyasarPaymentForOccasionCard(paymentId);
   if (upstream.status >= 400) return json({ error: 'تعذر التحقق من الدفع' }, 502, headers);
-  let parsed: { status?: string; amount?: number; metadata?: Record<string, unknown> };
+  let parsed: {
+    status?: string;
+    amount?: number;
+    metadata?: Record<string, unknown>;
+    invoice_id?: string;
+  };
   try {
     parsed = JSON.parse(upstream.text) as typeof parsed;
   } catch {
@@ -504,14 +540,37 @@ async function fulfillFromPaymentId(
   if (Number(parsed.amount) !== Number(data.price_halalas)) {
     return json({ error: 'مبلغ الدفع لا يطابق البطاقة' }, 409, headers);
   }
-  if (
-    !occasionCardPaymentMatches({
-      meta: parsed.metadata,
-      token,
-      amount: Number(parsed.amount),
-    })
-  ) {
-    return json({ error: 'وسم الدفع لا يطابق بطاقة المناسبة' }, 409, headers);
+  const paymentMetaOk = occasionCardPaymentMatches({
+    meta: parsed.metadata,
+    token,
+    amount: Number(parsed.amount),
+  });
+  if (!paymentMetaOk) {
+    const storedInvoiceId = invoiceIdFromPayload(data.payload);
+    const paymentInvoiceId = String(parsed.invoice_id || '').trim();
+    const invoiceId = storedInvoiceId || paymentInvoiceId;
+    if (!invoiceId) return json({ error: 'وسم الدفع لا يطابق بطاقة المناسبة' }, 409, headers);
+    if (storedInvoiceId && paymentInvoiceId && storedInvoiceId !== paymentInvoiceId) {
+      return json({ error: 'وسم الدفع لا يطابق بطاقة المناسبة' }, 409, headers);
+    }
+    const invoice = await fetchInvoiceJson(invoiceId);
+    if (!invoice.parsed) return json({ error: 'تعذر التحقق من الفاتورة' }, 502, headers);
+    if (Number(invoice.parsed.amount) !== Number(data.price_halalas)) {
+      return json({ error: 'مبلغ الفاتورة لا يطابق البطاقة' }, 409, headers);
+    }
+    if (
+      !occasionCardInvoiceAuthorizesPayment({
+        token,
+        invoiceId,
+        invoiceMeta: invoice.parsed.metadata,
+        invoiceAmount: Number(invoice.parsed.amount),
+        invoicePayments: invoice.parsed.payments,
+        paymentId,
+        paymentInvoiceId,
+      })
+    ) {
+      return json({ error: 'وسم الدفع لا يطابق بطاقة المناسبة' }, 409, headers);
+    }
   }
   const ok = await markPaidInviteLive(db, String(data.id), paymentId);
   if (!ok) return json({ error: 'تعذر تفعيل البطاقة' }, 409, headers);
@@ -524,32 +583,25 @@ async function fulfillFromInvoiceId(
   invoiceId: string,
   headers: Record<string, string>,
 ) {
-  const upstream = await fetchMoyasarInvoiceForOccasionCard(invoiceId);
-  if (upstream.status >= 400) return json({ error: 'تعذر التحقق من الفاتورة' }, 502, headers);
-  let parsed: {
-    status?: string;
-    amount?: number;
-    metadata?: Record<string, unknown>;
-    payments?: Array<{ id?: unknown; status?: unknown }>;
-  };
-  try {
-    parsed = JSON.parse(upstream.text) as typeof parsed;
-  } catch {
-    return json({ error: 'تعذر قراءة الفاتورة' }, 502, headers);
-  }
-  if (!moyasarPaymentIsPaid(String(parsed.status || ''))) {
-    return json({ error: 'الفاتورة لم تُدفع بعد' }, 402, headers);
-  }
-  const paymentId = paidPaymentIdFromInvoice(parsed);
-  if (paymentId) return fulfillFromPaymentId(db, token, paymentId, headers);
-
   const { data } = await db
     .from(STORE_ISSUED_CARDS_TABLE)
-    .select('id, status, price_halalas, kind')
+    .select('id, status, price_halalas, kind, payload')
     .eq('public_token', token)
     .maybeSingle();
   if (!data || data.kind !== 'paid_invite') return json({ error: 'البطاقة غير موجودة' }, 404, headers);
   if (data.status === 'live') return json({ ok: true, token, url: inviteViewUrl(token) }, 200, headers);
+
+  const storedInvoiceId = invoiceIdFromPayload(data.payload);
+  if (storedInvoiceId && storedInvoiceId !== invoiceId) {
+    return json({ error: 'الفاتورة لا تطابق هذه البطاقة' }, 409, headers);
+  }
+
+  const invoice = await fetchInvoiceJson(invoiceId);
+  if (!invoice.parsed) return json({ error: 'تعذر التحقق من الفاتورة' }, 502, headers);
+  const parsed = invoice.parsed;
+  if (!moyasarPaymentIsPaid(String(parsed.status || ''))) {
+    return json({ error: 'الفاتورة لم تُدفع بعد' }, 402, headers);
+  }
   if (Number(parsed.amount) !== Number(data.price_halalas)) {
     return json({ error: 'مبلغ الفاتورة لا يطابق البطاقة' }, 409, headers);
   }
@@ -562,7 +614,8 @@ async function fulfillFromInvoiceId(
   ) {
     return json({ error: 'وسم الفاتورة لا يطابق بطاقة المناسبة' }, 409, headers);
   }
-  const ok = await markPaidInviteLive(db, String(data.id), `invoice:${invoiceId}`);
+  const paymentId = paidPaymentIdFromInvoice(parsed);
+  const ok = await markPaidInviteLive(db, String(data.id), paymentId || `invoice:${invoiceId}`);
   if (!ok) return json({ error: 'تعذر تفعيل البطاقة' }, 409, headers);
   return json({ ok: true, token, url: inviteViewUrl(token) }, 200, headers);
 }

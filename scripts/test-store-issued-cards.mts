@@ -24,6 +24,7 @@ import { STORE_BEREAVEMENT_COPY, bereavementShareText } from '../src/config/stor
 import {
   isAllowedMoyasarInvoiceUrl,
   isOccasionCardLivePaymentsEnabled,
+  occasionCardInvoiceAuthorizesPayment,
   occasionCardInvoiceDescription,
   occasionCardInvoiceMetadata,
   occasionCardPaymentMatches,
@@ -88,6 +89,47 @@ assert.equal(
     meta: { product: 'store_occasion_card', store_card_token: 'tok_a' },
     token: 'tok_a',
     amount: 119900,
+  }),
+  false,
+);
+assert.equal(
+  occasionCardPaymentMatches({
+    meta: {},
+    token: 'tok_a',
+    amount: 1200,
+  }),
+  false,
+);
+assert.equal(
+  occasionCardInvoiceAuthorizesPayment({
+    token: 'tok_a',
+    invoiceId: 'inv_1',
+    invoiceMeta: { product: 'store_occasion_card', store_card_token: 'tok_a' },
+    invoiceAmount: 1200,
+    invoicePayments: [{ id: 'pay_1' }],
+    paymentId: 'pay_1',
+  }),
+  true,
+);
+assert.equal(
+  occasionCardInvoiceAuthorizesPayment({
+    token: 'tok_a',
+    invoiceId: 'inv_1',
+    invoiceMeta: { product: 'store_occasion_card', store_card_token: 'tok_a' },
+    invoiceAmount: 1200,
+    paymentId: 'pay_1',
+    paymentInvoiceId: 'inv_1',
+  }),
+  true,
+);
+assert.equal(
+  occasionCardInvoiceAuthorizesPayment({
+    token: 'tok_a',
+    invoiceId: 'inv_1',
+    invoiceMeta: { product: 'listing_license', store_card_token: 'tok_a' },
+    invoiceAmount: 1200,
+    invoicePayments: [{ id: 'pay_1' }],
+    paymentId: 'pay_1',
   }),
   false,
 );
@@ -180,6 +222,7 @@ const api = readFileSync(join(root, 'api/public-store-issued-cards.ts'), 'utf8')
 assert.match(api, /createMoyasarInvoice/);
 assert.match(api, /fetchMoyasarPaymentForOccasionCard/);
 assert.match(api, /fetchMoyasarInvoiceForOccasionCard/);
+assert.match(api, /occasionCardInvoiceAuthorizesPayment/);
 assert.match(api, /action === 'sync_paid'/);
 
 const moyasarClient = readFileSync(join(root, 'api/_lib/moyasarApiClient.ts'), 'utf8');

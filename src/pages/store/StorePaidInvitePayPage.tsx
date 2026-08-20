@@ -97,9 +97,24 @@ export default function StorePaidInvitePayPage() {
     const run = paymentId ? activatePaidInvite(token, paymentId) : syncPaidInvite(token);
     void run.then((result) => {
       if (cancelled) return;
-      if (result.ok) {
+      const finishOk = () => {
         activateOnceRef.current = true;
         window.location.replace(occasionCardViewHref(token));
+      };
+      if (result.ok) {
+        finishOk();
+        return;
+      }
+      if (paymentId && hasInvoice) {
+        void syncPaidInvite(token).then((synced) => {
+          if (cancelled) return;
+          if (synced.ok) {
+            finishOk();
+            return;
+          }
+          setActivating(false);
+          setError(payErrorAr(synced.error || result.error));
+        });
         return;
       }
       setActivating(false);

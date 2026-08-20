@@ -103,6 +103,32 @@ export function occasionCardPaymentMatches(input: {
   return paidInviteTierFromHalalas(input.amount) != null;
 }
 
+/** فاتورة ميسر المستضافة غالباً لا تنسخ الوسم إلى عملية البطاقة التابعة. */
+export function occasionCardInvoiceAuthorizesPayment(input: {
+  token: string;
+  invoiceId: string;
+  invoiceMeta: Record<string, unknown> | undefined;
+  invoiceAmount: number;
+  invoicePayments?: Array<{ id?: unknown }>;
+  paymentId: string;
+  paymentInvoiceId?: string;
+}): boolean {
+  if (!occasionCardPaymentMatches({
+    meta: input.invoiceMeta,
+    token: input.token,
+    amount: input.invoiceAmount,
+  })) {
+    return false;
+  }
+  const invoiceId = String(input.invoiceId || '').trim();
+  const paymentId = String(input.paymentId || '').trim();
+  const paymentInvoiceId = String(input.paymentInvoiceId || '').trim();
+  if (!invoiceId || !paymentId) return false;
+  if (paymentInvoiceId && paymentInvoiceId !== invoiceId) return false;
+  const listed = (input.invoicePayments || []).some((item) => String(item.id || '').trim() === paymentId);
+  return listed || paymentInvoiceId === invoiceId;
+}
+
 const PAID_TEMPLATES: Record<string, keyof typeof PAID_PRICE_HALALAS> = {
   'season-short': 'quick',
   'season-eid-note': 'quick',
