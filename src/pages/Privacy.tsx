@@ -208,6 +208,14 @@ export default function Privacy() {
           >
             حوكمة المعالجة اللحظية وإتلاف الأثر البرمجي
           </NavLink>
+          <p className="mt-4">
+            <NavLink
+              to={ROUTE_PATHS.STORE_ISSUED_CARDS_LEGAL}
+              className="inline-flex items-center justify-center text-primary font-semibold hover:underline touch-manipulation"
+            >
+              خصوصية إصدار البطاقات المدفوعة وبلاغات الوفاة
+            </NavLink>
+          </p>
         </motion.div>
 
         <motion.div

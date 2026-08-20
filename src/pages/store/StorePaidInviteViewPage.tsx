@@ -1,0 +1,70 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+import { useEffect, useState } from 'react';
+import { Link, useParams } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { STORE_PAID_INVITE_COPY, templateById } from '@/config/storeIssuedCardsCatalog';
+import { useDocumentTitle } from '@/hooks/useDocumentTitle';
+import { fetchIssuedCardPublic } from '@/lib/storeIssuedCardsRemote';
+import { ROUTE_PATHS } from '@/lib/routePaths';
+
+export default function StorePaidInviteViewPage() {
+  const { token = '' } = useParams<{ token: string }>();
+  const [status, setStatus] = useState<string>('loading');
+  const [card, setCard] = useState<Record<string, string>>({});
+  useDocumentTitle(STORE_PAID_INVITE_COPY.documentTitle);
+
+  useEffect(() => {
+    const meta = document.createElement('meta');
+    meta.setAttribute('name', 'robots');
+    meta.setAttribute('content', 'noindex, nofollow');
+    document.head.appendChild(meta);
+    return () => meta.remove();
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    void fetchIssuedCardPublic(token).then((result) => {
+      if (cancelled) return;
+      if (!result.ok) {
+        setStatus('missing');
+        return;
+      }
+      setStatus(result.status);
+      if (result.card) setCard(result.card as Record<string, string>);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [token]);
+
+  const template = templateById(String(card.templateId || ''));
+
+  return (
+    <div dir="rtl" className="min-h-[100svh] bg-[#061018] text-[#f4efe4]">
+      <main className="mx-auto max-w-lg px-4 py-16">
+        {status === 'loading' ? <p className="text-center text-white/60">جاري فتح البطاقة…</p> : null}
+        {status === 'missing' || status === 'revoked' ? (
+          <p className="text-center text-white/70">هذا الرابط غير متاح.</p>
+        ) : null}
+        {status === 'pending_payment' ? (
+          <p className="text-center text-white/70">البطاقة بانتظار إتمام الدفع عبر ميسر.</p>
+        ) : null}
+        {status === 'live' ? (
+          <div className="rounded-3xl border border-[#e8c547]/30 bg-[#10222e] p-8 text-center">
+            <p className="text-sm text-[#e8c547]">{card.occasionLine || template?.titleAr}</p>
+            <p className="mt-4 text-3xl font-black">{card.hostName}</p>
+            {card.whenText ? <p className="mt-4 text-sm">{card.whenText}</p> : null}
+            {card.placeText ? <p className="mt-1 text-sm">{card.placeText}</p> : null}
+            {card.message ? <p className="mt-6 text-sm leading-7 text-white/80">{card.message}</p> : null}
+            <p className="mt-10 text-[11px] text-white/45">{STORE_PAID_INVITE_COPY.stampAr}</p>
+          </div>
+        ) : null}
+        <Link to={ROUTE_PATHS.STORE_INVITES} className="mt-8 block text-center">
+          <Button className="bg-[#e8c547] text-[#061018]">{STORE_PAID_INVITE_COPY.createCtaAr}</Button>
+        </Link>
+      </main>
+    </div>
+  );
+}

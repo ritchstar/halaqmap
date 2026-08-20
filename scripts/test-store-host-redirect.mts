@@ -47,6 +47,15 @@ assert.equal(
   'https://store.halaqmap.com/#/store/trust',
 );
 
+assert.equal(isStoreHostPaymentPath('/pay/occasion-card/abc'), true);
+assert.equal(
+  resolveMensHostStoreRedirect({
+    host: 'www.halaqmap.com',
+    hashPath: '/pay/occasion-card/abc',
+  }),
+  null,
+);
+
 assert.equal(
   resolveMensHostStoreRedirect({
     host: 'www.halaqmap.com',

@@ -43,6 +43,22 @@ const STORE_ABOUT_PATH =
   (ROUTE_PATHS as { STORE_ABOUT?: string }).STORE_ABOUT || "/store/about";
 const STORE_TRUST_PATH =
   (ROUTE_PATHS as { STORE_TRUST?: string }).STORE_TRUST || "/store/trust";
+const STORE_ISSUED_CARDS_LEGAL_PATH =
+  (ROUTE_PATHS as { STORE_ISSUED_CARDS_LEGAL?: string }).STORE_ISSUED_CARDS_LEGAL || "/store/cards/legal";
+const STORE_INVITES_PATH =
+  (ROUTE_PATHS as { STORE_INVITES?: string }).STORE_INVITES || "/store/invites";
+const STORE_INVITES_VIEW_PATH =
+  (ROUTE_PATHS as { STORE_INVITES_VIEW?: string }).STORE_INVITES_VIEW || "/store/invites/v/:token";
+const STORE_OCCASION_CARD_PAY_PATH =
+  (ROUTE_PATHS as { STORE_OCCASION_CARD_PAY?: string }).STORE_OCCASION_CARD_PAY || "/pay/occasion-card/:token";
+const STORE_BEREAVEMENT_PATH =
+  (ROUTE_PATHS as { STORE_BEREAVEMENT?: string }).STORE_BEREAVEMENT || "/store/bereavement";
+const STORE_BEREAVEMENT_CREATE_PATH =
+  (ROUTE_PATHS as { STORE_BEREAVEMENT_CREATE?: string }).STORE_BEREAVEMENT_CREATE || "/store/bereavement/create";
+const STORE_BEREAVEMENT_VIEW_PATH =
+  (ROUTE_PATHS as { STORE_BEREAVEMENT_VIEW?: string }).STORE_BEREAVEMENT_VIEW || "/n/:token";
+const STORE_BEREAVEMENT_MANAGE_PATH =
+  (ROUTE_PATHS as { STORE_BEREAVEMENT_MANAGE?: string }).STORE_BEREAVEMENT_MANAGE || "/n/:token/manage";
 
 /** اختصار /i و /i/:city → مسار اهتمام الشركاء من بطاقة تواصل ماب */
 function MapContactShortJoinRedirect() {
@@ -127,6 +143,12 @@ const StoreRequestPage = lazy(() => import("@/pages/store/StoreRequestPage"));
 const StoreCardStudioPage = lazy(() => import("@/pages/store/StoreCardStudioPage"));
 const StoreAboutPage = lazy(() => import("@/pages/store/StoreAboutPage"));
 const StoreTrustPage = lazy(() => import("@/pages/store/StoreTrustPage"));
+const StoreIssuedCardsLegalHub = lazy(() => import("@/pages/store/StoreIssuedCardsLegalHub"));
+const StorePaidInviteStudioPage = lazy(() => import("@/pages/store/StorePaidInviteStudioPage"));
+const StorePaidInviteViewPage = lazy(() => import("@/pages/store/StorePaidInviteViewPage"));
+const StorePaidInvitePayPage = lazy(() => import("@/pages/store/StorePaidInvitePayPage"));
+const StoreBereavementCreatePage = lazy(() => import("@/pages/store/StoreBereavementCreatePage"));
+const StoreBereavementViewPage = lazy(() => import("@/pages/store/StoreBereavementViewPage"));
 const PartnerStoryPage = lazy(() => import("@/pages/PartnerStoryPage"));
 const BarberPortalEnter = lazy(() => import("@/pages/BarberPortalEnter"));
 const BarberLogin = lazy(() => import("@/pages/BarberLogin"));
@@ -565,6 +587,14 @@ export function App() {
           <Route path={STORE_CARDS_PATH} element={<LazyRoute><StoreCardStudioPage /></LazyRoute>} />
           <Route path={STORE_ABOUT_PATH} element={<LazyRoute><StoreAboutPage /></LazyRoute>} />
           <Route path={STORE_TRUST_PATH} element={<LazyRoute><StoreTrustPage /></LazyRoute>} />
+          <Route path={STORE_ISSUED_CARDS_LEGAL_PATH} element={<LazyRoute><StoreIssuedCardsLegalHub /></LazyRoute>} />
+          <Route path={STORE_INVITES_PATH} element={<LazyRoute><StorePaidInviteStudioPage /></LazyRoute>} />
+          <Route path={STORE_INVITES_VIEW_PATH} element={<LazyRoute><StorePaidInviteViewPage /></LazyRoute>} />
+          <Route path={STORE_OCCASION_CARD_PAY_PATH} element={<LazyRoute><StorePaidInvitePayPage /></LazyRoute>} />
+          <Route path={STORE_BEREAVEMENT_PATH} element={<LazyRoute><StoreBereavementCreatePage /></LazyRoute>} />
+          <Route path={STORE_BEREAVEMENT_CREATE_PATH} element={<LazyRoute><StoreBereavementCreatePage /></LazyRoute>} />
+          <Route path={STORE_BEREAVEMENT_MANAGE_PATH} element={<LazyRoute><StoreBereavementViewPage /></LazyRoute>} />
+          <Route path={STORE_BEREAVEMENT_VIEW_PATH} element={<LazyRoute><StoreBereavementViewPage /></LazyRoute>} />
           <Route path={ROUTE_PATHS.COIFFEUR_LANDING} element={<LazyRoute><CoiffeurLanding /></LazyRoute>} />
           <Route path={ROUTE_PATHS.COIFFEUR_INQUIRE} element={<LazyRoute><CoiffeurInquiryPage /></LazyRoute>} />
           <Route path={ROUTE_PATHS.COIFFEUR_PARTNERS} element={<LazyRoute><CoiffeurPartnersLanding /></LazyRoute>} />

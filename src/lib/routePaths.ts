@@ -39,6 +39,19 @@ export const ROUTE_PATHS = {
   STORE_ABOUT: '/store/about',
   /** تصنيفات وفحوص مستقلة قابلة للتحقق */
   STORE_TRUST: '/store/trust',
+  /** شروط وأحكام وخصوصية إصدار أي بطاقة مدفوعة أو بلاغ وفاة */
+  STORE_ISSUED_CARDS_LEGAL: '/store/cards/legal',
+  /** بطاقة مناسبة مدفوعة — معاينة ثم دفع عند النشر */
+  STORE_INVITES: '/store/invites',
+  STORE_INVITES_VIEW: '/store/invites/v/:token',
+  /** دفع بطاقة المناسبة على النطاق الأم عبر ميسر */
+  STORE_OCCASION_CARD_PAY: '/pay/occasion-card/:token',
+  /** بلاغات الوفاة والعزاء — خدمة مجتمعية مستقلة */
+  STORE_BEREAVEMENT: '/store/bereavement',
+  STORE_BEREAVEMENT_CREATE: '/store/bereavement/create',
+  /** رابط عام غير قابل للتخمين — noindex */
+  STORE_BEREAVEMENT_VIEW: '/n/:token',
+  STORE_BEREAVEMENT_MANAGE: '/n/:token/manage',
   /**
    * كوافير ماب — سطح قطاعي نسائي تحت مظلة حلاق ماب.
    * الدفع لا يُنسَخ هنا: يُحوَّل دائماً إلى PAYMENT على www.halaqmap.com.

@@ -127,6 +127,24 @@ assert.match(
 );
 assert.match(
   app,
+  /@\/pages\/store\/StoreIssuedCardsLegalHub/,
+  'App must lazy-load the issued-cards legal hub',
+);
+assert.doesNotMatch(
+  app,
+  /from ['"]@\/config\/storeIssuedCardsLegal['"]/,
+  'App must not statically import issued-cards legal copy',
+);
+assert.match(
+  storeFront,
+  /بطاقة مناسبة مدفوعة/,
+);
+assert.match(
+  storeFront,
+  /بلاغات الوفاة والعزاء/,
+);
+assert.match(
+  app,
   /@\/pages\/coiffeur\/CoiffeurAmbassadorEnter/,
   'App must lazy-load the coiffeur ambassador enter page',
 );

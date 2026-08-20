@@ -41,6 +41,7 @@ export function isStoreHostPaymentPath(path: string): boolean {
   return (
     normalized === ROUTE_PATHS.PAYMENT ||
     normalized === ROUTE_PATHS.PAYMENT_SUCCESS ||
-    normalized.startsWith(`${ROUTE_PATHS.PAYMENT}/`)
+    normalized.startsWith(`${ROUTE_PATHS.PAYMENT}/`) ||
+    normalized.startsWith('/pay/occasion-card/')
   );
 }
