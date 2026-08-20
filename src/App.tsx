@@ -41,6 +41,8 @@ const STORE_CARDS_PATH =
   (ROUTE_PATHS as { STORE_CARDS?: string }).STORE_CARDS || "/store/cards";
 const STORE_ABOUT_PATH =
   (ROUTE_PATHS as { STORE_ABOUT?: string }).STORE_ABOUT || "/store/about";
+const STORE_TRUST_PATH =
+  (ROUTE_PATHS as { STORE_TRUST?: string }).STORE_TRUST || "/store/trust";
 
 /** اختصار /i و /i/:city → مسار اهتمام الشركاء من بطاقة تواصل ماب */
 function MapContactShortJoinRedirect() {
@@ -122,6 +124,7 @@ const StoreLanding = lazy(() => import("@/pages/store/StoreLanding"));
 const StoreRequestPage = lazy(() => import("@/pages/store/StoreRequestPage"));
 const StoreCardStudioPage = lazy(() => import("@/pages/store/StoreCardStudioPage"));
 const StoreAboutPage = lazy(() => import("@/pages/store/StoreAboutPage"));
+const StoreTrustPage = lazy(() => import("@/pages/store/StoreTrustPage"));
 const PartnerStoryPage = lazy(() => import("@/pages/PartnerStoryPage"));
 const BarberPortalEnter = lazy(() => import("@/pages/BarberPortalEnter"));
 const BarberLogin = lazy(() => import("@/pages/BarberLogin"));
@@ -559,6 +562,7 @@ export function App() {
           <Route path={STORE_REQUEST_PATH} element={<LazyRoute><StoreRequestPage /></LazyRoute>} />
           <Route path={STORE_CARDS_PATH} element={<LazyRoute><StoreCardStudioPage /></LazyRoute>} />
           <Route path={STORE_ABOUT_PATH} element={<LazyRoute><StoreAboutPage /></LazyRoute>} />
+          <Route path={STORE_TRUST_PATH} element={<LazyRoute><StoreTrustPage /></LazyRoute>} />
           <Route path={ROUTE_PATHS.COIFFEUR_LANDING} element={<LazyRoute><CoiffeurLanding /></LazyRoute>} />
           <Route path={ROUTE_PATHS.COIFFEUR_INQUIRE} element={<LazyRoute><CoiffeurInquiryPage /></LazyRoute>} />
           <Route path={ROUTE_PATHS.COIFFEUR_PARTNERS} element={<LazyRoute><CoiffeurPartnersLanding /></LazyRoute>} />

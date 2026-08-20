@@ -101,6 +101,11 @@ assert.match(
   /StoreLaterServicesSection/,
   'Store landing must mount the later software-services doors',
 );
+assert.match(
+  readFileSync(join(root, 'src/pages/store/StoreLanding.tsx'), 'utf8'),
+  /trustStripTitleAr/,
+  'Store landing must tease the trust attestations page',
+);
 
 const storeFront = readFileSync(join(root, 'src/config/storeFront.ts'), 'utf8');
 assert.match(storeFront, /منشأة واحدة، منتجان قطاعيان/);
@@ -111,5 +116,11 @@ assert.doesNotMatch(storeFront, /استثمار مجالي/);
 assert.doesNotMatch(storeFront, /نصمم لك نظام/);
 assert.doesNotMatch(storeFront, /ستُعرض هنا عند الجاهزية/);
 assert.doesNotMatch(storeFront, /يرغب العميل في تصميمه/);
+
+assert.match(
+  app,
+  /@\/pages\/store\/StoreTrustPage/,
+  'App must lazy-load the store trust page',
+);
 
 console.log('boot chunk isolation ok');

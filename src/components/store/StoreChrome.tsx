@@ -4,7 +4,7 @@
 import { Link } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { lockPartnerDarkCanvas } from '@/lib/partnerDarkCanvas';
-import { STORE_BRAND_LATIN, STORE_LANDING_COPY, STORE_ORIGIN, STORE_PUBLIC_NAME_AR, STORE_VISUALS } from '@/config/storeFront';
+import { STORE_ABOUT_COPY, STORE_BRAND_LATIN, STORE_LANDING_COPY, STORE_ORIGIN, STORE_PUBLIC_NAME_AR, STORE_VISUALS } from '@/config/storeFront';
 import { KSACityClocksBar } from '@/components/KSACityClocksBar';
 import { EcommerceVerifiedFooterBadge } from '@/components/EcommerceVerifiedFooterBadge';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -41,6 +41,12 @@ export function StoreVisitorHeader() {
           </Link>
           <nav className="flex shrink-0 items-center gap-2 text-sm font-bold">
             <Link
+              to={ROUTE_PATHS.STORE_TRUST}
+              className="hidden rounded-full px-3 py-1.5 text-white/80 hover:text-[#e8c547] sm:inline-flex"
+            >
+              {STORE_ABOUT_COPY.trustNavAr}
+            </Link>
+            <Link
               to={ROUTE_PATHS.STORE_REQUEST}
               className="rounded-full border border-[#e8c547]/40 px-3 py-1.5 text-[#e8c547]"
             >
@@ -66,6 +72,9 @@ export function StoreVisitorFooter() {
         <nav className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm font-bold">
           <Link to={ROUTE_PATHS.STORE_ABOUT} className="text-[#e8c547]">
             {STORE_LANDING_COPY.aboutNavAr}
+          </Link>
+          <Link to={ROUTE_PATHS.STORE_TRUST} className="text-[#e8c547]">
+            {STORE_ABOUT_COPY.trustNavAr}
           </Link>
           <Link to={ROUTE_PATHS.STORE_REQUEST} className="text-white/80">
             طلب خدمة

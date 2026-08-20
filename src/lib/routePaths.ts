@@ -37,6 +37,8 @@ export const ROUTE_PATHS = {
   STORE_CARDS: '/store/cards',
   /** تعريف المتجر والأنشطة والمنتجات البرمجية */
   STORE_ABOUT: '/store/about',
+  /** تصنيفات وفحوص مستقلة قابلة للتحقق */
+  STORE_TRUST: '/store/trust',
   /**
    * كوافير ماب — سطح قطاعي نسائي تحت مظلة حلاق ماب.
    * الدفع لا يُنسَخ هنا: يُحوَّل دائماً إلى PAYMENT على www.halaqmap.com.

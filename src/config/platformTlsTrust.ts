@@ -15,7 +15,7 @@ export const PLATFORM_TLS_SSL_LABS_GRADE = 'A+';
 export const PLATFORM_TLS_SSL_LABS_URL =
   'https://www.ssllabs.com/ssltest/analyze.html?d=halaqmap.com&latest';
 
-export const PLATFORM_TLS_SSL_LABS_REPORT_DATE_AR = '25 مايو 2026';
+export const PLATFORM_TLS_SSL_LABS_REPORT_DATE_AR = '20 أغسطس 2026';
 
 export const PLATFORM_TLS_SUMMARY_AR =
   'اتصال `HTTPS/TLS` على `halaqmap.com` حاصل على أعلى تقييم `A+` من `Qualys SSL Labs` — تشفير قوي عبر `Cloudflare` مع `HSTS` على جميع نقاط الخادم.';

@@ -22,9 +22,11 @@ import {
   STORE_LIVE_PRODUCTS,
   STORE_SECTOR_SPLIT_COPY,
   STORE_SOFTWARE_SHOTS,
+  STORE_TRUST_COPY,
   STORE_VISUALS,
   storeCardsPath,
 } from '@/config/storeFront';
+import { PLATFORM_TLS_SSL_LABS_GRADE } from '@/config/platformTlsTrust';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { ProductEvents } from '@/lib/analytics/productAnalytics';
 import { ROUTE_PATHS } from '@/lib/routePaths';
@@ -97,6 +99,37 @@ export default function StoreLanding() {
       </section>
 
       <StoreLiveOpsBanner />
+
+      <section className="px-4 pb-10">
+        <div className="mx-auto max-w-5xl overflow-hidden rounded-2xl border border-[#e8c547]/30 bg-[#0b1a24]/85">
+          <div className="grid items-center lg:grid-cols-[1.15fr_0.85fr]">
+            <div className="p-5 md:p-6">
+              <p className="text-xs font-black tracking-[0.18em] text-[#e8c547]">{STORE_TRUST_COPY.sslKickerAr}</p>
+              <h2 className="mt-2 text-xl font-extrabold text-[#f4efe4] md:text-2xl">
+                {STORE_LANDING_COPY.trustStripTitleAr}
+              </h2>
+              <p className="mt-3 inline-flex items-center gap-2 rounded-full border border-emerald-400/35 bg-emerald-500/15 px-3 py-1 text-sm font-black text-emerald-100">
+                <span dir="ltr">{PLATFORM_TLS_SSL_LABS_GRADE}</span>
+                <span className="font-bold text-emerald-50/80">Qualys SSL Labs</span>
+              </p>
+              <p className="mt-3 max-w-2xl text-sm leading-7 text-white/75">{STORE_LANDING_COPY.trustStripBodyAr}</p>
+              <Link
+                to={ROUTE_PATHS.STORE_TRUST}
+                className="mt-5 inline-flex rounded-full bg-[#e8c547] px-5 py-2.5 text-sm font-extrabold text-[#061018] hover:bg-[#f0d36a]"
+              >
+                {STORE_LANDING_COPY.trustStripCtaAr}
+              </Link>
+            </div>
+            <figure className="border-t border-white/10 bg-white lg:border-t-0 lg:border-s">
+              <img
+                src={STORE_TRUST_COPY.sslImage}
+                alt={STORE_TRUST_COPY.sslAltAr}
+                className="aspect-[16/9] w-full bg-white object-contain object-top"
+              />
+            </figure>
+          </div>
+        </div>
+      </section>
 
       <section className="px-4 pb-10">
         <div className="mx-auto max-w-5xl">

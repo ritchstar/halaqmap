@@ -65,6 +65,19 @@ export default function StoreAboutPage() {
             </p>
           </section>
 
+          <section className="mt-8 rounded-2xl border border-[#e8c547]/25 bg-[#0b1a24]/70 p-5 md:p-6">
+            <h2 className="text-2xl font-extrabold text-[#f4efe4]">{STORE_ABOUT_COPY.trustTeaserTitleAr}</h2>
+            <p className="mt-3 max-w-3xl text-sm leading-7 text-white/75 md:text-base">
+              {STORE_ABOUT_COPY.trustTeaserBodyAr}
+            </p>
+            <Link
+              to={ROUTE_PATHS.STORE_TRUST}
+              className="mt-5 inline-flex rounded-full bg-[#e8c547] px-5 py-2.5 text-sm font-extrabold text-[#061018]"
+            >
+              {STORE_ABOUT_COPY.trustTeaserCtaAr}
+            </Link>
+          </section>
+
           <section className="mt-8">
             <h2 className="text-2xl font-extrabold text-[#f4efe4]">{STORE_ABOUT_COPY.activitiesTitle}</h2>
             <p className="mt-3 max-w-3xl text-sm leading-7 text-white/75 md:text-base">
