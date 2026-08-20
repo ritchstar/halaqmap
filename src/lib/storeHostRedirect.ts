@@ -45,3 +45,21 @@ export function isStoreHostPaymentPath(path: string): boolean {
     normalized.startsWith('/pay/occasion-card/')
   );
 }
+
+export function occasionCardPayHref(token: string): string {
+  const hashPath = `/pay/occasion-card/${encodeURIComponent(token)}`;
+  if (typeof window === 'undefined') return `/#${hashPath}`;
+  if (isHalaqmapStoreHost(window.location.hostname)) {
+    return `https://www.halaqmap.com/#${hashPath}`;
+  }
+  return `/#${hashPath}`;
+}
+
+export function occasionCardViewHref(token: string): string {
+  const hashPath = `/store/invites/v/${encodeURIComponent(token)}`;
+  if (typeof window === 'undefined') return `/#${hashPath}`;
+  if (isHalaqmapMensHost(window.location.hostname)) {
+    return `https://store.halaqmap.com/#${hashPath}`;
+  }
+  return `/#${hashPath}`;
+}

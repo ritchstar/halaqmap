@@ -405,6 +405,13 @@ export function expectedHalalasFromReturnSearchParams(
   return Math.max(100, Math.round(licenseBreakdown.total * 100));
 }
 
+function occasionCardReturnPath(params: URLSearchParams): string | null {
+  const purpose = (params.get('purpose') || '').trim();
+  const token = (params.get('store_card_token') || params.get('token') || '').trim();
+  if (purpose !== 'store_occasion_card' || !token) return null;
+  return `/pay/occasion-card/${encodeURIComponent(token)}`;
+}
+
 /** يُستدعى قبل React — إن عاد ميسر بـ `/?id=` نُحوّل لمسار HashRouter. */
 export function captureMoyasarReturnInHashRoute(): boolean {
   if (typeof window === 'undefined') return false;
@@ -412,9 +419,13 @@ export function captureMoyasarReturnInHashRoute(): boolean {
   const pathname = (window.location.pathname || '').replace(/\/+$/, '') || '/';
   const search = window.location.search || '';
   const params = search ? new URLSearchParams(search) : null;
+  const hash = window.location.hash || '';
+  const hashPath = hash.replace(/^#/, '').split('?')[0] || '';
 
   if (pathname === ROUTE_PATHS.PAYMENT && search) {
-    const target = `${window.location.origin}/#${ROUTE_PATHS.PAYMENT}${search}`;
+    const occPath = params ? occasionCardReturnPath(params) : null;
+    const targetPath = occPath || ROUTE_PATHS.PAYMENT;
+    const target = `${window.location.origin}/#${targetPath}${search}`;
     if (window.location.href !== target) {
       window.location.replace(target);
       return true;
@@ -424,11 +435,15 @@ export function captureMoyasarReturnInHashRoute(): boolean {
 
   if (!params?.get('id')) {
     if (params && (params.get('status') === 'failed' || params.get('message'))) {
+      const occPath = occasionCardReturnPath(params);
+      if (occPath) {
+        if (hashPath === occPath) return false;
+        window.location.replace(`${window.location.origin}/#${occPath}${search}`);
+        return true;
+      }
       const hasReturnContext =
         Boolean(params.get('tier') || params.get('requestId') || readMoyasarPaymentContext());
       if (hasReturnContext) {
-        const hash = window.location.hash || '';
-        const hashPath = hash.replace(/^#/, '').split('?')[0] || '';
         if (hashPath === ROUTE_PATHS.PAYMENT || hashPath === `${ROUTE_PATHS.PAYMENT}/`) return false;
         const target = `${window.location.origin}/#${ROUTE_PATHS.PAYMENT}${search}`;
         window.location.replace(target);
@@ -439,8 +454,13 @@ export function captureMoyasarReturnInHashRoute(): boolean {
   }
   if (params.get('gateway') === 'sab') return false;
 
-  const hash = window.location.hash || '';
-  const hashPath = hash.replace(/^#/, '').split('?')[0] || '';
+  const occPath = occasionCardReturnPath(params);
+  if (occPath) {
+    if (hashPath === occPath) return false;
+    window.location.replace(`${window.location.origin}/#${occPath}${search}`);
+    return true;
+  }
+  if (hashPath.startsWith('/pay/occasion-card/')) return false;
   if (hashPath === ROUTE_PATHS.PAYMENT || hashPath === `${ROUTE_PATHS.PAYMENT}/`) return false;
 
   const target = `${window.location.origin}/#${ROUTE_PATHS.PAYMENT}${search}`;

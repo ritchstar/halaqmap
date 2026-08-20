@@ -24,6 +24,22 @@ export function resolveMoyasarSecretKey(): string {
   return picked.replace(/\s+/g, '');
 }
 
+/**
+ * سرّ تحقق بطاقة المناسبة. يبقى تجريبياً حتى يُفعَّل الحيّ صراحة،
+ * حتى لو كانت رخصة النفاذ على مفاتيح الإنتاج.
+ */
+export function resolveOccasionCardMoyasarSecretKey(): string {
+  const liveEnabled =
+    (process.env.PAYMENT_ENV || 'test').trim().toLowerCase() === 'live' &&
+    ['true', '1', 'on'].includes(String(process.env.STORE_PAID_INVITE_LIVE_PAYMENTS || '').trim().toLowerCase());
+  if (liveEnabled) return resolveMoyasarSecretKey();
+  const testKey = (process.env.MOYSAR_SECRET_TEST_API_KEY || '').trim().replace(/\s+/g, '');
+  if (testKey.startsWith('sk_test_')) return testKey;
+  const legacy = (process.env.MOYSAR_SECRET_API_KEY || '').trim().replace(/\s+/g, '');
+  if (legacy.startsWith('sk_test_')) return legacy;
+  return '';
+}
+
 export function secretKeyLooksValid(secret: string): boolean {
   const mode = (process.env.PAYMENT_ENV || 'test').trim().toLowerCase();
   if (!secret.startsWith('sk_')) return false;

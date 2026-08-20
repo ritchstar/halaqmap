@@ -7,6 +7,7 @@ import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
+  STORE_OCCASION_CARD_PRODUCT,
   STORE_PAID_INVITE_CHECKOUT_ENABLED,
   STORE_PAID_INVITE_PRICES_SAR,
   STORE_PAID_INVITE_TEMPLATES,
@@ -19,7 +20,12 @@ import {
   consentsForTrack,
 } from '../src/config/storeIssuedCardsLegal.ts';
 import { STORE_BEREAVEMENT_COPY, bereavementShareText } from '../src/config/storeBereavementCopy.ts';
-import { parseBereavementBody, parsePaidInviteBody } from '../api/_lib/storeIssuedCards.ts';
+import {
+  occasionCardPaymentMatches,
+  parseBereavementBody,
+  parsePaidInviteBody,
+  STORE_OCCASION_CARD_PRODUCT as apiProduct,
+} from '../api/_lib/storeIssuedCards.ts';
 import { maskSaudiMobileDisplay } from '../src/lib/maskSaudiMobileDisplay.ts';
 import { STORE_LANDING_COPY } from '../src/config/storeFront.ts';
 
@@ -27,7 +33,9 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const app = readFileSync(join(root, 'src/App.tsx'), 'utf8');
 const legalBlob = STORE_ISSUED_CARDS_LEGAL_SECTIONS.map((s) => `${s.title}\n${s.content}`).join('\n');
 
-assert.equal(STORE_PAID_INVITE_CHECKOUT_ENABLED, false);
+assert.equal(STORE_PAID_INVITE_CHECKOUT_ENABLED, true);
+assert.equal(STORE_OCCASION_CARD_PRODUCT, 'store_occasion_card');
+assert.equal(apiProduct, STORE_OCCASION_CARD_PRODUCT);
 assert.equal(STORE_PAID_INVITE_TEMPLATES.length, 12);
 assert.equal(STORE_PAID_INVITE_PRICES_SAR.quick, 12);
 assert.equal(STORE_PAID_INVITE_PRICES_SAR.featured, 29);
@@ -51,6 +59,31 @@ const cheapWedding = parsePaidInviteBody({
 });
 assert.equal(cheapWedding.ok, true);
 if (cheapWedding.ok) assert.equal(cheapWedding.priceHalalas, 5900);
+
+assert.equal(
+  occasionCardPaymentMatches({
+    meta: { product: 'store_occasion_card', store_card_token: 'tok_a' },
+    token: 'tok_a',
+    amount: 1200,
+  }),
+  true,
+);
+assert.equal(
+  occasionCardPaymentMatches({
+    meta: { product: 'listing_license', store_card_token: 'tok_a' },
+    token: 'tok_a',
+    amount: 1200,
+  }),
+  false,
+);
+assert.equal(
+  occasionCardPaymentMatches({
+    meta: { product: 'store_occasion_card', store_card_token: 'tok_a' },
+    token: 'tok_a',
+    amount: 119900,
+  }),
+  false,
+);
 
 const notice = parseBereavementBody({
   phone: '0559602685',
@@ -109,5 +142,16 @@ assert.match(app, /@\/pages\/store\/StorePaidInviteStudioPage/);
 assert.doesNotMatch(app, /from ['"]@\/config\/storeIssuedCardsLegal['"]/);
 assert.doesNotMatch(app, /from ['"]@\/config\/storeBereavementCopy['"]/);
 assert.doesNotMatch(app, /from ['"]@\/config\/storeIssuedCardsCatalog['"]/);
+
+const indexHtml = readFileSync(join(root, 'index.html'), 'utf8');
+assert.match(indexHtml, /purpose === 'store_occasion_card'/);
+assert.match(indexHtml, /\/pay\/occasion-card\//);
+
+const payPage = readFileSync(join(root, 'src/pages/store/StorePaidInvitePayPage.tsx'), 'utf8');
+assert.match(payPage, /store_card_token/);
+assert.match(payPage, /STORE_OCCASION_CARD_PRODUCT/);
+
+const webhook = readFileSync(join(root, 'supabase/functions/moyasar-webhook/index.ts'), 'utf8');
+assert.match(webhook, /skipped: "store_occasion_card"/);
 
 console.log('store-issued-cards: ok');

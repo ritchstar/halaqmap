@@ -192,6 +192,13 @@ function isWalletTopupMeta(meta: Record<string, unknown> | null | undefined): bo
   return pt === "wallet_topup" || product === "wallet_topup";
 }
 
+/** بطاقة مناسبة من المتجر — ليست رخصة نفاذ ولا شحن محفظة. */
+function isOccasionCardMeta(meta: Record<string, unknown> | null | undefined): boolean {
+  if (!meta || typeof meta !== "object") return false;
+  const pt = String(meta.product_type ?? meta.productType ?? meta.product ?? "").trim().toLowerCase();
+  return pt === "store_occasion_card";
+}
+
 function clampRegistrationQty(raw: unknown): number {
   const n =
     typeof raw === "number" && Number.isFinite(raw)
@@ -727,6 +734,19 @@ Deno.serve(async (req) => {
 
   const failureReasonRaw = extractFailureReason(data);
   const invoiceUrlStored = typeof meta.invoice_url === "string" ? meta.invoice_url.trim() : "";
+
+  // ── بطاقة مناسبة: منتج مستقل — لا اشتراك رخصة ولا شهادة تفعيل. ──
+  if (isOccasionCardMeta(meta)) {
+    return jsonResponse(
+      {
+        ok: true,
+        paymentId,
+        eventId: eventId || null,
+        skipped: "store_occasion_card",
+      },
+      200,
+    );
+  }
 
   // ── شحن محفظة المناوب: منتج مستقل — لا اشتراك رخصة ولا شهادة تفعيل. ──
   if (isWalletTopupMeta(meta)) {

@@ -6,14 +6,15 @@ import { randomInt } from 'node:crypto';
 import { registrationGuardDiagnostics, runRegistrationRouteGuards } from './_lib/registrationRouteGuard.js';
 import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
 import { runSecurityGuard } from './_lib/securityGuard.js';
-import { fetchMoyasarPayment, moyasarPaymentIsPaid, resolveMoyasarSecretKey } from './_lib/moyasarApiClient.js';
+import { fetchMoyasarPayment, moyasarPaymentIsPaid, resolveOccasionCardMoyasarSecretKey } from './_lib/moyasarApiClient.js';
 import {
   hashSecret,
   hashesMatch,
+  isOccasionCardCheckoutEnabled,
   maskPhoneLast4,
   newAdminToken,
   newPublicToken,
-  OCCASION_CARD_CHECKOUT_ENABLED,
+  occasionCardPaymentMatches,
   parseBereavementBody,
   parsePaidInviteBody,
   publicBereavementView,
@@ -296,9 +297,9 @@ async function reportCard(db: Db, body: Record<string, unknown>, headers: Record
 }
 
 async function createPaidPending(db: Db, body: Record<string, unknown>, headers: Record<string, string>) {
-  if (!OCCASION_CARD_CHECKOUT_ENABLED) {
+  if (!isOccasionCardCheckoutEnabled()) {
     return json(
-      { error: 'تحصيل بطاقة المناسبة مغلق حتى يُسعَّر المنتج في ميسر ويُربط بفاتورته.' },
+      { error: 'تحصيل بطاقة المناسبة مغلق حالياً.' },
       503,
       headers,
     );
@@ -332,9 +333,9 @@ async function createPaidPending(db: Db, body: Record<string, unknown>, headers:
 }
 
 async function activatePaid(db: Db, body: Record<string, unknown>, headers: Record<string, string>) {
-  if (!OCCASION_CARD_CHECKOUT_ENABLED) {
+  if (!isOccasionCardCheckoutEnabled()) {
     return json(
-      { error: 'تحصيل بطاقة المناسبة مغلق حتى يُسعَّر المنتج في ميسر ويُربط بفاتورته.' },
+      { error: 'تحصيل بطاقة المناسبة مغلق حالياً.' },
       503,
       headers,
     );
@@ -351,8 +352,17 @@ async function activatePaid(db: Db, body: Record<string, unknown>, headers: Reco
   if (!data || data.kind !== 'paid_invite') return json({ error: 'البطاقة غير موجودة' }, 404, headers);
   if (data.status === 'live') return json({ ok: true, token, url: inviteViewUrl(token) }, 200, headers);
 
-  const secret = resolveMoyasarSecretKey();
-  if (!secret) return json({ error: 'بوابة الدفع غير مهيأة' }, 503, headers);
+  const { data: reused } = await db
+    .from(STORE_ISSUED_CARDS_TABLE)
+    .select('id')
+    .eq('moyasar_payment_id', paymentId)
+    .maybeSingle();
+  if (reused && reused.id !== data.id) {
+    return json({ error: 'مرجع الدفع مستخدم لبطاقة أخرى' }, 409, headers);
+  }
+
+  const secret = resolveOccasionCardMoyasarSecretKey();
+  if (!secret) return json({ error: 'بوابة الدفع غير مهيأة لهذه البطاقة' }, 503, headers);
   const upstream = await fetchMoyasarPayment(paymentId, secret);
   if (upstream.status >= 400) return json({ error: 'تعذر التحقق من الدفع' }, 502, headers);
   let parsed: { status?: string; amount?: number; metadata?: Record<string, unknown> };
@@ -367,12 +377,17 @@ async function activatePaid(db: Db, body: Record<string, unknown>, headers: Reco
   if (Number(parsed.amount) !== Number(data.price_halalas)) {
     return json({ error: 'مبلغ الدفع لا يطابق البطاقة' }, 409, headers);
   }
-  const metaToken = String(parsed.metadata?.store_card_token || parsed.metadata?.storeCardToken || '');
-  if (metaToken && metaToken !== token) {
-    return json({ error: 'مرجع البطاقة لا يطابق الدفع' }, 409, headers);
+  if (
+    !occasionCardPaymentMatches({
+      meta: parsed.metadata,
+      token,
+      amount: Number(parsed.amount),
+    })
+  ) {
+    return json({ error: 'وسم الدفع لا يطابق بطاقة المناسبة' }, 409, headers);
   }
 
-  const { error } = await db
+  const { data: updated, error } = await db
     .from(STORE_ISSUED_CARDS_TABLE)
     .update({
       status: 'live',
@@ -380,8 +395,22 @@ async function activatePaid(db: Db, body: Record<string, unknown>, headers: Reco
       last_public_change_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     })
-    .eq('id', data.id);
+    .eq('id', data.id)
+    .eq('status', 'pending_payment')
+    .select('id')
+    .maybeSingle();
   if (error) return json({ error: 'تعذر تفعيل البطاقة' }, 500, headers);
+  if (!updated) {
+    const { data: again } = await db
+      .from(STORE_ISSUED_CARDS_TABLE)
+      .select('status')
+      .eq('id', data.id)
+      .maybeSingle();
+    if (again?.status === 'live') {
+      return json({ ok: true, token, url: inviteViewUrl(token) }, 200, headers);
+    }
+    return json({ error: 'تعذر تفعيل البطاقة' }, 409, headers);
+  }
   return json({ ok: true, token, url: inviteViewUrl(token) }, 200, headers);
 }
 
@@ -406,7 +435,13 @@ async function readPublic(db: Db, token: string, headers: Record<string, string>
 
   if (data.kind === 'paid_invite' && data.status !== 'live') {
     return json(
-      { ok: true, kind: 'paid_invite', status: data.status, priceHalalas: Number(data.price_halalas || 0) },
+      {
+        ok: true,
+        kind: 'paid_invite',
+        status: data.status,
+        priceHalalas: Number(data.price_halalas || 0),
+        templateId: String(data.template_id || ''),
+      },
       200,
       headers,
     );

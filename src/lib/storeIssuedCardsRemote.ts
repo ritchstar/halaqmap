@@ -14,7 +14,14 @@ export function storeIssuedCardsEndpoint(): string {
 }
 
 export type StoreIssuedPublicResult =
-  | { ok: true; kind: 'bereavement' | 'paid_invite'; status: string; card?: Record<string, unknown>; priceHalalas?: number }
+  | {
+      ok: true;
+      kind: 'bereavement' | 'paid_invite';
+      status: string;
+      card?: Record<string, unknown>;
+      priceHalalas?: number;
+      templateId?: string;
+    }
   | { ok: false; error: string };
 
 async function postAction(

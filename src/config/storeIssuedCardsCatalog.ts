@@ -10,8 +10,23 @@ export const STORE_PAID_INVITE_PRICES_SAR = {
   luxury: 59,
 } as const;
 
-/** التحصيل عبر ميسر مغلق حتى يُسعَّر المنتج ويُربط بفاتورته، دون خلط برخصة النفاذ. */
-export const STORE_PAID_INVITE_CHECKOUT_ENABLED = false;
+/** وسم ميسر — لا يُخلط برخصة النفاذ ولا بشحن المحفظة. */
+export const STORE_OCCASION_CARD_PRODUCT = 'store_occasion_card';
+
+function envEnabled(name: string, fallback: boolean): boolean {
+  const raw = String((import.meta as { env?: Record<string, unknown> }).env?.[name] ?? '')
+    .trim()
+    .toLowerCase();
+  if (raw === 'false' || raw === '0' || raw === 'off') return false;
+  if (raw === 'true' || raw === '1' || raw === 'on') return true;
+  return fallback;
+}
+
+/** التحصيل مفتوح. يُغلق بـ VITE_STORE_PAID_INVITE_CHECKOUT_ENABLED=false. */
+export const STORE_PAID_INVITE_CHECKOUT_ENABLED = envEnabled(
+  'VITE_STORE_PAID_INVITE_CHECKOUT_ENABLED',
+  true,
+);
 
 export type StorePaidInviteTier = keyof typeof STORE_PAID_INVITE_PRICES_SAR;
 
@@ -56,13 +71,15 @@ export const STORE_PAID_INVITE_COPY = {
   kicker: 'إصدار فوري لبطاقة مناسبة',
   titleAr: 'بطاقة مناسبة قابلة للمشاركة',
   leadAr:
-    'معاينة مجانية بلا حساب. الأسعار معتمدة: 12 و29 و59 ر.س. التحصيل عبر ميسر لا يُفتح حتى يُسعَّر هذا المنتج ويُربط بفاتورته، ولا يُخلط برخصة النفاذ. المنصة لا ترسل الدعوة نيابة عنك ولا تدير قائمة ضيوف.',
+    'معاينة مجانية بلا حساب. الأسعار المعتمدة: 12 و29 و59 ر.س. الدفع عبر ميسر على `www.halaqmap.com` عند النشر، كفاتورة منتج بطاقة مناسبة مستقلة عن رخصة النفاذ. المنصة لا ترسل الدعوة نيابة عنك ولا تدير قائمة ضيوف.',
   stampAr: 'صُممت عبر halaqmap · خريطة الحل',
   createCtaAr: 'أنشئ بطاقتك',
   payAtPublishAr: 'ادفع للنشر',
   checkoutClosedAr:
     'بوابة الدفع غير مفتوحة لهذه البطاقة بعد. السعر ظاهر للمعاينة فقط، حتى يُسجَّل المنتج في ميسر ويُربط بفاتورته.',
   checkoutClosedCtaAr: 'النشر بعد ربط الفاتورة',
+  testCheckoutHintAr:
+    'التحصيل الآن في البيئة التجريبية لميسر. لا خصم حقيقي، وبطاقة الاختبار `4111 1111 1111 1111`.',
   noPackAr: 'باقة الثلاث بطاقات غير متاحة في هذه النسخة.',
   deferredCommercialAr: 'افتتاح النشاط التجاري مؤجّل إلى موجة لاحقة.',
   legalGateAr: 'الموافقة على شروط إصدار البطاقات مطلوبة قبل الإنشاء.',

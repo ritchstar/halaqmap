@@ -2,7 +2,7 @@
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
 import { useMemo, useState } from 'react';
-import { Link, Navigate, useNavigate } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -23,6 +23,8 @@ import {
 } from '@/config/storeIssuedCardsCatalog';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { hasValidStoreIssuedConsent } from '@/lib/storeIssuedCardsConsent';
+import { createPaidInvitePending } from '@/lib/storeIssuedCardsRemote';
+import { occasionCardPayHref } from '@/lib/storeHostRedirect';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { cn } from '@/lib/utils';
 
@@ -31,7 +33,6 @@ const fieldClass =
 
 export default function StorePaidInviteStudioPage() {
   useDocumentTitle(STORE_PAID_INVITE_COPY.documentTitle);
-  const navigate = useNavigate();
   const consented = hasValidStoreIssuedConsent('paid');
 
   const [templateId, setTemplateId] = useState(STORE_PAID_INVITE_TEMPLATES[0].id);
@@ -40,6 +41,8 @@ export default function StorePaidInviteStudioPage() {
   const [whenText, setWhenText] = useState('');
   const [placeText, setPlaceText] = useState('');
   const [message, setMessage] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
 
   const template = templateById(templateId);
   const price = priceSarForTemplate(templateId);
@@ -54,6 +57,36 @@ export default function StorePaidInviteStudioPage() {
     }),
     [hostName, occasionLine, whenText, placeText, message, template],
   );
+
+  async function publishAndPay() {
+    if (!STORE_PAID_INVITE_CHECKOUT_ENABLED || busy) return;
+    if (hostName.trim().length < 2) {
+      setError('اسم صاحب المناسبة مطلوب');
+      return;
+    }
+    setBusy(true);
+    setError('');
+    const result = await createPaidInvitePending({
+      templateId,
+      hostName: hostName.trim(),
+      occasionLine: occasionLine.trim(),
+      whenText: whenText.trim(),
+      placeText: placeText.trim(),
+      message: message.trim(),
+    });
+    if (!result.ok) {
+      setBusy(false);
+      setError(result.error || 'تعذر إنشاء طلب النشر');
+      return;
+    }
+    const token = String(result.token || '').trim();
+    if (!token) {
+      setBusy(false);
+      setError('تعذر إنشاء رابط الدفع');
+      return;
+    }
+    window.location.assign(occasionCardPayHref(token));
+  }
 
   if (!consented) {
     return <Navigate to={`${ROUTE_PATHS.STORE_ISSUED_CARDS_LEGAL}?track=paid`} replace />;
@@ -120,15 +153,25 @@ export default function StorePaidInviteStudioPage() {
             </div>
           </div>
 
-          <Button type="button" disabled className="mt-6 w-full bg-[#e8c547] text-[#061018] opacity-60">
-            {STORE_PAID_INVITE_COPY.checkoutClosedCtaAr}
-            {price != null ? ` — ${price} ر.س` : ''}
+          <Button
+            type="button"
+            disabled={busy || !STORE_PAID_INVITE_CHECKOUT_ENABLED}
+            onClick={() => void publishAndPay()}
+            className="mt-6 w-full bg-[#e8c547] text-[#061018] disabled:opacity-60"
+          >
+            {STORE_PAID_INVITE_CHECKOUT_ENABLED
+              ? `${busy ? 'جاري التحضير…' : STORE_PAID_INVITE_COPY.payAtPublishAr}${price != null ? ` — ${price} ر.س` : ''}`
+              : `${STORE_PAID_INVITE_COPY.checkoutClosedCtaAr}${price != null ? ` — ${price} ر.س` : ''}`}
           </Button>
+          {error ? <p className="mt-2 text-sm text-red-300">{error}</p> : null}
           <p className="mt-2 text-xs leading-relaxed text-white/45">
             {STORE_PAID_INVITE_CHECKOUT_ENABLED
               ? 'الدفع عبر ميسر على www.halaqmap.com. بعد نجاح الدفع يصبح الرابط حيّاً ولا يُسترد.'
               : STORE_PAID_INVITE_COPY.checkoutClosedAr}
           </p>
+          {STORE_PAID_INVITE_CHECKOUT_ENABLED ? (
+            <p className="mt-1 text-xs leading-relaxed text-white/40">{STORE_PAID_INVITE_COPY.testCheckoutHintAr}</p>
+          ) : null}
           <Link to={`${ROUTE_PATHS.STORE_ISSUED_CARDS_LEGAL}?track=paid`} className="mt-3 inline-block text-xs text-white/50 underline">
             {STORE_PAID_INVITE_COPY.legalGateAr}
           </Link>
@@ -144,8 +187,8 @@ export default function StorePaidInviteStudioPage() {
             {preview.message ? <p className="mt-6 text-sm leading-7 text-white/75">{preview.message}</p> : null}
             <p className="mt-10 text-[11px] text-white/45">{STORE_PAID_INVITE_COPY.stampAr}</p>
           </div>
-          <Button type="button" variant="ghost" className="mt-4 w-full text-white/70" onClick={() => navigate(ROUTE_PATHS.STORE_INVITES)}>
-            {STORE_PAID_INVITE_COPY.createCtaAr}
+          <Button type="button" variant="ghost" className="mt-4 w-full text-white/70" asChild>
+            <Link to={ROUTE_PATHS.STORE_INVITES}>{STORE_PAID_INVITE_COPY.createCtaAr}</Link>
           </Button>
         </aside>
       </main>

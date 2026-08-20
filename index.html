@@ -543,7 +543,14 @@
           var path = (window.location.pathname || '').replace(/\/+$/, '') || '/';
           var search = window.location.search || '';
           if (path === paymentPath && search) {
-            var paymentTarget = window.location.origin + '/#' + paymentPath + search;
+            var earlyParams = new URLSearchParams(search);
+            var earlyPurpose = (earlyParams.get('purpose') || '').trim();
+            var earlyToken = (earlyParams.get('store_card_token') || earlyParams.get('token') || '').trim();
+            var earlyPath =
+              earlyPurpose === 'store_occasion_card' && earlyToken
+                ? '/pay/occasion-card/' + encodeURIComponent(earlyToken)
+                : paymentPath;
+            var paymentTarget = window.location.origin + '/#' + earlyPath + search;
             if (window.location.href !== paymentTarget) {
               window.location.replace(paymentTarget);
               return;
@@ -557,6 +564,15 @@
           if (!hasMoyasarReturn) return;
           var hash = window.location.hash || '';
           var hashPath = hash.replace(/^#/, '').split('?')[0] || '';
+          var purpose = (params.get('purpose') || '').trim();
+          var storeToken = (params.get('store_card_token') || params.get('token') || '').trim();
+          if (purpose === 'store_occasion_card' && storeToken) {
+            var occPath = '/pay/occasion-card/' + encodeURIComponent(storeToken);
+            if (hashPath === occPath) return;
+            window.location.replace(window.location.origin + '/#' + occPath + search);
+            return;
+          }
+          if (hashPath.indexOf('/pay/occasion-card/') === 0) return;
           if (hashPath === paymentPath) return;
           window.location.replace(window.location.origin + '/#' + paymentPath + search);
         } catch (e) {}

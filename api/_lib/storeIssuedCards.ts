@@ -15,8 +15,56 @@ export const PAID_PRICE_HALALAS = {
   luxury: 5900,
 } as const;
 
-/** مغلق حتى يُسعَّر منتج البطاقة في ميسر ويُربط بفاتورته، دون خلط برخصة النفاذ. */
-export const OCCASION_CARD_CHECKOUT_ENABLED = false;
+export type PaidInviteTier = keyof typeof PAID_PRICE_HALALAS;
+
+/** وسم ميسر المستقل عن رخصة النفاذ وشحن المحفظة. */
+export const STORE_OCCASION_CARD_PRODUCT = 'store_occasion_card';
+
+function envFlag(raw: string | undefined, fallback: boolean): boolean {
+  const value = String(raw ?? '').trim().toLowerCase();
+  if (value === 'false' || value === '0' || value === 'off') return false;
+  if (value === 'true' || value === '1' || value === 'on') return true;
+  return fallback;
+}
+
+/** التحصيل مفتوح افتراضياً. يُغلق بـ OCCASION_CARD_CHECKOUT_ENABLED=false. */
+export function isOccasionCardCheckoutEnabled(): boolean {
+  return envFlag(process.env.OCCASION_CARD_CHECKOUT_ENABLED, true);
+}
+
+/** الحيّ لهذه البطاقة فقط عند تأكيد STORE_PAID_INVITE_LIVE_PAYMENTS مع PAYMENT_ENV=live. */
+export function isOccasionCardLivePaymentsEnabled(): boolean {
+  const liveEnv = (process.env.PAYMENT_ENV || 'test').trim().toLowerCase() === 'live';
+  return liveEnv && envFlag(process.env.STORE_PAID_INVITE_LIVE_PAYMENTS, false);
+}
+
+export function paidInviteTierFromHalalas(amount: number): PaidInviteTier | null {
+  if (amount === PAID_PRICE_HALALAS.quick) return 'quick';
+  if (amount === PAID_PRICE_HALALAS.featured) return 'featured';
+  if (amount === PAID_PRICE_HALALAS.luxury) return 'luxury';
+  return null;
+}
+
+export function occasionCardMetaProduct(meta: Record<string, unknown> | undefined): string {
+  return String(meta?.product ?? meta?.product_type ?? meta?.productType ?? '')
+    .trim()
+    .toLowerCase();
+}
+
+export function occasionCardMetaToken(meta: Record<string, unknown> | undefined): string {
+  return String(meta?.store_card_token ?? meta?.storeCardToken ?? '').trim();
+}
+
+/** يرفض خلط دفعة الرخصة أو مبلغ خارج الطبقات الثلاث. */
+export function occasionCardPaymentMatches(input: {
+  meta: Record<string, unknown> | undefined;
+  token: string;
+  amount: number;
+}): boolean {
+  if (occasionCardMetaProduct(input.meta) !== STORE_OCCASION_CARD_PRODUCT) return false;
+  if (!input.token || occasionCardMetaToken(input.meta) !== input.token) return false;
+  return paidInviteTierFromHalalas(input.amount) != null;
+}
 
 const PAID_TEMPLATES: Record<string, keyof typeof PAID_PRICE_HALALAS> = {
   'season-short': 'quick',
