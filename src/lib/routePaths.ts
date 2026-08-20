@@ -47,6 +47,8 @@ export const ROUTE_PATHS = {
   COIFFEUR_PARTNERS: '/coiffeur/partners',
   /** إعادة توجيه إلى REGISTER مع surface=coiffeur — لا فورم مستقل */
   COIFFEUR_REGISTER: '/coiffeur/partners/register',
+  /** خطط الظهور ومنجزات البحث لشريكات كوافير ماب */
+  COIFFEUR_MARKETING: '/coiffeur/partners/marketing',
   /** اهتمام مسبق + تحديثات بريد + عدة كروت برمجية — تحويل يوتيوب */
   COIFFEUR_INTEREST: '/coiffeur/interest',
   /** استوديو كروت كوافير ماب — اسم وصفة ثم توليد بطاقة للمشاركة */

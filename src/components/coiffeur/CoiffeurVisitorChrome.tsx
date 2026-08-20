@@ -125,9 +125,12 @@ export function CoiffeurVisitorFooter({
       </a>
       {showPartnersLater ? (
         <Link to={ROUTE_PATHS.COIFFEUR_PARTNERS} className="mt-3 block text-sm text-[#f4d4c0]">
-          مسار المنشآت — مرحلة لاحقة
+          مسار المنشآت
         </Link>
       ) : null}
+      <Link to={ROUTE_PATHS.COIFFEUR_MARKETING} className="mt-3 block text-sm text-[#f4d4c0]">
+        خطط الظهور ومنجزات البحث
+      </Link>
     </footer>
   );
 }

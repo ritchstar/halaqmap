@@ -39,6 +39,17 @@ export default function CoiffeurPartnersLanding() {
         <h1 className="text-3xl font-black leading-tight text-white">{COIFFEUR_PARTNERS_COPY.title}</h1>
         <p className="mx-auto mt-4 max-w-xl text-sm leading-8 text-slate-300">{COIFFEUR_PARTNERS_COPY.lead}</p>
 
+        <Link
+          to={ROUTE_PATHS.COIFFEUR_MARKETING}
+          className="mx-auto mt-8 block max-w-xl overflow-hidden rounded-2xl border border-[#f4d4c0]/30 bg-[#1a0c12]/80 text-right transition hover:border-[#f4d4c0]/55"
+        >
+          <p className="px-5 pt-4 text-xs font-black tracking-wide text-[#f4d4c0]">خطط الظهور</p>
+          <p className="px-5 pt-1 text-lg font-black text-white">منجزات البحث وكيف سيظهر مشغلك</p>
+          <p className="px-5 pb-4 pt-2 text-sm leading-7 text-slate-300">
+            ظهور مبكر في قوقل قبل اكتمال الإطلاق، وخطة انتشار احترافية: بحث، إعلان، حضور ميداني، ومواسم الجمال.
+          </p>
+        </Link>
+
         <div className="mx-auto mt-8 max-w-xl rounded-2xl border border-teal-400/25 bg-white/[0.03] p-5 text-right">
           <p className="text-xs font-black tracking-wide text-teal-200">{COIFFEUR_PARTNERS_COPY.stepsTitle}</p>
           <ol className="mt-3 space-y-2 text-sm leading-7 text-slate-300">
@@ -84,6 +95,9 @@ export default function CoiffeurPartnersLanding() {
         </div>
         <Link to={ROUTE_PATHS.COIFFEUR_INTEREST} className="mt-3 block text-[11px] text-slate-500">
           سجّلي اهتمامك وتلقّي التحديثات
+        </Link>
+        <Link to={ROUTE_PATHS.COIFFEUR_MARKETING} className="mt-3 block text-[11px] text-slate-500">
+          خطط الظهور ومنجزات البحث
         </Link>
       </footer>
     </div>

@@ -59,7 +59,7 @@ assert.match(coiffeurChrome, /SUMMI_HUB_PATH/);
 
 assert.doesNotMatch(
   app,
-  /FounderDeskBanner|StoreDeskChatCard|StoreSeoProofCard|storeFront/,
+  /FounderDeskBanner|StoreDeskChatCard|storeFront/,
   'App must not statically import store/desk UI',
 );
 assert.match(
@@ -72,6 +72,11 @@ assert.match(
   /\$\{adminBase\}\/store-desk/,
   'App must mount store desk under the admin portal',
 );
+assert.match(
+  app,
+  /@\/pages\/coiffeur\/CoiffeurMarketingPage/,
+  'App must lazy-load the coiffeur marketing page',
+);
 assert.doesNotMatch(
   readFileSync(join(root, 'src/components/store/StoreDeskChatCard.tsx'), 'utf8'),
   /from ['"]@\/lib\/storeHostRedirect['"]/,
@@ -80,5 +85,21 @@ assert.match(
   readFileSync(join(root, 'src/pages/store/StoreLanding.tsx'), 'utf8'),
   /StoreDeskChatCard/,
 );
+assert.match(
+  readFileSync(join(root, 'src/pages/store/StoreLanding.tsx'), 'utf8'),
+  /StoreLiveOpsBanner/,
+  'Store landing must mount the static Halaq Map ops banner',
+);
+assert.doesNotMatch(
+  readFileSync(join(root, 'src/components/store/StoreChrome.tsx'), 'utf8'),
+  /StoreHalaqMapOpsTicker/,
+  'Store chrome must not duplicate the moving ops ticker',
+);
+
+const storeFront = readFileSync(join(root, 'src/config/storeFront.ts'), 'utf8');
+assert.match(storeFront, /منشأة واحدة، منتجان قطاعيان/);
+assert.doesNotMatch(storeFront, /منتج واحد، واجهتان/);
+assert.doesNotMatch(storeFront, /استثمار مجالي/);
+assert.doesNotMatch(storeFront, /نصمم لك نظام/);
 
 console.log('boot chunk isolation ok');

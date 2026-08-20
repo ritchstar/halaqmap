@@ -47,8 +47,8 @@ assert('hypotheses', prompt.includes('الفرضية الأولى'));
 assert('draft_marker', prompt.includes('مسودة الرد للعميل'));
 assert('isic', prompt.includes('ISIC4 474151'));
 assert('no_second_entity', prompt.includes('لا تخترع كياناً قانونياً ثانياً'));
-assert('organic_serp', prompt.includes('كوافير قريب'));
-assert('no_false_rank', prompt.includes('لا يدّعي صدارة الصفحة الأولى اليوم'));
+assert('coiffeur_marketing_page', prompt.includes('خطط الظهور'));
+assert('no_rank_in_client', prompt.includes('دون ذكر ترتيب صفحات البحث'));
 
 assertEq(
   'extract_colon',

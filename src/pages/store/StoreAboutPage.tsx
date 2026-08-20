@@ -9,7 +9,6 @@ import {
   StoreVisitorHeader,
   StoreVisitorShell,
 } from '@/components/store/StoreChrome';
-import { StoreSeoProofCard } from '@/components/store/StoreSeoProofCard';
 import { StoreShot } from '@/components/store/StoreShot';
 import { LICENSED_COMMERCIAL_ACTIVITIES } from '@/config/licensedCommercialActivities';
 import {
@@ -31,24 +30,32 @@ export default function StoreAboutPage() {
 
       <article className="px-4 py-10 md:py-14">
         <div className="mx-auto max-w-5xl">
-          <header>
-            <p className="text-sm font-bold tracking-wide text-[#e8c547]">{STORE_ABOUT_COPY.kicker}</p>
-            <h1 className="mt-2 text-4xl font-extrabold leading-tight text-[#f4efe4] md:text-5xl">
-              {STORE_ABOUT_COPY.titleAr}
-            </h1>
-            <p className="mt-2 text-2xl font-extrabold text-[#e8c547]">
-              <span dir="ltr" className="inline-block tracking-wide">
-                {STORE_BRAND_LATIN}
-              </span>
-              <span className="mx-2 text-white/35">·</span>
-              {STORE_PUBLIC_NAME_AR}
-            </p>
-            <p className="mt-4 max-w-3xl text-base leading-relaxed text-white/78 md:text-lg">
-              {STORE_ABOUT_COPY.intro}
-            </p>
+          <header className="grid items-center gap-8 lg:grid-cols-[1.1fr_0.9fr]">
+            <div>
+              <p className="text-sm font-bold tracking-wide text-[#e8c547]">{STORE_ABOUT_COPY.kicker}</p>
+              <h1 className="mt-2 text-4xl font-extrabold leading-tight text-[#f4efe4] md:text-5xl">
+                {STORE_ABOUT_COPY.titleAr}
+              </h1>
+              <p className="mt-2 text-2xl font-extrabold text-[#e8c547]">
+                <span dir="ltr" className="inline-block tracking-wide">
+                  {STORE_BRAND_LATIN}
+                </span>
+                <span className="mx-2 text-white/35">·</span>
+                {STORE_PUBLIC_NAME_AR}
+              </p>
+              <p className="mt-4 max-w-3xl text-base leading-relaxed text-white/78 md:text-lg">
+                {STORE_ABOUT_COPY.intro}
+              </p>
+            </div>
+            <figure className="overflow-hidden rounded-2xl border border-[#e8c547]/30 shadow-[0_24px_60px_-28px_rgba(232,197,71,0.45)]">
+              <StoreShot
+                src={STORE_VISUALS.hero}
+                alt="واجهة برمجية لمتجر halaqmap"
+                className="aspect-[4/3]"
+                eager
+              />
+            </figure>
           </header>
-
-          <StoreSeoProofCard className="mt-8" eager />
 
           <section className="mt-12 rounded-2xl border border-white/12 bg-[#0b1a24]/80 p-5 md:p-6">
             <h2 className="text-2xl font-extrabold text-[#f4efe4]">{STORE_ABOUT_COPY.natureTitle}</h2>

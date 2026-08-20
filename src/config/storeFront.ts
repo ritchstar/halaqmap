@@ -33,20 +33,6 @@ export const STORE_VISUALS = {
   coiffeurSeal: '/images/coiffeur-map-logo-seal-512.webp',
   cardStudio: '/images/coiffeur/card-intro.webp',
   cardMark: '/images/coiffeur/card-og.png',
-  /** إثبات تطويري: ظهور عضوي لكوافير ماب في قوقل لعبارة كوافير قريب */
-  googleSerpCoiffeur: '/images/store/coiffeur-google-serp-qareeb.png',
-} as const;
-
-/** منتج تطويري مسبق: تواجد عضوي في قوقل، لا حملة إعلانية. */
-export const STORE_SEO_PROOF = {
-  kickerAr: 'منتج تطويري مستمر',
-  titleAr: 'تواجد عضوي في محرك قوقل',
-  queryAr: 'كوافير قريب',
-  host: 'coiffeur.halaqmap.com',
-  leadAr:
-    'ظهور عضوي لعبارة كوافير قريب في صدر الصفحة الثانية على قوقل، والإحالة إلى كوافير ماب. العمل يجري من الآن بلا توقف نحو صدارة الصفحة الأولى. هذا الرافد يزيد فرص بيع خدمات الشريكات بخلاف التسويق والإعلان المدفوع.',
-  captionAr: 'إحالة عضوية حية — الصفحة الثانية الآن، والصفحة الأولى هدف مستمر',
-  altAr: 'نتيجة بحث قوقل لعبارة كوافير قريب تظهر كوافير ماب إحالة عضوية إلى النطاق القطاعي',
 } as const;
 
 export const STORE_SOFTWARE_SHOTS = [
@@ -74,10 +60,12 @@ export const STORE_LANDING_COPY = {
   publicName: STORE_PUBLIC_NAME_AR,
   latinMark: STORE_BRAND_LATIN,
   heroLead:
-    'هل لديك نشاط تجاري، أو وثيقة عمل حر، أو أفراد (سواء كانت سلعاً أو خدمات)، وترغب في تصميم نظام برمجي يمكّنك من تنظيم عملك، أو عرض ومراقبة نشاطك على الإنترنت، ومتابعة عملك من أي مكان، والتواصل مع عملائك، وتنمية أعمالك والتسويق لها عبر الشبكة العنكبوتية؟',
-  heroInviteBefore: 'قم بتعبئة ',
+    'عندك نشاط تجاري، أو وثيقة عمل حر، أو مهنة؟ نقدّم برمجيات جاهزة، وندرس طلبك الخاص إن كان مختلفاً.',
+  heroReadyExample:
+    'من أمثلة المنتجات الجاهزة الآن: منصة حلاق ماب — استعلام يُظهر الصالون المفعّل للقريب، برخصة نفاذ بلا عمولة على الخدمة.',
+  heroInviteBefore: 'فكرة مختلفة؟ اشرح طلبك في ',
   heroFormLink: 'نموذج الطلب',
-  heroInviteAfter: ' وإرساله ليُدرس ويُرد عليه خلال يومين عمل.',
+  heroInviteAfter: '، ونرد عليك بعرض مناسب خلال يومين عمل.',
   heroCta: 'قدّم طلبك الآن',
   heroShotAlt: 'واجهة برمجية حية لمتجر halaqmap',
   heroShotCaption: 'منتجات برمجية حية ضمن المتجر',
@@ -159,18 +147,28 @@ export const STORE_ABOUT_COPY = {
   ctaLabel: 'فتح نموذج الطلب',
 } as const;
 
-/** شريط تشغيل منصة حلاق ماب — واجهة المتجر فقط، لا يُعرض على كوافير ماب. */
-export const STORE_HALAQMAP_OPS_TICKER = {
+/** شريط تشغيل منصة حلاق ماب — ثابت تحت الهيرو على واجهة المتجر فقط. */
+export const STORE_HALAQMAP_OPS_BANNER = {
   badgeAr: 'تشغيل',
   ariaAr: 'إعلان بدء تشغيل منصة حلاق ماب واستقبال طلبات الاشتراك',
-  ctaAr: 'سجّل في حلاق ماب',
-  registerHref: 'https://www.halaqmap.com/#/partners/register',
-  segments: [
-    'بدأ تشغيل منصة حلاق ماب — نستقبل طلبات الاشتراك الآن',
-    'رخصة النفاذ الرقمية للمنتج الأول في متجر halaqmap',
-    'التسجيل والدفع عبر ميسر على النطاق الأم',
-    'منصة حلاق ماب · المنتج البرمجي الأول',
-  ],
+  titleAr: 'حلاق ماب بدأ التشغيل — رخصة النفاذ متاحة للاشتراك عبر ميسر.',
+  ctaAr: 'عرض حزم الرخصة',
+  packagesHref: 'https://www.halaqmap.com/#/partners',
+} as const;
+
+export const STORE_SECTOR_SPLIT_COPY = {
+  titleAr: 'منشأة واحدة، منتجان قطاعيان',
+  leadAr:
+    'حلاق ماب وكوافير ماب منتجان داخل المتجر نفسه. الاستعلام منفصل حسب القطاع، والدفع والتوثيق عبر ميسر على النطاق الأم.',
+  halaqNameAr: LEGAL_FIRST_SOFTWARE_PRODUCT_AR,
+  halaqBodyAr: 'للرجال. متاح للاشتراك الآن برخصة النفاذ.',
+  halaqHost: 'www.halaqmap.com',
+  halaqHref: 'https://www.halaqmap.com',
+  coiffeurNameAr: COIFFEUR_PRODUCT_AR,
+  coiffeurBodyAr:
+    'للنساء. ظهور مبكر قبل الإطلاق الأوسع: الاستعلام ومسار الشريكات متاحان، والتوسّع مستمر بالتغطية.',
+  coiffeurHost: 'coiffeur.halaqmap.com',
+  coiffeurHref: 'https://coiffeur.halaqmap.com',
 } as const;
 
 export const STORE_LIVE_PRODUCTS = [

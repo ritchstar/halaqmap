@@ -13,11 +13,13 @@ import {
   StoreVisitorShell,
 } from '@/components/store/StoreChrome';
 import { StoreDeskChatCard } from '@/components/store/StoreDeskChatCard';
+import { StoreLiveOpsBanner } from '@/components/store/StoreLiveOpsBanner';
 import { StoreShot } from '@/components/store/StoreShot';
 import {
   STORE_GREETING_OCCASIONS,
   STORE_LANDING_COPY,
   STORE_LIVE_PRODUCTS,
+  STORE_SECTOR_SPLIT_COPY,
   STORE_SOFTWARE_SHOTS,
   STORE_VISUALS,
   storeCardsPath,
@@ -57,6 +59,9 @@ export default function StoreLanding() {
             <p className="mt-4 max-w-3xl text-base leading-relaxed text-white/78 md:text-lg">
               {STORE_LANDING_COPY.heroLead}
             </p>
+            <p className="mt-3 max-w-3xl text-base leading-relaxed text-white/78 md:text-lg">
+              {STORE_LANDING_COPY.heroReadyExample}
+            </p>
             <p className="mt-4 max-w-3xl text-base leading-relaxed text-white/78 md:text-lg">
               {STORE_LANDING_COPY.heroInviteBefore}
               <Link
@@ -87,6 +92,39 @@ export default function StoreLanding() {
               {STORE_LANDING_COPY.heroShotCaption}
             </figcaption>
           </figure>
+        </div>
+      </section>
+
+      <StoreLiveOpsBanner />
+
+      <section className="px-4 pb-10">
+        <div className="mx-auto max-w-5xl">
+          <h2 className="text-lg font-extrabold text-white/90">{STORE_SECTOR_SPLIT_COPY.titleAr}</h2>
+          <p className="mt-2 max-w-3xl text-sm leading-relaxed text-white/70">
+            {STORE_SECTOR_SPLIT_COPY.leadAr}
+          </p>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            <a
+              href={STORE_SECTOR_SPLIT_COPY.halaqHref}
+              className="rounded-2xl border border-white/12 bg-[#0b1a24]/70 p-5 transition hover:border-[#e8c547]/40"
+            >
+              <p className="font-extrabold text-[#e8c547]">{STORE_SECTOR_SPLIT_COPY.halaqNameAr}</p>
+              <p className="mt-2 text-sm leading-relaxed text-white/75">{STORE_SECTOR_SPLIT_COPY.halaqBodyAr}</p>
+              <p className="mt-3 text-xs text-white/55">
+                <code dir="ltr">{STORE_SECTOR_SPLIT_COPY.halaqHost}</code>
+              </p>
+            </a>
+            <a
+              href={STORE_SECTOR_SPLIT_COPY.coiffeurHref}
+              className="rounded-2xl border border-white/12 bg-[#0b1a24]/70 p-5 transition hover:border-[#e8c547]/40"
+            >
+              <p className="font-extrabold text-[#e8c547]">{STORE_SECTOR_SPLIT_COPY.coiffeurNameAr}</p>
+              <p className="mt-2 text-sm leading-relaxed text-white/75">{STORE_SECTOR_SPLIT_COPY.coiffeurBodyAr}</p>
+              <p className="mt-3 text-xs text-white/55">
+                <code dir="ltr">{STORE_SECTOR_SPLIT_COPY.coiffeurHost}</code>
+              </p>
+            </a>
+          </div>
         </div>
       </section>
 

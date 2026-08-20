@@ -6,7 +6,6 @@ import { ROUTE_PATHS } from '@/lib/routePaths';
 import { lockPartnerDarkCanvas } from '@/lib/partnerDarkCanvas';
 import { STORE_BRAND_LATIN, STORE_LANDING_COPY, STORE_ORIGIN, STORE_PUBLIC_NAME_AR, STORE_VISUALS } from '@/config/storeFront';
 import { KSACityClocksBar } from '@/components/KSACityClocksBar';
-import { StoreHalaqMapOpsTicker } from '@/components/store/StoreHalaqMapOpsTicker';
 import { EcommerceVerifiedFooterBadge } from '@/components/EcommerceVerifiedFooterBadge';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useEffect, type ReactNode } from 'react';
@@ -24,7 +23,6 @@ export function StoreVisitorHeader() {
   const isMobile = useIsMobile();
   return (
     <div className="border-b border-white/10 bg-[#061018]/90">
-      <StoreHalaqMapOpsTicker />
       {!isMobile ? <KSACityClocksBar /> : null}
       <header className="backdrop-blur">
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3">

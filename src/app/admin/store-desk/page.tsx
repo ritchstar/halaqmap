@@ -19,7 +19,6 @@ import { founderTheme } from '@/components/admin/founder/founderTheme';
 import { getAdminDashboardPathFor } from '@/config/adminAuth';
 import { STORE_DESK_COPY, STORE_DESK_STATUS_AR } from '@/config/storeDeskCopy';
 import { STORE_LIVE_PRODUCTS, STORE_SOFTWARE_SHOTS } from '@/config/storeFront';
-import { StoreSeoProofCard } from '@/components/store/StoreSeoProofCard';
 import { StoreShot } from '@/components/store/StoreShot';
 import { getSupabaseClient, isSupabaseConfigured } from '@/integrations/supabase/client';
 import { resolveAdminAccess } from '@/lib/adminAccessRemote';
@@ -282,7 +281,6 @@ export default function StoreDeskPage() {
         </section>
 
         <div className="space-y-6">
-          <StoreSeoProofCard tone="desk" eager />
           {selected ? (
             <>
               <section className={cn(founderTheme.glassCard, 'p-5')}>
