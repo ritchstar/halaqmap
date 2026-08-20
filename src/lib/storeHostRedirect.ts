@@ -20,7 +20,7 @@ export function isHalaqmapMensHost(host: string): boolean {
 }
 
 function isStoreSurfacePath(path: string): boolean {
-  return path === '/store' || path.startsWith('/store/');
+  return path === '/store' || path.startsWith('/store/') || path === '/oc' || path.startsWith('/oc/');
 }
 
 export function resolveMensHostStoreRedirect(input: {
@@ -32,6 +32,11 @@ export function resolveMensHostStoreRedirect(input: {
   const path = (input.hashPath || '/').trim() || '/';
   const rawSearch = String(input.hashSearch || '').trim();
   const search = rawSearch && rawSearch !== '?' ? (rawSearch.startsWith('?') ? rawSearch : `?${rawSearch}`) : '';
+  if (path === '/oc' || path.startsWith('/oc/')) {
+    const token = path.replace(/^\/oc\/?/, '').split('/')[0];
+    if (!token) return `https://${STORE_SATELLITE_HOST}/#${ROUTE_PATHS.STORE_INVITES}`;
+    return `https://${STORE_SATELLITE_HOST}/#/store/invites/v/${encodeURIComponent(token)}`;
+  }
   if (!isStoreSurfacePath(path)) return null;
   return `https://${STORE_SATELLITE_HOST}/#${path}${search}`;
 }

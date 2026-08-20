@@ -271,6 +271,12 @@ const NotFound = () => (
   </WithPublicLayout>
 );
 
+const OccasionCardShareRedirect = () => {
+  const { token = '' } = useParams<{ token: string }>();
+  if (!token) return <Navigate to={STORE_INVITES_PATH} replace />;
+  return <Navigate to={`/store/invites/v/${encodeURIComponent(token)}`} replace />;
+};
+
 const LegacyPartnerRedirect = ({ to }: { to: string }) => {
   const location = useLocation();
   return <Navigate to={`${to}${location.search || ''}`} replace />;
@@ -357,6 +363,16 @@ function StoreDomainRedirect() {
 
   if (isStoreHostPaymentPath(pathOnly)) {
     window.location.replace(`https://www.halaqmap.com/${window.location.hash}`);
+    return null;
+  }
+
+  if (pathOnly === '/oc' || pathOnly.startsWith('/oc/')) {
+    const token = pathOnly.replace(/^\/oc\/?/, '').split('/')[0];
+    window.location.replace(
+      token
+        ? `/#/store/invites/v/${encodeURIComponent(token)}`
+        : `/#${STORE_LANDING_PATH}`,
+    );
     return null;
   }
 
@@ -589,6 +605,7 @@ export function App() {
           <Route path={STORE_TRUST_PATH} element={<LazyRoute><StoreTrustPage /></LazyRoute>} />
           <Route path={STORE_ISSUED_CARDS_LEGAL_PATH} element={<LazyRoute><StoreIssuedCardsLegalHub /></LazyRoute>} />
           <Route path={STORE_INVITES_PATH} element={<LazyRoute><StorePaidInviteStudioPage /></LazyRoute>} />
+          <Route path="/oc/:token" element={<OccasionCardShareRedirect />} />
           <Route path={STORE_INVITES_VIEW_PATH} element={<LazyRoute><StorePaidInviteViewPage /></LazyRoute>} />
           <Route path={STORE_OCCASION_CARD_PAY_PATH} element={<LazyRoute><StorePaidInvitePayPage /></LazyRoute>} />
           <Route path={STORE_BEREAVEMENT_PATH} element={<LazyRoute><StoreBereavementCreatePage /></LazyRoute>} />

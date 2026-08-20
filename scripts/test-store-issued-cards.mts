@@ -197,6 +197,7 @@ assert.match(STORE_LANDING_COPY.bereavementTitleAr, /الوفاة/);
 assert.match(app, /@\/pages\/store\/StoreIssuedCardsLegalHub/);
 assert.match(app, /@\/pages\/store\/StoreBereavementCreatePage/);
 assert.match(app, /@\/pages\/store\/StorePaidInviteStudioPage/);
+assert.match(app, /path="\/oc\/:token"/);
 assert.doesNotMatch(app, /from ['"]@\/config\/storeIssuedCardsLegal['"]/);
 assert.doesNotMatch(app, /from ['"]@\/config\/storeBereavementCopy['"]/);
 assert.doesNotMatch(app, /from ['"]@\/config\/storeIssuedCardsCatalog['"]/);
@@ -204,6 +205,8 @@ assert.doesNotMatch(app, /from ['"]@\/config\/storeIssuedCardsCatalog['"]/);
 const indexHtml = readFileSync(join(root, 'index.html'), 'utf8');
 assert.match(indexHtml, /purpose === 'store_occasion_card'/);
 assert.match(indexHtml, /\/pay\/occasion-card\//);
+assert.match(indexHtml, /\/oc\//);
+assert.match(indexHtml, /store\/invites\/v\//);
 assert.match(indexHtml, /if \(purpose === 'store_occasion_card' && storeToken\)/);
 
 assert.equal(isOccasionCardLivePaymentsEnabled(), false);
