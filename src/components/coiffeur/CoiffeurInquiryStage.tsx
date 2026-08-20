@@ -31,21 +31,21 @@ export function CoiffeurInquiryStage({
   locateMessage,
 }: Props) {
   return (
-    <section className="relative mx-auto max-w-6xl px-5 pb-6 pt-6 md:min-h-[78svh] md:pb-12 md:pt-10">
+    <section className="relative mx-auto max-w-6xl px-4 pb-4 pt-4 md:min-h-[78svh] md:px-5 md:pb-12 md:pt-10">
       <div className="flex flex-col items-center">
         <span className="inline-flex rounded-full border border-rose-200/40 bg-rose-400/15 px-4 py-1.5 text-sm font-semibold tracking-wide text-[#f7efe8]">
           {COIFFEUR_INQUIRY_COPY.sectorBadge}
         </span>
-        <p className="mt-8 text-base font-bold text-[#f4d4c0]">{COIFFEUR_INQUIRY_COPY.freeBadge}</p>
-        <div className="mt-3 grid w-full max-w-5xl grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-start gap-1.5 sm:gap-4 md:gap-8">
-          <div className="max-[360px]:hidden">
+        <p className="mt-3 text-sm font-bold text-[#f4d4c0] md:mt-8 md:text-base">{COIFFEUR_INQUIRY_COPY.freeBadge}</p>
+        <div className="mt-4 flex w-full max-w-5xl items-start justify-center gap-4 md:mt-3 md:grid md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] md:gap-8">
+          <div className="hidden min-w-0 md:block">
             <CoiffeurStageFlankShot
               src={COIFFEUR_VISUALS.hero}
               alt="أتيليه كوافير ماب"
               align="end"
             />
           </div>
-          <div className="flex justify-center overflow-x-clip">
+          <div className="flex w-full max-w-[16.5rem] justify-center md:max-w-none">
             <CoiffeurRadarButton
               phase={phase}
               onClick={onInquire}
@@ -53,7 +53,7 @@ export function CoiffeurInquiryStage({
               idleHint={COIFFEUR_INQUIRY_COPY.searchHero}
             />
           </div>
-          <div className="max-[360px]:hidden">
+          <div className="hidden min-w-0 md:block">
             <CoiffeurStageFlankShot
               src={COIFFEUR_VISUALS.makeup}
               alt="إطلالة مكياج وسهرات"
@@ -63,7 +63,7 @@ export function CoiffeurInquiryStage({
         </div>
       </div>
 
-      <div className="mt-10 grid items-start gap-8 md:mt-14 md:grid-cols-2 md:gap-12">
+      <div className="mt-6 grid items-start gap-6 md:mt-14 md:grid-cols-2 md:gap-12">
         <div>
           <motion.h1
             initial={{ opacity: 0, y: 10 }}
@@ -84,7 +84,7 @@ export function CoiffeurInquiryStage({
           <p className="mb-3 text-sm font-black tracking-[0.12em] text-[#f4d4c0]">
             {COIFFEUR_INQUIRY_COPY.kicker}
           </p>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
             {COIFFEUR_INQUIRY_INTENTS.map((item) => {
               const active = intent === item.id;
               return (
@@ -93,7 +93,7 @@ export function CoiffeurInquiryStage({
                   type="button"
                   onClick={() => onIntentChange(item.id)}
                   className={cn(
-                    'min-h-[3.25rem] rounded-xl px-2 py-2 text-center text-sm leading-5 font-bold',
+                    'min-h-11 rounded-xl px-3 py-2.5 text-center text-sm leading-5 font-bold sm:min-h-[3.25rem] sm:px-2 sm:py-2',
                     active
                       ? 'border border-[#f4d4c0] bg-[#e8b4a2]/25 text-[#f7efe8]'
                       : 'border border-white/20 bg-white/[0.06] text-[#f7efe8]',

@@ -92,15 +92,15 @@ export function CoiffeurRadarButton({
   const isMobile = useIsMobile();
   const reduceMotion = useReducedMotion();
   const theme = THEME[phase];
-  const SIZE = isMobile ? 184 : 220;
+  const SIZE = isMobile ? 156 : 220;
   const isSearching = phase === 'searching';
   const isFound = phase === 'found';
   const isDenied = phase === 'denied';
   const isIdle = phase === 'idle';
 
   return (
-    <div className="flex max-w-full flex-col items-center gap-4 overflow-x-clip select-none" dir="rtl">
-      <div className="relative overflow-visible" style={{ width: SIZE, height: SIZE }}>
+    <div className="flex w-full max-w-full flex-col items-center gap-3 overflow-visible select-none md:gap-4" dir="rtl">
+      <div className="relative shrink-0 overflow-visible" style={{ width: SIZE, height: SIZE }}>
         <AnimatePresence>
           {(isIdle || isSearching) && !isMobile && !reduceMotion ? (
             <>

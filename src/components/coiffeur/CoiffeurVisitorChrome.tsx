@@ -13,6 +13,7 @@ import { MOBILE_DOCK_CLEARANCE } from '@/lib/mobilePageShell';
 import { CoiffeurBrandMark } from '@/components/coiffeur/CoiffeurBrandMark';
 import { CoiffeurSearchButton, COIFFEUR_VISITOR_CANVAS_CLASS } from '@/components/coiffeur/CoiffeurSearchButton';
 import {
+  COIFFEUR_BRAND_AR,
   COIFFEUR_FOOTER_ECOMMERCE_AR,
   COIFFEUR_FOOTER_LEGAL_AR,
   COIFFEUR_INQUIRY_COPY,
@@ -33,7 +34,19 @@ type HeaderProps = {
 
 export function CoiffeurVisitorHeader({ brandTo, sticky = true }: HeaderProps) {
   const isMobile = useIsMobile();
-  const brand = (
+  const brand = isMobile ? (
+    <span className="flex min-w-0 items-center gap-2.5">
+      <CoiffeurBrandMark
+        className="h-10 w-10 ring-1 ring-[#f4d4c0]/45"
+        sizes="40px"
+        showWordmark={false}
+      />
+      <span className="min-w-0 leading-tight">
+        <span className="block truncate text-base font-black text-white">{COIFFEUR_BRAND_AR}</span>
+        <span className="block text-[0.62rem] font-bold text-[#f4d4c0]/80">{COIFFEUR_INQUIRY_COPY.searchHero}</span>
+      </span>
+    </span>
+  ) : (
     <CoiffeurBrandMark className="h-20 w-20 ring-1 ring-[#f4d4c0]/45" sizes="80px" />
   );
 
@@ -46,7 +59,12 @@ export function CoiffeurVisitorHeader({ brandTo, sticky = true }: HeaderProps) {
     >
       <CoiffeurStatusTicker />
       {!isMobile ? <KSACityClocksBar /> : null}
-      <div className="mx-auto flex min-h-[7.25rem] max-w-6xl items-center px-4 py-3">
+      <div
+        className={cn(
+          'mx-auto flex max-w-6xl items-center px-4',
+          isMobile ? 'h-14' : 'min-h-[7.25rem] py-3',
+        )}
+      >
         {brandTo ? (
           <Link to={brandTo} className="min-w-0 no-underline">
             {brand}
@@ -74,7 +92,7 @@ export function CoiffeurMobileSearchDock({ busy = false, onClick }: DockProps) {
       <div className="mx-auto max-w-lg">
         <CoiffeurSearchButton
           size="hero"
-          className="w-full sm:w-full"
+          className="min-h-12 w-full sm:w-full"
           label={busy ? COIFFEUR_INQUIRY_COPY.searchBusy : COIFFEUR_INQUIRY_COPY.searchHero}
           busy={busy}
           onClick={onClick}
