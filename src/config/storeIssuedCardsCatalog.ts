@@ -76,7 +76,9 @@ export const STORE_PAID_INVITE_COPY = {
   createCtaAr: 'أنشئ بطاقتك',
   downloadCtaAr: 'تحميل بطاقتك',
   copyLinkCtaAr: 'نسخ رابط المشاركة',
-  paidLiveHintAr: 'تم الدفع. حمّل الصورة أو انسخ الرابط للمشاركة.',
+  paidLiveHintAr: 'تم الدفع. أرسل البطاقة عبر واتساب أو حمّل الصورة وانسخ رابط المشاركة.',
+  whatsappCtaAr: 'واتساب',
+  shareCtaAr: 'مشاركة',
   payAtPublishAr: 'ادفع للنشر',
   checkoutClosedAr:
     'بوابة الدفع غير مفتوحة لهذه البطاقة بعد. السعر ظاهر للمعاينة فقط، حتى يُسجَّل المنتج في ميسر ويُربط بفاتورته.',

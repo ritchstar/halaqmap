@@ -1,21 +1,27 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import { Copy, Download, MessageCircle, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/sonner';
 import { STORE_PAID_INVITE_COPY, templateById } from '@/config/storeIssuedCardsCatalog';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
-import { downloadPaidInviteCard, renderPaidInviteCardPng } from '@/lib/storePaidInviteCard';
+import { downloadPaidInviteCard, paidInviteCardFilename, renderPaidInviteCardPng } from '@/lib/storePaidInviteCard';
 import { fetchIssuedCardPublic } from '@/lib/storeIssuedCardsRemote';
+import {
+  buildOccasionCardShareCaption,
+  buildOccasionCardWhatsAppHref,
+  occasionCardShareUrlFromToken,
+} from '@/lib/storeOccasionCardShare';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 
 export default function StorePaidInviteViewPage() {
   const { token = '' } = useParams<{ token: string }>();
   const [status, setStatus] = useState<string>('loading');
   const [card, setCard] = useState<Record<string, string>>({});
-  const [busy, setBusy] = useState(false);
+  const [busy, setBusy] = useState<'png' | 'share' | null>(null);
   useDocumentTitle(STORE_PAID_INVITE_COPY.documentTitle);
 
   useEffect(() => {
@@ -44,31 +50,75 @@ export default function StorePaidInviteViewPage() {
 
   const template = templateById(String(card.templateId || ''));
   const live = status === 'live';
+  const shareUrl = useMemo(() => occasionCardShareUrlFromToken(token), [token]);
+  const shareCaption = useMemo(
+    () =>
+      buildOccasionCardShareCaption({
+        hostName: card.hostName || '',
+        occasionLine: card.occasionLine || template?.titleAr || '',
+        whenText: card.whenText,
+        placeText: card.placeText,
+        shareUrl,
+      }),
+    [card.hostName, card.occasionLine, card.whenText, card.placeText, shareUrl, template?.titleAr],
+  );
+
+  const cardPngInput = () => ({
+    hostName: card.hostName || '',
+    occasionLine: card.occasionLine || template?.titleAr || '',
+    whenText: card.whenText || '',
+    placeText: card.placeText || '',
+    message: card.message || '',
+    stamp: STORE_PAID_INVITE_COPY.stampAr,
+  });
 
   const onDownload = async () => {
     if (!live) return;
-    setBusy(true);
+    setBusy('png');
     try {
-      const blob = await renderPaidInviteCardPng({
-        hostName: card.hostName || '',
-        occasionLine: card.occasionLine || template?.titleAr || '',
-        whenText: card.whenText || '',
-        placeText: card.placeText || '',
-        message: card.message || '',
-        stamp: STORE_PAID_INVITE_COPY.stampAr,
-      });
+      const blob = await renderPaidInviteCardPng(cardPngInput());
       await downloadPaidInviteCard(blob, card.hostName || 'card');
       toast.success('تم تحميل البطاقة.');
     } catch {
       toast.error('تعذّر تحميل البطاقة. أعد المحاولة من المتصفح.');
     } finally {
-      setBusy(false);
+      setBusy(null);
+    }
+  };
+
+  const onShare = async () => {
+    if (!live) return;
+    setBusy('share');
+    try {
+      const blob = await renderPaidInviteCardPng(cardPngInput());
+      const file = new File([blob], paidInviteCardFilename(card.hostName || 'card'), { type: 'image/png' });
+      if (typeof navigator.share === 'function') {
+        const withFile: ShareData = {
+          title: card.occasionLine || STORE_PAID_INVITE_COPY.titleAr,
+          text: shareCaption,
+          url: shareUrl,
+          files: [file],
+        };
+        if (typeof navigator.canShare !== 'function' || navigator.canShare(withFile)) {
+          await navigator.share(withFile);
+          toast.success('أُرسلت البطاقة.');
+          return;
+        }
+        await navigator.share({ title: card.occasionLine || STORE_PAID_INVITE_COPY.titleAr, text: shareCaption, url: shareUrl });
+        return;
+      }
+      window.open(buildOccasionCardWhatsAppHref(shareCaption), '_blank', 'noopener,noreferrer');
+    } catch (err) {
+      if (err instanceof Error && err.name === 'AbortError') return;
+      window.open(buildOccasionCardWhatsAppHref(shareCaption), '_blank', 'noopener,noreferrer');
+    } finally {
+      setBusy(null);
     }
   };
 
   const onCopyLink = async () => {
     try {
-      await navigator.clipboard.writeText(window.location.href);
+      await navigator.clipboard.writeText(shareUrl);
       toast.success('نُسخ رابط المشاركة.');
     } catch {
       toast.error('تعذّر نسخ الرابط.');
@@ -99,11 +149,36 @@ export default function StorePaidInviteViewPage() {
             <div className="mt-6 space-y-3">
               <Button
                 type="button"
-                disabled={busy}
-                onClick={() => void onDownload()}
+                disabled={busy !== null}
+                onClick={() => void onShare()}
                 className="w-full bg-[#e8c547] text-[#061018]"
               >
-                {busy ? 'جاري التحميل…' : STORE_PAID_INVITE_COPY.downloadCtaAr}
+                <Share2 className="h-4 w-4" />
+                {busy === 'share' ? 'جاري التجهيز…' : STORE_PAID_INVITE_COPY.shareCtaAr}
+              </Button>
+              <Button
+                asChild
+                variant="outline"
+                className="w-full border-white/20 bg-transparent text-[#f4efe4]"
+              >
+                <a
+                  href={buildOccasionCardWhatsAppHref(shareCaption)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <MessageCircle className="h-4 w-4" />
+                  {STORE_PAID_INVITE_COPY.whatsappCtaAr}
+                </a>
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                disabled={busy !== null}
+                onClick={() => void onDownload()}
+                className="w-full border-white/20 bg-transparent text-[#f4efe4]"
+              >
+                <Download className="h-4 w-4" />
+                {busy === 'png' ? 'جاري التحميل…' : STORE_PAID_INVITE_COPY.downloadCtaAr}
               </Button>
               <Button
                 type="button"
@@ -111,6 +186,7 @@ export default function StorePaidInviteViewPage() {
                 onClick={() => void onCopyLink()}
                 className="w-full border-white/20 bg-transparent text-[#f4efe4]"
               >
+                <Copy className="h-4 w-4" />
                 {STORE_PAID_INVITE_COPY.copyLinkCtaAr}
               </Button>
             </div>

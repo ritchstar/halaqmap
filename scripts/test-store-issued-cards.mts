@@ -33,6 +33,8 @@ import {
   STORE_OCCASION_CARD_PRODUCT as apiProduct,
 } from '../api/_lib/storeIssuedCards.ts';
 import { maskSaudiMobileDisplay } from '../src/lib/maskSaudiMobileDisplay.ts';
+import { occasionCardShareHref } from '../src/lib/storeHostRedirect.ts';
+import { buildOccasionCardShareCaption } from '../src/lib/storeOccasionCardShare.ts';
 import { STORE_LANDING_COPY } from '../src/config/storeFront.ts';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -235,7 +237,33 @@ assert.match(webhook, /skipped: "store_occasion_card"/);
 
 const viewPage = readFileSync(join(root, 'src/pages/store/StorePaidInviteViewPage.tsx'), 'utf8');
 assert.match(viewPage, /downloadCtaAr/);
+assert.match(viewPage, /whatsappCtaAr/);
 assert.match(viewPage, /renderPaidInviteCardPng/);
+assert.match(viewPage, /occasionCardShareUrlFromToken/);
 assert.doesNotMatch(app, /from ['"]@\/lib\/storePaidInviteCard['"]/);
+assert.doesNotMatch(app, /from ['"]@\/lib\/storeOccasionCardShare['"]/);
+
+const shareUrl = occasionCardShareHref('tok_share_example_token12');
+assert.match(shareUrl, /^https:\/\/store\.halaqmap\.com\/oc\//);
+assert.doesNotMatch(shareUrl, /#/);
+const caption = buildOccasionCardShareCaption({
+  hostName: 'عبدالله فهد',
+  occasionLine: 'جمعة مباركة',
+  placeText: 'الرياض',
+  shareUrl,
+});
+assert.match(caption, /جمعة مباركة/);
+assert.match(caption, /عبدالله فهد/);
+assert.match(caption, /\/oc\//);
+assert.doesNotMatch(caption, /#\/store\/invites/);
+
+const vercel = readFileSync(join(root, 'vercel.json'), 'utf8');
+assert.match(vercel, /\/oc\/:token/);
+assert.match(vercel, /public-store-occasion-card/);
+
+const shareApi = readFileSync(join(root, 'api/public-store-occasion-card.ts'), 'utf8');
+assert.match(shareApi, /og:title/);
+assert.match(shareApi, /whatsapp/);
+assert.match(shareApi, /STORE_ISSUED_CARDS_TABLE/);
 
 console.log('store-issued-cards: ok');

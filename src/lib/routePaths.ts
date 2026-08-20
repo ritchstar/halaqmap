@@ -44,6 +44,8 @@ export const ROUTE_PATHS = {
   /** بطاقة مناسبة مدفوعة — معاينة ثم دفع عند النشر */
   STORE_INVITES: '/store/invites',
   STORE_INVITES_VIEW: '/store/invites/v/:token',
+  /** رابط مشاركة بلا هاش — معاينة واتساب ثم البطاقة الحيّة */
+  STORE_OCCASION_CARD_SHARE: '/oc',
   /** دفع بطاقة المناسبة على النطاق الأم عبر ميسر */
   STORE_OCCASION_CARD_PAY: '/pay/occasion-card/:token',
   /** بلاغات الوفاة والعزاء — خدمة مجتمعية مستقلة */

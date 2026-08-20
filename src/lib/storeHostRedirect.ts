@@ -63,3 +63,9 @@ export function occasionCardViewHref(token: string): string {
   }
   return `/#${hashPath}`;
 }
+
+/** مسار بلا هاش حتى تقرأ واتساب/السوشال وسم البطاقة لا عنوان أقرب حلاق. */
+export function occasionCardShareHref(token: string): string {
+  const safe = String(token || '').trim();
+  return `${STORE_ORIGIN}/oc/${encodeURIComponent(safe)}`;
+}
