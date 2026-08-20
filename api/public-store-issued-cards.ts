@@ -6,21 +6,33 @@ import { randomInt } from 'node:crypto';
 import { registrationGuardDiagnostics, runRegistrationRouteGuards } from './_lib/registrationRouteGuard.js';
 import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
 import { runSecurityGuard } from './_lib/securityGuard.js';
-import { fetchMoyasarPayment, moyasarPaymentIsPaid, resolveOccasionCardMoyasarSecretKey } from './_lib/moyasarApiClient.js';
+import {
+  createMoyasarInvoice,
+  fetchMoyasarInvoiceForOccasionCard,
+  fetchMoyasarPaymentForOccasionCard,
+  moyasarPaymentIsPaid,
+  resolveOccasionCardMoyasarSecretKey,
+} from './_lib/moyasarApiClient.js';
 import {
   hashSecret,
   hashesMatch,
+  isAllowedMoyasarInvoiceUrl,
   isOccasionCardCheckoutEnabled,
   maskPhoneLast4,
   newAdminToken,
   newPublicToken,
+  occasionCardInvoiceDescription,
+  occasionCardInvoiceMetadata,
+  occasionCardMetaProduct,
   occasionCardPaymentMatches,
+  paidInviteTierFromHalalas,
   parseBereavementBody,
   parsePaidInviteBody,
   publicBereavementView,
   publicPaidView,
   STORE_ISSUED_CARD_OTP_TABLE,
   STORE_ISSUED_CARDS_TABLE,
+  STORE_OCCASION_CARD_PRODUCT,
   type BereavementPayload,
   type PaidInvitePayload,
 } from './_lib/storeIssuedCards.js';
@@ -114,13 +126,17 @@ export async function POST(request: Request): Promise<Response> {
   }
 
   const action = String(body.action || '').trim();
+  if (!action && occasionCardInvoiceCallback(body)) {
+    return syncPaidFromInvoiceObject(db, body, headers);
+  }
   if (action === 'send_otp') return sendOtp(db, body, headers);
   if (action === 'publish_bereavement') return publishBereavement(db, body, headers);
   if (action === 'update_bereavement') return updateBereavement(db, body, headers);
   if (action === 'revoke') return revokeCard(db, body, headers);
   if (action === 'report') return reportCard(db, body, headers);
-  if (action === 'create_paid_pending') return createPaidPending(db, body, headers);
+  if (action === 'create_paid_pending') return createPaidPending(db, body, headers, request);
   if (action === 'activate_paid') return activatePaid(db, body, headers);
+  if (action === 'sync_paid') return syncPaid(db, body, headers);
   if (action === 'get_public') {
     const token = String(body.token || '').trim();
     if (!token) return json({ error: 'الرابط غير صالح' }, 400, headers);
@@ -296,16 +312,60 @@ async function reportCard(db: Db, body: Record<string, unknown>, headers: Record
   return json({ ok: true }, 200, headers);
 }
 
-async function createPaidPending(db: Db, body: Record<string, unknown>, headers: Record<string, string>) {
+function occasionCardInvoiceCallback(body: Record<string, unknown>): boolean {
+  const meta = (body.metadata && typeof body.metadata === 'object' ? body.metadata : {}) as Record<string, unknown>;
+  const id = String(body.id || '').trim();
+  return Boolean(id && occasionCardMetaProduct(meta) === STORE_OCCASION_CARD_PRODUCT);
+}
+
+function invoiceIdFromPayload(payload: unknown): string {
+  const raw = payload && typeof payload === 'object' ? (payload as Record<string, unknown>) : {};
+  return String(raw.moyasar_invoice_id || '').trim();
+}
+
+function invoiceUrlFromPayload(payload: unknown): string {
+  const raw = payload && typeof payload === 'object' ? (payload as Record<string, unknown>) : {};
+  const url = String(raw.moyasar_invoice_url || '').trim();
+  return isAllowedMoyasarInvoiceUrl(url) ? url : '';
+}
+
+function occasionCardPublicOrigin(request: Request): string {
+  const host = (request.headers.get('host') || '').trim().toLowerCase();
+  const proto = (request.headers.get('x-forwarded-proto') || 'https').split(',')[0]?.trim() || 'https';
+  if (host.endsWith('.vercel.app')) return `${proto}://${host}`.replace(/\/+$/, '');
+  return 'https://www.halaqmap.com';
+}
+
+function occasionCardSuccessUrl(token: string, request: Request): string {
+  const q = new URLSearchParams();
+  q.set('purpose', STORE_OCCASION_CARD_PRODUCT);
+  q.set('store_card_token', token);
+  return `${occasionCardPublicOrigin(request)}/?${q.toString()}`;
+}
+
+function paidPaymentIdFromInvoice(parsed: {
+  status?: string;
+  payments?: Array<{ id?: unknown; status?: unknown }>;
+}): string {
+  const payments = Array.isArray(parsed.payments) ? parsed.payments : [];
+  const paid = payments.find((item) => moyasarPaymentIsPaid(String(item.status || '')));
+  return String(paid?.id || '').trim();
+}
+
+async function createPaidPending(
+  db: Db,
+  body: Record<string, unknown>,
+  headers: Record<string, string>,
+  request: Request,
+) {
   if (!isOccasionCardCheckoutEnabled()) {
-    return json(
-      { error: 'تحصيل بطاقة المناسبة مغلق حالياً.' },
-      503,
-      headers,
-    );
+    return json({ error: 'تحصيل بطاقة المناسبة مغلق حالياً.' }, 503, headers);
   }
   const parsed = parsePaidInviteBody(body);
   if (!parsed.ok) return json({ error: parsed.error }, 400, headers);
+  const tier = paidInviteTierFromHalalas(parsed.priceHalalas);
+  if (!tier) return json({ error: 'طبقة السعر غير معتمدة' }, 400, headers);
+
   const publicToken = newPublicToken();
   const adminToken = newAdminToken();
   const { error } = await db.from(STORE_ISSUED_CARDS_TABLE).insert({
@@ -319,6 +379,57 @@ async function createPaidPending(db: Db, body: Record<string, unknown>, headers:
     policy_version: POLICY_VERSION,
   });
   if (error) return json({ error: 'تعذر إنشاء طلب النشر' }, 500, headers);
+
+  let invoiceUrl = '';
+  const secret = resolveOccasionCardMoyasarSecretKey();
+  if (secret) {
+    const created = await createMoyasarInvoice(secret, {
+      amount: parsed.priceHalalas,
+      currency: 'SAR',
+      description: occasionCardInvoiceDescription(tier),
+      success_url: occasionCardSuccessUrl(publicToken, request),
+      back_url: `${publicOrigin()}/#/store/invites`,
+      callback_url: `${occasionCardPublicOrigin(request)}/api/public-store-issued-cards`,
+      expired_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+      metadata: occasionCardInvoiceMetadata({
+        token: publicToken,
+        tier,
+        templateId: parsed.templateId,
+      }),
+    });
+    if (created.status < 400) {
+      try {
+        const inv = JSON.parse(created.text) as { id?: string; url?: string };
+        const id = String(inv.id || '').trim();
+        const url = String(inv.url || '').trim();
+        if (id && isAllowedMoyasarInvoiceUrl(url)) {
+          invoiceUrl = url;
+          const nextPayload = {
+            ...parsed.payload,
+            moyasar_invoice_id: id,
+            moyasar_invoice_url: url,
+          };
+          const withCol = await db
+            .from(STORE_ISSUED_CARDS_TABLE)
+            .update({
+              payload: nextPayload,
+              moyasar_invoice_id: id,
+              updated_at: new Date().toISOString(),
+            })
+            .eq('public_token', publicToken);
+          if (withCol.error) {
+            await db
+              .from(STORE_ISSUED_CARDS_TABLE)
+              .update({ payload: nextPayload, updated_at: new Date().toISOString() })
+              .eq('public_token', publicToken);
+          }
+        }
+      } catch {
+        invoiceUrl = '';
+      }
+    }
+  }
+
   return json(
     {
       ok: true,
@@ -326,24 +437,42 @@ async function createPaidPending(db: Db, body: Record<string, unknown>, headers:
       adminKey: adminToken,
       priceHalalas: parsed.priceHalalas,
       payPath: `/pay/occasion-card/${publicToken}`,
+      invoiceUrl,
     },
     200,
     headers,
   );
 }
 
-async function activatePaid(db: Db, body: Record<string, unknown>, headers: Record<string, string>) {
-  if (!isOccasionCardCheckoutEnabled()) {
-    return json(
-      { error: 'تحصيل بطاقة المناسبة مغلق حالياً.' },
-      503,
-      headers,
-    );
-  }
-  const token = String(body.token || '').trim();
-  const paymentId = String(body.paymentId || '').trim();
-  if (!token || !paymentId) return json({ error: 'مرجع الدفع ناقص' }, 400, headers);
+async function markPaidInviteLive(db: Db, cardId: string, paymentId: string): Promise<boolean> {
+  const { data: updated, error } = await db
+    .from(STORE_ISSUED_CARDS_TABLE)
+    .update({
+      status: 'live',
+      moyasar_payment_id: paymentId,
+      last_public_change_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', cardId)
+    .eq('status', 'pending_payment')
+    .select('id')
+    .maybeSingle();
+  if (error) return false;
+  if (updated) return true;
+  const { data: again } = await db
+    .from(STORE_ISSUED_CARDS_TABLE)
+    .select('status')
+    .eq('id', cardId)
+    .maybeSingle();
+  return again?.status === 'live';
+}
 
+async function fulfillFromPaymentId(
+  db: Db,
+  token: string,
+  paymentId: string,
+  headers: Record<string, string>,
+) {
   const { data } = await db
     .from(STORE_ISSUED_CARDS_TABLE)
     .select('id, status, price_halalas, kind')
@@ -361,9 +490,7 @@ async function activatePaid(db: Db, body: Record<string, unknown>, headers: Reco
     return json({ error: 'مرجع الدفع مستخدم لبطاقة أخرى' }, 409, headers);
   }
 
-  const secret = resolveOccasionCardMoyasarSecretKey();
-  if (!secret) return json({ error: 'بوابة الدفع غير مهيأة لهذه البطاقة' }, 503, headers);
-  const upstream = await fetchMoyasarPayment(paymentId, secret);
+  const upstream = await fetchMoyasarPaymentForOccasionCard(paymentId);
   if (upstream.status >= 400) return json({ error: 'تعذر التحقق من الدفع' }, 502, headers);
   let parsed: { status?: string; amount?: number; metadata?: Record<string, unknown> };
   try {
@@ -386,32 +513,104 @@ async function activatePaid(db: Db, body: Record<string, unknown>, headers: Reco
   ) {
     return json({ error: 'وسم الدفع لا يطابق بطاقة المناسبة' }, 409, headers);
   }
-
-  const { data: updated, error } = await db
-    .from(STORE_ISSUED_CARDS_TABLE)
-    .update({
-      status: 'live',
-      moyasar_payment_id: paymentId,
-      last_public_change_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    })
-    .eq('id', data.id)
-    .eq('status', 'pending_payment')
-    .select('id')
-    .maybeSingle();
-  if (error) return json({ error: 'تعذر تفعيل البطاقة' }, 500, headers);
-  if (!updated) {
-    const { data: again } = await db
-      .from(STORE_ISSUED_CARDS_TABLE)
-      .select('status')
-      .eq('id', data.id)
-      .maybeSingle();
-    if (again?.status === 'live') {
-      return json({ ok: true, token, url: inviteViewUrl(token) }, 200, headers);
-    }
-    return json({ error: 'تعذر تفعيل البطاقة' }, 409, headers);
-  }
+  const ok = await markPaidInviteLive(db, String(data.id), paymentId);
+  if (!ok) return json({ error: 'تعذر تفعيل البطاقة' }, 409, headers);
   return json({ ok: true, token, url: inviteViewUrl(token) }, 200, headers);
+}
+
+async function fulfillFromInvoiceId(
+  db: Db,
+  token: string,
+  invoiceId: string,
+  headers: Record<string, string>,
+) {
+  const upstream = await fetchMoyasarInvoiceForOccasionCard(invoiceId);
+  if (upstream.status >= 400) return json({ error: 'تعذر التحقق من الفاتورة' }, 502, headers);
+  let parsed: {
+    status?: string;
+    amount?: number;
+    metadata?: Record<string, unknown>;
+    payments?: Array<{ id?: unknown; status?: unknown }>;
+  };
+  try {
+    parsed = JSON.parse(upstream.text) as typeof parsed;
+  } catch {
+    return json({ error: 'تعذر قراءة الفاتورة' }, 502, headers);
+  }
+  if (!moyasarPaymentIsPaid(String(parsed.status || ''))) {
+    return json({ error: 'الفاتورة لم تُدفع بعد' }, 402, headers);
+  }
+  const paymentId = paidPaymentIdFromInvoice(parsed);
+  if (paymentId) return fulfillFromPaymentId(db, token, paymentId, headers);
+
+  const { data } = await db
+    .from(STORE_ISSUED_CARDS_TABLE)
+    .select('id, status, price_halalas, kind')
+    .eq('public_token', token)
+    .maybeSingle();
+  if (!data || data.kind !== 'paid_invite') return json({ error: 'البطاقة غير موجودة' }, 404, headers);
+  if (data.status === 'live') return json({ ok: true, token, url: inviteViewUrl(token) }, 200, headers);
+  if (Number(parsed.amount) !== Number(data.price_halalas)) {
+    return json({ error: 'مبلغ الفاتورة لا يطابق البطاقة' }, 409, headers);
+  }
+  if (
+    !occasionCardPaymentMatches({
+      meta: parsed.metadata,
+      token,
+      amount: Number(parsed.amount),
+    })
+  ) {
+    return json({ error: 'وسم الفاتورة لا يطابق بطاقة المناسبة' }, 409, headers);
+  }
+  const ok = await markPaidInviteLive(db, String(data.id), `invoice:${invoiceId}`);
+  if (!ok) return json({ error: 'تعذر تفعيل البطاقة' }, 409, headers);
+  return json({ ok: true, token, url: inviteViewUrl(token) }, 200, headers);
+}
+
+async function activatePaid(db: Db, body: Record<string, unknown>, headers: Record<string, string>) {
+  if (!isOccasionCardCheckoutEnabled()) {
+    return json({ error: 'تحصيل بطاقة المناسبة مغلق حالياً.' }, 503, headers);
+  }
+  const token = String(body.token || '').trim();
+  const paymentId = String(body.paymentId || '').trim();
+  const invoiceId = String(body.invoiceId || '').trim();
+  if (!token) return json({ error: 'مرجع الدفع ناقص' }, 400, headers);
+  if (paymentId) return fulfillFromPaymentId(db, token, paymentId, headers);
+  if (invoiceId) return fulfillFromInvoiceId(db, token, invoiceId, headers);
+  return json({ error: 'مرجع الدفع ناقص' }, 400, headers);
+}
+
+async function syncPaid(db: Db, body: Record<string, unknown>, headers: Record<string, string>) {
+  if (!isOccasionCardCheckoutEnabled()) {
+    return json({ error: 'تحصيل بطاقة المناسبة مغلق حالياً.' }, 503, headers);
+  }
+  const token = String(body.token || '').trim();
+  if (!token) return json({ error: 'مرجع البطاقة ناقص' }, 400, headers);
+  const { data } = await db
+    .from(STORE_ISSUED_CARDS_TABLE)
+    .select('id, status, kind, payload')
+    .eq('public_token', token)
+    .maybeSingle();
+  if (!data || data.kind !== 'paid_invite') return json({ error: 'البطاقة غير موجودة' }, 404, headers);
+  if (data.status === 'live') return json({ ok: true, token, url: inviteViewUrl(token) }, 200, headers);
+  const invoiceId = invoiceIdFromPayload(data.payload);
+  if (!invoiceId) return json({ error: 'لا توجد فاتورة مرتبطة بعد' }, 409, headers);
+  return fulfillFromInvoiceId(db, token, invoiceId, headers);
+}
+
+async function syncPaidFromInvoiceObject(
+  db: Db,
+  body: Record<string, unknown>,
+  headers: Record<string, string>,
+) {
+  const meta = (body.metadata && typeof body.metadata === 'object' ? body.metadata : {}) as Record<string, unknown>;
+  const token = String(meta.store_card_token || meta.storeCardToken || '').trim();
+  const invoiceId = String(body.id || '').trim();
+  if (!token || !invoiceId) return json({ error: 'مرجع الفاتورة ناقص' }, 400, headers);
+  if (!moyasarPaymentIsPaid(String(body.status || ''))) {
+    return json({ ok: true, pending: true }, 200, headers);
+  }
+  return fulfillFromInvoiceId(db, token, invoiceId, headers);
 }
 
 async function readPublic(db: Db, token: string, headers: Record<string, string>) {
@@ -441,6 +640,7 @@ async function readPublic(db: Db, token: string, headers: Record<string, string>
         status: data.status,
         priceHalalas: Number(data.price_halalas || 0),
         templateId: String(data.template_id || ''),
+        invoiceUrl: invoiceUrlFromPayload(data.payload),
       },
       200,
       headers,

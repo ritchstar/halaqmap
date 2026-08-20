@@ -23,15 +23,25 @@ import {
 import { persistMoyasarLastPaymentId } from '@/lib/moyasarPaymentReturn';
 import {
   buildOccasionCardCallbackUrl,
+  isAllowedMoyasarInvoiceUrl,
+  isOccasionCardPaymentReturn,
   occasionCardLivePaymentsEnabled,
   occasionCardMoyasarDescription,
   OCCASION_CARD_TIER_LABEL_AR,
   readOccasionCardReturnPaymentId,
   resolveOccasionCardPublishableKey,
 } from '@/lib/occasionCardMoyasar';
-import { activatePaidInvite, fetchIssuedCardPublic } from '@/lib/storeIssuedCardsRemote';
+import { activatePaidInvite, fetchIssuedCardPublic, syncPaidInvite } from '@/lib/storeIssuedCardsRemote';
 import { occasionCardViewHref } from '@/lib/storeHostRedirect';
 import { ROUTE_PATHS } from '@/lib/routePaths';
+
+function payErrorAr(raw: unknown): string {
+  const s = typeof raw === 'string' ? raw.trim() : '';
+  if (!s || /^HTTP \d+/.test(s)) {
+    return 'تعذر التحقق من الدفع. أكمل من النموذج أدناه أو أعد المحاولة.';
+  }
+  return s;
+}
 
 function tierFromHalalas(amount: number): StorePaidInviteTier | null {
   if (amount === 1200) return 'quick';
@@ -48,6 +58,7 @@ export default function StorePaidInvitePayPage() {
   const [status, setStatus] = useState('loading');
   const [priceHalalas, setPriceHalalas] = useState(0);
   const [templateId, setTemplateId] = useState('');
+  const [invoiceUrl, setInvoiceUrl] = useState('');
   const [error, setError] = useState('');
   const [activating, setActivating] = useState(false);
 
@@ -68,6 +79,7 @@ export default function StorePaidInvitePayPage() {
       setStatus(result.status);
       setPriceHalalas(Number(result.priceHalalas || 0));
       setTemplateId(String(result.templateId || ''));
+      setInvoiceUrl(String(result.invoiceUrl || ''));
     });
     return () => {
       cancelled = true;
@@ -76,33 +88,38 @@ export default function StorePaidInvitePayPage() {
 
   useEffect(() => {
     if (!token || status !== 'pending_payment' || activateOnceRef.current) return;
+    if (!isOccasionCardPaymentReturn()) return;
     const paymentId = readOccasionCardReturnPaymentId();
-    if (!paymentId) return;
-    activateOnceRef.current = true;
+    const hasInvoice = isAllowedMoyasarInvoiceUrl(invoiceUrl);
+    if (!paymentId && !hasInvoice) return;
     let cancelled = false;
     setActivating(true);
-    void activatePaidInvite(token, paymentId).then((result) => {
+    const run = paymentId ? activatePaidInvite(token, paymentId) : syncPaidInvite(token);
+    void run.then((result) => {
       if (cancelled) return;
       if (result.ok) {
+        activateOnceRef.current = true;
         window.location.replace(occasionCardViewHref(token));
         return;
       }
       setActivating(false);
-      setError(typeof result.error === 'string' ? result.error : 'تعذر تفعيل البطاقة بعد الدفع');
+      if (paymentId) setError(payErrorAr(result.error));
     });
     return () => {
       cancelled = true;
     };
-  }, [token, status]);
+  }, [token, status, invoiceUrl]);
+
+  const hostedInvoice = isAllowedMoyasarInvoiceUrl(invoiceUrl);
 
   useEffect(() => {
     if (
       !STORE_PAID_INVITE_CHECKOUT_ENABLED ||
       status !== 'pending_payment' ||
       activating ||
+      hostedInvoice ||
       !tier ||
-      !publishableKey.startsWith('pk_') ||
-      readOccasionCardReturnPaymentId()
+      !publishableKey.startsWith('pk_')
     ) {
       return;
     }
@@ -170,7 +187,8 @@ export default function StorePaidInvitePayPage() {
                 return;
               }
               setActivating(false);
-              setError(typeof result.error === 'string' ? result.error : 'تعذر تفعيل البطاقة بعد الدفع');
+              activateOnceRef.current = false;
+              setError(payErrorAr(result.error));
             });
           },
         });
@@ -182,7 +200,7 @@ export default function StorePaidInvitePayPage() {
       cancelled = true;
       if (hostRef.current) hostRef.current.innerHTML = '';
     };
-  }, [status, activating, tier, publishableKey, priceHalalas, token, templateId]);
+  }, [status, activating, hostedInvoice, tier, publishableKey, priceHalalas, token, templateId]);
 
   const priceSar = priceHalalas > 0 ? (priceHalalas / 100).toFixed(2) : '';
 
@@ -218,16 +236,25 @@ export default function StorePaidInvitePayPage() {
             ) : null}
             {activating ? <p className="mt-4 text-sm text-white/70">جاري تفعيل البطاقة بعد الدفع…</p> : null}
             {error ? <p className="mt-4 text-sm text-red-300">{error}</p> : null}
-            {!publishableKey.startsWith('pk_') ? (
+            {hostedInvoice && !activating ? (
+              <a
+                href={invoiceUrl}
+                className="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-[#e8c547] px-4 py-3 text-sm font-bold text-[#061018]"
+              >
+                إتمام الدفع عبر فاتورة ميسر
+              </a>
+            ) : null}
+            {!hostedInvoice && !publishableKey.startsWith('pk_') ? (
               <p className="mt-4 text-sm text-red-300">مفتاح ميسر التجريبي غير مهيأ لهذه البطاقة.</p>
-            ) : (
+            ) : null}
+            {!hostedInvoice && publishableKey.startsWith('pk_') ? (
               <>
                 <div className="mt-5">
                   <MoyasarOfficialTrustChip variant="banner" />
                 </div>
                 <div ref={hostRef} className="mt-4 min-h-[220px]" />
               </>
-            )}
+            ) : null}
           </>
         ) : null}
         <Link to={ROUTE_PATHS.STORE_INVITES} className="mt-8 inline-block text-sm text-white/50 underline">

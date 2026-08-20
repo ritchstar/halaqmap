@@ -559,9 +559,6 @@
           if (!search) return;
           var params = new URLSearchParams(search);
           if (params.get('gateway') === 'sab') return;
-          var hasMoyasarReturn =
-            params.get('id') || params.get('status') === 'failed' || params.get('message');
-          if (!hasMoyasarReturn) return;
           var hash = window.location.hash || '';
           var hashPath = hash.replace(/^#/, '').split('?')[0] || '';
           var purpose = (params.get('purpose') || '').trim();
@@ -572,6 +569,9 @@
             window.location.replace(window.location.origin + '/#' + occPath + search);
             return;
           }
+          var hasMoyasarReturn =
+            params.get('id') || params.get('status') === 'failed' || params.get('message');
+          if (!hasMoyasarReturn) return;
           if (hashPath.indexOf('/pay/occasion-card/') === 0) return;
           if (hashPath === paymentPath) return;
           window.location.replace(window.location.origin + '/#' + paymentPath + search);

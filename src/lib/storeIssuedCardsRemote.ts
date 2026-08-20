@@ -21,6 +21,7 @@ export type StoreIssuedPublicResult =
       card?: Record<string, unknown>;
       priceHalalas?: number;
       templateId?: string;
+      invoiceUrl?: string;
     }
   | { ok: false; error: string };
 
@@ -69,6 +70,10 @@ export async function createPaidInvitePending(input: Record<string, unknown>) {
 
 export async function activatePaidInvite(token: string, paymentId: string) {
   return postAction({ action: 'activate_paid', token, paymentId });
+}
+
+export async function syncPaidInvite(token: string) {
+  return postAction({ action: 'sync_paid', token });
 }
 
 export async function fetchIssuedCardPublic(token: string): Promise<StoreIssuedPublicResult> {

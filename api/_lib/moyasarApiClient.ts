@@ -99,7 +99,100 @@ export async function fetchMoyasarPayment(
     });
     const text = await upstream.text();
     return { status: upstream.status, text };
+  } catch {
+    return { status: 503, text: '{"error":"moyasar_unreachable"}' };
   } finally {
     clearTimeout(timer);
   }
+}
+
+function occasionCardSecretCandidates(): string[] {
+  const primary = resolveOccasionCardMoyasarSecretKey();
+  const testKey = (process.env.MOYSAR_SECRET_TEST_API_KEY || '').trim().replace(/\s+/g, '');
+  const liveKey = (process.env.MOYSAR_SECRET_LIVE_API_KEY || '').trim().replace(/\s+/g, '');
+  const legacy = (process.env.MOYSAR_SECRET_API_KEY || '').trim().replace(/\s+/g, '');
+  const out: string[] = [];
+  for (const key of [primary, testKey, liveKey, legacy]) {
+    if (key.startsWith('sk_') && key.length >= 20 && !out.includes(key)) out.push(key);
+  }
+  return out;
+}
+
+/** يجرب المفتاح المعتمد لهذه البطاقة ثم المفتاح الآخر إن اختلفت بيئة الإنشاء عن التحقق. */
+export async function fetchMoyasarPaymentForOccasionCard(
+  paymentId: string,
+): Promise<MoyasarUpstreamResult> {
+  let last: MoyasarUpstreamResult = { status: 503, text: '{"error":"moyasar_unconfigured"}' };
+  for (const secret of occasionCardSecretCandidates()) {
+    const result = await fetchMoyasarPayment(paymentId, secret);
+    if (result.status < 400) return result;
+    last = result;
+  }
+  return last;
+}
+
+export async function createMoyasarInvoice(
+  secret: string,
+  body: Record<string, unknown>,
+  apiBase = resolveMoyasarApiBase(),
+): Promise<MoyasarUpstreamResult> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 12_000);
+  try {
+    const upstream = await fetch(`${apiBase}/invoices`, {
+      method: 'POST',
+      headers: {
+        Authorization: moyasarBasicAuthHeader(secret),
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        'User-Agent': 'halaqmap-verify/1.0',
+      },
+      body: JSON.stringify(body),
+      signal: controller.signal,
+    });
+    const text = await upstream.text();
+    return { status: upstream.status, text };
+  } catch {
+    return { status: 503, text: '{"error":"moyasar_unreachable"}' };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+export async function fetchMoyasarInvoice(
+  invoiceId: string,
+  secret: string,
+  apiBase = resolveMoyasarApiBase(),
+): Promise<MoyasarUpstreamResult> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 12_000);
+  try {
+    const upstream = await fetch(`${apiBase}/invoices/${encodeURIComponent(invoiceId)}`, {
+      method: 'GET',
+      headers: {
+        Authorization: moyasarBasicAuthHeader(secret),
+        Accept: 'application/json',
+        'User-Agent': 'halaqmap-verify/1.0',
+      },
+      signal: controller.signal,
+    });
+    const text = await upstream.text();
+    return { status: upstream.status, text };
+  } catch {
+    return { status: 503, text: '{"error":"moyasar_unreachable"}' };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+export async function fetchMoyasarInvoiceForOccasionCard(
+  invoiceId: string,
+): Promise<MoyasarUpstreamResult> {
+  let last: MoyasarUpstreamResult = { status: 503, text: '{"error":"moyasar_unconfigured"}' };
+  for (const secret of occasionCardSecretCandidates()) {
+    const result = await fetchMoyasarInvoice(invoiceId, secret);
+    if (result.status < 400) return result;
+    last = result;
+  }
+  return last;
 }

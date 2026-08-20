@@ -25,6 +25,7 @@ import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { hasValidStoreIssuedConsent } from '@/lib/storeIssuedCardsConsent';
 import { createPaidInvitePending } from '@/lib/storeIssuedCardsRemote';
 import { occasionCardPayHref } from '@/lib/storeHostRedirect';
+import { isAllowedMoyasarInvoiceUrl } from '@/lib/occasionCardMoyasar';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { cn } from '@/lib/utils';
 
@@ -83,6 +84,11 @@ export default function StorePaidInviteStudioPage() {
     if (!token) {
       setBusy(false);
       setError('تعذر إنشاء رابط الدفع');
+      return;
+    }
+    const invoiceUrl = String(result.invoiceUrl || '').trim();
+    if (isAllowedMoyasarInvoiceUrl(invoiceUrl)) {
+      window.location.assign(invoiceUrl);
       return;
     }
     window.location.assign(occasionCardPayHref(token));

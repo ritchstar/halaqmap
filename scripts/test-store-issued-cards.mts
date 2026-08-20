@@ -22,6 +22,9 @@ import {
 } from '../src/config/storeIssuedCardsLegal.ts';
 import { STORE_BEREAVEMENT_COPY, bereavementShareText } from '../src/config/storeBereavementCopy.ts';
 import {
+  isAllowedMoyasarInvoiceUrl,
+  occasionCardInvoiceDescription,
+  occasionCardInvoiceMetadata,
   occasionCardPaymentMatches,
   parseBereavementBody,
   parsePaidInviteBody,
@@ -88,6 +91,12 @@ assert.equal(
   false,
 );
 
+assert.equal(isAllowedMoyasarInvoiceUrl('https://checkout.moyasar.com/invoices/abc'), true);
+assert.equal(isAllowedMoyasarInvoiceUrl('https://api.moyasar.com/v1/invoices/abc'), false);
+assert.equal(occasionCardInvoiceDescription('quick'), 'halaqmap — بطاقة مناسبة — سريعة');
+assert.equal(occasionCardInvoiceMetadata({ token: 'tok_a', tier: 'featured', templateId: 'personal-eid' }).product, 'store_occasion_card');
+assert.equal(occasionCardInvoiceMetadata({ token: 'tok_a', tier: 'featured', templateId: 'personal-eid' }).tier, 'featured');
+
 const notice = parseBereavementBody({
   phone: '0559602685',
   gender: 'male',
@@ -149,10 +158,27 @@ assert.doesNotMatch(app, /from ['"]@\/config\/storeIssuedCardsCatalog['"]/);
 const indexHtml = readFileSync(join(root, 'index.html'), 'utf8');
 assert.match(indexHtml, /purpose === 'store_occasion_card'/);
 assert.match(indexHtml, /\/pay\/occasion-card\//);
+assert.match(indexHtml, /if \(purpose === 'store_occasion_card' && storeToken\)/);
 
 const payPage = readFileSync(join(root, 'src/pages/store/StorePaidInvitePayPage.tsx'), 'utf8');
 assert.match(payPage, /store_card_token/);
 assert.match(payPage, /STORE_OCCASION_CARD_PRODUCT/);
+assert.match(payPage, /isOccasionCardPaymentReturn/);
+assert.match(payPage, /تعذر التحقق من الدفع/);
+assert.match(payPage, /activateOnceRef\.current = false/);
+
+const studio = readFileSync(join(root, 'src/pages/store/StorePaidInviteStudioPage.tsx'), 'utf8');
+assert.match(studio, /invoiceUrl/);
+
+const api = readFileSync(join(root, 'api/public-store-issued-cards.ts'), 'utf8');
+assert.match(api, /createMoyasarInvoice/);
+assert.match(api, /fetchMoyasarPaymentForOccasionCard/);
+assert.match(api, /fetchMoyasarInvoiceForOccasionCard/);
+assert.match(api, /action === 'sync_paid'/);
+
+const moyasarClient = readFileSync(join(root, 'api/_lib/moyasarApiClient.ts'), 'utf8');
+assert.match(moyasarClient, /fetchMoyasarPaymentForOccasionCard/);
+assert.match(moyasarClient, /moyasar_unreachable/);
 
 const webhook = readFileSync(join(root, 'supabase/functions/moyasar-webhook/index.ts'), 'utf8');
 assert.match(webhook, /skipped: "store_occasion_card"/);

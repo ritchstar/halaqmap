@@ -47,11 +47,39 @@ export function occasionCardMoyasarDescription(tier: StorePaidInviteTier): strin
   return `halaqmap — بطاقة مناسبة — ${OCCASION_CARD_TIER_LABEL_AR[tier]}`;
 }
 
-export function readOccasionCardReturnPaymentId(): string {
-  if (typeof window === 'undefined') return '';
+export function isAllowedMoyasarInvoiceUrl(raw: string): boolean {
+  try {
+    const u = new URL(raw);
+    const host = u.hostname.toLowerCase();
+    if (u.protocol !== 'https:') return false;
+    if (host === 'api.moyasar.com') return false;
+    return host === 'checkout.moyasar.com' || host.endsWith('.moyasar.com');
+  } catch {
+    return false;
+  }
+}
+
+function occasionCardReturnParams(): URLSearchParams {
+  if (typeof window === 'undefined') return new URLSearchParams();
   const top = new URLSearchParams(window.location.search);
   const hash = window.location.hash.replace(/^#/, '');
   const hashQuery = hash.includes('?') ? hash.split('?').slice(1).join('?') : '';
   const nested = new URLSearchParams(hashQuery);
-  return (top.get('id') || nested.get('id') || '').trim();
+  const merged = new URLSearchParams(top);
+  nested.forEach((value, key) => {
+    if (!merged.get(key)) merged.set(key, value);
+  });
+  return merged;
+}
+
+export function readOccasionCardReturnPaymentId(): string {
+  return occasionCardReturnParams().get('id')?.trim() || '';
+}
+
+/** عودة ميسر (نموذج أو فاتورة) — لا مزامنة عند فتح صفحة الدفع أول مرة. */
+export function isOccasionCardPaymentReturn(): boolean {
+  const params = occasionCardReturnParams();
+  const purpose = (params.get('purpose') || '').trim();
+  if (purpose === STORE_OCCASION_CARD_PRODUCT) return true;
+  return Boolean((params.get('id') || '').trim());
 }

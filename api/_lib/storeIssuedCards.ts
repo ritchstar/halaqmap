@@ -45,6 +45,43 @@ export function paidInviteTierFromHalalas(amount: number): PaidInviteTier | null
   return null;
 }
 
+export const PAID_INVITE_TIER_LABEL_AR: Record<PaidInviteTier, string> = {
+  quick: 'سريعة',
+  featured: 'مميزة',
+  luxury: 'فاخرة',
+};
+
+export function occasionCardInvoiceDescription(tier: PaidInviteTier): string {
+  return `halaqmap — بطاقة مناسبة — ${PAID_INVITE_TIER_LABEL_AR[tier]}`;
+}
+
+/** رابط دفع فاتورة ميسر المستضافة فقط. */
+export function isAllowedMoyasarInvoiceUrl(raw: string): boolean {
+  try {
+    const u = new URL(raw);
+    const host = u.hostname.toLowerCase();
+    if (u.protocol !== 'https:') return false;
+    if (host === 'api.moyasar.com') return false;
+    return host === 'checkout.moyasar.com' || host.endsWith('.moyasar.com');
+  } catch {
+    return false;
+  }
+}
+
+export function occasionCardInvoiceMetadata(input: {
+  token: string;
+  tier: PaidInviteTier;
+  templateId: string;
+}): Record<string, string> {
+  return {
+    product: STORE_OCCASION_CARD_PRODUCT,
+    product_type: STORE_OCCASION_CARD_PRODUCT,
+    tier: input.tier,
+    store_card_token: input.token,
+    template_id: input.templateId,
+  };
+}
+
 export function occasionCardMetaProduct(meta: Record<string, unknown> | undefined): string {
   return String(meta?.product ?? meta?.product_type ?? meta?.productType ?? '')
     .trim()

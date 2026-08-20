@@ -735,14 +735,32 @@ Deno.serve(async (req) => {
   const failureReasonRaw = extractFailureReason(data);
   const invoiceUrlStored = typeof meta.invoice_url === "string" ? meta.invoice_url.trim() : "";
 
-  // ── بطاقة مناسبة: منتج مستقل — لا اشتراك رخصة ولا شهادة تفعيل. ──
+  // ── بطاقة مناسبة: منتج مستقل — لا اشتراك رخصة. يُفعَّل الرابط إن وُسم الدفع صحيحاً. ──
   if (isOccasionCardMeta(meta)) {
+    const token = String(meta.store_card_token ?? meta.storeCardToken ?? "").trim();
+    const amountOk = amount === 1200 || amount === 2900 || amount === 5900;
+    let activated = false;
+    if (successStatus && token && amountOk) {
+      const { error: occErr } = await supabase
+        .from("store_issued_cards")
+        .update({
+          status: "live",
+          moyasar_payment_id: paymentId,
+          last_public_change_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        })
+        .eq("public_token", token)
+        .eq("kind", "paid_invite")
+        .eq("status", "pending_payment");
+      activated = !occErr;
+    }
     return jsonResponse(
       {
         ok: true,
         paymentId,
         eventId: eventId || null,
         skipped: "store_occasion_card",
+        activated,
       },
       200,
     );

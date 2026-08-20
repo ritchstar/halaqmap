@@ -433,6 +433,13 @@ export function captureMoyasarReturnInHashRoute(): boolean {
     return false;
   }
 
+  const occFromQuery = params ? occasionCardReturnPath(params) : null;
+  if (occFromQuery && (pathname === '/' || pathname === '')) {
+    if (hashPath === occFromQuery) return false;
+    window.location.replace(`${window.location.origin}/#${occFromQuery}${search}`);
+    return true;
+  }
+
   if (!params?.get('id')) {
     if (params && (params.get('status') === 'failed' || params.get('message'))) {
       const occPath = occasionCardReturnPath(params);
