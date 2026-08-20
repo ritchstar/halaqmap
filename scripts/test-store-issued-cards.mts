@@ -9,6 +9,7 @@ import { fileURLToPath } from 'node:url';
 import {
   STORE_OCCASION_CARD_PRODUCT,
   STORE_PAID_INVITE_CHECKOUT_ENABLED,
+  STORE_PAID_INVITE_COPY,
   STORE_PAID_INVITE_PRICES_SAR,
   STORE_PAID_INVITE_TEMPLATES,
   priceHalalasForTemplate,
@@ -33,6 +34,8 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const app = readFileSync(join(root, 'src/App.tsx'), 'utf8');
 const legalBlob = STORE_ISSUED_CARDS_LEGAL_SECTIONS.map((s) => `${s.title}\n${s.content}`).join('\n');
 
+assert.match(STORE_PAID_INVITE_COPY.downloadCtaAr, /تحميل/);
+assert.match(STORE_PAID_INVITE_COPY.copyLinkCtaAr, /رابط/);
 assert.equal(STORE_PAID_INVITE_CHECKOUT_ENABLED, true);
 assert.equal(STORE_OCCASION_CARD_PRODUCT, 'store_occasion_card');
 assert.equal(apiProduct, STORE_OCCASION_CARD_PRODUCT);
@@ -153,5 +156,10 @@ assert.match(payPage, /STORE_OCCASION_CARD_PRODUCT/);
 
 const webhook = readFileSync(join(root, 'supabase/functions/moyasar-webhook/index.ts'), 'utf8');
 assert.match(webhook, /skipped: "store_occasion_card"/);
+
+const viewPage = readFileSync(join(root, 'src/pages/store/StorePaidInviteViewPage.tsx'), 'utf8');
+assert.match(viewPage, /downloadCtaAr/);
+assert.match(viewPage, /renderPaidInviteCardPng/);
+assert.doesNotMatch(app, /from ['"]@\/lib\/storePaidInviteCard['"]/);
 
 console.log('store-issued-cards: ok');
