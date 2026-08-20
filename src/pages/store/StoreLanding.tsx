@@ -33,6 +33,13 @@ export default function StoreLanding() {
     ProductEvents.storeLandingView({ source: 'landing' });
   }, []);
 
+  const openRequestForm = (event: { preventDefault: () => void }) => {
+    const form = document.getElementById('store-service-request');
+    if (!form) return;
+    event.preventDefault();
+    form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
   return (
     <StoreVisitorShell>
       <StoreVisitorHeader />
@@ -50,6 +57,24 @@ export default function StoreLanding() {
             <p className="mt-4 max-w-3xl text-base leading-relaxed text-white/78 md:text-lg">
               {STORE_LANDING_COPY.heroLead}
             </p>
+            <p className="mt-4 max-w-3xl text-base leading-relaxed text-white/78 md:text-lg">
+              {STORE_LANDING_COPY.heroInviteBefore}
+              <Link
+                to={ROUTE_PATHS.STORE_REQUEST}
+                className="font-extrabold text-[#e8c547] underline decoration-[#e8c547]/50 underline-offset-4 hover:decoration-[#e8c547]"
+                onClick={openRequestForm}
+              >
+                {STORE_LANDING_COPY.heroFormLink}
+              </Link>
+              {STORE_LANDING_COPY.heroInviteAfter}
+            </p>
+            <Link
+              to={ROUTE_PATHS.STORE_REQUEST}
+              className="mt-6 inline-flex rounded-full bg-[#e8c547] px-5 py-2.5 text-sm font-extrabold text-[#061018] shadow-[0_12px_30px_-12px_rgba(232,197,71,0.8)] hover:bg-[#f0d36a]"
+              onClick={openRequestForm}
+            >
+              {STORE_LANDING_COPY.heroCta}
+            </Link>
           </div>
           <figure className="overflow-hidden rounded-2xl border border-[#e8c547]/30 shadow-[0_24px_60px_-28px_rgba(232,197,71,0.45)]">
             <StoreShot
@@ -92,7 +117,7 @@ export default function StoreLanding() {
         </div>
       </section>
 
-      <section id="request" className="px-4 pb-12">
+      <section id="store-service-request" className="px-4 pb-12">
         <div className="mx-auto grid max-w-5xl gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
           <div className="rounded-2xl border border-white/12 bg-[#0b1a24]/80 p-5 md:p-6">
             <h2 className="text-2xl font-extrabold text-[#f4efe4]">{STORE_LANDING_COPY.requestTitle}</h2>
