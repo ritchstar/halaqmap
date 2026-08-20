@@ -34,6 +34,7 @@ import {
 } from '@/config/partnerMarketingCommitmentsCopy';
 import { LICENSED_COMMERCIAL_ACTIVITIES } from '@/config/licensedCommercialActivities';
 import { RegisterSalonGlowIcon } from '@/components/partner/RegisterSalonGlowIcon';
+import { PartnerGoogleSerpProofCard } from '@/components/partner/PartnerGoogleSerpProofCard';
 
 const PILLAR_ICONS = [Search, Radio, QrCode, Landmark, Bot, CreditCard, ShieldCheck] as const;
 const ARABIC_SERIAL = ['١', '٢', '٣', '٤', '٥', '٦', '٧'] as const;
@@ -194,6 +195,14 @@ export default function PartnerMarketingCommitmentsPage() {
               <RegisterSalonGlowIcon size="md" tone="gold" />
               {PARTNER_JOIN_PATH_PRIMARY_CTA_AR}
             </button>
+            <button
+              type="button"
+              onClick={() => scrollToSection('منجز-البحث')}
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/5 px-6 py-4 text-sm font-bold text-slate-100 hover:bg-white/10"
+            >
+              {PARTNER_MARKETING_PAGE.ctaProof}
+              <ArrowLeft className="h-4 w-4" />
+            </button>
             <Link
               to={ROUTE_PATHS.PARTNER_SALES_OFFICE}
               className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/5 px-6 py-4 text-sm font-bold text-slate-100 hover:bg-white/10"
@@ -202,6 +211,12 @@ export default function PartnerMarketingCommitmentsPage() {
               <ArrowLeft className="h-4 w-4" />
             </Link>
           </div>
+        </div>
+      </section>
+
+      <section className="relative z-10 px-5 py-10">
+        <div className="mx-auto max-w-5xl">
+          <PartnerGoogleSerpProofCard />
         </div>
       </section>
 

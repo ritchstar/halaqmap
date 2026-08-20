@@ -20,6 +20,7 @@ import {
   PARTNER_WHY_ACTIVATE_SALES_PILLARS,
   PARTNER_WHY_ACTIVATE_SALES_UX_GATEWAY,
 } from '@/config/partnerWhyActivateSalesCopy';
+import { PartnerGoogleSerpProofCard } from '@/components/partner/PartnerGoogleSerpProofCard';
 
 const MOMENTUM_STRIPS = [
   'المنصة تملك جماهيرية بحث وسيوًا واسعاً — والمزيد من المستعلمين في الطريق.',
@@ -232,6 +233,11 @@ export default function PartnerSalesOfficePage() {
                 <p className="mt-4 rounded-2xl border border-emerald-100 bg-emerald-50/80 px-4 py-3 text-sm font-semibold leading-8 text-emerald-950">
                   الفائدة لصالونك: {pillar.benefit}
                 </p>
+                {pillar.id === 'google-search' ? (
+                  <div className="mt-5">
+                    <PartnerGoogleSerpProofCard tone="light" />
+                  </div>
+                ) : null}
               </article>
             ))}
 
