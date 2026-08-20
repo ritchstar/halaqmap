@@ -23,6 +23,7 @@ import {
 import { STORE_BEREAVEMENT_COPY, bereavementShareText } from '../src/config/storeBereavementCopy.ts';
 import {
   isAllowedMoyasarInvoiceUrl,
+  isOccasionCardLivePaymentsEnabled,
   occasionCardInvoiceDescription,
   occasionCardInvoiceMetadata,
   occasionCardPaymentMatches,
@@ -144,6 +145,7 @@ assert.doesNotMatch(bereavementShareText('خالد', 'https://example.com'), /أ
 
 assert.equal(maskSaudiMobileDisplay('0559602685'), '05••• ••685');
 
+assert.match(legalBlob, /وضع المنصة المعتمد/);
 assert.match(legalBlob, /يُربط بفاتورته/);
 assert.match(STORE_LANDING_COPY.paidInvitesLeadAr, /12 و29 و59/);
 assert.match(STORE_LANDING_COPY.bereavementTitleAr, /الوفاة/);
@@ -160,15 +162,19 @@ assert.match(indexHtml, /purpose === 'store_occasion_card'/);
 assert.match(indexHtml, /\/pay\/occasion-card\//);
 assert.match(indexHtml, /if \(purpose === 'store_occasion_card' && storeToken\)/);
 
+assert.equal(isOccasionCardLivePaymentsEnabled(), false);
+
 const payPage = readFileSync(join(root, 'src/pages/store/StorePaidInvitePayPage.tsx'), 'utf8');
 assert.match(payPage, /store_card_token/);
 assert.match(payPage, /STORE_OCCASION_CARD_PRODUCT/);
 assert.match(payPage, /isOccasionCardPaymentReturn/);
 assert.match(payPage, /تعذر التحقق من الدفع/);
 assert.match(payPage, /activateOnceRef\.current = false/);
+assert.match(payPage, /مفتاح ميسر الحيّ/);
 
 const studio = readFileSync(join(root, 'src/pages/store/StorePaidInviteStudioPage.tsx'), 'utf8');
 assert.match(studio, /invoiceUrl/);
+assert.match(studio, /occasionCardLivePaymentsEnabled/);
 
 const api = readFileSync(join(root, 'api/public-store-issued-cards.ts'), 'utf8');
 assert.match(api, /createMoyasarInvoice/);
@@ -179,6 +185,7 @@ assert.match(api, /action === 'sync_paid'/);
 const moyasarClient = readFileSync(join(root, 'api/_lib/moyasarApiClient.ts'), 'utf8');
 assert.match(moyasarClient, /fetchMoyasarPaymentForOccasionCard/);
 assert.match(moyasarClient, /moyasar_unreachable/);
+assert.match(moyasarClient, /sk_live_/);
 
 const webhook = readFileSync(join(root, 'supabase/functions/moyasar-webhook/index.ts'), 'utf8');
 assert.match(webhook, /skipped: "store_occasion_card"/);

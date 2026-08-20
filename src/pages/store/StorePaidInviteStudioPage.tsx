@@ -25,7 +25,7 @@ import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { hasValidStoreIssuedConsent } from '@/lib/storeIssuedCardsConsent';
 import { createPaidInvitePending } from '@/lib/storeIssuedCardsRemote';
 import { occasionCardPayHref } from '@/lib/storeHostRedirect';
-import { isAllowedMoyasarInvoiceUrl } from '@/lib/occasionCardMoyasar';
+import { isAllowedMoyasarInvoiceUrl, occasionCardLivePaymentsEnabled } from '@/lib/occasionCardMoyasar';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { cn } from '@/lib/utils';
 
@@ -175,7 +175,7 @@ export default function StorePaidInviteStudioPage() {
               ? 'الدفع عبر ميسر على www.halaqmap.com. بعد نجاح الدفع يصبح الرابط حيّاً ولا يُسترد.'
               : STORE_PAID_INVITE_COPY.checkoutClosedAr}
           </p>
-          {STORE_PAID_INVITE_CHECKOUT_ENABLED ? (
+          {STORE_PAID_INVITE_CHECKOUT_ENABLED && !occasionCardLivePaymentsEnabled() ? (
             <p className="mt-1 text-xs leading-relaxed text-white/40">{STORE_PAID_INVITE_COPY.testCheckoutHintAr}</p>
           ) : null}
           <Link to={`${ROUTE_PATHS.STORE_ISSUED_CARDS_LEGAL}?track=paid`} className="mt-3 inline-block text-xs text-white/50 underline">

@@ -24,15 +24,25 @@ export function resolveMoyasarSecretKey(): string {
   return picked.replace(/\s+/g, '');
 }
 
+function occasionCardLiveSecretEnabled(): boolean {
+  const liveEnv = (process.env.PAYMENT_ENV || 'test').trim().toLowerCase() === 'live';
+  const raw = String(process.env.STORE_PAID_INVITE_LIVE_PAYMENTS ?? '').trim().toLowerCase();
+  if (raw === 'false' || raw === '0' || raw === 'off') return false;
+  if (raw === 'true' || raw === '1' || raw === 'on') return liveEnv;
+  return liveEnv;
+}
+
 /**
- * سرّ تحقق بطاقة المناسبة. يبقى تجريبياً حتى يُفعَّل الحيّ صراحة،
- * حتى لو كانت رخصة النفاذ على مفاتيح الإنتاج.
+ * سرّ بطاقة المناسبة. في الحيّ لا يُستخدم sk_test حتى لو وُجد.
  */
 export function resolveOccasionCardMoyasarSecretKey(): string {
-  const liveEnabled =
-    (process.env.PAYMENT_ENV || 'test').trim().toLowerCase() === 'live' &&
-    ['true', '1', 'on'].includes(String(process.env.STORE_PAID_INVITE_LIVE_PAYMENTS || '').trim().toLowerCase());
-  if (liveEnabled) return resolveMoyasarSecretKey();
+  if (occasionCardLiveSecretEnabled()) {
+    const liveKey = (process.env.MOYSAR_SECRET_LIVE_API_KEY || '').trim().replace(/\s+/g, '');
+    if (liveKey.startsWith('sk_live_')) return liveKey;
+    const legacy = (process.env.MOYSAR_SECRET_API_KEY || '').trim().replace(/\s+/g, '');
+    if (legacy.startsWith('sk_live_')) return legacy;
+    return '';
+  }
   const testKey = (process.env.MOYSAR_SECRET_TEST_API_KEY || '').trim().replace(/\s+/g, '');
   if (testKey.startsWith('sk_test_')) return testKey;
   const legacy = (process.env.MOYSAR_SECRET_API_KEY || '').trim().replace(/\s+/g, '');

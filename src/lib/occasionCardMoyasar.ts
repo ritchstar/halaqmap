@@ -13,11 +13,15 @@ export const OCCASION_CARD_TIER_LABEL_AR: Record<StorePaidInviteTier, string> = 
   luxury: 'فاخرة',
 };
 
+/** يتبع VITE_PAYMENT_ENV. يُعاد للتجريبي بـ VITE_STORE_PAID_INVITE_LIVE_PAYMENTS=false. */
 export function occasionCardLivePaymentsEnabled(): boolean {
-  return (
-    String(import.meta.env.VITE_STORE_PAID_INVITE_LIVE_PAYMENTS || '').trim().toLowerCase() === 'true' &&
-    String(import.meta.env.VITE_PAYMENT_ENV || 'test').trim().toLowerCase() === 'live'
-  );
+  const liveEnv = String(import.meta.env.VITE_PAYMENT_ENV || 'test').trim().toLowerCase() === 'live';
+  const raw = String(import.meta.env.VITE_STORE_PAID_INVITE_LIVE_PAYMENTS ?? '')
+    .trim()
+    .toLowerCase();
+  if (raw === 'false' || raw === '0' || raw === 'off') return false;
+  if (raw === 'true' || raw === '1' || raw === 'on') return liveEnv;
+  return liveEnv;
 }
 
 export function resolveOccasionCardPublishableKey(): string {

@@ -32,10 +32,10 @@ export function isOccasionCardCheckoutEnabled(): boolean {
   return envFlag(process.env.OCCASION_CARD_CHECKOUT_ENABLED, true);
 }
 
-/** الحيّ لهذه البطاقة فقط عند تأكيد STORE_PAID_INVITE_LIVE_PAYMENTS مع PAYMENT_ENV=live. */
+/** يتبع PAYMENT_ENV. يُعاد للتجريبي بـ STORE_PAID_INVITE_LIVE_PAYMENTS=false. */
 export function isOccasionCardLivePaymentsEnabled(): boolean {
   const liveEnv = (process.env.PAYMENT_ENV || 'test').trim().toLowerCase() === 'live';
-  return liveEnv && envFlag(process.env.STORE_PAID_INVITE_LIVE_PAYMENTS, false);
+  return liveEnv && envFlag(process.env.STORE_PAID_INVITE_LIVE_PAYMENTS, true);
 }
 
 export function paidInviteTierFromHalalas(amount: number): PaidInviteTier | null {

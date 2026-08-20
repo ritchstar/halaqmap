@@ -1,7 +1,7 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
- * كتالوج البطاقات المدفوعة — أسعار تجريبية معتمدة.
+ * كتالوج البطاقات المدفوعة — أسعار معتمدة. التحصيل الحي يتبع وضع ميسر في المنصة.
  * لا يُستورد من App.
  */
 export const STORE_PAID_INVITE_PRICES_SAR = {

@@ -245,7 +245,9 @@ export default function StorePaidInvitePayPage() {
               </a>
             ) : null}
             {!hostedInvoice && !publishableKey.startsWith('pk_') ? (
-              <p className="mt-4 text-sm text-red-300">مفتاح ميسر التجريبي غير مهيأ لهذه البطاقة.</p>
+              <p className="mt-4 text-sm text-red-300">
+                {liveMoney ? 'مفتاح ميسر الحيّ غير مهيأ لهذه البطاقة.' : 'مفتاح ميسر التجريبي غير مهيأ لهذه البطاقة.'}
+              </p>
             ) : null}
             {!hostedInvoice && publishableKey.startsWith('pk_') ? (
               <>
