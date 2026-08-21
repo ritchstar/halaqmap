@@ -90,8 +90,8 @@ export type StoreWeddingLiveHostRole = (typeof STORE_WEDDING_LIVE_HOST_ROLES)[nu
 
 export const STORE_WEDDING_LIVE_CANNED = [
   { id: 'baraka', textAr: 'بارك الله لكما وبارك عليكما وجمع بينكما في خير.' },
-  { id: 'alf', textAr: 'ألف مبارك، جعله الله عقد بركة وسعادة.' },
-  { id: 'dawam', textAr: 'مبارك عليكما، عقبال الدوام بإذن الله.' },
+  { id: 'alf', textAr: 'ألف مبروك، أتمّ الله عليكما الفرح وجعل أيامكم بركة وسعادة.' },
+  { id: 'dawam', textAr: 'مبارك للعروسين، دامت دياركم عامرة بالأفراح والسرور.' },
 ] as const;
 
 export const STORE_WEDDING_LIVE_AUDIO = [

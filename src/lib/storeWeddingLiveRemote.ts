@@ -1,16 +1,35 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
+ *
+ * التحصيل على نطاقات halaqmap الحيّة فقط. لا يُستخدم أصل vercel.app الميّت.
  */
-function apiOrigin(): string {
-  return String(import.meta.env.VITE_REGISTRATION_API_ORIGIN || '')
+const WEDDING_LIVE_API_PATH = '/api/public-store-wedding-live';
+const LIVE_API_HOSTS = new Set(['www.halaqmap.com', 'halaqmap.com', 'store.halaqmap.com']);
+
+function configuredApiOrigin(): string {
+  return String(import.meta.env.VITE_REGISTRATION_API_ORIGIN || import.meta.env.VITE_API_BASE_URL || '')
     .trim()
-    .replace(/\/$/, '');
+    .replace(/\/$/, '')
+    .replace(/\/api$/i, '');
 }
 
 export function storeWeddingLiveEndpoint(): string {
-  const origin = apiOrigin();
-  if (!origin) return '/api/public-store-wedding-live';
-  return `${origin}/api/public-store-wedding-live`;
+  if (typeof window !== 'undefined') {
+    const host = window.location.hostname.toLowerCase();
+    if (LIVE_API_HOSTS.has(host)) return WEDDING_LIVE_API_PATH;
+  }
+  const origin = configuredApiOrigin();
+  if (origin && !/\.vercel\.app$/i.test(origin)) return `${origin}${WEDDING_LIVE_API_PATH}`;
+  return WEDDING_LIVE_API_PATH;
+}
+
+function payErrorAr(status: number, raw: unknown): string {
+  if (typeof raw === 'string' && raw.trim() && !/^HTTP \d+/.test(raw.trim())) return raw.trim();
+  if (status === 404) {
+    return 'تعذر الوصول لمسار التحصيل. حدّث الصفحة ثم أعد المحاولة من المتجر.';
+  }
+  if (status === 403 || status === 429) return 'رُفض الطلب مؤقتاً. حدّث الصفحة ثم أعد المحاولة.';
+  return 'تعذر إنشاء طلب الدفع. أعد المحاولة.';
 }
 
 async function postAction(body: Record<string, unknown>): Promise<{ ok: boolean; error?: string; [k: string]: unknown }> {
@@ -22,7 +41,7 @@ async function postAction(body: Record<string, unknown>): Promise<{ ok: boolean;
     });
     const data = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: unknown };
     if (!res.ok || data.ok !== true) {
-      return { ok: false, error: typeof data.error === 'string' ? data.error : `HTTP ${res.status}` };
+      return { ok: false, error: payErrorAr(res.status, data.error) };
     }
     return { ok: true, ...data };
   } catch {

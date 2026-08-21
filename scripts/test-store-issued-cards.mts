@@ -458,6 +458,10 @@ assert.equal(
   false,
 );
 assert.match(weddingLanding, /StoreWeddingOrderForm/);
+const weddingRemote = readFileSync(join(root, 'src/lib/storeWeddingLiveRemote.ts'), 'utf8');
+assert.match(weddingRemote, /LIVE_API_HOSTS/);
+assert.match(weddingRemote, /store\.halaqmap\.com/);
+assert.match(weddingRemote, /vercel\.app/);
 assert.equal(parseYoutubeVideoId('https://www.youtube.com/watch?v=aqz-KE-bpKQ'), 'aqz-KE-bpKQ');
 assert.ok(safeMapsHref('https://maps.google.com/?q=riyadh'));
 assert.equal(safeMapsHref('javascript:alert(1)'), null);
