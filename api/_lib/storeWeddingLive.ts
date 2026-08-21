@@ -97,6 +97,7 @@ export type WeddingLiveOrderPayload = {
   venueName: string;
   venueMapsUrl: string;
   welcomeAr: string;
+  welcomeSetIndex?: number;
   youtubeUrl: string;
   youtubeHidden: boolean;
   announcement: string;
@@ -142,6 +143,7 @@ export function parseWeddingLiveOrderBody(body: Record<string, unknown>):
       venueName: clip(body.venueName, 120),
       venueMapsUrl: clip(body.venueMapsUrl, 500),
       welcomeAr: clip(body.welcomeAr, 400),
+      welcomeSetIndex: Math.max(0, Math.min(99, Number(body.welcomeSetIndex) || 0)),
       youtubeUrl: clip(body.youtubeUrl, 300),
       youtubeHidden: Boolean(body.youtubeHidden),
       announcement: clip(body.announcement, 160),
@@ -164,6 +166,7 @@ export function publicWeddingPayload(payload: WeddingLiveOrderPayload) {
     venueName: payload.venueName,
     venueMapsUrl: payload.venueMapsUrl,
     welcomeAr: payload.welcomeAr,
+    welcomeSetIndex: Number(payload.welcomeSetIndex) || 0,
     youtubeUrl: payload.youtubeUrl,
     youtubeHidden: payload.youtubeHidden,
     announcement: payload.announcement,

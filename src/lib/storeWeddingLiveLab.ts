@@ -14,6 +14,7 @@ import {
   type StoreWeddingLiveHostRole,
   type StoreWeddingLiveVoice,
 } from '@/config/storeWeddingLive';
+import { normalizeWeddingWelcomeSetIndex } from '@/config/storeWeddingWelcomeSets';
 
 export type WeddingLiveAudioId = (typeof STORE_WEDDING_LIVE_AUDIO)[number]['id'];
 export type WeddingLiveStyleId = (typeof STORE_WEDDING_LIVE_STYLES)[number]['id'];
@@ -41,6 +42,7 @@ export type WeddingLiveHostState = {
   venueName: string;
   venueMapsUrl: string;
   welcomeAr: string;
+  welcomeSetIndex: number;
   youtubeUrl: string;
   youtubeHidden: boolean;
   announcement: string;
@@ -132,6 +134,7 @@ export function defaultWeddingLiveLabState(voice: StoreWeddingLiveVoice = 'men')
       venueName: demo.venueName,
       venueMapsUrl: demo.venueMapsUrl,
       welcomeAr: demo.welcomeAr,
+      welcomeSetIndex: 0,
       youtubeUrl: demo.youtubeUrl,
       youtubeHidden: demo.youtubeHidden,
       announcement: demo.announcement,
@@ -170,6 +173,7 @@ export function readWeddingLiveLabState(token: string): WeddingLiveLabState {
         ...(parsedHost || {}),
         voice: nextVoice,
         hostRole: normalizeWeddingHostRole(parsedHost?.hostRole, nextVoice),
+        welcomeSetIndex: normalizeWeddingWelcomeSetIndex(parsedHost?.welcomeSetIndex),
         cardStyleId: parsedHost?.cardStyleId || weddingLiveDefaultStyle(nextVoice),
       },
       blessings: Array.isArray(parsed.blessings) ? parsed.blessings : fallback.blessings,
@@ -280,6 +284,7 @@ export function weddingLiveArchiveBlob(state: WeddingLiveLabState): Blob {
     eventTime: state.host.eventTime,
     venueName: state.host.venueName,
     welcomeAr: state.host.welcomeAr,
+    welcomeSetIndex: state.host.welcomeSetIndex,
     announcement: state.host.announcement,
     blessings: visible,
   };

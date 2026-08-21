@@ -1,7 +1,8 @@
 /**
- * رمز بطاقة كوافير ماب — اختصار بلا ترميز عربي ظاهر.
+ * رمز بطاقة كوافير ماب — اختصار بلا ترميز عربي ظاهر، ومعاينة واتساب مربّعة.
  */
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -10,9 +11,11 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 async function main() {
   const api = await import('../api/_lib/coiffeurCardShare.ts');
   const web = await import('../src/lib/coiffeurCardShare.ts');
+  const copy = await import('../src/config/coiffeurIntroCardCopy.ts');
+  const og = await import('../api/_lib/coiffeurCardOg.ts');
 
-  const name = 'ايمان السرااف م احمد';
-  const role = 'مسوقة فخرية للمنصة';
+  const name = copy.COIFFEUR_CARD_LAUNCH_PRESET.name;
+  const role = copy.COIFFEUR_CARD_LAUNCH_PRESET.role;
 
   const tokenApi = api.encodeCoiffeurCardToken(name, role);
   const tokenWeb = web.encodeCoiffeurCardToken(name, role);
@@ -29,13 +32,40 @@ async function main() {
   assert.equal(api.decodeCoiffeurCardToken('%%%%'), null);
   assert.equal(web.decodeCoiffeurCardToken('abc'), null);
 
-  const src = await import('node:fs').then((fs) =>
-    fs.readFileSync(join(root, 'src/lib/coiffeurHostRedirect.ts'), 'utf8'),
-  );
+  assert.equal(copy.isCoiffeurMarketingLeadRole(role), true);
+  assert.ok(copy.COIFFEUR_CARD_ROLE_CHIPS.includes(role));
+  assert.equal(copy.coiffeurCardPitch(role).kicker, copy.COIFFEUR_INTRO_CARD_COPY.marketingKicker);
+  assert.match(copy.buildCoiffeurCardWhatsAppText({ name, role, cardUrl: 'https://coiffeur.halaqmap.com/c/x' }), /أدعوك إلى كوافير ماب/);
+
+  const html = readFileSync(join(root, 'api/public-coiffeur-card.ts'), 'utf8');
+  assert.match(html, /isCoiffeurShareCrawler/);
+  assert.match(html, /refresh: !crawler/);
+  assert.match(html, /og:image:width" content="1200"/);
+  assert.match(html, /og:image:height" content="1200"/);
+  assert.match(html, /coiffeurCardOgPublicUrl/);
+
+  const vercel = readFileSync(join(root, 'vercel.json'), 'utf8');
+  const ogRewriteAt = vercel.indexOf('/c/:token/og.jpg');
+  const cardRewriteAt = vercel.indexOf('"/c/:token"');
+  assert.ok(ogRewriteAt > 0);
+  assert.ok(cardRewriteAt > ogRewriteAt);
+
+  const intro = readFileSync(join(root, 'src/lib/coiffeurIntroCard.ts'), 'utf8');
+  assert.match(intro, /const h = 1350/);
+  assert.match(intro, /files: \[opts\.file\]/);
+
+  const src = readFileSync(join(root, 'src/lib/coiffeurHostRedirect.ts'), 'utf8');
   assert.match(src, /path === '\/c'/);
   assert.equal(/path\.startsWith\('\/c'\)/.test(src), false);
 
-  console.log('coiffeur card share: ok', tokenApi);
+  const jpeg = await og.renderCoiffeurCardOgJpeg(tokenApi);
+  assert.ok(jpeg);
+  assert.ok(jpeg.length > 20_000);
+  assert.equal(jpeg[0], 0xff);
+  assert.equal(jpeg[1], 0xd8);
+  assert.match(og.coiffeurCardOgPublicUrl('https://coiffeur.halaqmap.com', tokenApi), /\/c\/.+\/og\.jpg\?v=/);
+
+  console.log('coiffeur card share: ok', tokenApi, jpeg.length);
 }
 
 main().catch((err) => {

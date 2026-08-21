@@ -131,7 +131,7 @@ export default function StoreWeddingHallPage() {
               </Link>
             </div>
           ) : null}
-          <StoreWeddingHallStage state={state} />
+          <StoreWeddingHallStage state={state} autoWelcome={mode === 'display'} />
           {mode === 'guest' ? (
             <div className="mt-6">
               <StoreWeddingGuestForm state={state} onChange={commit} />

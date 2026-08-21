@@ -1,6 +1,6 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
- * صورة معاينة واتساب لرابط كرت كوافير ماب — 1200×630 PNG.
+ * صورة احتياطية لمعاينة واتساب — 1200×1200 PNG.
  */
 import { mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -13,7 +13,7 @@ const OUT_DIR = join(ROOT, 'public/images/coiffeur');
 const OUT = join(OUT_DIR, 'card-og.png');
 
 const W = 1200;
-const H = 630;
+const H = 1200;
 
 const bg = await sharp({
   create: {

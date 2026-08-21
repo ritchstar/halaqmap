@@ -9,6 +9,12 @@ import {
   weddingLiveHostRoles,
   weddingLiveStyles,
 } from '@/config/storeWeddingLive';
+import {
+  nextWeddingWelcomeSetIndex,
+  weddingWelcomeHeroText,
+  weddingWelcomeSetAt,
+  weddingWelcomeSetCount,
+} from '@/config/storeWeddingWelcomeSets';
 import { downloadElementAsPngCard } from '@/lib/downloadElementAsPngCard';
 import {
   compressImageFile,
@@ -150,6 +156,43 @@ export function StoreWeddingHostPanel({
             placeholder="العشاء جاهز"
           />
         </label>
+        <div className="mt-4 rounded-2xl border border-white/12 bg-[#061018]/80 p-4">
+          <p className="text-sm font-extrabold">{copy.hostWelcomeSetsTitleAr}</p>
+          <p className="mt-1 text-xs leading-6 text-white/65">{copy.hostWelcomeSetsLeadAr}</p>
+          <p className={cn('mt-2 text-xs font-bold', text)}>
+            {copy.hostWelcomeSetStatusAr} {((host.welcomeSetIndex || 0) % weddingWelcomeSetCount()) + 1}
+            {' / '}
+            {weddingWelcomeSetCount()}
+            {' · '}
+            {weddingWelcomeSetAt(host.welcomeSetIndex).toneAr}
+          </p>
+          <ul className="mt-3 space-y-2">
+            {weddingWelcomeSetAt(host.welcomeSetIndex).lines.map((line) => (
+              <li
+                key={line.id}
+                className={cn(
+                  'rounded-xl border border-white/10 px-3 py-2 leading-7 text-white/85',
+                  line.weight === 'hero' ? 'text-sm font-black' : line.weight === 'support' ? 'text-sm font-bold' : 'text-xs',
+                )}
+              >
+                {line.textAr}
+              </li>
+            ))}
+          </ul>
+          <button
+            type="button"
+            onClick={() => {
+              const next = nextWeddingWelcomeSetIndex(host.welcomeSetIndex);
+              patchHost({
+                welcomeSetIndex: next,
+                welcomeAr: weddingWelcomeHeroText(next).slice(0, 400),
+              });
+            }}
+            className={cn('mt-4 w-full rounded-full py-2 text-sm font-bold', fill)}
+          >
+            {copy.hostWelcomeNextAr}
+          </button>
+        </div>
         <label className="mt-4 block text-sm">
           {copy.hostWelcomeLabelAr}
           <textarea

@@ -418,6 +418,10 @@ async function saveHost(db: Db, body: Record<string, unknown>, headers: Record<s
     venueName: String(body.venueName ?? current.venueName).slice(0, 120),
     venueMapsUrl: String(body.venueMapsUrl ?? current.venueMapsUrl).slice(0, 500),
     welcomeAr: String(body.welcomeAr ?? current.welcomeAr).slice(0, 400),
+    welcomeSetIndex: Math.max(
+      0,
+      Math.min(99, Number(body.welcomeSetIndex ?? current.welcomeSetIndex) || 0),
+    ),
     youtubeUrl: String(body.youtubeUrl ?? current.youtubeUrl).slice(0, 300),
     youtubeHidden: body.youtubeHidden == null ? current.youtubeHidden : Boolean(body.youtubeHidden),
     announcement: String(body.announcement ?? current.announcement).slice(0, 160),

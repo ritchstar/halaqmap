@@ -10,6 +10,29 @@ declare module 'arabic-persian-reshaper' {
   export default reshaper;
 }
 
+declare module 'fontkit' {
+  type FontkitPosition = {
+    xAdvance: number;
+    yAdvance: number;
+    xOffset: number;
+    yOffset: number;
+  };
+  type FontkitGlyph = {
+    path: { toSVG(): string };
+  };
+  type FontkitFont = {
+    unitsPerEm: number;
+    layout(text: string): {
+      glyphs: FontkitGlyph[];
+      positions: FontkitPosition[];
+    };
+  };
+  const fontkit: {
+    create(buffer: Buffer | Uint8Array): FontkitFont;
+  };
+  export default fontkit;
+}
+
 declare module 'bidi-js' {
   interface GetEmbeddingLevelsResult {
     levels: Uint8Array;

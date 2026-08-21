@@ -2969,9 +2969,68 @@ html.platform-radar-fullscreen #root {
   animation: wedding-live-ticker 32s linear infinite;
 }
 
+@keyframes wedding-hall-breathe {
+  0%,
+  100% {
+    opacity: 0.28;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.62;
+    transform: scale(1.06);
+  }
+}
+
+@keyframes wedding-hall-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 18px rgba(232, 197, 71, 0.18);
+  }
+  50% {
+    box-shadow: 0 0 42px rgba(232, 197, 71, 0.42);
+  }
+}
+
+.wedding-hall-lights {
+  background:
+    radial-gradient(ellipse 42% 34% at 18% 22%, rgba(232, 197, 71, 0.28), transparent 70%),
+    radial-gradient(ellipse 38% 30% at 82% 18%, rgba(247, 237, 216, 0.16), transparent 68%),
+    radial-gradient(ellipse 50% 40% at 50% 88%, rgba(212, 175, 103, 0.18), transparent 72%);
+  animation: wedding-hall-breathe 7.5s ease-in-out infinite;
+}
+
+.wedding-hall-lights[data-voice='women'] {
+  background:
+    radial-gradient(ellipse 42% 34% at 18% 22%, rgba(228, 183, 197, 0.32), transparent 70%),
+    radial-gradient(ellipse 38% 30% at 82% 18%, rgba(248, 238, 242, 0.18), transparent 68%),
+    radial-gradient(ellipse 50% 40% at 50% 88%, rgba(212, 160, 122, 0.2), transparent 72%);
+}
+
+.wedding-hall-glow {
+  animation: wedding-hall-glow 5.8s ease-in-out infinite;
+}
+
+[data-voice='women'] .wedding-hall-glow {
+  animation-name: wedding-hall-glow-women;
+}
+
+@keyframes wedding-hall-glow-women {
+  0%,
+  100% {
+    box-shadow: 0 0 18px rgba(228, 183, 197, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 42px rgba(228, 183, 197, 0.46);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .wedding-live-ticker {
     animation: none;
     white-space: normal;
+  }
+  .wedding-hall-lights,
+  .wedding-hall-glow {
+    animation: none;
   }
 }

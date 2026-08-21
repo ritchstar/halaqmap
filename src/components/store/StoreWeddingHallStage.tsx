@@ -1,20 +1,44 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
- * مشهد قاعة الحفل — يوتيوب أو بانوراما، شريط تهاني، تنويه.
+ * مشهد قاعة الحفل — يوتيوب أو بانوراما، شريط تهاني، تنويه، ترحيب ثلاثي.
  */
+import { useEffect, useState } from 'react';
 import { STORE_WEDDING_LIVE, weddingLiveAccent } from '@/config/storeWeddingLive';
+import {
+  nextWeddingWelcomeSetIndex,
+  weddingWelcomeSetAt,
+  weddingWelcomeSetCount,
+} from '@/config/storeWeddingWelcomeSets';
 import { StoreWeddingMapsPin } from '@/components/store/StoreWeddingMapsPin';
 import type { WeddingLiveLabState } from '@/lib/storeWeddingLiveLab';
 import { safeMapsHref, weddingCoupleLine, weddingHostInviteLine, youtubeEmbedSrc } from '@/lib/storeWeddingLiveLab';
 import { cn } from '@/lib/utils';
 
+function welcomeSizeClass(weight: 'hero' | 'support' | 'caption', displayTone: boolean): string {
+  if (weight === 'hero') {
+    return displayTone
+      ? 'text-2xl font-black leading-10 md:text-4xl md:leading-snug'
+      : 'text-xl font-black leading-9 md:text-3xl md:leading-snug';
+  }
+  if (weight === 'support') {
+    return displayTone
+      ? 'text-lg font-extrabold leading-8 md:text-2xl'
+      : 'text-base font-extrabold leading-8 md:text-xl';
+  }
+  return displayTone
+    ? 'text-base font-bold leading-7 md:text-lg'
+    : 'text-sm font-bold leading-7 md:text-base';
+}
+
 export function StoreWeddingHallStage({
   state,
   className,
+  autoWelcome = false,
 }: {
   state: WeddingLiveLabState;
   className?: string;
+  autoWelcome?: boolean;
 }) {
   const visible = state.blessings.filter((item) => !item.hidden);
   const ticker = visible
@@ -26,6 +50,23 @@ export function StoreWeddingHallStage({
   const stageImage = state.host.youtubeHidden ? state.host.panoramaSrc : state.host.photoSrc;
   const voice = state.host.voice === 'women' ? 'women' : 'men';
   const accent = weddingLiveAccent(voice);
+  const pinnedIndex = Number(state.host.welcomeSetIndex) || 0;
+  const [cycleIndex, setCycleIndex] = useState(pinnedIndex);
+
+  useEffect(() => {
+    setCycleIndex(pinnedIndex);
+  }, [pinnedIndex]);
+
+  useEffect(() => {
+    if (!autoWelcome || weddingWelcomeSetCount() < 2) return undefined;
+    const timer = window.setInterval(() => {
+      setCycleIndex((current) => nextWeddingWelcomeSetIndex(current));
+    }, 28000);
+    return () => window.clearInterval(timer);
+  }, [autoWelcome, pinnedIndex]);
+
+  const welcomeSet = weddingWelcomeSetAt(cycleIndex);
+  const displayTone = welcomeSet.id === 'display';
 
   return (
     <div
@@ -38,11 +79,12 @@ export function StoreWeddingHallStage({
     >
       <img src={stageImage} alt="" className="absolute inset-0 h-full w-full object-cover opacity-55" />
       <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/40 to-black/80" />
+      <div className="wedding-hall-lights pointer-events-none absolute inset-0" data-voice={voice} aria-hidden />
 
       {state.host.announcement.trim() ? (
         <div
-          className="absolute inset-x-4 top-4 z-20 rounded-2xl border bg-black/75 px-4 py-3 text-center"
-          style={{ borderColor: accent, boxShadow: `0 0 40px ${accent}40` }}
+          className="wedding-hall-glow absolute inset-x-4 top-4 z-20 rounded-2xl border bg-black/75 px-4 py-3 text-center"
+          style={{ borderColor: accent }}
         >
           <p className="text-sm font-black tracking-wide md:text-lg" style={{ color: accent }}>
             {state.host.announcement.trim()}
@@ -73,7 +115,27 @@ export function StoreWeddingHallStage({
             {STORE_WEDDING_LIVE.mapsLabelAr}
           </a>
         ) : null}
-        <p className="mx-auto mt-5 max-w-xl text-center text-sm leading-8 text-white/85">{state.host.welcomeAr}</p>
+
+        <div
+          dir="rtl"
+          className="wedding-hall-glow mx-auto mt-6 w-full max-w-2xl rounded-3xl border bg-black/45 px-4 py-5 text-center md:px-6"
+          style={{ borderColor: `${accent}66` }}
+        >
+          <p className="mb-3 text-[11px] font-bold tracking-wide" style={{ color: accent }}>
+            {welcomeSet.toneAr}
+          </p>
+          <div className="space-y-3">
+            {welcomeSet.lines.map((line) => (
+              <p
+                key={line.id}
+                className={cn('chat-arabic-text', welcomeSizeClass(line.weight, displayTone))}
+                style={{ color: line.weight === 'hero' ? '#fff8ee' : undefined }}
+              >
+                {line.textAr}
+              </p>
+            ))}
+          </div>
+        </div>
 
         <div className="mt-6 grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
           <div className="overflow-hidden rounded-2xl border border-white/15 bg-black/45">

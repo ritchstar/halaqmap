@@ -63,6 +63,22 @@ export default function StoreAboutPage() {
             <p className="mt-3 text-sm leading-7 text-white/75 md:text-base md:leading-8">
               {STORE_ABOUT_COPY.natureBody}
             </p>
+            <ul className="mt-4 grid gap-2 sm:grid-cols-2">
+              {STORE_ABOUT_COPY.naturePoints.map((point) => (
+                <li
+                  key={point}
+                  className="rounded-xl border border-white/10 bg-[#061018]/70 px-4 py-3 text-sm leading-7 text-white/80 md:text-base"
+                >
+                  {point}
+                </li>
+              ))}
+            </ul>
+            <Link
+              to={ROUTE_PATHS.STORE_REQUEST}
+              className="mt-5 inline-flex rounded-full bg-[#e8c547] px-5 py-2.5 text-sm font-extrabold text-[#061018]"
+            >
+              {STORE_ABOUT_COPY.natureCta}
+            </Link>
           </section>
 
           <section className="mt-8 rounded-2xl border border-[#e8c547]/25 bg-[#0b1a24]/70 p-5 md:p-6">

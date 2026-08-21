@@ -12,6 +12,7 @@ import { COIFFEUR_VISUALS } from '@/config/coiffeurVisuals';
 import {
   COIFFEUR_INTRO_CARD_COPY as COPY,
   COIFFEUR_SATELLITE_HOST,
+  coiffeurCardPitch,
 } from '@/config/coiffeurIntroCardCopy';
 import {
   sanitizeCoiffeurCardName,
@@ -333,7 +334,7 @@ export async function renderCoiffeurIntroCardPng(input: {
   const qr = input.qrDataUrl ? await loadImageSafe(input.qrDataUrl) : null;
 
   const w = 1080;
-  const h = 1920;
+  const h = 1350;
   const canvas = document.createElement('canvas');
   canvas.width = w;
   canvas.height = h;
@@ -343,11 +344,12 @@ export async function renderCoiffeurIntroCardPng(input: {
   const name = sanitizeCoiffeurCardName(input.displayName);
   const role = sanitizeCoiffeurCardRole(input.role);
   if (!name || !role) throw new Error('card_fields_required');
+  const pitch = coiffeurCardPitch(role);
 
   paintWineBackground(ctx, w, h);
 
-  const markSize = 196;
-  paintLogo(ctx, logo, (w - markSize) / 2, 78, markSize);
+  const markSize = 148;
+  paintLogo(ctx, logo, (w - markSize) / 2, 44, markSize);
 
   ctx.textAlign = 'center';
   try {
@@ -356,94 +358,115 @@ export async function renderCoiffeurIntroCardPng(input: {
     /* ltr لاسم الشعار */
   }
   ctx.fillStyle = WINE.cream;
-  ctx.font = `800 34px ${FONT}`;
-  ctx.fillText(COIFFEUR_BRAND_EN, w / 2, 78 + markSize + 44);
+  ctx.font = `800 28px ${FONT}`;
+  ctx.fillText(COIFFEUR_BRAND_EN, w / 2, 44 + markSize + 36);
 
   setCenterRtl(ctx);
   ctx.fillStyle = WINE.blush;
-  ctx.font = `800 30px ${FONT}`;
-  ctx.fillText(COIFFEUR_BRAND_AR, w / 2, 78 + markSize + 86);
+  ctx.font = `800 26px ${FONT}`;
+  ctx.fillText(COIFFEUR_BRAND_AR, w / 2, 44 + markSize + 70);
 
-  const bandY = 78 + markSize + 110;
-  paintMoodBand(ctx, photo, 92, bandY, w - 184, 210);
+  let cursorY = 44 + markSize + 88;
+  if (pitch.kicker) {
+    ctx.font = `800 22px ${FONT}`;
+    const kickW = Math.min(w - 280, Math.max(280, ctx.measureText(pitch.kicker).width + 48));
+    paintPlate(ctx, (w - kickW) / 2, cursorY, kickW, 44, 22);
+    ctx.fillStyle = WINE.rose;
+    ctx.fillText(pitch.kicker, w / 2, cursorY + 30);
+    cursorY += 56;
+  }
 
-  const nameTop = photo && photo.naturalWidth > 0 ? bandY + 236 : bandY + 8;
-  paintPlate(ctx, 92, nameTop, w - 184, 168, 28);
+  paintMoodBand(ctx, photo, 92, cursorY, w - 184, 118);
+  const nameTop = photo && photo.naturalWidth > 0 ? cursorY + 132 : cursorY + 8;
+  paintPlate(ctx, 92, nameTop, w - 184, 118, 24);
   ctx.fillStyle = WINE.cream;
-  ctx.font = `900 52px ${FONT}`;
+  ctx.font = `900 44px ${FONT}`;
   const nameLines = wrapLines(ctx, name, w - 260, 2);
-  let ny = nameTop + (nameLines.length === 1 ? 100 : 70);
+  let ny = nameTop + (nameLines.length === 1 ? 74 : 52);
   for (const ln of nameLines) {
     ctx.fillText(ln, w / 2, ny);
-    ny += 58;
+    ny += 46;
   }
 
-  const roleY = nameTop + 188;
-  const roleLines = wrapLines(ctx, role, 520, 1);
-  const roleText = roleLines[0] || role;
-  ctx.font = `800 30px ${FONT}`;
-  const roleW = Math.min(w - 280, Math.max(280, ctx.measureText(roleText).width + 72));
-  paintPlate(ctx, (w - roleW) / 2, roleY, roleW, 68, 34);
+  const roleY = nameTop + 130;
+  const roleLines = wrapLines(ctx, role, 640, 2);
+  ctx.font = `800 26px ${FONT}`;
+  const roleW = Math.min(
+    w - 240,
+    Math.max(280, Math.max(...roleLines.map((ln) => ctx.measureText(ln).width)) + 56),
+  );
+  const roleH = roleLines.length === 1 ? 52 : 84;
+  paintPlate(ctx, (w - roleW) / 2, roleY, roleW, roleH, 26);
   ctx.fillStyle = WINE.blush;
-  ctx.fillText(roleText, w / 2, roleY + 46);
+  let rTextY = roleY + (roleLines.length === 1 ? 36 : 32);
+  for (const ln of roleLines) {
+    ctx.fillText(ln, w / 2, rTextY);
+    rTextY += 34;
+  }
 
-  const pitchY = roleY + 92;
-  paintPlate(ctx, 92, pitchY, w - 184, 236, 26);
+  const pitchY = roleY + roleH + 16;
+  const pitchH = pitch.invite ? 168 : 148;
+  paintPlate(ctx, 92, pitchY, w - 184, pitchH, 22);
   ctx.fillStyle = WINE.cream;
-  ctx.font = `900 36px ${FONT}`;
-  ctx.fillText(COPY.headline, w / 2, pitchY + 62);
+  ctx.font = `900 30px ${FONT}`;
+  ctx.fillText(pitch.headline, w / 2, pitchY + 44);
   ctx.fillStyle = WINE.blush;
-  ctx.font = `800 28px ${FONT}`;
-  const tagLines = wrapLines(ctx, COPY.tagline, w - 260, 2);
-  let ty = pitchY + 112;
+  ctx.font = `800 22px ${FONT}`;
+  const tagLines = wrapLines(ctx, pitch.tagline, w - 260, 2);
+  let ty = pitchY + 80;
   for (const ln of tagLines) {
     ctx.fillText(ln, w / 2, ty);
-    ty += 40;
+    ty += 30;
   }
   ctx.fillStyle = WINE.rose;
-  ctx.font = `800 26px ${FONT}`;
-  ctx.fillText(COPY.sectors, w / 2, pitchY + 204);
+  ctx.font = `800 20px ${FONT}`;
+  ctx.fillText(COPY.sectors, w / 2, ty + 6);
+  if (pitch.invite) {
+    ctx.fillStyle = WINE.blush;
+    ctx.font = `800 20px ${FONT}`;
+    ctx.fillText(pitch.invite, w / 2, ty + 34);
+  }
 
-  const ctaW = 640;
-  const ctaY = pitchY + 270;
+  const ctaW = 600;
+  const ctaY = pitchY + pitchH + 16;
   ctx.save();
   ctx.shadowColor = 'rgba(247, 239, 232, 0.45)';
-  ctx.shadowBlur = 20;
+  ctx.shadowBlur = 16;
   const ctaGrad = ctx.createLinearGradient((w - ctaW) / 2, ctaY, (w + ctaW) / 2, ctaY);
   ctaGrad.addColorStop(0, '#f7efe8');
   ctaGrad.addColorStop(0.5, '#f4d4c0');
   ctaGrad.addColorStop(1, '#c98b96');
   ctx.fillStyle = ctaGrad;
-  roundRect(ctx, (w - ctaW) / 2, ctaY, ctaW, 78, 39);
+  roundRect(ctx, (w - ctaW) / 2, ctaY, ctaW, 62, 31);
   ctx.fill();
   ctx.restore();
   ctx.fillStyle = '#2a1218';
-  ctx.font = `900 32px ${FONT}`;
-  ctx.fillText(COPY.cta, w / 2, ctaY + 52);
+  ctx.font = `900 26px ${FONT}`;
+  ctx.fillText(COPY.cta, w / 2, ctaY + 42);
 
-  const qrSize = 196;
-  const qrY = h - 338;
+  const qrSize = 118;
+  const qrY = h - 214;
   if (qr && qr.naturalWidth > 0) {
     ctx.fillStyle = '#ffffff';
-    roundRect(ctx, (w - qrSize) / 2 - 12, qrY - 12, qrSize + 24, qrSize + 24, 18);
+    roundRect(ctx, (w - qrSize) / 2 - 8, qrY - 8, qrSize + 16, qrSize + 16, 14);
     ctx.fill();
     ctx.drawImage(qr, (w - qrSize) / 2, qrY, qrSize, qrSize);
   }
 
   ctx.fillStyle = WINE.cream;
-  ctx.font = `800 24px ${FONT}`;
+  ctx.font = `800 20px ${FONT}`;
   try {
     ctx.direction = 'ltr';
   } catch {
     /* ltr للنطاق */
   }
   ctx.textAlign = 'center';
-  ctx.fillText(COIFFEUR_SATELLITE_HOST, w / 2, h - 96);
+  ctx.fillText(COIFFEUR_SATELLITE_HOST, w / 2, h - 64);
 
   setCenterRtl(ctx);
   ctx.fillStyle = WINE.blush;
-  ctx.font = `800 22px ${FONT}`;
-  ctx.fillText(COPY.scanHint, w / 2, h - 58);
+  ctx.font = `800 18px ${FONT}`;
+  ctx.fillText(COPY.scanHint, w / 2, h - 36);
 
   return canvasToPngBlob(canvas);
 }
@@ -548,7 +571,11 @@ export async function shareCoiffeurIntroCardNative(opts: {
       url: opts.url,
     };
     if (opts.file) {
-      const withFiles: ShareData = { ...payload, files: [opts.file] };
+      const withFiles: ShareData = {
+        files: [opts.file],
+        title: opts.title,
+        text: opts.text,
+      };
       if (typeof navigator.canShare !== 'function' || navigator.canShare(withFiles)) {
         await navigator.share(withFiles);
         return 'shared';

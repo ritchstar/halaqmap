@@ -434,6 +434,7 @@ assert.match(weddingLanding, /live-preview/);
 assert.match(weddingLanding, /StoreWeddingLiveStudio/);
 assert.match(weddingLanding, /termsFoldTriggerAr/);
 assert.doesNotMatch(app, /from ['"]@\/config\/storeWeddingLive['"]/);
+assert.doesNotMatch(app, /from ['"]@\/config\/storeWeddingWelcomeSets['"]/);
 assert.match(app, /StoreWeddingLandingPage/);
 assert.match(app, /StoreWeddingLabPage/);
 assert.match(app, /StoreWeddingHallPage/);
@@ -491,6 +492,7 @@ assert.match(weddingCoupleLine({
   youtubeUrl: '',
   youtubeHidden: false,
   announcement: '',
+  welcomeSetIndex: 0,
   audioClipId: 'none',
   photoSrc: '',
   panoramaSrc: '',

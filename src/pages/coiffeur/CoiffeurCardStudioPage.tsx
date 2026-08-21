@@ -20,6 +20,7 @@ import { Label } from '@/components/ui/label';
 import { toast } from '@/components/ui/sonner';
 import {
   COIFFEUR_BRAND_AR,
+  COIFFEUR_CARD_LAUNCH_PRESET,
   COIFFEUR_CARD_NAME_MAX,
   COIFFEUR_CARD_ROLE_CHIPS,
   COIFFEUR_CARD_ROLE_MAX,
@@ -27,6 +28,7 @@ import {
   buildCoiffeurCardWhatsAppText,
   coiffeurCardLandingUrl,
   coiffeurCardPublicUrl,
+  isCoiffeurMarketingLeadRole,
 } from '@/config/coiffeurIntroCardCopy';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { ProductEvents } from '@/lib/analytics/productAnalytics';
@@ -44,16 +46,26 @@ import {
   shouldPreferNativeShare,
 } from '@/lib/coiffeurIntroCard';
 import { encodeCoiffeurCardToken } from '@/lib/coiffeurCardShare';
+import { readHashQueryParam } from '@/lib/hashQueryParams';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { cn } from '@/lib/utils';
 
-type BusyKind = 'png' | 'share' | null;
+type BusyKind = 'png' | 'share' | 'whatsapp' | null;
+
+function initialCardField(kind: 'name' | 'role'): string {
+  const preset = readHashQueryParam('preset');
+  if (preset === COIFFEUR_CARD_LAUNCH_PRESET.id) {
+    return kind === 'name' ? COIFFEUR_CARD_LAUNCH_PRESET.name : COIFFEUR_CARD_LAUNCH_PRESET.role;
+  }
+  const fromQuery = kind === 'name' ? readHashQueryParam('n') : readHashQueryParam('r');
+  return fromQuery || '';
+}
 
 export default function CoiffeurCardStudioPage() {
   useDocumentTitle(COPY.documentTitleStudio);
 
-  const [name, setName] = useState('');
-  const [role, setRole] = useState('');
+  const [name, setName] = useState(() => initialCardField('name'));
+  const [role, setRole] = useState(() => initialCardField('role'));
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
   const [busy, setBusy] = useState<BusyKind>(null);
 
@@ -195,8 +207,47 @@ export default function CoiffeurCardStudioPage() {
     }
   };
 
+  const onWhatsApp = async () => {
+    if (!requireReady()) return;
+    setBusy('whatsapp');
+    try {
+      const blob = await makeBlob();
+      const file = new File([blob], coiffeurIntroCardFilename(), { type: 'image/png' });
+      const native = await shareCoiffeurIntroCardNative({
+        title: COIFFEUR_BRAND_AR,
+        text: whatsappText,
+        url: cardUrl,
+        file,
+      });
+      if (native === 'shared') {
+        ProductEvents.coiffeurCardShare({ method: 'whatsapp' });
+        toast.success(COPY.whatsappReady);
+        return;
+      }
+      if (native === 'cancelled') return;
+      const result = await saveCoiffeurIntroCardPng({
+        blob,
+        shareTitle: COIFFEUR_BRAND_AR,
+        shareText: whatsappText,
+        preferShare: false,
+      });
+      if (!result.ok && result.error !== 'cancelled') {
+        toast.error('تعذّر تجهيز الصورة. انسخي الرابط أو حمّلي الصورة.');
+        return;
+      }
+      ProductEvents.coiffeurCardShare({ method: 'whatsapp' });
+      window.open(buildCoiffeurCardWhatsAppHref(whatsappText), '_blank', 'noopener,noreferrer');
+      toast.success(COPY.whatsappFallback);
+    } catch {
+      toast.error('تعذّر فتح واتساب. حمّلي الصورة وأرفقيها مع الرابط.');
+    } finally {
+      setBusy(null);
+    }
+  };
+
   const fieldClass =
     'h-12 min-w-0 w-full touch-manipulation border-[#f4d4c0]/25 bg-[#14080e] text-[16px] leading-normal text-[#f7efe8]';
+  const marketingLead = isCoiffeurMarketingLeadRole(displayRole);
 
   return (
     <CoiffeurVisitorShell withMobileDock={false}>
@@ -209,7 +260,7 @@ export default function CoiffeurCardStudioPage() {
             {COPY.studioTitle}
           </h1>
           <p className="mx-auto mt-3 max-w-2xl text-base leading-relaxed text-[#f7efe8] md:text-lg">
-            {COPY.studioLead}
+            {marketingLead ? COPY.studioLeadMarketing : COPY.studioLead}
           </p>
         </div>
       </section>
@@ -291,25 +342,14 @@ export default function CoiffeurCardStudioPage() {
               {busy === 'png' ? 'جاري التجهيز…' : COPY.downloadCta}
             </Button>
             <Button
-              asChild
+              type="button"
               variant="outline"
-              className={cn(
-                'border-[#f4d4c0]/35 bg-transparent text-[#f7efe8]',
-                !ready && 'pointer-events-none opacity-50',
-              )}
+              disabled={busy !== null}
+              onClick={() => void onWhatsApp()}
+              className="border-[#f4d4c0]/35 bg-transparent text-[#f7efe8]"
             >
-              <a
-                href={ready ? buildCoiffeurCardWhatsAppHref(whatsappText) : undefined}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => {
-                  if (!requireReady()) return;
-                  ProductEvents.coiffeurCardShare({ method: 'whatsapp' });
-                }}
-              >
-                <MessageCircle className="h-4 w-4" />
-                {COPY.whatsappCta}
-              </a>
+              <MessageCircle className="h-4 w-4" />
+              {busy === 'whatsapp' ? 'جاري التجهيز…' : COPY.whatsappCta}
             </Button>
             <Button
               type="button"
