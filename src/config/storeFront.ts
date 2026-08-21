@@ -111,6 +111,7 @@ export const STORE_LANDING_COPY = {
   bereavementLeadAr:
     'خدمة مجتمعية مجانية ومستقلة. إعلان وفاة وترتيبات الصلاة والدفن والعزاء، بلا إعلانات وبلا بيع أثناء الإنشاء.',
   bereavementCtaAr: 'فتح بلاغ عاجل',
+  bereavementFootnoteAr: 'بلاغ وفاة وعزاء مجاني — خدمة مجتمعية مستقلة، ليست مناسبة مدفوعة.',
   issuedCardsLegalAr: 'شروط وخصوصية إصدار البطاقات',
 } as const;
 

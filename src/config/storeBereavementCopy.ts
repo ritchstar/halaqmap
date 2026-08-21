@@ -23,8 +23,8 @@ export const STORE_BEREAVEMENT_COPY = {
   step3Ar: 'المراجعة والنشر',
   expiredAr: 'انتهت فترة عرض تفاصيل العزاء. نسأل الله للفقيد الرحمة والمغفرة.',
   lastUpdatedAr: 'آخر تحديث',
-  condolencePhoneOnlyAr: 'العزاء عبر الاتصال فقط',
-  condolenceCemeteryOnlyAr: 'العزاء في المقبرة فقط',
+  condolencePhoneOnlyAr: 'العزاء عبر الاتصال',
+  condolenceCemeteryOnlyAr: 'العزاء في المقبرة',
   condolenceAtHomeAr: 'العزاء في المنزل',
   condolenceAtHomeHintAr:
     'يظهر على البلاغ: العزاء في المنزل. لا تكتب عنوان السكن هنا؛ الأسرة ترسل الموقع خاصاً لمن تدعوه.',
@@ -35,6 +35,11 @@ export const STORE_BEREAVEMENT_COPY = {
   locationHintAr:
     'المسجد والمقبرة أماكن عامة. لا تكتب عنوان منزل أو عزاء النساء في المنزل على هذه الصفحة.',
   shareIntroAr: 'إنا لله وإنا إليه راجعون',
+  condolenceMultiHintAr: 'يجوز اختيار أكثر من طريقة: اتصال وزيارة منزلية معاً إن رغبت الأسرة.',
+  phoneDialHintAr: 'اختر الدولة ثم اكتب الرقم المحلي دون صفر البداية. للسعودية: 5xxxxxxxx',
+  kinTitleAr: 'ذوو المتوفى للتعزية',
+  kinLeadAr: 'اختياري. يظهر الاسم والصفة وزر الاتصال للزوار. لا يُنشر إلا بإذن صاحبه.',
+  kinAddAr: 'إضافة قريب',
   manageOnlyPhoneAr: 'رابط الإدارة يُرسل إلى الجوال الموثّق فقط. لا تشاركه مع الزوار.',
 } as const;
 
@@ -50,18 +55,64 @@ export const STORE_BEREAVEMENT_BURIAL = [
 ] as const;
 
 export const STORE_BEREAVEMENT_CONDOLENCE = [
-  { id: 'phone_only', labelAr: STORE_BEREAVEMENT_COPY.condolencePhoneOnlyAr },
-  { id: 'cemetery_only', labelAr: STORE_BEREAVEMENT_COPY.condolenceCemeteryOnlyAr },
+  { id: 'phone', labelAr: STORE_BEREAVEMENT_COPY.condolencePhoneOnlyAr },
+  { id: 'cemetery', labelAr: STORE_BEREAVEMENT_COPY.condolenceCemeteryOnlyAr },
   { id: 'at_home', labelAr: STORE_BEREAVEMENT_COPY.condolenceAtHomeAr },
-  { id: 'none', labelAr: STORE_BEREAVEMENT_COPY.condolenceNoneAr },
 ] as const;
 
 export type BereavementCondolenceMode = (typeof STORE_BEREAVEMENT_CONDOLENCE)[number]['id'];
 
+export function canonicalizeCondolenceMode(raw: string): BereavementCondolenceMode | null {
+  if (raw === 'phone' || raw === 'phone_only') return 'phone';
+  if (raw === 'cemetery' || raw === 'cemetery_only') return 'cemetery';
+  if (raw === 'at_home') return 'at_home';
+  return null;
+}
+
 export function condolenceLabelAr(mode: string | undefined): string {
-  const found = STORE_BEREAVEMENT_CONDOLENCE.find((item) => item.id === mode);
+  const id = canonicalizeCondolenceMode(String(mode || ''));
+  const found = STORE_BEREAVEMENT_CONDOLENCE.find((item) => item.id === id);
   return found?.labelAr ?? STORE_BEREAVEMENT_COPY.condolencePhoneOnlyAr;
 }
+
+export function condolenceLabelsAr(modes: readonly string[] | string | undefined): string {
+  const list = Array.isArray(modes) ? modes : modes ? [modes] : [];
+  const labels = list
+    .map((item) => canonicalizeCondolenceMode(item))
+    .filter((item): item is BereavementCondolenceMode => Boolean(item))
+    .map((id) => STORE_BEREAVEMENT_CONDOLENCE.find((row) => row.id === id)?.labelAr)
+    .filter((label): label is string => Boolean(label));
+  return labels.join(' · ') || STORE_BEREAVEMENT_COPY.condolencePhoneOnlyAr;
+}
+
+export const STORE_BEREAVEMENT_KIN_MAX = 12;
+
+export const STORE_BEREAVEMENT_RELATIONS = [
+  { id: 'father', labelAr: 'والد' },
+  { id: 'mother', labelAr: 'والدة' },
+  { id: 'son', labelAr: 'ابن' },
+  { id: 'daughter', labelAr: 'ابنة' },
+  { id: 'brother', labelAr: 'أخ' },
+  { id: 'sister', labelAr: 'أخت' },
+  { id: 'husband', labelAr: 'زوج' },
+  { id: 'wife', labelAr: 'زوجة' },
+  { id: 'uncle_paternal', labelAr: 'عم' },
+  { id: 'uncle_maternal', labelAr: 'خال' },
+  { id: 'other', labelAr: 'أخرى' },
+] as const;
+
+export type BereavementKinRelation = (typeof STORE_BEREAVEMENT_RELATIONS)[number]['id'];
+
+export function kinRelationLabelAr(id: string | undefined): string {
+  return STORE_BEREAVEMENT_RELATIONS.find((item) => item.id === id)?.labelAr || '';
+}
+
+export type BereavementKinRow = {
+  name: string;
+  phoneLocal: string;
+  phoneDial: string;
+  relation: BereavementKinRelation | '';
+};
 
 export const STORE_BEREAVEMENT_PRAYERS: readonly string[] = [
   'إنا لله وإنا إليه راجعون. نسأل الله أن يتغمّده بواسع رحمته.',
@@ -106,10 +157,12 @@ export type BereavementDraft = {
   cemeteryName: string;
   cemeteryMapUrl: string;
   burial: 'pending' | 'done' | 'unknown';
-  condolenceMode: BereavementCondolenceMode;
+  condolenceModes: BereavementCondolenceMode[];
+  kin: BereavementKinRow[];
   prayerText: string;
   familyNote: string;
-  phone: string;
+  phoneDial: string;
+  phoneLocal: string;
   attestorName: string;
   attestorRole: string;
 };
@@ -126,10 +179,12 @@ export const EMPTY_BEREAVEMENT_DRAFT: BereavementDraft = {
   cemeteryName: '',
   cemeteryMapUrl: '',
   burial: 'pending',
-  condolenceMode: 'phone_only',
+  condolenceModes: ['phone'],
+  kin: [{ name: '', phoneLocal: '', phoneDial: '966', relation: '' }],
   prayerText: STORE_BEREAVEMENT_PRAYERS[0],
   familyNote: '',
-  phone: '',
+  phoneDial: '966',
+  phoneLocal: '',
   attestorName: '',
   attestorRole: '',
 };

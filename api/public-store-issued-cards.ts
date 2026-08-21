@@ -44,7 +44,7 @@ import {
   storeIssuedDeliveryConfigured,
   storeIssuedDeliveryProbe,
 } from './_lib/storeIssuedWhatsApp.js';
-import { normalizeSaudiMobileForWa } from './_lib/saudiWhatsAppPhone.js';
+import { normalizeArabMobileDigits } from './_lib/arabMobileDial.js';
 
 export const config = { maxDuration: 20 };
 
@@ -162,7 +162,7 @@ function serviceClient() {
 type Db = NonNullable<ReturnType<typeof serviceClient>>;
 
 async function sendOtp(db: Db, body: Record<string, unknown>, headers: Record<string, string>) {
-  const phone = normalizeSaudiMobileForWa(String(body.phone || ''));
+  const phone = normalizeArabMobileDigits(String(body.phone || ''), String(body.phoneDial || '966'));
   if (!phone) return json({ error: 'رقم الجوال غير صالح' }, 400, headers);
   return dispatchOtp(db, phone, headers);
 }

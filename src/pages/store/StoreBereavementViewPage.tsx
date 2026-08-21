@@ -9,7 +9,8 @@ import {
   STORE_BEREAVEMENT_COPY,
   bereavementPlainText,
   bereavementShareText,
-  condolenceLabelAr,
+  condolenceLabelsAr,
+  kinRelationLabelAr,
 } from '@/config/storeBereavementCopy';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { fetchIssuedCardPublic, reportIssuedCard, revokeIssuedCard } from '@/lib/storeIssuedCardsRemote';
@@ -21,6 +22,7 @@ type NoticeCard = {
   fullName?: string;
   nickname?: string;
   deathDate?: string;
+  deathDateHijri?: string;
   city?: string;
   prayerAt?: string;
   mosqueName?: string;
@@ -29,6 +31,8 @@ type NoticeCard = {
   cemeteryMapUrl?: string;
   burial?: string;
   condolenceMode?: string;
+  condolenceModes?: string[];
+  kin?: Array<{ name?: string; relation?: string; phoneMasked?: string; phoneHref?: string }>;
   prayerText?: string;
   familyNote?: string;
   lastUpdatedAt?: string;
@@ -94,7 +98,7 @@ export default function StoreBereavementViewPage() {
     }
   };
 
-  const condolenceLabel = condolenceLabelAr(card.condolenceMode);
+  const condolenceLabel = condolenceLabelsAr(card.condolenceModes?.length ? card.condolenceModes : card.condolenceMode);
 
   return (
     <div dir="rtl" className="min-h-[100svh] bg-[#0e1412] text-[#e8eee6]">
@@ -117,6 +121,15 @@ export default function StoreBereavementViewPage() {
                 <div>
                   <dt className="text-white/45">المدينة</dt>
                   <dd>{card.city}</dd>
+                </div>
+              ) : null}
+              {card.deathDate || card.deathDateHijri ? (
+                <div>
+                  <dt className="text-white/45">تاريخ الوفاة</dt>
+                  <dd>
+                    {card.deathDate}
+                    {card.deathDateHijri ? ` · ${card.deathDateHijri}` : ''}
+                  </dd>
                 </div>
               ) : null}
               <div>
@@ -155,7 +168,7 @@ export default function StoreBereavementViewPage() {
                 <dt className="text-white/45">العزاء</dt>
                 <dd>
                   {condolenceLabel}
-                  {card.condolenceMode === 'at_home' ? (
+                  {(card.condolenceModes?.length ? card.condolenceModes : [card.condolenceMode]).includes('at_home') ? (
                     <span className="mt-1 block text-white/50">{STORE_BEREAVEMENT_COPY.condolenceAtHomePublicHintAr}</span>
                   ) : null}
                 </dd>
@@ -164,6 +177,29 @@ export default function StoreBereavementViewPage() {
                 <div>
                   <dt className="text-white/45">ملاحظة</dt>
                   <dd>{card.familyNote}</dd>
+                </div>
+              ) : null}
+              {card.kin?.length ? (
+                <div>
+                  <dt className="text-white/45">ذوو المتوفى</dt>
+                  <dd>
+                    <ul className="mt-1 space-y-2">
+                      {card.kin.map((row, index) => (
+                        <li key={`${row.name}-${index}`}>
+                          {row.name}
+                          {row.relation ? ` · ${kinRelationLabelAr(row.relation)}` : ''}
+                          {row.phoneHref ? (
+                            <>
+                              {' · '}
+                              <a href={row.phoneHref} className="text-emerald-200/90 underline" dir="ltr">
+                                {row.phoneMasked || 'اتصال'}
+                              </a>
+                            </>
+                          ) : null}
+                        </li>
+                      ))}
+                    </ul>
+                  </dd>
                 </div>
               ) : null}
             </dl>

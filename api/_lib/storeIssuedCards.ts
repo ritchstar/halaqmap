@@ -4,7 +4,8 @@
  * تحقق حقول إصدار البطاقات — بلا أسرار.
  */
 import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
-import { normalizeSaudiMobileForWa } from './saudiWhatsAppPhone.js';
+import { normalizeArabMobileDigits, maskArabMobileDisplay } from './arabMobileDial.js';
+import { hijriFromIsoDate } from './gregorianHijri.js';
 
 export const STORE_ISSUED_CARDS_TABLE = 'store_issued_cards' as const;
 export const STORE_ISSUED_CARD_OTP_TABLE = 'store_issued_card_otp' as const;
@@ -166,8 +167,7 @@ export function hashesMatch(left: string, right: string): boolean {
 }
 
 export function maskPhoneLast4(phone966: string): string {
-  const local = `0${phone966.slice(3)}`;
-  return `${local.slice(0, 2)}••• ••${local.slice(-3)}`;
+  return maskArabMobileDisplay(phone966);
 }
 
 function clip(raw: unknown, max: number): string {
@@ -196,6 +196,57 @@ function isPublicMapsUrl(raw: string): boolean {
   }
 }
 
+function canonicalizeMode(raw: string): 'phone' | 'cemetery' | 'at_home' | null {
+  if (raw === 'phone' || raw === 'phone_only') return 'phone';
+  if (raw === 'cemetery' || raw === 'cemetery_only') return 'cemetery';
+  if (raw === 'at_home') return 'at_home';
+  return null;
+}
+
+function parseCondolenceModes(body: Record<string, unknown>): Array<'phone' | 'cemetery' | 'at_home'> {
+  const raw = body.condolenceModes;
+  const list: string[] = Array.isArray(raw)
+    ? raw.map((item) => String(item || ''))
+    : [clip(body.condolenceMode, 24)];
+  const unique: Array<'phone' | 'cemetery' | 'at_home'> = [];
+  for (const item of list) {
+    const mode = canonicalizeMode(item.trim());
+    if (mode && !unique.includes(mode)) unique.push(mode);
+    if (unique.length >= 3) break;
+  }
+  return unique.length ? unique : ['phone'];
+}
+
+const KIN_RELATIONS = new Set([
+  'father',
+  'mother',
+  'son',
+  'daughter',
+  'brother',
+  'sister',
+  'husband',
+  'wife',
+  'uncle_paternal',
+  'uncle_maternal',
+  'other',
+]);
+
+function parseKinRows(body: Record<string, unknown>): Array<{ name: string; relation: string; phoneDigits: string }> {
+  const raw = Array.isArray(body.kin) ? body.kin : [];
+  const rows: Array<{ name: string; relation: string; phoneDigits: string }> = [];
+  for (const item of raw.slice(0, 12)) {
+    if (!item || typeof item !== 'object') continue;
+    const row = item as Record<string, unknown>;
+    const name = clip(row.name, 80);
+    const relation = clip(row.relation, 24);
+    if (name.length < 2 || !KIN_RELATIONS.has(relation)) continue;
+    const phoneDigits = normalizeArabMobileDigits(clip(row.phone, 20), clip(row.phoneDial, 6) || '966');
+    if (!phoneDigits) continue;
+    rows.push({ name, relation, phoneDigits });
+  }
+  return rows;
+}
+
 export type PaidInvitePayload = {
   hostName: string;
   occasionLine: string;
@@ -216,7 +267,10 @@ export type BereavementPayload = {
   cemeteryName: string;
   cemeteryMapUrl: string;
   burial: 'pending' | 'done' | 'unknown';
-  condolenceMode: 'phone_only' | 'cemetery_only' | 'at_home' | 'none';
+  condolenceMode: 'phone' | 'cemetery' | 'at_home' | 'phone_only' | 'cemetery_only' | 'none';
+  condolenceModes: Array<'phone' | 'cemetery' | 'at_home'>;
+  deathDateHijri: string;
+  kin: Array<{ name: string; relation: string; phoneDigits: string }>;
   prayerText: string;
   familyNote: string;
 };
@@ -244,7 +298,7 @@ export function parsePaidInviteBody(body: Record<string, unknown>):
 export function parseBereavementBody(body: Record<string, unknown>):
   | { ok: true; phone966: string; attestorName: string; attestorRole: string; payload: BereavementPayload }
   | { ok: false; error: string } {
-  const phone966 = normalizeSaudiMobileForWa(clip(body.phone, 24));
+  const phone966 = normalizeArabMobileDigits(clip(body.phone, 20), clip(body.phoneDial, 6) || '966');
   if (!phone966) return { ok: false, error: 'رقم الجوال غير صالح' };
 
   const gender = clip(body.gender, 8) === 'female' ? 'female' : clip(body.gender, 8) === 'male' ? 'male' : '';
@@ -264,11 +318,10 @@ export function parseBereavementBody(body: Record<string, unknown>):
 
   const burialRaw = clip(body.burial, 16);
   const burial = burialRaw === 'done' || burialRaw === 'unknown' ? burialRaw : 'pending';
-  const modeRaw = clip(body.condolenceMode, 24);
-  const condolenceMode =
-    modeRaw === 'cemetery_only' || modeRaw === 'at_home' || modeRaw === 'none'
-      ? modeRaw
-      : 'phone_only';
+  const condolenceModes = parseCondolenceModes(body);
+  const deathDate = clip(body.deathDate, 32);
+  const deathDateHijri = hijriFromIsoDate(deathDate) || clip(body.deathDateHijri, 80);
+  const kin = parseKinRows(body);
 
   const mosqueName = clip(body.mosqueName, 80);
   const cemeteryName = clip(body.cemeteryName, 80);
@@ -285,7 +338,8 @@ export function parseBereavementBody(body: Record<string, unknown>):
     gender,
     fullName,
     nickname: clip(body.nickname, 40),
-    deathDate: clip(body.deathDate, 32),
+    deathDate,
+    deathDateHijri,
     city: clip(body.city, 40),
     prayerAt,
     mosqueName,
@@ -293,7 +347,9 @@ export function parseBereavementBody(body: Record<string, unknown>):
     cemeteryName,
     cemeteryMapUrl,
     burial,
-    condolenceMode,
+    condolenceMode: condolenceModes[0],
+    condolenceModes,
+    kin,
     prayerText: clip(body.prayerText, 180),
     familyNote: clip(body.familyNote, 280),
   };
@@ -302,11 +358,23 @@ export function parseBereavementBody(body: Record<string, unknown>):
 }
 
 export function publicBereavementView(payload: BereavementPayload, updatedAt: string | null) {
+  const source = payload.condolenceModes?.length
+    ? payload.condolenceModes
+    : payload.condolenceMode
+      ? [payload.condolenceMode]
+      : [];
+  const modes: Array<'phone' | 'cemetery' | 'at_home'> = [];
+  for (const item of source) {
+    const mode = canonicalizeMode(String(item || ''));
+    if (mode && !modes.includes(mode)) modes.push(mode);
+  }
+  if (!modes.length) modes.push('phone');
   return {
     gender: payload.gender,
     fullName: payload.fullName,
     nickname: payload.nickname,
     deathDate: payload.deathDate,
+    deathDateHijri: payload.deathDateHijri,
     city: payload.city,
     prayerAt: payload.prayerAt,
     mosqueName: payload.mosqueName,
@@ -314,7 +382,14 @@ export function publicBereavementView(payload: BereavementPayload, updatedAt: st
     cemeteryName: payload.cemeteryName,
     cemeteryMapUrl: payload.cemeteryMapUrl,
     burial: payload.burial,
-    condolenceMode: payload.condolenceMode,
+    condolenceMode: modes[0],
+    condolenceModes: modes,
+    kin: (payload.kin || []).map((row) => ({
+      name: row.name,
+      relation: row.relation,
+      phoneMasked: maskArabMobileDisplay(row.phoneDigits),
+      phoneHref: `tel:+${row.phoneDigits}`,
+    })),
     prayerText: payload.prayerText,
     familyNote: payload.familyNote,
     lastUpdatedAt: updatedAt,

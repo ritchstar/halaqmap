@@ -14,10 +14,16 @@ import {
   STORE_BEREAVEMENT_CONDOLENCE,
   STORE_BEREAVEMENT_COPY,
   STORE_BEREAVEMENT_GENDER,
+  STORE_BEREAVEMENT_KIN_MAX,
   STORE_BEREAVEMENT_PRAYERS,
-  condolenceLabelAr,
+  STORE_BEREAVEMENT_RELATIONS,
+  condolenceLabelsAr,
+  type BereavementCondolenceMode,
   type BereavementDraft,
+  type BereavementKinRow,
 } from '@/config/storeBereavementCopy';
+import { ARAB_DIAL_CODES, composeArabMobileDigits } from '@/lib/arabMobileDial';
+import { hijriFromIsoDate } from '@/lib/gregorianHijri';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { hasValidStoreIssuedConsent } from '@/lib/storeIssuedCardsConsent';
 import { publishBereavementNotice, sendBereavementOtp } from '@/lib/storeIssuedCardsRemote';
@@ -27,6 +33,50 @@ import { cn } from '@/lib/utils';
 
 const fieldClass =
   'h-12 min-w-0 w-full border-white/15 bg-[#101418] text-[16px] text-[#e8eee6] placeholder:text-white/35';
+
+const emptyKin = (): BereavementKinRow => ({ name: '', phoneLocal: '', phoneDial: '966', relation: '' });
+
+function PhoneFields({
+  dial,
+  local,
+  onDial,
+  onLocal,
+  idPrefix,
+}: {
+  dial: string;
+  local: string;
+  onDial: (value: string) => void;
+  onLocal: (value: string) => void;
+  idPrefix: string;
+}) {
+  return (
+    <div className="flex gap-2">
+      <select
+        id={`${idPrefix}-dial`}
+        value={dial}
+        onChange={(e) => onDial(e.target.value)}
+        className={cn(fieldClass, 'w-[9.5rem] shrink-0 rounded-md')}
+        dir="ltr"
+      >
+        {ARAB_DIAL_CODES.map((item) => (
+          <option key={item.iso} value={item.dial}>
+            {item.nameAr} +{item.dial}
+          </option>
+        ))}
+      </select>
+      <Input
+        id={`${idPrefix}-local`}
+        value={local}
+        onChange={(e) => onLocal(e.target.value)}
+        className={fieldClass}
+        dir="ltr"
+        inputMode="tel"
+        placeholder="5xxxxxxxx"
+        maxLength={12}
+      />
+    </div>
+  );
+}
 
 export default function StoreBereavementCreatePage() {
   useDocumentTitle(STORE_BEREAVEMENT_COPY.documentTitle);
@@ -42,16 +92,38 @@ export default function StoreBereavementCreatePage() {
     setDraft((prev) => ({ ...prev, [key]: value }));
   };
 
+  const publisherPhone = composeArabMobileDigits(draft.phoneDial, draft.phoneLocal);
+  const hijri = hijriFromIsoDate(draft.deathDate);
   const step1Ready = draft.fullName.trim().length >= 3 && draft.city.trim().length >= 2;
   const step2Ready = draft.prayerAt.trim().length >= 2 && draft.mosqueName.trim().length >= 2 && draft.cemeteryName.trim().length >= 2;
+
+  const toggleMode = (id: BereavementCondolenceMode) => {
+    setDraft((prev) => {
+      const has = prev.condolenceModes.includes(id);
+      let next = has ? prev.condolenceModes.filter((item) => item !== id) : [...prev.condolenceModes, id];
+      if (!next.length) next = [id];
+      return { ...prev, condolenceModes: next.slice(0, 3) };
+    });
+  };
+
+  const patchKin = (index: number, next: Partial<BereavementKinRow>) => {
+    setDraft((prev) => ({
+      ...prev,
+      kin: prev.kin.map((row, i) => (i === index ? { ...row, ...next } : row)),
+    }));
+  };
 
   if (!consented) {
     return <Navigate to={`${ROUTE_PATHS.STORE_ISSUED_CARDS_LEGAL}?track=bereavement`} replace />;
   }
 
   const sendCode = async () => {
+    if (!publisherPhone) {
+      toast.error('اختر الدولة واكتب الرقم المحلي دون صفر البداية.');
+      return;
+    }
     setBusy(true);
-    const result = await sendBereavementOtp(draft.phone);
+    const result = await sendBereavementOtp(publisherPhone);
     setBusy(false);
     if (!result.ok) {
       toast.error(typeof result.error === 'string' ? result.error : 'تعذر إرسال الرمز');
@@ -66,8 +138,27 @@ export default function StoreBereavementCreatePage() {
       toast.error('أدخل رمز التحقق بعد إرساله إلى جوالك.');
       return;
     }
+    if (!publisherPhone) {
+      toast.error('رقم جوال منشئ البلاغ غير صالح.');
+      return;
+    }
+    const kin = draft.kin
+      .map((row) => ({
+        name: row.name.trim(),
+        relation: row.relation,
+        phoneDial: row.phoneDial,
+        phone: composeArabMobileDigits(row.phoneDial, row.phoneLocal) || '',
+      }))
+      .filter((row) => row.name && row.relation && row.phone);
     setBusy(true);
-    const result = await publishBereavementNotice({ ...draft, otp });
+    const result = await publishBereavementNotice({
+      ...draft,
+      phone: publisherPhone,
+      phoneDial: draft.phoneDial,
+      deathDateHijri: hijri,
+      kin,
+      otp,
+    });
     setBusy(false);
     if (!result.ok) {
       toast.error(typeof result.error === 'string' ? result.error : 'تعذر النشر');
@@ -125,8 +216,18 @@ export default function StoreBereavementCreatePage() {
               <Input value={draft.nickname} onChange={(e) => patch('nickname', e.target.value)} className={fieldClass} maxLength={40} />
             </div>
             <div>
-              <Label>تاريخ الوفاة — اختياري</Label>
-              <Input value={draft.deathDate} onChange={(e) => patch('deathDate', e.target.value)} className={fieldClass} maxLength={32} />
+              <Label htmlFor="death-date-g">تاريخ الوفاة الميلادي</Label>
+              <Input
+                id="death-date-g"
+                type="date"
+                value={draft.deathDate}
+                onChange={(e) => patch('deathDate', e.target.value)}
+                className={fieldClass}
+              />
+            </div>
+            <div>
+              <Label htmlFor="death-date-h">التاريخ الهجري الموافق</Label>
+              <Input id="death-date-h" value={hijri} readOnly className={cn(fieldClass, 'opacity-90')} placeholder="يُعبَّأ تلقائياً بعد اختيار الميلادي" />
             </div>
             <div>
               <Label>المدينة</Label>
@@ -184,18 +285,18 @@ export default function StoreBereavementCreatePage() {
               ))}
             </div>
             <div className="space-y-2 text-sm">
+              <p className="text-xs text-white/55">{STORE_BEREAVEMENT_COPY.condolenceMultiHintAr}</p>
               {STORE_BEREAVEMENT_CONDOLENCE.map((item) => (
                 <label key={item.id} className="flex items-center gap-2">
                   <input
-                    type="radio"
-                    name="condolenceMode"
-                    checked={draft.condolenceMode === item.id}
-                    onChange={() => patch('condolenceMode', item.id)}
+                    type="checkbox"
+                    checked={draft.condolenceModes.includes(item.id)}
+                    onChange={() => toggleMode(item.id)}
                   />
                   {item.labelAr}
                 </label>
               ))}
-              {draft.condolenceMode === 'at_home' ? (
+              {draft.condolenceModes.includes('at_home') ? (
                 <p className="text-xs leading-6 text-amber-100/80">{STORE_BEREAVEMENT_COPY.condolenceAtHomeHintAr}</p>
               ) : null}
             </div>
@@ -213,6 +314,52 @@ export default function StoreBereavementCreatePage() {
               <Label>ملاحظات الأسرة — اختيارية، بلا عنوان منزل</Label>
               <Textarea value={draft.familyNote} onChange={(e) => patch('familyNote', e.target.value)} maxLength={280} className="min-h-24 border-white/15 bg-[#101418] text-[#e8eee6]" />
             </div>
+            <div className="rounded-2xl border border-white/10 p-4">
+              <p className="font-bold">{STORE_BEREAVEMENT_COPY.kinTitleAr}</p>
+              <p className="mt-1 text-xs leading-6 text-white/55">{STORE_BEREAVEMENT_COPY.kinLeadAr}</p>
+              <div className="mt-4 space-y-4">
+                {draft.kin.map((row, index) => (
+                  <div key={`kin-${index}`} className="space-y-2 rounded-xl border border-white/10 p-3">
+                    <Input
+                      value={row.name}
+                      onChange={(e) => patchKin(index, { name: e.target.value })}
+                      className={fieldClass}
+                      placeholder="الاسم"
+                      maxLength={80}
+                    />
+                    <select
+                      value={row.relation}
+                      onChange={(e) => patchKin(index, { relation: e.target.value as BereavementKinRow['relation'] })}
+                      className={cn(fieldClass, 'rounded-md')}
+                    >
+                      <option value="">الصفة</option>
+                      {STORE_BEREAVEMENT_RELATIONS.map((item) => (
+                        <option key={item.id} value={item.id}>
+                          {item.labelAr}
+                        </option>
+                      ))}
+                    </select>
+                    <PhoneFields
+                      idPrefix={`kin-${index}`}
+                      dial={row.phoneDial}
+                      local={row.phoneLocal}
+                      onDial={(value) => patchKin(index, { phoneDial: value })}
+                      onLocal={(value) => patchKin(index, { phoneLocal: value })}
+                    />
+                  </div>
+                ))}
+              </div>
+              {draft.kin.length < STORE_BEREAVEMENT_KIN_MAX ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="mt-3 border-white/20"
+                  onClick={() => patch('kin', [...draft.kin, emptyKin()])}
+                >
+                  + {STORE_BEREAVEMENT_COPY.kinAddAr}
+                </Button>
+              ) : null}
+            </div>
             <div className="flex gap-2">
               <Button type="button" variant="outline" onClick={() => setStep(1)} className="flex-1 border-white/20">
                 السابق
@@ -229,17 +376,30 @@ export default function StoreBereavementCreatePage() {
             <div className="rounded-2xl border border-white/15 bg-[#141c18] p-5 text-sm leading-7">
               <p className="text-lg font-extrabold">{draft.fullName}</p>
               {draft.nickname ? <p className="text-white/60">{draft.nickname}</p> : null}
+              {draft.deathDate ? (
+                <p className="mt-3">
+                  الوفاة: {draft.deathDate}
+                  {hijri ? ` · ${hijri}` : ''}
+                </p>
+              ) : null}
               <p className="mt-3">الصلاة: {draft.prayerAt}</p>
               <p>المسجد: {draft.mosqueName}</p>
               <p>المقبرة: {draft.cemeteryName}</p>
-              <p>العزاء: {condolenceLabelAr(draft.condolenceMode)}</p>
+              <p>العزاء: {condolenceLabelsAr(draft.condolenceModes)}</p>
               <p>المدينة: {draft.city}</p>
               <p className="mt-3 text-white/70">{draft.prayerText}</p>
             </div>
             <p className="text-sm text-amber-100/80">{STORE_BEREAVEMENT_COPY.warningAccuracyAr}</p>
             <div>
               <Label>جوال منشئ البلاغ — للتحقق ورابط الإدارة</Label>
-              <Input value={draft.phone} onChange={(e) => patch('phone', e.target.value)} className={fieldClass} dir="ltr" />
+              <p className="mb-2 text-xs text-white/50">{STORE_BEREAVEMENT_COPY.phoneDialHintAr}</p>
+              <PhoneFields
+                idPrefix="publisher"
+                dial={draft.phoneDial}
+                local={draft.phoneLocal}
+                onDial={(value) => patch('phoneDial', value)}
+                onLocal={(value) => patch('phoneLocal', value)}
+              />
             </div>
             <div>
               <Label>اسم من اعتمد البلاغ — لا يظهر للزوار</Label>

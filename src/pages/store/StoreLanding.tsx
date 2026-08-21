@@ -281,21 +281,19 @@ export default function StoreLanding() {
       </section>
 
       <section className="px-4 pb-8">
-        <div className="mx-auto grid max-w-5xl gap-4 md:grid-cols-2">
-          <div className="rounded-2xl border border-[#e8c547]/25 bg-[#0b1a24]/70 p-5">
+        <div className="mx-auto max-w-5xl">
+          <div className="rounded-2xl border border-[#e8c547]/25 bg-[#0b1a24]/70 p-5 md:p-6">
             <h2 className="text-xl font-extrabold">{STORE_LANDING_COPY.paidInvitesTitleAr}</h2>
-            <p className="mt-2 text-sm leading-7 text-white/70">{STORE_LANDING_COPY.paidInvitesLeadAr}</p>
+            <p className="mt-2 max-w-3xl text-sm leading-7 text-white/70">{STORE_LANDING_COPY.paidInvitesLeadAr}</p>
             <Link to={ROUTE_PATHS.STORE_INVITES} className="mt-4 inline-flex text-sm font-bold text-[#e8c547]">
               {STORE_LANDING_COPY.paidInvitesCtaAr}
             </Link>
           </div>
-          <div className="rounded-2xl border border-white/12 bg-[#0e1412] p-5">
-            <h2 className="text-xl font-extrabold text-[#e8eee6]">{STORE_LANDING_COPY.bereavementTitleAr}</h2>
-            <p className="mt-2 text-sm leading-7 text-white/70">{STORE_LANDING_COPY.bereavementLeadAr}</p>
-            <Link to={ROUTE_PATHS.STORE_BEREAVEMENT} className="mt-4 inline-flex text-sm font-bold text-white/80">
-              {STORE_LANDING_COPY.bereavementCtaAr}
+          <p className="mt-4 text-center text-[11px] leading-5 text-white/40">
+            <Link to={ROUTE_PATHS.STORE_BEREAVEMENT} className="underline-offset-2 hover:underline">
+              {STORE_LANDING_COPY.bereavementFootnoteAr}
             </Link>
-          </div>
+          </p>
         </div>
       </section>
 

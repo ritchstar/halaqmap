@@ -47,6 +47,8 @@ import {
   storeIssuedOtpContentVariables,
   TWILIO_SANDBOX_WHATSAPP_CONTENT_SID,
 } from '../api/_lib/storeIssuedWhatsApp.ts';
+import { hijriFromIsoDate } from '../api/_lib/gregorianHijri.ts';
+import { composeArabMobileDigits } from '../api/_lib/arabMobileDial.ts';
 import { STORE_LANDING_COPY } from '../src/config/storeFront.ts';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -165,7 +167,10 @@ const notice = parseBereavementBody({
   mosqueMapUrl: 'https://maps.google.com/?q=mosque',
 });
 assert.equal(notice.ok, true);
-if (notice.ok) assert.equal(notice.payload.condolenceMode, 'phone_only');
+if (notice.ok) {
+  assert.equal(notice.payload.condolenceMode, 'phone');
+  assert.deepEqual(notice.payload.condolenceModes, ['phone']);
+}
 
 const atHomeNotice = parseBereavementBody({
   phone: '0559602685',
@@ -180,7 +185,32 @@ const atHomeNotice = parseBereavementBody({
   condolenceMode: 'at_home',
 });
 assert.equal(atHomeNotice.ok, true);
-if (atHomeNotice.ok) assert.equal(atHomeNotice.payload.condolenceMode, 'at_home');
+if (atHomeNotice.ok) {
+  assert.equal(atHomeNotice.payload.condolenceMode, 'at_home');
+  assert.deepEqual(atHomeNotice.payload.condolenceModes, ['at_home']);
+}
+
+const multiNotice = parseBereavementBody({
+  phone: '0559602685',
+  gender: 'male',
+  fullName: 'عبدالله بن محمد',
+  mosqueName: 'جامع الراجحي',
+  cemeteryName: 'مقبرة النسيم',
+  prayerAt: 'بعد عصر الجمعة',
+  attestorName: 'محمد',
+  condolenceModes: ['phone', 'at_home'],
+  deathDate: '2026-08-21',
+  kin: [{ name: 'أحمد', relation: 'brother', phone: '0559602685' }],
+});
+assert.equal(multiNotice.ok, true);
+if (multiNotice.ok) {
+  assert.deepEqual(multiNotice.payload.condolenceModes, ['phone', 'at_home']);
+  assert.equal(multiNotice.payload.kin.length, 1);
+  assert.ok(multiNotice.payload.deathDateHijri.length > 0);
+}
+
+assert.equal(composeArabMobileDigits('966', '0559602685'), '966559602685');
+assert.ok(hijriFromIsoDate('2026-08-21').length > 0);
 
 const homeMapsOk = parseBereavementBody({
   phone: '0559602685',
@@ -228,6 +258,15 @@ assert.match(legalBlob, /وضع المنصة المعتمد/);
 assert.match(legalBlob, /يُربط بفاتورته/);
 assert.match(STORE_LANDING_COPY.paidInvitesLeadAr, /12 و29 و59/);
 assert.match(STORE_LANDING_COPY.bereavementTitleAr, /الوفاة/);
+assert.match(STORE_LANDING_COPY.bereavementFootnoteAr, /بلاغ وفاة/);
+
+const landing = readFileSync(join(root, 'src/pages/store/StoreLanding.tsx'), 'utf8');
+assert.match(landing, /bereavementFootnoteAr/);
+assert.doesNotMatch(landing, /md:grid-cols-2/);
+
+const chrome = readFileSync(join(root, 'src/components/store/StoreChrome.tsx'), 'utf8');
+assert.match(chrome, /bereavementFootnoteAr/);
+assert.doesNotMatch(chrome, /STORE_LANDING_COPY\.bereavementTitleAr/);
 
 const legalHub = readFileSync(join(root, 'src/pages/store/StoreIssuedCardsLegalHub.tsx'), 'utf8');
 assert.match(legalHub, /issued-unified-consent/);
