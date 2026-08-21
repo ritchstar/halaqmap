@@ -142,9 +142,13 @@ export const STORE_EVENT_LIVE_OCCASIONS = {
 } as const;
 
 export const STORE_EVENT_LIVE_CANNED = [
-  { id: 'baraka', textAr: 'بارك الله فيكم وجعل هذه المناسبة نوراً وسروراً.' },
-  { id: 'alf', textAr: 'ألف مبارك، دامت أفراحكم وعمّت دياركم السعادة.' },
-  { id: 'dawam', textAr: 'مبارك المناسبة، وأسعد الله أيامكم بكل خير.' },
+  { id: 'baraka', textAr: 'بارك الله فيكم وجعل هذه المناسبة نوراً.' },
+  { id: 'alf', textAr: 'ألف مبارك، دامت أفراحكم.' },
+  { id: 'dawam', textAr: 'مبارك المناسبة، وأسعد الله أيامكم.' },
+  { id: 'noor', textAr: 'حضوركم أنار المكان، وكل عام وأنتم بخير.' },
+  { id: 'izz', textAr: 'دام عزكم، ودامت مناسباتكم سعيدة.' },
+  { id: 'layla', textAr: 'ليلة موفقة، وفرح يدوم.' },
+  { id: 'tawfiq', textAr: 'بالتوفيق، وأجمل الأمنيات لكم.' },
 ] as const;
 
 export const STORE_EVENT_LIVE_AUDIO = [

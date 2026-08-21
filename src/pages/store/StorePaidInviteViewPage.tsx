@@ -2,7 +2,7 @@
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
 import { useEffect, useMemo, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { Copy, Download, MessageCircle, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/sonner';
@@ -15,7 +15,7 @@ import {
   buildOccasionCardWhatsAppHref,
   occasionCardShareUrlFromToken,
 } from '@/lib/storeOccasionCardShare';
-import { ROUTE_PATHS } from '@/lib/routePaths';
+import { STORE_LIVE_MARK_AR } from '@/config/storeLiveAtmosphere';
 
 export default function StorePaidInviteViewPage() {
   const { token = '' } = useParams<{ token: string }>();
@@ -192,11 +192,7 @@ export default function StorePaidInviteViewPage() {
             </div>
           </>
         ) : null}
-        <Link to={ROUTE_PATHS.STORE_INVITES} className="mt-8 block text-center">
-          <Button variant={live ? 'ghost' : 'default'} className={live ? 'text-white/70' : 'bg-[#e8c547] text-[#061018]'}>
-            {STORE_PAID_INVITE_COPY.createCtaAr}
-          </Button>
-        </Link>
+        <p className="store-live-mark mt-10 text-center">{STORE_LIVE_MARK_AR}</p>
       </main>
     </div>
   );

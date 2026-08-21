@@ -4,6 +4,7 @@
  * شاشة لاونجا1 — فعالية، ترحيبات، تنويه.
  */
 import { STORE_LOUNGE_LIVE, STORE_LOUNGE_LIVE_ACCENT } from '@/config/storeLoungeLive';
+import { StoreLivePanoramaCycle } from '@/components/store/StoreLivePanoramaCycle';
 import type { LoungeLiveLabState } from '@/lib/storeLoungeLiveLab';
 import { loungeScreenTitle, youtubeEmbedSrc } from '@/lib/storeLoungeLiveLab';
 import { cn } from '@/lib/utils';
@@ -11,9 +12,11 @@ import { cn } from '@/lib/utils';
 export function StoreLoungeHallStage({
   state,
   className,
+  immersive = false,
 }: {
   state: LoungeLiveLabState;
   className?: string;
+  immersive?: boolean;
 }) {
   const visible = state.blessings.filter((item) => !item.hidden);
   const ticker = visible
@@ -21,19 +24,19 @@ export function StoreLoungeHallStage({
     .join('   ·   ');
   const embed = !state.host.youtubeHidden ? youtubeEmbedSrc(state.host.youtubeUrl) : null;
   const latest = visible.slice(-4).reverse();
-  const stageImage = state.host.youtubeHidden ? state.host.panoramaSrc : state.host.photoSrc;
   const accent = STORE_LOUNGE_LIVE_ACCENT;
 
   return (
     <div
       className={cn(
-        'relative overflow-hidden rounded-[28px] border bg-black text-[#f7edd8]',
-        'border-[#d4a574]/35',
+        'relative overflow-hidden bg-black text-[#f7edd8]',
+        immersive ? 'min-h-[100svh] rounded-none border-0' : 'rounded-[28px] border border-[#d4a574]/35',
         className,
       )}
     >
-      <img src={stageImage} alt="" className="absolute inset-0 h-full w-full object-cover opacity-55" />
-      <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/40 to-black/80" />
+      <StoreLivePanoramaCycle />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/35 via-black/25 to-black/72" />
+      <div className="wedding-hall-lights pointer-events-none absolute inset-0" aria-hidden />
 
       {state.host.announcement.trim() ? (
         <div
@@ -46,7 +49,7 @@ export function StoreLoungeHallStage({
         </div>
       ) : null}
 
-      <div className="relative z-10 flex min-h-[32rem] flex-col p-5 pt-16 md:p-8">
+      <div className="relative z-10 flex min-h-[32rem] flex-col p-4 pt-14 sm:p-5 sm:pt-16 md:p-8">
         <p className="text-center text-[11px] tracking-[0.35em]" style={{ color: accent }}>
           {STORE_LOUNGE_LIVE.hallKickerAr}
         </p>
@@ -54,7 +57,7 @@ export function StoreLoungeHallStage({
         <h2 className="mt-1 text-center text-3xl font-black md:text-5xl">{loungeScreenTitle(state.host)}</h2>
         <p className="mx-auto mt-5 max-w-xl text-center text-sm leading-8 text-white/85">{state.host.welcomeAr}</p>
 
-        <div className="mt-6 grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
+        <div className="mt-5 grid gap-3 sm:mt-6 sm:gap-4 lg:grid-cols-[1.1fr_0.9fr]">
           <div className="overflow-hidden rounded-2xl border border-white/15 bg-black/45">
             {embed ? (
               <iframe
@@ -79,7 +82,7 @@ export function StoreLoungeHallStage({
               ))
             ) : (
               <li className="rounded-2xl border border-white/12 bg-black/50 p-4 text-sm text-white/55">
-                أرسل ترحيباً من رابط الزبون ليظهر هنا فوراً.
+                بانتظار أولى الترحيبات على الشاشة.
               </li>
             )}
           </ul>
@@ -90,7 +93,6 @@ export function StoreLoungeHallStage({
             {ticker || 'بانتظار أولى الترحيبات على شاشة اللاونج'}
           </p>
         </div>
-        <p className="mt-3 text-center text-[10px] text-white/40">{STORE_LOUNGE_LIVE.hallStampAr}</p>
       </div>
     </div>
   );

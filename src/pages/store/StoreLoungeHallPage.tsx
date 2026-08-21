@@ -4,15 +4,11 @@
  * شاشة لاونجا1: عرض / زبون / مضيف. عند انتهاء المدة يُحال الرابط إلى الهبوط لإعادة الشراء.
  */
 import { useEffect, useState } from 'react';
-import { Link, Navigate, useLocation, useParams } from 'react-router-dom';
-import {
-  StoreVisitorFooter,
-  StoreVisitorHeader,
-  StoreVisitorShell,
-} from '@/components/store/StoreChrome';
+import { Navigate, useLocation, useParams } from 'react-router-dom';
 import { StoreLoungeGuestForm } from '@/components/store/StoreLoungeGuestForm';
 import { StoreLoungeHallStage } from '@/components/store/StoreLoungeHallStage';
 import { StoreLoungeHostPanel } from '@/components/store/StoreLoungeHostPanel';
+import { StorePurchasedShell } from '@/components/store/StorePurchasedShell';
 import { STORE_LOUNGE_LIVE, STORE_LOUNGE_LIVE_LAB_TOKEN, STORE_LOUNGE_LIVE_PUBLIC_ENABLED } from '@/config/storeLoungeLive';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import {
@@ -118,64 +114,31 @@ export default function StoreLoungeHallPage() {
     return <Navigate to={`${ROUTE_PATHS.STORE_LOUNGE}?renew=${encodeURIComponent(renewToken)}`} replace />;
   }
 
-  const displayPath = `/l/${encodeURIComponent(safeToken)}`;
-  const guestPath = `/l/${encodeURIComponent(safeToken)}/guest`;
-  const hostPath = `/l/${encodeURIComponent(safeToken)}/host`;
-
   return (
-    <StoreVisitorShell>
-      {mode !== 'display' ? <StoreVisitorHeader /> : null}
-      <section className={mode === 'display' ? 'px-3 py-4 md:px-6 md:py-6' : 'px-4 py-8'}>
-        <div className="mx-auto max-w-6xl">
-          {gate === 'loading' ? <p className="text-sm text-white/60">جاري فتح الشاشة…</p> : null}
-          {gate === 'missing' ? (
-            <p className="text-sm text-white/70">
-              الرابط غير صالح.{' '}
-              <Link className="text-[#d4a574] underline" to={ROUTE_PATHS.STORE_LOUNGE}>
-                {STORE_LOUNGE_LIVE.titleAr}
-              </Link>
-            </p>
+    <StorePurchasedShell>
+      {gate === 'loading' ? (
+        <p className="px-4 pt-[40svh] text-center text-sm text-white/60">جاري فتح الشاشة…</p>
+      ) : null}
+      {gate === 'missing' ? (
+        <p className="px-4 pt-[40svh] text-center text-sm text-white/70">الرابط غير صالح.</p>
+      ) : null}
+      {gate === 'ok' ? (
+        <>
+          <StoreLoungeHallStage state={state} immersive />
+          {mode === 'guest' ? <StoreLoungeGuestForm state={state} onChange={commit} /> : null}
+          {mode === 'host' ? (
+            <div className="relative z-20 px-3 pb-10 pt-3">
+              <StoreLoungeHostPanel
+                state={state}
+                onChange={commit}
+                guestUrl={guestUrl}
+                displayUrl={displayUrl}
+                expiresAt={expiresAt}
+              />
+            </div>
           ) : null}
-          {gate === 'ok' ? (
-            <>
-              {isLab && mode !== 'display' ? (
-                <div className="mb-5 flex flex-wrap gap-2 text-xs">
-                  <Link to={ROUTE_PATHS.STORE_LOUNGE} className="text-white/50">
-                    {STORE_LOUNGE_LIVE.titleAr}
-                  </Link>
-                  <Link to={displayPath} className="rounded-full border border-white/15 px-3 py-1">
-                    {STORE_LOUNGE_LIVE.displayLinkAr}
-                  </Link>
-                  <Link to={guestPath} className="rounded-full border border-white/15 px-3 py-1">
-                    {STORE_LOUNGE_LIVE.guestLinkAr}
-                  </Link>
-                  <Link to={hostPath} className="rounded-full border border-white/15 px-3 py-1">
-                    {STORE_LOUNGE_LIVE.hostLinkAr}
-                  </Link>
-                </div>
-              ) : null}
-              <StoreLoungeHallStage state={state} />
-              {mode === 'guest' ? (
-                <div className="mt-6">
-                  <StoreLoungeGuestForm state={state} onChange={commit} />
-                </div>
-              ) : null}
-              {mode === 'host' ? (
-                <div className="mt-6">
-                  <StoreLoungeHostPanel
-                    state={state}
-                    onChange={commit}
-                    guestUrl={guestUrl}
-                    displayUrl={displayUrl}
-                    expiresAt={expiresAt}
-                  />
-                </div>
-              ) : null}
-            </>
-          ) : null}
-        </div>
-      </section>
-      {mode !== 'display' ? <StoreVisitorFooter /> : null}
-    </StoreVisitorShell>
+        </>
+      ) : null}
+    </StorePurchasedShell>
   );
 }

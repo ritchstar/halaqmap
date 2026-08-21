@@ -4,15 +4,11 @@
  * قاعة الدعوة الحرة: عرض / ضيف / مضيف.
  */
 import { useEffect, useState } from 'react';
-import { Link, Navigate, useLocation, useParams } from 'react-router-dom';
-import {
-  StoreVisitorFooter,
-  StoreVisitorHeader,
-  StoreVisitorShell,
-} from '@/components/store/StoreChrome';
+import { Navigate, useLocation, useParams } from 'react-router-dom';
 import { StoreEventGuestForm } from '@/components/store/StoreEventGuestForm';
 import { StoreEventHallStage } from '@/components/store/StoreEventHallStage';
 import { StoreEventHostPanel } from '@/components/store/StoreEventHostPanel';
+import { StorePurchasedShell } from '@/components/store/StorePurchasedShell';
 import {
   STORE_EVENT_LIVE_LAB_TOKEN,
   STORE_EVENT_LIVE_LAB_TOKEN_WOMEN,
@@ -99,51 +95,19 @@ export default function StoreEventHallPage() {
   const copy = eventLiveCopy(voice);
   useDocumentTitle(copy.documentTitle);
 
-  const isLab = isEventLabToken(safeToken);
-  const displayPath = `/e/${encodeURIComponent(safeToken)}`;
-  const guestPath = `/e/${encodeURIComponent(safeToken)}/guest`;
-  const hostPath = `/e/${encodeURIComponent(safeToken)}/host`;
-  const landingPath = voice === 'women' ? ROUTE_PATHS.STORE_EVENT_WOMEN : ROUTE_PATHS.STORE_EVENT_MEN;
-
   if (!STORE_EVENT_LIVE_PUBLIC_ENABLED) {
     return <Navigate to={ROUTE_PATHS.STORE_LANDING} replace />;
   }
 
   return (
-    <StoreVisitorShell>
-      {mode !== 'display' ? <StoreVisitorHeader /> : null}
-      <section className={mode === 'display' ? 'px-3 py-4 md:px-6 md:py-6' : 'px-4 py-8'}>
-        <div className="mx-auto max-w-6xl">
-          {isLab && mode !== 'display' ? (
-            <div className="mb-5 flex flex-wrap gap-2 text-xs">
-              <Link to={landingPath} className="text-white/50">
-                {copy.titleAr}
-              </Link>
-              <Link to={displayPath} className="rounded-full border border-white/15 px-3 py-1">
-                {copy.displayLinkAr}
-              </Link>
-              <Link to={guestPath} className="rounded-full border border-white/15 px-3 py-1">
-                {copy.guestLinkAr}
-              </Link>
-              <Link to={hostPath} className="rounded-full border border-white/15 px-3 py-1">
-                {copy.hostLinkAr}
-              </Link>
-            </div>
-          ) : null}
-          <StoreEventHallStage state={state} />
-          {mode === 'guest' ? (
-            <div className="mt-6">
-              <StoreEventGuestForm state={state} onChange={commit} />
-            </div>
-          ) : null}
-          {mode === 'host' ? (
-            <div className="mt-6">
-              <StoreEventHostPanel state={state} onChange={commit} />
-            </div>
-          ) : null}
+    <StorePurchasedShell>
+      <StoreEventHallStage state={state} immersive />
+      {mode === 'guest' ? <StoreEventGuestForm state={state} onChange={commit} /> : null}
+      {mode === 'host' ? (
+        <div className="relative z-20 px-3 pb-10 pt-3">
+          <StoreEventHostPanel state={state} onChange={commit} />
         </div>
-      </section>
-      {mode !== 'display' ? <StoreVisitorFooter /> : null}
-    </StoreVisitorShell>
+      ) : null}
+    </StorePurchasedShell>
   );
 }

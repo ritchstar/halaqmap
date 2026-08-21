@@ -3030,7 +3030,48 @@ html.platform-radar-fullscreen #root {
     white-space: normal;
   }
   .wedding-hall-lights,
-  .wedding-hall-glow {
+  .wedding-hall-glow,
+  .store-live-lights,
+  .store-live-sparkle {
     animation: none;
   }
+}
+
+.store-live-mark {
+  font-size: 8px;
+  letter-spacing: 0.18em;
+  color: rgba(255, 255, 255, 0.14);
+  line-height: 1;
+}
+
+.store-live-lights {
+  background:
+    radial-gradient(ellipse 46% 36% at 16% 18%, rgba(255, 236, 180, 0.34), transparent 70%),
+    radial-gradient(ellipse 40% 32% at 84% 14%, rgba(255, 210, 150, 0.22), transparent 68%),
+    radial-gradient(ellipse 58% 42% at 50% 92%, rgba(232, 197, 71, 0.2), transparent 72%);
+  animation: wedding-hall-breathe 6.4s ease-in-out infinite;
+  mix-blend-mode: screen;
+}
+
+.store-live-sparkle {
+  background-image:
+    radial-gradient(circle at 12% 28%, rgba(255, 255, 255, 0.55) 0 1px, transparent 2px),
+    radial-gradient(circle at 78% 18%, rgba(255, 236, 180, 0.5) 0 1px, transparent 2px),
+    radial-gradient(circle at 62% 72%, rgba(255, 255, 255, 0.35) 0 1px, transparent 2px),
+    radial-gradient(circle at 28% 80%, rgba(255, 214, 140, 0.4) 0 1px, transparent 2px);
+  animation: store-live-twinkle 4.8s ease-in-out infinite;
+}
+
+@keyframes store-live-twinkle {
+  0%,
+  100% {
+    opacity: 0.25;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+.store-purchased-shell {
+  overscroll-behavior: none;
 }

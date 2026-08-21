@@ -13,8 +13,10 @@ import {
   STORE_LOUNGE_LIVE_PRICE_HALALAS,
   STORE_LOUNGE_LIVE_PRICE_SAR,
   STORE_LOUNGE_LIVE_PRODUCT,
+  STORE_LOUNGE_LIVE_CANNED,
   STORE_LOUNGE_LIVE_PUBLIC_ENABLED,
 } from '../src/config/storeLoungeLive.ts';
+import { STORE_LIVE_MARK_AR, STORE_LIVE_PANORAMAS } from '../src/config/storeLiveAtmosphere.ts';
 import { STORE_EVENT_LIVE_PRODUCT, STORE_EVENT_LIVE_PRICE_SAR } from '../src/config/storeEventLive.ts';
 import { STORE_WEDDING_LIVE_PRODUCT } from '../src/config/storeWeddingLive.ts';
 import { STORE_LANDING_COPY } from '../src/config/storeFront.ts';
@@ -125,5 +127,21 @@ assert.match(remote, /public-store-lounge-live/);
 assert.doesNotMatch(remote, /public-store-event-live/);
 assert.match(sql, /price_halalas = 60000/);
 assert.match(sql, /pending_renewal/);
+
+assert.equal(STORE_LIVE_PANORAMAS.length, 7);
+assert.equal(STORE_LIVE_MARK_AR, 'منتج خريطة الحل');
+assert.ok(STORE_LOUNGE_LIVE_CANNED.length >= 7);
+assert.doesNotMatch(
+  readFileSync(join(root, 'src/pages/store/StoreLoungeHallPage.tsx'), 'utf8'),
+  /StoreVisitorHeader|StoreVisitorFooter/,
+);
+assert.doesNotMatch(
+  readFileSync(join(root, 'src/pages/store/StoreWeddingHallPage.tsx'), 'utf8'),
+  /StoreVisitorHeader|StoreVisitorFooter/,
+);
+assert.doesNotMatch(
+  readFileSync(join(root, 'src/pages/store/StoreEventHallPage.tsx'), 'utf8'),
+  /StoreVisitorHeader|StoreVisitorFooter/,
+);
 
 console.log('store-lounge-live: ok');

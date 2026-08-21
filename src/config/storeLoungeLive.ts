@@ -109,9 +109,13 @@ export function loungeLiveEventById(id: string) {
 }
 
 export const STORE_LOUNGE_LIVE_CANNED = [
-  { id: 'welcome', textAr: 'حياك الله، والشاشة ترحب بك في اللاونج.' },
+  { id: 'welcome', textAr: 'حياك الله، والشاشة ترحب بك.' },
   { id: 'birthday', textAr: 'عيد ميلاد سعيد، والليلة أجمل بوجودك.' },
-  { id: 'mubarak', textAr: 'ألف مبارك، ليلة سعيدة وكل عام وأنتم بخير.' },
+  { id: 'mubarak', textAr: 'ألف مبارك، ليلة سعيدة.' },
+  { id: 'noor', textAr: 'نورت اللاونج، تسعد أوقاتك.' },
+  { id: 'ahlain', textAr: 'أهلاً وسهلاً، تفضل بالراحة.' },
+  { id: 'hania', textAr: 'ليلة هادئة وهنيّة، حياك الله.' },
+  { id: 'zeen', textAr: 'وجودك يزيّن المكان.' },
 ] as const;
 
 export const STORE_LOUNGE_LIVE_DEMO = {

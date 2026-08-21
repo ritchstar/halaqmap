@@ -141,8 +141,12 @@ export function weddingLiveTextClass(voice: StoreWeddingLiveVoice): string {
 
 export const STORE_WEDDING_LIVE_CANNED = [
   { id: 'baraka', textAr: 'بارك الله لكما وبارك عليكما وجمع بينكما في خير.' },
-  { id: 'alf', textAr: 'ألف مبروك، أتمّ الله عليكما الفرح وجعل أيامكم بركة وسعادة.' },
-  { id: 'dawam', textAr: 'مبارك للعروسين، دامت دياركم عامرة بالأفراح والسرور.' },
+  { id: 'alf', textAr: 'ألف مبروك، أتمّ الله عليكما الفرح.' },
+  { id: 'dawam', textAr: 'مبارك للعروسين، دامت دياركم عامرة.' },
+  { id: 'mawadda', textAr: 'عقبال الدوام، وجعل بينكما مودة ورحمة.' },
+  { id: 'thurriya', textAr: 'الله يتمم عليكم بالخير والذرية الصالحة.' },
+  { id: 'layla', textAr: 'ليلة سعيدة، وفرح يدوم بإذن الله.' },
+  { id: 'omr', textAr: 'أحلى تهنئة، والعمر كله أفراح.' },
 ] as const;
 
 export const STORE_WEDDING_LIVE_AUDIO = [
