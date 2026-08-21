@@ -41,7 +41,10 @@ import { buildOccasionCardShareCaption } from '../src/lib/storeOccasionCardShare
 import {
   normalizeSmsFrom,
   normalizeWhatsAppFrom,
+  resolveWhatsAppOtpContentSid,
   storeIssuedOtpBody,
+  storeIssuedOtpContentVariables,
+  TWILIO_SANDBOX_WHATSAPP_CONTENT_SID,
 } from '../api/_lib/storeIssuedWhatsApp.ts';
 import { STORE_LANDING_COPY } from '../src/config/storeFront.ts';
 
@@ -270,6 +273,14 @@ assert.equal(normalizeWhatsAppFrom('+14155238886'), 'whatsapp:+14155238886');
 assert.equal(normalizeWhatsAppFrom('whatsapp:+14155238886'), 'whatsapp:+14155238886');
 assert.equal(normalizeSmsFrom('whatsapp:+14155238886'), '+14155238886');
 assert.match(storeIssuedOtpBody('123456'), /123456/);
+{
+  const prev = process.env.TWILIO_WHATSAPP_OTP_CONTENT_SID;
+  delete process.env.TWILIO_WHATSAPP_OTP_CONTENT_SID;
+  assert.equal(resolveWhatsAppOtpContentSid(), TWILIO_SANDBOX_WHATSAPP_CONTENT_SID);
+  if (prev !== undefined) process.env.TWILIO_WHATSAPP_OTP_CONTENT_SID = prev;
+}
+assert.match(storeIssuedOtpContentVariables('123456'), /"1":"123456"/);
+assert.match(storeIssuedOtpContentVariables('123456'), /"2":"123456"/);
 
 const moyasarClient = readFileSync(join(root, 'api/_lib/moyasarApiClient.ts'), 'utf8');
 assert.match(moyasarClient, /fetchMoyasarPaymentForOccasionCard/);

@@ -2,7 +2,9 @@
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
  * إرسال رمز بلاغ الوفاة ورابط الإدارة إلى الجوال.
- * الرسالة النصية أولاً — واتساب الحر لا يصل لمن لم يراسل الرقم من قبل.
+ * واتساب خارج نافذة 24 ساعة يتطلب قالباً معتمداً (ContentSid)، لا نصاً حراً.
+ * قالب التجربة العام في Twilio Sandbox:
+ * HXb5b62575e6e4ff6129ad7c8efe1f983e — متغيران {{1}} و{{2}}.
  */
 export const STORE_ISSUED_OTP_UNAVAILABLE_AR =
   'تعذر إرسال رمز التحقق الآن. أعد المحاولة أو راسل الإدارة.';
@@ -33,6 +35,21 @@ export function storeIssuedOtpBody(code: string): string {
   return `رمز التحقق لبلاغ الوفاة في خريطة الحل: ${code}\nلا تشارك الرمز. صالح ل${OTP_TTL_MINUTES_AR}.`;
 }
 
+/** قالب تجربة واتساب الرسمي في Twilio — نفس الذي يظهر في أداة Make Request. */
+export const TWILIO_SANDBOX_WHATSAPP_CONTENT_SID = 'HXb5b62575e6e4ff6129ad7c8efe1f983e';
+
+export function resolveWhatsAppOtpContentSid(): string {
+  const raw = (process.env.TWILIO_WHATSAPP_OTP_CONTENT_SID || '').trim();
+  const lowered = raw.toLowerCase();
+  if (lowered === 'false' || lowered === '0' || lowered === 'off') return '';
+  if (raw) return raw;
+  return TWILIO_SANDBOX_WHATSAPP_CONTENT_SID;
+}
+
+export function storeIssuedOtpContentVariables(code: string): string {
+  return JSON.stringify({ '1': code, '2': code });
+}
+
 function twilioSid(): string {
   return (process.env.TWILIO_ACCOUNT_SID || '').trim();
 }
@@ -60,7 +77,7 @@ function configuredWhatsAppFrom(): string {
 }
 
 function otpContentSid(): string {
-  return (process.env.TWILIO_WHATSAPP_OTP_CONTENT_SID || '').trim();
+  return resolveWhatsAppOtpContentSid();
 }
 
 let cachedIncomingSmsFrom = '';
@@ -155,10 +172,13 @@ async function sendTwilioWhatsApp(
   const contentSid = otpCode ? otpContentSid() : '';
   if (contentSid && otpCode) {
     form.set('ContentSid', contentSid);
-    form.set('ContentVariables', JSON.stringify({ '1': otpCode }));
-  } else {
-    form.set('Body', body);
+    form.set('ContentVariables', storeIssuedOtpContentVariables(otpCode));
+    const templated = await postTwilioMessage(sid, token, form);
+    if (templated.ok) return true;
+    form.delete('ContentSid');
+    form.delete('ContentVariables');
   }
+  form.set('Body', body);
   const sent = await postTwilioMessage(sid, token, form);
   return sent.ok;
 }
@@ -211,8 +231,9 @@ async function deliverStoreIssuedMessage(
   if (!hasAnyDeliveryChannel()) {
     return { ok: false, error: STORE_ISSUED_OTP_UNAVAILABLE_AR };
   }
+  if (otpCode && (await sendTwilioWhatsApp(phoneE164Plus, body, otpCode))) return { ok: true };
   if (await sendTwilioSms(phoneE164Plus, body)) return { ok: true };
-  if (await sendTwilioWhatsApp(phoneE164Plus, body, otpCode)) return { ok: true };
+  if (!otpCode && (await sendTwilioWhatsApp(phoneE164Plus, body))) return { ok: true };
   if (await sendMetaWhatsApp(phoneE164Plus, body)) return { ok: true };
   return { ok: false, error: STORE_ISSUED_OTP_DELIVERY_FAILED_AR };
 }
