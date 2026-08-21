@@ -42,6 +42,7 @@ import {
   sendStoreIssuedOtp,
   sendStoreIssuedWhatsApp,
   storeIssuedDeliveryConfigured,
+  storeIssuedDeliveryProbe,
 } from './_lib/storeIssuedWhatsApp.js';
 import { normalizeSaudiMobileForWa } from './_lib/saudiWhatsAppPhone.js';
 
@@ -168,7 +169,22 @@ async function sendOtp(db: Db, body: Record<string, unknown>, headers: Record<st
 
 async function dispatchOtp(db: Db, phone966: string, headers: Record<string, string>) {
   if (!storeIssuedDeliveryConfigured()) {
-    return json({ error: STORE_ISSUED_OTP_UNAVAILABLE_AR }, 503, headers);
+    const probe = storeIssuedDeliveryProbe();
+    console.error('[store-issued-otp] blocked_before_twilio', {
+      hasSid: probe.hasSid,
+      hasToken: probe.hasToken,
+      hasWhatsAppFrom: probe.hasWhatsAppFrom,
+      missing: probe.missing,
+    });
+    return json(
+      {
+        error: STORE_ISSUED_OTP_UNAVAILABLE_AR,
+        code: 'otp_channel_unconfigured',
+        missing: probe.missing,
+      },
+      503,
+      headers,
+    );
   }
   const code = String(randomInt(100000, 1000000));
   const phoneHash = hashSecret(phone966, pepper());
@@ -181,7 +197,18 @@ async function dispatchOtp(db: Db, phone966: string, headers: Record<string, str
   if (insErr) return json({ error: 'تعذر إنشاء رمز التحقق' }, 500, headers);
 
   const sent = await sendStoreIssuedOtp(`+${phone966}`, code);
-  if (!sent.ok) return json({ error: sent.error }, 503, headers);
+  if (!sent.ok) {
+    return json(
+      {
+        error: sent.error,
+        code: sent.code,
+        missing: sent.probe.missing,
+        hasWhatsAppFrom: sent.probe.hasWhatsAppFrom,
+      },
+      503,
+      headers,
+    );
+  }
   return json({ ok: true, masked: maskPhoneLast4(phone966) }, 200, headers);
 }
 

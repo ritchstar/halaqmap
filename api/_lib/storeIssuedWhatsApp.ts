@@ -223,19 +223,67 @@ export function storeIssuedDeliveryConfigured(): boolean {
   return hasAnyDeliveryChannel();
 }
 
+export type StoreIssuedDeliveryProbe = {
+  hasSid: boolean;
+  hasToken: boolean;
+  hasWhatsAppFrom: boolean;
+  hasSmsFrom: boolean;
+  contentSid: string;
+  missing: string[];
+};
+
+export function storeIssuedDeliveryProbe(): StoreIssuedDeliveryProbe {
+  const missing: string[] = [];
+  if (!twilioSid()) missing.push('TWILIO_ACCOUNT_SID');
+  if (!twilioToken()) missing.push('TWILIO_AUTH_TOKEN');
+  return {
+    hasSid: Boolean(twilioSid()),
+    hasToken: Boolean(twilioToken()),
+    hasWhatsAppFrom: Boolean(configuredWhatsAppFrom()),
+    hasSmsFrom: Boolean(configuredSmsFrom() || configuredMessagingServiceSid()),
+    contentSid: resolveWhatsAppOtpContentSid(),
+    missing,
+  };
+}
+
+function logOtpSkip(stage: string, extra?: Record<string, unknown>): void {
+  const probe = storeIssuedDeliveryProbe();
+  console.error('[store-issued-otp]', stage, {
+    hasSid: probe.hasSid,
+    hasToken: probe.hasToken,
+    hasWhatsAppFrom: probe.hasWhatsAppFrom,
+    hasSmsFrom: probe.hasSmsFrom,
+    contentSid: probe.contentSid,
+    missing: probe.missing,
+    ...extra,
+  });
+}
+
 async function deliverStoreIssuedMessage(
   phoneE164Plus: string,
   body: string,
   otpCode?: string,
-): Promise<{ ok: true } | { ok: false; error: string }> {
+): Promise<{ ok: true } | { ok: false; error: string; code: string; probe: StoreIssuedDeliveryProbe }> {
   if (!hasAnyDeliveryChannel()) {
-    return { ok: false, error: STORE_ISSUED_OTP_UNAVAILABLE_AR };
+    logOtpSkip('blocked_before_twilio');
+    return {
+      ok: false,
+      error: STORE_ISSUED_OTP_UNAVAILABLE_AR,
+      code: 'otp_channel_unconfigured',
+      probe: storeIssuedDeliveryProbe(),
+    };
   }
   if (otpCode && (await sendTwilioWhatsApp(phoneE164Plus, body, otpCode))) return { ok: true };
   if (await sendTwilioSms(phoneE164Plus, body)) return { ok: true };
   if (!otpCode && (await sendTwilioWhatsApp(phoneE164Plus, body))) return { ok: true };
   if (await sendMetaWhatsApp(phoneE164Plus, body)) return { ok: true };
-  return { ok: false, error: STORE_ISSUED_OTP_DELIVERY_FAILED_AR };
+  logOtpSkip('all_channels_failed');
+  return {
+    ok: false,
+    error: STORE_ISSUED_OTP_DELIVERY_FAILED_AR,
+    code: 'otp_dispatch_failed',
+    probe: storeIssuedDeliveryProbe(),
+  };
 }
 
 export async function sendStoreIssuedOtp(
