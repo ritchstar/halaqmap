@@ -44,6 +44,7 @@ import {
   storeIssuedTwilioErrorAr,
   normalizeSmsFrom,
   normalizeWhatsAppFrom,
+  resolveWhatsAppFrom,
   resolveWhatsAppOtpContentSid,
   storeIssuedDeliveryProbe,
   storeIssuedOtpBody,
@@ -317,6 +318,8 @@ assert.equal(extractTwilioErrorCode('{"code":63015,"message":"not in sandbox"}')
 assert.match(String(storeIssuedTwilioErrorAr(63015)), /انضمام/);
 assert.equal(smsFromLooksLikeWhatsAppSandbox('whatsapp:+14155238886'), true);
 assert.equal(smsFromLooksLikeWhatsAppSandbox('+966559602685'), false);
+assert.equal(resolveWhatsAppFrom(''), 'whatsapp:+14155238886');
+assert.equal(resolveWhatsAppFrom('whatsapp:+14155238886'), 'whatsapp:+14155238886');
 assert.equal(normalizeWhatsAppFrom('+14155238886'), 'whatsapp:+14155238886');
 assert.equal(normalizeWhatsAppFrom('whatsapp:+14155238886'), 'whatsapp:+14155238886');
 assert.equal(normalizeSmsFrom('whatsapp:+14155238886'), '+14155238886');

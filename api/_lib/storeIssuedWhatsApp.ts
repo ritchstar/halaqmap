@@ -12,6 +12,9 @@ export const STORE_ISSUED_OTP_UNAVAILABLE_AR =
 export const STORE_ISSUED_OTP_DELIVERY_FAILED_AR =
   'تعذر إرسال الرسالة إلى الجوال الموثّق.';
 
+export const STORE_ISSUED_OTP_SANDBOX_HINT_AR =
+  'تعذر إرسال واتساب التجربة. تأكد أن هذا الجوال ما زال منضماً إلى رقم التجربة، ثم أعد المحاولة.';
+
 export const TWILIO_SANDBOX_VOICE_NUMBER = '+14155238886';
 
 export function extractTwilioErrorCode(text: string): number | null {
@@ -48,6 +51,15 @@ export function storeIssuedTwilioErrorAr(code: number | null | undefined): strin
   if (code === 21606 || code === 21659) {
     return 'رقم المرسل غير صالح للرسائل النصية.';
   }
+  if (code === 21656 || code === 21661) {
+    return 'قالب واتساب التجربة غير مرتبط بهذا الحساب. راجع ContentSid في Twilio.';
+  }
+  if (code === 63007) {
+    return 'رقم المرسل غير مفعّل لواتساب في Twilio.';
+  }
+  if (code === 63003) {
+    return 'تعذر توثيق قناة واتساب في Twilio.';
+  }
   return null;
 }
 
@@ -60,6 +72,10 @@ export function normalizeWhatsAppFrom(raw: string): string {
   if (!rest) return '';
   const e164 = rest.startsWith('+') ? rest : `+${rest.replace(/^\+/, '')}`;
   return `whatsapp:${e164}`;
+}
+
+export function resolveWhatsAppFrom(raw: string): string {
+  return normalizeWhatsAppFrom(raw) || normalizeWhatsAppFrom(TWILIO_SANDBOX_VOICE_NUMBER);
 }
 
 export function normalizeSmsFrom(raw: string): string {
@@ -112,7 +128,7 @@ function configuredSmsFrom(): string {
 }
 
 function configuredWhatsAppFrom(): string {
-  return normalizeWhatsAppFrom(process.env.TWILIO_WHATSAPP_FROM || '');
+  return resolveWhatsAppFrom(process.env.TWILIO_WHATSAPP_FROM || '');
 }
 
 function otpContentSid(): string {
@@ -343,7 +359,9 @@ async function deliverStoreIssuedMessage(
   logOtpSkip('all_channels_failed', { twilioCode });
   return {
     ok: false,
-    error: storeIssuedTwilioErrorAr(twilioCode) || STORE_ISSUED_OTP_DELIVERY_FAILED_AR,
+    error:
+      storeIssuedTwilioErrorAr(twilioCode) ||
+      STORE_ISSUED_OTP_SANDBOX_HINT_AR,
     code: 'otp_dispatch_failed',
     probe: storeIssuedDeliveryProbe(),
     twilioCode,
