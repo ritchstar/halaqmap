@@ -171,7 +171,7 @@ export default function StoreAboutPage() {
             <div className="overflow-hidden rounded-2xl border border-white/12 bg-white/[0.04]">
               <StoreShot
                 src={STORE_VISUALS.radar}
-                alt="رادار استعلام برمجي لمنصة حلاق ماب"
+                alt="رادار استعلام برمجي لمنتج حلاق ماب ضمن أعمال المتجر"
                 className="aspect-[16/9]"
               />
               <div className="p-5 md:p-6">

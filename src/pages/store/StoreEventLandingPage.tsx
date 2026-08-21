@@ -112,7 +112,7 @@ export default function StoreEventLandingPage() {
                 <p>{copy.termsFoldTitleAr}</p>
                 <p className="mt-2">{copy.termsFoldBodyAr}</p>
                 <Link to={ROUTE_PATHS.STORE_ISSUED_CARDS_LEGAL} className={cn('mt-3 inline-flex', text)}>
-                  شروط إصدار البطاقات
+                  شروط الخدمة
                 </Link>
               </CollapsibleContent>
             </Collapsible>

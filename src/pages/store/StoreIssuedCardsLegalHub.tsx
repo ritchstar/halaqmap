@@ -2,7 +2,7 @@
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
 import { useEffect, useState } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -25,7 +25,6 @@ import {
   unifiedConsentLabelForTrack,
   type StoreIssuedCardTrack,
 } from '@/config/storeIssuedCardsLegal';
-import { STORE_BEREAVEMENT_PUBLIC_ENABLED } from '@/config/storeBereavementCopy';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { renderLegalContentBlocks } from '@/lib/legalPageRender';
 import { ROUTE_PATHS } from '@/lib/routePaths';
@@ -33,16 +32,10 @@ import { storeStoreIssuedConsent } from '@/lib/storeIssuedCardsConsent';
 import { toast } from '@/components/ui/sonner';
 import { cn } from '@/lib/utils';
 
-function parseTrack(raw: string | null): StoreIssuedCardTrack {
-  if (!STORE_BEREAVEMENT_PUBLIC_ENABLED) return 'paid';
-  return raw === 'bereavement' ? 'bereavement' : 'paid';
-}
-
 export default function StoreIssuedCardsLegalHub() {
   useDocumentTitle(STORE_ISSUED_CARDS_LEGAL_TITLE_AR);
   const navigate = useNavigate();
-  const [params] = useSearchParams();
-  const track = parseTrack(params.get('track'));
+  const track: StoreIssuedCardTrack = 'paid';
   const checksForTrack = consentsForTrack(track);
   const unifiedLabel = unifiedConsentLabelForTrack(track);
 
@@ -56,11 +49,11 @@ export default function StoreIssuedCardsLegalHub() {
 
   const onContinue = () => {
     if (!accepted) {
-      toast.error('يرجى الموافقة على الشروط والأحكام والتعهدات قبل المتابعة.');
+      toast.error('وافق على الشروط للمتابعة.');
       return;
     }
     storeStoreIssuedConsent(track, acceptedChecksForTrack(track));
-    navigate(track === 'bereavement' ? ROUTE_PATHS.STORE_BEREAVEMENT_CREATE : ROUTE_PATHS.STORE_INVITES);
+    navigate(ROUTE_PATHS.STORE_INVITES);
   };
 
   return (
@@ -71,17 +64,9 @@ export default function StoreIssuedCardsLegalHub() {
         <h1 className="mt-2 text-3xl font-extrabold text-[#f4efe4]">{STORE_ISSUED_CARDS_LEGAL_TITLE_AR}</h1>
         <p className="mt-3 text-sm leading-7 text-white/75">{STORE_ISSUED_CARDS_LEGAL_SUBTITLE_AR}</p>
         <p className="mt-2 text-xs text-white/45">نسخة السياسات: {STORE_ISSUED_CARDS_POLICY_VERSION}</p>
-        <div className="mt-4 flex flex-wrap gap-2 text-sm">
-          <Link
-            to={`${ROUTE_PATHS.STORE_ISSUED_CARDS_LEGAL}?track=paid`}
-            className={cn('rounded-full px-3 py-1.5', track === 'paid' ? 'bg-[#e8c547] text-[#061018]' : 'border border-white/20 text-white/80')}
-          >
-            بطاقة مدفوعة
-          </Link>
-        </div>
 
         <section id="issued-card-consents" className="mt-8 rounded-2xl border border-[#e8c547]/30 bg-[#0b1a24] p-5">
-          <h2 className="text-xl font-bold text-[#e8c547]">موافقة واحدة على الشروط والتعهدات</h2>
+          <h2 className="text-xl font-bold text-[#e8c547]">موافقة واحدة قبل البدء</h2>
           <p className="mt-2 text-sm leading-relaxed text-white/70">{STORE_ISSUED_CARDS_LEGAL_FOLD_HINT_AR}</p>
           <p className="mt-1 text-xs text-white/45">تُحفظ الموافقة في جلسة المتصفح الحالية فقط، وترتبط بنسخة السياسات أعلاه.</p>
 
@@ -135,7 +120,7 @@ export default function StoreIssuedCardsLegalHub() {
             onClick={onContinue}
             className="mt-6 w-full bg-[#e8c547] text-[#061018] hover:bg-[#f0d36a]"
           >
-            أوافق وأنتقل إلى الإنشاء
+            أوافق وأبدأ الآن
           </Button>
         </section>
       </main>

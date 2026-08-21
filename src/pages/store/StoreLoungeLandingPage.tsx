@@ -104,7 +104,7 @@ export default function StoreLoungeLandingPage() {
                 <p>{STORE_LOUNGE_LIVE.termsFoldTitleAr}</p>
                 <p className="mt-2">{STORE_LOUNGE_LIVE.termsFoldBodyAr}</p>
                 <Link to={ROUTE_PATHS.STORE_ISSUED_CARDS_LEGAL} className="mt-3 inline-flex text-[#d4a574]">
-                  شروط إصدار البطاقات
+                  شروط الخدمة
                 </Link>
               </CollapsibleContent>
             </Collapsible>

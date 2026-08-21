@@ -203,7 +203,7 @@ export default function TermsOfService() {
             to={ROUTE_PATHS.STORE_ISSUED_CARDS_LEGAL}
             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-border bg-card text-sm font-medium hover:bg-muted transition-colors"
           >
-            شروط وخصوصية إصدار البطاقات وبلاغات الوفاة
+            شروط وأحكام وخصوصية منتجات المتجر الرقمية
           </NavLink>
         </motion.div>
 

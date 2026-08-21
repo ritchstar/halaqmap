@@ -108,7 +108,8 @@ assert.match(
 );
 
 const storeFront = readFileSync(join(root, 'src/config/storeFront.ts'), 'utf8');
-assert.match(storeFront, /منشأة واحدة، منتجان قطاعيان/);
+assert.match(storeFront, /متنوع الإنتاج/);
+assert.match(storeFront, /منتجات ضمن أعمال المتجر/);
 assert.match(storeFront, /حلول تشغيل للمنشآت/);
 assert.match(storeFront, /طلب خاص يُدرس/);
 assert.doesNotMatch(storeFront, /منتج واحد، واجهتان/);
@@ -118,7 +119,8 @@ assert.doesNotMatch(storeFront, /ستُعرض هنا عند الجاهزية/);
 assert.doesNotMatch(storeFront, /يرغب العميل في تصميمه/);
 assert.match(storeFront, /ثلاثة أبواب فقط/);
 assert.match(storeFront, /مسوّقات لكوافير ماب/);
-assert.match(storeFront, /التسويق بالعمولة/);
+assert.match(storeFront, /حلاق ماب منتج ضمن أعمال المتجر/);
+assert.doesNotMatch(storeFront, /إيراد المنتجات الجاهزة من رخص النفاذ الرقمية للصالون/);
 
 assert.match(
   app,

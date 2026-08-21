@@ -39,7 +39,7 @@ export const ROUTE_PATHS = {
   STORE_ABOUT: '/store/about',
   /** تصنيفات وفحوص مستقلة قابلة للتحقق */
   STORE_TRUST: '/store/trust',
-  /** شروط وأحكام وخصوصية إصدار أي بطاقة مدفوعة أو بلاغ وفاة */
+  /** شروط وأحكام وخصوصية منتجات المتجر الرقمية */
   STORE_ISSUED_CARDS_LEGAL: '/store/cards/legal',
   /** بطاقة مناسبة مدفوعة — معاينة ثم دفع عند النشر */
   STORE_INVITES: '/store/invites',

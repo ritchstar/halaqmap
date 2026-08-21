@@ -213,7 +213,7 @@ export default function Privacy() {
               to={ROUTE_PATHS.STORE_ISSUED_CARDS_LEGAL}
               className="inline-flex items-center justify-center text-primary font-semibold hover:underline touch-manipulation"
             >
-              خصوصية إصدار البطاقات المدفوعة وبلاغات الوفاة
+              خصوصية منتجات المتجر الرقمية
             </NavLink>
           </p>
         </motion.div>

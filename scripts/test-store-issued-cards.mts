@@ -1,5 +1,5 @@
 /**
- * فحص مرجع البطاقات المدفوعة وبلاغات الوفاة: الأسعار، العزل، والسياسات.
+ * فحص مرجع البطاقات والمنتجات الرقمية: الأسعار، والعزل، والسياسات.
  * تشغيل: npx tsx scripts/test-store-issued-cards.mts
  */
 import assert from 'node:assert/strict';
@@ -259,22 +259,19 @@ assert.match(STORE_ISSUED_CARDS_LEGAL_TITLE_AR, /شروط وأحكام وخصو�
 assert.match(legalBlob, /12/);
 assert.match(legalBlob, /29/);
 assert.match(legalBlob, /59/);
-assert.match(legalBlob, /bereavement-notices/);
-assert.match(legalBlob, /اسم المسجد/);
-assert.match(legalBlob, /اسم المقبرة/);
-assert.match(legalBlob, /ما لا نجمعه في النسخة الأولى/);
+assert.match(legalBlob, /899/);
+assert.match(legalBlob, /600/);
+assert.match(legalBlob, /لاونجا1/);
+assert.match(legalBlob, /دعوة زواج/);
 assert.match(legalBlob, /نظام حماية البيانات الشخصية/);
 assert.match(legalBlob, /ميسر/);
 assert.doesNotMatch(legalBlob, /المؤسس/);
 assert.match(legalBlob, /الإدارة/);
-assert.match(legalBlob, /لا يُكتب عنوان منزل/);
-assert.equal(consentsForTrack('bereavement').some((c) => c.id === 'bereavementAttestation'), true);
+assert.doesNotMatch(legalBlob, /وفاة|عزاء|bereavement|مسجد|مقبرة/);
 assert.equal(consentsForTrack('paid').some((c) => c.id === 'paidNoRefund'), true);
 assert.equal(acceptedChecksForTrack('paid').termsRead, true);
 assert.equal(acceptedChecksForTrack('paid').paidNoRefund, true);
-assert.equal(acceptedChecksForTrack('bereavement').bereavementAttestation, true);
 assert.match(unifiedConsentLabelForTrack('paid'), /موافقة|أوافق/);
-assert.match(unifiedConsentLabelForTrack('bereavement'), /ذوي المتوفى/);
 assert.match(STORE_ISSUED_CARDS_LEGAL_FOLD_TRIGGER_AR, /الشروط والأحكام والتعهدات/);
 
 assert.match(STORE_BEREAVEMENT_COPY.titleAr, /إعلان وفاة/);
@@ -285,8 +282,7 @@ assert.doesNotMatch(bereavementShareText('خالد', 'https://example.com'), /أ
 
 assert.equal(maskSaudiMobileDisplay('0559602685'), '05••• ••685');
 
-assert.match(legalBlob, /وضع المنصة المعتمد/);
-assert.match(legalBlob, /يُربط بفاتورته/);
+assert.match(legalBlob, /www\.halaqmap\.com/);
 assert.match(STORE_LANDING_COPY.paidInvitesLeadAr, /12 و29 و59/);
 assert.match(STORE_LANDING_COPY.bereavementTitleAr, /الوفاة/);
 assert.match(STORE_LANDING_COPY.bereavementFootnoteAr, /بلاغ وفاة/);

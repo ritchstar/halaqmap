@@ -95,7 +95,7 @@ export default function StorePaidInviteStudioPage() {
   }
 
   if (!consented) {
-    return <Navigate to={`${ROUTE_PATHS.STORE_ISSUED_CARDS_LEGAL}?track=paid`} replace />;
+    return <Navigate to={ROUTE_PATHS.STORE_ISSUED_CARDS_LEGAL} replace />;
   }
 
   return (
@@ -181,7 +181,7 @@ export default function StorePaidInviteStudioPage() {
           {STORE_PAID_INVITE_CHECKOUT_ENABLED && !occasionCardLivePaymentsEnabled() ? (
             <p className="mt-1 text-xs leading-relaxed text-white/40">{STORE_PAID_INVITE_COPY.testCheckoutHintAr}</p>
           ) : null}
-          <Link to={`${ROUTE_PATHS.STORE_ISSUED_CARDS_LEGAL}?track=paid`} className="mt-3 inline-block text-xs text-white/50 underline">
+          <Link to={ROUTE_PATHS.STORE_ISSUED_CARDS_LEGAL} className="mt-3 inline-block text-xs text-white/50 underline">
             {STORE_PAID_INVITE_COPY.legalGateAr}
           </Link>
         </div>

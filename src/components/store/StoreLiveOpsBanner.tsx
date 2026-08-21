@@ -1,7 +1,7 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
- * شريط تشغيل ثابت لمنصة حلاق ماب — تحت هيرو المتجر فقط.
+ * بنر منتج حلاق ماب — أحد أعمال المتجر، تحت الهيرو فقط.
  */
 import { Megaphone } from 'lucide-react';
 import { STORE_HALAQMAP_OPS_BANNER } from '@/config/storeFront';
