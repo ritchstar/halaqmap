@@ -125,7 +125,7 @@ export const STORE_WEDDING_LIVE_DEMO = {
   venueName: 'قاعة النخيل، الرياض',
   venueMapsUrl: 'https://maps.google.com/?q=%D9%82%D8%A7%D8%B9%D8%A9+%D8%A7%D9%84%D9%86%D8%AE%D9%8A%D9%84+%D8%A7%D9%84%D8%B1%D9%8A%D8%A7%D8%B6',
   welcomeAr: 'يسعدنا دعوتكم لمشاركتنا عقد القران، ومباركتكم تُزهر على شاشة القاعة أمام الجميع.',
-  youtubeUrl: 'https://www.youtube.com/watch?v=aqz-KE-bpKQ',
+  youtubeUrl: 'https://www.youtube.com/watch?v=F-DNzLPph-k&list=RDF-DNzLPph-k&start_radio=1',
   youtubeHidden: false,
   announcement: '',
   photoSrc: '/images/store/lab/lab-luxury-gold.png',
