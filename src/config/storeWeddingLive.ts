@@ -52,6 +52,7 @@ export const STORE_WEDDING_LIVE = {
   hostAudioLabelAr: 'صوت القاعة',
   hostUploadPhotoAr: 'رفع صورة للقاعة أو الكرت',
   hostUploadPanoramaAr: 'رفع صورة بانورامية',
+  hostRoleLabelAr: 'صفة الداعي',
   hostNameLabelAr: 'اسم الداعي',
   groomNameLabelAr: 'اسم العريس',
   brideNameLabelAr: 'اسم العروس أو كريمة فلان',
@@ -78,6 +79,14 @@ export const STORE_WEDDING_LIVE = {
   termsFoldBodyAr:
     'المنتج مستقل عن رخصة النفاذ وعن بطاقة المناسبة. السعر الافتتاحي 899 ر.س، والدفع عبر ميسر على نطاق www.halaqmap.com. الروابط سرية ومؤقتة، ويمكن حفظ الصفحة قبل انتهائها. التهاني جدار عام من رابط ضيف واحد، بلا قائمة حضور وبلا إرسال جماعي وبلا شات. التفاصيل الكاملة في شروط إصدار البطاقات.',
 } as const;
+
+export const STORE_WEDDING_LIVE_HOST_ROLES = [
+  { id: 'self', labelAr: 'الداعي باسمه', linePrefixAr: 'الداعي' },
+  { id: 'groom_father', labelAr: 'والد العريس', linePrefixAr: 'والد العريس' },
+  { id: 'bride_father', labelAr: 'والد العروس', linePrefixAr: 'والد العروس' },
+] as const;
+
+export type StoreWeddingLiveHostRole = (typeof STORE_WEDDING_LIVE_HOST_ROLES)[number]['id'];
 
 export const STORE_WEDDING_LIVE_CANNED = [
   { id: 'baraka', textAr: 'بارك الله لكما وبارك عليكما وجمع بينكما في خير.' },
@@ -107,7 +116,8 @@ export const STORE_WEDDING_LIVE_STYLES = [
 ] as const;
 
 export const STORE_WEDDING_LIVE_DEMO = {
-  hostName: 'عائلة الفلان',
+  hostRole: 'groom_father' as StoreWeddingLiveHostRole,
+  hostName: 'أحمد',
   groomName: 'عبدالله',
   brideName: 'فهدة',
   eventDate: 'الخميس 24 سبتمبر 2026',

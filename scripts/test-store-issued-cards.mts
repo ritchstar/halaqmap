@@ -63,7 +63,7 @@ import {
   STORE_WEDDING_LIVE_PRODUCT,
   STORE_WEDDING_LIVE_PUBLIC_ENABLED,
 } from '../src/config/storeWeddingLive.ts';
-import { parseYoutubeVideoId, safeMapsHref, weddingCoupleLine } from '../src/lib/storeWeddingLiveLab.ts';
+import { parseYoutubeVideoId, safeMapsHref, weddingCoupleLine, weddingHostInviteLine } from '../src/lib/storeWeddingLiveLab.ts';
 import {
   STORE_WEDDING_LIVE_PRICE_HALALAS,
   STORE_WEDDING_LIVE_PRODUCT as apiWeddingProduct,
@@ -462,6 +462,7 @@ assert.equal(parseYoutubeVideoId('https://www.youtube.com/watch?v=aqz-KE-bpKQ'),
 assert.ok(safeMapsHref('https://maps.google.com/?q=riyadh'));
 assert.equal(safeMapsHref('javascript:alert(1)'), null);
 assert.match(weddingCoupleLine({
+  hostRole: 'self',
   hostName: 'عائلة الفلان',
   groomName: 'عبدالله',
   brideName: 'كريمة فهد',
@@ -478,6 +479,9 @@ assert.match(weddingCoupleLine({
   panoramaSrc: '',
   cardStyleId: 'gold',
 }), /عبدالله وكريمة فهد/);
+assert.equal(weddingHostInviteLine({ hostRole: 'self', hostName: 'أحمد' }), 'الداعي أحمد');
+assert.equal(weddingHostInviteLine({ hostRole: 'groom_father', hostName: 'أحمد' }), 'والد العريس أحمد');
+assert.equal(weddingHostInviteLine({ hostRole: 'bride_father', hostName: 'فهد' }), 'والد العروس فهد');
 
 const vercel = readFileSync(join(root, 'vercel.json'), 'utf8');
 assert.match(vercel, /\/oc\/:token/);

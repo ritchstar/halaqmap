@@ -8,14 +8,17 @@ import {
   STORE_WEDDING_LIVE,
   STORE_WEDDING_LIVE_CHECKOUT_ENABLED,
   STORE_WEDDING_LIVE_DEMO,
+  STORE_WEDDING_LIVE_HOST_ROLES,
   STORE_WEDDING_LIVE_PRICE_SAR,
 } from '@/config/storeWeddingLive';
 import { createWeddingLivePending } from '@/lib/storeWeddingLiveRemote';
 import { weddingLivePayHref } from '@/lib/storeHostRedirect';
+import { normalizeWeddingHostRole, type WeddingLiveHostRole } from '@/lib/storeWeddingLiveLab';
 
 export function StoreWeddingOrderForm() {
   const [email, setEmail] = useState('');
   const [hostName, setHostName] = useState(STORE_WEDDING_LIVE_DEMO.hostName);
+  const [hostRole, setHostRole] = useState<WeddingLiveHostRole>(STORE_WEDDING_LIVE_DEMO.hostRole);
   const [groomName, setGroomName] = useState(STORE_WEDDING_LIVE_DEMO.groomName);
   const [brideName, setBrideName] = useState(STORE_WEDDING_LIVE_DEMO.brideName);
   const [eventDate, setEventDate] = useState(STORE_WEDDING_LIVE_DEMO.eventDate);
@@ -39,6 +42,7 @@ export function StoreWeddingOrderForm() {
       email,
       buyerName: hostName,
       hostName,
+      hostRole,
       groomName,
       brideName,
       eventDate,
@@ -80,6 +84,20 @@ export function StoreWeddingOrderForm() {
         <input className={field} type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
       </label>
       <div className="mt-3 grid gap-3 sm:grid-cols-2">
+        <label className="block text-sm">
+          {STORE_WEDDING_LIVE.hostRoleLabelAr}
+          <select
+            className={field}
+            value={hostRole}
+            onChange={(e) => setHostRole(normalizeWeddingHostRole(e.target.value))}
+          >
+            {STORE_WEDDING_LIVE_HOST_ROLES.map((role) => (
+              <option key={role.id} value={role.id}>
+                {role.labelAr}
+              </option>
+            ))}
+          </select>
+        </label>
         <label className="block text-sm">
           {STORE_WEDDING_LIVE.hostNameLabelAr}
           <input className={field} required value={hostName} onChange={(e) => setHostName(e.target.value)} />

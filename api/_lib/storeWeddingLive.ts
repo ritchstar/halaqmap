@@ -67,7 +67,14 @@ function isEmail(raw: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(raw) && raw.length <= 180;
 }
 
+export function parseWeddingHostRole(raw: unknown): 'self' | 'groom_father' | 'bride_father' {
+  const value = String(raw || '').trim();
+  if (value === 'groom_father' || value === 'bride_father') return value;
+  return 'self';
+}
+
 export type WeddingLiveOrderPayload = {
+  hostRole: 'self' | 'groom_father' | 'bride_father';
   hostName: string;
   groomName: string;
   brideName: string;
@@ -108,6 +115,7 @@ export function parseWeddingLiveOrderBody(body: Record<string, unknown>):
     email,
     buyerName: clip(body.buyerName, 80),
     payload: {
+      hostRole: parseWeddingHostRole(body.hostRole),
       hostName,
       groomName,
       brideName,
@@ -128,6 +136,7 @@ export function parseWeddingLiveOrderBody(body: Record<string, unknown>):
 
 export function publicWeddingPayload(payload: WeddingLiveOrderPayload) {
   return {
+    hostRole: payload.hostRole || 'self',
     hostName: payload.hostName,
     groomName: payload.groomName,
     brideName: payload.brideName,

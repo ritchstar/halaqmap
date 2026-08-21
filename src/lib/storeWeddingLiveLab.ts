@@ -7,7 +7,9 @@ import {
   STORE_WEDDING_LIVE_AUDIO,
   STORE_WEDDING_LIVE_CANNED,
   STORE_WEDDING_LIVE_DEMO,
+  STORE_WEDDING_LIVE_HOST_ROLES,
   STORE_WEDDING_LIVE_STYLES,
+  type StoreWeddingLiveHostRole,
 } from '@/config/storeWeddingLive';
 
 export type WeddingLiveAudioId = (typeof STORE_WEDDING_LIVE_AUDIO)[number]['id'];
@@ -23,7 +25,10 @@ export type WeddingLiveBlessing = {
   at: string;
 };
 
+export type WeddingLiveHostRole = StoreWeddingLiveHostRole;
+
 export type WeddingLiveHostState = {
+  hostRole: WeddingLiveHostRole;
   hostName: string;
   groomName: string;
   brideName: string;
@@ -47,7 +52,21 @@ export type WeddingLiveLabState = {
 };
 
 function storageKey(token: string): string {
-  return `store-wedding-live:v2:${token.trim() || 'lab'}`;
+  return `store-wedding-live:v3:${token.trim() || 'lab'}`;
+}
+
+export function normalizeWeddingHostRole(raw: unknown): WeddingLiveHostRole {
+  const value = String(raw || '').trim();
+  return STORE_WEDDING_LIVE_HOST_ROLES.some((item) => item.id === value)
+    ? (value as WeddingLiveHostRole)
+    : 'self';
+}
+
+export function weddingHostInviteLine(host: Pick<WeddingLiveHostState, 'hostName' | 'hostRole'>): string {
+  const name = host.hostName.trim();
+  const role = STORE_WEDDING_LIVE_HOST_ROLES.find((item) => item.id === normalizeWeddingHostRole(host.hostRole));
+  const prefix = role?.linePrefixAr || 'الداعي';
+  return name ? `${prefix} ${name}` : prefix;
 }
 
 export function weddingCoupleLine(host: WeddingLiveHostState): string {
@@ -75,6 +94,7 @@ export function safeMapsHref(raw: string): string | null {
 export function defaultWeddingLiveLabState(): WeddingLiveLabState {
   return {
     host: {
+      hostRole: STORE_WEDDING_LIVE_DEMO.hostRole,
       hostName: STORE_WEDDING_LIVE_DEMO.hostName,
       groomName: STORE_WEDDING_LIVE_DEMO.groomName,
       brideName: STORE_WEDDING_LIVE_DEMO.brideName,
@@ -113,7 +133,11 @@ export function readWeddingLiveLabState(token: string): WeddingLiveLabState {
     if (!raw) return fallback;
     const parsed = JSON.parse(raw) as Partial<WeddingLiveLabState>;
     return {
-      host: { ...fallback.host, ...(parsed.host || {}) },
+      host: {
+        ...fallback.host,
+        ...(parsed.host || {}),
+        hostRole: normalizeWeddingHostRole((parsed.host as Partial<WeddingLiveHostState> | undefined)?.hostRole),
+      },
       blessings: Array.isArray(parsed.blessings) ? parsed.blessings : fallback.blessings,
     };
   } catch {
@@ -212,6 +236,7 @@ export function weddingLiveArchiveBlob(state: WeddingLiveLabState): Blob {
     product: 'دعوة زواج تفاعلية',
     brand: 'halaqmap',
     hostName: state.host.hostName,
+    hostRole: state.host.hostRole,
     groomName: state.host.groomName,
     brideName: state.host.brideName,
     eventDate: state.host.eventDate,

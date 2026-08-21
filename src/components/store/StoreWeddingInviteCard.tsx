@@ -6,7 +6,7 @@
 import { STORE_WEDDING_LIVE, STORE_WEDDING_LIVE_STYLES } from '@/config/storeWeddingLive';
 import { StoreWeddingMapsPin } from '@/components/store/StoreWeddingMapsPin';
 import { cn } from '@/lib/utils';
-import { safeMapsHref, weddingCoupleLine, type WeddingLiveHostState, type WeddingLiveStyleId } from '@/lib/storeWeddingLiveLab';
+import { safeMapsHref, weddingCoupleLine, weddingHostInviteLine, type WeddingLiveHostState, type WeddingLiveStyleId } from '@/lib/storeWeddingLiveLab';
 
 export function StoreWeddingInviteCard({
   host,
@@ -34,7 +34,7 @@ export function StoreWeddingInviteCard({
       <div className="absolute inset-x-0 bottom-0 p-5">
         <div className="rounded-2xl border border-[#d4af67]/45 bg-black/40 p-5 text-[#f7edd8] backdrop-blur-md">
           <p className="text-[11px] tracking-wide opacity-70">عقد قران</p>
-          <p className="mt-1 text-xs opacity-75">{host.hostName}</p>
+          <p className="mt-1 text-xs opacity-75">{weddingHostInviteLine(host)}</p>
           <h2 className="mt-2 text-2xl font-black">{weddingCoupleLine(host)}</h2>
           <p className="mt-1 text-sm opacity-80">
             العريس {host.groomName}

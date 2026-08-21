@@ -6,7 +6,7 @@
 import { STORE_WEDDING_LIVE } from '@/config/storeWeddingLive';
 import { StoreWeddingMapsPin } from '@/components/store/StoreWeddingMapsPin';
 import type { WeddingLiveLabState } from '@/lib/storeWeddingLiveLab';
-import { safeMapsHref, weddingCoupleLine, youtubeEmbedSrc } from '@/lib/storeWeddingLiveLab';
+import { safeMapsHref, weddingCoupleLine, weddingHostInviteLine, youtubeEmbedSrc } from '@/lib/storeWeddingLiveLab';
 import { cn } from '@/lib/utils';
 
 export function StoreWeddingHallStage({
@@ -38,7 +38,7 @@ export function StoreWeddingHallStage({
 
       <div className="relative z-10 flex min-h-[32rem] flex-col p-5 pt-16 md:p-8">
         <p className="text-center text-[11px] tracking-[0.35em] text-[#d4af67]">عقد قران</p>
-        <p className="mt-2 text-center text-sm text-white/70">{state.host.hostName}</p>
+        <p className="mt-2 text-center text-sm text-white/70">{weddingHostInviteLine(state.host)}</p>
         <h2 className="mt-1 text-center text-3xl font-black md:text-5xl">{weddingCoupleLine(state.host)}</h2>
         <p className="mt-2 text-center text-sm text-white/75">
           العريس {state.host.groomName}

@@ -18,6 +18,7 @@ import { isAllowedMoyasarInvoiceUrl } from './_lib/storeIssuedCards.js';
 import {
   isWeddingLiveCheckoutEnabled,
   newWeddingToken,
+  parseWeddingHostRole,
   parseWeddingLiveOrderBody,
   publicWeddingPayload,
   STORE_WEDDING_LIVE_POLICY,
@@ -405,6 +406,7 @@ async function saveHost(db: Db, body: Record<string, unknown>, headers: Record<s
   const current = { ...(data.payload as WeddingLiveOrderPayload) };
   const next: WeddingLiveOrderPayload = {
     ...current,
+    hostRole: parseWeddingHostRole(body.hostRole ?? current.hostRole),
     hostName: String(body.hostName ?? current.hostName).slice(0, 80),
     groomName: String(body.groomName ?? current.groomName).slice(0, 80),
     brideName: String(body.brideName ?? current.brideName).slice(0, 80),

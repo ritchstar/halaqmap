@@ -5,11 +5,13 @@ import { useRef, useState } from 'react';
 import {
   STORE_WEDDING_LIVE,
   STORE_WEDDING_LIVE_AUDIO,
+  STORE_WEDDING_LIVE_HOST_ROLES,
   STORE_WEDDING_LIVE_STYLES,
 } from '@/config/storeWeddingLive';
 import { downloadElementAsPngCard } from '@/lib/downloadElementAsPngCard';
 import {
   compressImageFile,
+  normalizeWeddingHostRole,
   playWeddingLiveChime,
   weddingLiveArchiveBlob,
   type WeddingLiveAudioId,
@@ -81,6 +83,20 @@ export function StoreWeddingHostPanel({
       <div className="rounded-2xl border border-white/12 bg-[#0b1a24]/90 p-5">
         <h2 className="text-lg font-extrabold">{STORE_WEDDING_LIVE.hostPanelTitleAr}</h2>
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          <label className="block text-sm">
+            {STORE_WEDDING_LIVE.hostRoleLabelAr}
+            <select
+              className={fieldClass}
+              value={host.hostRole}
+              onChange={(e) => patchHost({ hostRole: normalizeWeddingHostRole(e.target.value) })}
+            >
+              {STORE_WEDDING_LIVE_HOST_ROLES.map((role) => (
+                <option key={role.id} value={role.id}>
+                  {role.labelAr}
+                </option>
+              ))}
+            </select>
+          </label>
           <label className="block text-sm">
             {STORE_WEDDING_LIVE.hostNameLabelAr}
             <input className={fieldClass} value={host.hostName} onChange={(e) => patchHost({ hostName: e.target.value })} />

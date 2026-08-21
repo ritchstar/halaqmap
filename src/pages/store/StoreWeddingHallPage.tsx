@@ -16,6 +16,7 @@ import { StoreWeddingHostPanel } from '@/components/store/StoreWeddingHostPanel'
 import { STORE_WEDDING_LIVE, STORE_WEDDING_LIVE_LAB_TOKEN, STORE_WEDDING_LIVE_PUBLIC_ENABLED } from '@/config/storeWeddingLive';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import {
+  normalizeWeddingHostRole,
   readWeddingLiveLabState,
   writeWeddingLiveLabState,
   type WeddingLiveHostState,
@@ -30,6 +31,7 @@ function payloadToState(payload: Record<string, unknown>, fallback: WeddingLiveL
   const host = {
     ...fallback.host,
     ...(payload as Partial<WeddingLiveHostState>),
+    hostRole: normalizeWeddingHostRole((payload as Partial<WeddingLiveHostState>).hostRole),
   };
   const blessings = Array.isArray(payload.blessings) ? payload.blessings : fallback.blessings;
   return { host, blessings: blessings as WeddingLiveLabState['blessings'] };
