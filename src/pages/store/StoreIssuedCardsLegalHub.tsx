@@ -1,10 +1,12 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
-import { useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Label } from '@/components/ui/label';
 import {
   StoreVisitorFooter,
@@ -12,13 +14,16 @@ import {
   StoreVisitorShell,
 } from '@/components/store/StoreChrome';
 import {
+  STORE_ISSUED_CARDS_LEGAL_FOLD_HINT_AR,
+  STORE_ISSUED_CARDS_LEGAL_FOLD_TRIGGER_AR,
   STORE_ISSUED_CARDS_LEGAL_SECTIONS,
   STORE_ISSUED_CARDS_LEGAL_SUBTITLE_AR,
   STORE_ISSUED_CARDS_LEGAL_TITLE_AR,
   STORE_ISSUED_CARDS_POLICY_VERSION,
+  acceptedChecksForTrack,
   consentsForTrack,
+  unifiedConsentLabelForTrack,
   type StoreIssuedCardTrack,
-  type StoreIssuedConsentCheckId,
 } from '@/config/storeIssuedCardsLegal';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { renderLegalContentBlocks } from '@/lib/legalPageRender';
@@ -37,20 +42,22 @@ export default function StoreIssuedCardsLegalHub() {
   const [params] = useSearchParams();
   const track = parseTrack(params.get('track'));
   const checksForTrack = consentsForTrack(track);
+  const unifiedLabel = unifiedConsentLabelForTrack(track);
 
-  const [checks, setChecks] = useState<Partial<Record<StoreIssuedConsentCheckId, boolean>>>({});
+  const [accepted, setAccepted] = useState(false);
+  const [detailsOpen, setDetailsOpen] = useState(false);
 
-  const allRequired = useMemo(
-    () => checksForTrack.filter((item) => item.required).every((item) => checks[item.id] === true),
-    [checks, checksForTrack],
-  );
+  useEffect(() => {
+    setAccepted(false);
+    setDetailsOpen(false);
+  }, [track]);
 
   const onContinue = () => {
-    if (!allRequired) {
-      toast.error('يرجى الموافقة على جميع الإقرارات الإلزامية قبل المتابعة.');
+    if (!accepted) {
+      toast.error('يرجى الموافقة على الشروط والأحكام والتعهدات قبل المتابعة.');
       return;
     }
-    storeStoreIssuedConsent(track, checks);
+    storeStoreIssuedConsent(track, acceptedChecksForTrack(track));
     navigate(track === 'bereavement' ? ROUTE_PATHS.STORE_BEREAVEMENT_CREATE : ROUTE_PATHS.STORE_INVITES);
   };
 
@@ -77,43 +84,58 @@ export default function StoreIssuedCardsLegalHub() {
           </Link>
         </div>
 
-        <div className="mt-8 space-y-5">
-          {STORE_ISSUED_CARDS_LEGAL_SECTIONS.map((section) => (
-            <section key={section.id} id={section.id} className="rounded-2xl border border-white/10 bg-[#0b1a24]/80 p-5">
-              <h2 className="text-xl font-bold text-[#f4efe4]">{section.title}</h2>
-              <div className="partner-legal-prose mt-3 max-w-none">{renderLegalContentBlocks(section.content)}</div>
-            </section>
-          ))}
-        </div>
+        <section id="issued-card-consents" className="mt-8 rounded-2xl border border-[#e8c547]/30 bg-[#0b1a24] p-5">
+          <h2 className="text-xl font-bold text-[#e8c547]">موافقة واحدة على الشروط والتعهدات</h2>
+          <p className="mt-2 text-sm leading-relaxed text-white/70">{STORE_ISSUED_CARDS_LEGAL_FOLD_HINT_AR}</p>
+          <p className="mt-1 text-xs text-white/45">تُحفظ الموافقة في جلسة المتصفح الحالية فقط، وترتبط بنسخة السياسات أعلاه.</p>
 
-        <section id="issued-card-consents" className="mt-10 rounded-2xl border border-[#e8c547]/30 bg-[#0b1a24] p-5">
-          <h2 className="text-xl font-bold text-[#e8c547]">التعهدات والإقرارات الإلزامية</h2>
-          <p className="mt-2 text-sm leading-relaxed text-white/70">
-            تُحفظ الموافقة في جلسة المتصفح الحالية فقط، وترتبط بنسخة السياسات أعلاه.
-          </p>
-          <div className="mt-5 space-y-3">
-            {checksForTrack.map((item) => (
-              <div
-                key={item.id}
-                className={cn(
-                  'flex items-start gap-3 rounded-xl border p-4',
-                  checks[item.id] ? 'border-[#e8c547]/40 bg-[#e8c547]/5' : 'border-white/10',
-                )}
-              >
-                <Checkbox
-                  id={`issued-${item.id}`}
-                  checked={checks[item.id] === true}
-                  onCheckedChange={(v) => setChecks((prev) => ({ ...prev, [item.id]: v === true }))}
-                />
-                <Label htmlFor={`issued-${item.id}`} className="cursor-pointer text-sm leading-relaxed text-[#f4efe4]">
-                  {item.label}
-                </Label>
-              </div>
-            ))}
+          <Collapsible open={detailsOpen} onOpenChange={setDetailsOpen} className="mt-5">
+            <CollapsibleTrigger
+              type="button"
+              className="flex w-full items-center justify-between gap-3 rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-right text-sm font-semibold text-[#f4efe4] transition-colors hover:bg-white/10"
+            >
+              <span>{STORE_ISSUED_CARDS_LEGAL_FOLD_TRIGGER_AR}</span>
+              <ChevronDown
+                className={cn('h-4 w-4 shrink-0 text-[#e8c547] transition-transform', detailsOpen && 'rotate-180')}
+                aria-hidden
+              />
+            </CollapsibleTrigger>
+            <CollapsibleContent className="mt-4 space-y-4">
+              {STORE_ISSUED_CARDS_LEGAL_SECTIONS.map((section) => (
+                <article key={section.id} id={section.id} className="rounded-2xl border border-white/10 bg-[#0b1a24]/80 p-5">
+                  <h3 className="text-lg font-bold text-[#f4efe4]">{section.title}</h3>
+                  <div className="partner-legal-prose mt-3 max-w-none">{renderLegalContentBlocks(section.content)}</div>
+                </article>
+              ))}
+              <article className="rounded-2xl border border-[#e8c547]/20 bg-[#e8c547]/5 p-5">
+                <h3 className="text-lg font-bold text-[#e8c547]">التعهدات المدرجة في هذه الموافقة</h3>
+                <ul className="mt-3 list-disc space-y-2 pr-5 text-sm leading-relaxed text-[#f4efe4]">
+                  {checksForTrack.map((item) => (
+                    <li key={item.id}>{item.label}</li>
+                  ))}
+                </ul>
+              </article>
+            </CollapsibleContent>
+          </Collapsible>
+
+          <div
+            className={cn(
+              'mt-5 flex items-start gap-3 rounded-xl border p-4',
+              accepted ? 'border-[#e8c547]/40 bg-[#e8c547]/5' : 'border-white/10',
+            )}
+          >
+            <Checkbox
+              id="issued-unified-consent"
+              checked={accepted}
+              onCheckedChange={(v) => setAccepted(v === true)}
+            />
+            <Label htmlFor="issued-unified-consent" className="cursor-pointer text-sm leading-relaxed text-[#f4efe4]">
+              {unifiedLabel}
+            </Label>
           </div>
           <Button
             type="button"
-            disabled={!allRequired}
+            disabled={!accepted}
             onClick={onContinue}
             className="mt-6 w-full bg-[#e8c547] text-[#061018] hover:bg-[#f0d36a]"
           >

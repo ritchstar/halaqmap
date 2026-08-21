@@ -16,9 +16,12 @@ import {
   priceSarForTemplate,
 } from '../src/config/storeIssuedCardsCatalog.ts';
 import {
+  STORE_ISSUED_CARDS_LEGAL_FOLD_TRIGGER_AR,
   STORE_ISSUED_CARDS_LEGAL_SECTIONS,
   STORE_ISSUED_CARDS_LEGAL_TITLE_AR,
+  acceptedChecksForTrack,
   consentsForTrack,
+  unifiedConsentLabelForTrack,
 } from '../src/config/storeIssuedCardsLegal.ts';
 import { STORE_BEREAVEMENT_COPY, bereavementShareText } from '../src/config/storeBereavementCopy.ts';
 import {
@@ -181,6 +184,12 @@ assert.match(legalBlob, /الإدارة/);
 assert.match(legalBlob, /لا يُكتب عنوان منزل/);
 assert.equal(consentsForTrack('bereavement').some((c) => c.id === 'bereavementAttestation'), true);
 assert.equal(consentsForTrack('paid').some((c) => c.id === 'paidNoRefund'), true);
+assert.equal(acceptedChecksForTrack('paid').termsRead, true);
+assert.equal(acceptedChecksForTrack('paid').paidNoRefund, true);
+assert.equal(acceptedChecksForTrack('bereavement').bereavementAttestation, true);
+assert.match(unifiedConsentLabelForTrack('paid'), /موافقة|أوافق/);
+assert.match(unifiedConsentLabelForTrack('bereavement'), /ذوي المتوفى/);
+assert.match(STORE_ISSUED_CARDS_LEGAL_FOLD_TRIGGER_AR, /الشروط والأحكام والتعهدات/);
 
 assert.match(STORE_BEREAVEMENT_COPY.titleAr, /إعلان وفاة/);
 assert.match(STORE_BEREAVEMENT_COPY.leadAr, /ليست مناسبة/);
@@ -193,6 +202,11 @@ assert.match(legalBlob, /وضع المنصة المعتمد/);
 assert.match(legalBlob, /يُربط بفاتورته/);
 assert.match(STORE_LANDING_COPY.paidInvitesLeadAr, /12 و29 و59/);
 assert.match(STORE_LANDING_COPY.bereavementTitleAr, /الوفاة/);
+
+const legalHub = readFileSync(join(root, 'src/pages/store/StoreIssuedCardsLegalHub.tsx'), 'utf8');
+assert.match(legalHub, /issued-unified-consent/);
+assert.match(legalHub, /Collapsible/);
+assert.doesNotMatch(legalHub, /issued-\$\{item\.id\}/);
 
 assert.match(app, /@\/pages\/store\/StoreIssuedCardsLegalHub/);
 assert.match(app, /@\/pages\/store\/StoreBereavementCreatePage/);

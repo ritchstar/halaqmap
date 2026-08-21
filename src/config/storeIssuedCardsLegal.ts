@@ -275,6 +275,29 @@ export function consentsForTrack(track: StoreIssuedCardTrack): readonly StoreIss
   return STORE_ISSUED_CARDS_CONSENT_CHECKS.filter((item) => item.track === 'both' || item.track === track);
 }
 
+export const STORE_ISSUED_CARDS_LEGAL_FOLD_TRIGGER_AR =
+  'قراءة الشروط والأحكام والتعهدات';
+
+export const STORE_ISSUED_CARDS_LEGAL_FOLD_HINT_AR =
+  'النص مطوي لتقصير الصفحة. افتحه إن أردت القراءة قبل الموافقة الواحدة.';
+
+export function unifiedConsentLabelForTrack(track: StoreIssuedCardTrack): string {
+  if (track === 'bereavement') {
+    return 'أوافق على الشروط والأحكام والتعهدات الخاصة ببلاغ الوفاة والعزاء، بما فيها صفتي من ذوي المتوفى أو مفوضاً منهم، وصحة البيانات، وعدم نشر عنوان المنزل أو رقم تعزية دون إذن.';
+  }
+  return 'أوافق على الشروط والأحكام والتعهدات الخاصة ببطاقة المناسبة المدفوعة، بما فيها صحة المحتوى، وعدم الاسترداد بعد الرابط الحي، وبقاء بصمة خريطة الحل.';
+}
+
+export function acceptedChecksForTrack(
+  track: StoreIssuedCardTrack,
+): Partial<Record<StoreIssuedConsentCheckId, boolean>> {
+  const next: Partial<Record<StoreIssuedConsentCheckId, boolean>> = {};
+  for (const item of consentsForTrack(track)) {
+    if (item.required) next[item.id] = true;
+  }
+  return next;
+}
+
 export function storeIssuedCardsLegalPath(track?: StoreIssuedCardTrack): string {
   if (track === 'paid') return '/store/cards/legal?track=paid';
   if (track === 'bereavement') return '/store/cards/legal?track=bereavement';
