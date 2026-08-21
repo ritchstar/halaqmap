@@ -259,11 +259,15 @@ function logOtpSkip(stage: string, extra?: Record<string, unknown>): void {
   });
 }
 
+export type StoreIssuedDeliveryResult =
+  | { ok: true }
+  | { ok: false; error: string; code: string; probe: StoreIssuedDeliveryProbe };
+
 async function deliverStoreIssuedMessage(
   phoneE164Plus: string,
   body: string,
   otpCode?: string,
-): Promise<{ ok: true } | { ok: false; error: string; code: string; probe: StoreIssuedDeliveryProbe }> {
+): Promise<StoreIssuedDeliveryResult> {
   if (!hasAnyDeliveryChannel()) {
     logOtpSkip('blocked_before_twilio');
     return {
@@ -289,13 +293,13 @@ async function deliverStoreIssuedMessage(
 export async function sendStoreIssuedOtp(
   phoneE164Plus: string,
   code: string,
-): Promise<{ ok: true } | { ok: false; error: string }> {
+): Promise<StoreIssuedDeliveryResult> {
   return deliverStoreIssuedMessage(phoneE164Plus, storeIssuedOtpBody(code), code);
 }
 
 export async function sendStoreIssuedWhatsApp(
   phoneE164Plus: string,
   body: string,
-): Promise<{ ok: true } | { ok: false; error: string }> {
+): Promise<StoreIssuedDeliveryResult> {
   return deliverStoreIssuedMessage(phoneE164Plus, body);
 }
