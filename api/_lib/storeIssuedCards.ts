@@ -216,7 +216,7 @@ export type BereavementPayload = {
   cemeteryName: string;
   cemeteryMapUrl: string;
   burial: 'pending' | 'done' | 'unknown';
-  condolenceMode: 'phone_only' | 'cemetery_only' | 'none';
+  condolenceMode: 'phone_only' | 'cemetery_only' | 'at_home' | 'none';
   prayerText: string;
   familyNote: string;
 };
@@ -266,7 +266,9 @@ export function parseBereavementBody(body: Record<string, unknown>):
   const burial = burialRaw === 'done' || burialRaw === 'unknown' ? burialRaw : 'pending';
   const modeRaw = clip(body.condolenceMode, 24);
   const condolenceMode =
-    modeRaw === 'cemetery_only' || modeRaw === 'none' ? modeRaw : 'phone_only';
+    modeRaw === 'cemetery_only' || modeRaw === 'at_home' || modeRaw === 'none'
+      ? modeRaw
+      : 'phone_only';
 
   const mosqueName = clip(body.mosqueName, 80);
   const cemeteryName = clip(body.cemeteryName, 80);

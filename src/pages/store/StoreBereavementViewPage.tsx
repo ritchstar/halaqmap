@@ -9,6 +9,7 @@ import {
   STORE_BEREAVEMENT_COPY,
   bereavementPlainText,
   bereavementShareText,
+  condolenceLabelAr,
 } from '@/config/storeBereavementCopy';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { fetchIssuedCardPublic, reportIssuedCard, revokeIssuedCard } from '@/lib/storeIssuedCardsRemote';
@@ -93,12 +94,7 @@ export default function StoreBereavementViewPage() {
     }
   };
 
-  const condolenceLabel =
-    card.condolenceMode === 'cemetery_only'
-      ? STORE_BEREAVEMENT_COPY.condolenceCemeteryOnlyAr
-      : card.condolenceMode === 'none'
-        ? STORE_BEREAVEMENT_COPY.condolenceNoneAr
-        : STORE_BEREAVEMENT_COPY.condolencePhoneOnlyAr;
+  const condolenceLabel = condolenceLabelAr(card.condolenceMode);
 
   return (
     <div dir="rtl" className="min-h-[100svh] bg-[#0e1412] text-[#e8eee6]">
@@ -157,7 +153,12 @@ export default function StoreBereavementViewPage() {
               </div>
               <div>
                 <dt className="text-white/45">العزاء</dt>
-                <dd>{condolenceLabel}</dd>
+                <dd>
+                  {condolenceLabel}
+                  {card.condolenceMode === 'at_home' ? (
+                    <span className="mt-1 block text-white/50">{STORE_BEREAVEMENT_COPY.condolenceAtHomePublicHintAr}</span>
+                  ) : null}
+                </dd>
               </div>
               {card.familyNote ? (
                 <div>

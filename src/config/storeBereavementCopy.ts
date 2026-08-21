@@ -25,6 +25,10 @@ export const STORE_BEREAVEMENT_COPY = {
   lastUpdatedAr: 'آخر تحديث',
   condolencePhoneOnlyAr: 'العزاء عبر الاتصال فقط',
   condolenceCemeteryOnlyAr: 'العزاء في المقبرة فقط',
+  condolenceAtHomeAr: 'العزاء في المنزل',
+  condolenceAtHomeHintAr:
+    'يظهر على البلاغ: العزاء في المنزل. لا تكتب عنوان السكن هنا؛ الأسرة ترسل الموقع خاصاً لمن تدعوه.',
+  condolenceAtHomePublicHintAr: 'الموقع يُرسل خاصاً من الأسرة.',
   condolenceNoneAr: 'لا يوجد عزاء حضوري',
   warningAccuracyAr:
     'نشر معلومات غير صحيحة عن وفاة أو ترتيبات عزاء مسؤولية منشئ البلاغ وفق الأنظمة.',
@@ -44,6 +48,20 @@ export const STORE_BEREAVEMENT_BURIAL = [
   { id: 'done', labelAr: 'تم الدفن' },
   { id: 'unknown', labelAr: 'غير محدّد الآن' },
 ] as const;
+
+export const STORE_BEREAVEMENT_CONDOLENCE = [
+  { id: 'phone_only', labelAr: STORE_BEREAVEMENT_COPY.condolencePhoneOnlyAr },
+  { id: 'cemetery_only', labelAr: STORE_BEREAVEMENT_COPY.condolenceCemeteryOnlyAr },
+  { id: 'at_home', labelAr: STORE_BEREAVEMENT_COPY.condolenceAtHomeAr },
+  { id: 'none', labelAr: STORE_BEREAVEMENT_COPY.condolenceNoneAr },
+] as const;
+
+export type BereavementCondolenceMode = (typeof STORE_BEREAVEMENT_CONDOLENCE)[number]['id'];
+
+export function condolenceLabelAr(mode: string | undefined): string {
+  const found = STORE_BEREAVEMENT_CONDOLENCE.find((item) => item.id === mode);
+  return found?.labelAr ?? STORE_BEREAVEMENT_COPY.condolencePhoneOnlyAr;
+}
 
 export const STORE_BEREAVEMENT_PRAYERS: readonly string[] = [
   'إنا لله وإنا إليه راجعون. نسأل الله أن يتغمّده بواسع رحمته.',
@@ -88,7 +106,7 @@ export type BereavementDraft = {
   cemeteryName: string;
   cemeteryMapUrl: string;
   burial: 'pending' | 'done' | 'unknown';
-  condolenceMode: 'phone_only' | 'cemetery_only' | 'none';
+  condolenceMode: BereavementCondolenceMode;
   prayerText: string;
   familyNote: string;
   phone: string;

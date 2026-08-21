@@ -37,7 +37,12 @@ import {
   type BereavementPayload,
   type PaidInvitePayload,
 } from './_lib/storeIssuedCards.js';
-import { sendStoreIssuedWhatsApp } from './_lib/storeIssuedWhatsApp.js';
+import {
+  STORE_ISSUED_OTP_UNAVAILABLE_AR,
+  sendStoreIssuedOtp,
+  sendStoreIssuedWhatsApp,
+  storeIssuedDeliveryConfigured,
+} from './_lib/storeIssuedWhatsApp.js';
 import { normalizeSaudiMobileForWa } from './_lib/saudiWhatsAppPhone.js';
 
 export const config = { maxDuration: 20 };
@@ -162,6 +167,9 @@ async function sendOtp(db: Db, body: Record<string, unknown>, headers: Record<st
 }
 
 async function dispatchOtp(db: Db, phone966: string, headers: Record<string, string>) {
+  if (!storeIssuedDeliveryConfigured()) {
+    return json({ error: STORE_ISSUED_OTP_UNAVAILABLE_AR }, 503, headers);
+  }
   const code = String(randomInt(100000, 1000000));
   const phoneHash = hashSecret(phone966, pepper());
   const { error: insErr } = await db.from(STORE_ISSUED_CARD_OTP_TABLE).insert({
@@ -172,10 +180,7 @@ async function dispatchOtp(db: Db, phone966: string, headers: Record<string, str
   });
   if (insErr) return json({ error: 'تعذر إنشاء رمز التحقق' }, 500, headers);
 
-  const sent = await sendStoreIssuedWhatsApp(
-    `+${phone966}`,
-    `رمز التحقق لبلاغ الوفاة في خريطة الحل: ${code}\nلا تشارك الرمز. صالح لعشر دقائق.`,
-  );
+  const sent = await sendStoreIssuedOtp(`+${phone966}`, code);
   if (!sent.ok) return json({ error: sent.error }, 503, headers);
   return json({ ok: true, masked: maskPhoneLast4(phone966) }, 200, headers);
 }

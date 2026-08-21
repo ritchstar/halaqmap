@@ -11,9 +11,11 @@ import {
   EMPTY_BEREAVEMENT_DRAFT,
   STORE_BEREAVEMENT_BURIAL,
   STORE_BEREAVEMENT_CITIES,
+  STORE_BEREAVEMENT_CONDOLENCE,
   STORE_BEREAVEMENT_COPY,
   STORE_BEREAVEMENT_GENDER,
   STORE_BEREAVEMENT_PRAYERS,
+  condolenceLabelAr,
   type BereavementDraft,
 } from '@/config/storeBereavementCopy';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
@@ -56,7 +58,7 @@ export default function StoreBereavementCreatePage() {
       return;
     }
     setOtpSent(true);
-    toast.success('أُرسل رمز التحقق إلى الجوال الموثّق.');
+    toast.success('أُرسل رمز التحقق إلى جوالك.');
   };
 
   const publish = async () => {
@@ -182,18 +184,20 @@ export default function StoreBereavementCreatePage() {
               ))}
             </div>
             <div className="space-y-2 text-sm">
-              <label className="flex items-center gap-2">
-                <input type="radio" checked={draft.condolenceMode === 'phone_only'} onChange={() => patch('condolenceMode', 'phone_only')} />
-                {STORE_BEREAVEMENT_COPY.condolencePhoneOnlyAr}
-              </label>
-              <label className="flex items-center gap-2">
-                <input type="radio" checked={draft.condolenceMode === 'cemetery_only'} onChange={() => patch('condolenceMode', 'cemetery_only')} />
-                {STORE_BEREAVEMENT_COPY.condolenceCemeteryOnlyAr}
-              </label>
-              <label className="flex items-center gap-2">
-                <input type="radio" checked={draft.condolenceMode === 'none'} onChange={() => patch('condolenceMode', 'none')} />
-                {STORE_BEREAVEMENT_COPY.condolenceNoneAr}
-              </label>
+              {STORE_BEREAVEMENT_CONDOLENCE.map((item) => (
+                <label key={item.id} className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    name="condolenceMode"
+                    checked={draft.condolenceMode === item.id}
+                    onChange={() => patch('condolenceMode', item.id)}
+                  />
+                  {item.labelAr}
+                </label>
+              ))}
+              {draft.condolenceMode === 'at_home' ? (
+                <p className="text-xs leading-6 text-amber-100/80">{STORE_BEREAVEMENT_COPY.condolenceAtHomeHintAr}</p>
+              ) : null}
             </div>
             <div>
               <Label>نص الدعاء</Label>
@@ -228,6 +232,7 @@ export default function StoreBereavementCreatePage() {
               <p className="mt-3">الصلاة: {draft.prayerAt}</p>
               <p>المسجد: {draft.mosqueName}</p>
               <p>المقبرة: {draft.cemeteryName}</p>
+              <p>العزاء: {condolenceLabelAr(draft.condolenceMode)}</p>
               <p>المدينة: {draft.city}</p>
               <p className="mt-3 text-white/70">{draft.prayerText}</p>
             </div>

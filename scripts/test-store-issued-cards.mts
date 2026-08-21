@@ -38,6 +38,11 @@ import {
 import { maskSaudiMobileDisplay } from '../src/lib/maskSaudiMobileDisplay.ts';
 import { occasionCardShareHref } from '../src/lib/storeHostRedirect.ts';
 import { buildOccasionCardShareCaption } from '../src/lib/storeOccasionCardShare.ts';
+import {
+  normalizeSmsFrom,
+  normalizeWhatsAppFrom,
+  storeIssuedOtpBody,
+} from '../api/_lib/storeIssuedWhatsApp.ts';
 import { STORE_LANDING_COPY } from '../src/config/storeFront.ts';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -156,6 +161,22 @@ const notice = parseBereavementBody({
   mosqueMapUrl: 'https://maps.google.com/?q=mosque',
 });
 assert.equal(notice.ok, true);
+if (notice.ok) assert.equal(notice.payload.condolenceMode, 'phone_only');
+
+const atHomeNotice = parseBereavementBody({
+  phone: '0559602685',
+  gender: 'male',
+  fullName: 'عبدالله بن محمد',
+  mosqueName: 'جامع الراجحي',
+  cemeteryName: 'مقبرة النسيم',
+  prayerAt: 'بعد عصر الجمعة',
+  attestorName: 'محمد',
+  mosqueMapUrl: 'https://maps.google.com/?q=mosque',
+  cemeteryMapUrl: 'https://maps.google.com/?q=cemetery',
+  condolenceMode: 'at_home',
+});
+assert.equal(atHomeNotice.ok, true);
+if (atHomeNotice.ok) assert.equal(atHomeNotice.payload.condolenceMode, 'at_home');
 
 const homeMapsOk = parseBereavementBody({
   phone: '0559602685',
@@ -193,6 +214,7 @@ assert.match(STORE_ISSUED_CARDS_LEGAL_FOLD_TRIGGER_AR, /الشروط والأح�
 
 assert.match(STORE_BEREAVEMENT_COPY.titleAr, /إعلان وفاة/);
 assert.match(STORE_BEREAVEMENT_COPY.leadAr, /ليست مناسبة/);
+assert.match(STORE_BEREAVEMENT_COPY.condolenceAtHomeAr, /العزاء في المنزل/);
 assert.match(bereavementShareText('خالد', 'https://example.com'), /إنا لله/);
 assert.doesNotMatch(bereavementShareText('خالد', 'https://example.com'), /أنشئ بطاقتك/);
 
@@ -243,6 +265,11 @@ assert.match(api, /fetchMoyasarPaymentForOccasionCard/);
 assert.match(api, /fetchMoyasarInvoiceForOccasionCard/);
 assert.match(api, /occasionCardInvoiceAuthorizesPayment/);
 assert.match(api, /action === 'sync_paid'/);
+assert.match(api, /sendStoreIssuedOtp/);
+assert.equal(normalizeWhatsAppFrom('+14155238886'), 'whatsapp:+14155238886');
+assert.equal(normalizeWhatsAppFrom('whatsapp:+14155238886'), 'whatsapp:+14155238886');
+assert.equal(normalizeSmsFrom('whatsapp:+14155238886'), '+14155238886');
+assert.match(storeIssuedOtpBody('123456'), /123456/);
 
 const moyasarClient = readFileSync(join(root, 'api/_lib/moyasarApiClient.ts'), 'utf8');
 assert.match(moyasarClient, /fetchMoyasarPaymentForOccasionCard/);
