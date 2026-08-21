@@ -131,6 +131,22 @@ export const STORE_LANDING_COPY = {
   issuedCardsLegalAr: 'شروط الخدمة والخصوصية',
 } as const;
 
+/** أيقونتا التقييم والمشاركة — أسفل يسار واجهة المتجر. */
+export const STORE_ENGAGE_COPY = {
+  rateAr: 'قيم المتجر',
+  shareAr: 'شارك المتجر',
+  rateTitleAr: 'قيم المتجر',
+  rateLeadAr: 'إن أعجبك المتجر، اختر عدد النجوم.',
+  rateSendAr: 'إرسال التقييم',
+  rateThanksAr: 'شكراً لتقييمك.',
+  shareTitleAr: 'شارك المتجر',
+  shareLeadAr: 'أرسل رابط المتجر لمن يحتاجه.',
+  shareTextAr: 'خريطة الحل — متجر برمجيات وخدمات سحابية. بطاقات حيّة، قاعات، وشاشات.',
+  copyAr: 'نسخ الرابط',
+  copiedAr: 'تم النسخ',
+  whatsappAr: 'واتساب',
+} as const;
+
 /** صفحة تعريف واجهة المتجر — نصوص الزائر فقط. */
 export const STORE_ABOUT_COPY = {
   documentTitle: `${STORE_BRAND_LATIN} — من نحن`,

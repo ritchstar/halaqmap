@@ -7,6 +7,7 @@ import { lockPartnerDarkCanvas } from '@/lib/partnerDarkCanvas';
 import { STORE_ABOUT_COPY, STORE_BRAND_LATIN, STORE_CONTACT_EMAIL, STORE_CONTACT_PHONE_DISPLAY, STORE_CONTACT_PHONE_E164, STORE_CONTACT_WHATSAPP_URL, STORE_CONTACT_X_HANDLE, STORE_CONTACT_X_URL, STORE_FOOTER_CONTACT, STORE_LANDING_COPY, STORE_ORIGIN, STORE_PUBLIC_NAME_AR, STORE_VISUALS } from '@/config/storeFront';
 import { KSACityClocksBar } from '@/components/KSACityClocksBar';
 import { EcommerceVerifiedFooterBadge } from '@/components/EcommerceVerifiedFooterBadge';
+import { StoreVisitorEngage } from '@/components/store/StoreVisitorEngage';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useEffect, type ReactNode } from 'react';
 
@@ -61,6 +62,7 @@ export function StoreVisitorHeader() {
           </nav>
         </div>
       </header>
+      <StoreVisitorEngage />
     </div>
   );
 }
