@@ -39,6 +39,7 @@ import { maskSaudiMobileDisplay } from '../src/lib/maskSaudiMobileDisplay.ts';
 import { occasionCardShareHref } from '../src/lib/storeHostRedirect.ts';
 import { buildOccasionCardShareCaption } from '../src/lib/storeOccasionCardShare.ts';
 import {
+  otpDispatchErrorAr,
   extractTwilioErrorCode,
   smsFromLooksLikeWhatsAppSandbox,
   storeIssuedTwilioErrorAr,
@@ -315,10 +316,14 @@ assert.match(api, /action === 'sync_paid'/);
 assert.match(api, /sendStoreIssuedOtp/);
 assert.match(api, /otp_channel_unconfigured/);
 assert.equal(extractTwilioErrorCode('{"code":63015,"message":"not in sandbox"}'), 63015);
+assert.equal(extractTwilioErrorCode('prefix {"code": 20003, "status": 401}'), 20003);
 assert.match(String(storeIssuedTwilioErrorAr(63015)), /انضمام/);
+assert.match(otpDispatchErrorAr(20003), /Twilio/);
+assert.match(otpDispatchErrorAr(77777), /77777/);
 assert.equal(smsFromLooksLikeWhatsAppSandbox('whatsapp:+14155238886'), true);
 assert.equal(smsFromLooksLikeWhatsAppSandbox('+966559602685'), false);
 assert.equal(resolveWhatsAppFrom(''), 'whatsapp:+14155238886');
+assert.equal(resolveWhatsAppFrom('not-a-phone'), 'whatsapp:+14155238886');
 assert.equal(resolveWhatsAppFrom('whatsapp:+14155238886'), 'whatsapp:+14155238886');
 assert.equal(normalizeWhatsAppFrom('+14155238886'), 'whatsapp:+14155238886');
 assert.equal(normalizeWhatsAppFrom('whatsapp:+14155238886'), 'whatsapp:+14155238886');

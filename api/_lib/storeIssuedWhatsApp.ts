@@ -18,14 +18,19 @@ export const STORE_ISSUED_OTP_SANDBOX_HINT_AR =
 export const TWILIO_SANDBOX_VOICE_NUMBER = '+14155238886';
 
 export function extractTwilioErrorCode(text: string): number | null {
+  const rawText = String(text || '');
   try {
-    const parsed = JSON.parse(text) as { code?: unknown; error_code?: unknown };
+    const parsed = JSON.parse(rawText) as { code?: unknown; error_code?: unknown };
     const raw = parsed.code ?? parsed.error_code;
     const n = Number(raw);
-    return Number.isFinite(n) && n > 0 ? Math.trunc(n) : null;
+    if (Number.isFinite(n) && n > 0) return Math.trunc(n);
   } catch {
-    return null;
+    // ليست JSON كاملة.
   }
+  const matched = rawText.match(/"code"\s*:\s*(\d+)/);
+  if (!matched) return null;
+  const n = Number(matched[1]);
+  return Number.isFinite(n) && n > 0 ? Math.trunc(n) : null;
 }
 
 export function smsFromLooksLikeWhatsAppSandbox(from: string): boolean {
@@ -60,7 +65,24 @@ export function storeIssuedTwilioErrorAr(code: number | null | undefined): strin
   if (code === 63003) {
     return 'تعذر توثيق قناة واتساب في Twilio.';
   }
+  if (code === 20003) {
+    return 'تعذر الدخول إلى Twilio. راجع SID والتوكن على Production.';
+  }
+  if (code === 21212 || code === 21614) {
+    return 'رقم الجوال غير مقبول لدى Twilio.';
+  }
+  if (code === 20429) {
+    return 'Twilio أوقف الإرسال مؤقتاً لكثرة المحاولات. انتظر ثم أعد المحاولة.';
+  }
   return null;
+}
+
+export function otpDispatchErrorAr(code: number | null | undefined, status?: number | null): string {
+  const mapped = storeIssuedTwilioErrorAr(code);
+  if (mapped) return mapped;
+  if (code) return `تعذر إرسال واتساب التجربة (رمز Twilio ${code}).`;
+  if (status) return `تعذر إرسال واتساب التجربة (حالة ${status}).`;
+  return STORE_ISSUED_OTP_SANDBOX_HINT_AR;
 }
 
 const OTP_TTL_MINUTES_AR = 'عشر دقائق';
@@ -75,7 +97,9 @@ export function normalizeWhatsAppFrom(raw: string): string {
 }
 
 export function resolveWhatsAppFrom(raw: string): string {
-  return normalizeWhatsAppFrom(raw) || normalizeWhatsAppFrom(TWILIO_SANDBOX_VOICE_NUMBER);
+  const normalized = normalizeWhatsAppFrom(raw);
+  if (/^whatsapp:\+\d{8,15}$/.test(normalized)) return normalized;
+  return normalizeWhatsAppFrom(TWILIO_SANDBOX_VOICE_NUMBER);
 }
 
 export function normalizeSmsFrom(raw: string): string {
@@ -187,12 +211,12 @@ async function postTwilioMessage(
   }
 }
 
-type ChannelSendResult = { ok: boolean; twilioCode: number | null };
+type ChannelSendResult = { ok: boolean; twilioCode: number | null; twilioStatus: number | null };
 
 async function sendTwilioSms(phoneE164Plus: string, body: string): Promise<ChannelSendResult> {
   const sid = twilioSid();
   const token = twilioToken();
-  if (!sid || !token) return { ok: false, twilioCode: null };
+  if (!sid || !token) return { ok: false, twilioCode: null, twilioStatus: null };
 
   const form = new URLSearchParams();
   form.set('To', phoneE164Plus);
@@ -202,8 +226,8 @@ async function sendTwilioSms(phoneE164Plus: string, body: string): Promise<Chann
   if (messagingSid) {
     form.set('MessagingServiceSid', messagingSid);
     const sent = await postTwilioMessage(sid, token, form);
-    if (sent.ok) return { ok: true, twilioCode: null };
-    if (sent.twilioCode) return { ok: false, twilioCode: sent.twilioCode };
+    if (sent.ok) return { ok: true, twilioCode: null, twilioStatus: sent.status };
+    if (sent.twilioCode) return { ok: false, twilioCode: sent.twilioCode, twilioStatus: sent.status };
   }
 
   const from = configuredSmsFrom() || (await discoverTwilioSmsFrom(sid, token));
@@ -211,12 +235,12 @@ async function sendTwilioSms(phoneE164Plus: string, body: string): Promise<Chann
     if (from && smsFromLooksLikeWhatsAppSandbox(from)) {
       logOtpSkip('skipped_sandbox_sms_from');
     }
-    return { ok: false, twilioCode: null };
+    return { ok: false, twilioCode: null, twilioStatus: null };
   }
   form.delete('MessagingServiceSid');
   form.set('From', from);
   const sent = await postTwilioMessage(sid, token, form);
-  return { ok: sent.ok, twilioCode: sent.ok ? null : sent.twilioCode };
+  return { ok: sent.ok, twilioCode: sent.ok ? null : sent.twilioCode, twilioStatus: sent.status };
 }
 
 async function sendTwilioWhatsApp(
@@ -227,24 +251,28 @@ async function sendTwilioWhatsApp(
   const sid = twilioSid();
   const token = twilioToken();
   const from = configuredWhatsAppFrom();
-  if (!sid || !token || !from) return { ok: false, twilioCode: null };
+  if (!sid || !token || !from) return { ok: false, twilioCode: null, twilioStatus: null };
 
   const form = new URLSearchParams();
   form.set('From', from);
   form.set('To', `whatsapp:${phoneE164Plus}`);
+  form.set('Body', body);
+  const freeform = await postTwilioMessage(sid, token, form);
+  if (freeform.ok) return { ok: true, twilioCode: null, twilioStatus: freeform.status };
+
+  let twilioCode = freeform.twilioCode;
+  let twilioStatus = freeform.status;
   const contentSid = otpCode ? otpContentSid() : '';
   if (contentSid && otpCode) {
+    form.delete('Body');
     form.set('ContentSid', contentSid);
     form.set('ContentVariables', storeIssuedOtpContentVariables(otpCode));
     const templated = await postTwilioMessage(sid, token, form);
-    if (templated.ok) return { ok: true, twilioCode: null };
-    form.delete('ContentSid');
-    form.delete('ContentVariables');
-    if (templated.twilioCode === 63015) return { ok: false, twilioCode: 63015 };
+    if (templated.ok) return { ok: true, twilioCode: null, twilioStatus: templated.status };
+    twilioCode = templated.twilioCode ?? twilioCode;
+    twilioStatus = templated.status || twilioStatus;
   }
-  form.set('Body', body);
-  const sent = await postTwilioMessage(sid, token, form);
-  return { ok: sent.ok, twilioCode: sent.ok ? null : sent.twilioCode };
+  return { ok: false, twilioCode, twilioStatus };
 }
 
 async function sendMetaWhatsApp(phoneE164Plus: string, body: string): Promise<boolean> {
@@ -325,7 +353,14 @@ function logOtpSkip(stage: string, extra?: Record<string, unknown>): void {
 
 export type StoreIssuedDeliveryResult =
   | { ok: true }
-  | { ok: false; error: string; code: string; probe: StoreIssuedDeliveryProbe; twilioCode?: number | null };
+  | {
+      ok: false;
+      error: string;
+      code: string;
+      probe: StoreIssuedDeliveryProbe;
+      twilioCode?: number | null;
+      twilioStatus?: number | null;
+    };
 
 async function deliverStoreIssuedMessage(
   phoneE164Plus: string,
@@ -342,29 +377,32 @@ async function deliverStoreIssuedMessage(
     };
   }
   let twilioCode: number | null = null;
+  let twilioStatus: number | null = null;
   if (otpCode) {
     const whatsapp = await sendTwilioWhatsApp(phoneE164Plus, body, otpCode);
     if (whatsapp.ok) return { ok: true };
     twilioCode = whatsapp.twilioCode ?? twilioCode;
+    twilioStatus = whatsapp.twilioStatus ?? twilioStatus;
   }
   const sms = await sendTwilioSms(phoneE164Plus, body);
   if (sms.ok) return { ok: true };
   twilioCode = sms.twilioCode ?? twilioCode;
+  twilioStatus = sms.twilioStatus ?? twilioStatus;
   if (!otpCode) {
     const whatsapp = await sendTwilioWhatsApp(phoneE164Plus, body);
     if (whatsapp.ok) return { ok: true };
     twilioCode = whatsapp.twilioCode ?? twilioCode;
+    twilioStatus = whatsapp.twilioStatus ?? twilioStatus;
   }
   if (await sendMetaWhatsApp(phoneE164Plus, body)) return { ok: true };
-  logOtpSkip('all_channels_failed', { twilioCode });
+  logOtpSkip('all_channels_failed', { twilioCode, twilioStatus });
   return {
     ok: false,
-    error:
-      storeIssuedTwilioErrorAr(twilioCode) ||
-      STORE_ISSUED_OTP_SANDBOX_HINT_AR,
+    error: otpDispatchErrorAr(twilioCode, twilioStatus),
     code: 'otp_dispatch_failed',
     probe: storeIssuedDeliveryProbe(),
     twilioCode,
+    twilioStatus,
   };
 }
 

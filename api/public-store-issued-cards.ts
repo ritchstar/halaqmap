@@ -205,6 +205,7 @@ async function dispatchOtp(db: Db, phone966: string, headers: Record<string, str
         missing: sent.probe.missing,
         hasWhatsAppFrom: sent.probe.hasWhatsAppFrom,
         twilioCode: sent.twilioCode ?? null,
+        twilioStatus: sent.twilioStatus ?? null,
       },
       503,
       headers,
