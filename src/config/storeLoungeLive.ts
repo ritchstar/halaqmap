@@ -123,6 +123,6 @@ export const STORE_LOUNGE_LIVE_DEMO = {
   youtubeUrl: '',
   youtubeHidden: true,
   announcement: '',
-  photoSrc: '/images/store/lab/lab-wedding-panorama.png',
-  panoramaSrc: '/images/store/lab/lab-wedding-panorama.png',
+  photoSrc: '/images/store/lab/lab-lounge-interior.jpg',
+  panoramaSrc: '/images/store/lab/lab-lounge-interior.jpg',
 } as const;

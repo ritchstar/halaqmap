@@ -135,8 +135,8 @@ export function parseLoungeLiveOrderBody(body: Record<string, unknown>):
       youtubeUrl: clip(body.youtubeUrl, 300),
       youtubeHidden: body.youtubeHidden == null ? true : Boolean(body.youtubeHidden),
       announcement: clip(body.announcement, 160),
-      photoSrc: clip(body.photoSrc, 400) || '/images/store/lab/lab-wedding-panorama.png',
-      panoramaSrc: clip(body.panoramaSrc, 400) || '/images/store/lab/lab-wedding-panorama.png',
+      photoSrc: clip(body.photoSrc, 400) || '/images/store/lab/lab-lounge-interior.jpg',
+      panoramaSrc: clip(body.panoramaSrc, 400) || '/images/store/lab/lab-lounge-interior.jpg',
       blessings: [],
     },
   };
