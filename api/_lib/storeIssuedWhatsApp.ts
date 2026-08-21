@@ -12,6 +12,45 @@ export const STORE_ISSUED_OTP_UNAVAILABLE_AR =
 export const STORE_ISSUED_OTP_DELIVERY_FAILED_AR =
   'تعذر إرسال الرسالة إلى الجوال الموثّق.';
 
+export const TWILIO_SANDBOX_VOICE_NUMBER = '+14155238886';
+
+export function extractTwilioErrorCode(text: string): number | null {
+  try {
+    const parsed = JSON.parse(text) as { code?: unknown; error_code?: unknown };
+    const raw = parsed.code ?? parsed.error_code;
+    const n = Number(raw);
+    return Number.isFinite(n) && n > 0 ? Math.trunc(n) : null;
+  } catch {
+    return null;
+  }
+}
+
+export function smsFromLooksLikeWhatsAppSandbox(from: string): boolean {
+  return String(from || '').replace(/\D/g, '') === TWILIO_SANDBOX_VOICE_NUMBER.replace(/\D/g, '');
+}
+
+export function storeIssuedTwilioErrorAr(code: number | null | undefined): string | null {
+  if (code === 63015) {
+    return 'واتساب التجربة لا يرسل لهذا الجوال حتى يرسل منه رسالة انضمام إلى رقم واتساب التجربة في Twilio، ثم يعيد إرسال الرمز.';
+  }
+  if (code === 63016) {
+    return 'واتساب رفض النص الحر خارج نافذة المحادثة. يلزم قالب معتمد.';
+  }
+  if (code === 21608) {
+    return 'حساب Twilio التجريبي لا يرسل إلا إلى أرقام موثّقة مسبقاً في لوحة Twilio.';
+  }
+  if (code === 21408) {
+    return 'إرسال الرسائل النصية إلى هذه الدولة غير مفعّل في Twilio.';
+  }
+  if (code === 21211) {
+    return 'رقم الجوال غير مقبول لدى Twilio.';
+  }
+  if (code === 21606 || code === 21659) {
+    return 'رقم المرسل غير صالح للرسائل النصية.';
+  }
+  return null;
+}
+
 const OTP_TTL_MINUTES_AR = 'عشر دقائق';
 
 export function normalizeWhatsAppFrom(raw: string): string {
@@ -104,11 +143,13 @@ async function discoverTwilioSmsFrom(sid: string, token: string): Promise<string
   return cachedIncomingSmsFrom;
 }
 
+type TwilioPostResult = { ok: boolean; status: number; text: string; twilioCode: number | null };
+
 async function postTwilioMessage(
   sid: string,
   token: string,
   form: URLSearchParams,
-): Promise<{ ok: boolean; status: number; text: string }> {
+): Promise<TwilioPostResult> {
   const endpoint = `https://api.twilio.com/2010-04-01/Accounts/${encodeURIComponent(sid)}/Messages.json`;
   try {
     const resp = await fetch(endpoint, {
@@ -120,19 +161,22 @@ async function postTwilioMessage(
       body: form.toString(),
     });
     const text = await resp.text();
+    const twilioCode = extractTwilioErrorCode(text);
     if (!resp.ok) {
-      console.error('[store-issued-otp]', resp.status, text.slice(0, 220));
+      console.error('[store-issued-otp]', resp.status, twilioCode, text.slice(0, 220));
     }
-    return { ok: resp.ok, status: resp.status, text };
+    return { ok: resp.ok, status: resp.status, text, twilioCode };
   } catch {
-    return { ok: false, status: 0, text: 'network' };
+    return { ok: false, status: 0, text: 'network', twilioCode: null };
   }
 }
 
-async function sendTwilioSms(phoneE164Plus: string, body: string): Promise<boolean> {
+type ChannelSendResult = { ok: boolean; twilioCode: number | null };
+
+async function sendTwilioSms(phoneE164Plus: string, body: string): Promise<ChannelSendResult> {
   const sid = twilioSid();
   const token = twilioToken();
-  if (!sid || !token) return false;
+  if (!sid || !token) return { ok: false, twilioCode: null };
 
   const form = new URLSearchParams();
   form.set('To', phoneE164Plus);
@@ -142,29 +186,32 @@ async function sendTwilioSms(phoneE164Plus: string, body: string): Promise<boole
   if (messagingSid) {
     form.set('MessagingServiceSid', messagingSid);
     const sent = await postTwilioMessage(sid, token, form);
-    if (sent.ok) return true;
+    if (sent.ok) return { ok: true, twilioCode: null };
+    if (sent.twilioCode) return { ok: false, twilioCode: sent.twilioCode };
   }
 
-  const from =
-    configuredSmsFrom() ||
-    normalizeSmsFrom(process.env.TWILIO_WHATSAPP_FROM || '') ||
-    (await discoverTwilioSmsFrom(sid, token));
-  if (!from) return false;
+  const from = configuredSmsFrom() || (await discoverTwilioSmsFrom(sid, token));
+  if (!from || smsFromLooksLikeWhatsAppSandbox(from)) {
+    if (from && smsFromLooksLikeWhatsAppSandbox(from)) {
+      logOtpSkip('skipped_sandbox_sms_from');
+    }
+    return { ok: false, twilioCode: null };
+  }
   form.delete('MessagingServiceSid');
   form.set('From', from);
   const sent = await postTwilioMessage(sid, token, form);
-  return sent.ok;
+  return { ok: sent.ok, twilioCode: sent.ok ? null : sent.twilioCode };
 }
 
 async function sendTwilioWhatsApp(
   phoneE164Plus: string,
   body: string,
   otpCode?: string,
-): Promise<boolean> {
+): Promise<ChannelSendResult> {
   const sid = twilioSid();
   const token = twilioToken();
   const from = configuredWhatsAppFrom();
-  if (!sid || !token || !from) return false;
+  if (!sid || !token || !from) return { ok: false, twilioCode: null };
 
   const form = new URLSearchParams();
   form.set('From', from);
@@ -174,13 +221,14 @@ async function sendTwilioWhatsApp(
     form.set('ContentSid', contentSid);
     form.set('ContentVariables', storeIssuedOtpContentVariables(otpCode));
     const templated = await postTwilioMessage(sid, token, form);
-    if (templated.ok) return true;
+    if (templated.ok) return { ok: true, twilioCode: null };
     form.delete('ContentSid');
     form.delete('ContentVariables');
+    if (templated.twilioCode === 63015) return { ok: false, twilioCode: 63015 };
   }
   form.set('Body', body);
   const sent = await postTwilioMessage(sid, token, form);
-  return sent.ok;
+  return { ok: sent.ok, twilioCode: sent.ok ? null : sent.twilioCode };
 }
 
 async function sendMetaWhatsApp(phoneE164Plus: string, body: string): Promise<boolean> {
@@ -261,7 +309,7 @@ function logOtpSkip(stage: string, extra?: Record<string, unknown>): void {
 
 export type StoreIssuedDeliveryResult =
   | { ok: true }
-  | { ok: false; error: string; code: string; probe: StoreIssuedDeliveryProbe };
+  | { ok: false; error: string; code: string; probe: StoreIssuedDeliveryProbe; twilioCode?: number | null };
 
 async function deliverStoreIssuedMessage(
   phoneE164Plus: string,
@@ -277,16 +325,28 @@ async function deliverStoreIssuedMessage(
       probe: storeIssuedDeliveryProbe(),
     };
   }
-  if (otpCode && (await sendTwilioWhatsApp(phoneE164Plus, body, otpCode))) return { ok: true };
-  if (await sendTwilioSms(phoneE164Plus, body)) return { ok: true };
-  if (!otpCode && (await sendTwilioWhatsApp(phoneE164Plus, body))) return { ok: true };
+  let twilioCode: number | null = null;
+  if (otpCode) {
+    const whatsapp = await sendTwilioWhatsApp(phoneE164Plus, body, otpCode);
+    if (whatsapp.ok) return { ok: true };
+    twilioCode = whatsapp.twilioCode ?? twilioCode;
+  }
+  const sms = await sendTwilioSms(phoneE164Plus, body);
+  if (sms.ok) return { ok: true };
+  twilioCode = sms.twilioCode ?? twilioCode;
+  if (!otpCode) {
+    const whatsapp = await sendTwilioWhatsApp(phoneE164Plus, body);
+    if (whatsapp.ok) return { ok: true };
+    twilioCode = whatsapp.twilioCode ?? twilioCode;
+  }
   if (await sendMetaWhatsApp(phoneE164Plus, body)) return { ok: true };
-  logOtpSkip('all_channels_failed');
+  logOtpSkip('all_channels_failed', { twilioCode });
   return {
     ok: false,
-    error: STORE_ISSUED_OTP_DELIVERY_FAILED_AR,
+    error: storeIssuedTwilioErrorAr(twilioCode) || STORE_ISSUED_OTP_DELIVERY_FAILED_AR,
     code: 'otp_dispatch_failed',
     probe: storeIssuedDeliveryProbe(),
+    twilioCode,
   };
 }
 
