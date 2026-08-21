@@ -331,6 +331,8 @@ assert.match(indexHtml, /store\/invites\/v\//);
 assert.match(indexHtml, /if \(purpose === 'store_occasion_card' && storeToken\)/);
 assert.match(indexHtml, /store_wedding_live/);
 assert.match(indexHtml, /\/pay\/wedding\//);
+assert.match(indexHtml, /store_lounge_live/);
+assert.match(indexHtml, /\/pay\/lounge\//);
 
 assert.equal(isOccasionCardLivePaymentsEnabled(), false);
 
@@ -392,6 +394,8 @@ const webhook = readFileSync(join(root, 'supabase/functions/moyasar-webhook/inde
 assert.match(webhook, /skipped: "store_occasion_card"/);
 assert.match(webhook, /skipped: "store_wedding_live"/);
 assert.match(webhook, /store_wedding_live_orders/);
+assert.match(webhook, /skipped: "store_lounge_live"/);
+assert.match(webhook, /store_lounge_live_orders/);
 
 const viewPage = readFileSync(join(root, 'src/pages/store/StorePaidInviteViewPage.tsx'), 'utf8');
 assert.match(viewPage, /downloadCtaAr/);
@@ -564,6 +568,7 @@ const eventRemote = readFileSync(join(root, 'src/lib/storeEventLiveRemote.ts'), 
 assert.match(eventRemote, /public-store-event-live/);
 assert.match(eventRemote, /vercel\.app/);
 assert.doesNotMatch(eventRemote, /public-store-wedding-live/);
+assert.doesNotMatch(app, /from ['"]@\/config\/storeLoungeLive['"]/);
 
 const vercel = readFileSync(join(root, 'vercel.json'), 'utf8');
 assert.match(vercel, /\/oc\/:token/);

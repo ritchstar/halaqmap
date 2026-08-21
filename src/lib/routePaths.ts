@@ -67,6 +67,12 @@ export const ROUTE_PATHS = {
   STORE_EVENT_GUEST: '/e/:token/guest',
   STORE_EVENT_HOST: '/e/:token/host',
   STORE_EVENT_PAY: '/pay/event/:token',
+  /** لاونجا1 — تشغيل شاشات اللاونج، 600 ر.س لثلاثة أشهر */
+  STORE_LOUNGE: '/store/lounge',
+  STORE_LOUNGE_VIEW: '/l/:token',
+  STORE_LOUNGE_GUEST: '/l/:token/guest',
+  STORE_LOUNGE_HOST: '/l/:token/host',
+  STORE_LOUNGE_PAY: '/pay/lounge/:token',
   /** بلاغات الوفاة والعزاء — خدمة مجتمعية مستقلة */
   STORE_BEREAVEMENT: '/store/bereavement',
   STORE_BEREAVEMENT_CREATE: '/store/bereavement/create',

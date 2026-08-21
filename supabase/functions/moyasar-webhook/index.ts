@@ -213,6 +213,13 @@ function isEventLiveMeta(meta: Record<string, unknown> | null | undefined): bool
   return pt === "store_event_live";
 }
 
+/** لاونجا1 — تشغيل شاشات اللاونج، مستقل عن قاعات المناسبة ورخصة النفاذ. */
+function isLoungeLiveMeta(meta: Record<string, unknown> | null | undefined): boolean {
+  if (!meta || typeof meta !== "object") return false;
+  const pt = String(meta.product_type ?? meta.productType ?? meta.product ?? "").trim().toLowerCase();
+  return pt === "store_lounge_live";
+}
+
 function clampRegistrationQty(raw: unknown): number {
   const n =
     typeof raw === "number" && Number.isFinite(raw)
@@ -832,6 +839,37 @@ Deno.serve(async (req) => {
         paymentId,
         eventId: eventId || null,
         skipped: "store_event_live",
+        activated,
+      },
+      200,
+    );
+  }
+
+  if (isLoungeLiveMeta(meta)) {
+    const token = String(meta.store_lounge_token ?? meta.storeLoungeToken ?? "").trim();
+    const amountOk = amount === 60000;
+    let activated = false;
+    if (successStatus && token && amountOk) {
+      const expiresAt = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString();
+      const { error: loungeErr } = await supabase
+        .from("store_lounge_live_orders")
+        .update({
+          status: "live",
+          moyasar_payment_id: paymentId,
+          expires_at: expiresAt,
+          last_public_change_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        })
+        .eq("display_token", token)
+        .in("status", ["pending_payment", "pending_renewal", "expired"]);
+      activated = !loungeErr;
+    }
+    return jsonResponse(
+      {
+        ok: true,
+        paymentId,
+        eventId: eventId || null,
+        skipped: "store_lounge_live",
         activated,
       },
       200,

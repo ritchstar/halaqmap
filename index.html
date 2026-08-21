@@ -559,12 +559,18 @@
             var earlyPurpose = (earlyParams.get('purpose') || '').trim();
             var earlyToken = (earlyParams.get('store_card_token') || earlyParams.get('token') || '').trim();
             var earlyWedding = (earlyParams.get('store_wedding_token') || '').trim();
+            var earlyEvent = (earlyParams.get('store_event_token') || '').trim();
+            var earlyLounge = (earlyParams.get('store_lounge_token') || '').trim();
             var earlyPath =
               earlyPurpose === 'store_occasion_card' && earlyToken
                 ? '/pay/occasion-card/' + encodeURIComponent(earlyToken)
                 : earlyPurpose === 'store_wedding_live' && (earlyWedding || earlyToken)
                   ? '/pay/wedding/' + encodeURIComponent(earlyWedding || earlyToken)
-                  : paymentPath;
+                  : earlyPurpose === 'store_event_live' && (earlyEvent || earlyToken)
+                    ? '/pay/event/' + encodeURIComponent(earlyEvent || earlyToken)
+                    : earlyPurpose === 'store_lounge_live' && (earlyLounge || earlyToken)
+                      ? '/pay/lounge/' + encodeURIComponent(earlyLounge || earlyToken)
+                      : paymentPath;
             var paymentTarget = window.location.origin + '/#' + earlyPath + search;
             if (window.location.href !== paymentTarget) {
               window.location.replace(paymentTarget);
@@ -591,11 +597,27 @@
             window.location.replace(window.location.origin + '/#' + weddingPath + search);
             return;
           }
+          var eventToken = (params.get('store_event_token') || '').trim();
+          if (purpose === 'store_event_live' && eventToken) {
+            var eventPath = '/pay/event/' + encodeURIComponent(eventToken);
+            if (hashPath === eventPath) return;
+            window.location.replace(window.location.origin + '/#' + eventPath + search);
+            return;
+          }
+          var loungeToken = (params.get('store_lounge_token') || '').trim();
+          if (purpose === 'store_lounge_live' && loungeToken) {
+            var loungePath = '/pay/lounge/' + encodeURIComponent(loungeToken);
+            if (hashPath === loungePath) return;
+            window.location.replace(window.location.origin + '/#' + loungePath + search);
+            return;
+          }
           var hasMoyasarReturn =
             params.get('id') || params.get('status') === 'failed' || params.get('message');
           if (!hasMoyasarReturn) return;
           if (hashPath.indexOf('/pay/occasion-card/') === 0) return;
           if (hashPath.indexOf('/pay/wedding/') === 0) return;
+          if (hashPath.indexOf('/pay/event/') === 0) return;
+          if (hashPath.indexOf('/pay/lounge/') === 0) return;
           if (hashPath === paymentPath) return;
           window.location.replace(window.location.origin + '/#' + paymentPath + search);
         } catch (e) {}
