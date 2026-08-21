@@ -30,6 +30,7 @@ import { PLATFORM_TLS_SSL_LABS_GRADE } from '@/config/platformTlsTrust';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { ProductEvents } from '@/lib/analytics/productAnalytics';
 import { ROUTE_PATHS } from '@/lib/routePaths';
+import { STORE_WEDDING_LIVE_PUBLIC_ENABLED } from '@/config/storeWeddingLive';
 
 export default function StoreLanding() {
   useDocumentTitle(STORE_LANDING_COPY.documentTitle);
@@ -289,13 +290,25 @@ export default function StoreLanding() {
               {STORE_LANDING_COPY.paidInvitesCtaAr}
             </Link>
           </div>
-          <p className="mt-4 text-center text-[11px] leading-5 text-white/40">
-            <Link to={ROUTE_PATHS.STORE_BEREAVEMENT} className="underline-offset-2 hover:underline">
-              {STORE_LANDING_COPY.bereavementFootnoteAr}
-            </Link>
-          </p>
         </div>
       </section>
+
+      {STORE_WEDDING_LIVE_PUBLIC_ENABLED ? (
+      <section className="px-4 pb-8">
+        <div className="mx-auto max-w-5xl">
+          <div className="overflow-hidden rounded-2xl border border-[#e8c547]/35 bg-[#0b1a24]/70">
+            <StoreShot src="/images/store/lab/lab-luxury-gold.png" alt="دعوة زواج تفاعلية" className="aspect-[16/7]" />
+            <div className="p-5 md:p-6">
+              <h2 className="text-xl font-extrabold">{STORE_LANDING_COPY.weddingLiveTitleAr}</h2>
+              <p className="mt-2 max-w-3xl text-sm leading-7 text-white/70">{STORE_LANDING_COPY.weddingLiveLeadAr}</p>
+              <Link to={ROUTE_PATHS.STORE_WEDDING} className="mt-4 inline-flex text-sm font-bold text-[#e8c547]">
+                {STORE_LANDING_COPY.weddingLiveCtaAr}
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+      ) : null}
 
       <StoreVisitorFooter />
     </StoreVisitorShell>

@@ -110,6 +110,9 @@ export default function StorePaidInviteStudioPage() {
             سريعة {STORE_PAID_INVITE_PRICES_SAR.quick} · مميزة {STORE_PAID_INVITE_PRICES_SAR.featured} · فاخرة{' '}
             {STORE_PAID_INVITE_PRICES_SAR.luxury} ر.س. {STORE_PAID_INVITE_COPY.noPackAr}
           </p>
+          <Link to={ROUTE_PATHS.STORE_INVITES_LAB} className="mt-3 inline-flex text-xs font-bold text-[#e8c547]">
+            نماذج المستويات الثلاثة — تجريبي بلا دفع
+          </Link>
 
           <div className="mt-6 space-y-6">
             {STORE_PAID_INVITE_FAMILIES.map((family) => (

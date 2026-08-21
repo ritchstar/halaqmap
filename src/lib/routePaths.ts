@@ -48,6 +48,16 @@ export const ROUTE_PATHS = {
   STORE_OCCASION_CARD_SHARE: '/oc',
   /** دفع بطاقة المناسبة على النطاق الأم عبر ميسر */
   STORE_OCCASION_CARD_PAY: '/pay/occasion-card/:token',
+  /** مختبر نماذج البطاقة الحيّة — تجريبي بلا دفع */
+  STORE_INVITES_LAB: '/store/invites/lab',
+  /** دعوة زواج تفاعلية — منتج مستقل بلا خلط ببطاقة المناسبة */
+  STORE_WEDDING: '/store/wedding',
+  STORE_WEDDING_LAB: '/store/wedding/lab',
+  STORE_WEDDING_VIEW: '/w/:token',
+  STORE_WEDDING_GUEST: '/w/:token/guest',
+  STORE_WEDDING_HOST: '/w/:token/host',
+  /** دفع دعوة الزواج التفاعلية على النطاق الأم عبر ميسر */
+  STORE_WEDDING_PAY: '/pay/wedding/:token',
   /** بلاغات الوفاة والعزاء — خدمة مجتمعية مستقلة */
   STORE_BEREAVEMENT: '/store/bereavement',
   STORE_BEREAVEMENT_CREATE: '/store/bereavement/create',

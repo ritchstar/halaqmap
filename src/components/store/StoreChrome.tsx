@@ -86,11 +86,6 @@ export function StoreVisitorFooter() {
             {STORE_LANDING_COPY.issuedCardsLegalAr}
           </Link>
         </nav>
-        <p className="text-[11px] leading-5 text-white/40">
-          <Link to={ROUTE_PATHS.STORE_BEREAVEMENT} className="underline-offset-2 hover:underline">
-            {STORE_LANDING_COPY.bereavementFootnoteAr}
-          </Link>
-        </p>
         <p className="text-sm leading-relaxed text-white/70">{STORE_LANDING_COPY.roleLine}</p>
         <p className="text-xs text-white/50">{STORE_ORIGIN}</p>
         <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-white/70">

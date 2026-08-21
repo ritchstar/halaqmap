@@ -41,7 +41,14 @@ export const STORE_BEREAVEMENT_COPY = {
   kinLeadAr: 'اختياري. يظهر الاسم والصفة وزر الاتصال للزوار. لا يُنشر إلا بإذن صاحبه.',
   kinAddAr: 'إضافة قريب',
   manageOnlyPhoneAr: 'رابط الإدارة يُرسل إلى الجوال الموثّق فقط. لا تشاركه مع الزوار.',
+  pausedTitleAr: 'الخدمة متوقفة مؤقتاً',
+  pausedLeadAr:
+    'بلاغ الوفاة والعزاء محفوظ في المنصة، وغير معروض في واجهة المتجر حتى يُستكمل إعداد التحقق. بطاقة المناسبة المدفوعة متاحة الآن.',
+  pausedCtaAr: 'فتح بطاقة المناسبة',
 } as const;
+
+/** الواجهة العامة متوقفة. المسارات والكود محفوظان لإعادة التفعيل لاحقاً. */
+export const STORE_BEREAVEMENT_PUBLIC_ENABLED = false;
 
 export const STORE_BEREAVEMENT_GENDER = [
   { id: 'male', labelAr: 'المتوفى' },

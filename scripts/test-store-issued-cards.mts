@@ -23,7 +23,7 @@ import {
   consentsForTrack,
   unifiedConsentLabelForTrack,
 } from '../src/config/storeIssuedCardsLegal.ts';
-import { STORE_BEREAVEMENT_COPY, bereavementShareText } from '../src/config/storeBereavementCopy.ts';
+import { STORE_BEREAVEMENT_COPY, STORE_BEREAVEMENT_PUBLIC_ENABLED, bereavementShareText } from '../src/config/storeBereavementCopy.ts';
 import {
   isAllowedMoyasarInvoiceUrl,
   isOccasionCardLivePaymentsEnabled,
@@ -54,7 +54,21 @@ import {
 } from '../api/_lib/storeIssuedWhatsApp.ts';
 import { hijriFromIsoDate } from '../api/_lib/gregorianHijri.ts';
 import { composeArabMobileDigits } from '../api/_lib/arabMobileDial.ts';
+import { eventSignatureSeed, fnv1a } from '../src/lib/storeEventSignature.ts';
+import { STORE_OCCASION_CARD_LAB_ENABLED } from '../src/config/storeOccasionCardLab.ts';
 import { STORE_LANDING_COPY } from '../src/config/storeFront.ts';
+import {
+  STORE_WEDDING_LIVE,
+  STORE_WEDDING_LIVE_PRICE_SAR,
+  STORE_WEDDING_LIVE_PRODUCT,
+  STORE_WEDDING_LIVE_PUBLIC_ENABLED,
+} from '../src/config/storeWeddingLive.ts';
+import { parseYoutubeVideoId, safeMapsHref, weddingCoupleLine } from '../src/lib/storeWeddingLiveLab.ts';
+import {
+  STORE_WEDDING_LIVE_PRICE_HALALAS,
+  STORE_WEDDING_LIVE_PRODUCT as apiWeddingProduct,
+  weddingLivePaymentMatches,
+} from '../api/_lib/storeWeddingLive.ts';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const app = readFileSync(join(root, 'src/App.tsx'), 'utf8');
@@ -264,19 +278,21 @@ assert.match(legalBlob, /يُربط بفاتورته/);
 assert.match(STORE_LANDING_COPY.paidInvitesLeadAr, /12 و29 و59/);
 assert.match(STORE_LANDING_COPY.bereavementTitleAr, /الوفاة/);
 assert.match(STORE_LANDING_COPY.bereavementFootnoteAr, /بلاغ وفاة/);
+assert.equal(STORE_BEREAVEMENT_PUBLIC_ENABLED, false);
 
 const landing = readFileSync(join(root, 'src/pages/store/StoreLanding.tsx'), 'utf8');
-assert.match(landing, /bereavementFootnoteAr/);
-assert.doesNotMatch(landing, /md:grid-cols-2/);
+assert.match(landing, /paidInvitesTitleAr/);
+assert.doesNotMatch(landing, /bereavementFootnoteAr/);
 
 const chrome = readFileSync(join(root, 'src/components/store/StoreChrome.tsx'), 'utf8');
-assert.match(chrome, /bereavementFootnoteAr/);
-assert.doesNotMatch(chrome, /STORE_LANDING_COPY\.bereavementTitleAr/);
+assert.doesNotMatch(chrome, /STORE_BEREAVEMENT/);
+assert.doesNotMatch(chrome, /bereavementFootnoteAr/);
 
 const legalHub = readFileSync(join(root, 'src/pages/store/StoreIssuedCardsLegalHub.tsx'), 'utf8');
 assert.match(legalHub, /issued-unified-consent/);
 assert.match(legalHub, /Collapsible/);
 assert.doesNotMatch(legalHub, /issued-\$\{item\.id\}/);
+assert.doesNotMatch(legalHub, /track=bereavement/);
 
 assert.match(app, /@\/pages\/store\/StoreIssuedCardsLegalHub/);
 assert.match(app, /@\/pages\/store\/StoreBereavementCreatePage/);
@@ -285,6 +301,15 @@ assert.match(app, /path="\/oc\/:token"/);
 assert.doesNotMatch(app, /from ['"]@\/config\/storeIssuedCardsLegal['"]/);
 assert.doesNotMatch(app, /from ['"]@\/config\/storeBereavementCopy['"]/);
 assert.doesNotMatch(app, /from ['"]@\/config\/storeIssuedCardsCatalog['"]/);
+assert.doesNotMatch(app, /from ['"]@\/config\/storeOccasionCardLab['"]/);
+assert.match(app, /StoreOccasionCardLabPage/);
+assert.match(app, /\/store\/invites\/lab/);
+assert.equal(STORE_OCCASION_CARD_LAB_ENABLED, true);
+assert.equal(
+  eventSignatureSeed({ occasion: 'قران', initials: 'ع·ف', dateIso: '2026-09-04', paletteId: 'gold', templateId: 'luxury-classic' }),
+  eventSignatureSeed({ occasion: 'قران', initials: 'ع·ف', dateIso: '2026-09-04', paletteId: 'gold', templateId: 'luxury-classic' }),
+);
+assert.equal(fnv1a('same'), fnv1a('same'));
 
 const indexHtml = readFileSync(join(root, 'index.html'), 'utf8');
 assert.match(indexHtml, /purpose === 'store_occasion_card'/);
@@ -292,6 +317,8 @@ assert.match(indexHtml, /\/pay\/occasion-card\//);
 assert.match(indexHtml, /\/oc\//);
 assert.match(indexHtml, /store\/invites\/v\//);
 assert.match(indexHtml, /if \(purpose === 'store_occasion_card' && storeToken\)/);
+assert.match(indexHtml, /store_wedding_live/);
+assert.match(indexHtml, /\/pay\/wedding\//);
 
 assert.equal(isOccasionCardLivePaymentsEnabled(), false);
 
@@ -351,6 +378,8 @@ assert.match(moyasarClient, /sk_live_/);
 
 const webhook = readFileSync(join(root, 'supabase/functions/moyasar-webhook/index.ts'), 'utf8');
 assert.match(webhook, /skipped: "store_occasion_card"/);
+assert.match(webhook, /skipped: "store_wedding_live"/);
+assert.match(webhook, /store_wedding_live_orders/);
 
 const viewPage = readFileSync(join(root, 'src/pages/store/StorePaidInviteViewPage.tsx'), 'utf8');
 assert.match(viewPage, /downloadCtaAr/);
@@ -373,6 +402,82 @@ assert.match(caption, /جمعة مباركة/);
 assert.match(caption, /عبدالله فهد/);
 assert.match(caption, /\/oc\//);
 assert.doesNotMatch(caption, /#\/store\/invites/);
+
+assert.equal(STORE_WEDDING_LIVE_PUBLIC_ENABLED, true);
+assert.equal(STORE_WEDDING_LIVE_PRODUCT, 'store_wedding_live');
+assert.equal(STORE_WEDDING_LIVE_PRICE_SAR, 899);
+assert.match(STORE_LANDING_COPY.weddingLiveTitleAr, /دعوة زواج/);
+assert.match(STORE_LANDING_COPY.weddingLiveLeadAr, /899/);
+assert.doesNotMatch(STORE_LANDING_COPY.weddingLiveLeadAr, /12 و29 و59/);
+assert.doesNotMatch(STORE_LANDING_COPY.weddingLiveLeadAr, /الوفاة/);
+assert.doesNotMatch(STORE_WEDDING_LIVE.leadAr, /12 و29 و59/);
+assert.doesNotMatch(STORE_WEDDING_LIVE.leadAr, /store_occasion_card/);
+assert.doesNotMatch(STORE_WEDDING_LIVE.kickerAr, /بلا دفع/);
+assert.doesNotMatch(STORE_WEDDING_LIVE.leadAr, /لاحقاً/);
+assert.match(STORE_WEDDING_LIVE.termsFoldTriggerAr, /شروط/);
+assert.match(STORE_WEDDING_LIVE.priceLineAr, /899/);
+assert.match(landing, /weddingLiveTitleAr/);
+const weddingLanding = readFileSync(join(root, 'src/pages/store/StoreWeddingLandingPage.tsx'), 'utf8');
+assert.match(weddingLanding, /live-preview/);
+assert.match(weddingLanding, /StoreWeddingLiveStudio/);
+assert.match(weddingLanding, /termsFoldTriggerAr/);
+assert.doesNotMatch(app, /from ['"]@\/config\/storeWeddingLive['"]/);
+assert.match(app, /StoreWeddingLandingPage/);
+assert.match(app, /StoreWeddingLabPage/);
+assert.match(app, /StoreWeddingHallPage/);
+assert.match(app, /\/store\/wedding\/lab/);
+assert.match(app, /\/w\/:token\/guest/);
+assert.match(app, /StoreWeddingPayPage/);
+assert.match(app, /\/pay\/wedding\/:token/);
+assert.doesNotMatch(app, /from ['"]@\/lib\/storeWeddingLiveRemote['"]/);
+assert.equal(apiWeddingProduct, STORE_WEDDING_LIVE_PRODUCT);
+assert.equal(STORE_WEDDING_LIVE_PRICE_HALALAS, 89900);
+assert.equal(STORE_WEDDING_LIVE_PRICE_SAR * 100, STORE_WEDDING_LIVE_PRICE_HALALAS);
+assert.equal(
+  weddingLivePaymentMatches({
+    meta: { product: 'store_wedding_live', store_wedding_token: 'tok_w' },
+    token: 'tok_w',
+    amount: 89900,
+  }),
+  true,
+);
+assert.equal(
+  weddingLivePaymentMatches({
+    meta: { product: 'store_occasion_card', store_wedding_token: 'tok_w' },
+    token: 'tok_w',
+    amount: 89900,
+  }),
+  false,
+);
+assert.equal(
+  weddingLivePaymentMatches({
+    meta: { product: 'store_wedding_live', store_wedding_token: 'tok_w' },
+    token: 'tok_w',
+    amount: 5900,
+  }),
+  false,
+);
+assert.match(weddingLanding, /StoreWeddingOrderForm/);
+assert.equal(parseYoutubeVideoId('https://www.youtube.com/watch?v=aqz-KE-bpKQ'), 'aqz-KE-bpKQ');
+assert.ok(safeMapsHref('https://maps.google.com/?q=riyadh'));
+assert.equal(safeMapsHref('javascript:alert(1)'), null);
+assert.match(weddingCoupleLine({
+  hostName: 'عائلة الفلان',
+  groomName: 'عبدالله',
+  brideName: 'كريمة فهد',
+  eventDate: '',
+  eventTime: '',
+  venueName: '',
+  venueMapsUrl: '',
+  welcomeAr: '',
+  youtubeUrl: '',
+  youtubeHidden: false,
+  announcement: '',
+  audioClipId: 'none',
+  photoSrc: '',
+  panoramaSrc: '',
+  cardStyleId: 'gold',
+}), /عبدالله وكريمة فهد/);
 
 const vercel = readFileSync(join(root, 'vercel.json'), 'utf8');
 assert.match(vercel, /\/oc\/:token/);

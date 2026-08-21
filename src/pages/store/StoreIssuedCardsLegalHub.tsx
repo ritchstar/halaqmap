@@ -25,6 +25,7 @@ import {
   unifiedConsentLabelForTrack,
   type StoreIssuedCardTrack,
 } from '@/config/storeIssuedCardsLegal';
+import { STORE_BEREAVEMENT_PUBLIC_ENABLED } from '@/config/storeBereavementCopy';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { renderLegalContentBlocks } from '@/lib/legalPageRender';
 import { ROUTE_PATHS } from '@/lib/routePaths';
@@ -33,6 +34,7 @@ import { toast } from '@/components/ui/sonner';
 import { cn } from '@/lib/utils';
 
 function parseTrack(raw: string | null): StoreIssuedCardTrack {
+  if (!STORE_BEREAVEMENT_PUBLIC_ENABLED) return 'paid';
   return raw === 'bereavement' ? 'bereavement' : 'paid';
 }
 
@@ -75,12 +77,6 @@ export default function StoreIssuedCardsLegalHub() {
             className={cn('rounded-full px-3 py-1.5', track === 'paid' ? 'bg-[#e8c547] text-[#061018]' : 'border border-white/20 text-white/80')}
           >
             بطاقة مدفوعة
-          </Link>
-          <Link
-            to={`${ROUTE_PATHS.STORE_ISSUED_CARDS_LEGAL}?track=bereavement`}
-            className={cn('rounded-full px-3 py-1.5', track === 'bereavement' ? 'bg-white/90 text-[#061018]' : 'border border-white/20 text-white/80')}
-          >
-            بلاغ وفاة وعزاء
           </Link>
         </div>
 

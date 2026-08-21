@@ -558,10 +558,13 @@
             var earlyParams = new URLSearchParams(search);
             var earlyPurpose = (earlyParams.get('purpose') || '').trim();
             var earlyToken = (earlyParams.get('store_card_token') || earlyParams.get('token') || '').trim();
+            var earlyWedding = (earlyParams.get('store_wedding_token') || '').trim();
             var earlyPath =
               earlyPurpose === 'store_occasion_card' && earlyToken
                 ? '/pay/occasion-card/' + encodeURIComponent(earlyToken)
-                : paymentPath;
+                : earlyPurpose === 'store_wedding_live' && (earlyWedding || earlyToken)
+                  ? '/pay/wedding/' + encodeURIComponent(earlyWedding || earlyToken)
+                  : paymentPath;
             var paymentTarget = window.location.origin + '/#' + earlyPath + search;
             if (window.location.href !== paymentTarget) {
               window.location.replace(paymentTarget);
@@ -581,10 +584,18 @@
             window.location.replace(window.location.origin + '/#' + occPath + search);
             return;
           }
+          var weddingToken = (params.get('store_wedding_token') || '').trim();
+          if (purpose === 'store_wedding_live' && weddingToken) {
+            var weddingPath = '/pay/wedding/' + encodeURIComponent(weddingToken);
+            if (hashPath === weddingPath) return;
+            window.location.replace(window.location.origin + '/#' + weddingPath + search);
+            return;
+          }
           var hasMoyasarReturn =
             params.get('id') || params.get('status') === 'failed' || params.get('message');
           if (!hasMoyasarReturn) return;
           if (hashPath.indexOf('/pay/occasion-card/') === 0) return;
+          if (hashPath.indexOf('/pay/wedding/') === 0) return;
           if (hashPath === paymentPath) return;
           window.location.replace(window.location.origin + '/#' + paymentPath + search);
         } catch (e) {}

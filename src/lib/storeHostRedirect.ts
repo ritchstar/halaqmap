@@ -20,7 +20,14 @@ export function isHalaqmapMensHost(host: string): boolean {
 }
 
 function isStoreSurfacePath(path: string): boolean {
-  return path === '/store' || path.startsWith('/store/') || path === '/oc' || path.startsWith('/oc/');
+  return (
+    path === '/store' ||
+    path.startsWith('/store/') ||
+    path === '/oc' ||
+    path.startsWith('/oc/') ||
+    path === '/w' ||
+    path.startsWith('/w/')
+  );
 }
 
 export function resolveMensHostStoreRedirect(input: {
@@ -47,8 +54,27 @@ export function isStoreHostPaymentPath(path: string): boolean {
     normalized === ROUTE_PATHS.PAYMENT ||
     normalized === ROUTE_PATHS.PAYMENT_SUCCESS ||
     normalized.startsWith(`${ROUTE_PATHS.PAYMENT}/`) ||
-    normalized.startsWith('/pay/occasion-card/')
+    normalized.startsWith('/pay/occasion-card/') ||
+    normalized.startsWith('/pay/wedding/')
   );
+}
+
+export function weddingLivePayHref(token: string): string {
+  const hashPath = `/pay/wedding/${encodeURIComponent(token)}`;
+  if (typeof window === 'undefined') return `/#${hashPath}`;
+  if (isHalaqmapStoreHost(window.location.hostname)) {
+    return `https://www.halaqmap.com/#${hashPath}`;
+  }
+  return `/#${hashPath}`;
+}
+
+export function weddingLiveViewHref(token: string): string {
+  const hashPath = `/w/${encodeURIComponent(token)}`;
+  if (typeof window === 'undefined') return `/#${hashPath}`;
+  if (isHalaqmapMensHost(window.location.hostname)) {
+    return `https://store.halaqmap.com/#${hashPath}`;
+  }
+  return `/#${hashPath}`;
 }
 
 export function occasionCardPayHref(token: string): string {

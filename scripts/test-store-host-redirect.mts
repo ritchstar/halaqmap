@@ -48,6 +48,7 @@ assert.equal(
 );
 
 assert.equal(isStoreHostPaymentPath('/pay/occasion-card/abc'), true);
+assert.equal(isStoreHostPaymentPath('/pay/wedding/abc'), true);
 assert.equal(
   resolveMensHostStoreRedirect({
     host: 'www.halaqmap.com',
@@ -62,6 +63,22 @@ assert.equal(
     hashPath: ROUTE_PATHS.HOME,
   }),
   null,
+);
+
+assert.equal(
+  resolveMensHostStoreRedirect({
+    host: 'www.halaqmap.com',
+    hashPath: ROUTE_PATHS.STORE_WEDDING,
+  }),
+  'https://store.halaqmap.com/#/store/wedding',
+);
+
+assert.equal(
+  resolveMensHostStoreRedirect({
+    host: 'www.halaqmap.com',
+    hashPath: '/w/lab/guest',
+  }),
+  'https://store.halaqmap.com/#/w/lab/guest',
 );
 
 assert.equal(

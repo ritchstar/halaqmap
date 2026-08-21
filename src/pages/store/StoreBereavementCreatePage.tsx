@@ -16,6 +16,7 @@ import {
   STORE_BEREAVEMENT_GENDER,
   STORE_BEREAVEMENT_KIN_MAX,
   STORE_BEREAVEMENT_PRAYERS,
+  STORE_BEREAVEMENT_PUBLIC_ENABLED,
   STORE_BEREAVEMENT_RELATIONS,
   condolenceLabelsAr,
   type BereavementCondolenceMode,
@@ -87,6 +88,30 @@ export default function StoreBereavementCreatePage() {
   const [otp, setOtp] = useState('');
   const [otpSent, setOtpSent] = useState(false);
   const [busy, setBusy] = useState(false);
+
+  if (!STORE_BEREAVEMENT_PUBLIC_ENABLED) {
+    return (
+      <div dir="rtl" className="min-h-[100svh] bg-[#0e1412] text-[#e8eee6]">
+        <header className="border-b border-white/10 px-4 py-4">
+          <div className="mx-auto flex max-w-3xl items-center justify-between">
+            <Link to={ROUTE_PATHS.STORE_LANDING} className="text-sm text-white/60">
+              خريطة الحل
+            </Link>
+          </div>
+        </header>
+        <main className="mx-auto max-w-3xl px-4 py-16 text-center">
+          <h1 className="text-3xl font-extrabold">{STORE_BEREAVEMENT_COPY.pausedTitleAr}</h1>
+          <p className="mt-4 text-sm leading-7 text-white/70">{STORE_BEREAVEMENT_COPY.pausedLeadAr}</p>
+          <Link
+            to={ROUTE_PATHS.STORE_INVITES}
+            className="mt-8 inline-flex rounded-full bg-white px-5 py-2.5 text-sm font-extrabold text-[#0e1412]"
+          >
+            {STORE_BEREAVEMENT_COPY.pausedCtaAr}
+          </Link>
+        </main>
+      </div>
+    );
+  }
 
   const patch = <K extends keyof BereavementDraft>(key: K, value: BereavementDraft[K]) => {
     setDraft((prev) => ({ ...prev, [key]: value }));

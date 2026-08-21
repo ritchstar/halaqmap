@@ -51,6 +51,20 @@ const STORE_INVITES_VIEW_PATH =
   (ROUTE_PATHS as { STORE_INVITES_VIEW?: string }).STORE_INVITES_VIEW || "/store/invites/v/:token";
 const STORE_OCCASION_CARD_PAY_PATH =
   (ROUTE_PATHS as { STORE_OCCASION_CARD_PAY?: string }).STORE_OCCASION_CARD_PAY || "/pay/occasion-card/:token";
+const STORE_INVITES_LAB_PATH =
+  (ROUTE_PATHS as { STORE_INVITES_LAB?: string }).STORE_INVITES_LAB || "/store/invites/lab";
+const STORE_WEDDING_PATH =
+  (ROUTE_PATHS as { STORE_WEDDING?: string }).STORE_WEDDING || "/store/wedding";
+const STORE_WEDDING_LAB_PATH =
+  (ROUTE_PATHS as { STORE_WEDDING_LAB?: string }).STORE_WEDDING_LAB || "/store/wedding/lab";
+const STORE_WEDDING_VIEW_PATH =
+  (ROUTE_PATHS as { STORE_WEDDING_VIEW?: string }).STORE_WEDDING_VIEW || "/w/:token";
+const STORE_WEDDING_GUEST_PATH =
+  (ROUTE_PATHS as { STORE_WEDDING_GUEST?: string }).STORE_WEDDING_GUEST || "/w/:token/guest";
+const STORE_WEDDING_HOST_PATH =
+  (ROUTE_PATHS as { STORE_WEDDING_HOST?: string }).STORE_WEDDING_HOST || "/w/:token/host";
+const STORE_WEDDING_PAY_PATH =
+  (ROUTE_PATHS as { STORE_WEDDING_PAY?: string }).STORE_WEDDING_PAY || "/pay/wedding/:token";
 const STORE_BEREAVEMENT_PATH =
   (ROUTE_PATHS as { STORE_BEREAVEMENT?: string }).STORE_BEREAVEMENT || "/store/bereavement";
 const STORE_BEREAVEMENT_CREATE_PATH =
@@ -147,6 +161,11 @@ const StoreIssuedCardsLegalHub = lazy(() => import("@/pages/store/StoreIssuedCar
 const StorePaidInviteStudioPage = lazy(() => import("@/pages/store/StorePaidInviteStudioPage"));
 const StorePaidInviteViewPage = lazy(() => import("@/pages/store/StorePaidInviteViewPage"));
 const StorePaidInvitePayPage = lazy(() => import("@/pages/store/StorePaidInvitePayPage"));
+const StoreOccasionCardLabPage = lazy(() => import("@/pages/store/StoreOccasionCardLabPage"));
+const StoreWeddingLandingPage = lazy(() => import("@/pages/store/StoreWeddingLandingPage"));
+const StoreWeddingLabPage = lazy(() => import("@/pages/store/StoreWeddingLabPage"));
+const StoreWeddingHallPage = lazy(() => import("@/pages/store/StoreWeddingHallPage"));
+const StoreWeddingPayPage = lazy(() => import("@/pages/store/StoreWeddingPayPage"));
 const StoreBereavementCreatePage = lazy(() => import("@/pages/store/StoreBereavementCreatePage"));
 const StoreBereavementViewPage = lazy(() => import("@/pages/store/StoreBereavementViewPage"));
 const PartnerStoryPage = lazy(() => import("@/pages/PartnerStoryPage"));
@@ -605,6 +624,13 @@ export function App() {
           <Route path={STORE_TRUST_PATH} element={<LazyRoute><StoreTrustPage /></LazyRoute>} />
           <Route path={STORE_ISSUED_CARDS_LEGAL_PATH} element={<LazyRoute><StoreIssuedCardsLegalHub /></LazyRoute>} />
           <Route path={STORE_INVITES_PATH} element={<LazyRoute><StorePaidInviteStudioPage /></LazyRoute>} />
+          <Route path={STORE_INVITES_LAB_PATH} element={<LazyRoute><StoreOccasionCardLabPage /></LazyRoute>} />
+          <Route path={STORE_WEDDING_LAB_PATH} element={<LazyRoute><StoreWeddingLabPage /></LazyRoute>} />
+          <Route path={STORE_WEDDING_PATH} element={<LazyRoute><StoreWeddingLandingPage /></LazyRoute>} />
+          <Route path={STORE_WEDDING_GUEST_PATH} element={<LazyRoute><StoreWeddingHallPage /></LazyRoute>} />
+          <Route path={STORE_WEDDING_HOST_PATH} element={<LazyRoute><StoreWeddingHallPage /></LazyRoute>} />
+          <Route path={STORE_WEDDING_VIEW_PATH} element={<LazyRoute><StoreWeddingHallPage /></LazyRoute>} />
+          <Route path={STORE_WEDDING_PAY_PATH} element={<LazyRoute><StoreWeddingPayPage /></LazyRoute>} />
           <Route path="/oc/:token" element={<OccasionCardShareRedirect />} />
           <Route path={STORE_INVITES_VIEW_PATH} element={<LazyRoute><StorePaidInviteViewPage /></LazyRoute>} />
           <Route path={STORE_OCCASION_CARD_PAY_PATH} element={<LazyRoute><StorePaidInvitePayPage /></LazyRoute>} />
