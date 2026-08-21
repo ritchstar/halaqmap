@@ -19,13 +19,6 @@ export const COIFFEUR_CARD_SHARE_ASPECT = '4 / 5' as const;
 
 export const COIFFEUR_CARD_MARKETING_LEAD_ROLE = 'رئيسة مجموعة تسويقية' as const;
 
-/** انطلاق رئيسة المجموعة التسويقية — يُملأ من `?preset=marketing-lead` فقط */
-export const COIFFEUR_CARD_LAUNCH_PRESET = {
-  id: 'marketing-lead',
-  name: 'منيرة عبدالله السراء',
-  role: COIFFEUR_CARD_MARKETING_LEAD_ROLE,
-} as const;
-
 export const COIFFEUR_INTRO_CARD_COPY = {
   documentTitleStudio: 'كروت كوافير ماب — بطاقة للمشاركة',
   documentTitleView: 'كوافير ماب',
@@ -62,6 +55,14 @@ export const COIFFEUR_INTRO_CARD_COPY = {
   marketingHeadline: 'أدعوك إلى كوافير ماب',
   marketingInvite: 'بطاقة تعريف من رئيسة المجموعة التسويقية',
 } as const;
+
+export function coiffeurCardCenteredNameClass(name: string): string {
+  const len = Array.from(name.trim()).length;
+  if (len <= 10) return 'text-xl';
+  if (len <= 18) return 'text-lg';
+  if (len <= 28) return 'text-base';
+  return 'text-sm';
+}
 
 export function isCoiffeurMarketingLeadRole(role: string): boolean {
   return role.trim() === COIFFEUR_CARD_MARKETING_LEAD_ROLE;

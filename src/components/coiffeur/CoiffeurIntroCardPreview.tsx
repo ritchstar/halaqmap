@@ -9,6 +9,7 @@ import {
   COIFFEUR_CARD_SHARE_ASPECT,
   COIFFEUR_INTRO_CARD_COPY as COPY,
   COIFFEUR_SATELLITE_HOST,
+  coiffeurCardCenteredNameClass,
   coiffeurCardPitch,
 } from '@/config/coiffeurIntroCardCopy';
 import { cn } from '@/lib/utils';
@@ -81,10 +82,23 @@ export function CoiffeurIntroCardPreview({ displayName, role, qrDataUrl, classNa
           />
         </div>
 
-        <div className="mt-2 w-full rounded-2xl border border-[#f4d4c0]/50 bg-[#14080e]/80 px-3 py-2.5 text-center shadow-[0_0_16px_rgba(244,212,192,0.18)]">
-          <p className="chat-arabic-text text-lg font-black leading-snug text-[#f7efe8]">{name}</p>
+        <div className="mt-2 flex min-h-[3.35rem] w-full items-center justify-center rounded-2xl border border-[#f4d4c0]/50 bg-[#14080e]/80 px-3 py-2.5 shadow-[0_0_16px_rgba(244,212,192,0.18)]">
+          <p
+            dir="rtl"
+            data-bidi="off"
+            className={cn(
+              'w-full text-center font-black leading-snug text-[#f7efe8] [text-align-last:center]',
+              coiffeurCardCenteredNameClass(name),
+            )}
+          >
+            {name}
+          </p>
         </div>
-        <p className="mt-1.5 inline-flex max-w-full rounded-full border border-[#f4d4c0]/45 bg-[#14080e]/75 px-3 py-1 text-center text-[0.72rem] font-extrabold leading-5 text-[#f4d4c0]">
+        <p
+          dir="rtl"
+          data-bidi="off"
+          className="mt-1.5 inline-flex max-w-full justify-center rounded-full border border-[#f4d4c0]/45 bg-[#14080e]/75 px-3 py-1 text-center text-[0.72rem] font-extrabold leading-5 text-[#f4d4c0] [text-align-last:center]"
+        >
           {title}
         </p>
 

@@ -322,6 +322,35 @@ function setCenterRtl(ctx: CanvasRenderingContext2D): void {
   }
 }
 
+/** توسيط عبارة عربية داخل لوحة مصمّمة — لا يعتمد على اتجاه المحرّك لنقطة الرسم. */
+function paintCenteredPlateLines(
+  ctx: CanvasRenderingContext2D,
+  lines: string[],
+  plateX: number,
+  plateY: number,
+  plateW: number,
+  plateH: number,
+  lineHeight: number,
+): void {
+  const usable = lines.length ? lines : [''];
+  const blockH = usable.length * lineHeight;
+  let y = plateY + (plateH - blockH) / 2 + lineHeight * 0.72;
+  ctx.save();
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'alphabetic';
+  try {
+    ctx.direction = 'ltr';
+  } catch {
+    /* موضع الرسم يبقى وسط الخانة */
+  }
+  const cx = plateX + plateW / 2;
+  for (const ln of usable) {
+    ctx.fillText(ln, cx, y);
+    y += lineHeight;
+  }
+  ctx.restore();
+}
+
 export async function renderCoiffeurIntroCardPng(input: {
   displayName: string;
   role: string;
@@ -381,12 +410,9 @@ export async function renderCoiffeurIntroCardPng(input: {
   paintPlate(ctx, 92, nameTop, w - 184, 118, 24);
   ctx.fillStyle = WINE.cream;
   ctx.font = `900 44px ${FONT}`;
-  const nameLines = wrapLines(ctx, name, w - 260, 2);
-  let ny = nameTop + (nameLines.length === 1 ? 74 : 52);
-  for (const ln of nameLines) {
-    ctx.fillText(ln, w / 2, ny);
-    ny += 46;
-  }
+  const namePlateW = w - 184;
+  const nameLines = wrapLines(ctx, name, namePlateW - 76, 2);
+  paintCenteredPlateLines(ctx, nameLines, 92, nameTop, namePlateW, 118, 46);
 
   const roleY = nameTop + 130;
   const roleLines = wrapLines(ctx, role, 640, 2);
@@ -398,11 +424,7 @@ export async function renderCoiffeurIntroCardPng(input: {
   const roleH = roleLines.length === 1 ? 52 : 84;
   paintPlate(ctx, (w - roleW) / 2, roleY, roleW, roleH, 26);
   ctx.fillStyle = WINE.blush;
-  let rTextY = roleY + (roleLines.length === 1 ? 36 : 32);
-  for (const ln of roleLines) {
-    ctx.fillText(ln, w / 2, rTextY);
-    rTextY += 34;
-  }
+  paintCenteredPlateLines(ctx, roleLines, (w - roleW) / 2, roleY, roleW, roleH, 34);
 
   const pitchY = roleY + roleH + 16;
   const pitchH = pitch.invite ? 168 : 148;

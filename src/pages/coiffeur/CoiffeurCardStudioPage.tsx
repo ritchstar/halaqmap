@@ -20,7 +20,6 @@ import { Label } from '@/components/ui/label';
 import { toast } from '@/components/ui/sonner';
 import {
   COIFFEUR_BRAND_AR,
-  COIFFEUR_CARD_LAUNCH_PRESET,
   COIFFEUR_CARD_NAME_MAX,
   COIFFEUR_CARD_ROLE_CHIPS,
   COIFFEUR_CARD_ROLE_MAX,
@@ -53,10 +52,6 @@ import { cn } from '@/lib/utils';
 type BusyKind = 'png' | 'share' | 'whatsapp' | null;
 
 function initialCardField(kind: 'name' | 'role'): string {
-  const preset = readHashQueryParam('preset');
-  if (preset === COIFFEUR_CARD_LAUNCH_PRESET.id) {
-    return kind === 'name' ? COIFFEUR_CARD_LAUNCH_PRESET.name : COIFFEUR_CARD_LAUNCH_PRESET.role;
-  }
   const fromQuery = kind === 'name' ? readHashQueryParam('n') : readHashQueryParam('r');
   return fromQuery || '';
 }

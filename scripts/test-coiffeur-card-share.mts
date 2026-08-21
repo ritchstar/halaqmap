@@ -14,8 +14,8 @@ async function main() {
   const copy = await import('../src/config/coiffeurIntroCardCopy.ts');
   const og = await import('../api/_lib/coiffeurCardOg.ts');
 
-  const name = copy.COIFFEUR_CARD_LAUNCH_PRESET.name;
-  const role = copy.COIFFEUR_CARD_LAUNCH_PRESET.role;
+  const name = 'ايمان السرااف م احمد';
+  const role = copy.COIFFEUR_CARD_MARKETING_LEAD_ROLE;
 
   const tokenApi = api.encodeCoiffeurCardToken(name, role);
   const tokenWeb = web.encodeCoiffeurCardToken(name, role);
@@ -32,7 +32,14 @@ async function main() {
   assert.equal(api.decodeCoiffeurCardToken('%%%%'), null);
   assert.equal(web.decodeCoiffeurCardToken('abc'), null);
 
-  assert.equal(copy.isCoiffeurMarketingLeadRole(role), true);
+  assert.equal(copy.coiffeurCardCenteredNameClass('نورة'), 'text-xl');
+  assert.equal(copy.coiffeurCardCenteredNameClass('نورة العبدالله'), 'text-lg');
+  assert.equal(copy.coiffeurCardCenteredNameClass(name), 'text-base');
+
+  const preview = readFileSync(join(root, 'src/components/coiffeur/CoiffeurIntroCardPreview.tsx'), 'utf8');
+  assert.match(preview, /data-bidi="off"/);
+  assert.match(preview, /coiffeurCardCenteredNameClass/);
+  assert.match(preview, /text-align-last:center/);
   assert.ok(copy.COIFFEUR_CARD_ROLE_CHIPS.includes(role));
   assert.equal(copy.coiffeurCardPitch(role).kicker, copy.COIFFEUR_INTRO_CARD_COPY.marketingKicker);
   assert.match(copy.buildCoiffeurCardWhatsAppText({ name, role, cardUrl: 'https://coiffeur.halaqmap.com/c/x' }), /أدعوك إلى كوافير ماب/);
