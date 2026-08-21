@@ -67,14 +67,28 @@ function isEmail(raw: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(raw) && raw.length <= 180;
 }
 
-export function parseWeddingHostRole(raw: unknown): 'self' | 'groom_father' | 'bride_father' {
+export function parseWeddingVoice(raw: unknown): 'men' | 'women' {
+  return String(raw || '').trim() === 'women' ? 'women' : 'men';
+}
+
+export function parseWeddingHostRole(
+  raw: unknown,
+  voice: 'men' | 'women' = 'men',
+): 'self' | 'groom_father' | 'bride_father' | 'groom_mother' | 'bride_mother' {
   const value = String(raw || '').trim();
+  if (voice === 'women') {
+    if (value === 'self' || value === 'groom_mother' || value === 'bride_mother') return value;
+    if (value === 'groom_father') return 'groom_mother';
+    if (value === 'bride_father') return 'bride_mother';
+    return 'groom_mother';
+  }
   if (value === 'groom_father' || value === 'bride_father') return value;
   return 'self';
 }
 
 export type WeddingLiveOrderPayload = {
-  hostRole: 'self' | 'groom_father' | 'bride_father';
+  voice: 'men' | 'women';
+  hostRole: 'self' | 'groom_father' | 'bride_father' | 'groom_mother' | 'bride_mother';
   hostName: string;
   groomName: string;
   brideName: string;
@@ -108,14 +122,18 @@ export function parseWeddingLiveOrderBody(body: Record<string, unknown>):
   const groomName = clip(body.groomName, 80);
   const brideName = clip(body.brideName, 80);
   if (hostName.length < 2 || groomName.length < 2 || brideName.length < 2) {
-    return { ok: false, error: 'اسم الداعي واسم العريس واسم العروس مطلوبة.' };
+    return { ok: false, error: 'اسم الداعي أو الداعية واسم العريس واسم العروس مطلوبة.' };
   }
+  const voice = parseWeddingVoice(body.voice);
+  const defaultPhoto =
+    voice === 'women' ? '/images/store/lab/lab-luxury-rosegold.png' : '/images/store/lab/lab-luxury-gold.png';
   return {
     ok: true,
     email,
     buyerName: clip(body.buyerName, 80),
     payload: {
-      hostRole: parseWeddingHostRole(body.hostRole),
+      voice,
+      hostRole: parseWeddingHostRole(body.hostRole, voice),
       hostName,
       groomName,
       brideName,
@@ -127,7 +145,7 @@ export function parseWeddingLiveOrderBody(body: Record<string, unknown>):
       youtubeUrl: clip(body.youtubeUrl, 300),
       youtubeHidden: Boolean(body.youtubeHidden),
       announcement: clip(body.announcement, 160),
-      photoSrc: clip(body.photoSrc, 400) || '/images/store/lab/lab-luxury-gold.png',
+      photoSrc: clip(body.photoSrc, 400) || defaultPhoto,
       panoramaSrc: clip(body.panoramaSrc, 400) || '/images/store/lab/lab-wedding-panorama.png',
       blessings: [],
     },
@@ -136,6 +154,7 @@ export function parseWeddingLiveOrderBody(body: Record<string, unknown>):
 
 export function publicWeddingPayload(payload: WeddingLiveOrderPayload) {
   return {
+    voice: payload.voice === 'women' ? 'women' : 'men',
     hostRole: payload.hostRole || 'self',
     hostName: payload.hostName,
     groomName: payload.groomName,

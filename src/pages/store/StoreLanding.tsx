@@ -31,6 +31,7 @@ import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { ProductEvents } from '@/lib/analytics/productAnalytics';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { STORE_WEDDING_LIVE_PUBLIC_ENABLED } from '@/config/storeWeddingLive';
+import { STORE_EVENT_LIVE_PUBLIC_ENABLED } from '@/config/storeEventLive';
 
 export default function StoreLanding() {
   useDocumentTitle(STORE_LANDING_COPY.documentTitle);
@@ -295,7 +296,7 @@ export default function StoreLanding() {
 
       {STORE_WEDDING_LIVE_PUBLIC_ENABLED ? (
       <section className="px-4 pb-8">
-        <div className="mx-auto max-w-5xl">
+        <div className="mx-auto max-w-5xl space-y-4">
           <div className="overflow-hidden rounded-2xl border border-[#e8c547]/35 bg-[#0b1a24]/70">
             <StoreShot src="/images/store/lab/lab-luxury-gold.png" alt="دعوة زواج تفاعلية" className="aspect-[16/7]" />
             <div className="p-5 md:p-6">
@@ -303,6 +304,33 @@ export default function StoreLanding() {
               <p className="mt-2 max-w-3xl text-sm leading-7 text-white/70">{STORE_LANDING_COPY.weddingLiveLeadAr}</p>
               <Link to={ROUTE_PATHS.STORE_WEDDING} className="mt-4 inline-flex text-sm font-bold text-[#e8c547]">
                 {STORE_LANDING_COPY.weddingLiveCtaAr}
+              </Link>
+            </div>
+          </div>
+          <div className="overflow-hidden rounded-2xl border border-[#e4b7c5]/35 bg-[#0b1a24]/70">
+            <StoreShot src="/images/store/lab/lab-luxury-rosegold.png" alt="دعوة زواج تفاعلية نسائية" className="aspect-[16/7]" />
+            <div className="p-5 md:p-6">
+              <h2 className="text-xl font-extrabold">{STORE_LANDING_COPY.weddingLiveWomenTitleAr}</h2>
+              <p className="mt-2 max-w-3xl text-sm leading-7 text-white/70">{STORE_LANDING_COPY.weddingLiveWomenLeadAr}</p>
+              <Link to={ROUTE_PATHS.STORE_WEDDING_WOMEN} className="mt-4 inline-flex text-sm font-bold text-[#e4b7c5]">
+                {STORE_LANDING_COPY.weddingLiveWomenCtaAr}
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+      ) : null}
+
+      {STORE_EVENT_LIVE_PUBLIC_ENABLED ? (
+      <section className="px-4 pb-8">
+        <div className="mx-auto max-w-5xl">
+          <div className="overflow-hidden rounded-2xl border border-[#e8c547]/30 bg-[#0b1a24]/70">
+            <StoreShot src="/images/store/lab/lab-luxury-ivory.png" alt="دعوة حرة تفاعلية" className="aspect-[16/7]" />
+            <div className="p-5 md:p-6">
+              <h2 className="text-xl font-extrabold">{STORE_LANDING_COPY.eventLiveTitleAr}</h2>
+              <p className="mt-2 max-w-3xl text-sm leading-7 text-white/70">{STORE_LANDING_COPY.eventLiveLeadAr}</p>
+              <Link to={ROUTE_PATHS.STORE_EVENT} className="mt-4 inline-flex text-sm font-bold text-[#e8c547]">
+                {STORE_LANDING_COPY.eventLiveCtaAr}
               </Link>
             </div>
           </div>

@@ -1,7 +1,7 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
- * هبوط دعوة الزواج التفاعلية — معاينة كاملة داخل الصفحة.
+ * هبوط الدعوة الحرة بعد تصنيف الستايل.
  */
 import { useState } from 'react';
 import { Link, Navigate, useLocation } from 'react-router-dom';
@@ -12,57 +12,53 @@ import {
   StoreVisitorHeader,
   StoreVisitorShell,
 } from '@/components/store/StoreChrome';
-import { StoreWeddingInviteCard } from '@/components/store/StoreWeddingInviteCard';
-import { StoreWeddingLiveStudio } from '@/components/store/StoreWeddingLiveStudio';
-import { StoreWeddingOrderForm } from '@/components/store/StoreWeddingOrderForm';
+import { StoreEventInviteCard } from '@/components/store/StoreEventInviteCard';
+import { StoreEventLiveStudio } from '@/components/store/StoreEventLiveStudio';
+import { StoreEventOrderForm } from '@/components/store/StoreEventOrderForm';
 import {
-  STORE_WEDDING_LIVE_LAB_TOKEN,
-  STORE_WEDDING_LIVE_LAB_TOKEN_WOMEN,
-  STORE_WEDDING_LIVE_PUBLIC_ENABLED,
-  weddingLiveCopy,
-  weddingLiveFillClass,
-  weddingLiveTextClass,
-  type StoreWeddingLiveVoice,
-} from '@/config/storeWeddingLive';
+  STORE_EVENT_LIVE_LAB_TOKEN,
+  STORE_EVENT_LIVE_LAB_TOKEN_WOMEN,
+  STORE_EVENT_LIVE_PUBLIC_ENABLED,
+  eventLiveCopy,
+  eventLiveFillClass,
+  eventLiveTextClass,
+  type StoreEventLiveVoice,
+} from '@/config/storeEventLive';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
-import { defaultWeddingLiveLabState, weddingLiveDefaultStyle } from '@/lib/storeWeddingLiveLab';
+import { defaultEventLiveLabState, eventLiveDefaultStyle } from '@/lib/storeEventLiveLab';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { cn } from '@/lib/utils';
 
 const FEATURES_MEN = [
-  'كرت بأسماء الداعي أو والد العريس أو والد العروس، مع العريس والعروس والتاريخ والمكان.',
-  'أيقونة خرائط جوجل تفتح موقع القاعة من الكرت نفسه.',
-  'قاعة حيّة على الشاشة الكبيرة: تهاني، تنويهات، صور، ويوتيوب.',
+  'سمِّ مناسبتك بنفسك: أمسية، تخرج، تكريم أو أي حفل خاص.',
+  'كرت باسم الداعي والتاريخ والمكان، مع أيقونة خرائط جوجل.',
+  'قاعة حيّة على الشاشة: تهاني، تنويهات، صور، ويوتيوب.',
   'احجب الفيديو متى شئت وأظهر بانوراما، ثم أعده بضغطة.',
-  'ارفع صورك، اكتب نصوصك، وجرّب تهنئة الضيف قبل الطلب.',
 ] as const;
 
 const FEATURES_WOMEN = [
-  'كرت بأسماء الداعية: والدة العريس أو والدة العروس، مع العريس والعروس والتاريخ والمكان.',
-  'أيقونة خرائط جوجل تفتح موقع القاعة من الكرت نفسه.',
+  'سمِّين مناسبتكن بأنفسكن: أمسية نسائية، جلسة، تخرج أو أي حفل خاص.',
+  'كرت باسم الداعية والتاريخ والمكان، مع أيقونة خرائط جوجل.',
   'قاعة حيّة بطابع نسائي فاخر: تهاني، تنويهات، صور، ويوتيوب.',
   'احجبن الفيديو متى شئتن وأظهرن بانوراما، ثم أعدنه بضغطة.',
-  'ارفعن صوركن، اكتبن نصوصكن، وجرّبن تهنئة الضيفة قبل الطلب.',
 ] as const;
 
-export default function StoreWeddingLandingPage() {
+export default function StoreEventLandingPage() {
   const location = useLocation();
-  const voice: StoreWeddingLiveVoice = location.pathname.includes('/wedding/women') ? 'women' : 'men';
-  const copy = weddingLiveCopy(voice);
-  const demo = defaultWeddingLiveLabState(voice);
+  const voice: StoreEventLiveVoice = location.pathname.includes('/women') ? 'women' : 'men';
+  const copy = eventLiveCopy(voice);
+  const demo = defaultEventLiveLabState(voice);
   const [termsOpen, setTermsOpen] = useState(false);
   useDocumentTitle(copy.documentTitle);
 
-  if (!STORE_WEDDING_LIVE_PUBLIC_ENABLED) {
+  if (!STORE_EVENT_LIVE_PUBLIC_ENABLED) {
     return <Navigate to={ROUTE_PATHS.STORE_LANDING} replace />;
   }
 
   const features = voice === 'women' ? FEATURES_WOMEN : FEATURES_MEN;
-  const fill = weddingLiveFillClass(voice);
-  const text = weddingLiveTextClass(voice);
-  const labToken = voice === 'women' ? STORE_WEDDING_LIVE_LAB_TOKEN_WOMEN : STORE_WEDDING_LIVE_LAB_TOKEN;
-  const sisterHref = voice === 'women' ? ROUTE_PATHS.STORE_WEDDING : ROUTE_PATHS.STORE_WEDDING_WOMEN;
-  const sisterLabel = voice === 'women' ? 'النموذج الرجالي' : 'النموذج النسائي';
+  const fill = eventLiveFillClass(voice);
+  const text = eventLiveTextClass(voice);
+  const labToken = voice === 'women' ? STORE_EVENT_LIVE_LAB_TOKEN_WOMEN : STORE_EVENT_LIVE_LAB_TOKEN;
 
   return (
     <StoreVisitorShell>
@@ -91,17 +87,17 @@ export default function StoreWeddingLandingPage() {
                 {copy.tryCtaAr}
               </a>
               <a
-                href="#wedding-order"
+                href="#event-order"
                 className="rounded-full border border-white/20 px-5 py-2.5 text-sm font-bold text-white/80"
                 onClick={(event) => {
                   event.preventDefault();
-                  document.getElementById('wedding-order')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  document.getElementById('event-order')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }}
               >
                 {copy.orderCtaAr}
               </a>
-              <Link to={sisterHref} className="rounded-full border border-white/15 px-5 py-2.5 text-sm font-bold text-white/55">
-                {sisterLabel}
+              <Link to={ROUTE_PATHS.STORE_EVENT} className="rounded-full border border-white/15 px-5 py-2.5 text-sm font-bold text-white/55">
+                غيّر التصنيف
               </Link>
             </div>
             <Collapsible open={termsOpen} onOpenChange={setTermsOpen} className="mt-6">
@@ -121,14 +117,14 @@ export default function StoreWeddingLandingPage() {
               </CollapsibleContent>
             </Collapsible>
           </div>
-          <StoreWeddingInviteCard host={demo.host} styleId={weddingLiveDefaultStyle(voice)} />
+          <StoreEventInviteCard host={demo.host} styleId={eventLiveDefaultStyle(voice)} />
         </div>
       </section>
       <section className="px-4 pb-14">
         <div className="mx-auto max-w-6xl">
-          <StoreWeddingLiveStudio token={labToken} />
+          <StoreEventLiveStudio token={labToken} />
           <div className="mt-10 max-w-2xl">
-            <StoreWeddingOrderForm voice={voice} />
+            <StoreEventOrderForm voice={voice} />
           </div>
         </div>
       </section>

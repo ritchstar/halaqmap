@@ -1,7 +1,7 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
- * تحصيل دعوة الزواج التفاعلية — وسم store_wedding_live، 899 ر.س.
+ * تحصيل الدعوة الحرة التفاعلية — وسم store_event_live، 899 ر.س.
  */
 import { createClient } from '@supabase/supabase-js';
 import { runRegistrationRouteGuards } from './_lib/registrationRouteGuard.js';
@@ -16,22 +16,22 @@ import {
 } from './_lib/moyasarApiClient.js';
 import { isAllowedMoyasarInvoiceUrl } from './_lib/storeIssuedCards.js';
 import {
-  isWeddingLiveCheckoutEnabled,
-  newWeddingToken,
-  parseWeddingHostRole,
-  parseWeddingLiveOrderBody,
-  parseWeddingVoice,
-  publicWeddingPayload,
-  STORE_WEDDING_LIVE_POLICY,
-  STORE_WEDDING_LIVE_PRICE_HALALAS,
-  STORE_WEDDING_LIVE_PRODUCT,
-  STORE_WEDDING_LIVE_TABLE,
-  weddingLiveInvoiceDescription,
-  weddingLiveInvoiceMetadata,
-  weddingLivePaymentMatches,
-  type WeddingLiveOrderPayload,
-} from './_lib/storeWeddingLive.js';
-import { sendWeddingLiveLinksEmail } from './_lib/storeWeddingLiveMail.js';
+  isEventLiveCheckoutEnabled,
+  newEventToken,
+  parseEventHostRole,
+  parseEventLiveOrderBody,
+  parseEventVoice,
+  publicEventPayload,
+  STORE_EVENT_LIVE_POLICY,
+  STORE_EVENT_LIVE_PRICE_HALALAS,
+  STORE_EVENT_LIVE_PRODUCT,
+  STORE_EVENT_LIVE_TABLE,
+  eventLiveInvoiceDescription,
+  eventLiveInvoiceMetadata,
+  eventLivePaymentMatches,
+  type EventLiveOrderPayload,
+} from './_lib/storeEventLive.js';
+import { sendEventLiveLinksEmail } from './_lib/storeEventLiveMail.js';
 
 export const config = { maxDuration: 20 };
 
@@ -69,19 +69,19 @@ function payOrigin(request: Request): string {
 }
 
 function displayUrl(token: string): string {
-  return `${storeOrigin()}/#/w/${encodeURIComponent(token)}`;
+  return `${storeOrigin()}/#/e/${encodeURIComponent(token)}`;
 }
 function guestUrl(token: string): string {
-  return `${storeOrigin()}/#/w/${encodeURIComponent(token)}/guest`;
+  return `${storeOrigin()}/#/e/${encodeURIComponent(token)}/guest`;
 }
 function hostUrl(token: string): string {
-  return `${storeOrigin()}/#/w/${encodeURIComponent(token)}/host`;
+  return `${storeOrigin()}/#/e/${encodeURIComponent(token)}/host`;
 }
 
 function successUrl(token: string, request: Request): string {
   const q = new URLSearchParams();
-  q.set('purpose', STORE_WEDDING_LIVE_PRODUCT);
-  q.set('store_wedding_token', token);
+  q.set('purpose', STORE_EVENT_LIVE_PRODUCT);
+  q.set('store_event_token', token);
   return `${payOrigin(request)}/?${q.toString()}`;
 }
 
@@ -108,7 +108,7 @@ export async function GET(request: Request): Promise<Response> {
   const token = String(url.searchParams.get('token') || '').trim();
   const role = String(url.searchParams.get('role') || 'display').trim();
   if (!token) {
-    return json({ ok: true, route: 'public-store-wedding-live', product: STORE_WEDDING_LIVE_PRODUCT }, 200, headers);
+    return json({ ok: true, route: 'public-store-event-live', product: STORE_EVENT_LIVE_PRODUCT }, 200, headers);
   }
   const db = serviceClient();
   if (!db) return json({ error: 'Server not configured' }, 503, headers);
@@ -119,7 +119,7 @@ export async function POST(request: Request): Promise<Response> {
   const blocked = rejectIfPublicApiCorsBlocked(request, CORS_OPTS);
   if (blocked) return blocked;
   const headers = corsHeaders(request);
-  const guard = runRegistrationRouteGuards(request, 'public-store-wedding-live');
+  const guard = runRegistrationRouteGuards(request, 'public-store-event-live');
   if (guard.ok === false) return json(guard.json, guard.status, headers);
   const secGuard = await runSecurityGuard(request, { sensitiveRoute: true, rateLimit: 8 });
   if (!secGuard.allowed) return secGuard.response;
@@ -146,9 +146,9 @@ export async function POST(request: Request): Promise<Response> {
 async function readByRole(db: Db, token: string, role: string, headers: Record<string, string>) {
   if (!token) return json({ error: 'الرابط غير صالح' }, 400, headers);
   const col = role === 'guest' ? 'guest_token' : role === 'host' ? 'host_token' : role === 'pay' ? 'display_token' : 'display_token';
-  const { data } = await db.from(STORE_WEDDING_LIVE_TABLE).select('*').eq(col, token).maybeSingle();
+  const { data } = await db.from(STORE_EVENT_LIVE_TABLE).select('*').eq(col, token).maybeSingle();
   if (!data) return json({ error: 'الرابط غير موجود' }, 404, headers);
-  const payload = (data.payload || {}) as WeddingLiveOrderPayload;
+  const payload = (data.payload || {}) as EventLiveOrderPayload;
   if (role === 'pay') {
     return json(
       {
@@ -168,7 +168,7 @@ async function readByRole(db: Db, token: string, role: string, headers: Record<s
       ok: true,
       status: data.status,
       role,
-      payload: publicWeddingPayload(payload),
+      payload: publicEventPayload(payload),
       expiresAt: data.expires_at,
     },
     200,
@@ -182,25 +182,25 @@ async function createPending(
   headers: Record<string, string>,
   request: Request,
 ) {
-  if (!isWeddingLiveCheckoutEnabled()) {
-    return json({ error: 'تحصيل دعوة الزواج مغلق حالياً.' }, 503, headers);
+  if (!isEventLiveCheckoutEnabled()) {
+    return json({ error: 'تحصيل الدعوة الحرة مغلق حالياً.' }, 503, headers);
   }
-  const parsed = parseWeddingLiveOrderBody(body);
+  const parsed = parseEventLiveOrderBody(body);
   if (!parsed.ok) return json({ error: parsed.error }, 400, headers);
-  const displayToken = newWeddingToken();
-  const guestToken = newWeddingToken();
-  const hostToken = newWeddingToken();
+  const displayToken = newEventToken();
+  const guestToken = newEventToken();
+  const hostToken = newEventToken();
   const expiresAt = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString();
-  const { error } = await db.from(STORE_WEDDING_LIVE_TABLE).insert({
+  const { error } = await db.from(STORE_EVENT_LIVE_TABLE).insert({
     status: 'pending_payment',
     display_token: displayToken,
     guest_token: guestToken,
     host_token: hostToken,
     buyer_email: parsed.email,
     buyer_name: parsed.buyerName || parsed.payload.hostName,
-    price_halalas: STORE_WEDDING_LIVE_PRICE_HALALAS,
+    price_halalas: STORE_EVENT_LIVE_PRICE_HALALAS,
     payload: parsed.payload,
-    policy_version: STORE_WEDDING_LIVE_POLICY,
+    policy_version: STORE_EVENT_LIVE_POLICY,
     expires_at: expiresAt,
   });
   if (error) return json({ error: 'تعذر إنشاء طلب الدعوة' }, 500, headers);
@@ -209,14 +209,14 @@ async function createPending(
   const secret = resolveOccasionCardMoyasarSecretKey();
   if (secret) {
     const created = await createMoyasarInvoice(secret, {
-      amount: STORE_WEDDING_LIVE_PRICE_HALALAS,
+      amount: STORE_EVENT_LIVE_PRICE_HALALAS,
       currency: 'SAR',
-      description: weddingLiveInvoiceDescription(),
+      description: eventLiveInvoiceDescription(),
       success_url: successUrl(displayToken, request),
-      back_url: `${storeOrigin()}/#/store/wedding`,
-      callback_url: `${payOrigin(request)}/api/public-store-wedding-live`,
+      back_url: `${storeOrigin()}/#/store/event`,
+      callback_url: `${payOrigin(request)}/api/public-store-event-live`,
       expired_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-      metadata: weddingLiveInvoiceMetadata(displayToken),
+      metadata: eventLiveInvoiceMetadata(displayToken),
     });
     if (created.status < 400) {
       try {
@@ -226,7 +226,7 @@ async function createPending(
         if (id && isAllowedMoyasarInvoiceUrl(url)) {
           invoiceUrl = url;
           await db
-            .from(STORE_WEDDING_LIVE_TABLE)
+            .from(STORE_EVENT_LIVE_TABLE)
             .update({
               moyasar_invoice_id: id,
               payload: { ...parsed.payload, moyasar_invoice_id: id, moyasar_invoice_url: url },
@@ -246,8 +246,8 @@ async function createPending(
       token: displayToken,
       guestToken,
       hostToken,
-      priceHalalas: STORE_WEDDING_LIVE_PRICE_HALALAS,
-      payPath: `/pay/wedding/${displayToken}`,
+      priceHalalas: STORE_EVENT_LIVE_PRICE_HALALAS,
+      payPath: `/pay/event/${displayToken}`,
       invoiceUrl,
       displayUrl: displayUrl(displayToken),
       guestUrl: guestUrl(guestToken),
@@ -260,7 +260,7 @@ async function createPending(
 
 async function markLive(db: Db, id: string, paymentId: string): Promise<boolean> {
   const { data: updated, error } = await db
-    .from(STORE_WEDDING_LIVE_TABLE)
+    .from(STORE_EVENT_LIVE_TABLE)
     .update({
       status: 'live',
       moyasar_payment_id: paymentId,
@@ -274,7 +274,7 @@ async function markLive(db: Db, id: string, paymentId: string): Promise<boolean>
   if (error) return false;
   if (updated) {
     const exp = updated.expires_at ? String(updated.expires_at).slice(0, 10) : '';
-    void sendWeddingLiveLinksEmail({
+    void sendEventLiveLinksEmail({
       to: String(updated.buyer_email),
       displayUrl: displayUrl(String(updated.display_token)),
       guestUrl: guestUrl(String(updated.guest_token)),
@@ -283,12 +283,12 @@ async function markLive(db: Db, id: string, paymentId: string): Promise<boolean>
     });
     return true;
   }
-  const { data: again } = await db.from(STORE_WEDDING_LIVE_TABLE).select('status').eq('id', id).maybeSingle();
+  const { data: again } = await db.from(STORE_EVENT_LIVE_TABLE).select('status').eq('id', id).maybeSingle();
   return again?.status === 'live';
 }
 
 async function fulfillFromPaymentId(db: Db, token: string, paymentId: string, headers: Record<string, string>) {
-  const { data } = await db.from(STORE_WEDDING_LIVE_TABLE).select('*').eq('display_token', token).maybeSingle();
+  const { data } = await db.from(STORE_EVENT_LIVE_TABLE).select('*').eq('display_token', token).maybeSingle();
   if (!data) return json({ error: 'الطلب غير موجود' }, 404, headers);
   if (data.status === 'live') {
     return json({ ok: true, token, displayUrl: displayUrl(token) }, 200, headers);
@@ -302,25 +302,25 @@ async function fulfillFromPaymentId(db: Db, token: string, paymentId: string, he
     return json({ error: 'تعذر قراءة نتيجة الدفع' }, 502, headers);
   }
   if (!moyasarPaymentIsPaid(String(parsed.status || ''))) return json({ error: 'الدفع لم يكتمل' }, 402, headers);
-  if (Number(parsed.amount) !== STORE_WEDDING_LIVE_PRICE_HALALAS) {
+  if (Number(parsed.amount) !== STORE_EVENT_LIVE_PRICE_HALALAS) {
     return json({ error: 'مبلغ الدفع لا يطابق الدعوة' }, 409, headers);
   }
-  const metaOk = weddingLivePaymentMatches({ meta: parsed.metadata, token, amount: Number(parsed.amount) });
+  const metaOk = eventLivePaymentMatches({ meta: parsed.metadata, token, amount: Number(parsed.amount) });
   if (!metaOk) {
     const invoiceId = invoiceIdFromPayload(data.payload) || String(parsed.invoice_id || '').trim();
-    if (!invoiceId) return json({ error: 'وسم الدفع لا يطابق دعوة الزواج' }, 409, headers);
+    if (!invoiceId) return json({ error: 'وسم الدفع لا يطابق الدعوة الحرة' }, 409, headers);
     const invoice = await fetchMoyasarInvoiceForOccasionCard(invoiceId);
     if (invoice.status >= 400) return json({ error: 'تعذر التحقق من الفاتورة' }, 502, headers);
     try {
       const inv = JSON.parse(invoice.text) as { amount?: number; metadata?: Record<string, unknown> };
       if (
-        !weddingLivePaymentMatches({
+        !eventLivePaymentMatches({
           meta: inv.metadata,
           token,
           amount: Number(inv.amount),
         })
       ) {
-        return json({ error: 'وسم الفاتورة لا يطابق دعوة الزواج' }, 409, headers);
+        return json({ error: 'وسم الفاتورة لا يطابق الدعوة الحرة' }, 409, headers);
       }
     } catch {
       return json({ error: 'تعذر قراءة الفاتورة' }, 502, headers);
@@ -332,7 +332,7 @@ async function fulfillFromPaymentId(db: Db, token: string, paymentId: string, he
 }
 
 async function activatePaid(db: Db, body: Record<string, unknown>, headers: Record<string, string>) {
-  if (!isWeddingLiveCheckoutEnabled()) return json({ error: 'تحصيل دعوة الزواج مغلق حالياً.' }, 503, headers);
+  if (!isEventLiveCheckoutEnabled()) return json({ error: 'تحصيل الدعوة الحرة مغلق حالياً.' }, 503, headers);
   const token = String(body.token || '').trim();
   const paymentId = String(body.paymentId || '').trim();
   if (!token || !paymentId) return json({ error: 'مرجع الدفع ناقص' }, 400, headers);
@@ -342,7 +342,7 @@ async function activatePaid(db: Db, body: Record<string, unknown>, headers: Reco
 async function syncPaid(db: Db, body: Record<string, unknown>, headers: Record<string, string>) {
   const token = String(body.token || '').trim();
   if (!token) return json({ error: 'مرجع الدفع ناقص' }, 400, headers);
-  const { data } = await db.from(STORE_WEDDING_LIVE_TABLE).select('*').eq('display_token', token).maybeSingle();
+  const { data } = await db.from(STORE_EVENT_LIVE_TABLE).select('*').eq('display_token', token).maybeSingle();
   if (!data) return json({ error: 'الطلب غير موجود' }, 404, headers);
   if (data.status === 'live') return json({ ok: true, token, displayUrl: displayUrl(token) }, 200, headers);
   const invoiceId = String(data.moyasar_invoice_id || invoiceIdFromPayload(data.payload) || '').trim();
@@ -356,11 +356,11 @@ async function syncPaid(db: Db, body: Record<string, unknown>, headers: Record<s
       metadata?: Record<string, unknown>;
       payments?: Array<{ id?: unknown; status?: unknown }>;
     };
-    if (Number(parsed.amount) !== STORE_WEDDING_LIVE_PRICE_HALALAS) {
+    if (Number(parsed.amount) !== STORE_EVENT_LIVE_PRICE_HALALAS) {
       return json({ error: 'مبلغ الفاتورة لا يطابق الدعوة' }, 409, headers);
     }
-    if (!weddingLivePaymentMatches({ meta: parsed.metadata, token, amount: Number(parsed.amount) })) {
-      return json({ error: 'وسم الفاتورة لا يطابق دعوة الزواج' }, 409, headers);
+    if (!eventLivePaymentMatches({ meta: parsed.metadata, token, amount: Number(parsed.amount) })) {
+      return json({ error: 'وسم الفاتورة لا يطابق الدعوة الحرة' }, 409, headers);
     }
     const paid = (parsed.payments || []).find((item) => moyasarPaymentIsPaid(String(item.status || '')));
     const paymentId = String(paid?.id || `invoice:${invoiceId}`);
@@ -378,9 +378,9 @@ async function addBlessing(db: Db, body: Record<string, unknown>, headers: Recor
   const cannedText = String(body.cannedText || '').replace(/\s+/g, ' ').trim().slice(0, 160);
   const extra = String(body.extra || '').replace(/\s+/g, ' ').trim().slice(0, 80);
   if (!token || name.length < 2 || !cannedText) return json({ error: 'التهنئة ناقصة' }, 400, headers);
-  const { data } = await db.from(STORE_WEDDING_LIVE_TABLE).select('id, status, payload').eq('guest_token', token).maybeSingle();
+  const { data } = await db.from(STORE_EVENT_LIVE_TABLE).select('id, status, payload').eq('guest_token', token).maybeSingle();
   if (!data || data.status !== 'live') return json({ error: 'رابط الضيف غير صالح' }, 404, headers);
-  const payload = { ...(data.payload as WeddingLiveOrderPayload) };
+  const payload = { ...(data.payload as EventLiveOrderPayload) };
   const blessings = Array.isArray(payload.blessings) ? payload.blessings : [];
   blessings.push({
     id: `${Date.now()}`,
@@ -393,7 +393,7 @@ async function addBlessing(db: Db, body: Record<string, unknown>, headers: Recor
   });
   payload.blessings = blessings.slice(-80);
   await db
-    .from(STORE_WEDDING_LIVE_TABLE)
+    .from(STORE_EVENT_LIVE_TABLE)
     .update({ payload, last_public_change_at: new Date().toISOString(), updated_at: new Date().toISOString() })
     .eq('id', data.id);
   return json({ ok: true }, 200, headers);
@@ -402,17 +402,16 @@ async function addBlessing(db: Db, body: Record<string, unknown>, headers: Recor
 async function saveHost(db: Db, body: Record<string, unknown>, headers: Record<string, string>) {
   const token = String(body.token || '').trim();
   if (!token) return json({ error: 'رابط المضيف غير صالح' }, 400, headers);
-  const { data } = await db.from(STORE_WEDDING_LIVE_TABLE).select('id, status, payload').eq('host_token', token).maybeSingle();
+  const { data } = await db.from(STORE_EVENT_LIVE_TABLE).select('id, status, payload').eq('host_token', token).maybeSingle();
   if (!data || data.status !== 'live') return json({ error: 'رابط المضيف غير صالح' }, 404, headers);
-  const current = { ...(data.payload as WeddingLiveOrderPayload) };
-  const voice = parseWeddingVoice(current.voice);
-  const next: WeddingLiveOrderPayload = {
+  const current = { ...(data.payload as EventLiveOrderPayload) };
+  const voice = parseEventVoice(current.voice);
+  const next: EventLiveOrderPayload = {
     ...current,
     voice,
-    hostRole: parseWeddingHostRole(body.hostRole ?? current.hostRole, voice),
+    hostRole: parseEventHostRole(body.hostRole ?? current.hostRole, voice),
     hostName: String(body.hostName ?? current.hostName).slice(0, 80),
-    groomName: String(body.groomName ?? current.groomName).slice(0, 80),
-    brideName: String(body.brideName ?? current.brideName).slice(0, 80),
+    occasionTitle: String(body.occasionTitle ?? current.occasionTitle).slice(0, 80),
     eventDate: String(body.eventDate ?? current.eventDate).slice(0, 80),
     eventTime: String(body.eventTime ?? current.eventTime).slice(0, 80),
     venueName: String(body.venueName ?? current.venueName).slice(0, 120),
@@ -423,10 +422,10 @@ async function saveHost(db: Db, body: Record<string, unknown>, headers: Record<s
     announcement: String(body.announcement ?? current.announcement).slice(0, 160),
     photoSrc: String(body.photoSrc ?? current.photoSrc).slice(0, 350000),
     panoramaSrc: String(body.panoramaSrc ?? current.panoramaSrc).slice(0, 350000),
-    blessings: Array.isArray(body.blessings) ? (body.blessings as WeddingLiveOrderPayload['blessings']) : current.blessings,
+    blessings: Array.isArray(body.blessings) ? (body.blessings as EventLiveOrderPayload['blessings']) : current.blessings,
   };
   await db
-    .from(STORE_WEDDING_LIVE_TABLE)
+    .from(STORE_EVENT_LIVE_TABLE)
     .update({ payload: next, last_public_change_at: new Date().toISOString(), updated_at: new Date().toISOString() })
     .eq('id', data.id);
   return json({ ok: true }, 200, headers);

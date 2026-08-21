@@ -7,9 +7,12 @@ import {
   STORE_WEDDING_LIVE_AUDIO,
   STORE_WEDDING_LIVE_CANNED,
   STORE_WEDDING_LIVE_DEMO,
+  STORE_WEDDING_LIVE_DEMO_WOMEN,
   STORE_WEDDING_LIVE_HOST_ROLES,
+  STORE_WEDDING_LIVE_LAB_TOKEN_WOMEN,
   STORE_WEDDING_LIVE_STYLES,
   type StoreWeddingLiveHostRole,
+  type StoreWeddingLiveVoice,
 } from '@/config/storeWeddingLive';
 
 export type WeddingLiveAudioId = (typeof STORE_WEDDING_LIVE_AUDIO)[number]['id'];
@@ -28,6 +31,7 @@ export type WeddingLiveBlessing = {
 export type WeddingLiveHostRole = StoreWeddingLiveHostRole;
 
 export type WeddingLiveHostState = {
+  voice: StoreWeddingLiveVoice;
   hostRole: WeddingLiveHostRole;
   hostName: string;
   groomName: string;
@@ -52,20 +56,43 @@ export type WeddingLiveLabState = {
 };
 
 function storageKey(token: string): string {
-  return `store-wedding-live:v3:${token.trim() || 'lab'}`;
+  return `store-wedding-live:v4:${token.trim() || 'lab'}`;
 }
 
-export function normalizeWeddingHostRole(raw: unknown): WeddingLiveHostRole {
+export function weddingLiveVoiceFromToken(token: string): StoreWeddingLiveVoice {
+  return token.trim() === STORE_WEDDING_LIVE_LAB_TOKEN_WOMEN ? 'women' : 'men';
+}
+
+export function normalizeWeddingVoice(raw: unknown): StoreWeddingLiveVoice {
+  return String(raw || '').trim() === 'women' ? 'women' : 'men';
+}
+
+export function normalizeWeddingHostRole(raw: unknown, voice: StoreWeddingLiveVoice = 'men'): WeddingLiveHostRole {
   const value = String(raw || '').trim();
-  return STORE_WEDDING_LIVE_HOST_ROLES.some((item) => item.id === value)
-    ? (value as WeddingLiveHostRole)
-    : 'self';
+  const forVoice = STORE_WEDDING_LIVE_HOST_ROLES.filter((item) => item.voice === voice);
+  if (forVoice.some((item) => item.id === value)) return value as WeddingLiveHostRole;
+  if (voice === 'women') {
+    if (value === 'groom_father') return 'groom_mother';
+    if (value === 'bride_father') return 'bride_mother';
+    return 'groom_mother';
+  }
+  if (value === 'groom_mother') return 'groom_father';
+  if (value === 'bride_mother') return 'bride_father';
+  return STORE_WEDDING_LIVE_HOST_ROLES.some((item) => item.id === value) ? (value as WeddingLiveHostRole) : 'self';
 }
 
-export function weddingHostInviteLine(host: Pick<WeddingLiveHostState, 'hostName' | 'hostRole'>): string {
+export function weddingLiveDefaultStyle(voice: StoreWeddingLiveVoice): WeddingLiveStyleId {
+  return voice === 'women' ? 'rosegold' : 'gold';
+}
+
+export function weddingHostInviteLine(
+  host: Pick<WeddingLiveHostState, 'hostName' | 'hostRole'> & { voice?: StoreWeddingLiveVoice },
+): string {
+  const voice = normalizeWeddingVoice(host.voice);
   const name = host.hostName.trim();
-  const role = STORE_WEDDING_LIVE_HOST_ROLES.find((item) => item.id === normalizeWeddingHostRole(host.hostRole));
-  const prefix = role?.linePrefixAr || 'الداعي';
+  const roleId = normalizeWeddingHostRole(host.hostRole, voice);
+  const role = STORE_WEDDING_LIVE_HOST_ROLES.find((item) => item.id === roleId && item.voice === voice);
+  const prefix = role?.linePrefixAr || (voice === 'women' ? 'الداعية' : 'الداعي');
   return name ? `${prefix} ${name}` : prefix;
 }
 
@@ -91,30 +118,32 @@ export function safeMapsHref(raw: string): string | null {
   }
 }
 
-export function defaultWeddingLiveLabState(): WeddingLiveLabState {
+export function defaultWeddingLiveLabState(voice: StoreWeddingLiveVoice = 'men'): WeddingLiveLabState {
+  const demo = voice === 'women' ? STORE_WEDDING_LIVE_DEMO_WOMEN : STORE_WEDDING_LIVE_DEMO;
   return {
     host: {
-      hostRole: STORE_WEDDING_LIVE_DEMO.hostRole,
-      hostName: STORE_WEDDING_LIVE_DEMO.hostName,
-      groomName: STORE_WEDDING_LIVE_DEMO.groomName,
-      brideName: STORE_WEDDING_LIVE_DEMO.brideName,
-      eventDate: STORE_WEDDING_LIVE_DEMO.eventDate,
-      eventTime: STORE_WEDDING_LIVE_DEMO.eventTime,
-      venueName: STORE_WEDDING_LIVE_DEMO.venueName,
-      venueMapsUrl: STORE_WEDDING_LIVE_DEMO.venueMapsUrl,
-      welcomeAr: STORE_WEDDING_LIVE_DEMO.welcomeAr,
-      youtubeUrl: STORE_WEDDING_LIVE_DEMO.youtubeUrl,
-      youtubeHidden: STORE_WEDDING_LIVE_DEMO.youtubeHidden,
-      announcement: STORE_WEDDING_LIVE_DEMO.announcement,
+      voice,
+      hostRole: demo.hostRole,
+      hostName: demo.hostName,
+      groomName: demo.groomName,
+      brideName: demo.brideName,
+      eventDate: demo.eventDate,
+      eventTime: demo.eventTime,
+      venueName: demo.venueName,
+      venueMapsUrl: demo.venueMapsUrl,
+      welcomeAr: demo.welcomeAr,
+      youtubeUrl: demo.youtubeUrl,
+      youtubeHidden: demo.youtubeHidden,
+      announcement: demo.announcement,
       audioClipId: 'none',
-      photoSrc: STORE_WEDDING_LIVE_DEMO.photoSrc,
-      panoramaSrc: STORE_WEDDING_LIVE_DEMO.panoramaSrc,
-      cardStyleId: 'gold',
+      photoSrc: demo.photoSrc,
+      panoramaSrc: demo.panoramaSrc,
+      cardStyleId: weddingLiveDefaultStyle(voice),
     },
     blessings: [
       {
         id: 'seed-1',
-        name: 'محمد',
+        name: voice === 'women' ? 'سارة' : 'محمد',
         cannedId: 'baraka',
         cannedText: STORE_WEDDING_LIVE_CANNED[0].textAr,
         extra: '',
@@ -126,17 +155,22 @@ export function defaultWeddingLiveLabState(): WeddingLiveLabState {
 }
 
 export function readWeddingLiveLabState(token: string): WeddingLiveLabState {
-  const fallback = defaultWeddingLiveLabState();
+  const voice = weddingLiveVoiceFromToken(token);
+  const fallback = defaultWeddingLiveLabState(voice);
   if (typeof window === 'undefined') return fallback;
   try {
     const raw = window.localStorage.getItem(storageKey(token));
     if (!raw) return fallback;
     const parsed = JSON.parse(raw) as Partial<WeddingLiveLabState>;
+    const parsedHost = parsed.host as Partial<WeddingLiveHostState> | undefined;
+    const nextVoice = normalizeWeddingVoice(parsedHost?.voice ?? voice);
     return {
       host: {
         ...fallback.host,
-        ...(parsed.host || {}),
-        hostRole: normalizeWeddingHostRole((parsed.host as Partial<WeddingLiveHostState> | undefined)?.hostRole),
+        ...(parsedHost || {}),
+        voice: nextVoice,
+        hostRole: normalizeWeddingHostRole(parsedHost?.hostRole, nextVoice),
+        cardStyleId: parsedHost?.cardStyleId || weddingLiveDefaultStyle(nextVoice),
       },
       blessings: Array.isArray(parsed.blessings) ? parsed.blessings : fallback.blessings,
     };
@@ -154,7 +188,9 @@ export function writeWeddingLiveLabState(token: string, state: WeddingLiveLabSta
       ...state,
       host: {
         ...state.host,
-        photoSrc: state.host.photoSrc.startsWith('data:') ? STORE_WEDDING_LIVE_DEMO.photoSrc : state.host.photoSrc,
+        photoSrc: state.host.photoSrc.startsWith('data:')
+          ? (state.host.voice === 'women' ? STORE_WEDDING_LIVE_DEMO_WOMEN.photoSrc : STORE_WEDDING_LIVE_DEMO.photoSrc)
+          : state.host.photoSrc,
         panoramaSrc: state.host.panoramaSrc.startsWith('data:')
           ? STORE_WEDDING_LIVE_DEMO.panoramaSrc
           : state.host.panoramaSrc,
@@ -233,8 +269,9 @@ export function weddingLiveArchiveBlob(state: WeddingLiveLabState): Blob {
     text: item.extra ? `${item.cannedText} ${item.extra}` : item.cannedText,
   }));
   const body = {
-    product: 'دعوة زواج تفاعلية',
+    product: state.host.voice === 'women' ? 'دعوة زواج تفاعلية نسائية' : 'دعوة زواج تفاعلية',
     brand: 'halaqmap',
+    voice: state.host.voice,
     hostName: state.host.hostName,
     hostRole: state.host.hostRole,
     groomName: state.host.groomName,

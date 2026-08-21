@@ -55,6 +55,8 @@ const STORE_INVITES_LAB_PATH =
   (ROUTE_PATHS as { STORE_INVITES_LAB?: string }).STORE_INVITES_LAB || "/store/invites/lab";
 const STORE_WEDDING_PATH =
   (ROUTE_PATHS as { STORE_WEDDING?: string }).STORE_WEDDING || "/store/wedding";
+const STORE_WEDDING_WOMEN_PATH =
+  (ROUTE_PATHS as { STORE_WEDDING_WOMEN?: string }).STORE_WEDDING_WOMEN || "/store/wedding/women";
 const STORE_WEDDING_LAB_PATH =
   (ROUTE_PATHS as { STORE_WEDDING_LAB?: string }).STORE_WEDDING_LAB || "/store/wedding/lab";
 const STORE_WEDDING_VIEW_PATH =
@@ -65,6 +67,20 @@ const STORE_WEDDING_HOST_PATH =
   (ROUTE_PATHS as { STORE_WEDDING_HOST?: string }).STORE_WEDDING_HOST || "/w/:token/host";
 const STORE_WEDDING_PAY_PATH =
   (ROUTE_PATHS as { STORE_WEDDING_PAY?: string }).STORE_WEDDING_PAY || "/pay/wedding/:token";
+const STORE_EVENT_PATH =
+  (ROUTE_PATHS as { STORE_EVENT?: string }).STORE_EVENT || "/store/event";
+const STORE_EVENT_MEN_PATH =
+  (ROUTE_PATHS as { STORE_EVENT_MEN?: string }).STORE_EVENT_MEN || "/store/event/men";
+const STORE_EVENT_WOMEN_PATH =
+  (ROUTE_PATHS as { STORE_EVENT_WOMEN?: string }).STORE_EVENT_WOMEN || "/store/event/women";
+const STORE_EVENT_VIEW_PATH =
+  (ROUTE_PATHS as { STORE_EVENT_VIEW?: string }).STORE_EVENT_VIEW || "/e/:token";
+const STORE_EVENT_GUEST_PATH =
+  (ROUTE_PATHS as { STORE_EVENT_GUEST?: string }).STORE_EVENT_GUEST || "/e/:token/guest";
+const STORE_EVENT_HOST_PATH =
+  (ROUTE_PATHS as { STORE_EVENT_HOST?: string }).STORE_EVENT_HOST || "/e/:token/host";
+const STORE_EVENT_PAY_PATH =
+  (ROUTE_PATHS as { STORE_EVENT_PAY?: string }).STORE_EVENT_PAY || "/pay/event/:token";
 const STORE_BEREAVEMENT_PATH =
   (ROUTE_PATHS as { STORE_BEREAVEMENT?: string }).STORE_BEREAVEMENT || "/store/bereavement";
 const STORE_BEREAVEMENT_CREATE_PATH =
@@ -166,6 +182,10 @@ const StoreWeddingLandingPage = lazy(() => import("@/pages/store/StoreWeddingLan
 const StoreWeddingLabPage = lazy(() => import("@/pages/store/StoreWeddingLabPage"));
 const StoreWeddingHallPage = lazy(() => import("@/pages/store/StoreWeddingHallPage"));
 const StoreWeddingPayPage = lazy(() => import("@/pages/store/StoreWeddingPayPage"));
+const StoreEventHubPage = lazy(() => import("@/pages/store/StoreEventHubPage"));
+const StoreEventLandingPage = lazy(() => import("@/pages/store/StoreEventLandingPage"));
+const StoreEventHallPage = lazy(() => import("@/pages/store/StoreEventHallPage"));
+const StoreEventPayPage = lazy(() => import("@/pages/store/StoreEventPayPage"));
 const StoreBereavementCreatePage = lazy(() => import("@/pages/store/StoreBereavementCreatePage"));
 const StoreBereavementViewPage = lazy(() => import("@/pages/store/StoreBereavementViewPage"));
 const PartnerStoryPage = lazy(() => import("@/pages/PartnerStoryPage"));
@@ -626,11 +646,19 @@ export function App() {
           <Route path={STORE_INVITES_PATH} element={<LazyRoute><StorePaidInviteStudioPage /></LazyRoute>} />
           <Route path={STORE_INVITES_LAB_PATH} element={<LazyRoute><StoreOccasionCardLabPage /></LazyRoute>} />
           <Route path={STORE_WEDDING_LAB_PATH} element={<LazyRoute><StoreWeddingLabPage /></LazyRoute>} />
+          <Route path={STORE_WEDDING_WOMEN_PATH} element={<LazyRoute><StoreWeddingLandingPage /></LazyRoute>} />
           <Route path={STORE_WEDDING_PATH} element={<LazyRoute><StoreWeddingLandingPage /></LazyRoute>} />
           <Route path={STORE_WEDDING_GUEST_PATH} element={<LazyRoute><StoreWeddingHallPage /></LazyRoute>} />
           <Route path={STORE_WEDDING_HOST_PATH} element={<LazyRoute><StoreWeddingHallPage /></LazyRoute>} />
           <Route path={STORE_WEDDING_VIEW_PATH} element={<LazyRoute><StoreWeddingHallPage /></LazyRoute>} />
           <Route path={STORE_WEDDING_PAY_PATH} element={<LazyRoute><StoreWeddingPayPage /></LazyRoute>} />
+          <Route path={STORE_EVENT_WOMEN_PATH} element={<LazyRoute><StoreEventLandingPage /></LazyRoute>} />
+          <Route path={STORE_EVENT_MEN_PATH} element={<LazyRoute><StoreEventLandingPage /></LazyRoute>} />
+          <Route path={STORE_EVENT_PATH} element={<LazyRoute><StoreEventHubPage /></LazyRoute>} />
+          <Route path={STORE_EVENT_GUEST_PATH} element={<LazyRoute><StoreEventHallPage /></LazyRoute>} />
+          <Route path={STORE_EVENT_HOST_PATH} element={<LazyRoute><StoreEventHallPage /></LazyRoute>} />
+          <Route path={STORE_EVENT_VIEW_PATH} element={<LazyRoute><StoreEventHallPage /></LazyRoute>} />
+          <Route path={STORE_EVENT_PAY_PATH} element={<LazyRoute><StoreEventPayPage /></LazyRoute>} />
           <Route path="/oc/:token" element={<OccasionCardShareRedirect />} />
           <Route path={STORE_INVITES_VIEW_PATH} element={<LazyRoute><StorePaidInviteViewPage /></LazyRoute>} />
           <Route path={STORE_OCCASION_CARD_PAY_PATH} element={<LazyRoute><StorePaidInvitePayPage /></LazyRoute>} />

@@ -1,7 +1,7 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
- * قاعة الحفل: عرض / ضيف / مضيف.
+ * قاعة الدعوة الحرة: عرض / ضيف / مضيف.
  */
 import { useEffect, useState } from 'react';
 import { Link, Navigate, useLocation, useParams } from 'react-router-dom';
@@ -10,58 +10,57 @@ import {
   StoreVisitorHeader,
   StoreVisitorShell,
 } from '@/components/store/StoreChrome';
-import { StoreWeddingGuestForm } from '@/components/store/StoreWeddingGuestForm';
-import { StoreWeddingHallStage } from '@/components/store/StoreWeddingHallStage';
-import { StoreWeddingHostPanel } from '@/components/store/StoreWeddingHostPanel';
+import { StoreEventGuestForm } from '@/components/store/StoreEventGuestForm';
+import { StoreEventHallStage } from '@/components/store/StoreEventHallStage';
+import { StoreEventHostPanel } from '@/components/store/StoreEventHostPanel';
 import {
-  STORE_WEDDING_LIVE_LAB_TOKEN,
-  STORE_WEDDING_LIVE_LAB_TOKEN_WOMEN,
-  STORE_WEDDING_LIVE_PUBLIC_ENABLED,
-  weddingLiveCopy,
-} from '@/config/storeWeddingLive';
+  STORE_EVENT_LIVE_LAB_TOKEN,
+  STORE_EVENT_LIVE_LAB_TOKEN_WOMEN,
+  STORE_EVENT_LIVE_PUBLIC_ENABLED,
+  eventLiveCopy,
+} from '@/config/storeEventLive';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import {
-  normalizeWeddingHostRole,
-  normalizeWeddingVoice,
-  readWeddingLiveLabState,
-  writeWeddingLiveLabState,
-  type WeddingLiveHostState,
-  type WeddingLiveLabState,
-} from '@/lib/storeWeddingLiveLab';
-import { addWeddingLiveBlessing, fetchWeddingLivePublic, saveWeddingLiveHost } from '@/lib/storeWeddingLiveRemote';
+  normalizeEventVoice,
+  readEventLiveLabState,
+  writeEventLiveLabState,
+  type EventLiveHostState,
+  type EventLiveLabState,
+} from '@/lib/storeEventLiveLab';
+import { addEventLiveBlessing, fetchEventLivePublic, saveEventLiveHost } from '@/lib/storeEventLiveRemote';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 
 type HallMode = 'display' | 'guest' | 'host';
 
-function isWeddingLabToken(token: string): boolean {
-  return token === STORE_WEDDING_LIVE_LAB_TOKEN || token === STORE_WEDDING_LIVE_LAB_TOKEN_WOMEN;
+function isEventLabToken(token: string): boolean {
+  return token === STORE_EVENT_LIVE_LAB_TOKEN || token === STORE_EVENT_LIVE_LAB_TOKEN_WOMEN;
 }
 
-function payloadToState(payload: Record<string, unknown>, fallback: WeddingLiveLabState): WeddingLiveLabState {
-  const voice = normalizeWeddingVoice((payload as Partial<WeddingLiveHostState>).voice ?? fallback.host.voice);
+function payloadToState(payload: Record<string, unknown>, fallback: EventLiveLabState): EventLiveLabState {
+  const voice = normalizeEventVoice((payload as Partial<EventLiveHostState>).voice ?? fallback.host.voice);
   const host = {
     ...fallback.host,
-    ...(payload as Partial<WeddingLiveHostState>),
+    ...(payload as Partial<EventLiveHostState>),
     voice,
-    hostRole: normalizeWeddingHostRole((payload as Partial<WeddingLiveHostState>).hostRole, voice),
+    hostRole: 'self' as const,
   };
   const blessings = Array.isArray(payload.blessings) ? payload.blessings : fallback.blessings;
-  return { host, blessings: blessings as WeddingLiveLabState['blessings'] };
+  return { host, blessings: blessings as EventLiveLabState['blessings'] };
 }
 
-function useWeddingLabState(token: string, mode: HallMode) {
-  const [state, setState] = useState<WeddingLiveLabState>(() => readWeddingLiveLabState(token));
-  const isLab = isWeddingLabToken(token);
+function useEventLabState(token: string, mode: HallMode) {
+  const [state, setState] = useState<EventLiveLabState>(() => readEventLiveLabState(token));
+  const isLab = isEventLabToken(token);
 
   useEffect(() => {
-    setState(readWeddingLiveLabState(token));
-    const refresh = () => setState(readWeddingLiveLabState(token));
+    setState(readEventLiveLabState(token));
+    const refresh = () => setState(readEventLiveLabState(token));
     const timer = window.setInterval(refresh, isLab ? 1500 : 4000);
     window.addEventListener('storage', refresh);
     if (!isLab) {
-      void fetchWeddingLivePublic(token, mode).then((result) => {
+      void fetchEventLivePublic(token, mode).then((result) => {
         if (!result.ok || !result.payload || typeof result.payload !== 'object') return;
-        setState(payloadToState(result.payload as Record<string, unknown>, readWeddingLiveLabState(token)));
+        setState(payloadToState(result.payload as Record<string, unknown>, readEventLiveLabState(token)));
       });
     }
     return () => {
@@ -70,23 +69,23 @@ function useWeddingLabState(token: string, mode: HallMode) {
     };
   }, [token, mode, isLab]);
 
-  const commit = (next: WeddingLiveLabState) => {
-    writeWeddingLiveLabState(token, next);
+  const commit = (next: EventLiveLabState) => {
+    writeEventLiveLabState(token, next);
     setState(next);
     if (isLab) return;
     if (mode === 'host') {
-      void saveWeddingLiveHost({ token, ...next.host, blessings: next.blessings });
+      void saveEventLiveHost({ token, ...next.host, blessings: next.blessings });
     }
     if (mode === 'guest') {
       const last = next.blessings[next.blessings.length - 1];
-      if (last) void addWeddingLiveBlessing({ token, ...last });
+      if (last) void addEventLiveBlessing({ token, ...last });
     }
   };
 
   return { state, commit };
 }
 
-export default function StoreWeddingHallPage() {
+export default function StoreEventHallPage() {
   const location = useLocation();
   const mode: HallMode = location.pathname.endsWith('/guest')
     ? 'guest'
@@ -94,19 +93,19 @@ export default function StoreWeddingHallPage() {
       ? 'host'
       : 'display';
   const { token = '' } = useParams<{ token: string }>();
-  const safeToken = token.trim() || 'lab';
-  const { state, commit } = useWeddingLabState(safeToken, mode);
+  const safeToken = token.trim() || STORE_EVENT_LIVE_LAB_TOKEN;
+  const { state, commit } = useEventLabState(safeToken, mode);
   const voice = state.host.voice === 'women' ? 'women' : 'men';
-  const copy = weddingLiveCopy(voice);
+  const copy = eventLiveCopy(voice);
   useDocumentTitle(copy.documentTitle);
 
-  const isLab = isWeddingLabToken(safeToken);
-  const displayPath = `/w/${encodeURIComponent(safeToken)}`;
-  const guestPath = `/w/${encodeURIComponent(safeToken)}/guest`;
-  const hostPath = `/w/${encodeURIComponent(safeToken)}/host`;
-  const landingPath = voice === 'women' ? ROUTE_PATHS.STORE_WEDDING_WOMEN : ROUTE_PATHS.STORE_WEDDING;
+  const isLab = isEventLabToken(safeToken);
+  const displayPath = `/e/${encodeURIComponent(safeToken)}`;
+  const guestPath = `/e/${encodeURIComponent(safeToken)}/guest`;
+  const hostPath = `/e/${encodeURIComponent(safeToken)}/host`;
+  const landingPath = voice === 'women' ? ROUTE_PATHS.STORE_EVENT_WOMEN : ROUTE_PATHS.STORE_EVENT_MEN;
 
-  if (!STORE_WEDDING_LIVE_PUBLIC_ENABLED) {
+  if (!STORE_EVENT_LIVE_PUBLIC_ENABLED) {
     return <Navigate to={ROUTE_PATHS.STORE_LANDING} replace />;
   }
 
@@ -131,15 +130,15 @@ export default function StoreWeddingHallPage() {
               </Link>
             </div>
           ) : null}
-          <StoreWeddingHallStage state={state} />
+          <StoreEventHallStage state={state} />
           {mode === 'guest' ? (
             <div className="mt-6">
-              <StoreWeddingGuestForm state={state} onChange={commit} />
+              <StoreEventGuestForm state={state} onChange={commit} />
             </div>
           ) : null}
           {mode === 'host' ? (
             <div className="mt-6">
-              <StoreWeddingHostPanel state={state} onChange={commit} />
+              <StoreEventHostPanel state={state} onChange={commit} />
             </div>
           ) : null}
         </div>

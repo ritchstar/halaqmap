@@ -2,33 +2,33 @@
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
 import { useMemo, useState } from 'react';
-import { STORE_WEDDING_LIVE_CANNED, weddingLiveCopy, weddingLiveFillClass } from '@/config/storeWeddingLive';
-import type { WeddingLiveBlessing, WeddingLiveLabState } from '@/lib/storeWeddingLiveLab';
+import { STORE_EVENT_LIVE_CANNED, eventLiveCopy, eventLiveFillClass } from '@/config/storeEventLive';
+import type { EventLiveBlessing, EventLiveLabState } from '@/lib/storeEventLiveLab';
 import { cn } from '@/lib/utils';
 
-export function StoreWeddingGuestForm({
+export function StoreEventGuestForm({
   state,
   onChange,
 }: {
-  state: WeddingLiveLabState;
-  onChange: (next: WeddingLiveLabState) => void;
+  state: EventLiveLabState;
+  onChange: (next: EventLiveLabState) => void;
 }) {
   const [guestName, setGuestName] = useState('');
-  const [cannedId, setCannedId] = useState<(typeof STORE_WEDDING_LIVE_CANNED)[number]['id']>('baraka');
+  const [cannedId, setCannedId] = useState<(typeof STORE_EVENT_LIVE_CANNED)[number]['id']>('baraka');
   const [extra, setExtra] = useState('');
   const [sent, setSent] = useState(false);
   const canned = useMemo(
-    () => STORE_WEDDING_LIVE_CANNED.find((item) => item.id === cannedId) || STORE_WEDDING_LIVE_CANNED[0],
+    () => STORE_EVENT_LIVE_CANNED.find((item) => item.id === cannedId) || STORE_EVENT_LIVE_CANNED[0],
     [cannedId],
   );
   const voice = state.host.voice === 'women' ? 'women' : 'men';
-  const copy = weddingLiveCopy(voice);
-  const fill = weddingLiveFillClass(voice);
+  const copy = eventLiveCopy(voice);
+  const fill = eventLiveFillClass(voice);
 
   function submitBlessing() {
     const name = guestName.trim();
     if (name.length < 2) return;
-    const blessing: WeddingLiveBlessing = {
+    const blessing: EventLiveBlessing = {
       id: `${Date.now()}`,
       name: name.slice(0, 40),
       cannedId: canned.id,
@@ -64,11 +64,11 @@ export function StoreWeddingGuestForm({
         />
       </label>
       <fieldset className="mt-4 space-y-2">
-        {STORE_WEDDING_LIVE_CANNED.map((item) => (
+        {STORE_EVENT_LIVE_CANNED.map((item) => (
           <label key={item.id} className="flex items-start gap-2 text-sm leading-7">
             <input
               type="radio"
-              name="canned"
+              name="event-canned"
               checked={cannedId === item.id}
               onChange={() => setCannedId(item.id)}
               className="mt-1"

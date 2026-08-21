@@ -419,6 +419,18 @@ function weddingLiveReturnPath(params: URLSearchParams): string | null {
   return `/pay/wedding/${encodeURIComponent(token)}`;
 }
 
+function eventLiveReturnPath(params: URLSearchParams): string | null {
+  const purpose = (params.get('purpose') || '').trim();
+  const token = (params.get('store_event_token') || params.get('token') || '').trim();
+  if (purpose !== 'store_event_live' || !token) return null;
+  return `/pay/event/${encodeURIComponent(token)}`;
+}
+
+function storePayReturnPath(params: URLSearchParams | null): string | null {
+  if (!params) return null;
+  return occasionCardReturnPath(params) || weddingLiveReturnPath(params) || eventLiveReturnPath(params);
+}
+
 /** يُستدعى قبل React — إن عاد ميسر بـ `/?id=` نُحوّل لمسار HashRouter. */
 export function captureMoyasarReturnInHashRoute(): boolean {
   if (typeof window === 'undefined') return false;
@@ -430,9 +442,7 @@ export function captureMoyasarReturnInHashRoute(): boolean {
   const hashPath = hash.replace(/^#/, '').split('?')[0] || '';
 
   if (pathname === ROUTE_PATHS.PAYMENT && search) {
-    const occPath = params ? occasionCardReturnPath(params) : null;
-    const weddingPath = params ? weddingLiveReturnPath(params) : null;
-    const targetPath = occPath || weddingPath || ROUTE_PATHS.PAYMENT;
+    const targetPath = storePayReturnPath(params) || ROUTE_PATHS.PAYMENT;
     const target = `${window.location.origin}/#${targetPath}${search}`;
     if (window.location.href !== target) {
       window.location.replace(target);
@@ -441,9 +451,7 @@ export function captureMoyasarReturnInHashRoute(): boolean {
     return false;
   }
 
-  const occFromQuery = params ? occasionCardReturnPath(params) : null;
-  const weddingFromQuery = params ? weddingLiveReturnPath(params) : null;
-  const storePayFromQuery = occFromQuery || weddingFromQuery;
+  const storePayFromQuery = storePayReturnPath(params);
   if (storePayFromQuery && (pathname === '/' || pathname === '')) {
     if (hashPath === storePayFromQuery) return false;
     window.location.replace(`${window.location.origin}/#${storePayFromQuery}${search}`);
@@ -452,7 +460,7 @@ export function captureMoyasarReturnInHashRoute(): boolean {
 
   if (!params?.get('id')) {
     if (params && (params.get('status') === 'failed' || params.get('message'))) {
-      const occPath = occasionCardReturnPath(params) || weddingLiveReturnPath(params);
+      const occPath = storePayReturnPath(params);
       if (occPath) {
         if (hashPath === occPath) return false;
         window.location.replace(`${window.location.origin}/#${occPath}${search}`);
@@ -471,7 +479,7 @@ export function captureMoyasarReturnInHashRoute(): boolean {
   }
   if (params.get('gateway') === 'sab') return false;
 
-  const occPath = occasionCardReturnPath(params) || weddingLiveReturnPath(params);
+  const occPath = storePayReturnPath(params);
   if (occPath) {
     if (hashPath === occPath) return false;
     window.location.replace(`${window.location.origin}/#${occPath}${search}`);

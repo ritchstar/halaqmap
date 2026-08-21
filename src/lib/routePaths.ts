@@ -52,12 +52,21 @@ export const ROUTE_PATHS = {
   STORE_INVITES_LAB: '/store/invites/lab',
   /** دعوة زواج تفاعلية — منتج مستقل بلا خلط ببطاقة المناسبة */
   STORE_WEDDING: '/store/wedding',
+  STORE_WEDDING_WOMEN: '/store/wedding/women',
   STORE_WEDDING_LAB: '/store/wedding/lab',
   STORE_WEDDING_VIEW: '/w/:token',
   STORE_WEDDING_GUEST: '/w/:token/guest',
   STORE_WEDDING_HOST: '/w/:token/host',
   /** دفع دعوة الزواج التفاعلية على النطاق الأم عبر ميسر */
   STORE_WEDDING_PAY: '/pay/wedding/:token',
+  /** دعوة حرة تفاعلية — مناسبة يختارها العميل، شقان رجالي ونسائي */
+  STORE_EVENT: '/store/event',
+  STORE_EVENT_MEN: '/store/event/men',
+  STORE_EVENT_WOMEN: '/store/event/women',
+  STORE_EVENT_VIEW: '/e/:token',
+  STORE_EVENT_GUEST: '/e/:token/guest',
+  STORE_EVENT_HOST: '/e/:token/host',
+  STORE_EVENT_PAY: '/pay/event/:token',
   /** بلاغات الوفاة والعزاء — خدمة مجتمعية مستقلة */
   STORE_BEREAVEMENT: '/store/bereavement',
   STORE_BEREAVEMENT_CREATE: '/store/bereavement/create',

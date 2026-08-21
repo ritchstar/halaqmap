@@ -76,9 +76,33 @@ assert.equal(
 assert.equal(
   resolveMensHostStoreRedirect({
     host: 'www.halaqmap.com',
+    hashPath: ROUTE_PATHS.STORE_WEDDING_WOMEN,
+  }),
+  'https://store.halaqmap.com/#/store/wedding/women',
+);
+
+assert.equal(
+  resolveMensHostStoreRedirect({
+    host: 'www.halaqmap.com',
     hashPath: '/w/lab/guest',
   }),
   'https://store.halaqmap.com/#/w/lab/guest',
+);
+
+assert.equal(
+  resolveMensHostStoreRedirect({
+    host: 'www.halaqmap.com',
+    hashPath: ROUTE_PATHS.STORE_EVENT,
+  }),
+  'https://store.halaqmap.com/#/store/event',
+);
+
+assert.equal(
+  resolveMensHostStoreRedirect({
+    host: 'www.halaqmap.com',
+    hashPath: '/e/lab/guest',
+  }),
+  'https://store.halaqmap.com/#/e/lab/guest',
 );
 
 assert.equal(

@@ -206,6 +206,13 @@ function isWeddingLiveMeta(meta: Record<string, unknown> | null | undefined): bo
   return pt === "store_wedding_live";
 }
 
+/** دعوة حرة تفاعلية — منتج مستقل عن الزواج وعن بطاقة المناسبة. */
+function isEventLiveMeta(meta: Record<string, unknown> | null | undefined): boolean {
+  if (!meta || typeof meta !== "object") return false;
+  const pt = String(meta.product_type ?? meta.productType ?? meta.product ?? "").trim().toLowerCase();
+  return pt === "store_event_live";
+}
+
 function clampRegistrationQty(raw: unknown): number {
   const n =
     typeof raw === "number" && Number.isFinite(raw)
@@ -796,6 +803,35 @@ Deno.serve(async (req) => {
         paymentId,
         eventId: eventId || null,
         skipped: "store_wedding_live",
+        activated,
+      },
+      200,
+    );
+  }
+
+  if (isEventLiveMeta(meta)) {
+    const token = String(meta.store_event_token ?? meta.storeEventToken ?? "").trim();
+    const amountOk = amount === 89900;
+    let activated = false;
+    if (successStatus && token && amountOk) {
+      const { error: eventErr } = await supabase
+        .from("store_event_live_orders")
+        .update({
+          status: "live",
+          moyasar_payment_id: paymentId,
+          last_public_change_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        })
+        .eq("display_token", token)
+        .eq("status", "pending_payment");
+      activated = !eventErr;
+    }
+    return jsonResponse(
+      {
+        ok: true,
+        paymentId,
+        eventId: eventId || null,
+        skipped: "store_event_live",
         activated,
       },
       200,

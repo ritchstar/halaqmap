@@ -3,46 +3,47 @@
  */
 import { useRef, useState } from 'react';
 import {
-  STORE_WEDDING_LIVE_AUDIO,
-  weddingLiveCopy,
-  weddingLiveFillClass,
-  weddingLiveHostRoles,
-  weddingLiveStyles,
-} from '@/config/storeWeddingLive';
+  STORE_EVENT_LIVE_AUDIO,
+  STORE_EVENT_LIVE_OCCASIONS,
+  eventLiveCopy,
+  eventLiveFillClass,
+  eventLiveHostRoles,
+  eventLiveStyles,
+} from '@/config/storeEventLive';
 import { downloadElementAsPngCard } from '@/lib/downloadElementAsPngCard';
 import {
   compressImageFile,
-  normalizeWeddingHostRole,
+  eventLiveArchiveBlob,
   playWeddingLiveChime,
-  weddingLiveArchiveBlob,
-  type WeddingLiveAudioId,
-  type WeddingLiveLabState,
-  type WeddingLiveStyleId,
-} from '@/lib/storeWeddingLiveLab';
-import { StoreWeddingInviteCard } from '@/components/store/StoreWeddingInviteCard';
+  type EventLiveAudioId,
+  type EventLiveLabState,
+  type EventLiveStyleId,
+} from '@/lib/storeEventLiveLab';
+import { StoreEventInviteCard } from '@/components/store/StoreEventInviteCard';
 import { cn } from '@/lib/utils';
 
 const fieldClass = 'mt-1 h-12 w-full rounded-md border border-white/15 bg-[#061018] px-3 text-[#f4efe4]';
 
-export function StoreWeddingHostPanel({
+export function StoreEventHostPanel({
   state,
   onChange,
   showCards = true,
 }: {
-  state: WeddingLiveLabState;
-  onChange: (next: WeddingLiveLabState) => void;
+  state: EventLiveLabState;
+  onChange: (next: EventLiveLabState) => void;
   showCards?: boolean;
 }) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [uploadError, setUploadError] = useState('');
   const host = state.host;
   const voice = host.voice === 'women' ? 'women' : 'men';
-  const copy = weddingLiveCopy(voice);
-  const roles = weddingLiveHostRoles(voice);
-  const styles = weddingLiveStyles(voice);
-  const fill = weddingLiveFillClass(voice);
+  const copy = eventLiveCopy(voice);
+  const roles = eventLiveHostRoles(voice);
+  const styles = eventLiveStyles(voice);
+  const fill = eventLiveFillClass(voice);
   const text = voice === 'women' ? 'text-[#e4b7c5]' : 'text-[#e8c547]';
   const borderAccent = voice === 'women' ? 'border-[#e4b7c5]/40' : 'border-[#e8c547]/40';
+  const occasions = voice === 'women' ? STORE_EVENT_LIVE_OCCASIONS.women : STORE_EVENT_LIVE_OCCASIONS.men;
 
   function patchHost(partial: Partial<typeof host>) {
     onChange({ ...state, host: { ...host, ...partial } });
@@ -67,23 +68,23 @@ export function StoreWeddingHostPanel({
     });
   }
 
-  function playAudio(id: WeddingLiveAudioId) {
+  function playAudio(id: EventLiveAudioId) {
     patchHost({ audioClipId: id });
     if (id !== 'none') playWeddingLiveChime(id);
   }
 
-  async function downloadCard(styleId: WeddingLiveStyleId) {
-    const node = cardRef.current?.querySelector(`[data-wedding-card="${styleId}"]`);
+  async function downloadCard(styleId: EventLiveStyleId) {
+    const node = cardRef.current?.querySelector(`[data-event-card="${styleId}"]`);
     if (!(node instanceof HTMLElement)) return;
-    await downloadElementAsPngCard(node, `wedding-invite-${styleId}.png`);
+    await downloadElementAsPngCard(node, `event-invite-${styleId}.png`);
   }
 
   function downloadArchive() {
-    const blob = weddingLiveArchiveBlob(state);
+    const blob = eventLiveArchiveBlob(state);
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'wedding-live-archive.json';
+    a.download = 'event-live-archive.json';
     a.click();
     window.setTimeout(() => URL.revokeObjectURL(url), 1500);
   }
@@ -95,11 +96,7 @@ export function StoreWeddingHostPanel({
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
           <label className="block text-sm">
             {copy.hostRoleLabelAr}
-            <select
-              className={fieldClass}
-              value={host.hostRole}
-              onChange={(e) => patchHost({ hostRole: normalizeWeddingHostRole(e.target.value, voice) })}
-            >
+            <select className={fieldClass} value={host.hostRole} disabled>
               {roles.map((role) => (
                 <option key={`${role.voice}-${role.id}`} value={role.id}>
                   {role.labelAr}
@@ -111,13 +108,28 @@ export function StoreWeddingHostPanel({
             {copy.hostNameLabelAr}
             <input className={fieldClass} value={host.hostName} onChange={(e) => patchHost({ hostName: e.target.value })} />
           </label>
-          <label className="block text-sm">
-            {copy.groomNameLabelAr}
-            <input className={fieldClass} value={host.groomName} onChange={(e) => patchHost({ groomName: e.target.value })} />
-          </label>
           <label className="block text-sm sm:col-span-2">
-            {copy.brideNameLabelAr}
-            <input className={fieldClass} value={host.brideName} onChange={(e) => patchHost({ brideName: e.target.value })} />
+            {copy.occasionLabelAr}
+            <input
+              className={fieldClass}
+              value={host.occasionTitle}
+              onChange={(e) => patchHost({ occasionTitle: e.target.value })}
+            />
+            <div className="mt-2 flex flex-wrap gap-2">
+              {occasions.map((item) => (
+                <button
+                  key={item}
+                  type="button"
+                  onClick={() => patchHost({ occasionTitle: item })}
+                  className={cn(
+                    'rounded-full px-3 py-1 text-xs',
+                    host.occasionTitle === item ? cn('font-bold', fill) : 'border border-white/20',
+                  )}
+                >
+                  {item}
+                </button>
+              ))}
+            </div>
           </label>
           <label className="block text-sm">
             {copy.eventDateLabelAr}
@@ -171,20 +183,14 @@ export function StoreWeddingHostPanel({
           <button
             type="button"
             onClick={() => patchHost({ youtubeHidden: true })}
-            className={cn(
-              'rounded-full px-3 py-1.5 text-xs',
-              host.youtubeHidden ? cn('font-bold', fill) : 'border border-white/20',
-            )}
+            className={cn('rounded-full px-3 py-1.5 text-xs', host.youtubeHidden ? cn('font-bold', fill) : 'border border-white/20')}
           >
             {copy.hostYoutubeHideAr}
           </button>
           <button
             type="button"
             onClick={() => patchHost({ youtubeHidden: false })}
-            className={cn(
-              'rounded-full px-3 py-1.5 text-xs',
-              !host.youtubeHidden ? cn('font-bold', fill) : 'border border-white/20',
-            )}
+            className={cn('rounded-full px-3 py-1.5 text-xs', !host.youtubeHidden ? cn('font-bold', fill) : 'border border-white/20')}
           >
             {copy.hostYoutubeShowAr}
           </button>
@@ -192,35 +198,22 @@ export function StoreWeddingHostPanel({
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
           <label className="block text-sm">
             {copy.hostUploadPhotoAr}
-            <input
-              type="file"
-              accept="image/*"
-              className="mt-2 block w-full text-xs"
-              onChange={(e) => void onUpload(e.target.files?.[0], 'photo')}
-            />
+            <input type="file" accept="image/*" className="mt-2 block w-full text-xs" onChange={(e) => void onUpload(e.target.files?.[0], 'photo')} />
           </label>
           <label className="block text-sm">
             {copy.hostUploadPanoramaAr}
-            <input
-              type="file"
-              accept="image/*"
-              className="mt-2 block w-full text-xs"
-              onChange={(e) => void onUpload(e.target.files?.[0], 'panorama')}
-            />
+            <input type="file" accept="image/*" className="mt-2 block w-full text-xs" onChange={(e) => void onUpload(e.target.files?.[0], 'panorama')} />
           </label>
         </div>
         {uploadError ? <p className={cn('mt-2 text-sm', text)}>{uploadError}</p> : null}
         <p className="mt-4 text-sm">{copy.hostAudioLabelAr}</p>
         <div className="mt-2 flex flex-wrap gap-2">
-          {STORE_WEDDING_LIVE_AUDIO.map((item) => (
+          {STORE_EVENT_LIVE_AUDIO.map((item) => (
             <button
               key={item.id}
               type="button"
               onClick={() => playAudio(item.id)}
-              className={cn(
-                'rounded-full px-3 py-1.5 text-xs',
-                host.audioClipId === item.id ? cn('font-bold', fill) : 'border border-white/20',
-              )}
+              className={cn('rounded-full px-3 py-1.5 text-xs', host.audioClipId === item.id ? cn('font-bold', fill) : 'border border-white/20')}
             >
               {item.labelAr}
             </button>
@@ -241,11 +234,7 @@ export function StoreWeddingHostPanel({
             </li>
           ))}
         </ul>
-        <button
-          type="button"
-          onClick={downloadArchive}
-          className={cn('mt-5 w-full rounded-full border py-2 text-sm font-bold', borderAccent, text)}
-        >
+        <button type="button" onClick={downloadArchive} className={cn('mt-5 w-full rounded-full border py-2 text-sm font-bold', borderAccent, text)}>
           {copy.archiveCtaAr}
         </button>
       </div>
@@ -253,7 +242,7 @@ export function StoreWeddingHostPanel({
         <div>
           <div ref={cardRef} className="space-y-3">
             {styles.map((item) => (
-              <StoreWeddingInviteCard key={item.id} host={host} styleId={item.id} />
+              <StoreEventInviteCard key={item.id} host={host} styleId={item.id} />
             ))}
           </div>
           <div className="mt-3 flex flex-wrap gap-2">
@@ -262,10 +251,7 @@ export function StoreWeddingHostPanel({
                 key={item.id}
                 type="button"
                 onClick={() => void downloadCard(item.id)}
-                className={cn(
-                  'rounded-full px-4 py-2 text-xs font-bold',
-                  index === 0 ? fill : 'border border-white/20',
-                )}
+                className={cn('rounded-full px-4 py-2 text-xs font-bold', index === 0 ? fill : 'border border-white/20')}
               >
                 {index === 0 ? copy.downloadGoldAr : copy.downloadIvoryAr}
               </button>

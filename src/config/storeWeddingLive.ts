@@ -7,6 +7,9 @@
 export const STORE_WEDDING_LIVE_PUBLIC_ENABLED = true;
 
 export const STORE_WEDDING_LIVE_LAB_TOKEN = 'lab' as const;
+export const STORE_WEDDING_LIVE_LAB_TOKEN_WOMEN = 'lab-women' as const;
+
+export type StoreWeddingLiveVoice = 'men' | 'women';
 
 export const STORE_WEDDING_LIVE_PRODUCT = 'store_wedding_live' as const;
 
@@ -81,12 +84,56 @@ export const STORE_WEDDING_LIVE = {
 } as const;
 
 export const STORE_WEDDING_LIVE_HOST_ROLES = [
-  { id: 'self', labelAr: 'الداعي باسمه', linePrefixAr: 'الداعي' },
-  { id: 'groom_father', labelAr: 'والد العريس', linePrefixAr: 'والد العريس' },
-  { id: 'bride_father', labelAr: 'والد العروس', linePrefixAr: 'والد العروس' },
+  { id: 'self', voice: 'men', labelAr: 'الداعي باسمه', linePrefixAr: 'الداعي' },
+  { id: 'groom_father', voice: 'men', labelAr: 'والد العريس', linePrefixAr: 'والد العريس' },
+  { id: 'bride_father', voice: 'men', labelAr: 'والد العروس', linePrefixAr: 'والد العروس' },
+  { id: 'self', voice: 'women', labelAr: 'الداعية باسمها', linePrefixAr: 'الداعية' },
+  { id: 'groom_mother', voice: 'women', labelAr: 'والدة العريس', linePrefixAr: 'والدة العريس' },
+  { id: 'bride_mother', voice: 'women', labelAr: 'والدة العروس', linePrefixAr: 'والدة العروس' },
 ] as const;
 
 export type StoreWeddingLiveHostRole = (typeof STORE_WEDDING_LIVE_HOST_ROLES)[number]['id'];
+
+export function weddingLiveHostRoles(voice: StoreWeddingLiveVoice) {
+  return STORE_WEDDING_LIVE_HOST_ROLES.filter((item) => item.voice === voice);
+}
+
+export const STORE_WEDDING_LIVE_WOMEN = {
+  documentTitle: 'دعوة زواج تفاعلية نسائية — خريطة الحل',
+  kickerAr: 'قاعة حفلكن على الشاشة — حيّة من أول تجربة',
+  titleAr: 'دعوة زواج تفاعلية نسائية',
+  leadAr:
+    'كرت فاخر بطابع نسائي، تدعو منه والدة العريس أو والدة العروس. يفتح إلى قاعة تتفاعل مع تهاني الضيفات والصورة والفيديو والتنويه.',
+  labKickerAr: 'معاينة حيّة بثوب نسائي',
+  labTitleAr: 'عشْن التجربة كما ستعيشها ضيفاتكن',
+  labLeadAr: 'شغّلن يوتيوب، ارفعن صورة، اكتبن تنويهاً، وأرسلن تهنئة. كل ذلك أمامكن الآن.',
+  hostRoleLabelAr: 'صفة الداعية',
+  hostNameLabelAr: 'اسم الداعية',
+  guestFormTitleAr: 'أرسلي تهنئة تظهر على الشاشة',
+  guestOnlyHintAr: 'هكذا ترى المدعوة الدعوة على جوالها.',
+  guestSubmitAr: 'أظهري تهنئتي على القاعة',
+  tryCtaAr: 'ابدأن التجربة الآن',
+  downloadGoldAr: 'تحميل الكرت الوردي الذهبي',
+  downloadIvoryAr: 'تحميل الكرت اللؤلؤي',
+  orderCtaAr: 'ادفع 899 ر.س وافتح الدعوة النسائية',
+} as const;
+
+export function weddingLiveCopy(voice: StoreWeddingLiveVoice) {
+  if (voice !== 'women') return STORE_WEDDING_LIVE;
+  return { ...STORE_WEDDING_LIVE, ...STORE_WEDDING_LIVE_WOMEN };
+}
+
+export function weddingLiveAccent(voice: StoreWeddingLiveVoice): string {
+  return voice === 'women' ? '#e4b7c5' : '#e8c547';
+}
+
+export function weddingLiveFillClass(voice: StoreWeddingLiveVoice): string {
+  return voice === 'women' ? 'bg-[#e4b7c5] text-[#1a0e12]' : 'bg-[#e8c547] text-[#061018]';
+}
+
+export function weddingLiveTextClass(voice: StoreWeddingLiveVoice): string {
+  return voice === 'women' ? 'text-[#e4b7c5]' : 'text-[#e8c547]';
+}
 
 export const STORE_WEDDING_LIVE_CANNED = [
   { id: 'baraka', textAr: 'بارك الله لكما وبارك عليكما وجمع بينكما في خير.' },
@@ -103,19 +150,40 @@ export const STORE_WEDDING_LIVE_AUDIO = [
 export const STORE_WEDDING_LIVE_STYLES = [
   {
     id: 'gold',
+    voice: 'men',
     labelAr: 'ذهبي',
     image: '/images/store/lab/lab-luxury-gold.png',
     accent: '#d4af67',
   },
   {
     id: 'ivory',
+    voice: 'men',
     labelAr: 'عاجي',
     image: '/images/store/lab/lab-luxury-ivory.png',
     accent: '#e0c48a',
   },
+  {
+    id: 'rosegold',
+    voice: 'women',
+    labelAr: 'وردي ذهبي',
+    image: '/images/store/lab/lab-luxury-rosegold.png',
+    accent: '#d4a07a',
+  },
+  {
+    id: 'pearl',
+    voice: 'women',
+    labelAr: 'لؤلؤي',
+    image: '/images/store/lab/lab-luxury-pearl.png',
+    accent: '#e8c4c8',
+  },
 ] as const;
 
+export function weddingLiveStyles(voice: StoreWeddingLiveVoice) {
+  return STORE_WEDDING_LIVE_STYLES.filter((item) => item.voice === voice);
+}
+
 export const STORE_WEDDING_LIVE_DEMO = {
+  voice: 'men' as StoreWeddingLiveVoice,
   hostRole: 'groom_father' as StoreWeddingLiveHostRole,
   hostName: 'أحمد',
   groomName: 'عبدالله',
@@ -130,4 +198,13 @@ export const STORE_WEDDING_LIVE_DEMO = {
   announcement: '',
   photoSrc: '/images/store/lab/lab-luxury-gold.png',
   panoramaSrc: '/images/store/lab/lab-wedding-panorama.png',
+} as const;
+
+export const STORE_WEDDING_LIVE_DEMO_WOMEN = {
+  ...STORE_WEDDING_LIVE_DEMO,
+  voice: 'women' as StoreWeddingLiveVoice,
+  hostRole: 'groom_mother' as StoreWeddingLiveHostRole,
+  hostName: 'نورة',
+  welcomeAr: 'يسعدنا دعوتكن لمشاركتنا عقد القران، ومباركتكن تُزهر على شاشة القاعة أمام الجميع.',
+  photoSrc: '/images/store/lab/lab-luxury-rosegold.png',
 } as const;

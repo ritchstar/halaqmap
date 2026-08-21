@@ -63,12 +63,24 @@ import {
   STORE_WEDDING_LIVE_PRODUCT,
   STORE_WEDDING_LIVE_PUBLIC_ENABLED,
 } from '../src/config/storeWeddingLive.ts';
+import {
+  STORE_EVENT_LIVE,
+  STORE_EVENT_LIVE_PRICE_SAR,
+  STORE_EVENT_LIVE_PRODUCT,
+  STORE_EVENT_LIVE_PUBLIC_ENABLED,
+} from '../src/config/storeEventLive.ts';
 import { parseYoutubeVideoId, safeMapsHref, weddingCoupleLine, weddingHostInviteLine } from '../src/lib/storeWeddingLiveLab.ts';
+import { eventHostInviteLine } from '../src/lib/storeEventLiveLab.ts';
 import {
   STORE_WEDDING_LIVE_PRICE_HALALAS,
   STORE_WEDDING_LIVE_PRODUCT as apiWeddingProduct,
   weddingLivePaymentMatches,
 } from '../api/_lib/storeWeddingLive.ts';
+import {
+  STORE_EVENT_LIVE_PRICE_HALALAS,
+  STORE_EVENT_LIVE_PRODUCT as apiEventProduct,
+  eventLivePaymentMatches,
+} from '../api/_lib/storeEventLive.ts';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const app = readFileSync(join(root, 'src/App.tsx'), 'utf8');
@@ -466,6 +478,7 @@ assert.equal(parseYoutubeVideoId('https://www.youtube.com/watch?v=aqz-KE-bpKQ'),
 assert.ok(safeMapsHref('https://maps.google.com/?q=riyadh'));
 assert.equal(safeMapsHref('javascript:alert(1)'), null);
 assert.match(weddingCoupleLine({
+  voice: 'men',
   hostRole: 'self',
   hostName: 'عائلة الفلان',
   groomName: 'عبدالله',
@@ -486,6 +499,69 @@ assert.match(weddingCoupleLine({
 assert.equal(weddingHostInviteLine({ hostRole: 'self', hostName: 'أحمد' }), 'الداعي أحمد');
 assert.equal(weddingHostInviteLine({ hostRole: 'groom_father', hostName: 'أحمد' }), 'والد العريس أحمد');
 assert.equal(weddingHostInviteLine({ hostRole: 'bride_father', hostName: 'فهد' }), 'والد العروس فهد');
+assert.equal(weddingHostInviteLine({ voice: 'women', hostRole: 'self', hostName: 'نورة' }), 'الداعية نورة');
+assert.equal(weddingHostInviteLine({ voice: 'women', hostRole: 'groom_mother', hostName: 'نورة' }), 'والدة العريس نورة');
+assert.equal(weddingHostInviteLine({ voice: 'women', hostRole: 'bride_mother', hostName: 'منى' }), 'والدة العروس منى');
+assert.match(STORE_LANDING_COPY.weddingLiveWomenTitleAr, /نسائي/);
+assert.match(STORE_LANDING_COPY.weddingLiveWomenLeadAr, /899/);
+assert.doesNotMatch(STORE_LANDING_COPY.weddingLiveWomenLeadAr, /12 و29 و59/);
+assert.match(app, /\/store\/wedding\/women/);
+assert.match(landing, /weddingLiveWomenTitleAr/);
+
+assert.equal(STORE_EVENT_LIVE_PUBLIC_ENABLED, true);
+assert.equal(STORE_EVENT_LIVE_PRODUCT, 'store_event_live');
+assert.equal(STORE_EVENT_LIVE_PRICE_SAR, 899);
+assert.equal(STORE_EVENT_LIVE_PRICE_HALALAS, 89900);
+assert.equal(STORE_EVENT_LIVE_PRODUCT, apiEventProduct);
+assert.notEqual(STORE_EVENT_LIVE_PRODUCT, STORE_WEDDING_LIVE_PRODUCT);
+assert.notEqual(STORE_EVENT_LIVE_PRODUCT, 'store_occasion_card');
+assert.match(STORE_LANDING_COPY.eventLiveTitleAr, /دعوة حرة/);
+assert.match(STORE_LANDING_COPY.eventLiveLeadAr, /899/);
+assert.doesNotMatch(STORE_LANDING_COPY.eventLiveLeadAr, /12 و29 و59/);
+assert.doesNotMatch(STORE_EVENT_LIVE.leadAr, /12 و29 و59/);
+assert.doesNotMatch(STORE_EVENT_LIVE.leadAr, /store_occasion_card/);
+assert.doesNotMatch(STORE_EVENT_LIVE.leadAr, /store_wedding_live/);
+assert.match(landing, /eventLiveTitleAr/);
+assert.match(app, /\/store\/event\/men/);
+assert.match(app, /\/store\/event\/women/);
+assert.match(app, /\/e\/:token\/guest/);
+assert.match(app, /\/pay\/event\/:token/);
+assert.match(app, /StoreEventHubPage/);
+assert.match(app, /StoreEventLandingPage/);
+assert.match(app, /StoreEventHallPage/);
+assert.match(app, /StoreEventPayPage/);
+assert.doesNotMatch(app, /from ['"]@\/config\/storeEventLive['"]/);
+assert.doesNotMatch(app, /from ['"]@\/lib\/storeEventLiveRemote['"]/);
+assert.equal(
+  eventLivePaymentMatches({
+    meta: { product: 'store_event_live', store_event_token: 'tok_e' },
+    token: 'tok_e',
+    amount: 89900,
+  }),
+  true,
+);
+assert.equal(
+  eventLivePaymentMatches({
+    meta: { product: 'store_wedding_live', store_event_token: 'tok_e' },
+    token: 'tok_e',
+    amount: 89900,
+  }),
+  false,
+);
+assert.equal(
+  eventLivePaymentMatches({
+    meta: { product: 'store_event_live', store_event_token: 'tok_e' },
+    token: 'tok_e',
+    amount: 5900,
+  }),
+  false,
+);
+assert.equal(eventHostInviteLine({ voice: 'men', hostRole: 'self', hostName: 'أحمد' }), 'الداعي أحمد');
+assert.equal(eventHostInviteLine({ voice: 'women', hostRole: 'self', hostName: 'نورة' }), 'الداعية نورة');
+const eventRemote = readFileSync(join(root, 'src/lib/storeEventLiveRemote.ts'), 'utf8');
+assert.match(eventRemote, /public-store-event-live/);
+assert.match(eventRemote, /vercel\.app/);
+assert.doesNotMatch(eventRemote, /public-store-wedding-live/);
 
 const vercel = readFileSync(join(root, 'vercel.json'), 'utf8');
 assert.match(vercel, /\/oc\/:token/);

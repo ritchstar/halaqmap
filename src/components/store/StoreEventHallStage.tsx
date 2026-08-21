@@ -1,19 +1,19 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
- * مشهد قاعة الحفل — يوتيوب أو بانوراما، شريط تهاني، تنويه.
+ * مشهد قاعة الدعوة الحرة — يوتيوب أو بانوراما، شريط تهاني، تنويه.
  */
-import { STORE_WEDDING_LIVE, weddingLiveAccent } from '@/config/storeWeddingLive';
+import { STORE_EVENT_LIVE, eventLiveAccent } from '@/config/storeEventLive';
 import { StoreWeddingMapsPin } from '@/components/store/StoreWeddingMapsPin';
-import type { WeddingLiveLabState } from '@/lib/storeWeddingLiveLab';
-import { safeMapsHref, weddingCoupleLine, weddingHostInviteLine, youtubeEmbedSrc } from '@/lib/storeWeddingLiveLab';
+import type { EventLiveLabState } from '@/lib/storeEventLiveLab';
+import { eventHostInviteLine, safeMapsHref, youtubeEmbedSrc } from '@/lib/storeEventLiveLab';
 import { cn } from '@/lib/utils';
 
-export function StoreWeddingHallStage({
+export function StoreEventHallStage({
   state,
   className,
 }: {
-  state: WeddingLiveLabState;
+  state: EventLiveLabState;
   className?: string;
 }) {
   const visible = state.blessings.filter((item) => !item.hidden);
@@ -25,7 +25,7 @@ export function StoreWeddingHallStage({
   const maps = safeMapsHref(state.host.venueMapsUrl);
   const stageImage = state.host.youtubeHidden ? state.host.panoramaSrc : state.host.photoSrc;
   const voice = state.host.voice === 'women' ? 'women' : 'men';
-  const accent = weddingLiveAccent(voice);
+  const accent = eventLiveAccent(voice);
 
   return (
     <div
@@ -51,14 +51,13 @@ export function StoreWeddingHallStage({
       ) : null}
 
       <div className="relative z-10 flex min-h-[32rem] flex-col p-5 pt-16 md:p-8">
-        <p className="text-center text-[11px] tracking-[0.35em]" style={{ color: accent }}>عقد قران</p>
-        <p className="mt-2 text-center text-sm text-white/70">{weddingHostInviteLine(state.host)}</p>
-        <h2 className="mt-1 text-center text-3xl font-black md:text-5xl">{weddingCoupleLine(state.host)}</h2>
-        <p className="mt-2 text-center text-sm text-white/75">
-          العريس {state.host.groomName}
-          {' · '}
-          العروس {state.host.brideName}
+        <p className="text-center text-[11px] tracking-[0.35em]" style={{ color: accent }}>
+          {STORE_EVENT_LIVE.hallKickerAr}
         </p>
+        <p className="mt-2 text-center text-sm text-white/70">{eventHostInviteLine(state.host)}</p>
+        <h2 className="mt-1 text-center text-3xl font-black md:text-5xl">
+          {state.host.occasionTitle || STORE_EVENT_LIVE.titleAr}
+        </h2>
         <p className="mt-3 text-center text-sm text-white/75">{state.host.eventDate}</p>
         <p className="text-center text-sm text-white/65">{state.host.eventTime}</p>
         <p className="text-center text-sm text-white/65">{state.host.venueName}</p>
@@ -70,7 +69,7 @@ export function StoreWeddingHallStage({
             className="mx-auto mt-3 inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-xs font-bold"
           >
             <StoreWeddingMapsPin className="h-5 w-5" />
-            {STORE_WEDDING_LIVE.mapsLabelAr}
+            {STORE_EVENT_LIVE.mapsLabelAr}
           </a>
         ) : null}
         <p className="mx-auto mt-5 max-w-xl text-center text-sm leading-8 text-white/85">{state.host.welcomeAr}</p>
@@ -117,7 +116,7 @@ export function StoreWeddingHallStage({
             {ticker || 'بانتظار أولى التهاني على شاشة القاعة'}
           </p>
         </div>
-        <p className="mt-3 text-center text-[10px] text-white/40">{STORE_WEDDING_LIVE.hallStampAr}</p>
+        <p className="mt-3 text-center text-[10px] text-white/40">{STORE_EVENT_LIVE.hallStampAr}</p>
       </div>
     </div>
   );
