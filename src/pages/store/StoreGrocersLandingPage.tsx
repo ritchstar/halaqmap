@@ -102,11 +102,14 @@ export default function StoreGrocersLandingPage() {
             </Collapsible>
           </div>
           <figure className="overflow-hidden rounded-2xl border border-[#8fbf7a]/35 bg-[#07140e]">
-            <div className="grocers-hero flex aspect-[16/10] items-end p-5">
+            <img
+              src={STORE_GROCERS_LIVE.heroImage}
+              alt={STORE_GROCERS_LIVE.heroAltAr}
+              className="aspect-[16/10] w-full object-cover"
+            />
+            <figcaption className="border-t border-[#8fbf7a]/20 bg-[#07140e] px-5 py-4">
               <p className="text-xl font-black">{STORE_GROCERS_LIVE.heroCaptionAr}</p>
-            </div>
-            <figcaption className="border-t border-[#8fbf7a]/20 px-5 py-4 text-sm text-white/70">
-              {STORE_GROCERS_LIVE.qrPhraseAr}
+              <p className="mt-2 text-sm leading-7 text-white/70">{STORE_GROCERS_LIVE.qrPhraseAr}</p>
             </figcaption>
           </figure>
         </div>
