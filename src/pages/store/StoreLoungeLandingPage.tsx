@@ -13,6 +13,7 @@ import {
   StoreVisitorShell,
 } from '@/components/store/StoreChrome';
 import { StoreLoungeLiveStudio } from '@/components/store/StoreLoungeLiveStudio';
+import { StoreLoungeNightSky } from '@/components/store/StoreLoungeNightSky';
 import { StoreLoungeOrderForm } from '@/components/store/StoreLoungeOrderForm';
 import {
   STORE_LOUNGE_LIVE,
@@ -44,6 +45,8 @@ export default function StoreLoungeLandingPage() {
 
   return (
     <StoreVisitorShell>
+      <StoreLoungeNightSky />
+      <div className="relative z-10">
       <StoreVisitorHeader />
       <section className="px-4 py-10 md:py-14">
         <div className="mx-auto grid max-w-5xl items-start gap-8 lg:grid-cols-[1.05fr_0.95fr]">
@@ -109,7 +112,7 @@ export default function StoreLoungeLandingPage() {
               </CollapsibleContent>
             </Collapsible>
           </div>
-          <figure className="overflow-hidden rounded-2xl border border-[#d4a574]/30 bg-[#0b1a24]/80 shadow-[0_24px_60px_-28px_rgba(212,165,116,0.55)]">
+          <figure className="lounge-frame-glow overflow-hidden rounded-2xl border border-[#d4a574]/45 bg-[#0b1a24]/80">
             <img
               src={STORE_LOUNGE_LIVE.heroImage}
               alt={STORE_LOUNGE_LIVE.heroAltAr}
@@ -141,6 +144,7 @@ export default function StoreLoungeLandingPage() {
         </div>
       </section>
       <StoreVisitorFooter />
+      </div>
     </StoreVisitorShell>
   );
 }

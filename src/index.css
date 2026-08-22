@@ -3075,3 +3075,112 @@ html.platform-radar-fullscreen #root {
 .store-purchased-shell {
   overscroll-behavior: none;
 }
+
+.lounge-night-sky {
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(36, 64, 86, 0.35), transparent 58%),
+    radial-gradient(ellipse 40% 30% at 12% 78%, rgba(212, 165, 116, 0.08), transparent 70%);
+}
+
+.lounge-star {
+  position: absolute;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.55);
+  animation: lounge-star-twinkle ease-in-out infinite;
+}
+
+.lounge-star--warm {
+  background: rgba(255, 228, 176, 0.95);
+  box-shadow: 0 0 8px rgba(255, 210, 140, 0.7);
+}
+
+.lounge-meteor {
+  position: absolute;
+  height: 1.5px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(255, 236, 180, 0), rgba(255, 244, 214, 0.95) 42%, rgba(255, 255, 255, 0.2));
+  box-shadow: 0 0 10px rgba(255, 224, 170, 0.55);
+  opacity: 0;
+  transform-origin: right center;
+  animation: lounge-meteor-fall linear infinite;
+}
+
+.lounge-frame-glow {
+  border-color: rgba(212, 165, 116, 0.55);
+  box-shadow:
+    0 0 0 1px rgba(255, 224, 170, 0.16),
+    0 0 18px rgba(212, 165, 116, 0.32),
+    0 0 42px rgba(212, 165, 116, 0.16);
+  animation: lounge-frame-pulse 4.6s ease-in-out infinite;
+}
+
+.lounge-frame-glow-soft {
+  border-color: rgba(212, 165, 116, 0.38);
+  box-shadow:
+    0 0 0 1px rgba(255, 224, 170, 0.1),
+    0 0 16px rgba(212, 165, 116, 0.22);
+  animation: lounge-frame-pulse 5.4s ease-in-out infinite;
+}
+
+@keyframes lounge-star-twinkle {
+  0%,
+  100% {
+    opacity: 0.18;
+    transform: scale(0.85);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+  70% {
+    opacity: 0.35;
+    transform: scale(0.95);
+  }
+}
+
+@keyframes lounge-meteor-fall {
+  0% {
+    opacity: 0;
+    transform: rotate(var(--lounge-meteor-angle, -24deg)) translate3d(0, 0, 0);
+  }
+  7% {
+    opacity: 1;
+  }
+  22% {
+    opacity: 0;
+    transform: rotate(var(--lounge-meteor-angle, -24deg)) translate3d(-460px, 300px, 0);
+  }
+  100% {
+    opacity: 0;
+    transform: rotate(var(--lounge-meteor-angle, -24deg)) translate3d(-460px, 300px, 0);
+  }
+}
+
+@keyframes lounge-frame-pulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 1px rgba(255, 224, 170, 0.12),
+      0 0 16px rgba(212, 165, 116, 0.22),
+      0 0 34px rgba(212, 165, 116, 0.1);
+  }
+  50% {
+    box-shadow:
+      0 0 0 1px rgba(255, 236, 190, 0.28),
+      0 0 28px rgba(255, 210, 140, 0.48),
+      0 0 64px rgba(212, 165, 116, 0.24);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lounge-star,
+  .lounge-meteor,
+  .lounge-frame-glow,
+  .lounge-frame-glow-soft {
+    animation: none;
+  }
+  .lounge-meteor {
+    display: none;
+  }
+}
