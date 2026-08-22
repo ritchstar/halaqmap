@@ -186,9 +186,6 @@ export const STORE_LANDING_MARKETING_FRAMES = [
   '/images/partners/feature_radar_2.webp',
   '/images/coiffeur/hero-atelier.webp',
   '/images/store/lab/lab-lounge-interior.jpg',
-  ...LOUNGE_GENERATED.slice(0, 4),
-  ...GROCERS_GENERATED.slice(0, 3),
-  ...STORE_LIVE_PANORAMAS,
 ] as const;
 
 const REELS: Record<StoreMarketingReelId, readonly string[]> = {

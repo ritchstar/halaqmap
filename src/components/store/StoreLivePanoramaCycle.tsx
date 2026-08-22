@@ -2,23 +2,11 @@
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
  * بانوراما تتبدل تلقائياً مع إشراق خفيف. الشريط يُمرَّر حسب المنتج.
+ * لا تُحمَّل اللقطة التالية إلا بعد ظهور الشاشة.
  */
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { STORE_LIVE_PANORAMA_MS, STORE_LIVE_PANORAMAS } from '@/config/storeLiveAtmosphere';
 import { cn } from '@/lib/utils';
-
-function nearbyFrames(frames: readonly string[], index: number): Array<{ src: string; i: number }> {
-  if (frames.length <= 4) {
-    return frames.map((src, i) => ({ src, i }));
-  }
-  const picks = [
-    (index + frames.length - 1) % frames.length,
-    index,
-    (index + 1) % frames.length,
-  ];
-  const unique = picks.filter((item, i) => picks.indexOf(item) === i);
-  return unique.map((i) => ({ src: frames[i] ?? frames[0], i }));
-}
 
 export function StoreLivePanoramaCycle({
   className,
@@ -29,36 +17,61 @@ export function StoreLivePanoramaCycle({
   intervalMs?: number;
   frames?: readonly string[];
 }) {
+  const rootRef = useRef<HTMLDivElement>(null);
   const [index, setIndex] = useState(0);
+  const [active, setActive] = useState(false);
   const list = frames.length ? frames : STORE_LIVE_PANORAMAS;
+  const current = list[index] ?? list[0];
+  const next = list.length > 1 ? list[(index + 1) % list.length] : null;
+  const shown = active && next && next !== current ? [current, next] : current ? [current] : [];
 
   useEffect(() => {
     setIndex(0);
   }, [list]);
 
   useEffect(() => {
-    if (list.length < 2) return undefined;
+    const node = rootRef.current;
+    if (!node || typeof IntersectionObserver === 'undefined') {
+      setActive(true);
+      return undefined;
+    }
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setActive(Boolean(entry?.isIntersecting));
+      },
+      { rootMargin: '80px 0px', threshold: 0.01 },
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!active || list.length < 2) return undefined;
     const media = window.matchMedia('(prefers-reduced-motion: reduce)');
     if (media.matches) return undefined;
     const timer = window.setInterval(() => {
-      setIndex((current) => (current + 1) % list.length);
+      setIndex((currentIndex) => (currentIndex + 1) % list.length);
     }, intervalMs);
     return () => window.clearInterval(timer);
-  }, [intervalMs, list.length]);
-
-  const shown = nearbyFrames(list, index);
+  }, [active, intervalMs, list.length]);
 
   return (
-    <div className={cn('pointer-events-none absolute inset-0 overflow-hidden', className)} aria-hidden>
-      {shown.map(({ src, i }) => (
+    <div
+      ref={rootRef}
+      className={cn('pointer-events-none absolute inset-0 overflow-hidden', className)}
+      aria-hidden
+    >
+      {shown.map((src) => (
         <img
           key={src}
           src={src}
           alt=""
           className={cn(
             'absolute inset-0 h-full w-full object-cover transition-opacity duration-1000',
-            i === index ? 'opacity-80' : 'opacity-0',
+            src === current ? 'opacity-80' : 'opacity-0',
           )}
+          loading={src === current ? 'eager' : 'lazy'}
+          decoding="async"
         />
       ))}
       <div className="store-live-lights absolute inset-0" />

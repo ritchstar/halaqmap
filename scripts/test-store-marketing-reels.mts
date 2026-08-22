@@ -33,7 +33,13 @@ assert.ok(STORE_LOUNGE_MARKETING_FRAMES.length >= 12);
 assert.ok(STORE_GROCERS_MARKETING_FRAMES.length >= 8);
 assert.ok(STORE_OCCASION_MARKETING_FRAMES.length >= 20);
 assert.ok(STORE_WEDDING_MARKETING_FRAMES.length >= 12);
-assert.ok(STORE_LANDING_MARKETING_FRAMES.length >= 16);
+assert.ok(STORE_LANDING_MARKETING_FRAMES.length >= 8);
+assert.ok(STORE_LANDING_MARKETING_FRAMES.length <= 12);
+for (const src of STORE_LANDING_MARKETING_FRAMES) {
+  assert.equal(src.includes('/images/store/lounge/lounge-'), false, src);
+  assert.equal(src.includes('/images/store/grocers/grocers-'), false, src);
+  assert.equal(src.includes('/images/store/live/pano-'), false, src);
+}
 
 for (const src of STORE_LOUNGE_MARKETING_FRAMES) {
   assert.equal(loungeFrameIsWeddingHall(src), false, src);
@@ -77,5 +83,10 @@ assert.match(landing, /reel="grocers"/);
 assert.match(landing, /reel="wedding"/);
 assert.match(landing, /reel="event"/);
 assert.match(loungeLanding, /reel="lounge"/);
+
+const shot = readFileSync(join(root, 'src/components/store/StoreShot.tsx'), 'utf8');
+assert.match(shot, /IntersectionObserver/);
+assert.match(shot, /fetchPriority/);
+assert.doesNotMatch(shot, /nearbyFrames/);
 
 console.log('store-marketing-reels: ok');

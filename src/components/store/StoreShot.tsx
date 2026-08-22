@@ -1,9 +1,9 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
- * لقطة تسويقية. إن وُجد شريط صور تتبدل اللقطات أثناء التصفح.
+ * لقطة تسويقية. الشريط لا يحمّل ولا يدور إلا عند ظهوره.
  */
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   STORE_MARKETING_REEL_MS,
   storeMarketingFrames,
@@ -29,12 +29,12 @@ function resolveFrames(src?: string, srcs?: readonly string[], reel?: StoreMarke
   return [];
 }
 
-function nearbyFrames(frames: readonly string[], index: number): string[] {
-  if (frames.length <= 3) return [...frames];
-  const prev = frames[(index + frames.length - 1) % frames.length];
-  const current = frames[index];
-  const next = frames[(index + 1) % frames.length];
-  return [prev, current, next].filter((item, i, list) => list.indexOf(item) === i);
+function visibleFrames(frames: readonly string[], index: number, active: boolean): string[] {
+  const current = frames[index] ?? frames[0];
+  if (!current) return [];
+  if (!active || frames.length < 2) return [current];
+  const next = frames[(index + 1) % frames.length] ?? current;
+  return next === current ? [current] : [current, next];
 }
 
 export function StoreShot({
@@ -48,43 +48,47 @@ export function StoreShot({
   intervalMs = STORE_MARKETING_REEL_MS,
 }: StoreShotProps) {
   const frames = useMemo(() => resolveFrames(src, srcs, reel), [src, srcs, reel]);
+  const rootRef = useRef<HTMLDivElement>(null);
   const [index, setIndex] = useState(0);
+  const [active, setActive] = useState(eager);
 
   useEffect(() => {
     setIndex(0);
   }, [frames]);
 
   useEffect(() => {
-    if (frames.length < 2) return undefined;
+    const node = rootRef.current;
+    if (!node || typeof IntersectionObserver === 'undefined') {
+      setActive(true);
+      return undefined;
+    }
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setActive(Boolean(entry?.isIntersecting));
+      },
+      { rootMargin: '80px 0px', threshold: 0.01 },
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!active || frames.length < 2) return undefined;
     const media = window.matchMedia('(prefers-reduced-motion: reduce)');
     if (media.matches) return undefined;
     const timer = window.setInterval(() => {
       setIndex((current) => (current + 1) % frames.length);
     }, intervalMs);
     return () => window.clearInterval(timer);
-  }, [frames.length, intervalMs]);
+  }, [active, frames.length, intervalMs]);
 
   if (!frames.length) return null;
 
-  if (frames.length === 1) {
-    return (
-      <div className={cn('overflow-hidden bg-black/40', className)}>
-        <img
-          src={frames[0]}
-          alt={alt}
-          className={cn('h-full w-full object-cover', imgClassName)}
-          loading={eager ? 'eager' : 'lazy'}
-          decoding="async"
-        />
-      </div>
-    );
-  }
-
-  const shown = nearbyFrames(frames, index);
   const current = frames[index] ?? frames[0];
+  const shown = visibleFrames(frames, index, active);
 
   return (
-    <div className={cn('relative overflow-hidden bg-black/40', className)}>
+    <div ref={rootRef} className={cn('relative overflow-hidden bg-black/40', className)}>
       {shown.map((frame) => (
         <img
           key={frame}
@@ -92,11 +96,14 @@ export function StoreShot({
           alt={frame === current ? alt : ''}
           aria-hidden={frame !== current}
           className={cn(
-            'absolute inset-0 h-full w-full object-cover transition-opacity duration-700',
-            frame === current ? 'opacity-100' : 'opacity-0',
+            shown.length === 1
+              ? 'h-full w-full object-cover'
+              : 'absolute inset-0 h-full w-full object-cover transition-opacity duration-700',
+            shown.length > 1 && (frame === current ? 'opacity-100' : 'opacity-0'),
             imgClassName,
           )}
           loading={eager && frame === current ? 'eager' : 'lazy'}
+          fetchPriority={eager && frame === current ? 'high' : 'low'}
           decoding="async"
         />
       ))}
