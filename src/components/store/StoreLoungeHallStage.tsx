@@ -44,16 +44,22 @@ export function StoreLoungeHallStage({
 
       {state.host.announcement.trim() ? (
         <div
-          className="lounge-frame-glow absolute inset-x-4 top-4 z-20 rounded-2xl border bg-black/75 px-4 py-3 text-center"
-          style={{ borderColor: accent, boxShadow: `0 0 40px ${accent}40` }}
+          key={state.host.announcement.trim()}
+          className="hall-notice-pulse absolute inset-x-3 top-3 z-20 rounded-2xl border bg-black/80 px-4 py-3.5 text-center sm:inset-x-4 sm:top-4"
+          style={{ borderColor: accent }}
         >
-          <p className="text-sm font-black tracking-wide md:text-lg" style={{ color: accent }}>
+          <p className="hall-notice-pulse__text" style={{ color: accent }}>
             {state.host.announcement.trim()}
           </p>
         </div>
       ) : null}
 
-      <div className="relative z-10 flex min-h-[32rem] flex-col p-4 pt-14 sm:p-5 sm:pt-16 md:p-8">
+      <div
+        className={cn(
+          'relative z-10 flex min-h-[32rem] flex-col p-4 sm:p-5 md:p-8',
+          state.host.announcement.trim() ? 'pt-28 sm:pt-32' : 'pt-14 sm:pt-16',
+        )}
+      >
         <p className="text-center text-[11px] tracking-[0.35em]" style={{ color: accent }}>
           {STORE_LOUNGE_LIVE.hallKickerAr}
         </p>

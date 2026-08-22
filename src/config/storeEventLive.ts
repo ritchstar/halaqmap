@@ -29,10 +29,10 @@ export const STORE_EVENT_LIVE_CHECKOUT_ENABLED = envEnabled('VITE_STORE_EVENT_LI
 
 export const STORE_EVENT_LIVE = {
   documentTitle: 'اجواء1 — خريطة الحل',
-  kickerAr: 'قاعة مناسبتك على الشاشة — حيّة من أول تجربة',
+  kickerAr: 'منصة احتفالية رقمية لمناسبتك',
   titleAr: 'اجواء1',
   leadAr:
-    'كرت دعوة لمناسبة تسميها بنفسك، يفتح إلى قاعة الشاشة: تهاني الضيوف، الصورة، الفيديو في الوسط، والتنويه.',
+    'حوّل دعوة مناسبتك التقليدية إلى منصة احتفالية رقمية. لا تقتصر على تفاصيل الحفل فحسب، بل تصنع تجربة حية يشارك فيها الضيوف التهاني لتُعرض على شاشة القاعة.',
   priceLineAr: 'السعر الافتتاحي 899 ر.س',
   hallStampAr: 'خريطة الحل - halaqmap',
   guestFormTitleAr: 'أرسل تهنئة تظهر على الشاشة',
@@ -96,10 +96,10 @@ export const STORE_EVENT_LIVE = {
 
 export const STORE_EVENT_LIVE_WOMEN = {
   documentTitle: 'اجواء1 نسائي — خريطة الحل',
-  kickerAr: 'قاعة مناسبتكن على الشاشة — حيّة من أول تجربة',
+  kickerAr: 'منصة احتفالية رقمية لمناسبتكن',
   titleAr: 'اجواء1 نسائي',
   leadAr:
-    'كرت دعوة نسائي لمناسبة تسميها الداعية، يفتح إلى قاعة الشاشة: تهاني الضيفات، الصورة، الفيديو في الوسط، والتنويه.',
+    'حوّلي دعوة مناسبتك التقليدية إلى منصة احتفالية رقمية. لا تقتصر على تفاصيل الحفل فحسب، بل تصنع تجربة حية تشارك فيها الضيفات التهاني لتُعرض على شاشة القاعة.',
   hostRoleLabelAr: 'صفة الداعية',
   hostNameLabelAr: 'اسم الداعية',
   guestFormTitleAr: 'أرسلي تهنئة تظهر على الشاشة',
@@ -226,7 +226,7 @@ export const STORE_EVENT_LIVE_DEMO = {
   welcomeAr: 'يسعدنا دعوتكم لمشاركتنا هذه الأمسية، ومباركتكم تُزهر على الشاشة أمام الجميع.',
   youtubeUrl: 'https://www.youtube.com/watch?v=F-DNzLPph-k&list=RDF-DNzLPph-k&start_radio=1',
   youtubeHidden: false,
-  announcement: '',
+  announcement: 'حياكم الله على العشاء',
   photoSrc: '/images/store/lab/lab-luxury-gold.png',
   panoramaSrc: '/images/store/lab/lab-wedding-panorama.png',
 } as const;

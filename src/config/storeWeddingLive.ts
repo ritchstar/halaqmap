@@ -29,13 +29,13 @@ export const STORE_WEDDING_LIVE_CHECKOUT_ENABLED = envEnabled('VITE_STORE_WEDDIN
 
 export const STORE_WEDDING_LIVE = {
   documentTitle: 'افراحي1 — خريطة الحل',
-  kickerAr: 'قاعة حفلك على الشاشة — حيّة من أول تجربة',
+  kickerAr: 'منصة احتفالية رقمية لليلة الزفاف',
   titleAr: 'افراحي1',
   leadAr:
-    'كرت دعوة زفاف حيّ: يسرنا دعوتكم إلى حفل زفاف ابننا أو ابنتنا، مع التاريخ بالعربية والإنجليزية، ومكان العشاء، ورابط الموقع. يفتح إلى قاعة الشاشة للتهاني والصورة والفيديو والتنويه.',
+    'حوّل دعوة زفافك التقليدية إلى منصة احتفالية رقمية. لا تقتصر على تفاصيل الحفل فحسب، بل تصنع تجربة حية يشارك فيها الضيوف التهاني لتُعرض على شاشة القاعة في ليلة الزفاف.',
   priceLineAr: 'السعر الافتتاحي 899 ر.س',
   bannerTitleAr: 'افراحي1',
-  bannerLeadAr: 'دعوة زفاف حيّة على الشاشة: تهاني الضيوف، يوتيوب أو بانوراما، ولوحة تحكم. السعر الافتتاحي 899 ر.س.',
+  bannerLeadAr: 'قاعة تفاعلية حية، وشريط تنويهات ووسائط، ولوحة تحكم فورية. السعر الافتتاحي 899 ر.س.',
   bannerCtaAr: 'جرّب الدعوة الآن',
   labKickerAr: 'معاينة حيّة داخل الصفحة',
   labTitleAr: 'عش التجربة كما سيعيشها ضيوفك',
@@ -119,10 +119,10 @@ export function weddingLiveHostRoles(voice: StoreWeddingLiveVoice) {
 
 export const STORE_WEDDING_LIVE_WOMEN = {
   documentTitle: 'افراحي1 نسائي — خريطة الحل',
-  kickerAr: 'قاعة حفلكن على الشاشة — حيّة من أول تجربة',
+  kickerAr: 'منصة احتفالية رقمية لليلة الزفاف',
   titleAr: 'افراحي1 نسائي',
   leadAr:
-    'كرت دعوة زفاف نسائي حيّ: يسرنا دعوتكن إلى حفل زفاف ابننا أو ابنتنا، مع التاريخ بالعربية والإنجليزية، ومكان العشاء، ورابط الموقع. يفتح إلى قاعة الشاشة للتهاني والصورة والفيديو والتنويه.',
+    'حوّلي دعوة زفافك التقليدية إلى منصة احتفالية رقمية. لا تقتصر على تفاصيل الحفل فحسب، بل تصنع تجربة حية تشارك فيها الضيفات التهاني لتُعرض على شاشة القاعة في ليلة الزفاف.',
   labKickerAr: 'معاينة حيّة بثوب نسائي',
   labTitleAr: 'عشْن التجربة كما ستعيشها ضيفاتكن',
   labLeadAr: 'شغّلن يوتيوب، ارفعن صورة، اكتبن تنويهاً، وأرسلن تهنئة. كل ذلك أمامكن الآن.',
@@ -231,7 +231,7 @@ export const STORE_WEDDING_LIVE_DEMO = {
   welcomeAr: '',
   youtubeUrl: 'https://www.youtube.com/watch?v=F-DNzLPph-k&list=RDF-DNzLPph-k&start_radio=1',
   youtubeHidden: false,
-  announcement: '',
+  announcement: 'حياكم الله على العشاء',
   photoSrc: '/images/store/lab/lab-luxury-gold.png',
   panoramaSrc: '/images/store/lab/lab-wedding-panorama.png',
 } as const;

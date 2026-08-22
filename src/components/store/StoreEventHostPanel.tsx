@@ -220,10 +220,10 @@ export function StoreEventHostPanel({
         <label className="mt-4 block text-base">
           {copy.hostAnnouncementLabelAr}
           <input
-            className={fieldClass}
+            className={`${fieldClass} text-lg font-extrabold`}
             value={host.announcement}
             onChange={(e) => patchHost({ announcement: e.target.value })}
-            placeholder="العشاء جاهز"
+            placeholder="حياكم الله على العشاء"
           />
         </label>
         <label className="mt-4 block text-base">
