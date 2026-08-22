@@ -4,6 +4,7 @@
  * كرت الدعوة الحرة — اسم المناسبة والداعي ورابط الخرائط.
  */
 import { STORE_EVENT_LIVE, STORE_EVENT_LIVE_STYLES, eventLiveStyles } from '@/config/storeEventLive';
+import { StoreHallAtmosphere } from '@/components/store/StoreHallAtmosphere';
 import { StoreWeddingMapsPin } from '@/components/store/StoreWeddingMapsPin';
 import { cn } from '@/lib/utils';
 import {
@@ -34,8 +35,9 @@ export function StoreEventInviteCard({
       data-event-card={styleId}
       className={cn('relative aspect-[3/4] w-full overflow-hidden rounded-[28px] shadow-[0_28px_70px_-24px_rgba(0,0,0,0.75)]', className)}
     >
-      <img src={bg} alt="" className="absolute inset-0 h-full w-full object-cover object-center" />
+      <img src={bg} alt="" className="hall-card-drift absolute inset-0 h-full w-full object-cover object-center" />
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-transparent" />
+      <StoreHallAtmosphere voice={voice} />
       <div
         className="pointer-events-none absolute inset-3 rounded-[22px]"
         style={{ boxShadow: `inset 0 0 0 1px ${style.accent}, inset 0 0 0 7px rgba(0,0,0,0.35)` }}

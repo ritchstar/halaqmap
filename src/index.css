@@ -3229,3 +3229,111 @@ html.platform-radar-fullscreen #root {
     display: none;
   }
 }
+
+.hall-card-drift {
+  animation: hall-card-drift 18s ease-in-out infinite;
+  transform-origin: center;
+}
+
+.hall-orb {
+  position: absolute;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(255, 224, 160, 0.34), transparent 68%);
+  filter: blur(18px);
+  mix-blend-mode: screen;
+  animation: hall-orb-drift ease-in-out infinite;
+}
+
+.hall-orb--women {
+  background: radial-gradient(circle, rgba(236, 186, 198, 0.36), transparent 68%);
+}
+
+.hall-meteor {
+  position: absolute;
+  height: 2px;
+  border-radius: 999px;
+  opacity: 0;
+  transform-origin: right center;
+  animation: hall-meteor-fall linear infinite;
+}
+
+.hall-meteor--gold {
+  background: linear-gradient(90deg, rgba(212, 175, 103, 0), #f6e7b8 40%, rgba(255, 255, 255, 0.85));
+  box-shadow: 0 0 12px rgba(232, 197, 71, 0.7);
+}
+
+.hall-meteor--rose {
+  background: linear-gradient(90deg, rgba(228, 183, 197, 0), #f4cdd8 40%, rgba(255, 255, 255, 0.85));
+  box-shadow: 0 0 12px rgba(228, 183, 197, 0.7);
+}
+
+.hall-meteor--emerald {
+  background: linear-gradient(90deg, rgba(80, 180, 140, 0), #b8f0d4 40%, rgba(255, 255, 255, 0.8));
+  box-shadow: 0 0 12px rgba(80, 180, 140, 0.65);
+}
+
+.hall-meteor--sapphire {
+  background: linear-gradient(90deg, rgba(110, 163, 232, 0), #d7e8ff 40%, rgba(255, 255, 255, 0.85));
+  box-shadow: 0 0 12px rgba(110, 163, 232, 0.65);
+}
+
+.hall-meteor--amber {
+  background: linear-gradient(90deg, rgba(224, 138, 58, 0), #ffd7a1 40%, rgba(255, 255, 255, 0.8));
+  box-shadow: 0 0 12px rgba(224, 138, 58, 0.65);
+}
+
+.hall-meteor--ivory {
+  background: linear-gradient(90deg, rgba(247, 237, 216, 0), #fff6df 40%, rgba(255, 255, 255, 0.9));
+  box-shadow: 0 0 12px rgba(247, 237, 216, 0.55);
+}
+
+@keyframes hall-card-drift {
+  0%,
+  100% {
+    transform: scale(1.05) translate3d(0, 0, 0);
+  }
+  50% {
+    transform: scale(1.14) translate3d(-2.4%, 1.6%, 0);
+  }
+}
+
+@keyframes hall-orb-drift {
+  0%,
+  100% {
+    opacity: 0.28;
+    transform: translate3d(0, 0, 0) scale(0.92);
+  }
+  50% {
+    opacity: 0.7;
+    transform: translate3d(8%, -6%, 0) scale(1.12);
+  }
+}
+
+@keyframes hall-meteor-fall {
+  0% {
+    opacity: 0;
+    transform: rotate(var(--hall-meteor-angle, -22deg)) translate3d(0, 0, 0);
+  }
+  8% {
+    opacity: 1;
+  }
+  24% {
+    opacity: 0;
+    transform: rotate(var(--hall-meteor-angle, -22deg)) translate3d(-420px, 280px, 0);
+  }
+  100% {
+    opacity: 0;
+    transform: rotate(var(--hall-meteor-angle, -22deg)) translate3d(-420px, 280px, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hall-card-drift,
+  .hall-orb,
+  .hall-meteor {
+    animation: none;
+  }
+  .hall-meteor {
+    display: none;
+  }
+}

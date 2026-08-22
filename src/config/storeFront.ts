@@ -11,6 +11,7 @@ import {
   LEGAL_ECOMMERCE_STORE_NAME,
   LEGAL_ECOMMERCE_STORE_PUBLIC_NAME_AR,
   LEGAL_FIRST_SOFTWARE_PRODUCT_AR,
+  LEGAL_MEDIA_LICENSE_NUMBERS,
   PARTNER_SUPPORT_EMAIL,
   PARTNER_SUPPORT_PHONE_E164,
   PARTNER_SUPPORT_WHATSAPP_URL,
@@ -97,6 +98,7 @@ export const STORE_LANDING_COPY = {
   freeCardsLead:
     'أصدر بطاقة تهنئة لنفسك: الاسم ورقم الجوال والبريد ورابط صورة شخصية. يوم وطني، تخرج، أو معايدة. نسخة أولى قابلة للتعديل لاحقاً.',
   footerLegal: LEGAL_ECOMMERCE_AUTH_FOOTER_LINE_AR,
+  mediaLicenseLineAr: `تراخيص الهيئة العامة لتنظيم الإعلام ${LEGAL_MEDIA_LICENSE_NUMBERS.join(' - ')}`,
   consentLabel: 'أوافق على دراسة الطلب والرد عبر البريد أو الجوال أو واتساب.',
   aboutNavAr: 'من نحن',
   trustStripTitleAr: 'التصنيفات والتحقق',

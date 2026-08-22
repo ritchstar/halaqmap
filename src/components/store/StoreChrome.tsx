@@ -90,6 +90,7 @@ export function StoreVisitorFooter() {
         </nav>
         <p className="text-sm leading-relaxed text-white/70">{STORE_LANDING_COPY.roleLine}</p>
         <p className="text-xs text-white/50">{STORE_ORIGIN}</p>
+        <p className="text-xs leading-relaxed text-white/55">{STORE_LANDING_COPY.mediaLicenseLineAr}</p>
         <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-white/70">
           <a href={`mailto:${STORE_CONTACT_EMAIL}`} className="hover:text-[#e8c547]">
             {STORE_FOOTER_CONTACT.emailLabelAr}

@@ -4,8 +4,11 @@
  * مشهد قاعة الدعوة الحرة — يوتيوب أو بانوراما، شريط تهاني، تنويه.
  */
 import { STORE_EVENT_LIVE, eventLiveAccent } from '@/config/storeEventLive';
+import { StoreHallAtmosphere } from '@/components/store/StoreHallAtmosphere';
 import { StoreLivePanoramaCycle } from '@/components/store/StoreLivePanoramaCycle';
+import { StoreShot } from '@/components/store/StoreShot';
 import { StoreWeddingMapsPin } from '@/components/store/StoreWeddingMapsPin';
+import { STORE_EVENT_MARKETING_FRAMES, STORE_EVENT_WOMEN_MARKETING_FRAMES } from '@/config/storeMarketingReels';
 import type { EventLiveLabState } from '@/lib/storeEventLiveLab';
 import { eventHostInviteLine, safeMapsHref, youtubeEmbedSrc } from '@/lib/storeEventLiveLab';
 import { cn } from '@/lib/utils';
@@ -43,9 +46,11 @@ export function StoreEventHallStage({
         className,
       )}
     >
-      <StoreLivePanoramaCycle />
-      <div className="absolute inset-0 bg-gradient-to-b from-black/35 via-black/25 to-black/72" />
-      <div className="wedding-hall-lights pointer-events-none absolute inset-0" data-voice={voice} aria-hidden />
+      <StoreLivePanoramaCycle
+        frames={voice === 'women' ? STORE_EVENT_WOMEN_MARKETING_FRAMES : STORE_EVENT_MARKETING_FRAMES}
+      />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/28 via-black/18 to-black/58" />
+      <StoreHallAtmosphere voice={voice} />
 
       {state.host.announcement.trim() ? (
         <div
@@ -93,7 +98,15 @@ export function StoreEventHallStage({
                 allowFullScreen
               />
             ) : (
-              <img src={state.host.panoramaSrc} alt="" className="aspect-video w-full object-cover" />
+              state.host.panoramaSrc.startsWith('data:') ? (
+                <img src={state.host.panoramaSrc} alt="" className="aspect-video w-full object-cover" />
+              ) : (
+                <StoreShot
+                  reel={voice === 'women' ? 'event-women' : 'event'}
+                  alt=""
+                  className="aspect-video w-full"
+                />
+              )
             )}
           </div>
           <ul className="space-y-3">
