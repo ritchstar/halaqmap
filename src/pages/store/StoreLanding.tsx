@@ -300,7 +300,7 @@ export default function StoreLanding() {
       <section className="px-4 pb-8">
         <div className="mx-auto max-w-5xl space-y-4">
           <div className="overflow-hidden rounded-2xl border border-[#e8c547]/35 bg-[#0b1a24]/70">
-            <StoreShot src="/images/store/lab/lab-luxury-gold.png" alt="دعوة زواج تفاعلية" className="aspect-[16/7]" />
+            <StoreShot src="/images/store/lab/lab-luxury-gold.png" alt="افراحي1" className="aspect-[16/7]" />
             <div className="p-5 md:p-6">
               <h2 className="text-xl font-extrabold">{STORE_LANDING_COPY.weddingLiveTitleAr}</h2>
               <p className="mt-2 max-w-3xl text-sm leading-7 text-white/70">{STORE_LANDING_COPY.weddingLiveLeadAr}</p>
@@ -310,7 +310,7 @@ export default function StoreLanding() {
             </div>
           </div>
           <div className="overflow-hidden rounded-2xl border border-[#e4b7c5]/35 bg-[#0b1a24]/70">
-            <StoreShot src="/images/store/lab/lab-luxury-rosegold.png" alt="دعوة زواج تفاعلية نسائية" className="aspect-[16/7]" />
+            <StoreShot src="/images/store/lab/lab-luxury-rosegold.png" alt="افراحي1 نسائي" className="aspect-[16/7]" />
             <div className="p-5 md:p-6">
               <h2 className="text-xl font-extrabold">{STORE_LANDING_COPY.weddingLiveWomenTitleAr}</h2>
               <p className="mt-2 max-w-3xl text-sm leading-7 text-white/70">{STORE_LANDING_COPY.weddingLiveWomenLeadAr}</p>
@@ -327,7 +327,7 @@ export default function StoreLanding() {
       <section className="px-4 pb-8">
         <div className="mx-auto max-w-5xl">
           <div className="overflow-hidden rounded-2xl border border-[#e8c547]/30 bg-[#0b1a24]/70">
-            <StoreShot src="/images/store/lab/lab-luxury-ivory.png" alt="دعوة حرة تفاعلية" className="aspect-[16/7]" />
+            <StoreShot src="/images/store/lab/lab-luxury-ivory.png" alt="اجواء1" className="aspect-[16/7]" />
             <div className="p-5 md:p-6">
               <h2 className="text-xl font-extrabold">{STORE_LANDING_COPY.eventLiveTitleAr}</h2>
               <p className="mt-2 max-w-3xl text-sm leading-7 text-white/70">{STORE_LANDING_COPY.eventLiveLeadAr}</p>
@@ -344,7 +344,7 @@ export default function StoreLanding() {
       <section className="px-4 pb-8">
         <div className="mx-auto max-w-5xl">
           <div className="overflow-hidden rounded-2xl border border-[#d4a574]/30 bg-[#0b1a24]/70">
-            <StoreShot src="/images/store/lab/lab-lounge-interior.jpg" alt="لاونجا1 تشغيل شاشات اللاونج" className="aspect-[16/7]" />
+            <StoreShot src="/images/store/lab/lab-lounge-interior.jpg" alt="لاونجا1" className="aspect-[16/7]" />
             <div className="p-5 md:p-6">
               <h2 className="text-xl font-extrabold">{STORE_LANDING_COPY.loungeLiveTitleAr}</h2>
               <p className="mt-2 max-w-3xl text-sm leading-7 text-white/70">{STORE_LANDING_COPY.loungeLiveLeadAr}</p>

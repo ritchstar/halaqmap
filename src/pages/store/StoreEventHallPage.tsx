@@ -26,6 +26,8 @@ import {
 } from '@/lib/storeEventLiveLab';
 import { addEventLiveBlessing, fetchEventLivePublic, saveEventLiveHost } from '@/lib/storeEventLiveRemote';
 import { ROUTE_PATHS } from '@/lib/routePaths';
+import { StoreGuestDeviceBlocked } from '@/components/store/StoreGuestDeviceBlocked';
+import { useGuestDeviceGate } from '@/hooks/useGuestDeviceGate';
 
 type HallMode = 'display' | 'guest' | 'host';
 
@@ -45,7 +47,7 @@ function payloadToState(payload: Record<string, unknown>, fallback: EventLiveLab
   return { host, blessings: blessings as EventLiveLabState['blessings'] };
 }
 
-function useEventLabState(token: string, mode: HallMode) {
+function useEventLabState(token: string, mode: HallMode, seat?: { seatId: string; deviceHash: string }) {
   const [state, setState] = useState<EventLiveLabState>(() => readEventLiveLabState(token));
   const isLab = isEventLabToken(token);
 
@@ -75,7 +77,7 @@ function useEventLabState(token: string, mode: HallMode) {
     }
     if (mode === 'guest') {
       const last = next.blessings[next.blessings.length - 1];
-      if (last) void addEventLiveBlessing({ token, ...last });
+      if (last) void addEventLiveBlessing({ token, ...last, seatId: seat?.seatId, deviceHash: seat?.deviceHash });
     }
   };
 
@@ -91,7 +93,14 @@ export default function StoreEventHallPage() {
       : 'display';
   const { token = '' } = useParams<{ token: string }>();
   const safeToken = token.trim() || STORE_EVENT_LIVE_LAB_TOKEN;
-  const { state, commit } = useEventLabState(safeToken, mode);
+  const isLab = isEventLabToken(safeToken);
+  const gate = useGuestDeviceGate({
+    kind: 'event',
+    token: safeToken,
+    enabled: mode === 'guest',
+    isLab,
+  });
+  const { state, commit } = useEventLabState(safeToken, mode, gate);
   const voice = state.host.voice === 'women' ? 'women' : 'men';
   const copy = eventLiveCopy(voice);
   useDocumentTitle(copy.documentTitle);
@@ -99,14 +108,17 @@ export default function StoreEventHallPage() {
   if (!STORE_EVENT_LIVE_PUBLIC_ENABLED) {
     return <Navigate to={ROUTE_PATHS.STORE_LANDING} replace />;
   }
+  if (mode === 'guest' && gate.status === 'blocked') {
+    return <StoreGuestDeviceBlocked productAr={copy.titleAr} />;
+  }
 
   return (
     <StorePurchasedShell>
       <StoreEventHallStage state={state} immersive />
-      {mode === 'guest' ? <StoreEventGuestForm state={state} onChange={commit} /> : null}
+      {mode === 'guest' && gate.status === 'ok' ? <StoreEventGuestForm state={state} onChange={commit} /> : null}
       {mode === 'host' ? (
         <div className="relative z-20 px-3 pb-10 pt-3">
-          <StoreEventHostPanel state={state} onChange={commit} />
+          <StoreEventHostPanel state={state} onChange={commit} hostToken={safeToken} isLab={isLab} />
         </div>
       ) : null}
     </StorePurchasedShell>

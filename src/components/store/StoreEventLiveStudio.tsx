@@ -65,7 +65,7 @@ export function StoreEventLiveStudio({ token = STORE_EVENT_LIVE_LAB_TOKEN }: { t
       </div>
       <div className="mt-5">
         {tab === 'guest' ? <StoreEventGuestForm state={state} onChange={commit} /> : null}
-        {tab === 'host' ? <StoreEventHostPanel state={state} onChange={commit} /> : null}
+        {tab === 'host' ? <StoreEventHostPanel state={state} onChange={commit} hostToken={token} isLab /> : null}
       </div>
     </div>
   );

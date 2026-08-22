@@ -273,7 +273,7 @@ export function weddingLiveArchiveBlob(state: WeddingLiveLabState): Blob {
     text: item.extra ? `${item.cannedText} ${item.extra}` : item.cannedText,
   }));
   const body = {
-    product: state.host.voice === 'women' ? 'دعوة زواج تفاعلية نسائية' : 'دعوة زواج تفاعلية',
+    product: state.host.voice === 'women' ? 'افراحي1 نسائي' : 'افراحي1',
     brand: 'halaqmap',
     voice: state.host.voice,
     hostName: state.host.hostName,

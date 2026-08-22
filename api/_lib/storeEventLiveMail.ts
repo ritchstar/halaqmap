@@ -16,8 +16,8 @@ export async function sendEventLiveLinksEmail(input: {
 <p>وصلت الدعوة الحرة التفاعلية من متجر halaqmap — خريطة الحل.</p>
 <p>احتفظ بهذه الروابط السرية:</p>
 <p>شاشة القاعة<br/><a href="${input.displayUrl}">${input.displayUrl}</a></p>
-<p>رابط الضيف<br/><a href="${input.guestUrl}">${input.guestUrl}</a></p>
-<p>لوحة المضيف<br/><a href="${input.hostUrl}">${input.hostUrl}</a></p>
+<p>لوحة المضيف — من هنا تصدرون روابط المدعوين<br/><a href="${input.hostUrl}">${input.hostUrl}</a></p>
+<p>رابط الضيف العام لا يُفتح وحده. أنشئوا من اللوحة رابطاً لكل مدعو وأرسلوه من جهازكم. إعادة إرساله من مدعو تُحظر.</p>
 <p>تنتهي الصفحة في ${input.expiresLabel}. احفظ الأرشيف من لوحة المضيف قبل انتهائها.</p>
 </div>`;
   const resp = await fetch('https://api.resend.com/emails', {

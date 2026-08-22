@@ -67,9 +67,9 @@ export const STORE_PAID_INVITE_TEMPLATES: readonly StorePaidInviteTemplate[] = [
 ];
 
 export const STORE_PAID_INVITE_COPY = {
-  documentTitle: 'بطاقة مناسبة مدفوعة — خريطة الحل',
-  kicker: 'إصدار فوري لبطاقة مناسبة',
-  titleAr: 'بطاقة مناسبة قابلة للمشاركة',
+  documentTitle: 'كاردي8 — خريطة الحل',
+  kicker: 'إصدار فوري لكاردي8',
+  titleAr: 'كاردي8',
   leadAr:
     'جرّب المعاينة مجاناً. ثلاث طبقات: 12 و29 و59 ر.س. ادفع عبر ميسر على `www.halaqmap.com` ثم شارك الرابط أو حمّل الصورة. أنت من يرسل البطاقة لمن تشاء.',
   stampAr: 'صُممت عبر halaqmap · خريطة الحل',

@@ -26,6 +26,7 @@ import {
   type WeddingLiveStyleId,
 } from '@/lib/storeWeddingLiveLab';
 import { StoreWeddingInviteCard } from '@/components/store/StoreWeddingInviteCard';
+import { StoreHostGuestInviteIssuance } from '@/components/store/StoreHostGuestInviteIssuance';
 import { cn } from '@/lib/utils';
 
 const fieldClass = 'mt-1 h-12 w-full rounded-md border border-white/15 bg-[#061018] px-3 text-[#f4efe4]';
@@ -34,10 +35,14 @@ export function StoreWeddingHostPanel({
   state,
   onChange,
   showCards = true,
+  hostToken = '',
+  isLab = false,
 }: {
   state: WeddingLiveLabState;
   onChange: (next: WeddingLiveLabState) => void;
   showCards?: boolean;
+  hostToken?: string;
+  isLab?: boolean;
 }) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [uploadError, setUploadError] = useState('');
@@ -98,6 +103,16 @@ export function StoreWeddingHostPanel({
     <div className={showCards ? 'grid gap-5 lg:grid-cols-[1fr_0.85fr]' : ''}>
       <div className="rounded-2xl border border-white/12 bg-[#0b1a24]/90 p-5">
         <h2 className="text-lg font-extrabold">{copy.hostPanelTitleAr}</h2>
+        {hostToken ? (
+          <StoreHostGuestInviteIssuance
+            kind="wedding"
+            hostToken={hostToken}
+            isLab={isLab}
+            titleAr={copy.hostInviteTitleAr}
+            leadAr={copy.hostInviteLeadAr}
+            ctaAr={copy.hostInviteCtaAr}
+          />
+        ) : null}
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
           <label className="block text-sm">
             {copy.hostRoleLabelAr}

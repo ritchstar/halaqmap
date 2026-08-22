@@ -5,6 +5,7 @@ import { useState } from 'react';
 import {
   STORE_GROCERS_LIVE,
   STORE_GROCERS_LIVE_CHECKOUT_ENABLED,
+  grocersChatAddonSar,
   STORE_GROCERS_LIVE_PACKS,
   type StoreGrocersLivePackId,
 } from '@/config/storeGrocersLive';
@@ -17,6 +18,7 @@ export function StoreGrocersOrderForm({ renewToken = '' }: { renewToken?: string
   const [packId, setPackId] = useState<StoreGrocersLivePackId>('m6');
   const [email, setEmail] = useState('');
   const [shopName, setShopName] = useState('تموينات النخيل');
+  const [chatAddon, setChatAddon] = useState(false);
   const [consent, setConsent] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -31,7 +33,7 @@ export function StoreGrocersOrderForm({ renewToken = '' }: { renewToken?: string
     setBusy(true);
     setError('');
     const result = await createGrocersLivePending(
-      renewing ? { email, renewToken } : { email, buyerName: shopName, shopName, packId },
+      renewing ? { email, renewToken, chatAddon } : { email, buyerName: shopName, shopName, packId, chatAddon },
     );
     if (!result.ok || typeof result.token !== 'string') {
       setBusy(false);
@@ -90,6 +92,12 @@ export function StoreGrocersOrderForm({ renewToken = '' }: { renewToken?: string
         </label>
       )}
       <label className="mt-4 flex items-start gap-2 text-sm leading-7">
+        <input type="checkbox" checked={chatAddon} onChange={(e) => setChatAddon(e.target.checked)} className="mt-1" />
+        <span>
+          {STORE_GROCERS_LIVE.chatAddonTitleAr} · {STORE_GROCERS_LIVE.chatAddonPriceAr}. {STORE_GROCERS_LIVE.chatAddonLeadAr}
+        </span>
+      </label>
+      <label className="mt-4 flex items-start gap-2 text-sm leading-7">
         <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} className="mt-1" />
         <span>{STORE_GROCERS_LIVE.orderConsentAr}</span>
       </label>
@@ -99,7 +107,9 @@ export function StoreGrocersOrderForm({ renewToken = '' }: { renewToken?: string
         disabled={busy || !STORE_GROCERS_LIVE_CHECKOUT_ENABLED}
         className="mt-4 min-h-12 w-full rounded-full bg-[#8fbf7a] text-sm font-bold text-[#061018] disabled:opacity-50"
       >
-        {busy ? 'جاري تجهيز ميسر…' : `${STORE_GROCERS_LIVE.orderSubmitAr} · ${pack.priceSar} ر.س`}
+        {busy
+          ? 'جاري تجهيز ميسر…'
+          : `${STORE_GROCERS_LIVE.orderSubmitAr} · ${pack.priceSar + (chatAddon ? grocersChatAddonSar(pack.id) : 0)} ر.س`}
       </button>
       <p className="mt-2 text-xs leading-6 text-white/50">لا يُخلط هذا الاشتراك بفاتورة الرخصة أو قاعات المناسبة.</p>
     </form>

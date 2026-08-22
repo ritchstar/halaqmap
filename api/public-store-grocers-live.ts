@@ -1,7 +1,7 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
- * تحصيل تموينات الحي — وسم store_grocers_live، 599 أو 899 ر.س.
+ * تحصيل تمويناتا1 — وسم store_grocers_live، 599 أو 899 ر.س، وصندوق محادثة 299 أو 499.
  */
 import { createClient } from '@supabase/supabase-js';
 import { runRegistrationRouteGuards } from './_lib/registrationRouteGuard.js';
@@ -16,16 +16,19 @@ import {
 } from './_lib/moyasarApiClient.js';
 import { isAllowedMoyasarInvoiceUrl } from './_lib/storeIssuedCards.js';
 import {
+  grocersChargeHalalas,
+  grocersChatAddonFromHalalas,
   grocersLiveInvoiceDescription,
   grocersLiveInvoiceMetadata,
   grocersLiveIsExpired,
   grocersLivePaymentMatches,
   grocersLiveTermEndIso,
   grocersPackFromHalalas,
-  grocersPackFromId,
   isGrocersLiveCheckoutEnabled,
   isGrocersPriceHalalas,
   newGrocersToken,
+  parseGrocersChat,
+  parseGrocersChats,
   parseGrocersLiveOrderBody,
   parseGrocersPackId,
   publicGrocersPayload,
@@ -167,6 +170,7 @@ export async function POST(request: Request): Promise<Response> {
   if (action === 'activate_paid') return activatePaid(db, body, headers);
   if (action === 'sync_paid') return syncPaid(db, body, headers);
   if (action === 'add_order') return addOrder(db, body, headers);
+  if (action === 'add_chat') return addChat(db, body, headers);
   if (action === 'save_host') return saveHost(db, body, headers);
   if (action === 'get_public') {
     return readByRole(db, String(body.token || '').trim(), String(body.role || 'shop'), headers);
@@ -239,20 +243,20 @@ async function attachInvoice(
   request: Request,
   packId: 'm6' | 'm12',
   kind: 'purchase' | 'renewal',
+  chatAddon = false,
 ): Promise<string> {
   let invoiceUrl = '';
   const secret = resolveOccasionCardMoyasarSecretKey();
   if (!secret) return invoiceUrl;
-  const pack = grocersPackFromId(packId);
   const created = await createMoyasarInvoice(secret, {
-    amount: pack.priceHalalas,
+    amount: grocersChargeHalalas(packId, chatAddon),
     currency: 'SAR',
-    description: grocersLiveInvoiceDescription(packId),
+    description: grocersLiveInvoiceDescription(packId, chatAddon),
     success_url: successUrl(shopToken, request),
     back_url: `${storeOrigin()}/#/store/grocers`,
     callback_url: `${payOrigin(request)}/api/public-store-grocers-live`,
     expired_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-    metadata: grocersLiveInvoiceMetadata(shopToken, packId, kind),
+    metadata: grocersLiveInvoiceMetadata(shopToken, packId, kind, chatAddon),
   });
   if (created.status >= 400) return invoiceUrl;
   try {
@@ -284,7 +288,7 @@ async function createPending(db: Db, body: Record<string, unknown>, headers: Rec
   if (renewToken) return createRenewal(db, renewToken, headers, request);
   const parsed = parseGrocersLiveOrderBody(body);
   if (!parsed.ok) return json({ error: parsed.error }, 400, headers);
-  const pack = grocersPackFromId(parsed.packId);
+  const charge = grocersChargeHalalas(parsed.packId, parsed.chatAddon);
   const shopToken = newGrocersToken();
   const deskToken = newGrocersToken();
   const { error } = await db.from(STORE_GROCERS_LIVE_TABLE).insert({
@@ -293,7 +297,7 @@ async function createPending(db: Db, body: Record<string, unknown>, headers: Rec
     desk_token: deskToken,
     buyer_email: parsed.email,
     buyer_name: parsed.buyerName,
-    price_halalas: pack.priceHalalas,
+    price_halalas: charge,
     payload: parsed.payload,
     policy_version: STORE_GROCERS_LIVE_POLICY,
   });
@@ -305,13 +309,14 @@ async function createPending(db: Db, body: Record<string, unknown>, headers: Rec
     request,
     parsed.packId,
     'purchase',
+    parsed.chatAddon,
   );
   return json(
     {
       ok: true,
       token: shopToken,
       deskToken,
-      priceHalalas: pack.priceHalalas,
+      priceHalalas: charge,
       payPath: `/pay/grocers/${shopToken}`,
       invoiceUrl,
       shopUrl: shopUrl(shopToken),
@@ -358,6 +363,7 @@ async function createRenewal(db: Db, renewToken: string, headers: Record<string,
     request,
     pack.id,
     'renewal',
+    grocersChatAddonFromHalalas(row.price_halalas),
   );
   return json(
     {
@@ -529,6 +535,26 @@ async function addOrder(db: Db, body: Record<string, unknown>, headers: Record<s
   return json({ ok: true }, 200, headers);
 }
 
+async function addChat(db: Db, body: Record<string, unknown>, headers: Record<string, string>) {
+  const token = String(body.token || '').trim();
+  const chat = parseGrocersChat(body.chat, 'buyer');
+  if (!token || !chat) return json({ error: 'الملاحظة ناقصة' }, 400, headers);
+  const { data } = await db.from(STORE_GROCERS_LIVE_TABLE).select('*').eq('shop_token', token).maybeSingle();
+  if (!data) return json({ error: 'رابط المتجر غير صالح' }, 404, headers);
+  const row = data as GrocersRow;
+  if (row.status !== 'live' || isTermExpired(row)) return json({ error: 'انتهت مدة التشغيل' }, 403, headers);
+  const payload = { ...(row.payload as GrocersLiveOrderPayload) };
+  if (payload.chatAddon !== true) return json({ error: 'صندوق المحادثة غير مفعّل لهذه الصفحة' }, 403, headers);
+  const chats = parseGrocersChats(payload.chats);
+  chats.unshift(chat);
+  payload.chats = chats.slice(0, 200);
+  await db
+    .from(STORE_GROCERS_LIVE_TABLE)
+    .update({ payload, last_public_change_at: new Date().toISOString(), updated_at: new Date().toISOString() })
+    .eq('id', row.id);
+  return json({ ok: true }, 200, headers);
+}
+
 async function saveHost(db: Db, body: Record<string, unknown>, headers: Record<string, string>) {
   const token = String(body.token || '').trim();
   if (!token) return json({ error: 'رابط الكاشير غير صالح' }, 400, headers);
@@ -546,6 +572,10 @@ async function saveHost(db: Db, body: Record<string, unknown>, headers: Record<s
     flashAr: String(body.flashAr ?? current.flashAr).slice(0, 160),
     shelf: Array.isArray(body.shelf) ? body.shelf : current.shelf,
     orders: Array.isArray(body.orders) ? body.orders : current.orders,
+    chatAddon: current.chatAddon === true,
+    chats: current.chatAddon === true
+      ? (Array.isArray(body.chats) ? parseGrocersChats(body.chats) : parseGrocersChats(current.chats))
+      : [],
   };
   await db
     .from(STORE_GROCERS_LIVE_TABLE)

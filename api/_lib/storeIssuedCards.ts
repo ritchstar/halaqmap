@@ -53,7 +53,7 @@ export const PAID_INVITE_TIER_LABEL_AR: Record<PaidInviteTier, string> = {
 };
 
 export function occasionCardInvoiceDescription(tier: PaidInviteTier): string {
-  return `halaqmap — بطاقة مناسبة — ${PAID_INVITE_TIER_LABEL_AR[tier]}`;
+  return `halaqmap — كاردي8 — ${PAID_INVITE_TIER_LABEL_AR[tier]}`;
 }
 
 /** رابط دفع فاتورة ميسر المستضافة فقط. */

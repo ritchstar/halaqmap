@@ -1,7 +1,7 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
- * تحقق تموينات الحي — وسم store_grocers_live، 599 أو 899 ر.س فقط.
+ * تحقق تمويناتا1 — وسم store_grocers_live، 599 أو 899 ر.س، وصندوق محادثة 299 أو 499.
  */
 import { randomBytes } from 'node:crypto';
 
@@ -11,6 +11,10 @@ export const STORE_GROCERS_LIVE_PRICE_6_SAR = 599 as const;
 export const STORE_GROCERS_LIVE_PRICE_12_SAR = 899 as const;
 export const STORE_GROCERS_LIVE_PRICE_6_HALALAS = 59900 as const;
 export const STORE_GROCERS_LIVE_PRICE_12_HALALAS = 89900 as const;
+export const STORE_GROCERS_CHAT_ADDON_6_SAR = 299 as const;
+export const STORE_GROCERS_CHAT_ADDON_12_SAR = 499 as const;
+export const STORE_GROCERS_CHAT_ADDON_6_HALALAS = 29900 as const;
+export const STORE_GROCERS_CHAT_ADDON_12_HALALAS = 49900 as const;
 export const STORE_GROCERS_LIVE_DAYS_6 = 180 as const;
 export const STORE_GROCERS_LIVE_DAYS_12 = 365 as const;
 export const STORE_GROCERS_LIVE_POLICY = '2026-08-22' as const;
@@ -40,13 +44,33 @@ export function grocersPackFromId(id: 'm6' | 'm12') {
     : { id, days: STORE_GROCERS_LIVE_DAYS_6, priceSar: STORE_GROCERS_LIVE_PRICE_6_SAR, priceHalalas: STORE_GROCERS_LIVE_PRICE_6_HALALAS };
 }
 
+export function grocersChatAddonHalalas(packId: 'm6' | 'm12'): number {
+  return packId === 'm12' ? STORE_GROCERS_CHAT_ADDON_12_HALALAS : STORE_GROCERS_CHAT_ADDON_6_HALALAS;
+}
+
+export function grocersChatAddonFromHalalas(amount: number): boolean {
+  return amount === STORE_GROCERS_LIVE_PRICE_6_HALALAS + STORE_GROCERS_CHAT_ADDON_6_HALALAS
+    || amount === STORE_GROCERS_LIVE_PRICE_12_HALALAS + STORE_GROCERS_CHAT_ADDON_12_HALALAS;
+}
+
+export function grocersChargeHalalas(packId: 'm6' | 'm12', chatAddon: boolean): number {
+  return grocersPackFromId(packId).priceHalalas + (chatAddon ? grocersChatAddonHalalas(packId) : 0);
+}
+
 export function grocersPackFromHalalas(amount: number) {
-  if (amount === STORE_GROCERS_LIVE_PRICE_12_HALALAS) return grocersPackFromId('m12');
+  if (amount === STORE_GROCERS_LIVE_PRICE_12_HALALAS || amount === STORE_GROCERS_LIVE_PRICE_12_HALALAS + STORE_GROCERS_CHAT_ADDON_12_HALALAS) {
+    return grocersPackFromId('m12');
+  }
   return grocersPackFromId('m6');
 }
 
 export function isGrocersPriceHalalas(amount: number): boolean {
-  return amount === STORE_GROCERS_LIVE_PRICE_6_HALALAS || amount === STORE_GROCERS_LIVE_PRICE_12_HALALAS;
+  return (
+    amount === STORE_GROCERS_LIVE_PRICE_6_HALALAS
+    || amount === STORE_GROCERS_LIVE_PRICE_12_HALALAS
+    || amount === STORE_GROCERS_LIVE_PRICE_6_HALALAS + STORE_GROCERS_CHAT_ADDON_6_HALALAS
+    || amount === STORE_GROCERS_LIVE_PRICE_12_HALALAS + STORE_GROCERS_CHAT_ADDON_12_HALALAS
+  );
 }
 
 export function grocersLiveTermEndIso(days: number, fromMs = Date.now()): string {
@@ -59,14 +83,16 @@ export function grocersLiveIsExpired(expiresAt: string | null | undefined, nowMs
   return Number.isFinite(t) && t <= nowMs;
 }
 
-export function grocersLiveInvoiceDescription(packId: 'm6' | 'm12'): string {
-  return packId === 'm12' ? 'halaqmap — تموينات الحي 12 شهراً' : 'halaqmap — تموينات الحي 6 أشهر';
+export function grocersLiveInvoiceDescription(packId: 'm6' | 'm12', chatAddon = false): string {
+  const base = packId === 'm12' ? 'halaqmap — تمويناتا1 12 شهراً' : 'halaqmap — تمويناتا1 6 أشهر';
+  return chatAddon ? `${base} + صندوق محادثة` : base;
 }
 
 export function grocersLiveInvoiceMetadata(
   token: string,
   packId: 'm6' | 'm12',
   kind: 'purchase' | 'renewal' = 'purchase',
+  chatAddon = false,
 ): Record<string, string> {
   return {
     product: STORE_GROCERS_LIVE_PRODUCT,
@@ -74,6 +100,7 @@ export function grocersLiveInvoiceMetadata(
     store_grocers_token: token,
     store_grocers_pack: packId,
     store_grocers_kind: kind,
+    store_grocers_chat: chatAddon ? '1' : '0',
   };
 }
 
@@ -118,10 +145,12 @@ export type GrocersLiveOrderPayload = {
   flashAr: string;
   shelf: unknown[];
   orders: unknown[];
+  chatAddon: boolean;
+  chats: unknown[];
 };
 
 export function parseGrocersLiveOrderBody(body: Record<string, unknown>):
-  | { ok: true; email: string; buyerName: string; packId: 'm6' | 'm12'; payload: GrocersLiveOrderPayload }
+  | { ok: true; email: string; buyerName: string; packId: 'm6' | 'm12'; chatAddon: boolean; payload: GrocersLiveOrderPayload }
   | { ok: false; error: string } {
   const email = clip(body.email, 180).toLowerCase();
   if (!isEmail(email)) return { ok: false, error: 'البريد مطلوب لإرسال روابط المتجر والكاشير.' };
@@ -129,22 +158,46 @@ export function parseGrocersLiveOrderBody(body: Record<string, unknown>):
   const hostName = clip(body.hostName, 80) || 'الإدارة';
   if (shopName.length < 2) return { ok: false, error: 'اسم التموينات مطلوب.' };
   const packId = parseGrocersPackId(body.packId);
+  const chatAddon = body.chatAddon === true;
   return {
     ok: true,
     email,
     buyerName: clip(body.buyerName, 80) || shopName,
     packId,
+    chatAddon,
     payload: {
       packId,
       shopName,
       hostName,
-      blurbAr: clip(body.blurbAr, 200) || 'تموينات الحي: اطلب من جوالك.',
+      blurbAr: clip(body.blurbAr, 200) || 'تمويناتا1: اطلب من جوالك.',
       customFields: Array.from({ length: 5 }, () => ''),
       flashAr: '',
       shelf: [],
       orders: [],
+      chatAddon,
+      chats: [],
     },
   };
+}
+
+export function parseGrocersChat(raw: unknown, forcedFrom?: 'buyer' | 'desk'): Record<string, unknown> | null {
+  const row = raw && typeof raw === 'object' ? (raw as Record<string, unknown>) : {};
+  const text = clip(row.text, 240);
+  if (text.length < 2) return null;
+  const from = forcedFrom || (row.from === 'desk' ? 'desk' : 'buyer');
+  return {
+    id: clip(row.id, 40) || `c${Date.now().toString(36)}`,
+    from,
+    name: clip(row.name, 40) || (from === 'desk' ? 'الكاشير' : 'جار الحي'),
+    text,
+    at: String(row.at || new Date().toISOString()).slice(0, 40),
+    hidden: row.hidden === true,
+  };
+}
+
+export function parseGrocersChats(raw: unknown): unknown[] {
+  if (!Array.isArray(raw)) return [];
+  return raw.map((item) => parseGrocersChat(item)).filter(Boolean).slice(0, 200);
 }
 
 export function publicGrocersPayload(payload: GrocersLiveOrderPayload) {
@@ -157,5 +210,7 @@ export function publicGrocersPayload(payload: GrocersLiveOrderPayload) {
     flashAr: payload.flashAr,
     shelf: Array.isArray(payload.shelf) ? payload.shelf : [],
     orders: Array.isArray(payload.orders) ? payload.orders : [],
+    chatAddon: payload.chatAddon === true,
+    chats: parseGrocersChats(payload.chats),
   };
 }

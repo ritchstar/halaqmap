@@ -11,6 +11,7 @@ import {
   type GrocersLabState,
 } from '@/lib/storeGrocersLiveLab';
 import { StoreGrocersIngest } from '@/components/store/StoreGrocersIngest';
+import { StoreGrocersDeskChat } from '@/components/store/StoreGrocersChat';
 import { cn } from '@/lib/utils';
 
 export function StoreGrocersDesk({
@@ -107,6 +108,7 @@ export function StoreGrocersDesk({
           {STORE_GROCERS_LIVE.archiveCtaAr}
         </button>
       </div>
+      <StoreGrocersDeskChat state={state} onChange={onChange} />
 
       <div className="grid gap-3 sm:grid-cols-2">
         <label className="block text-sm">

@@ -16,6 +16,14 @@ export const STORE_GROCERS_LIVE_PRICE_6_SAR = 599 as const;
 export const STORE_GROCERS_LIVE_PRICE_12_SAR = 899 as const;
 export const STORE_GROCERS_LIVE_PRICE_6_HALALAS = 59900 as const;
 export const STORE_GROCERS_LIVE_PRICE_12_HALALAS = 89900 as const;
+export const STORE_GROCERS_CHAT_ADDON_6_SAR = 299 as const;
+export const STORE_GROCERS_CHAT_ADDON_12_SAR = 499 as const;
+export const STORE_GROCERS_CHAT_ADDON_6_HALALAS = 29900 as const;
+export const STORE_GROCERS_CHAT_ADDON_12_HALALAS = 49900 as const;
+
+export function grocersChatAddonSar(packId: 'm6' | 'm12'): number {
+  return packId === 'm12' ? STORE_GROCERS_CHAT_ADDON_12_SAR : STORE_GROCERS_CHAT_ADDON_6_SAR;
+}
 
 function envEnabled(name: string, fallback: boolean): boolean {
   const raw = String((import.meta as { env?: Record<string, unknown> }).env?.[name] ?? '')
@@ -60,14 +68,22 @@ export const STORE_GROCERS_LIVE_PACKS = [
 export type StoreGrocersLivePackId = (typeof STORE_GROCERS_LIVE_PACKS)[number]['id'];
 
 export const STORE_GROCERS_LIVE = {
-  documentTitle: 'تموينات الحي — خريطة الحل',
-  kickerAr: 'متجر الحي على الجوال',
-  titleAr: 'تموينات الحي',
+  documentTitle: 'تمويناتا1 — خريطة الحل',
+  kickerAr: 'تمويناتا1 لجار الحي',
+  titleAr: 'تمويناتا1',
   leadAr:
     'صفحة لصاحب التموينات: يفعّل السلع من بنك جاهز أو يراجع قائمة مصوّرة، والزبون يطلب من جواله وتصل المذكرة للكاشير. 599 ر.س لستة أشهر، أو 899 ر.س لاثني عشر شهراً. لا تحصيل من الزبون غير نقد أو شبكة مع التوصيل.',
   priceLineAr: '599 ر.س لستة أشهر — 899 ر.س لاثني عشر شهراً',
   durationLineAr: 'اشتراك صاحب التموينات عبر ميسر على www.halaqmap.com. لا خلط برخصة النفاذ ولا بقاعات المناسبة.',
-  shopKickerAr: 'اطلب من جوالك',
+  chatAddonTitleAr: 'صندوق محادثة جار الحي',
+  chatAddonLeadAr: 'إضافة اختيارية: صندوق في صفحة الزبون، وصندوق استقبال في لوحة الكاشير للإضافات والتوصيات ووصف الحاجة.',
+  chatAddonPriceAr: '299 ر.س مع باقة ستة أشهر، أو 499 ر.س مع باقة اثني عشر شهراً',
+  chatBuyerTitleAr: 'صندوق ملاحظة للكاشير',
+  chatBuyerHintAr: 'اكتب إضافة أو توصية أو وصف حاجة. ليس دردشة عامة.',
+  chatBuyerSendAr: 'أرسل للكاشير',
+  chatDeskTitleAr: 'صندوق استقبال محادثات جار الحي',
+  chatDeskReplyAr: 'رد على جار الحي',
+  shopKickerAr: 'جار الحي يطلب من جواله',
   shopTitleAr: 'مقاضيك للبيت',
   featuredTitleAr: 'الأكثر طلباً',
   shelfTitleAr: 'بقية الرف',
@@ -104,9 +120,9 @@ export const STORE_GROCERS_LIVE = {
   termsFoldTriggerAr: 'اقرأ شروط الخدمة',
   termsFoldTitleAr: 'شروط الخدمة قبل الطلب',
   termsFoldBodyAr:
-    'تموينات الحي صفحة للحي ولوحة للكاشير. 599 ر.س لستة أشهر، أو 899 ر.س لاثني عشر شهراً، عبر ميسر على www.halaqmap.com بوسم مستقل. طلب الزبون نقداً أو شبكة مع التوصيل، بلا تحصيل سلّته عبر ميسر. التفاصيل في شروط الخدمة.',
+    'تمويناتا1 صفحة لجار الحي ولوحة للكاشير. 599 ر.س لستة أشهر، أو 899 ر.س لاثني عشر شهراً، عبر ميسر على www.halaqmap.com بوسم مستقل. صندوق المحادثة إضافة اختيارية: 299 ر.س مع باقة ستة أشهر، أو 499 ر.س مع باقة اثني عشر شهراً. صندوق في صفحة الزبون وصندوق استقبال في اللوحة، بلا غرفة دردشة عامة. طلب الزبون نقداً أو شبكة مع التوصيل. التفاصيل في شروط الخدمة.',
   labKickerAr: 'معاينة حيّة داخل الصفحة',
-  labTitleAr: 'هكذا يطلب الجار وتصل المذكرة للكاشير',
+  labTitleAr: 'هكذا يطلب جار الحي وتصل المذكرة للكاشير',
   labLeadAr: 'فعّل سلعة، أرسل طلباً تجريبياً، وافتح مذكرة واتساب كما في ليلة التشغيل.',
   heroImage: '/images/store/grocers-hero-marketing.jpg',
   heroAltAr: 'رف تموينات حي بسلع يومية جاهزة للطلب من الجوال',
@@ -127,7 +143,7 @@ export const STORE_GROCERS_LIVE_FIELDS = [
 export const STORE_GROCERS_LIVE_DEMO = {
   shopName: 'تموينات النخيل',
   hostName: 'الإدارة',
-  blurbAr: 'تموينات الحي: ألبان وخبز ومياه تصل للبيت.',
+  blurbAr: 'تمويناتا1: ألبان وخبز ومياه تصل لجار الحي.',
   customFields: [
     'حياكم الله، الطلب من الجوال يختصر الوقوف عند الرف.',
     'التوصيل داخل الحي خلال ساعة في أوقات الدوام.',

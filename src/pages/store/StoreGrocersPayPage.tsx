@@ -8,6 +8,8 @@ import { Link, useParams } from 'react-router-dom';
 import { MoyasarOfficialTrustChip } from '@/components/billing/MoyasarOfficialTrustChip';
 import { LEGAL_ECOMMERCE_STORE_NAME } from '@/config/partnerLegal';
 import {
+  STORE_GROCERS_CHAT_ADDON_12_HALALAS,
+  STORE_GROCERS_CHAT_ADDON_6_HALALAS,
   STORE_GROCERS_LIVE,
   STORE_GROCERS_LIVE_CHECKOUT_ENABLED,
   STORE_GROCERS_LIVE_PRICE_12_HALALAS,
@@ -39,14 +41,29 @@ function payErrorAr(raw: unknown): string {
   return s;
 }
 
+const PRICE_6_CHAT = STORE_GROCERS_LIVE_PRICE_6_HALALAS + STORE_GROCERS_CHAT_ADDON_6_HALALAS;
+const PRICE_12_CHAT = STORE_GROCERS_LIVE_PRICE_12_HALALAS + STORE_GROCERS_CHAT_ADDON_12_HALALAS;
+
+function hasChatAddon(halalas: number): boolean {
+  return halalas === PRICE_6_CHAT || halalas === PRICE_12_CHAT;
+}
+
 function priceLabel(halalas: number): string {
   if (halalas === STORE_GROCERS_LIVE_PRICE_12_HALALAS) return '899 ر.س لاثني عشر شهراً';
   if (halalas === STORE_GROCERS_LIVE_PRICE_6_HALALAS) return '599 ر.س لستة أشهر';
+  if (halalas === PRICE_12_CHAT) return '899 ر.س لاثني عشر شهراً + صندوق محادثة';
+  if (halalas === PRICE_6_CHAT) return '599 ر.س لستة أشهر + صندوق محادثة';
   return '';
 }
 
+function invoiceDescription(halalas: number): string {
+  const year = halalas === STORE_GROCERS_LIVE_PRICE_12_HALALAS || halalas === PRICE_12_CHAT;
+  const base = year ? 'halaqmap — تمويناتا1 12 شهراً' : 'halaqmap — تمويناتا1 6 أشهر';
+  return hasChatAddon(halalas) ? `${base} + صندوق محادثة` : base;
+}
+
 export default function StoreGrocersPayPage() {
-  useDocumentTitle('دفع تموينات الحي — halaqmap');
+  useDocumentTitle('دفع تمويناتا1 — halaqmap');
   const { token = '' } = useParams<{ token: string }>();
   const activateOnceRef = useRef(false);
   const hostRef = useRef<HTMLDivElement | null>(null);
@@ -59,7 +76,11 @@ export default function StoreGrocersPayPage() {
 
   const publishableKey = useMemo(() => resolveGrocersLivePublishableKey(), []);
   const liveMoney = grocersLiveLivePaymentsEnabled();
-  const amountOk = priceHalalas === STORE_GROCERS_LIVE_PRICE_6_HALALAS || priceHalalas === STORE_GROCERS_LIVE_PRICE_12_HALALAS;
+  const amountOk =
+    priceHalalas === STORE_GROCERS_LIVE_PRICE_6_HALALAS
+    || priceHalalas === STORE_GROCERS_LIVE_PRICE_12_HALALAS
+    || priceHalalas === PRICE_6_CHAT
+    || priceHalalas === PRICE_12_CHAT;
   const payable = status === 'pending_payment' || status === 'pending_renewal';
 
   useEffect(() => {
@@ -157,9 +178,7 @@ export default function StoreGrocersPayPage() {
           element: host,
           amount: priceHalalas,
           currency: 'SAR',
-          description: priceHalalas === STORE_GROCERS_LIVE_PRICE_12_HALALAS
-            ? 'halaqmap — تموينات الحي 12 شهراً'
-            : 'halaqmap — تموينات الحي 6 أشهر',
+          description: invoiceDescription(priceHalalas),
           publishable_api_key: publishableKey,
           callback_url: buildGrocersLiveCallbackUrl(token),
           supported_networks: ['visa', 'mastercard'],
@@ -179,6 +198,7 @@ export default function StoreGrocersPayPage() {
             product: STORE_GROCERS_LIVE_PRODUCT,
             product_type: STORE_GROCERS_LIVE_PRODUCT,
             store_grocers_token: token,
+            store_grocers_chat: hasChatAddon(priceHalalas) ? '1' : '0',
           },
           on_completed: (payment: unknown) => {
             const id =
@@ -215,7 +235,7 @@ export default function StoreGrocersPayPage() {
     <div dir="rtl" className="min-h-[100svh] bg-[#061018] text-[#f4efe4]">
       <main className="mx-auto max-w-lg px-4 py-12">
         <p className="text-sm font-bold text-[#8fbf7a]">halaqmap</p>
-        <h1 className="mt-2 text-2xl font-extrabold">دفع تموينات الحي</h1>
+        <h1 className="mt-2 text-2xl font-extrabold">دفع تمويناتا1</h1>
         {!STORE_GROCERS_LIVE_CHECKOUT_ENABLED ? (
           <p className="mt-3 text-sm leading-7 text-white/70">بوابة الدفع غير مفتوحة لهذا المنتج بعد.</p>
         ) : null}

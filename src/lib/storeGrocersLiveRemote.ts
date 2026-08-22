@@ -72,3 +72,7 @@ export async function addGrocersLiveOrder(token: string, order: Record<string, u
 export async function saveGrocersLiveHost(input: Record<string, unknown>) {
   return postAction({ action: 'save_host', ...input });
 }
+
+export async function addGrocersLiveChat(token: string, chat: Record<string, unknown>) {
+  return postAction({ action: 'add_chat', token, chat });
+}

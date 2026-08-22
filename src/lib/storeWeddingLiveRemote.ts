@@ -41,7 +41,7 @@ async function postAction(body: Record<string, unknown>): Promise<{ ok: boolean;
     });
     const data = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: unknown };
     if (!res.ok || data.ok !== true) {
-      return { ok: false, error: payErrorAr(res.status, data.error) };
+      return { ok: false, blocked: Boolean((data as { blocked?: unknown }).blocked), error: payErrorAr(res.status, data.error) };
     }
     return { ok: true, ...data };
   } catch {
@@ -75,4 +75,20 @@ export async function addWeddingLiveBlessing(input: Record<string, unknown>) {
 
 export async function saveWeddingLiveHost(input: Record<string, unknown>) {
   return postAction({ action: 'save_host', ...input });
+}
+
+export async function claimWeddingGuestSeat(input: { token: string; seatId: string; inviteId?: string; deviceHash: string }) {
+  return postAction({ action: 'claim_guest_seat', ...input });
+}
+
+export async function mintWeddingGuestInvite(token: string, count = 200) {
+  return postAction({ action: 'mint_guest_invite', token, count });
+}
+
+export async function listWeddingGuestInvites(token: string) {
+  return postAction({ action: 'list_guest_invites', token });
+}
+
+export async function markWeddingGuestInviteSent(token: string, inviteId: string) {
+  return postAction({ action: 'mark_guest_invite_sent', token, inviteId });
 }

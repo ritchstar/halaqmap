@@ -28,13 +28,13 @@ function envEnabled(name: string, fallback: boolean): boolean {
 export const STORE_WEDDING_LIVE_CHECKOUT_ENABLED = envEnabled('VITE_STORE_WEDDING_LIVE_CHECKOUT_ENABLED', true);
 
 export const STORE_WEDDING_LIVE = {
-  documentTitle: 'دعوة زواج تفاعلية — خريطة الحل',
+  documentTitle: 'افراحي1 — خريطة الحل',
   kickerAr: 'قاعة حفلك على الشاشة — حيّة من أول تجربة',
-  titleAr: 'دعوة زواج تفاعلية',
+  titleAr: 'افراحي1',
   leadAr:
     'كرت فخم بأسماء العريس والعروس، يفتح إلى قاعة تتفاعل مع تهاني الضيوف والصورة والفيديو والتنويه. جرّب كل شيء هنا قبل أن تطلبها.',
   priceLineAr: 'السعر الافتتاحي 899 ر.س',
-  bannerTitleAr: 'دعوة زواج تفاعلية',
+  bannerTitleAr: 'افراحي1',
   bannerLeadAr: 'شاشة القاعة، تهاني الضيوف، يوتيوب أو بانوراما، ولوحة تحكم كاملة. السعر الافتتاحي 899 ر.س.',
   bannerCtaAr: 'جرّب الدعوة الآن',
   labKickerAr: 'معاينة حيّة داخل الصفحة',
@@ -46,6 +46,12 @@ export const STORE_WEDDING_LIVE = {
   guestExtraLabelAr: 'سطر إضافي من قلبك',
   guestSubmitAr: 'أظهر تهنئتي على القاعة',
   guestOnlyHintAr: 'هكذا يرى المدعو الدعوة على جواله.',
+  guestDeviceLockAr:
+    'رابطكم صدر من لوحة المشتري ويُربط بهذا الجهاز فقط. إعادة إرساله من مدعو تُحظر. حماية الخصوصية الصارمة للمناسبات العائلية هي منطلق هذا النموذج.',
+  hostInviteTitleAr: 'لوحة إرسال روابط المدعوين',
+  hostInviteLeadAr:
+    'جهّزوا حتى 200 رابط خاص من هذه اللوحة. كل رابط لمدعو واحد. أرسلوا من واتساب جهازكم؛ العداد ينقص مع كل إرسال. لا نحفظ أرقام الضيوف ولا نرسل نيابة عنكم. إعادة إرسال رابط المدعو بعد دخوله تُحظر.',
+  hostInviteCtaAr: 'جهّز حتى 200 رابط',
   hostPanelTitleAr: 'لوحة تحكم الحفل',
   hostAnnouncementLabelAr: 'تنويه على الشاشة',
   hostYoutubeLabelAr: 'رابط يوتيوب',
@@ -84,7 +90,7 @@ export const STORE_WEDDING_LIVE = {
   termsFoldTitleAr: 'شروط الخدمة قبل الطلب',
   termsFoldTriggerAr: 'اقرأ شروط الخدمة',
   termsFoldBodyAr:
-    'قاعة حفل حيّة لضيوفك: تهاني، صور أو يوتيوب، وكرت بأسماء العريس والعروس. السعر 899 ر.س، والدفع عبر ميسر على www.halaqmap.com. رابط واحد للضيوف، ولوحة لك لإدارة الصفحة. احفظ الصفحة قبل انتهائها. التفاصيل في شروط الخدمة.',
+    'قاعة حفل حيّة لضيوفك: تهاني، صور أو يوتيوب، وكرت بأسماء العريس والعروس. السعر 899 ر.س، والدفع عبر ميسر على www.halaqmap.com. روابط المدعوين تصدر من لوحة المشتري فقط؛ كل رابط لمدعو واحد وجهاز واحد، وإعادة إرساله من مدعو تُحظر. حماية الخصوصية الصارمة للمناسبات العائلية هي منطلق النموذج، وليست دفتر حضور. التفاصيل في شروط الخدمة.',
 } as const;
 
 export const STORE_WEDDING_LIVE_HOST_ROLES = [
@@ -103,9 +109,9 @@ export function weddingLiveHostRoles(voice: StoreWeddingLiveVoice) {
 }
 
 export const STORE_WEDDING_LIVE_WOMEN = {
-  documentTitle: 'دعوة زواج تفاعلية نسائية — خريطة الحل',
+  documentTitle: 'افراحي1 نسائي — خريطة الحل',
   kickerAr: 'قاعة حفلكن على الشاشة — حيّة من أول تجربة',
-  titleAr: 'دعوة زواج تفاعلية نسائية',
+  titleAr: 'افراحي1 نسائي',
   leadAr:
     'كرت فاخر بطابع نسائي، تدعو منه والدة العريس أو والدة العروس. يفتح إلى قاعة تتفاعل مع تهاني الضيفات والصورة والفيديو والتنويه.',
   labKickerAr: 'معاينة حيّة بثوب نسائي',

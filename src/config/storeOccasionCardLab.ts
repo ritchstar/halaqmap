@@ -12,7 +12,7 @@ export type LabLifecycle = 'before' | 'day' | 'after';
 export const STORE_OCCASION_CARD_LAB = {
   documentTitle: 'نماذج البطاقة الحيّة — خريطة الحل',
   kickerAr: 'مختبر تجريبي — بلا دفع',
-  titleAr: 'ثلاثة مستويات لبطاقة مناسبة حيّة',
+  titleAr: 'ثلاثة مستويات لكاردي8',
   leadAr:
     'قارن السريعة والمميزة والفاخرة على الجوال. الأسعار المعتمدة تبقى 12 و29 و59 ر.س. هذا العرض لا يفتح ميسر ولا يغيّر أسعار البطاقة.',
   skipMotionAr: 'تخطي الافتتاح',

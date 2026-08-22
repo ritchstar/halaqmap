@@ -40,7 +40,7 @@ function payErrorAr(raw: unknown): string {
 }
 
 export default function StoreWeddingPayPage() {
-  useDocumentTitle('دفع دعوة الزواج التفاعلية — halaqmap');
+  useDocumentTitle('دفع افراحي1 — halaqmap');
   const { token = '' } = useParams<{ token: string }>();
   const activateOnceRef = useRef(false);
   const hostRef = useRef<HTMLDivElement | null>(null);
@@ -150,7 +150,7 @@ export default function StoreWeddingPayPage() {
           element: host,
           amount: STORE_WEDDING_LIVE_PRICE_HALALAS,
           currency: 'SAR',
-          description: 'halaqmap — دعوة زواج تفاعلية',
+          description: 'halaqmap — افراحي1',
           publishable_api_key: publishableKey,
           callback_url: buildWeddingLiveCallbackUrl(token),
           supported_networks: ['visa', 'mastercard'],
@@ -206,7 +206,7 @@ export default function StoreWeddingPayPage() {
     <div dir="rtl" className="min-h-[100svh] bg-[#061018] text-[#f4efe4]">
       <main className="mx-auto max-w-lg px-4 py-12">
         <p className="text-sm font-bold text-[#e8c547]">halaqmap</p>
-        <h1 className="mt-2 text-2xl font-extrabold">دفع دعوة الزواج التفاعلية</h1>
+        <h1 className="mt-2 text-2xl font-extrabold">دفع افراحي1</h1>
         {!STORE_WEDDING_LIVE_CHECKOUT_ENABLED ? (
           <p className="mt-3 text-sm leading-7 text-white/70">بوابة الدفع غير مفتوحة لهذه الدعوة بعد.</p>
         ) : null}

@@ -51,10 +51,21 @@ export type GrocersHostState = {
   packId: StoreGrocersLivePackId;
 };
 
+export type GrocersChatMsg = {
+  id: string;
+  from: 'buyer' | 'desk';
+  name: string;
+  text: string;
+  at: string;
+  hidden?: boolean;
+};
+
 export type GrocersLabState = {
   host: GrocersHostState;
   shelf: GrocersShelfItem[];
   orders: GrocersOrder[];
+  chatAddon: boolean;
+  chats: GrocersChatMsg[];
 };
 
 function storageKey(token: string): string {
@@ -102,6 +113,8 @@ export function defaultGrocersLabState(): GrocersLabState {
     },
     shelf,
     orders: [],
+    chatAddon: true,
+    chats: [],
   };
 }
 
@@ -120,6 +133,8 @@ export function readGrocersLabState(token: string): GrocersLabState {
       },
       shelf: Array.isArray(parsed.shelf) && parsed.shelf.length ? parsed.shelf : fallback.shelf,
       orders: Array.isArray(parsed.orders) ? parsed.orders : [],
+      chatAddon: parsed.chatAddon !== false,
+      chats: Array.isArray(parsed.chats) ? parsed.chats : [],
     };
   } catch {
     return fallback;
@@ -200,7 +215,7 @@ export function grocersWhatsAppText(order: GrocersOrder, shopName: string): stri
 export function grocersArchiveJson(state: GrocersLabState): string {
   return JSON.stringify(
     {
-      product: 'تموينات الحي',
+      product: 'تمويناتا1',
       brand: 'halaqmap',
       shopName: state.host.shopName,
       orders: state.orders.map((order) => ({

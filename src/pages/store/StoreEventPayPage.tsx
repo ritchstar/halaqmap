@@ -40,7 +40,7 @@ function payErrorAr(raw: unknown): string {
 }
 
 export default function StoreEventPayPage() {
-  useDocumentTitle('دفع الدعوة الحرة التفاعلية — halaqmap');
+  useDocumentTitle('دفع اجواء1 — halaqmap');
   const { token = '' } = useParams<{ token: string }>();
   const activateOnceRef = useRef(false);
   const hostRef = useRef<HTMLDivElement | null>(null);
@@ -150,7 +150,7 @@ export default function StoreEventPayPage() {
           element: host,
           amount: STORE_EVENT_LIVE_PRICE_HALALAS,
           currency: 'SAR',
-          description: 'halaqmap — دعوة حرة تفاعلية',
+          description: 'halaqmap — اجواء1',
           publishable_api_key: publishableKey,
           callback_url: buildEventLiveCallbackUrl(token),
           supported_networks: ['visa', 'mastercard'],
@@ -206,7 +206,7 @@ export default function StoreEventPayPage() {
     <div dir="rtl" className="min-h-[100svh] bg-[#061018] text-[#f4efe4]">
       <main className="mx-auto max-w-lg px-4 py-12">
         <p className="text-sm font-bold text-[#e8c547]">halaqmap</p>
-        <h1 className="mt-2 text-2xl font-extrabold">دفع الدعوة الحرة التفاعلية</h1>
+        <h1 className="mt-2 text-2xl font-extrabold">دفع اجواء1</h1>
         {!STORE_EVENT_LIVE_CHECKOUT_ENABLED ? (
           <p className="mt-3 text-sm leading-7 text-white/70">بوابة الدفع غير مفتوحة لهذه الدعوة بعد.</p>
         ) : null}

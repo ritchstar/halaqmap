@@ -69,7 +69,7 @@ export function StoreWeddingLiveStudio({ token = STORE_WEDDING_LIVE_LAB_TOKEN }:
       </div>
       <div className="mt-5">
         {tab === 'guest' ? <StoreWeddingGuestForm state={state} onChange={commit} /> : null}
-        {tab === 'host' ? <StoreWeddingHostPanel state={state} onChange={commit} /> : null}
+        {tab === 'host' ? <StoreWeddingHostPanel state={state} onChange={commit} hostToken={token} isLab /> : null}
       </div>
     </div>
   );

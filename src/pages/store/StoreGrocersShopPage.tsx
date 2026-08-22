@@ -16,7 +16,7 @@ import {
   writeGrocersLabState,
   type GrocersLabState,
 } from '@/lib/storeGrocersLiveLab';
-import { addGrocersLiveOrder, fetchGrocersLivePublic, saveGrocersLiveHost } from '@/lib/storeGrocersLiveRemote';
+import { addGrocersLiveChat, addGrocersLiveOrder, fetchGrocersLivePublic, saveGrocersLiveHost } from '@/lib/storeGrocersLiveRemote';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 
 type Gate = 'loading' | 'ok' | 'expired' | 'missing';
@@ -37,6 +37,8 @@ function payloadToState(payload: Record<string, unknown>, fallback: GrocersLabSt
     host,
     shelf: Array.isArray(payload.shelf) && payload.shelf.length ? (payload.shelf as GrocersLabState['shelf']) : fallback.shelf,
     orders: Array.isArray(payload.orders) ? (payload.orders as GrocersLabState['orders']) : [],
+    chatAddon: payload.chatAddon === true,
+    chats: Array.isArray(payload.chats) ? (payload.chats as GrocersLabState['chats']) : [],
   };
 }
 
@@ -105,12 +107,23 @@ export default function StoreGrocersShopPage() {
     setState(next);
     if (isLab) return;
     if (desk) {
-      void saveGrocersLiveHost({ token: safeToken, ...next.host, shelf: next.shelf, orders: next.orders });
+      void saveGrocersLiveHost({
+        token: safeToken,
+        ...next.host,
+        shelf: next.shelf,
+        orders: next.orders,
+        chats: next.chats,
+      });
     } else {
       const last = next.orders[0];
       const prevIds = new Set(state.orders.map((item) => item.id));
       if (last && !prevIds.has(last.id)) {
         void addGrocersLiveOrder(safeToken, last as unknown as Record<string, unknown>);
+      }
+      const lastChat = next.chats[0];
+      const prevChat = new Set(state.chats.map((item) => item.id));
+      if (lastChat && lastChat.from === 'buyer' && !prevChat.has(lastChat.id)) {
+        void addGrocersLiveChat(safeToken, lastChat as unknown as Record<string, unknown>);
       }
     }
   };

@@ -48,7 +48,7 @@ export function buildOccasionCardCallbackUrl(token: string): string {
 }
 
 export function occasionCardMoyasarDescription(tier: StorePaidInviteTier): string {
-  return `halaqmap — بطاقة مناسبة — ${OCCASION_CARD_TIER_LABEL_AR[tier]}`;
+  return `halaqmap — كاردي8 — ${OCCASION_CARD_TIER_LABEL_AR[tier]}`;
 }
 
 export function isAllowedMoyasarInvoiceUrl(raw: string): boolean {

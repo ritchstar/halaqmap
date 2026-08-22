@@ -885,7 +885,7 @@ Deno.serve(async (req) => {
 
   if (isGrocersLiveMeta(meta)) {
     const token = String(meta.store_grocers_token ?? meta.storeGrocersToken ?? "").trim();
-    const days = amount === 89900 ? 365 : amount === 59900 ? 180 : 0;
+    const days = amount === 89900 || amount === 139800 ? 365 : amount === 59900 || amount === 89800 ? 180 : 0;
     let activated = false;
     if (successStatus && token && days) {
       const expiresAt = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString();

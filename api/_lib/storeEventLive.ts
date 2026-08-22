@@ -27,7 +27,7 @@ export function newEventToken(): string {
 }
 
 export function eventLiveInvoiceDescription(): string {
-  return 'halaqmap — دعوة حرة تفاعلية';
+  return 'halaqmap — اجواء1';
 }
 
 export function eventLiveInvoiceMetadata(token: string): Record<string, string> {

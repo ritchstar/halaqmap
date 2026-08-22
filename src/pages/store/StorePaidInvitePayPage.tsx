@@ -51,7 +51,7 @@ function tierFromHalalas(amount: number): StorePaidInviteTier | null {
 }
 
 export default function StorePaidInvitePayPage() {
-  useDocumentTitle('دفع بطاقة مناسبة — halaqmap');
+  useDocumentTitle('دفع كاردي8 — halaqmap');
   const { token = '' } = useParams<{ token: string }>();
   const activateOnceRef = useRef(false);
   const hostRef = useRef<HTMLDivElement | null>(null);
@@ -223,7 +223,7 @@ export default function StorePaidInvitePayPage() {
     <div dir="rtl" className="min-h-[100svh] bg-[#061018] text-[#f4efe4]">
       <main className="mx-auto max-w-lg px-4 py-12">
         <p className="text-sm font-bold text-[#e8c547]">halaqmap</p>
-        <h1 className="mt-2 text-2xl font-extrabold">دفع نشر بطاقة المناسبة</h1>
+        <h1 className="mt-2 text-2xl font-extrabold">دفع كاردي8</h1>
         {!STORE_PAID_INVITE_CHECKOUT_ENABLED ? (
           <p className="mt-3 text-sm leading-7 text-white/70">{STORE_PAID_INVITE_COPY.checkoutClosedAr}</p>
         ) : null}

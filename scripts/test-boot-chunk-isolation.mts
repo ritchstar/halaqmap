@@ -139,7 +139,7 @@ assert.doesNotMatch(
 );
 assert.match(
   storeFront,
-  /بطاقة مناسبة مدفوعة/,
+  /كاردي8/,
 );
 assert.match(
   storeFront,

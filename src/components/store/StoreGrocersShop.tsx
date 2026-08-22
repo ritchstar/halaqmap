@@ -12,6 +12,7 @@ import {
   type GrocersOrderLine,
   type GrocersPayMethod,
 } from '@/lib/storeGrocersLiveLab';
+import { StoreGrocersBuyerChat } from '@/components/store/StoreGrocersChat';
 import { cn } from '@/lib/utils';
 
 export function StoreGrocersShop({
@@ -173,6 +174,7 @@ export function StoreGrocersShop({
         </button>
         {sent ? <p className="mt-3 text-sm text-[#8fbf7a]">وصل الطلب للكاشير.</p> : null}
       </form>
+      <StoreGrocersBuyerChat state={state} onChange={onChange} />
     </div>
   );
 }

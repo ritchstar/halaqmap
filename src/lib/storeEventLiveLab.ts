@@ -186,7 +186,7 @@ export function eventLiveArchiveBlob(state: EventLiveLabState): Blob {
     text: item.extra ? `${item.cannedText} ${item.extra}` : item.cannedText,
   }));
   const body = {
-    product: state.host.voice === 'women' ? 'دعوة حرة تفاعلية نسائية' : 'دعوة حرة تفاعلية',
+    product: state.host.voice === 'women' ? 'اجواء1 نسائي' : 'اجواء1',
     brand: 'halaqmap',
     voice: state.host.voice,
     hostName: state.host.hostName,

@@ -27,7 +27,7 @@ export function newWeddingToken(): string {
 }
 
 export function weddingLiveInvoiceDescription(): string {
-  return 'halaqmap — دعوة زواج تفاعلية';
+  return 'halaqmap — افراحي1';
 }
 
 export function weddingLiveInvoiceMetadata(token: string): Record<string, string> {

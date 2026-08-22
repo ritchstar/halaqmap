@@ -31,6 +31,16 @@ import {
   weddingLivePaymentMatches,
   type WeddingLiveOrderPayload,
 } from './_lib/storeWeddingLive.js';
+import {
+  claimGuestSeat,
+  guestInviteStats,
+  guestSeatMatches,
+  markGuestInviteSent,
+  mintGuestInviteBatch,
+  parseGuestInvites,
+  parseGuestSeats,
+  summarizeGuestInvites,
+} from './_lib/storeGuestDeviceLock.js';
 import { sendWeddingLiveLinksEmail } from './_lib/storeWeddingLiveMail.js';
 
 export const config = { maxDuration: 20 };
@@ -136,6 +146,10 @@ export async function POST(request: Request): Promise<Response> {
   if (action === 'activate_paid') return activatePaid(db, body, headers);
   if (action === 'sync_paid') return syncPaid(db, body, headers);
   if (action === 'add_blessing') return addBlessing(db, body, headers);
+  if (action === 'claim_guest_seat') return claimGuestSeatAction(db, body, headers);
+  if (action === 'mint_guest_invite') return mintGuestInviteAction(db, body, headers);
+  if (action === 'list_guest_invites') return listGuestInvitesAction(db, body, headers);
+  if (action === 'mark_guest_invite_sent') return markGuestInviteSentAction(db, body, headers);
   if (action === 'save_host') return saveHost(db, body, headers);
   if (action === 'get_public') {
     return readByRole(db, String(body.token || '').trim(), String(body.role || 'display'), headers);
@@ -372,6 +386,83 @@ async function syncPaid(db: Db, body: Record<string, unknown>, headers: Record<s
   }
 }
 
+async function claimGuestSeatAction(db: Db, body: Record<string, unknown>, headers: Record<string, string>) {
+  const token = String(body.token || '').trim();
+  const deviceHash = String(body.deviceHash || '').trim();
+  if (!token || !deviceHash) return json({ error: 'مقعد الضيف ناقص', blocked: true }, 403, headers);
+  const { data } = await db.from(STORE_WEDDING_LIVE_TABLE).select('id, status, payload').eq('guest_token', token).maybeSingle();
+  if (!data || data.status !== 'live') return json({ error: 'رابط الضيف غير صالح', blocked: true }, 404, headers);
+  const payload = { ...(data.payload as WeddingLiveOrderPayload & { guestSeats?: unknown; guestInvites?: unknown }) };
+  const claimed = claimGuestSeat(parseGuestSeats(payload.guestSeats), parseGuestInvites(payload.guestInvites), {
+    seatId: String(body.seatId || ''),
+    inviteId: String(body.inviteId || ''),
+    deviceHash,
+  });
+  if (!claimed.ok) return json({ ok: false, blocked: true, error: 'الدعوة لا تُقبل إلا من رابط أصدره المشتري' }, 403, headers);
+  payload.guestSeats = claimed.seats;
+  payload.guestInvites = claimed.stamps;
+  await db.from(STORE_WEDDING_LIVE_TABLE).update({ payload, updated_at: new Date().toISOString() }).eq('id', data.id);
+  return json({ ok: true, seatId: claimed.seatId }, 200, headers);
+}
+
+function hostInvitePayload(baseGuestUrl: string, stamps: ReturnType<typeof parseGuestInvites>) {
+  return {
+    ok: true,
+    stats: guestInviteStats(stamps),
+    invites: summarizeGuestInvites(stamps, baseGuestUrl),
+  };
+}
+
+async function loadHostInvites(db: Db, token: string) {
+  const { data } = await db
+    .from(STORE_WEDDING_LIVE_TABLE)
+    .select('id, status, guest_token, payload')
+    .eq('host_token', token)
+    .maybeSingle();
+  if (!data || data.status !== 'live') return null;
+  return data;
+}
+
+async function mintGuestInviteAction(db: Db, body: Record<string, unknown>, headers: Record<string, string>) {
+  const token = String(body.token || '').trim();
+  if (!token) return json({ error: 'رابط المضيف غير صالح' }, 400, headers);
+  const data = await loadHostInvites(db, token);
+  if (!data) return json({ error: 'رابط المضيف غير صالح' }, 404, headers);
+  const payload = { ...(data.payload as WeddingLiveOrderPayload & { guestInvites?: unknown }) };
+  const minted = mintGuestInviteBatch(parseGuestInvites(payload.guestInvites), Number(body.count) || 200);
+  payload.guestInvites = minted.stamps;
+  await db.from(STORE_WEDDING_LIVE_TABLE).update({ payload, updated_at: new Date().toISOString() }).eq('id', data.id);
+  const base = guestUrl(String(data.guest_token));
+  return json({ ...hostInvitePayload(base, minted.stamps), created: minted.created.length }, 200, headers);
+}
+
+async function listGuestInvitesAction(db: Db, body: Record<string, unknown>, headers: Record<string, string>) {
+  const token = String(body.token || '').trim();
+  if (!token) return json({ error: 'رابط المضيف غير صالح' }, 400, headers);
+  const data = await loadHostInvites(db, token);
+  if (!data) return json({ error: 'رابط المضيف غير صالح' }, 404, headers);
+  const stamps = parseGuestInvites((data.payload as { guestInvites?: unknown }).guestInvites);
+  return json(hostInvitePayload(guestUrl(String(data.guest_token)), stamps), 200, headers);
+}
+
+async function markGuestInviteSentAction(db: Db, body: Record<string, unknown>, headers: Record<string, string>) {
+  const token = String(body.token || '').trim();
+  if (!token) return json({ error: 'رابط المضيف غير صالح' }, 400, headers);
+  const data = await loadHostInvites(db, token);
+  if (!data) return json({ error: 'رابط المضيف غير صالح' }, 404, headers);
+  const payload = { ...(data.payload as WeddingLiveOrderPayload & { guestInvites?: unknown }) };
+  const marked = markGuestInviteSent(parseGuestInvites(payload.guestInvites), String(body.inviteId || ''));
+  if (!marked.ok) return json({ error: 'الرابط غير صالح أو مستهلك' }, 404, headers);
+  payload.guestInvites = marked.stamps;
+  await db.from(STORE_WEDDING_LIVE_TABLE).update({ payload, updated_at: new Date().toISOString() }).eq('id', data.id);
+  const base = guestUrl(String(data.guest_token));
+  return json({
+    ...hostInvitePayload(base, marked.stamps),
+    inviteId: marked.stamp.id,
+    guestUrl: `${base}?invite=${encodeURIComponent(marked.stamp.id)}`,
+  }, 200, headers);
+}
+
 async function addBlessing(db: Db, body: Record<string, unknown>, headers: Record<string, string>) {
   const token = String(body.token || '').trim();
   const name = String(body.name || '').replace(/\s+/g, ' ').trim().slice(0, 40);
@@ -380,7 +471,16 @@ async function addBlessing(db: Db, body: Record<string, unknown>, headers: Recor
   if (!token || name.length < 2 || !cannedText) return json({ error: 'التهنئة ناقصة' }, 400, headers);
   const { data } = await db.from(STORE_WEDDING_LIVE_TABLE).select('id, status, payload').eq('guest_token', token).maybeSingle();
   if (!data || data.status !== 'live') return json({ error: 'رابط الضيف غير صالح' }, 404, headers);
-  const payload = { ...(data.payload as WeddingLiveOrderPayload) };
+  const payload = { ...(data.payload as WeddingLiveOrderPayload & { guestSeats?: unknown }) };
+  if (
+    !guestSeatMatches(
+      parseGuestSeats(payload.guestSeats),
+      String(body.seatId || ''),
+      String(body.deviceHash || ''),
+    )
+  ) {
+    return json({ error: 'الدعوة مربوطة بجهاز المدعو', blocked: true }, 403, headers);
+  }
   const blessings = Array.isArray(payload.blessings) ? payload.blessings : [];
   blessings.push({
     id: `${Date.now()}`,

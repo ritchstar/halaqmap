@@ -26,6 +26,8 @@ import {
 } from '@/lib/storeWeddingLiveLab';
 import { addWeddingLiveBlessing, fetchWeddingLivePublic, saveWeddingLiveHost } from '@/lib/storeWeddingLiveRemote';
 import { ROUTE_PATHS } from '@/lib/routePaths';
+import { StoreGuestDeviceBlocked } from '@/components/store/StoreGuestDeviceBlocked';
+import { useGuestDeviceGate } from '@/hooks/useGuestDeviceGate';
 
 type HallMode = 'display' | 'guest' | 'host';
 
@@ -45,7 +47,7 @@ function payloadToState(payload: Record<string, unknown>, fallback: WeddingLiveL
   return { host, blessings: blessings as WeddingLiveLabState['blessings'] };
 }
 
-function useWeddingLabState(token: string, mode: HallMode) {
+function useWeddingLabState(token: string, mode: HallMode, seat?: { seatId: string; deviceHash: string }) {
   const [state, setState] = useState<WeddingLiveLabState>(() => readWeddingLiveLabState(token));
   const isLab = isWeddingLabToken(token);
 
@@ -75,7 +77,7 @@ function useWeddingLabState(token: string, mode: HallMode) {
     }
     if (mode === 'guest') {
       const last = next.blessings[next.blessings.length - 1];
-      if (last) void addWeddingLiveBlessing({ token, ...last });
+      if (last) void addWeddingLiveBlessing({ token, ...last, seatId: seat?.seatId, deviceHash: seat?.deviceHash });
     }
   };
 
@@ -91,7 +93,14 @@ export default function StoreWeddingHallPage() {
       : 'display';
   const { token = '' } = useParams<{ token: string }>();
   const safeToken = token.trim() || 'lab';
-  const { state, commit } = useWeddingLabState(safeToken, mode);
+  const isLab = isWeddingLabToken(safeToken);
+  const gate = useGuestDeviceGate({
+    kind: 'wedding',
+    token: safeToken,
+    enabled: mode === 'guest',
+    isLab,
+  });
+  const { state, commit } = useWeddingLabState(safeToken, mode, gate);
   const voice = state.host.voice === 'women' ? 'women' : 'men';
   const copy = weddingLiveCopy(voice);
   useDocumentTitle(copy.documentTitle);
@@ -99,14 +108,17 @@ export default function StoreWeddingHallPage() {
   if (!STORE_WEDDING_LIVE_PUBLIC_ENABLED) {
     return <Navigate to={ROUTE_PATHS.STORE_LANDING} replace />;
   }
+  if (mode === 'guest' && gate.status === 'blocked') {
+    return <StoreGuestDeviceBlocked productAr={copy.titleAr} />;
+  }
 
   return (
     <StorePurchasedShell>
       <StoreWeddingHallStage state={state} autoWelcome={mode === 'display'} immersive />
-      {mode === 'guest' ? <StoreWeddingGuestForm state={state} onChange={commit} /> : null}
+      {mode === 'guest' && gate.status === 'ok' ? <StoreWeddingGuestForm state={state} onChange={commit} /> : null}
       {mode === 'host' ? (
         <div className="relative z-20 px-3 pb-10 pt-3">
-          <StoreWeddingHostPanel state={state} onChange={commit} />
+          <StoreWeddingHostPanel state={state} onChange={commit} hostToken={safeToken} isLab={isLab} />
         </div>
       ) : null}
     </StorePurchasedShell>

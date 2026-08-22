@@ -53,6 +53,7 @@ export function StoreEventGuestForm({
       }}
     >
       <h2 className="text-base font-extrabold">{copy.guestFormTitleAr}</h2>
+      <p className="mt-2 text-xs leading-6 text-white/50">{copy.guestDeviceLockAr}</p>
       <label className="mt-3 block text-sm">
         {copy.guestNameLabelAr}
         <input
