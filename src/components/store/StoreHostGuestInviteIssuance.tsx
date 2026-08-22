@@ -1,10 +1,11 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
- * لوحة HTML لإصدار حتى 200 رابط مدعو وإرسالها من واتساب جهاز المشتري.
+ * لوحة HTML لإصدار روابط مدعوين بلا سقف إجمالي، وإرسالها من واتساب جهاز المشتري.
  */
 import { useEffect, useMemo, useState } from 'react';
 import {
+  GUEST_INVITE_BATCH_SIZE,
   guestInviteStats,
   markLocalGuestInviteSent,
   mintLocalGuestInviteBatch,
@@ -32,7 +33,7 @@ type InviteStats = {
   cap: number;
 };
 
-const EMPTY_STATS: InviteStats = { remaining: 0, sent: 0, opened: 0, total: 0, cap: 200 };
+const EMPTY_STATS: InviteStats = { remaining: 0, sent: 0, opened: 0, total: 0, cap: 0 };
 
 function whatsappHref(url: string): string {
   return `https://wa.me/?text=${encodeURIComponent(`دعوتكم الخاصة:\n${url}`)}`;
@@ -61,7 +62,7 @@ function asStats(raw: unknown): InviteStats {
     sent: Number(row.sent) || 0,
     opened: Number(row.opened) || 0,
     total: Number(row.total) || 0,
-    cap: Number(row.cap) || 200,
+    cap: Number(row.cap) || 0,
   };
 }
 
@@ -124,13 +125,13 @@ export function StoreHostGuestInviteIssuance({
     setBusy(true);
     setError('');
     if (isLab) {
-      mintLocalGuestInviteBatch(kind, hostToken, 200);
+      mintLocalGuestInviteBatch(kind, hostToken, GUEST_INVITE_BATCH_SIZE);
       applyLocal();
       setBusy(false);
       return;
     }
     const mint = kind === 'wedding' ? mintWeddingGuestInvite : mintEventGuestInvite;
-    const result = await mint(hostToken, 200);
+    const result = await mint(hostToken, GUEST_INVITE_BATCH_SIZE);
     applyRemote(result);
     setBusy(false);
   }
@@ -168,11 +169,11 @@ export function StoreHostGuestInviteIssuance({
           <p className="mt-1 text-[11px] leading-5 text-white/60">فُتح على جهاز</p>
         </div>
       </div>
-      <p className="mt-2 text-xs leading-6 text-white/45">السعة {stats.cap} رابط خاص. الإرسال من واتساب جهازكم، بلا حفظ أرقام الضيوف.</p>
+      <p className="mt-2 text-sm leading-6 text-white/55">توليد الروابط بلا سقف. الإرسال من واتساب جهازكم، بلا حفظ أرقام الضيوف.</p>
       <div className="mt-3 flex flex-wrap gap-2">
         <button
           type="button"
-          disabled={busy || stats.total >= stats.cap}
+          disabled={busy}
           onClick={() => void prepare()}
           className="rounded-full bg-[#d4a574] px-4 py-2 text-sm font-bold text-[#061018] disabled:opacity-50"
         >

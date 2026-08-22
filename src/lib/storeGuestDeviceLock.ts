@@ -30,8 +30,8 @@ export type GuestInviteRow = {
 };
 
 const DEVICE_KEY = 'hm-guest-device-id';
-const MAX_SEATS = 400;
-export const MAX_GUEST_INVITES = 200;
+export const GUEST_INVITE_BATCH_SIZE = 200;
+export const MAX_GUEST_INVITES = GUEST_INVITE_BATCH_SIZE;
 export const GUEST_INVITE_TTL_MS = 90 * 24 * 60 * 60 * 1000;
 
 export function readOrCreateGuestDeviceId(): string {
@@ -65,14 +65,14 @@ export function readLocalGuestSeats(kind: GuestLockKind, token: string): GuestDe
     const raw = window.localStorage.getItem(seatsKey(kind, token));
     if (!raw) return [];
     const parsed = JSON.parse(raw) as GuestDeviceSeat[];
-    return Array.isArray(parsed) ? parsed.slice(0, MAX_SEATS) : [];
+    return Array.isArray(parsed) ? parsed : [];
   } catch {
     return [];
   }
 }
 
 function writeLocalGuestSeats(kind: GuestLockKind, token: string, seats: GuestDeviceSeat[]): void {
-  window.localStorage.setItem(seatsKey(kind, token), JSON.stringify(seats.slice(-MAX_SEATS)));
+  window.localStorage.setItem(seatsKey(kind, token), JSON.stringify(seats));
 }
 
 export function readLocalGuestInvites(kind: GuestLockKind, token: string): GuestInviteStamp[] {
@@ -81,14 +81,14 @@ export function readLocalGuestInvites(kind: GuestLockKind, token: string): Guest
     const raw = window.localStorage.getItem(invitesKey(kind, token));
     if (!raw) return [];
     const parsed = JSON.parse(raw) as GuestInviteStamp[];
-    return Array.isArray(parsed) ? parsed.slice(-MAX_GUEST_INVITES) : [];
+    return Array.isArray(parsed) ? parsed : [];
   } catch {
     return [];
   }
 }
 
 function writeLocalGuestInvites(kind: GuestLockKind, token: string, stamps: GuestInviteStamp[]): void {
-  window.localStorage.setItem(invitesKey(kind, token), JSON.stringify(stamps.slice(-MAX_GUEST_INVITES)));
+  window.localStorage.setItem(invitesKey(kind, token), JSON.stringify(stamps));
 }
 
 export function readOwnGuestSeatId(kind: GuestLockKind, token: string): string {
@@ -102,13 +102,11 @@ export function writeOwnGuestSeatId(kind: GuestLockKind, token: string, seatId: 
 
 export function mintGuestInviteBatch(
   stamps: GuestInviteStamp[],
-  count = MAX_GUEST_INVITES,
+  count = GUEST_INVITE_BATCH_SIZE,
   now = Date.now(),
 ): { created: GuestInviteStamp[]; stamps: GuestInviteStamp[] } {
-  const wanted = Math.max(1, Math.min(MAX_GUEST_INVITES, Math.floor(Number(count) || 0)));
-  const kept = stamps.filter((item) => item.usedBy || item.sentAt || item.exp > now).slice(-MAX_GUEST_INVITES);
-  const room = MAX_GUEST_INVITES - kept.length;
-  const add = Math.min(wanted, room);
+  const add = Math.max(1, Math.min(GUEST_INVITE_BATCH_SIZE, Math.floor(Number(count) || 0)));
+  const kept = stamps.filter((item) => item.usedBy || item.sentAt || item.exp > now);
   let nextN = kept.reduce((max, item) => Math.max(max, item.n || 0), 0);
   const created: GuestInviteStamp[] = [];
   for (let i = 0; i < add; i += 1) {
@@ -133,7 +131,7 @@ export function mintGuestInvite(
   return { stamp, stamps: batch.stamps };
 }
 
-export function mintLocalGuestInviteBatch(kind: GuestLockKind, token: string, count = MAX_GUEST_INVITES) {
+export function mintLocalGuestInviteBatch(kind: GuestLockKind, token: string, count = GUEST_INVITE_BATCH_SIZE) {
   const minted = mintGuestInviteBatch(readLocalGuestInvites(kind, token), count);
   writeLocalGuestInvites(kind, token, minted.stamps);
   return minted;
@@ -158,7 +156,7 @@ export function guestInviteStats(stamps: GuestInviteStamp[], now = Date.now()) {
     sent: live.filter((item) => Boolean(item.sentAt) || Boolean(item.usedBy)).length,
     opened: live.filter((item) => Boolean(item.usedBy)).length,
     remaining: ready,
-    cap: MAX_GUEST_INVITES,
+    cap: 0,
   };
 }
 
@@ -202,7 +200,7 @@ export function claimGuestSeat(
   return {
     ok: true,
     seatId: nextSeat.id,
-    seats: [...seats, nextSeat].slice(-MAX_SEATS),
+    seats: [...seats, nextSeat],
     stamps: stamps.map((item) => (
       item.id === stamp.id
         ? { ...item, usedBy: deviceHash, sentAt: item.sentAt || new Date(now).toISOString() }

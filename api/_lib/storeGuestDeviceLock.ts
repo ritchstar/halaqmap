@@ -25,8 +25,8 @@ export type GuestInviteRow = {
   guestUrl: string;
 };
 
-const MAX_SEATS = 400;
-export const MAX_GUEST_INVITES = 200;
+export const GUEST_INVITE_BATCH_SIZE = 200;
+export const MAX_GUEST_INVITES = GUEST_INVITE_BATCH_SIZE;
 export const GUEST_INVITE_TTL_MS = 90 * 24 * 60 * 60 * 1000;
 
 function newInviteId(now: number): string {
@@ -44,8 +44,7 @@ export function parseGuestSeats(raw: unknown): GuestDeviceSeat[] {
         at: String(row.at || ''),
       };
     })
-    .filter((item) => item.id && item.deviceHash)
-    .slice(-MAX_SEATS);
+    .filter((item) => item.id && item.deviceHash);
 }
 
 export function parseGuestInvites(raw: unknown): GuestInviteStamp[] {
@@ -63,19 +62,16 @@ export function parseGuestInvites(raw: unknown): GuestInviteStamp[] {
         ...(sentAt ? { sentAt } : {}),
       };
     })
-    .filter((item) => item.id && item.exp > 0)
-    .slice(-MAX_GUEST_INVITES);
+    .filter((item) => item.id && item.exp > 0);
 }
 
 export function mintGuestInviteBatch(
   stamps: GuestInviteStamp[],
-  count = MAX_GUEST_INVITES,
+  count = GUEST_INVITE_BATCH_SIZE,
   now = Date.now(),
 ): { created: GuestInviteStamp[]; stamps: GuestInviteStamp[] } {
-  const wanted = Math.max(1, Math.min(MAX_GUEST_INVITES, Math.floor(Number(count) || 0)));
-  const kept = stamps.filter((item) => item.usedBy || item.sentAt || item.exp > now).slice(-MAX_GUEST_INVITES);
-  const room = MAX_GUEST_INVITES - kept.length;
-  const add = Math.min(wanted, room);
+  const add = Math.max(1, Math.min(GUEST_INVITE_BATCH_SIZE, Math.floor(Number(count) || 0)));
+  const kept = stamps.filter((item) => item.usedBy || item.sentAt || item.exp > now);
   let nextN = kept.reduce((max, item) => Math.max(max, item.n || 0), 0);
   const created: GuestInviteStamp[] = [];
   for (let i = 0; i < add; i += 1) {
@@ -130,7 +126,7 @@ export function guestInviteStats(stamps: GuestInviteStamp[], now = Date.now()) {
     sent,
     opened,
     remaining: ready,
-    cap: MAX_GUEST_INVITES,
+    cap: 0,
   };
 }
 
@@ -179,7 +175,7 @@ export function claimGuestSeat(
   return {
     ok: true,
     seatId: nextSeat.id,
-    seats: [...seats, nextSeat].slice(-MAX_SEATS),
+    seats: [...seats, nextSeat],
     stamps: nextStamps,
   };
 }
