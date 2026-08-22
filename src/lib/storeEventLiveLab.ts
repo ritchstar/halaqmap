@@ -11,8 +11,10 @@ import {
   STORE_EVENT_LIVE_HOST_ROLES,
   STORE_EVENT_LIVE_LAB_TOKEN_WOMEN,
   STORE_EVENT_LIVE_STYLES,
+  STORE_EVENT_VENUE_KINDS,
   type StoreEventLiveHostRole,
   type StoreEventLiveVoice,
+  type StoreEventVenueKind,
 } from '@/config/storeEventLive';
 import {
   compressImageFile,
@@ -46,6 +48,7 @@ export type EventLiveHostState = {
   occasionTitle: string;
   eventDate: string;
   eventTime: string;
+  venueKind: StoreEventVenueKind;
   venueName: string;
   venueMapsUrl: string;
   welcomeAr: string;
@@ -88,6 +91,25 @@ export function eventLiveDefaultStyle(voice: StoreEventLiveVoice): EventLiveStyl
   return voice === 'women' ? 'rosegold' : 'gold';
 }
 
+export function normalizeEventVenueKind(raw: unknown): StoreEventVenueKind {
+  const value = String(raw || '').trim();
+  if (value === 'resthouse' || value === 'hotel' || value === 'other') return value;
+  return 'hall';
+}
+
+export function eventVenueKindLabel(kind: StoreEventVenueKind): string {
+  return STORE_EVENT_VENUE_KINDS.find((item) => item.id === kind)?.labelAr || 'قاعة';
+}
+
+export function eventPlaceLine(host: Pick<EventLiveHostState, 'venueKind' | 'venueName'>): string {
+  const kind = normalizeEventVenueKind(host.venueKind);
+  const name = host.venueName.trim();
+  if (!name) return kind === 'other' ? '' : eventVenueKindLabel(kind);
+  if (kind === 'other') return name;
+  const label = eventVenueKindLabel(kind);
+  return name.startsWith(label) ? name : `${label} ${name}`;
+}
+
 export function eventHostInviteLine(
   host: Pick<EventLiveHostState, 'hostName' | 'hostRole'> & { voice?: StoreEventLiveVoice },
 ): string {
@@ -109,6 +131,7 @@ export function defaultEventLiveLabState(voice: StoreEventLiveVoice = 'men'): Ev
       occasionTitle: demo.occasionTitle,
       eventDate: demo.eventDate,
       eventTime: demo.eventTime,
+      venueKind: demo.venueKind,
       venueName: demo.venueName,
       venueMapsUrl: demo.venueMapsUrl,
       welcomeAr: demo.welcomeAr,
@@ -150,6 +173,7 @@ export function readEventLiveLabState(token: string): EventLiveLabState {
         ...(parsedHost || {}),
         voice: nextVoice,
         hostRole: normalizeEventHostRole(parsedHost?.hostRole, nextVoice),
+        venueKind: normalizeEventVenueKind(parsedHost?.venueKind),
         cardStyleId: parsedHost?.cardStyleId || eventLiveDefaultStyle(nextVoice),
       },
       blessings: Array.isArray(parsed.blessings) ? parsed.blessings : fallback.blessings,
@@ -194,6 +218,7 @@ export function eventLiveArchiveBlob(state: EventLiveLabState): Blob {
     occasionTitle: state.host.occasionTitle,
     eventDate: state.host.eventDate,
     eventTime: state.host.eventTime,
+    venueKind: state.host.venueKind,
     venueName: state.host.venueName,
     welcomeAr: state.host.welcomeAr,
     announcement: state.host.announcement,

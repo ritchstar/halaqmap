@@ -17,6 +17,8 @@ import {
 } from '@/config/storeWeddingLive';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import {
+  normalizeOffspringKind,
+  normalizeVenueKind,
   normalizeWeddingHostRole,
   normalizeWeddingVoice,
   readWeddingLiveLabState,
@@ -42,6 +44,9 @@ function payloadToState(payload: Record<string, unknown>, fallback: WeddingLiveL
     ...(payload as Partial<WeddingLiveHostState>),
     voice,
     hostRole: normalizeWeddingHostRole((payload as Partial<WeddingLiveHostState>).hostRole, voice),
+    offspringKind: normalizeOffspringKind((payload as Partial<WeddingLiveHostState>).offspringKind),
+    venueKind: normalizeVenueKind((payload as Partial<WeddingLiveHostState>).venueKind),
+    eventDateEn: String((payload as Partial<WeddingLiveHostState>).eventDateEn ?? fallback.host.eventDateEn),
   };
   const blessings = Array.isArray(payload.blessings) ? payload.blessings : fallback.blessings;
   return { host, blessings: blessings as WeddingLiveLabState['blessings'] };

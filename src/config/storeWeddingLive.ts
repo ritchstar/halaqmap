@@ -32,32 +32,41 @@ export const STORE_WEDDING_LIVE = {
   kickerAr: 'قاعة حفلك على الشاشة — حيّة من أول تجربة',
   titleAr: 'افراحي1',
   leadAr:
-    'كرت فخم بأسماء العريس والعروس، يفتح إلى قاعة تتفاعل مع تهاني الضيوف والصورة والفيديو والتنويه. جرّب كل شيء هنا قبل أن تطلبها.',
+    'كرت دعوة زفاف حيّ: يسرنا دعوتكم إلى حفل زفاف ابننا أو ابنتنا، مع التاريخ بالعربية والإنجليزية، ومكان العشاء، ورابط الموقع. يفتح إلى قاعة الشاشة للتهاني والصورة والفيديو والتنويه.',
   priceLineAr: 'السعر الافتتاحي 899 ر.س',
   bannerTitleAr: 'افراحي1',
-  bannerLeadAr: 'شاشة القاعة، تهاني الضيوف، يوتيوب أو بانوراما، ولوحة تحكم كاملة. السعر الافتتاحي 899 ر.س.',
+  bannerLeadAr: 'دعوة زفاف حيّة على الشاشة: تهاني الضيوف، يوتيوب أو بانوراما، ولوحة تحكم. السعر الافتتاحي 899 ر.س.',
   bannerCtaAr: 'جرّب الدعوة الآن',
   labKickerAr: 'معاينة حيّة داخل الصفحة',
   labTitleAr: 'عش التجربة كما سيعيشها ضيوفك',
   labLeadAr: 'شغّل يوتيوب، ارفع صورة، اكتب تنويهاً، وأرسل تهنئة. كل ذلك أمامك الآن.',
-  hallStampAr: 'halaqmap · خريطة الحل',
+  hallStampAr: 'خريطة الحل - halaqmap',
   guestFormTitleAr: 'أرسل تهنئة تظهر على الشاشة',
   guestNameLabelAr: 'اسمك',
   guestExtraLabelAr: 'سطر إضافي من قلبك',
   guestSubmitAr: 'أظهر تهنئتي على القاعة',
   guestOnlyHintAr: 'هكذا يرى المدعو الدعوة على جواله.',
-  guestDeviceLockAr:
-    'رابطكم صدر من لوحة المشتري ويُربط بهذا الجهاز فقط. إعادة إرساله من مدعو تُحظر. حماية الخصوصية الصارمة للمناسبات العائلية هي منطلق هذا النموذج.',
+  guestDeviceLockAr: 'رابطكم صدر من لوحة المشتري ويُربط بهذا الجهاز فقط. إعادة إرساله من مدعو تُحظر.',
   hostInviteTitleAr: 'لوحة إرسال روابط المدعوين',
-  hostInviteLeadAr:
-    'جهّزوا حتى 200 رابط خاص من هذه اللوحة. كل رابط لمدعو واحد. أرسلوا من واتساب جهازكم؛ العداد ينقص مع كل إرسال. لا نحفظ أرقام الضيوف ولا نرسل نيابة عنكم. إعادة إرسال رابط المدعو بعد دخوله تُحظر.',
+  hostInviteLeadAr: 'جهّزوا حتى 200 رابط خاص من هذه اللوحة. كل رابط لمدعو واحد. أرسلوا من واتساب جهازكم.',
   hostInviteCtaAr: 'جهّز حتى 200 رابط',
   hostPanelTitleAr: 'لوحة تحكم الحفل',
   hostAnnouncementLabelAr: 'تنويه على الشاشة',
   hostYoutubeLabelAr: 'رابط يوتيوب',
   hostYoutubeHideAr: 'حجب الفيديو وإظهار البانوراما',
   hostYoutubeShowAr: 'إعادة عرض يوتيوب',
-  hostWelcomeLabelAr: 'سطر إضافي على الكرت',
+  hostWelcomeLabelAr: 'سطر إضافي على الكرت إن رغبت',
+  invitationPreviewAr: 'نص الدعوة على الكرت',
+  offspringKindLabelAr: 'الدعوة لزواج',
+  offspringSonAr: 'ابننا',
+  offspringDaughterAr: 'ابنتنا',
+  offspringNameSonAr: 'اسم ابنكم',
+  offspringNameDaughterAr: 'اسم ابنتكم',
+  spouseNameSonAr: 'على فلانة أو كريمة',
+  spouseNameDaughterAr: 'على فلان',
+  eventDateEnLabelAr: 'التاريخ بالإنجليزية',
+  venueKindLabelAr: 'نوع المكان',
+  venueMapsHintAr: 'انسخ رابط الموقع',
   hostWelcomeSetsTitleAr: 'عبارات الترحيب على الشاشة',
   hostWelcomeSetsLeadAr: 'ثلاث عبارات في كل استدعاء. إذا استُخدمت الثلاث تظهر ثلاث جديدة.',
   hostWelcomeNextAr: 'ثلاث عبارات جديدة',
@@ -67,12 +76,12 @@ export const STORE_WEDDING_LIVE = {
   hostUploadPanoramaAr: 'رفع صورة بانورامية',
   hostRoleLabelAr: 'صفة الداعي',
   hostNameLabelAr: 'اسم الداعي',
-  groomNameLabelAr: 'اسم العريس',
-  brideNameLabelAr: 'اسم العروس أو كريمة فلان',
-  eventDateLabelAr: 'تاريخ الحفل',
+  groomNameLabelAr: 'اسم ابنكم',
+  brideNameLabelAr: 'على فلانة أو كريمة',
+  eventDateLabelAr: 'التاريخ بالعربية',
   eventTimeLabelAr: 'وقت الاستقبال',
-  venueNameLabelAr: 'اسم القاعة أو الفندق',
-  venueMapsLabelAr: 'رابط خرائط جوجل',
+  venueNameLabelAr: 'اسم المكان',
+  venueMapsLabelAr: 'رابط موقع الحفل',
   downloadGoldAr: 'تحميل الكرت الذهبي',
   downloadIvoryAr: 'تحميل الكرت العاجي',
   archiveCtaAr: 'حفظ أرشيف الصفحة',
@@ -90,7 +99,7 @@ export const STORE_WEDDING_LIVE = {
   termsFoldTitleAr: 'شروط الخدمة قبل الطلب',
   termsFoldTriggerAr: 'اقرأ شروط الخدمة',
   termsFoldBodyAr:
-    'قاعة حفل حيّة لضيوفك: تهاني، صور أو يوتيوب، وكرت بأسماء العريس والعروس. السعر 899 ر.س، والدفع عبر ميسر على www.halaqmap.com. روابط المدعوين تصدر من لوحة المشتري فقط؛ كل رابط لمدعو واحد وجهاز واحد، وإعادة إرساله من مدعو تُحظر. حماية الخصوصية الصارمة للمناسبات العائلية هي منطلق النموذج، وليست دفتر حضور. التفاصيل في شروط الخدمة.',
+    'دعوة زفاف حيّة لضيوفك: تهاني، صور أو يوتيوب، وكرت بأسماء العريس والعروس. السعر 899 ر.س، والدفع عبر ميسر على www.halaqmap.com. روابط المدعوين تصدر من لوحة المشتري فقط؛ كل رابط لمدعو واحد وجهاز واحد، وإعادة إرساله من مدعو تُحظر. حماية الخصوصية الصارمة للمناسبات العائلية هي منطلق النموذج، وليست دفتر حضور. التفاصيل في شروط الخدمة.',
 } as const;
 
 export const STORE_WEDDING_LIVE_HOST_ROLES = [
@@ -113,7 +122,7 @@ export const STORE_WEDDING_LIVE_WOMEN = {
   kickerAr: 'قاعة حفلكن على الشاشة — حيّة من أول تجربة',
   titleAr: 'افراحي1 نسائي',
   leadAr:
-    'كرت فاخر بطابع نسائي، تدعو منه والدة العريس أو والدة العروس. يفتح إلى قاعة تتفاعل مع تهاني الضيفات والصورة والفيديو والتنويه.',
+    'كرت دعوة زفاف نسائي حيّ: يسرنا دعوتكن إلى حفل زفاف ابننا أو ابنتنا، مع التاريخ بالعربية والإنجليزية، ومكان العشاء، ورابط الموقع. يفتح إلى قاعة الشاشة للتهاني والصورة والفيديو والتنويه.',
   labKickerAr: 'معاينة حيّة بثوب نسائي',
   labTitleAr: 'عشْن التجربة كما ستعيشها ضيفاتكن',
   labLeadAr: 'شغّلن يوتيوب، ارفعن صورة، اكتبن تنويهاً، وأرسلن تهنئة. كل ذلك أمامكن الآن.',
@@ -196,17 +205,30 @@ export function weddingLiveStyles(voice: StoreWeddingLiveVoice) {
   return STORE_WEDDING_LIVE_STYLES.filter((item) => item.voice === voice);
 }
 
+export const STORE_WEDDING_VENUE_KINDS = [
+  { id: 'hall', labelAr: 'قاعة' },
+  { id: 'resthouse', labelAr: 'استراحة' },
+  { id: 'hotel', labelAr: 'فندق' },
+  { id: 'other', labelAr: 'مكان آخر' },
+] as const;
+
+export type StoreWeddingVenueKind = (typeof STORE_WEDDING_VENUE_KINDS)[number]['id'];
+export type StoreWeddingOffspringKind = 'son' | 'daughter';
+
 export const STORE_WEDDING_LIVE_DEMO = {
   voice: 'men' as StoreWeddingLiveVoice,
   hostRole: 'groom_father' as StoreWeddingLiveHostRole,
   hostName: 'أحمد',
+  offspringKind: 'son' as StoreWeddingOffspringKind,
   groomName: 'عبدالله',
   brideName: 'فهدة',
-  eventDate: 'الخميس 24 سبتمبر 2026',
+  eventDate: '٢٤ سبتمبر ٢٠٢٦',
+  eventDateEn: '24 September 2026',
   eventTime: 'استقبال الضيوف من الساعة 8 مساءً',
+  venueKind: 'hall' as StoreWeddingVenueKind,
   venueName: 'قاعة النخيل، الرياض',
   venueMapsUrl: 'https://maps.google.com/?q=%D9%82%D8%A7%D8%B9%D8%A9+%D8%A7%D9%84%D9%86%D8%AE%D9%8A%D9%84+%D8%A7%D9%84%D8%B1%D9%8A%D8%A7%D8%B6',
-  welcomeAr: 'يسعدنا دعوتكم لمشاركتنا عقد القران، ومباركتكم تُزهر على شاشة القاعة أمام الجميع.',
+  welcomeAr: '',
   youtubeUrl: 'https://www.youtube.com/watch?v=F-DNzLPph-k&list=RDF-DNzLPph-k&start_radio=1',
   youtubeHidden: false,
   announcement: '',
@@ -219,6 +241,6 @@ export const STORE_WEDDING_LIVE_DEMO_WOMEN = {
   voice: 'women' as StoreWeddingLiveVoice,
   hostRole: 'groom_mother' as StoreWeddingLiveHostRole,
   hostName: 'نورة',
-  welcomeAr: 'يسعدنا دعوتكن لمشاركتنا عقد القران، ومباركتكن تُزهر على شاشة القاعة أمام الجميع.',
+  welcomeAr: '',
   photoSrc: '/images/store/lab/lab-luxury-rosegold.png',
 } as const;

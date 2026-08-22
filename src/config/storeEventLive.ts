@@ -32,19 +32,17 @@ export const STORE_EVENT_LIVE = {
   kickerAr: 'قاعة مناسبتك على الشاشة — حيّة من أول تجربة',
   titleAr: 'اجواء1',
   leadAr:
-    'كرت فخم لمناسبة تختار اسمها بنفسك: أمسية، تخرج، تكريم أو أي حفل خاص. يفتح إلى قاعة تتفاعل مع تهاني الضيوف والصورة والفيديو والتنويه.',
+    'كرت دعوة لمناسبة تسميها بنفسك، يفتح إلى قاعة الشاشة: تهاني الضيوف، الصورة، الفيديو في الوسط، والتنويه.',
   priceLineAr: 'السعر الافتتاحي 899 ر.س',
-  hallStampAr: 'halaqmap · خريطة الحل',
+  hallStampAr: 'خريطة الحل - halaqmap',
   guestFormTitleAr: 'أرسل تهنئة تظهر على الشاشة',
   guestNameLabelAr: 'اسمك',
   guestExtraLabelAr: 'سطر إضافي من قلبك',
   guestSubmitAr: 'أظهر تهنئتي على القاعة',
   guestOnlyHintAr: 'هكذا يرى المدعو الدعوة على جواله.',
-  guestDeviceLockAr:
-    'رابطكم صدر من لوحة المشتري ويُربط بهذا الجهاز فقط. إعادة إرساله من مدعو تُحظر. حماية الخصوصية الصارمة للمناسبات الخاصة هي منطلق هذا النموذج.',
+  guestDeviceLockAr: 'رابطكم صدر من لوحة المشتري ويُربط بهذا الجهاز فقط. إعادة إرساله من مدعو تُحظر.',
   hostInviteTitleAr: 'لوحة إرسال روابط المدعوين',
-  hostInviteLeadAr:
-    'جهّزوا حتى 200 رابط خاص من هذه اللوحة. كل رابط لمدعو واحد. أرسلوا من واتساب جهازكم؛ العداد ينقص مع كل إرسال. لا نحفظ أرقام الضيوف ولا نرسل نيابة عنكم. إعادة إرسال رابط المدعو بعد دخوله تُحظر.',
+  hostInviteLeadAr: 'جهّزوا حتى 200 رابط خاص من هذه اللوحة. كل رابط لمدعو واحد. أرسلوا من واتساب جهازكم.',
   hostInviteCtaAr: 'جهّز حتى 200 رابط',
   hostPanelTitleAr: 'لوحة تحكم الحفل',
   hostAnnouncementLabelAr: 'تنويه على الشاشة',
@@ -60,8 +58,10 @@ export const STORE_EVENT_LIVE = {
   occasionLabelAr: 'اسم المناسبة',
   eventDateLabelAr: 'تاريخ الحفل',
   eventTimeLabelAr: 'وقت الاستقبال',
-  venueNameLabelAr: 'اسم القاعة أو المكان',
-  venueMapsLabelAr: 'رابط خرائط جوجل',
+  venueKindLabelAr: 'نوع المكان',
+  venueNameLabelAr: 'اسم المكان',
+  venueMapsLabelAr: 'رابط موقع الحفل',
+  venueMapsHintAr: 'انسخ رابط الموقع',
   downloadGoldAr: 'تحميل الكرت الذهبي',
   downloadIvoryAr: 'تحميل الكرت العاجي',
   archiveCtaAr: 'حفظ أرشيف الصفحة',
@@ -82,7 +82,7 @@ export const STORE_EVENT_LIVE = {
   hubKickerAr: 'صنّف الدعوة من البداية',
   hubTitleAr: 'اجواء1',
   hubLeadAr:
-    'نفس قاعة الحفل الحيّة، لمناسبة تختارها أنت. اختر الشق الرجالي أو النسائي أولاً؛ الستايل يسري على الكرت والقاعة ولوحة التحكم.',
+    'قاعة مناسبة حيّة تسميها أنت. اختر الشق الرجالي أو النسائي أولاً؛ الستايل يسري على الكرت والقاعة ولوحة التحكم.',
   hubMenTitleAr: 'دعوة رجالية',
   hubMenLeadAr: 'لحفل خاص ينشئه الداعي: أمسية، تخرج، تكريم أو أي مناسبة يسميها بنفسه.',
   hubMenCtaAr: 'افتح الشق الرجالي',
@@ -99,7 +99,7 @@ export const STORE_EVENT_LIVE_WOMEN = {
   kickerAr: 'قاعة مناسبتكن على الشاشة — حيّة من أول تجربة',
   titleAr: 'اجواء1 نسائي',
   leadAr:
-    'كرت فاخر بطابع نسائي لمناسبة تختار اسمها الداعية. يفتح إلى قاعة تتفاعل مع تهاني الضيفات والصورة والفيديو والتنويه.',
+    'كرت دعوة نسائي لمناسبة تسميها الداعية، يفتح إلى قاعة الشاشة: تهاني الضيفات، الصورة، الفيديو في الوسط، والتنويه.',
   hostRoleLabelAr: 'صفة الداعية',
   hostNameLabelAr: 'اسم الداعية',
   guestFormTitleAr: 'أرسلي تهنئة تظهر على الشاشة',
@@ -204,6 +204,15 @@ export function eventLiveStyles(voice: StoreEventLiveVoice) {
   return STORE_EVENT_LIVE_STYLES.filter((item) => item.voice === voice);
 }
 
+export const STORE_EVENT_VENUE_KINDS = [
+  { id: 'hall', labelAr: 'قاعة' },
+  { id: 'resthouse', labelAr: 'استراحة' },
+  { id: 'hotel', labelAr: 'فندق' },
+  { id: 'other', labelAr: 'مكان آخر' },
+] as const;
+
+export type StoreEventVenueKind = (typeof STORE_EVENT_VENUE_KINDS)[number]['id'];
+
 export const STORE_EVENT_LIVE_DEMO = {
   voice: 'men' as StoreEventLiveVoice,
   hostRole: 'self' as StoreEventLiveHostRole,
@@ -211,6 +220,7 @@ export const STORE_EVENT_LIVE_DEMO = {
   occasionTitle: 'أمسية خاصة',
   eventDate: 'الخميس 24 سبتمبر 2026',
   eventTime: 'استقبال الضيوف من الساعة 8 مساءً',
+  venueKind: 'hall' as StoreEventVenueKind,
   venueName: 'قاعة النخيل، الرياض',
   venueMapsUrl: 'https://maps.google.com/?q=%D9%82%D8%A7%D8%B9%D8%A9+%D8%A7%D9%84%D9%86%D8%AE%D9%8A%D9%84+%D8%A7%D9%84%D8%B1%D9%8A%D8%A7%D8%B6',
   welcomeAr: 'يسعدنا دعوتكم لمشاركتنا هذه الأمسية، ومباركتكم تُزهر على الشاشة أمام الجميع.',

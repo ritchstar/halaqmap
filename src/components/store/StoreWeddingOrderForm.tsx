@@ -9,6 +9,7 @@ import {
   STORE_WEDDING_LIVE_DEMO,
   STORE_WEDDING_LIVE_DEMO_WOMEN,
   STORE_WEDDING_LIVE_PRICE_SAR,
+  STORE_WEDDING_VENUE_KINDS,
   weddingLiveCopy,
   weddingLiveFillClass,
   weddingLiveHostRoles,
@@ -16,7 +17,14 @@ import {
 } from '@/config/storeWeddingLive';
 import { createWeddingLivePending } from '@/lib/storeWeddingLiveRemote';
 import { weddingLivePayHref } from '@/lib/storeHostRedirect';
-import { normalizeWeddingHostRole, type WeddingLiveHostRole } from '@/lib/storeWeddingLiveLab';
+import {
+  normalizeOffspringKind,
+  normalizeVenueKind,
+  normalizeWeddingHostRole,
+  type WeddingLiveHostRole,
+  type WeddingOffspringKind,
+  type WeddingVenueKind,
+} from '@/lib/storeWeddingLiveLab';
 import { cn } from '@/lib/utils';
 
 export function StoreWeddingOrderForm({ voice = 'men' }: { voice?: StoreWeddingLiveVoice }) {
@@ -26,13 +34,16 @@ export function StoreWeddingOrderForm({ voice = 'men' }: { voice?: StoreWeddingL
   const [email, setEmail] = useState('');
   const [hostName, setHostName] = useState(demo.hostName);
   const [hostRole, setHostRole] = useState<WeddingLiveHostRole>(demo.hostRole);
-  const [groomName, setGroomName] = useState(demo.groomName);
-  const [brideName, setBrideName] = useState(demo.brideName);
-  const [eventDate, setEventDate] = useState(demo.eventDate);
-  const [eventTime, setEventTime] = useState(demo.eventTime);
-  const [venueName, setVenueName] = useState(demo.venueName);
-  const [venueMapsUrl, setVenueMapsUrl] = useState(demo.venueMapsUrl);
-  const [welcomeAr, setWelcomeAr] = useState(demo.welcomeAr);
+  const [offspringKind, setOffspringKind] = useState<WeddingOffspringKind>(demo.offspringKind);
+  const [groomName, setGroomName] = useState<string>(demo.groomName);
+  const [brideName, setBrideName] = useState<string>(demo.brideName);
+  const [eventDate, setEventDate] = useState<string>(demo.eventDate);
+  const [eventDateEn, setEventDateEn] = useState<string>(demo.eventDateEn);
+  const [eventTime, setEventTime] = useState<string>(demo.eventTime);
+  const [venueKind, setVenueKind] = useState<WeddingVenueKind>(demo.venueKind);
+  const [venueName, setVenueName] = useState<string>(demo.venueName);
+  const [venueMapsUrl, setVenueMapsUrl] = useState<string>(demo.venueMapsUrl);
+  const [welcomeAr, setWelcomeAr] = useState<string>(demo.welcomeAr);
   const [consent, setConsent] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -51,10 +62,13 @@ export function StoreWeddingOrderForm({ voice = 'men' }: { voice?: StoreWeddingL
       voice,
       hostName,
       hostRole,
+      offspringKind,
       groomName,
       brideName,
       eventDate,
+      eventDateEn,
       eventTime,
+      venueKind,
       venueName,
       venueMapsUrl,
       welcomeAr,
@@ -112,29 +126,74 @@ export function StoreWeddingOrderForm({ voice = 'men' }: { voice?: StoreWeddingL
           {copy.hostNameLabelAr}
           <input className={field} required value={hostName} onChange={(e) => setHostName(e.target.value)} />
         </label>
-        <label className="block text-sm">
-          {copy.groomNameLabelAr}
-          <input className={field} required value={groomName} onChange={(e) => setGroomName(e.target.value)} />
-        </label>
         <label className="block text-sm sm:col-span-2">
-          {copy.brideNameLabelAr}
-          <input className={field} required value={brideName} onChange={(e) => setBrideName(e.target.value)} />
+          {copy.offspringKindLabelAr}
+          <select
+            className={field}
+            value={offspringKind}
+            onChange={(e) => setOffspringKind(normalizeOffspringKind(e.target.value))}
+          >
+            <option value="son">{copy.offspringSonAr}</option>
+            <option value="daughter">{copy.offspringDaughterAr}</option>
+          </select>
         </label>
+        {offspringKind === 'daughter' ? (
+          <>
+            <label className="block text-sm">
+              {copy.offspringNameDaughterAr}
+              <input className={field} required value={brideName} onChange={(e) => setBrideName(e.target.value)} />
+            </label>
+            <label className="block text-sm">
+              {copy.spouseNameDaughterAr}
+              <input className={field} required value={groomName} onChange={(e) => setGroomName(e.target.value)} />
+            </label>
+          </>
+        ) : (
+          <>
+            <label className="block text-sm">
+              {copy.offspringNameSonAr}
+              <input className={field} required value={groomName} onChange={(e) => setGroomName(e.target.value)} />
+            </label>
+            <label className="block text-sm">
+              {copy.spouseNameSonAr}
+              <input className={field} required value={brideName} onChange={(e) => setBrideName(e.target.value)} />
+            </label>
+          </>
+        )}
         <label className="block text-sm">
           {copy.eventDateLabelAr}
           <input className={field} value={eventDate} onChange={(e) => setEventDate(e.target.value)} />
+        </label>
+        <label className="block text-sm">
+          {copy.eventDateEnLabelAr}
+          <input className={field} dir="ltr" value={eventDateEn} onChange={(e) => setEventDateEn(e.target.value)} />
         </label>
         <label className="block text-sm">
           {copy.eventTimeLabelAr}
           <input className={field} value={eventTime} onChange={(e) => setEventTime(e.target.value)} />
         </label>
         <label className="block text-sm">
+          {copy.venueKindLabelAr}
+          <select
+            className={field}
+            value={venueKind}
+            onChange={(e) => setVenueKind(normalizeVenueKind(e.target.value))}
+          >
+            {STORE_WEDDING_VENUE_KINDS.map((item) => (
+              <option key={item.id} value={item.id}>
+                {item.labelAr}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="block text-sm">
           {copy.venueNameLabelAr}
           <input className={field} value={venueName} onChange={(e) => setVenueName(e.target.value)} />
         </label>
-        <label className="block text-sm">
+        <label className="block text-sm sm:col-span-2">
           {copy.venueMapsLabelAr}
           <input className={field} dir="ltr" value={venueMapsUrl} onChange={(e) => setVenueMapsUrl(e.target.value)} />
+          <span className="mt-1 block text-sm text-white/55">{copy.venueMapsHintAr}</span>
         </label>
       </div>
       <label className="mt-3 block text-sm">

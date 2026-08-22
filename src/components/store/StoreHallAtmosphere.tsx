@@ -51,6 +51,7 @@ export function StoreHallAtmosphere({
     <div
       className={cn('pointer-events-none absolute inset-0 overflow-hidden', className)}
       data-voice={voice}
+      data-invite-atmosphere="1"
       aria-hidden
     >
       <div className="wedding-hall-lights absolute inset-0" data-voice={voice} />

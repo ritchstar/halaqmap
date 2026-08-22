@@ -46,14 +46,15 @@ export function StoreWeddingGuestForm({
 
   return (
     <form
-      className="relative z-20 border-t border-white/10 bg-[#050308]/92 px-3 pb-[max(1rem,env(safe-area-inset-bottom))] pt-4 backdrop-blur-md"
+      data-voice={voice}
+      className="invite-host-panel relative z-20 border-t border-white/10 bg-[#050308]/94 px-3 pb-[max(1rem,env(safe-area-inset-bottom))] pt-4 backdrop-blur-md"
       onSubmit={(event) => {
         event.preventDefault();
         submitBlessing();
       }}
     >
-      <h2 className="text-base font-extrabold">{copy.guestFormTitleAr}</h2>
-      <p className="mt-2 text-xs leading-6 text-white/50">{copy.guestDeviceLockAr}</p>
+      <h2 className="invite-luminous text-lg font-extrabold">{copy.guestFormTitleAr}</h2>
+      <p className="mt-2 text-sm leading-7 text-white/60">{copy.guestDeviceLockAr}</p>
       <label className="mt-3 block text-sm">
         {copy.guestNameLabelAr}
         <input
@@ -66,7 +67,7 @@ export function StoreWeddingGuestForm({
           required
         />
       </label>
-      <p className="mt-3 text-xs text-white/50">اختر عبارة وأرسل.</p>
+      <p className="mt-3 text-sm text-white/60">اختر عبارة وأرسل.</p>
       <div className="mt-2 flex flex-wrap gap-2">
         {STORE_WEDDING_LIVE_CANNED.map((item) => (
           <button
@@ -74,9 +75,11 @@ export function StoreWeddingGuestForm({
             type="button"
             onClick={() => setCannedId(item.id)}
             className={cn(
-              'min-h-11 rounded-full border px-3 py-2 text-right text-xs leading-5',
+              'min-h-11 rounded-full border px-3 py-2 text-right text-sm leading-6',
               cannedId === item.id
-                ? 'border-[#e8c547] bg-[#e8c547]/15 text-[#f7edd8]'
+                ? voice === 'women'
+                  ? 'border-[#e4b7c5] bg-[#e4b7c5]/15 text-[#f8eef2]'
+                  : 'border-[#e8c547] bg-[#e8c547]/15 text-[#f7edd8]'
                 : 'border-white/12 bg-black/30 text-white/80',
             )}
           >
@@ -98,12 +101,12 @@ export function StoreWeddingGuestForm({
         <button
           type="button"
           onClick={() => setShowExtra(true)}
-          className="mt-3 text-xs text-white/45 underline"
+          className="mt-3 text-sm text-white/50 underline"
         >
           سطر إضافي إن رغبت
         </button>
       )}
-      <button type="submit" className={cn('mt-4 min-h-12 w-full rounded-full text-sm font-bold', fill)}>
+      <button type="submit" className={cn('mt-4 min-h-12 w-full rounded-full text-base font-bold', fill)}>
         {copy.guestSubmitAr}
       </button>
       {sent ? (

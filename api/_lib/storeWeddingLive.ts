@@ -86,14 +86,27 @@ export function parseWeddingHostRole(
   return 'self';
 }
 
+function parseOffspringKind(raw: unknown): 'son' | 'daughter' {
+  return String(raw || '').trim() === 'daughter' ? 'daughter' : 'son';
+}
+
+function parseVenueKind(raw: unknown): 'hall' | 'resthouse' | 'hotel' | 'other' {
+  const value = String(raw || '').trim();
+  if (value === 'resthouse' || value === 'hotel' || value === 'other') return value;
+  return 'hall';
+}
+
 export type WeddingLiveOrderPayload = {
   voice: 'men' | 'women';
   hostRole: 'self' | 'groom_father' | 'bride_father' | 'groom_mother' | 'bride_mother';
   hostName: string;
+  offspringKind: 'son' | 'daughter';
   groomName: string;
   brideName: string;
   eventDate: string;
+  eventDateEn: string;
   eventTime: string;
+  venueKind: 'hall' | 'resthouse' | 'hotel' | 'other';
   venueName: string;
   venueMapsUrl: string;
   welcomeAr: string;
@@ -136,10 +149,13 @@ export function parseWeddingLiveOrderBody(body: Record<string, unknown>):
       voice,
       hostRole: parseWeddingHostRole(body.hostRole, voice),
       hostName,
+      offspringKind: parseOffspringKind(body.offspringKind),
       groomName,
       brideName,
       eventDate: clip(body.eventDate, 80),
+      eventDateEn: clip(body.eventDateEn, 80),
       eventTime: clip(body.eventTime, 80),
+      venueKind: parseVenueKind(body.venueKind),
       venueName: clip(body.venueName, 120),
       venueMapsUrl: clip(body.venueMapsUrl, 500),
       welcomeAr: clip(body.welcomeAr, 400),
@@ -159,10 +175,13 @@ export function publicWeddingPayload(payload: WeddingLiveOrderPayload) {
     voice: payload.voice === 'women' ? 'women' : 'men',
     hostRole: payload.hostRole || 'self',
     hostName: payload.hostName,
+    offspringKind: parseOffspringKind(payload.offspringKind),
     groomName: payload.groomName,
     brideName: payload.brideName,
     eventDate: payload.eventDate,
+    eventDateEn: payload.eventDateEn || '',
     eventTime: payload.eventTime,
+    venueKind: parseVenueKind(payload.venueKind),
     venueName: payload.venueName,
     venueMapsUrl: payload.venueMapsUrl,
     welcomeAr: payload.welcomeAr,

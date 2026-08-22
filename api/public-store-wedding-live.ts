@@ -511,10 +511,17 @@ async function saveHost(db: Db, body: Record<string, unknown>, headers: Record<s
     voice,
     hostRole: parseWeddingHostRole(body.hostRole ?? current.hostRole, voice),
     hostName: String(body.hostName ?? current.hostName).slice(0, 80),
+    offspringKind: String(body.offspringKind ?? current.offspringKind).trim() === 'daughter' ? 'daughter' : 'son',
     groomName: String(body.groomName ?? current.groomName).slice(0, 80),
     brideName: String(body.brideName ?? current.brideName).slice(0, 80),
     eventDate: String(body.eventDate ?? current.eventDate).slice(0, 80),
+    eventDateEn: String(body.eventDateEn ?? current.eventDateEn ?? '').slice(0, 80),
     eventTime: String(body.eventTime ?? current.eventTime).slice(0, 80),
+    venueKind: (['hall', 'resthouse', 'hotel', 'other'] as const).includes(
+      String(body.venueKind ?? current.venueKind) as 'hall',
+    )
+      ? (String(body.venueKind ?? current.venueKind) as WeddingLiveOrderPayload['venueKind'])
+      : 'hall',
     venueName: String(body.venueName ?? current.venueName).slice(0, 120),
     venueMapsUrl: String(body.venueMapsUrl ?? current.venueMapsUrl).slice(0, 500),
     welcomeAr: String(body.welcomeAr ?? current.welcomeAr).slice(0, 400),

@@ -1,7 +1,7 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
- * مشهد قاعة الدعوة الحرة — يوتيوب أو بانوراما، شريط تهاني، تنويه.
+ * مشهد قاعة الدعوة الحرة — يوتيوب في الوسط، تهاني منسّقة، تنويه.
  */
 import { STORE_EVENT_LIVE, eventLiveAccent } from '@/config/storeEventLive';
 import { StoreHallAtmosphere } from '@/components/store/StoreHallAtmosphere';
@@ -10,7 +10,7 @@ import { StoreShot } from '@/components/store/StoreShot';
 import { StoreWeddingMapsPin } from '@/components/store/StoreWeddingMapsPin';
 import { STORE_EVENT_MARKETING_FRAMES, STORE_EVENT_WOMEN_MARKETING_FRAMES } from '@/config/storeMarketingReels';
 import type { EventLiveLabState } from '@/lib/storeEventLiveLab';
-import { eventHostInviteLine, safeMapsHref, youtubeEmbedSrc } from '@/lib/storeEventLiveLab';
+import { eventHostInviteLine, eventPlaceLine, safeMapsHref, youtubeEmbedSrc } from '@/lib/storeEventLiveLab';
 import { cn } from '@/lib/utils';
 
 export function StoreEventHallStage({
@@ -57,78 +57,79 @@ export function StoreEventHallStage({
           className="absolute inset-x-4 top-4 z-20 rounded-2xl border bg-black/75 px-4 py-3 text-center"
           style={{ borderColor: accent, boxShadow: `0 0 40px ${accent}40` }}
         >
-          <p className="text-sm font-black tracking-wide md:text-lg" style={{ color: accent }}>
+          <p className="invite-luminous text-base font-black tracking-wide md:text-lg" style={{ color: accent }}>
             {state.host.announcement.trim()}
           </p>
         </div>
       ) : null}
 
       <div className="relative z-10 flex min-h-[32rem] flex-col p-4 pt-14 sm:p-5 sm:pt-16 md:p-8">
-        <p className="text-center text-[11px] tracking-[0.35em]" style={{ color: accent }}>
+        <p className="invite-luminous text-center text-sm tracking-[0.35em]" style={{ color: accent }}>
           {STORE_EVENT_LIVE.hallKickerAr}
         </p>
-        <p className="mt-2 text-center text-sm text-white/70">{eventHostInviteLine(state.host)}</p>
-        <h2 className="mt-1 text-center text-3xl font-black md:text-5xl">
+        <p className="mt-2 text-center text-base text-white/75">{eventHostInviteLine(state.host)}</p>
+        <h2 className="invite-luminous mt-1 text-center text-3xl font-black md:text-5xl">
           {state.host.occasionTitle || STORE_EVENT_LIVE.titleAr}
         </h2>
-        <p className="mt-3 text-center text-sm text-white/75">{state.host.eventDate}</p>
-        <p className="text-center text-sm text-white/65">{state.host.eventTime}</p>
-        <p className="text-center text-sm text-white/65">{state.host.venueName}</p>
+        <p className="mt-3 text-center text-base text-white/80">{state.host.eventDate}</p>
+        <p className="text-center text-base text-white/70">{state.host.eventTime}</p>
+        <p className="text-center text-base text-white/70">{eventPlaceLine(state.host)}</p>
         {maps ? (
           <a
             href={maps}
             target="_blank"
             rel="noreferrer"
-            className="mx-auto mt-3 inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-xs font-bold"
+            className="mx-auto mt-3 inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-sm font-bold"
           >
             <StoreWeddingMapsPin className="h-5 w-5" />
             {STORE_EVENT_LIVE.mapsLabelAr}
           </a>
         ) : null}
-        <p className="mx-auto mt-5 max-w-xl text-center text-sm leading-8 text-white/85">{state.host.welcomeAr}</p>
+        <p className="invite-luminous mx-auto mt-5 max-w-xl text-center text-base leading-8 text-white/90">
+          {state.host.welcomeAr}
+        </p>
 
-        <div className="mt-5 grid gap-3 sm:mt-6 sm:gap-4 lg:grid-cols-[1.1fr_0.9fr]">
-          <div className="overflow-hidden rounded-2xl border border-white/15 bg-black/45">
-            {embed ? (
-              <iframe
-                title="فيديو المناسبة"
-                src={embed}
-                className="aspect-video w-full"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              />
-            ) : (
-              state.host.panoramaSrc.startsWith('data:') ? (
-                <img src={state.host.panoramaSrc} alt="" className="aspect-video w-full object-cover" />
-              ) : (
-                <StoreShot
-                  reel={voice === 'women' ? 'event-women' : 'event'}
-                  alt=""
-                  className="aspect-video w-full"
-                />
-              )
-            )}
-          </div>
-          <ul className="space-y-3">
-            {latest.length ? (
-              latest.map((item) => (
-                <li key={item.id} className="rounded-2xl border border-white/12 bg-black/50 p-4">
-                  <p className="text-sm font-extrabold" style={{ color: accent }}>{item.name}</p>
-                  <p className="mt-1 text-sm leading-7">{item.cannedText}</p>
-                  {item.extra ? <p className="mt-1 text-sm text-white/70">{item.extra}</p> : null}
-                </li>
-              ))
-            ) : (
-              <li className="rounded-2xl border border-white/12 bg-black/50 p-4 text-sm text-white/55">
-                بانتظار أولى التهاني على الشاشة.
-              </li>
-            )}
-          </ul>
+        <div className="mx-auto mt-6 w-full max-w-3xl overflow-hidden rounded-2xl border border-white/15 bg-black/45">
+          {embed ? (
+            <iframe
+              title="فيديو المناسبة"
+              src={embed}
+              className="aspect-video w-full"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
+          ) : state.host.panoramaSrc.startsWith('data:') ? (
+            <img src={state.host.panoramaSrc} alt="" className="aspect-video w-full object-cover" />
+          ) : (
+            <StoreShot
+              reel={voice === 'women' ? 'event-women' : 'event'}
+              alt=""
+              className="aspect-video w-full"
+            />
+          )}
         </div>
+
+        <ul className="mx-auto mt-5 grid w-full max-w-3xl gap-3 sm:grid-cols-2">
+          {latest.length ? (
+            latest.map((item) => (
+              <li key={item.id} className="rounded-2xl border border-white/12 bg-black/50 p-4">
+                <p className="invite-luminous text-base font-extrabold" style={{ color: accent }}>
+                  {item.name}
+                </p>
+                <p className="mt-1 text-base leading-7">{item.cannedText}</p>
+                {item.extra ? <p className="mt-1 text-base text-white/70">{item.extra}</p> : null}
+              </li>
+            ))
+          ) : (
+            <li className="rounded-2xl border border-white/12 bg-black/50 p-4 text-base text-white/55 sm:col-span-2">
+              بانتظار أولى التهاني على الشاشة.
+            </li>
+          )}
+        </ul>
 
         <div className="mt-auto overflow-hidden border-t pt-4" style={{ borderColor: `${accent}4d` }}>
           <p
-            className="wedding-live-ticker whitespace-nowrap text-sm"
+            className="wedding-live-ticker whitespace-nowrap text-base"
             data-bidi="off"
             style={{ color: voice === 'women' ? '#f4e4ea' : '#f4e6c8' }}
           >

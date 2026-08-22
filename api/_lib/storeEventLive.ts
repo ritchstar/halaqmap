@@ -97,6 +97,7 @@ export type EventLiveOrderPayload = {
   occasionTitle: string;
   eventDate: string;
   eventTime: string;
+  venueKind: 'hall' | 'resthouse' | 'hotel' | 'other';
   venueName: string;
   venueMapsUrl: string;
   welcomeAr: string;
@@ -140,6 +141,9 @@ export function parseEventLiveOrderBody(body: Record<string, unknown>):
       occasionTitle,
       eventDate: clip(body.eventDate, 80),
       eventTime: clip(body.eventTime, 80),
+      venueKind: (['hall', 'resthouse', 'hotel', 'other'] as const).includes(String(body.venueKind) as 'hall')
+        ? (String(body.venueKind) as EventLiveOrderPayload['venueKind'])
+        : 'hall',
       venueName: clip(body.venueName, 120),
       venueMapsUrl: clip(body.venueMapsUrl, 500),
       welcomeAr: clip(body.welcomeAr, 400),
@@ -161,6 +165,7 @@ export function publicEventPayload(payload: EventLiveOrderPayload) {
     occasionTitle: payload.occasionTitle,
     eventDate: payload.eventDate,
     eventTime: payload.eventTime,
+    venueKind: payload.venueKind || 'hall',
     venueName: payload.venueName,
     venueMapsUrl: payload.venueMapsUrl,
     welcomeAr: payload.welcomeAr,

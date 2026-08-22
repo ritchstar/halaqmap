@@ -3074,6 +3074,31 @@ html.platform-radar-fullscreen #root {
 
 .store-purchased-shell {
   overscroll-behavior: none;
+  overflow-x: clip;
+}
+
+.invite-luminous {
+  text-shadow:
+    0 0 10px rgba(255, 224, 170, 0.55),
+    0 0 24px rgba(212, 175, 103, 0.28);
+}
+
+[data-voice='women'] .invite-luminous {
+  text-shadow:
+    0 0 10px rgba(244, 205, 216, 0.62),
+    0 0 24px rgba(228, 183, 197, 0.32);
+}
+
+.invite-host-panel {
+  box-shadow:
+    0 0 0 1px rgba(232, 197, 71, 0.22),
+    0 0 28px rgba(212, 175, 103, 0.18);
+}
+
+[data-voice='women'] .invite-host-panel {
+  box-shadow:
+    0 0 0 1px rgba(228, 183, 197, 0.28),
+    0 0 28px rgba(228, 183, 197, 0.2);
 }
 
 .grocers-field {
@@ -3333,6 +3358,27 @@ html.platform-radar-fullscreen #root {
   .hall-meteor {
     animation: none;
   }
+  .hall-meteor {
+    display: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .hall-card-drift,
+  .hall-orb,
+  .hall-meteor,
+  .wedding-hall-glow,
+  .wedding-hall-lights,
+  .store-live-sparkle,
+  .lounge-frame-glow,
+  .lounge-frame-glow-soft,
+  .invite-host-panel {
+    animation: none !important;
+  }
+  .hall-card-drift {
+    transform: none;
+  }
+  .hall-orb,
   .hall-meteor {
     display: none;
   }

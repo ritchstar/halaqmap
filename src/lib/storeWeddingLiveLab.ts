@@ -11,8 +11,11 @@ import {
   STORE_WEDDING_LIVE_HOST_ROLES,
   STORE_WEDDING_LIVE_LAB_TOKEN_WOMEN,
   STORE_WEDDING_LIVE_STYLES,
+  STORE_WEDDING_VENUE_KINDS,
   type StoreWeddingLiveHostRole,
   type StoreWeddingLiveVoice,
+  type StoreWeddingOffspringKind,
+  type StoreWeddingVenueKind,
 } from '@/config/storeWeddingLive';
 import { normalizeWeddingWelcomeSetIndex } from '@/config/storeWeddingWelcomeSets';
 
@@ -31,14 +34,20 @@ export type WeddingLiveBlessing = {
 
 export type WeddingLiveHostRole = StoreWeddingLiveHostRole;
 
+export type WeddingOffspringKind = StoreWeddingOffspringKind;
+export type WeddingVenueKind = StoreWeddingVenueKind;
+
 export type WeddingLiveHostState = {
   voice: StoreWeddingLiveVoice;
   hostRole: WeddingLiveHostRole;
   hostName: string;
+  offspringKind: WeddingOffspringKind;
   groomName: string;
   brideName: string;
   eventDate: string;
+  eventDateEn: string;
   eventTime: string;
+  venueKind: WeddingVenueKind;
   venueName: string;
   venueMapsUrl: string;
   welcomeAr: string;
@@ -105,6 +114,47 @@ export function weddingCoupleLine(host: WeddingLiveHostState): string {
   return groom || bride || host.hostName.trim();
 }
 
+export function normalizeOffspringKind(raw: unknown): WeddingOffspringKind {
+  return String(raw || '').trim() === 'daughter' ? 'daughter' : 'son';
+}
+
+export function normalizeVenueKind(raw: unknown): WeddingVenueKind {
+  const value = String(raw || '').trim();
+  if (value === 'resthouse' || value === 'hotel' || value === 'other') return value;
+  return 'hall';
+}
+
+export function weddingVenueKindLabel(kind: WeddingVenueKind): string {
+  return STORE_WEDDING_VENUE_KINDS.find((item) => item.id === kind)?.labelAr || 'قاعة';
+}
+
+function weddingPlaceLine(host: Pick<WeddingLiveHostState, 'venueKind' | 'venueName'>): string {
+  const kind = normalizeVenueKind(host.venueKind);
+  const name = host.venueName.trim();
+  if (!name) return kind === 'other' ? '' : weddingVenueKindLabel(kind);
+  if (kind === 'other') return name;
+  const label = weddingVenueKindLabel(kind);
+  return name.startsWith(label) ? name : `${label} ${name}`;
+}
+
+export function weddingInvitationLead(host: WeddingLiveHostState): string {
+  const voice = normalizeWeddingVoice(host.voice);
+  const invite = voice === 'women' ? 'يسرنا دعوتكن' : 'يسرنا دعوتكم';
+  const kind = normalizeOffspringKind(host.offspringKind);
+  const childWord = kind === 'daughter' ? 'ابنتنا' : 'ابننا';
+  const childName = (kind === 'daughter' ? host.brideName : host.groomName).trim();
+  const spouseName = (kind === 'daughter' ? host.groomName : host.brideName).trim();
+  const dateAr = String(host.eventDate || '').trim();
+  const dateEn = String(host.eventDateEn || '').trim();
+  const datePart = [dateAr, dateEn].filter(Boolean).join(' ');
+  const place = weddingPlaceLine(host);
+  const childPart = childName ? `${childWord} ${childName}` : childWord;
+  const spousePart = spouseName ? ` على ${spouseName}` : '';
+  const evening = datePart ? `، مساء يوم الخميس الموافق ${datePart}` : '، مساء يوم الخميس';
+  const dinner = place ? `، وتناول طعام العشاء في ${place}` : '، وتناول طعام العشاء';
+  return `${invite} إلى حفل زفاف ${childPart}${spousePart}${evening}${dinner}.`;
+}
+
 export function safeMapsHref(raw: string): string | null {
   const t = String(raw || '').trim();
   if (!t) return null;
@@ -127,10 +177,13 @@ export function defaultWeddingLiveLabState(voice: StoreWeddingLiveVoice = 'men')
       voice,
       hostRole: demo.hostRole,
       hostName: demo.hostName,
+      offspringKind: demo.offspringKind,
       groomName: demo.groomName,
       brideName: demo.brideName,
       eventDate: demo.eventDate,
+      eventDateEn: demo.eventDateEn,
       eventTime: demo.eventTime,
+      venueKind: demo.venueKind,
       venueName: demo.venueName,
       venueMapsUrl: demo.venueMapsUrl,
       welcomeAr: demo.welcomeAr,
@@ -173,6 +226,9 @@ export function readWeddingLiveLabState(token: string): WeddingLiveLabState {
         ...(parsedHost || {}),
         voice: nextVoice,
         hostRole: normalizeWeddingHostRole(parsedHost?.hostRole, nextVoice),
+        offspringKind: normalizeOffspringKind(parsedHost?.offspringKind),
+        eventDateEn: String(parsedHost?.eventDateEn ?? fallback.host.eventDateEn),
+        venueKind: normalizeVenueKind(parsedHost?.venueKind),
         welcomeSetIndex: normalizeWeddingWelcomeSetIndex(parsedHost?.welcomeSetIndex),
         cardStyleId: parsedHost?.cardStyleId || weddingLiveDefaultStyle(nextVoice),
       },
@@ -278,10 +334,13 @@ export function weddingLiveArchiveBlob(state: WeddingLiveLabState): Blob {
     voice: state.host.voice,
     hostName: state.host.hostName,
     hostRole: state.host.hostRole,
+    offspringKind: state.host.offspringKind,
     groomName: state.host.groomName,
     brideName: state.host.brideName,
     eventDate: state.host.eventDate,
+    eventDateEn: state.host.eventDateEn,
     eventTime: state.host.eventTime,
+    venueKind: state.host.venueKind,
     venueName: state.host.venueName,
     welcomeAr: state.host.welcomeAr,
     welcomeSetIndex: state.host.welcomeSetIndex,

@@ -18,6 +18,7 @@ import {
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import {
   normalizeEventHostRole,
+  normalizeEventVenueKind,
   normalizeEventVoice,
   readEventLiveLabState,
   writeEventLiveLabState,
@@ -42,6 +43,7 @@ function payloadToState(payload: Record<string, unknown>, fallback: EventLiveLab
     ...(payload as Partial<EventLiveHostState>),
     voice,
     hostRole: normalizeEventHostRole((payload as Partial<EventLiveHostState>).hostRole, voice),
+    venueKind: normalizeEventVenueKind((payload as Partial<EventLiveHostState>).venueKind),
   };
   const blessings = Array.isArray(payload.blessings) ? payload.blessings : fallback.blessings;
   return { host, blessings: blessings as EventLiveLabState['blessings'] };

@@ -10,12 +10,14 @@ import {
   STORE_EVENT_LIVE_DEMO_WOMEN,
   STORE_EVENT_LIVE_OCCASIONS,
   STORE_EVENT_LIVE_PRICE_SAR,
+  STORE_EVENT_VENUE_KINDS,
   eventLiveCopy,
   eventLiveFillClass,
   eventLiveHostRoles,
   type StoreEventLiveVoice,
 } from '@/config/storeEventLive';
-import { normalizeEventHostRole, type EventLiveHostRole } from '@/lib/storeEventLiveLab';
+import { normalizeEventHostRole, normalizeEventVenueKind, type EventLiveHostRole } from '@/lib/storeEventLiveLab';
+import type { StoreEventVenueKind } from '@/config/storeEventLive';
 import { createEventLivePending } from '@/lib/storeEventLiveRemote';
 import { eventLivePayHref } from '@/lib/storeHostRedirect';
 import { cn } from '@/lib/utils';
@@ -31,7 +33,8 @@ export function StoreEventOrderForm({ voice = 'men' }: { voice?: StoreEventLiveV
   const [occasionTitle, setOccasionTitle] = useState(demo.occasionTitle);
   const [eventDate, setEventDate] = useState(demo.eventDate);
   const [eventTime, setEventTime] = useState(demo.eventTime);
-  const [venueName, setVenueName] = useState(demo.venueName);
+  const [venueKind, setVenueKind] = useState<StoreEventVenueKind>(demo.venueKind);
+  const [venueName, setVenueName] = useState<string>(demo.venueName);
   const [venueMapsUrl, setVenueMapsUrl] = useState(demo.venueMapsUrl);
   const [welcomeAr, setWelcomeAr] = useState(demo.welcomeAr);
   const [consent, setConsent] = useState(false);
@@ -55,6 +58,7 @@ export function StoreEventOrderForm({ voice = 'men' }: { voice?: StoreEventLiveV
       occasionTitle,
       eventDate,
       eventTime,
+      venueKind,
       venueName,
       venueMapsUrl,
       welcomeAr,
@@ -140,12 +144,27 @@ export function StoreEventOrderForm({ voice = 'men' }: { voice?: StoreEventLiveV
           <input className={field} value={eventTime} onChange={(e) => setEventTime(e.target.value)} />
         </label>
         <label className="block text-sm">
+          {copy.venueKindLabelAr}
+          <select
+            className={field}
+            value={venueKind}
+            onChange={(e) => setVenueKind(normalizeEventVenueKind(e.target.value))}
+          >
+            {STORE_EVENT_VENUE_KINDS.map((item) => (
+              <option key={item.id} value={item.id}>
+                {item.labelAr}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="block text-sm">
           {copy.venueNameLabelAr}
           <input className={field} value={venueName} onChange={(e) => setVenueName(e.target.value)} />
         </label>
-        <label className="block text-sm">
+        <label className="block text-sm sm:col-span-2">
           {copy.venueMapsLabelAr}
           <input className={field} dir="ltr" value={venueMapsUrl} onChange={(e) => setVenueMapsUrl(e.target.value)} />
+          <span className="mt-1 block text-sm text-white/55">{copy.venueMapsHintAr}</span>
         </label>
       </div>
       <label className="mt-3 block text-sm">

@@ -514,6 +514,11 @@ async function saveHost(db: Db, body: Record<string, unknown>, headers: Record<s
     occasionTitle: String(body.occasionTitle ?? current.occasionTitle).slice(0, 80),
     eventDate: String(body.eventDate ?? current.eventDate).slice(0, 80),
     eventTime: String(body.eventTime ?? current.eventTime).slice(0, 80),
+    venueKind: (['hall', 'resthouse', 'hotel', 'other'] as const).includes(
+      String(body.venueKind ?? current.venueKind) as 'hall',
+    )
+      ? (String(body.venueKind ?? current.venueKind) as EventLiveOrderPayload['venueKind'])
+      : 'hall',
     venueName: String(body.venueName ?? current.venueName).slice(0, 120),
     venueMapsUrl: String(body.venueMapsUrl ?? current.venueMapsUrl).slice(0, 500),
     welcomeAr: String(body.welcomeAr ?? current.welcomeAr).slice(0, 400),
