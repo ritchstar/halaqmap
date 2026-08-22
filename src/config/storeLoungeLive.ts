@@ -72,6 +72,9 @@ export const STORE_LOUNGE_LIVE = {
   labLeadAr: 'اختَر فعالية، أرسل ترحيباً باسم الزبون، واكتب تنويهاً كما في ليلة التشغيل.',
   expiredTitleAr: 'انتهت مدة التشغيل',
   expiredLeadAr: 'الرابط ما زال لديكم. أتمّوا الشراء مرة أخرى لتمديد نفس الشاشة ثلاثة أشهر.',
+  heroImage: '/images/store/lounge-hero-marketing.jpg',
+  heroAltAr: 'لاونج ليلي بشاشة حائط مضيئة ومقاعد فاخرة',
+  heroCaptionAr: 'هكذا تبدو ليلة التشغيل على شاشة اللاونج',
 } as const;
 
 export const STORE_LOUNGE_LIVE_EVENTS = [

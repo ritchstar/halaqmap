@@ -109,15 +109,27 @@ export default function StoreLoungeLandingPage() {
               </CollapsibleContent>
             </Collapsible>
           </div>
-          <div className="rounded-2xl border border-[#d4a574]/30 bg-[#0b1a24]/80 p-5">
-            <p className="text-xs tracking-[0.3em] text-[#d4a574]">{STORE_LOUNGE_LIVE.hallKickerAr}</p>
-            <p className="mt-3 text-2xl font-black">حزمة الشاشة</p>
-            <ul className="mt-4 space-y-2 text-sm leading-7 text-white/75">
-              {STORE_LOUNGE_LIVE_EVENTS.map((item) => (
-                <li key={item.id}>{item.titleAr}</li>
-              ))}
-            </ul>
-          </div>
+          <figure className="overflow-hidden rounded-2xl border border-[#d4a574]/30 bg-[#0b1a24]/80 shadow-[0_24px_60px_-28px_rgba(212,165,116,0.55)]">
+            <img
+              src={STORE_LOUNGE_LIVE.heroImage}
+              alt={STORE_LOUNGE_LIVE.heroAltAr}
+              className="aspect-[16/10] w-full object-cover"
+            />
+            <figcaption className="border-t border-[#d4a574]/20 bg-[#0b1a24] px-5 py-4">
+              <p className="text-xs tracking-[0.3em] text-[#d4a574]">{STORE_LOUNGE_LIVE.hallKickerAr}</p>
+              <p className="mt-2 text-lg font-black text-[#f4efe4]">{STORE_LOUNGE_LIVE.heroCaptionAr}</p>
+              <ul className="mt-3 flex flex-wrap gap-2">
+                {STORE_LOUNGE_LIVE_EVENTS.map((item) => (
+                  <li
+                    key={item.id}
+                    className="rounded-full border border-[#d4a574]/25 px-2.5 py-1 text-[11px] text-[#d4a574]"
+                  >
+                    {item.titleAr}
+                  </li>
+                ))}
+              </ul>
+            </figcaption>
+          </figure>
         </div>
       </section>
       <section className="px-4 pb-14">
