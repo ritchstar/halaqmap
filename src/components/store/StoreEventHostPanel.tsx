@@ -14,6 +14,7 @@ import { downloadElementAsPngCard } from '@/lib/downloadElementAsPngCard';
 import {
   compressImageFile,
   eventLiveArchiveBlob,
+  normalizeEventHostRole,
   playWeddingLiveChime,
   type EventLiveAudioId,
   type EventLiveLabState,
@@ -96,7 +97,11 @@ export function StoreEventHostPanel({
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
           <label className="block text-sm">
             {copy.hostRoleLabelAr}
-            <select className={fieldClass} value={host.hostRole} disabled>
+            <select
+              className={fieldClass}
+              value={host.hostRole}
+              onChange={(e) => patchHost({ hostRole: normalizeEventHostRole(e.target.value, voice) })}
+            >
               {roles.map((role) => (
                 <option key={`${role.voice}-${role.id}`} value={role.id}>
                   {role.labelAr}

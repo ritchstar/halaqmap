@@ -15,6 +15,7 @@ import {
   eventLiveHostRoles,
   type StoreEventLiveVoice,
 } from '@/config/storeEventLive';
+import { normalizeEventHostRole, type EventLiveHostRole } from '@/lib/storeEventLiveLab';
 import { createEventLivePending } from '@/lib/storeEventLiveRemote';
 import { eventLivePayHref } from '@/lib/storeHostRedirect';
 import { cn } from '@/lib/utils';
@@ -25,6 +26,7 @@ export function StoreEventOrderForm({ voice = 'men' }: { voice?: StoreEventLiveV
   const roles = eventLiveHostRoles(voice);
   const occasions = voice === 'women' ? STORE_EVENT_LIVE_OCCASIONS.women : STORE_EVENT_LIVE_OCCASIONS.men;
   const [email, setEmail] = useState('');
+  const [hostRole, setHostRole] = useState<EventLiveHostRole>(demo.hostRole);
   const [hostName, setHostName] = useState(demo.hostName);
   const [occasionTitle, setOccasionTitle] = useState(demo.occasionTitle);
   const [eventDate, setEventDate] = useState(demo.eventDate);
@@ -49,7 +51,7 @@ export function StoreEventOrderForm({ voice = 'men' }: { voice?: StoreEventLiveV
       buyerName: hostName,
       voice,
       hostName,
-      hostRole: 'self',
+      hostRole,
       occasionTitle,
       eventDate,
       eventTime,
@@ -94,7 +96,11 @@ export function StoreEventOrderForm({ voice = 'men' }: { voice?: StoreEventLiveV
       <div className="mt-3 grid gap-3 sm:grid-cols-2">
         <label className="block text-sm">
           {copy.hostRoleLabelAr}
-          <select className={field} value="self" disabled>
+          <select
+            className={field}
+            value={hostRole}
+            onChange={(e) => setHostRole(normalizeEventHostRole(e.target.value, voice))}
+          >
             {roles.map((role) => (
               <option key={`${role.voice}-${role.id}`} value={role.id}>
                 {role.labelAr}

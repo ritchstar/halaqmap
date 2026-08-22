@@ -73,13 +73,25 @@ export function parseEventVoice(raw: unknown): 'men' | 'women' {
   return String(raw || '').trim() === 'women' ? 'women' : 'men';
 }
 
-export function parseEventHostRole(_raw: unknown, _voice: 'men' | 'women' = 'men'): 'self' {
+const EVENT_HOST_ROLES = {
+  men: ['self', 'father', 'host', 'family'] as const,
+  women: ['self', 'mother', 'host', 'family'] as const,
+};
+
+export type EventLiveHostRole = (typeof EVENT_HOST_ROLES.men)[number] | (typeof EVENT_HOST_ROLES.women)[number];
+
+export function parseEventHostRole(raw: unknown, voice: 'men' | 'women' = 'men'): EventLiveHostRole {
+  const value = String(raw || '').trim();
+  const allowed = EVENT_HOST_ROLES[voice];
+  if ((allowed as readonly string[]).includes(value)) return value as EventLiveHostRole;
+  if (voice === 'women' && value === 'father') return 'mother';
+  if (voice === 'men' && value === 'mother') return 'father';
   return 'self';
 }
 
 export type EventLiveOrderPayload = {
   voice: 'men' | 'women';
-  hostRole: 'self';
+  hostRole: EventLiveHostRole;
   hostName: string;
   occasionTitle: string;
   eventDate: string;
@@ -122,7 +134,7 @@ export function parseEventLiveOrderBody(body: Record<string, unknown>):
     buyerName: clip(body.buyerName, 80),
     payload: {
       voice,
-      hostRole: 'self',
+      hostRole: parseEventHostRole(body.hostRole, voice),
       hostName,
       occasionTitle,
       eventDate: clip(body.eventDate, 80),
@@ -143,7 +155,7 @@ export function parseEventLiveOrderBody(body: Record<string, unknown>):
 export function publicEventPayload(payload: EventLiveOrderPayload) {
   return {
     voice: payload.voice === 'women' ? 'women' : 'men',
-    hostRole: 'self' as const,
+    hostRole: parseEventHostRole(payload.hostRole, payload.voice),
     hostName: payload.hostName,
     occasionTitle: payload.occasionTitle,
     eventDate: payload.eventDate,

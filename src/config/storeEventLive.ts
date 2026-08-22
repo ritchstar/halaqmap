@@ -127,7 +127,13 @@ export function eventLiveTextClass(voice: StoreEventLiveVoice): string {
 
 export const STORE_EVENT_LIVE_HOST_ROLES = [
   { id: 'self', voice: 'men', labelAr: 'الداعي باسمه', linePrefixAr: 'الداعي' },
+  { id: 'father', voice: 'men', labelAr: 'والد صاحب المناسبة', linePrefixAr: 'والد صاحب المناسبة' },
+  { id: 'host', voice: 'men', labelAr: 'المضيف', linePrefixAr: 'المضيف' },
+  { id: 'family', voice: 'men', labelAr: 'الأسرة', linePrefixAr: 'الأسرة' },
   { id: 'self', voice: 'women', labelAr: 'الداعية باسمها', linePrefixAr: 'الداعية' },
+  { id: 'mother', voice: 'women', labelAr: 'والدة صاحبة المناسبة', linePrefixAr: 'والدة صاحبة المناسبة' },
+  { id: 'host', voice: 'women', labelAr: 'المضيفة', linePrefixAr: 'المضيفة' },
+  { id: 'family', voice: 'women', labelAr: 'الأسرة', linePrefixAr: 'الأسرة' },
 ] as const;
 
 export type StoreEventLiveHostRole = (typeof STORE_EVENT_LIVE_HOST_ROLES)[number]['id'];

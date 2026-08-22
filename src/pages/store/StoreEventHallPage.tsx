@@ -17,6 +17,7 @@ import {
 } from '@/config/storeEventLive';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import {
+  normalizeEventHostRole,
   normalizeEventVoice,
   readEventLiveLabState,
   writeEventLiveLabState,
@@ -38,7 +39,7 @@ function payloadToState(payload: Record<string, unknown>, fallback: EventLiveLab
     ...fallback.host,
     ...(payload as Partial<EventLiveHostState>),
     voice,
-    hostRole: 'self' as const,
+    hostRole: normalizeEventHostRole((payload as Partial<EventLiveHostState>).hostRole, voice),
   };
   const blessings = Array.isArray(payload.blessings) ? payload.blessings : fallback.blessings;
   return { host, blessings: blessings as EventLiveLabState['blessings'] };

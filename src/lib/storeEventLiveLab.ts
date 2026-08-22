@@ -75,7 +75,12 @@ export function normalizeEventVoice(raw: unknown): StoreEventLiveVoice {
   return String(raw || '').trim() === 'women' ? 'women' : 'men';
 }
 
-export function normalizeEventHostRole(_raw: unknown, _voice: StoreEventLiveVoice = 'men'): EventLiveHostRole {
+export function normalizeEventHostRole(raw: unknown, voice: StoreEventLiveVoice = 'men'): EventLiveHostRole {
+  const value = String(raw || '').trim();
+  const forVoice = STORE_EVENT_LIVE_HOST_ROLES.filter((item) => item.voice === voice);
+  if (forVoice.some((item) => item.id === value)) return value as EventLiveHostRole;
+  if (voice === 'women' && value === 'father') return 'mother';
+  if (voice === 'men' && value === 'mother') return 'father';
   return 'self';
 }
 
@@ -88,7 +93,8 @@ export function eventHostInviteLine(
 ): string {
   const voice = normalizeEventVoice(host.voice);
   const name = host.hostName.trim();
-  const role = STORE_EVENT_LIVE_HOST_ROLES.find((item) => item.id === 'self' && item.voice === voice);
+  const roleId = normalizeEventHostRole(host.hostRole, voice);
+  const role = STORE_EVENT_LIVE_HOST_ROLES.find((item) => item.id === roleId && item.voice === voice);
   const prefix = role?.linePrefixAr || (voice === 'women' ? 'الداعية' : 'الداعي');
   return name ? `${prefix} ${name}` : prefix;
 }
@@ -143,7 +149,7 @@ export function readEventLiveLabState(token: string): EventLiveLabState {
         ...fallback.host,
         ...(parsedHost || {}),
         voice: nextVoice,
-        hostRole: 'self',
+        hostRole: normalizeEventHostRole(parsedHost?.hostRole, nextVoice),
         cardStyleId: parsedHost?.cardStyleId || eventLiveDefaultStyle(nextVoice),
       },
       blessings: Array.isArray(parsed.blessings) ? parsed.blessings : fallback.blessings,
