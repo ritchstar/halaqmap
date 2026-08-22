@@ -400,13 +400,13 @@ export function StoreWeddingHostPanel({
           <div
             ref={stillRef}
             aria-hidden
-            className="pointer-events-none fixed left-[-9999px] top-0 w-[360px]"
+            className="pointer-events-none fixed left-0 top-0 z-[-1] w-[360px] opacity-0"
           >
             {styles.map((item) => (
               <StoreWeddingInviteCard key={`still-${item.id}`} host={host} styleId={item.id} still />
             ))}
           </div>
-          <div className="mt-3 flex flex-wrap gap-2">
+          <div className="mt-3 grid w-full grid-cols-1 gap-2 sm:grid-cols-2">
             {styles.map((item, index) => (
               <button
                 key={item.id}
@@ -414,7 +414,7 @@ export function StoreWeddingHostPanel({
                 disabled={Boolean(downloadBusy)}
                 onClick={() => void downloadCard(item.id)}
                 className={cn(
-                  'rounded-full px-4 py-2 text-sm font-bold disabled:opacity-60',
+                  'w-full rounded-full px-4 py-2.5 text-sm font-bold disabled:opacity-60',
                   index === 0 ? fill : 'border border-white/20',
                 )}
               >

@@ -63,6 +63,7 @@ function prepareInviteClone(originalRoot: HTMLElement, clonedRoot: HTMLElement):
     dst.style.transition = 'none';
     dst.style.filter = 'none';
     dst.style.backdropFilter = 'none';
+    dst.style.boxShadow = 'none';
     dst.style.transform = 'none';
     dst.style.willChange = 'auto';
     dst.style.color = cs.color;
@@ -75,9 +76,33 @@ function prepareInviteClone(originalRoot: HTMLElement, clonedRoot: HTMLElement):
   clonedRoot.style.backgroundColor = '#120c08';
 }
 
-async function captureInviteElement(element: HTMLElement): Promise<Blob> {
+function paintBalancedInviteFrame(canvas: HTMLCanvasElement, accent: string): void {
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+  const w = canvas.width;
+  const h = canvas.height;
+  const inset = Math.round(Math.min(w, h) * 0.032);
+  const radius = Math.round(Math.min(w, h) * 0.048);
+  ctx.save();
+  ctx.lineJoin = 'round';
+  ctx.lineCap = 'round';
+  ctx.strokeStyle = accent || '#d4af67';
+  ctx.lineWidth = Math.max(4, Math.round(w / 160));
+  roundRect(ctx, inset, inset, w - inset * 2, h - inset * 2, radius);
+  ctx.stroke();
+  const inset2 = inset + Math.round(w / 42);
+  ctx.strokeStyle = 'rgba(12, 8, 6, 0.5)';
+  ctx.lineWidth = Math.max(2, Math.round(w / 240));
+  roundRect(ctx, inset2, inset2, w - inset2 * 2, h - inset2 * 2, Math.max(8, radius - 10));
+  ctx.stroke();
+  ctx.restore();
+}
+
+async function captureInviteElement(element: HTMLElement, accent: string): Promise<Blob> {
   await waitForImages(element);
   await new Promise<void>((r) => requestAnimationFrame(() => r()));
+  const width = Math.max(element.scrollWidth, element.clientWidth, 360);
+  const height = Math.max(element.scrollHeight, element.clientHeight, Math.round(width * 4 / 3));
   const canvas = await html2canvas(element, {
     scale: Math.min(2.5, (window.devicePixelRatio || 1) * 2),
     useCORS: true,
@@ -87,13 +112,33 @@ async function captureInviteElement(element: HTMLElement): Promise<Blob> {
     foreignObjectRendering: false,
     imageTimeout: 12000,
     removeContainer: true,
-    windowWidth: Math.max(element.scrollWidth, element.clientWidth, 360),
-    windowHeight: Math.max(element.scrollHeight, element.clientHeight, 480),
+    width,
+    height,
+    windowWidth: width,
+    windowHeight: height,
+    x: 0,
+    y: 0,
     onclone: (_doc, cloned) => {
+      cloned.style.position = 'relative';
+      cloned.style.left = '0';
+      cloned.style.top = '0';
+      cloned.style.transform = 'none';
+      cloned.style.opacity = '1';
+      cloned.style.boxShadow = 'none';
       prepareInviteClone(element, cloned);
     },
   });
   if (!canvas.width || !canvas.height) throw new Error('canvas_empty');
+  const ctx = canvas.getContext('2d');
+  if (ctx) {
+    ctx.save();
+    ctx.globalCompositeOperation = 'destination-in';
+    ctx.fillStyle = '#000';
+    roundRect(ctx, 0, 0, canvas.width, canvas.height, Math.round(Math.min(canvas.width, canvas.height) * 0.045));
+    ctx.fill();
+    ctx.restore();
+  }
+  paintBalancedInviteFrame(canvas, accent);
   return canvasToPngBlob(canvas);
 }
 
@@ -184,15 +229,7 @@ async function downloadInviteFallbackPng(payload: InviteCardFallbackPayload, fil
 
   ctx.fillStyle = 'rgba(0,0,0,0.55)';
   ctx.fillRect(0, H * 0.42, W, H * 0.58);
-
-  ctx.strokeStyle = payload.accent;
-  ctx.lineWidth = 4;
-  roundRect(ctx, 36, 36, W - 72, H - 72, 36);
-  ctx.stroke();
-  ctx.strokeStyle = 'rgba(0,0,0,0.45)';
-  ctx.lineWidth = 10;
-  roundRect(ctx, 48, 48, W - 96, H - 96, 28);
-  ctx.stroke();
+  paintBalancedInviteFrame(canvas, payload.accent);
 
   ctx.textAlign = 'center';
   ctx.direction = 'rtl';
@@ -237,7 +274,7 @@ export async function downloadInviteCardAsPng(
   fallback: InviteCardFallbackPayload,
 ): Promise<void> {
   try {
-    const blob = await captureInviteElement(element);
+    const blob = await captureInviteElement(element, fallback.accent);
     triggerBlobDownload(blob, fileName);
   } catch {
     await downloadInviteFallbackPng(fallback, fileName);

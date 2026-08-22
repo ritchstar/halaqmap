@@ -5,6 +5,7 @@
  */
 import { STORE_WEDDING_LIVE, STORE_WEDDING_LIVE_STYLES, weddingLiveStyles } from '@/config/storeWeddingLive';
 import { StoreHallAtmosphere } from '@/components/store/StoreHallAtmosphere';
+import { StoreInviteCardFrame } from '@/components/store/StoreInviteCardFrame';
 import { StoreWeddingMapsPin } from '@/components/store/StoreWeddingMapsPin';
 import { cn } from '@/lib/utils';
 import {
@@ -40,7 +41,11 @@ export function StoreWeddingInviteCard({
       data-wedding-card={styleId}
       data-still={still ? '1' : undefined}
       data-voice={voice}
-      className={cn('relative aspect-[3/4] w-full overflow-hidden rounded-[28px] shadow-[0_28px_70px_-24px_rgba(0,0,0,0.75)]', className)}
+      className={cn(
+        'relative aspect-[3/4] w-full overflow-hidden rounded-[28px]',
+        still ? 'shadow-none' : 'shadow-[0_28px_70px_-24px_rgba(0,0,0,0.75)]',
+        className,
+      )}
     >
       <img
         src={bg}
@@ -49,13 +54,13 @@ export function StoreWeddingInviteCard({
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-transparent" />
       {still ? null : <StoreHallAtmosphere voice={voice} />}
-      <div
-        className="pointer-events-none absolute inset-3 rounded-[22px]"
-        style={{ boxShadow: `inset 0 0 0 1px ${style.accent}, inset 0 0 0 7px rgba(0,0,0,0.35)` }}
-      />
+      <StoreInviteCardFrame accent={style.accent} />
       <div className="absolute inset-x-0 bottom-0 p-5">
         <div
-          className="rounded-2xl border bg-black/40 p-5 text-[#f7edd8] backdrop-blur-md"
+          className={cn(
+            'rounded-2xl border p-5 text-[#f7edd8]',
+            still ? 'bg-black/72' : 'bg-black/40 backdrop-blur-md',
+          )}
           style={{ borderColor: `${style.accent}73` }}
         >
           <p className="invite-luminous text-sm tracking-wide opacity-80">عقد قران</p>
