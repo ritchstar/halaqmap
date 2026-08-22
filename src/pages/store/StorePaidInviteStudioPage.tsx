@@ -12,6 +12,7 @@ import {
   StoreVisitorHeader,
   StoreVisitorShell,
 } from '@/components/store/StoreChrome';
+import { StoreShot } from '@/components/store/StoreShot';
 import {
   STORE_PAID_INVITE_CHECKOUT_ENABLED,
   STORE_PAID_INVITE_COPY,
@@ -101,6 +102,11 @@ export default function StorePaidInviteStudioPage() {
   return (
     <StoreVisitorShell>
       <StoreVisitorHeader />
+      <section className="px-4 pt-10">
+        <div className="mx-auto max-w-5xl overflow-hidden rounded-2xl border border-[#e8c547]/30">
+          <StoreShot reel="occasion" alt={STORE_PAID_INVITE_COPY.titleAr} className="aspect-[16/6]" eager />
+        </div>
+      </section>
       <main className="mx-auto grid max-w-5xl gap-8 px-4 py-10 lg:grid-cols-[1.05fr_0.95fr]">
         <div>
           <p className="text-sm font-bold text-[#e8c547]">{STORE_PAID_INVITE_COPY.kicker}</p>

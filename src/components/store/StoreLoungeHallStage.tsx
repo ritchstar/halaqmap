@@ -4,8 +4,10 @@
  * شاشة لاونجا1 — فعالية، ترحيبات، تنويه.
  */
 import { STORE_LOUNGE_LIVE, STORE_LOUNGE_LIVE_ACCENT } from '@/config/storeLoungeLive';
+import { STORE_LOUNGE_MARKETING_FRAMES } from '@/config/storeMarketingReels';
 import { StoreLivePanoramaCycle } from '@/components/store/StoreLivePanoramaCycle';
 import { StoreLoungeNightSky } from '@/components/store/StoreLoungeNightSky';
+import { StoreShot } from '@/components/store/StoreShot';
 import type { LoungeLiveLabState } from '@/lib/storeLoungeLiveLab';
 import { loungeScreenTitle, youtubeEmbedSrc } from '@/lib/storeLoungeLiveLab';
 import { cn } from '@/lib/utils';
@@ -35,7 +37,7 @@ export function StoreLoungeHallStage({
         className,
       )}
     >
-      <StoreLivePanoramaCycle />
+      <StoreLivePanoramaCycle frames={STORE_LOUNGE_MARKETING_FRAMES} />
       <StoreLoungeNightSky fixed={false} className="opacity-80" />
       <div className="absolute inset-0 bg-gradient-to-b from-black/35 via-black/25 to-black/72" />
       <div className="wedding-hall-lights pointer-events-none absolute inset-0" aria-hidden />
@@ -70,7 +72,11 @@ export function StoreLoungeHallStage({
                 allowFullScreen
               />
             ) : (
-              <img src={state.host.panoramaSrc} alt="" className="aspect-video w-full object-cover" />
+              state.host.panoramaSrc.startsWith('data:') ? (
+                <img src={state.host.panoramaSrc} alt="" className="aspect-video w-full object-cover" />
+              ) : (
+                <StoreShot reel="lounge" alt="" className="aspect-video w-full" eager />
+              )
             )}
           </div>
           <ul className="space-y-3">

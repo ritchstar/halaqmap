@@ -15,6 +15,7 @@ import {
 import { StoreLoungeLiveStudio } from '@/components/store/StoreLoungeLiveStudio';
 import { StoreLoungeNightSky } from '@/components/store/StoreLoungeNightSky';
 import { StoreLoungeOrderForm } from '@/components/store/StoreLoungeOrderForm';
+import { StoreShot } from '@/components/store/StoreShot';
 import {
   STORE_LOUNGE_LIVE,
   STORE_LOUNGE_LIVE_EVENTS,
@@ -113,10 +114,11 @@ export default function StoreLoungeLandingPage() {
             </Collapsible>
           </div>
           <figure className="lounge-frame-glow overflow-hidden rounded-2xl border border-[#d4a574]/45 bg-[#0b1a24]/80">
-            <img
-              src={STORE_LOUNGE_LIVE.heroImage}
+            <StoreShot
+              reel="lounge"
               alt={STORE_LOUNGE_LIVE.heroAltAr}
-              className="aspect-[16/10] w-full object-cover"
+              className="aspect-[16/10] w-full"
+              eager
             />
             <figcaption className="border-t border-[#d4a574]/20 bg-[#0b1a24] px-5 py-4">
               <p className="text-xs tracking-[0.3em] text-[#d4a574]">{STORE_LOUNGE_LIVE.hallKickerAr}</p>

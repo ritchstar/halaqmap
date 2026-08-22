@@ -1,0 +1,81 @@
+/**
+ * أشرطة التسويق: كل منتج بشريطه، واللاونج بلا قاعات زواج.
+ * تشغيل: npx tsx scripts/test-store-marketing-reels.mts
+ */
+import assert from 'node:assert/strict';
+import { existsSync, readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import {
+  STORE_GROCERS_MARKETING_FRAMES,
+  STORE_LANDING_MARKETING_FRAMES,
+  STORE_LOUNGE_MARKETING_FRAMES,
+  STORE_OCCASION_MARKETING_FRAMES,
+  STORE_WEDDING_MARKETING_FRAMES,
+  loungeFrameIsWeddingHall,
+  storeLiveProductReel,
+  storeMarketingFrames,
+  storeSoftwareShotReel,
+  type StoreMarketingReelId,
+} from '../src/config/storeMarketingReels.ts';
+
+const root = join(dirname(fileURLToPath(import.meta.url)), '..');
+const app = readFileSync(join(root, 'src/App.tsx'), 'utf8');
+const hall = readFileSync(join(root, 'src/components/store/StoreLoungeHallStage.tsx'), 'utf8');
+const landing = readFileSync(join(root, 'src/pages/store/StoreLanding.tsx'), 'utf8');
+const loungeLanding = readFileSync(join(root, 'src/pages/store/StoreLoungeLandingPage.tsx'), 'utf8');
+
+assert.doesNotMatch(app, /from ['"]@\/config\/storeMarketingReels['"]/);
+assert.doesNotMatch(app, /from ['"]@\/config\/storeLoungeLive['"]/);
+assert.doesNotMatch(app, /from ['"]@\/config\/storeFront['"]/);
+
+assert.ok(STORE_LOUNGE_MARKETING_FRAMES.length >= 12);
+assert.ok(STORE_GROCERS_MARKETING_FRAMES.length >= 8);
+assert.ok(STORE_OCCASION_MARKETING_FRAMES.length >= 20);
+assert.ok(STORE_WEDDING_MARKETING_FRAMES.length >= 12);
+assert.ok(STORE_LANDING_MARKETING_FRAMES.length >= 16);
+
+for (const src of STORE_LOUNGE_MARKETING_FRAMES) {
+  assert.equal(loungeFrameIsWeddingHall(src), false, src);
+  assert.ok(existsSync(join(root, 'public', src.replace(/^\//, ''))), src);
+}
+
+for (const src of STORE_GROCERS_MARKETING_FRAMES) {
+  assert.ok(existsSync(join(root, 'public', src.replace(/^\//, ''))), src);
+}
+
+const ids: StoreMarketingReelId[] = [
+  'landing',
+  'lounge',
+  'grocers',
+  'wedding',
+  'wedding-women',
+  'event',
+  'event-women',
+  'occasion',
+  'halaq',
+  'coiffeur',
+  'ops',
+];
+for (const id of ids) {
+  assert.ok(storeMarketingFrames(id).length >= 4, id);
+}
+
+assert.equal(storeLiveProductReel('halaq-map'), 'halaq');
+assert.equal(storeLiveProductReel('coiffeur-map'), 'coiffeur');
+assert.equal(storeLiveProductReel('occasion-card'), 'occasion');
+assert.equal(storeLiveProductReel('live-halls'), 'lounge');
+assert.equal(storeSoftwareShotReel(0), 'halaq');
+assert.equal(storeSoftwareShotReel(2), 'lounge');
+
+assert.match(hall, /STORE_LOUNGE_MARKETING_FRAMES/);
+assert.match(hall, /reel="lounge"/);
+assert.doesNotMatch(hall, /<StoreLivePanoramaCycle \/>/);
+assert.match(landing, /reel="landing"/);
+assert.match(landing, /reel="lounge"/);
+assert.match(landing, /reel="grocers"/);
+assert.match(landing, /reel="wedding"/);
+assert.match(landing, /reel="event"/);
+assert.match(loungeLanding, /reel="lounge"/);
+
+console.log('store-marketing-reels: ok');

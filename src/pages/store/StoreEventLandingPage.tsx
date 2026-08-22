@@ -13,6 +13,7 @@ import {
   StoreVisitorShell,
 } from '@/components/store/StoreChrome';
 import { StoreEventInviteCard } from '@/components/store/StoreEventInviteCard';
+import { StoreShot } from '@/components/store/StoreShot';
 import { StoreEventLiveStudio } from '@/components/store/StoreEventLiveStudio';
 import { StoreEventOrderForm } from '@/components/store/StoreEventOrderForm';
 import {
@@ -119,7 +120,17 @@ export default function StoreEventLandingPage() {
               </CollapsibleContent>
             </Collapsible>
           </div>
-          <StoreEventInviteCard host={demo.host} styleId={eventLiveDefaultStyle(voice)} />
+          <div className="space-y-4">
+            <figure className="overflow-hidden rounded-2xl border border-white/12">
+              <StoreShot
+                reel={voice === 'women' ? 'event-women' : 'event'}
+                alt={copy.titleAr}
+                className="aspect-[16/9]"
+                eager
+              />
+            </figure>
+            <StoreEventInviteCard host={demo.host} styleId={eventLiveDefaultStyle(voice)} />
+          </div>
         </div>
       </section>
       <section className="px-4 pb-14">

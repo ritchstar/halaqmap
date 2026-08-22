@@ -13,6 +13,7 @@ import {
   type LabLifecycle,
   type LabTier,
 } from '@/config/storeOccasionCardLab';
+import { StoreShot } from '@/components/store/StoreShot';
 import { STORE_PAID_INVITE_PRICES_SAR } from '@/config/storeIssuedCardsCatalog';
 import { arabicInitials, eventSignatureSeed, fitArabicNameClass, fnv1a } from '@/lib/storeEventSignature';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
@@ -112,6 +113,9 @@ export default function StoreOccasionCardLabPage() {
           <p className="text-sm font-bold text-[#e8c547]">{STORE_OCCASION_CARD_LAB.kickerAr}</p>
           <h1 className="mt-2 text-3xl font-extrabold">{STORE_OCCASION_CARD_LAB.titleAr}</h1>
           <p className="mt-3 text-sm leading-7 text-white/70">{STORE_OCCASION_CARD_LAB.leadAr}</p>
+          <figure className="mt-5 overflow-hidden rounded-2xl border border-white/12">
+            <StoreShot reel="occasion" alt={STORE_OCCASION_CARD_LAB.titleAr} className="aspect-[16/7]" />
+          </figure>
 
           <label className="mt-6 block text-sm">
             الاسم كما سيظهر

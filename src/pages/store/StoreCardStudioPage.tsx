@@ -13,6 +13,7 @@ import {
   StoreVisitorHeader,
   StoreVisitorShell,
 } from '@/components/store/StoreChrome';
+import { StoreShot } from '@/components/store/StoreShot';
 import {
   STORE_GREETING_OCCASIONS,
   STORE_LANDING_COPY,
@@ -178,7 +179,7 @@ export default function StoreCardStudioPage() {
                     : 'border-white/15 hover:border-[#e8c547]/40',
                 )}
               >
-                <img src={item.image} alt="" className="h-24 w-full object-cover" />
+                <StoreShot reel="occasion" alt={item.imageAlt} className="h-24 w-full" />
                 <span
                   className={cn(
                     'block px-3 py-2 text-sm font-bold',

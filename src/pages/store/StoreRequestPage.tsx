@@ -7,7 +7,7 @@ import {
   StoreVisitorHeader,
   StoreVisitorShell,
 } from '@/components/store/StoreChrome';
-import { STORE_LANDING_COPY, STORE_VISUALS } from '@/config/storeFront';
+import { STORE_LANDING_COPY } from '@/config/storeFront';
 import { StoreShot } from '@/components/store/StoreShot';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 
@@ -20,7 +20,7 @@ export default function StoreRequestPage() {
       <section className="px-4 py-10">
         <div className="mx-auto max-w-2xl overflow-hidden rounded-2xl border border-white/12 bg-[#0b1a24]/80">
           <StoreShot
-            src={STORE_VISUALS.dashboard}
+            reel="ops"
             alt="لوحة تشغيل برمجية — طلب خدمات المتجر"
             className="aspect-[16/7]"
             eager

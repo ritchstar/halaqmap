@@ -12,6 +12,7 @@ import {
   StoreVisitorHeader,
   StoreVisitorShell,
 } from '@/components/store/StoreChrome';
+import { StoreShot } from '@/components/store/StoreShot';
 import { StoreWeddingInviteCard } from '@/components/store/StoreWeddingInviteCard';
 import { StoreWeddingLiveStudio } from '@/components/store/StoreWeddingLiveStudio';
 import { StoreWeddingOrderForm } from '@/components/store/StoreWeddingOrderForm';
@@ -123,7 +124,17 @@ export default function StoreWeddingLandingPage() {
               </CollapsibleContent>
             </Collapsible>
           </div>
-          <StoreWeddingInviteCard host={demo.host} styleId={weddingLiveDefaultStyle(voice)} />
+          <div className="space-y-4">
+            <figure className="overflow-hidden rounded-2xl border border-white/12">
+              <StoreShot
+                reel={voice === 'women' ? 'wedding-women' : 'wedding'}
+                alt={copy.titleAr}
+                className="aspect-[16/9]"
+                eager
+              />
+            </figure>
+            <StoreWeddingInviteCard host={demo.host} styleId={weddingLiveDefaultStyle(voice)} />
+          </div>
         </div>
       </section>
       <section className="px-4 pb-14">

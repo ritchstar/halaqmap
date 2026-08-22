@@ -9,6 +9,7 @@ import {
   StoreVisitorHeader,
   StoreVisitorShell,
 } from '@/components/store/StoreChrome';
+import { StoreShot } from '@/components/store/StoreShot';
 import { STORE_EVENT_LIVE, STORE_EVENT_LIVE_PUBLIC_ENABLED } from '@/config/storeEventLive';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { ROUTE_PATHS } from '@/lib/routePaths';
@@ -35,7 +36,7 @@ export default function StoreEventHubPage() {
             to={ROUTE_PATHS.STORE_EVENT_MEN}
             className="overflow-hidden rounded-2xl border border-[#e8c547]/35 bg-[#0b1a24]/80 text-right"
           >
-            <img src="/images/store/lab/lab-luxury-gold.png" alt="" className="aspect-[16/8] w-full object-cover" />
+            <StoreShot reel="event" alt={STORE_EVENT_LIVE.hubMenTitleAr} className="aspect-[16/8] w-full" />
             <div className="p-5">
               <h2 className="text-xl font-extrabold">{STORE_EVENT_LIVE.hubMenTitleAr}</h2>
               <p className="mt-2 text-sm leading-7 text-white/70">{STORE_EVENT_LIVE.hubMenLeadAr}</p>
@@ -46,7 +47,7 @@ export default function StoreEventHubPage() {
             to={ROUTE_PATHS.STORE_EVENT_WOMEN}
             className="overflow-hidden rounded-2xl border border-[#e4b7c5]/35 bg-[#0b1a24]/80 text-right"
           >
-            <img src="/images/store/lab/lab-luxury-rosegold.png" alt="" className="aspect-[16/8] w-full object-cover" />
+            <StoreShot reel="event-women" alt={STORE_EVENT_LIVE.hubWomenTitleAr} className="aspect-[16/8] w-full" />
             <div className="p-5">
               <h2 className="text-xl font-extrabold">{STORE_EVENT_LIVE.hubWomenTitleAr}</h2>
               <p className="mt-2 text-sm leading-7 text-white/70">{STORE_EVENT_LIVE.hubWomenLeadAr}</p>

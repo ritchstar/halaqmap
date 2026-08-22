@@ -9,6 +9,7 @@ import { ChevronDown } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { StoreVisitorFooter, StoreVisitorHeader, StoreVisitorShell } from '@/components/store/StoreChrome';
 import { StoreGrocersOrderForm } from '@/components/store/StoreGrocersOrderForm';
+import { StoreShot } from '@/components/store/StoreShot';
 import { StoreGrocersStudio } from '@/components/store/StoreGrocersStudio';
 import {
   STORE_GROCERS_LIVE,
@@ -103,10 +104,11 @@ export default function StoreGrocersLandingPage() {
             </Collapsible>
           </div>
           <figure className="overflow-hidden rounded-2xl border border-[#8fbf7a]/35 bg-[#07140e]">
-            <img
-              src={STORE_GROCERS_LIVE.heroImage}
+            <StoreShot
+              reel="grocers"
               alt={STORE_GROCERS_LIVE.heroAltAr}
-              className="aspect-[16/10] w-full object-cover"
+              className="aspect-[16/10] w-full"
+              eager
             />
             <figcaption className="border-t border-[#8fbf7a]/20 bg-[#07140e] px-5 py-4">
               <p className="text-xl font-black">{STORE_GROCERS_LIVE.heroCaptionAr}</p>

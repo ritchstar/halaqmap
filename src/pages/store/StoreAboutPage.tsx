@@ -17,8 +17,8 @@ import {
   STORE_BRAND_LATIN,
   STORE_LIVE_PRODUCTS,
   STORE_PUBLIC_NAME_AR,
-  STORE_VISUALS,
 } from '@/config/storeFront';
+import { storeLiveProductReel } from '@/config/storeMarketingReels';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 
@@ -50,7 +50,7 @@ export default function StoreAboutPage() {
             </div>
             <figure className="overflow-hidden rounded-2xl border border-[#e8c547]/30 shadow-[0_24px_60px_-28px_rgba(232,197,71,0.45)]">
               <StoreShot
-                src={STORE_VISUALS.hero}
+                reel="landing"
                 alt="واجهة برمجية لمتجر halaqmap"
                 className="aspect-[4/3]"
                 eager
@@ -134,7 +134,7 @@ export default function StoreAboutPage() {
                     href={product.href}
                     className="block overflow-hidden rounded-2xl border border-white/12 bg-[#0b1a24]/70 transition hover:border-[#e8c547]/40"
                   >
-                    <StoreShot src={product.image} alt={product.imageAlt} className="aspect-[16/9]" />
+                    <StoreShot reel={storeLiveProductReel(product.id)} alt={product.imageAlt} className="aspect-[16/9]" />
                     <div className="flex items-start gap-3 p-4">
                       <img
                         src={product.mark}
@@ -170,7 +170,7 @@ export default function StoreAboutPage() {
             </div>
             <div className="overflow-hidden rounded-2xl border border-white/12 bg-white/[0.04]">
               <StoreShot
-                src={STORE_VISUALS.radar}
+                reel="halaq"
                 alt="رادار استعلام برمجي لمنتج حلاق ماب ضمن أعمال المتجر"
                 className="aspect-[16/9]"
               />

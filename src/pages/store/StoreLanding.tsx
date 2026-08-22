@@ -23,7 +23,6 @@ import {
   STORE_SECTOR_SPLIT_COPY,
   STORE_SOFTWARE_SHOTS,
   STORE_TRUST_COPY,
-  STORE_VISUALS,
   storeCardsPath,
 } from '@/config/storeFront';
 import { PLATFORM_TLS_SSL_LABS_GRADE } from '@/config/platformTlsTrust';
@@ -34,6 +33,7 @@ import { STORE_WEDDING_LIVE_PUBLIC_ENABLED } from '@/config/storeWeddingLive';
 import { STORE_EVENT_LIVE_PUBLIC_ENABLED } from '@/config/storeEventLive';
 import { STORE_LOUNGE_LIVE_PUBLIC_ENABLED } from '@/config/storeLoungeLive';
 import { STORE_GROCERS_LIVE, STORE_GROCERS_LIVE_PUBLIC_ENABLED } from '@/config/storeGrocersLive';
+import { storeLiveProductReel, storeSoftwareShotReel } from '@/config/storeMarketingReels';
 
 export default function StoreLanding() {
   useDocumentTitle(STORE_LANDING_COPY.documentTitle);
@@ -90,7 +90,7 @@ export default function StoreLanding() {
           </div>
           <figure className="overflow-hidden rounded-2xl border border-[#e8c547]/30 shadow-[0_24px_60px_-28px_rgba(232,197,71,0.45)]">
             <StoreShot
-              src={STORE_VISUALS.hero}
+              reel="landing"
               alt={STORE_LANDING_COPY.heroShotAlt}
               className="aspect-[4/3]"
               eager
@@ -180,12 +180,12 @@ export default function StoreLanding() {
         <div className="mx-auto max-w-5xl">
           <h2 className="text-lg font-extrabold text-white/90">{STORE_LANDING_COPY.softwareStripTitle}</h2>
           <div className="mt-4 grid gap-3 sm:grid-cols-3">
-            {STORE_SOFTWARE_SHOTS.map((shot) => (
+            {STORE_SOFTWARE_SHOTS.map((shot, index) => (
               <figure
-                key={shot.src}
+                key={shot.caption}
                 className="overflow-hidden rounded-2xl border border-white/12 bg-[#0b1a24]/70"
               >
-                <StoreShot src={shot.src} alt={shot.alt} className="aspect-[16/10]" />
+                <StoreShot reel={storeSoftwareShotReel(index)} alt={shot.alt} className="aspect-[16/10]" />
                 <figcaption className="px-3 py-2 text-sm font-bold text-white/75">{shot.caption}</figcaption>
               </figure>
             ))}
@@ -219,7 +219,7 @@ export default function StoreLanding() {
                       href={product.href}
                       className="block overflow-hidden rounded-xl border border-white/10 bg-[#061018]/70 transition hover:border-[#e8c547]/40"
                     >
-                      <StoreShot src={product.image} alt={product.imageAlt} className="aspect-[16/9]" />
+                      <StoreShot reel={storeLiveProductReel(product.id)} alt={product.imageAlt} className="aspect-[16/9]" />
                       <div className="flex items-start gap-3 p-4">
                         <img
                           src={product.mark}
@@ -241,7 +241,7 @@ export default function StoreLanding() {
 
             <div className="overflow-hidden rounded-2xl border border-white/12 bg-white/[0.04]">
               <StoreShot
-                src={STORE_VISUALS.ops}
+                reel="ops"
                 alt="لوحة تشغيل برمجية لحلول المنشآت"
                 className="aspect-[16/8]"
               />
@@ -263,7 +263,7 @@ export default function StoreLanding() {
                 to={storeCardsPath(item.id)}
                 className="overflow-hidden rounded-xl border border-white/12 bg-[#061018] transition hover:border-[#e8c547]/50"
               >
-                <StoreShot src={item.image} alt={item.imageAlt} className="aspect-[16/10]" />
+                <StoreShot reel="occasion" alt={item.imageAlt} className="aspect-[16/10]" />
                 <div className="p-4">
                   <p className="font-extrabold text-[#f4efe4]">{item.titleAr}</p>
                   <p className="mt-1 text-sm text-white/65">{item.subtitleAr}</p>
@@ -300,7 +300,7 @@ export default function StoreLanding() {
       <section className="px-4 pb-8">
         <div className="mx-auto max-w-5xl space-y-4">
           <div className="overflow-hidden rounded-2xl border border-[#e8c547]/35 bg-[#0b1a24]/70">
-            <StoreShot src="/images/store/lab/lab-luxury-gold.png" alt="افراحي1" className="aspect-[16/7]" />
+            <StoreShot reel="wedding" alt="افراحي1" className="aspect-[16/7]" />
             <div className="p-5 md:p-6">
               <h2 className="text-xl font-extrabold">{STORE_LANDING_COPY.weddingLiveTitleAr}</h2>
               <p className="mt-2 max-w-3xl text-sm leading-7 text-white/70">{STORE_LANDING_COPY.weddingLiveLeadAr}</p>
@@ -310,7 +310,7 @@ export default function StoreLanding() {
             </div>
           </div>
           <div className="overflow-hidden rounded-2xl border border-[#e4b7c5]/35 bg-[#0b1a24]/70">
-            <StoreShot src="/images/store/lab/lab-luxury-rosegold.png" alt="افراحي1 نسائي" className="aspect-[16/7]" />
+            <StoreShot reel="wedding-women" alt="افراحي1 نسائي" className="aspect-[16/7]" />
             <div className="p-5 md:p-6">
               <h2 className="text-xl font-extrabold">{STORE_LANDING_COPY.weddingLiveWomenTitleAr}</h2>
               <p className="mt-2 max-w-3xl text-sm leading-7 text-white/70">{STORE_LANDING_COPY.weddingLiveWomenLeadAr}</p>
@@ -327,7 +327,7 @@ export default function StoreLanding() {
       <section className="px-4 pb-8">
         <div className="mx-auto max-w-5xl">
           <div className="overflow-hidden rounded-2xl border border-[#e8c547]/30 bg-[#0b1a24]/70">
-            <StoreShot src="/images/store/lab/lab-luxury-ivory.png" alt="اجواء1" className="aspect-[16/7]" />
+            <StoreShot reel="event" alt="اجواء1" className="aspect-[16/7]" />
             <div className="p-5 md:p-6">
               <h2 className="text-xl font-extrabold">{STORE_LANDING_COPY.eventLiveTitleAr}</h2>
               <p className="mt-2 max-w-3xl text-sm leading-7 text-white/70">{STORE_LANDING_COPY.eventLiveLeadAr}</p>
@@ -344,7 +344,7 @@ export default function StoreLanding() {
       <section className="px-4 pb-8">
         <div className="mx-auto max-w-5xl">
           <div className="overflow-hidden rounded-2xl border border-[#d4a574]/30 bg-[#0b1a24]/70">
-            <StoreShot src="/images/store/lab/lab-lounge-interior.jpg" alt="لاونجا1" className="aspect-[16/7]" />
+            <StoreShot reel="lounge" alt="لاونجا1" className="aspect-[16/7]" />
             <div className="p-5 md:p-6">
               <h2 className="text-xl font-extrabold">{STORE_LANDING_COPY.loungeLiveTitleAr}</h2>
               <p className="mt-2 max-w-3xl text-sm leading-7 text-white/70">{STORE_LANDING_COPY.loungeLiveLeadAr}</p>
@@ -361,10 +361,10 @@ export default function StoreLanding() {
       <section className="px-4 pb-8">
         <div className="mx-auto max-w-5xl">
           <div className="overflow-hidden rounded-2xl border border-[#8fbf7a]/30 bg-[#07140e]/70">
-            <img
-              src={STORE_GROCERS_LIVE.heroImage}
+            <StoreShot
+              reel="grocers"
               alt={STORE_GROCERS_LIVE.heroAltAr}
-              className="aspect-[16/7] w-full object-cover"
+              className="aspect-[16/7] w-full"
             />
             <div className="p-5 md:p-6">
               <h2 className="text-xl font-extrabold">{STORE_LANDING_COPY.grocersLiveTitleAr}</h2>
