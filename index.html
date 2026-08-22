@@ -561,6 +561,7 @@
             var earlyWedding = (earlyParams.get('store_wedding_token') || '').trim();
             var earlyEvent = (earlyParams.get('store_event_token') || '').trim();
             var earlyLounge = (earlyParams.get('store_lounge_token') || '').trim();
+            var earlyGrocers = (earlyParams.get('store_grocers_token') || '').trim();
             var earlyPath =
               earlyPurpose === 'store_occasion_card' && earlyToken
                 ? '/pay/occasion-card/' + encodeURIComponent(earlyToken)
@@ -570,6 +571,8 @@
                     ? '/pay/event/' + encodeURIComponent(earlyEvent || earlyToken)
                     : earlyPurpose === 'store_lounge_live' && (earlyLounge || earlyToken)
                       ? '/pay/lounge/' + encodeURIComponent(earlyLounge || earlyToken)
+                      : earlyPurpose === 'store_grocers_live' && (earlyGrocers || earlyToken)
+                        ? '/pay/grocers/' + encodeURIComponent(earlyGrocers || earlyToken)
                       : paymentPath;
             var paymentTarget = window.location.origin + '/#' + earlyPath + search;
             if (window.location.href !== paymentTarget) {
@@ -611,6 +614,13 @@
             window.location.replace(window.location.origin + '/#' + loungePath + search);
             return;
           }
+          var grocersToken = (params.get('store_grocers_token') || '').trim();
+          if (purpose === 'store_grocers_live' && grocersToken) {
+            var grocersPath = '/pay/grocers/' + encodeURIComponent(grocersToken);
+            if (hashPath === grocersPath) return;
+            window.location.replace(window.location.origin + '/#' + grocersPath + search);
+            return;
+          }
           var hasMoyasarReturn =
             params.get('id') || params.get('status') === 'failed' || params.get('message');
           if (!hasMoyasarReturn) return;
@@ -618,6 +628,7 @@
           if (hashPath.indexOf('/pay/wedding/') === 0) return;
           if (hashPath.indexOf('/pay/event/') === 0) return;
           if (hashPath.indexOf('/pay/lounge/') === 0) return;
+          if (hashPath.indexOf('/pay/grocers/') === 0) return;
           if (hashPath === paymentPath) return;
           window.location.replace(window.location.origin + '/#' + paymentPath + search);
         } catch (e) {}

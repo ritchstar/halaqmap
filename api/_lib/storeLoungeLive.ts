@@ -69,6 +69,7 @@ export function loungeLivePaymentMatches(input: {
   if (loungeLiveMetaProduct(input.meta) === 'store_occasion_card') return false;
   if (loungeLiveMetaProduct(input.meta) === 'store_wedding_live') return false;
   if (loungeLiveMetaProduct(input.meta) === 'store_event_live') return false;
+  if (loungeLiveMetaProduct(input.meta) === 'store_grocers_live') return false;
   if (!input.token || loungeLiveMetaToken(input.meta) !== input.token) return false;
   return input.amount === STORE_LOUNGE_LIVE_PRICE_HALALAS;
 }

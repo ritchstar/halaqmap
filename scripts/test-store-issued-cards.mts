@@ -329,6 +329,8 @@ assert.match(indexHtml, /store_wedding_live/);
 assert.match(indexHtml, /\/pay\/wedding\//);
 assert.match(indexHtml, /store_lounge_live/);
 assert.match(indexHtml, /\/pay\/lounge\//);
+assert.match(indexHtml, /store_grocers_live/);
+assert.match(indexHtml, /\/pay\/grocers\//);
 
 assert.equal(isOccasionCardLivePaymentsEnabled(), false);
 
@@ -392,6 +394,8 @@ assert.match(webhook, /skipped: "store_wedding_live"/);
 assert.match(webhook, /store_wedding_live_orders/);
 assert.match(webhook, /skipped: "store_lounge_live"/);
 assert.match(webhook, /store_lounge_live_orders/);
+assert.match(webhook, /skipped: "store_grocers_live"/);
+assert.match(webhook, /store_grocers_live_orders/);
 
 const viewPage = readFileSync(join(root, 'src/pages/store/StorePaidInviteViewPage.tsx'), 'utf8');
 assert.match(viewPage, /downloadCtaAr/);
@@ -545,6 +549,14 @@ assert.equal(
 assert.equal(
   eventLivePaymentMatches({
     meta: { product: 'store_wedding_live', store_event_token: 'tok_e' },
+    token: 'tok_e',
+    amount: 89900,
+  }),
+  false,
+);
+assert.equal(
+  eventLivePaymentMatches({
+    meta: { product: 'store_grocers_live', store_event_token: 'tok_e' },
     token: 'tok_e',
     amount: 89900,
   }),

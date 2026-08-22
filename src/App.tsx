@@ -91,6 +91,14 @@ const STORE_LOUNGE_HOST_PATH =
   (ROUTE_PATHS as { STORE_LOUNGE_HOST?: string }).STORE_LOUNGE_HOST || "/l/:token/host";
 const STORE_LOUNGE_PAY_PATH =
   (ROUTE_PATHS as { STORE_LOUNGE_PAY?: string }).STORE_LOUNGE_PAY || "/pay/lounge/:token";
+const STORE_GROCERS_PATH =
+  (ROUTE_PATHS as { STORE_GROCERS?: string }).STORE_GROCERS || "/store/grocers";
+const STORE_GROCERS_VIEW_PATH =
+  (ROUTE_PATHS as { STORE_GROCERS_VIEW?: string }).STORE_GROCERS_VIEW || "/g/:token";
+const STORE_GROCERS_DESK_PATH =
+  (ROUTE_PATHS as { STORE_GROCERS_DESK?: string }).STORE_GROCERS_DESK || "/g/:token/desk";
+const STORE_GROCERS_PAY_PATH =
+  (ROUTE_PATHS as { STORE_GROCERS_PAY?: string }).STORE_GROCERS_PAY || "/pay/grocers/:token";
 const STORE_BEREAVEMENT_PATH =
   (ROUTE_PATHS as { STORE_BEREAVEMENT?: string }).STORE_BEREAVEMENT || "/store/bereavement";
 const STORE_BEREAVEMENT_CREATE_PATH =
@@ -199,6 +207,9 @@ const StoreEventPayPage = lazy(() => import("@/pages/store/StoreEventPayPage"));
 const StoreLoungeLandingPage = lazy(() => import("@/pages/store/StoreLoungeLandingPage"));
 const StoreLoungeHallPage = lazy(() => import("@/pages/store/StoreLoungeHallPage"));
 const StoreLoungePayPage = lazy(() => import("@/pages/store/StoreLoungePayPage"));
+const StoreGrocersLandingPage = lazy(() => import("@/pages/store/StoreGrocersLandingPage"));
+const StoreGrocersShopPage = lazy(() => import("@/pages/store/StoreGrocersShopPage"));
+const StoreGrocersPayPage = lazy(() => import("@/pages/store/StoreGrocersPayPage"));
 const StoreBereavementCreatePage = lazy(() => import("@/pages/store/StoreBereavementCreatePage"));
 const StoreBereavementViewPage = lazy(() => import("@/pages/store/StoreBereavementViewPage"));
 const PartnerStoryPage = lazy(() => import("@/pages/PartnerStoryPage"));
@@ -677,6 +688,10 @@ export function App() {
           <Route path={STORE_LOUNGE_HOST_PATH} element={<LazyRoute><StoreLoungeHallPage /></LazyRoute>} />
           <Route path={STORE_LOUNGE_VIEW_PATH} element={<LazyRoute><StoreLoungeHallPage /></LazyRoute>} />
           <Route path={STORE_LOUNGE_PAY_PATH} element={<LazyRoute><StoreLoungePayPage /></LazyRoute>} />
+          <Route path={STORE_GROCERS_PAY_PATH} element={<LazyRoute><StoreGrocersPayPage /></LazyRoute>} />
+          <Route path={STORE_GROCERS_PATH} element={<LazyRoute><StoreGrocersLandingPage /></LazyRoute>} />
+          <Route path={STORE_GROCERS_DESK_PATH} element={<LazyRoute><StoreGrocersShopPage /></LazyRoute>} />
+          <Route path={STORE_GROCERS_VIEW_PATH} element={<LazyRoute><StoreGrocersShopPage /></LazyRoute>} />
           <Route path="/oc/:token" element={<OccasionCardShareRedirect />} />
           <Route path={STORE_INVITES_VIEW_PATH} element={<LazyRoute><StorePaidInviteViewPage /></LazyRoute>} />
           <Route path={STORE_OCCASION_CARD_PAY_PATH} element={<LazyRoute><StorePaidInvitePayPage /></LazyRoute>} />

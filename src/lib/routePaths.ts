@@ -73,6 +73,11 @@ export const ROUTE_PATHS = {
   STORE_LOUNGE_GUEST: '/l/:token/guest',
   STORE_LOUNGE_HOST: '/l/:token/host',
   STORE_LOUNGE_PAY: '/pay/lounge/:token',
+  /** تموينات الحي — متجر حي ولوحة كاشير، باقتا 6 و12 شهراً */
+  STORE_GROCERS: '/store/grocers',
+  STORE_GROCERS_VIEW: '/g/:token',
+  STORE_GROCERS_DESK: '/g/:token/desk',
+  STORE_GROCERS_PAY: '/pay/grocers/:token',
   /** بلاغات الوفاة والعزاء — خدمة مجتمعية مستقلة */
   STORE_BEREAVEMENT: '/store/bereavement',
   STORE_BEREAVEMENT_CREATE: '/store/bereavement/create',

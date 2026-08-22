@@ -33,6 +33,7 @@ import { ROUTE_PATHS } from '@/lib/routePaths';
 import { STORE_WEDDING_LIVE_PUBLIC_ENABLED } from '@/config/storeWeddingLive';
 import { STORE_EVENT_LIVE_PUBLIC_ENABLED } from '@/config/storeEventLive';
 import { STORE_LOUNGE_LIVE_PUBLIC_ENABLED } from '@/config/storeLoungeLive';
+import { STORE_GROCERS_LIVE_PUBLIC_ENABLED } from '@/config/storeGrocersLive';
 
 export default function StoreLanding() {
   useDocumentTitle(STORE_LANDING_COPY.documentTitle);
@@ -349,6 +350,23 @@ export default function StoreLanding() {
               <p className="mt-2 max-w-3xl text-sm leading-7 text-white/70">{STORE_LANDING_COPY.loungeLiveLeadAr}</p>
               <Link to={ROUTE_PATHS.STORE_LOUNGE} className="mt-4 inline-flex text-sm font-bold text-[#d4a574]">
                 {STORE_LANDING_COPY.loungeLiveCtaAr}
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+      ) : null}
+
+      {STORE_GROCERS_LIVE_PUBLIC_ENABLED ? (
+      <section className="px-4 pb-8">
+        <div className="mx-auto max-w-5xl">
+          <div className="overflow-hidden rounded-2xl border border-[#8fbf7a]/30 bg-[#07140e]/70">
+            <div className="grocers-hero aspect-[16/7]" />
+            <div className="p-5 md:p-6">
+              <h2 className="text-xl font-extrabold">{STORE_LANDING_COPY.grocersLiveTitleAr}</h2>
+              <p className="mt-2 max-w-3xl text-sm leading-7 text-white/70">{STORE_LANDING_COPY.grocersLiveLeadAr}</p>
+              <Link to={ROUTE_PATHS.STORE_GROCERS} className="mt-4 inline-flex text-sm font-bold text-[#8fbf7a]">
+                {STORE_LANDING_COPY.grocersLiveCtaAr}
               </Link>
             </div>
           </div>
