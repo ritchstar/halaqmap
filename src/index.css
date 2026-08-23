@@ -3115,6 +3115,57 @@ html.platform-radar-fullscreen #root {
   }
 }
 
+.grocers-feature-pulse {
+  animation: grocers-feature-pulse 2.6s ease-in-out infinite;
+}
+
+.grocers-feature-pulse__text {
+  font-size: 1.25rem;
+  font-weight: 900;
+  line-height: 1.7;
+  color: #8fbf7a;
+  transform-origin: right center;
+  animation: grocers-feature-text 2.6s ease-in-out infinite;
+}
+
+@media (min-width: 768px) {
+  .grocers-feature-pulse__text {
+    font-size: 1.45rem;
+  }
+}
+
+@keyframes grocers-feature-pulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 14px rgba(143, 191, 122, 0.28),
+      0 0 32px rgba(143, 191, 122, 0.14);
+  }
+  50% {
+    box-shadow:
+      0 0 28px rgba(176, 220, 154, 0.55),
+      0 0 64px rgba(143, 191, 122, 0.32);
+  }
+}
+
+@keyframes grocers-feature-text {
+  0%,
+  100% {
+    opacity: 0.9;
+    transform: scale(1);
+    text-shadow:
+      0 0 10px rgba(176, 220, 154, 0.4),
+      0 0 22px rgba(143, 191, 122, 0.24);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.03);
+    text-shadow:
+      0 0 18px rgba(210, 240, 190, 0.82),
+      0 0 36px rgba(143, 191, 122, 0.48);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .wedding-live-ticker {
     animation: none;
@@ -3124,6 +3175,8 @@ html.platform-radar-fullscreen #root {
   .wedding-hall-glow,
   .hall-notice-pulse,
   .hall-notice-pulse__text,
+  .grocers-feature-pulse,
+  .grocers-feature-pulse__text,
   .store-live-lights,
   .store-live-sparkle {
     animation: none;

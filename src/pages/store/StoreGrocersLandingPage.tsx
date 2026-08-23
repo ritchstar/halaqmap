@@ -13,6 +13,7 @@ import { StoreShot } from '@/components/store/StoreShot';
 import { StoreGrocersStudio } from '@/components/store/StoreGrocersStudio';
 import {
   STORE_GROCERS_LIVE,
+  STORE_GROCERS_LIVE_FEATURES,
   STORE_GROCERS_LIVE_LAB_TOKEN,
   STORE_GROCERS_LIVE_PACKS,
   STORE_GROCERS_LIVE_PUBLIC_ENABLED,
@@ -21,14 +22,6 @@ import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { readHashQueryParam } from '@/lib/hashQueryParams';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { cn } from '@/lib/utils';
-
-const POINTS = [
-  'بنك أكثر من مئتي سلعة شائعة: فعّل وحدّد السعر بلا كتابة الأسماء من الصفر.',
-  'مراجعة قائمة مصوّرة أو ملصقة قبل الحفظ، بلا مفاتيح ذكاء اصطناعي في المتصفح.',
-  'متجر للزبون: صدارة، رف سريع، وطلب نقداً أو شبكة عند الباب.',
-  'لوحة كاشير: تنبيه صوتي، مذكرة واتساب، أرشيف، ملصق QR، وساعة عروض.',
-  'إضافة اختيارية: صندوق محادثة جار الحي بـ 299 ر.س لستة أشهر، أو 499 ر.س لاثني عشر شهراً، للتوصيات ووصف الحاجة.',
-] as const;
 
 export default function StoreGrocersLandingPage() {
   const [termsOpen, setTermsOpen] = useState(false);
@@ -45,7 +38,7 @@ export default function StoreGrocersLandingPage() {
       <section className="px-4 py-10 md:py-14">
         <div className="mx-auto grid max-w-5xl items-start gap-8 lg:grid-cols-[1.05fr_0.95fr]">
           <div>
-            <p className="text-sm font-bold tracking-wide text-[#8fbf7a]">{STORE_GROCERS_LIVE.kickerAr}</p>
+            <p className="text-sm font-bold leading-7 tracking-wide text-[#8fbf7a]">{STORE_GROCERS_LIVE.kickerAr}</p>
             <h1 className="mt-2 text-4xl font-extrabold leading-tight">{STORE_GROCERS_LIVE.titleAr}</h1>
             <p className="mt-4 max-w-xl text-base leading-8 text-white/78">{STORE_GROCERS_LIVE.leadAr}</p>
             <p className="mt-4 text-2xl font-black text-[#8fbf7a]">{STORE_GROCERS_LIVE.priceLineAr}</p>
@@ -55,15 +48,34 @@ export default function StoreGrocersLandingPage() {
                 انتهت المدة. الرابط ما زال لديكم. أتمّوا الشراء مرة أخرى لتمديد نفس المتجر.
               </p>
             ) : null}
-            <ul className="mt-6 space-y-2 text-sm leading-7 text-white/75">
-              {POINTS.map((item) => (
-                <li key={item}>{item}</li>
+            <p className="mt-6 text-base font-extrabold text-[#f4efe4]">{STORE_GROCERS_LIVE.featuresTitleAr}</p>
+            <ul className="mt-3 space-y-3">
+              {STORE_GROCERS_LIVE_FEATURES.map((item) => (
+                <li
+                  key={item.titleAr}
+                  className={
+                    'pulse' in item && item.pulse
+                      ? 'grocers-feature-pulse rounded-2xl border border-[#8fbf7a]/45 bg-[#07140e] px-4 py-3.5'
+                      : 'rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3'
+                  }
+                >
+                  <p
+                    className={
+                      'pulse' in item && item.pulse
+                        ? 'grocers-feature-pulse__text'
+                        : 'text-sm font-extrabold leading-7 text-white/90'
+                    }
+                  >
+                    {item.titleAr}
+                  </p>
+                  <p className="mt-1 text-sm leading-7 text-white/70">{item.bodyAr}</p>
+                </li>
               ))}
             </ul>
             <div className="mt-5 flex flex-wrap gap-2">
               {STORE_GROCERS_LIVE_PACKS.map((pack) => (
                 <span key={pack.id} className="rounded-full border border-[#8fbf7a]/35 px-3 py-1 text-xs text-[#8fbf7a]">
-                  {pack.titleAr}
+                  {pack.priceLineAr}
                 </span>
               ))}
             </div>

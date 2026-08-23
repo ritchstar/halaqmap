@@ -127,7 +127,7 @@ export const STORE_LANDING_COPY = {
   loungeLiveCtaAr: 'افتح لاونجا1',
   grocersLiveTitleAr: 'تمويناتا1',
   grocersLiveLeadAr:
-    'متجر لجار الحي ولوحة كاشير: بنك سلع جاهز، طلب من الجوال، ومذكرة واتساب للتوصيل. 599 ر.س لستة أشهر، أو 899 ر.س لاثني عشر شهراً.',
+    'حل رقمي يربط التموينات بجار الحي: متجر مستقل ولوحة كاشير حية. 599 ر.س لستة أشهر، أو 899 ر.س لاثني عشر شهراً.',
   grocersLiveCtaAr: 'افتح تمويناتا1',
   bereavementTitleAr: 'بلاغات الوفاة والعزاء',
   bereavementLeadAr:
