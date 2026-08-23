@@ -107,6 +107,14 @@ const STORE_RESTAURANT_DESK_PATH =
   (ROUTE_PATHS as { STORE_RESTAURANT_DESK?: string }).STORE_RESTAURANT_DESK || "/r/:token/desk";
 const STORE_RESTAURANT_PAY_PATH =
   (ROUTE_PATHS as { STORE_RESTAURANT_PAY?: string }).STORE_RESTAURANT_PAY || "/pay/restaurant/:token";
+const STORE_AFFILIATES_PATH =
+  (ROUTE_PATHS as { STORE_AFFILIATES?: string }).STORE_AFFILIATES || "/store/affiliates";
+const STORE_AFFILIATES_ENTER_PATH =
+  (ROUTE_PATHS as { STORE_AFFILIATES_ENTER?: string }).STORE_AFFILIATES_ENTER || "/store/affiliates/enter";
+const STORE_AFFILIATES_DESK_PATH =
+  (ROUTE_PATHS as { STORE_AFFILIATES_DESK?: string }).STORE_AFFILIATES_DESK || "/store/affiliates/desk";
+const STORE_AFFILIATES_RULES_PATH =
+  (ROUTE_PATHS as { STORE_AFFILIATES_RULES?: string }).STORE_AFFILIATES_RULES || "/store/affiliates/rules";
 const STORE_BEREAVEMENT_PATH =
   (ROUTE_PATHS as { STORE_BEREAVEMENT?: string }).STORE_BEREAVEMENT || "/store/bereavement";
 const STORE_BEREAVEMENT_CREATE_PATH =
@@ -221,6 +229,10 @@ const StoreGrocersPayPage = lazy(() => import("@/pages/store/StoreGrocersPayPage
 const StoreRestaurantLandingPage = lazy(() => import("@/pages/store/StoreRestaurantLandingPage"));
 const StoreRestaurantShopPage = lazy(() => import("@/pages/store/StoreRestaurantShopPage"));
 const StoreRestaurantPayPage = lazy(() => import("@/pages/store/StoreRestaurantPayPage"));
+const StoreAffiliatesHomePage = lazy(() => import("@/pages/store/StoreAffiliatesHomePage"));
+const StoreAffiliatesEnterPage = lazy(() => import("@/pages/store/StoreAffiliatesEnterPage"));
+const StoreAffiliatesDeskPage = lazy(() => import("@/pages/store/StoreAffiliatesDeskPage"));
+const StoreAffiliatesRulesPage = lazy(() => import("@/pages/store/StoreAffiliatesRulesPage"));
 const StoreBereavementCreatePage = lazy(() => import("@/pages/store/StoreBereavementCreatePage"));
 const StoreBereavementViewPage = lazy(() => import("@/pages/store/StoreBereavementViewPage"));
 const PartnerStoryPage = lazy(() => import("@/pages/PartnerStoryPage"));
@@ -707,6 +719,10 @@ export function App() {
           <Route path={STORE_RESTAURANT_PATH} element={<LazyRoute><StoreRestaurantLandingPage /></LazyRoute>} />
           <Route path={STORE_RESTAURANT_DESK_PATH} element={<LazyRoute><StoreRestaurantShopPage /></LazyRoute>} />
           <Route path={STORE_RESTAURANT_VIEW_PATH} element={<LazyRoute><StoreRestaurantShopPage /></LazyRoute>} />
+          <Route path={STORE_AFFILIATES_ENTER_PATH} element={<LazyRoute><StoreAffiliatesEnterPage /></LazyRoute>} />
+          <Route path={STORE_AFFILIATES_DESK_PATH} element={<LazyRoute><StoreAffiliatesDeskPage /></LazyRoute>} />
+          <Route path={STORE_AFFILIATES_RULES_PATH} element={<LazyRoute><StoreAffiliatesRulesPage /></LazyRoute>} />
+          <Route path={STORE_AFFILIATES_PATH} element={<LazyRoute><StoreAffiliatesHomePage /></LazyRoute>} />
           <Route path="/oc/:token" element={<OccasionCardShareRedirect />} />
           <Route path={STORE_INVITES_VIEW_PATH} element={<LazyRoute><StorePaidInviteViewPage /></LazyRoute>} />
           <Route path={STORE_OCCASION_CARD_PAY_PATH} element={<LazyRoute><StorePaidInvitePayPage /></LazyRoute>} />

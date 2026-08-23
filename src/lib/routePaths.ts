@@ -83,6 +83,11 @@ export const ROUTE_PATHS = {
   STORE_RESTAURANT_VIEW: '/r/:token',
   STORE_RESTAURANT_DESK: '/r/:token/desk',
   STORE_RESTAURANT_PAY: '/pay/restaurant/:token',
+  /** بوابة مسوّقي منتجات المتجر — مستقلة عن سفراء حلاق ماب وكوافير ماب */
+  STORE_AFFILIATES: '/store/affiliates',
+  STORE_AFFILIATES_ENTER: '/store/affiliates/enter',
+  STORE_AFFILIATES_DESK: '/store/affiliates/desk',
+  STORE_AFFILIATES_RULES: '/store/affiliates/rules',
   /** بلاغات الوفاة والعزاء — خدمة مجتمعية مستقلة */
   STORE_BEREAVEMENT: '/store/bereavement',
   STORE_BEREAVEMENT_CREATE: '/store/bereavement/create',

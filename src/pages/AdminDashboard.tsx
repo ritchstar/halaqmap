@@ -102,6 +102,7 @@ import { BronzeTrialCodesPanel } from '@/components/admin/BronzeTrialCodesPanel'
 import { BronzeTrialApplicationsPanel } from '@/components/admin/BronzeTrialApplicationsPanel';
 import { EnterpriseAnchorCohortPanel } from '@/components/admin/EnterpriseAnchorCohortPanel';
 import { AmbassadorApplicationsPanel } from '@/components/admin/AmbassadorApplicationsPanel';
+import { StoreAffiliateApplicationsPanel } from '@/components/admin/StoreAffiliateApplicationsPanel';
 import { GoogleAdsCampaignPanel } from '@/components/admin/GoogleAdsCampaignPanel';
 import { TikTokPixelCampaignPanel } from '@/components/admin/TikTokPixelCampaignPanel';
 import { CoverageSalonNominationsPanel } from '@/components/admin/CoverageSalonNominationsPanel';
@@ -1136,6 +1137,7 @@ export default function AdminDashboard() {
             {canReviewPartnerBilling && adminAccessToken ? (
               <>
                 <AmbassadorApplicationsPanel accessToken={adminAccessToken} />
+                <StoreAffiliateApplicationsPanel accessToken={adminAccessToken} />
                 <EnterpriseAnchorCohortPanel accessToken={adminAccessToken} />
                 <BronzeTrialApplicationsPanel accessToken={adminAccessToken} />
                 <BronzeTrialCodesPanel accessToken={adminAccessToken} />

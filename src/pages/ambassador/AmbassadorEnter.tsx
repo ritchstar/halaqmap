@@ -5,10 +5,8 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Handshake, Presentation } from 'lucide-react';
-import { AffiliateStoreLane } from '@/components/affiliate/AffiliateStoreLane';
 import { AmbassadorMarketingKitPanel } from '@/components/ambassador/AmbassadorMarketingKitPanel';
 import { AmbassadorTelegramGroupBanner } from '@/components/ambassador/AmbassadorTelegramGroupBanner';
-import CoiffeurAmbassadorEnter from '@/pages/coiffeur/CoiffeurAmbassadorEnter';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
@@ -18,12 +16,6 @@ import {
   AMBASSADOR_PROGRAM_NAME_AR,
   AMBASSADOR_RULES_VERSION,
 } from '@/config/ambassadorFieldRulesPolicy';
-import {
-  STORE_AFFILIATE_COPY,
-  STORE_AFFILIATE_LANES,
-  parseAffiliateLane,
-  type StoreAffiliateLane,
-} from '@/config/storeAffiliateLive';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { readHashQueryParam } from '@/lib/hashQueryParams';
 import { ROUTE_PATHS } from '@/lib';
@@ -38,11 +30,8 @@ import {
 import { toast } from '@/components/ui/sonner';
 
 export default function AmbassadorEnter() {
-  useDocumentTitle(STORE_AFFILIATE_COPY.documentTitle);
+  useDocumentTitle(AMBASSADOR_PROGRAM_NAME_AR);
   const navigate = useNavigate();
-  const [lane, setLane] = useState<StoreAffiliateLane>(() =>
-    readHashQueryParam('magic') ? 'store' : parseAffiliateLane(readHashQueryParam('lane')),
-  );
   const [ready, setReady] = useState(false);
   const [existing, setExisting] = useState(false);
   const [displayName, setDisplayName] = useState('');
@@ -63,15 +52,25 @@ export default function AmbassadorEnter() {
   }, []);
 
   useEffect(() => {
+    const magic = readHashQueryParam('magic');
+    const lane = String(readHashQueryParam('lane') || '').trim().toLowerCase();
+    if (magic || lane === 'store') {
+      navigate(
+        magic
+          ? `${ROUTE_PATHS.STORE_AFFILIATES_DESK}?magic=${encodeURIComponent(magic)}`
+          : ROUTE_PATHS.STORE_AFFILIATES,
+        { replace: true },
+      );
+      return;
+    }
+    if (lane === 'coiffeur') {
+      navigate(ROUTE_PATHS.COIFFEUR_AMBASSADORS, { replace: true });
+      return;
+    }
     const portal = readAmbassadorPortal();
     setExisting(!!portal);
     setReady(true);
-  }, []);
-
-  function selectLane(next: StoreAffiliateLane) {
-    setLane(next);
-    navigate(next === 'halaq' ? ROUTE_PATHS.AMBASSADOR_ENTER : `${ROUTE_PATHS.AMBASSADOR_ENTER}?lane=${next}`);
-  }
+  }, [navigate]);
 
   if (!ready) {
     return (
@@ -171,34 +170,13 @@ export default function AmbassadorEnter() {
         <AmbassadorTelegramGroupBanner />
 
         <div className="text-center">
-          <p className="text-xs font-bold tracking-[0.14em] text-teal-300">{STORE_AFFILIATE_COPY.kickerAr}</p>
-          <h1 className="mt-2 text-3xl font-black leading-tight text-white">
-            واجهة التسويق بالعمولة لمنتجات <code className="text-[0.7em] font-bold">halaqmap</code> خريطة الحل
-          </h1>
-          <p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-slate-400">{STORE_AFFILIATE_COPY.leadAr}</p>
+          <p className="text-xs font-bold tracking-[0.14em] text-teal-300">حلاق ماب</p>
+          <h1 className="mt-2 text-3xl font-black leading-tight text-white">{AMBASSADOR_PROGRAM_NAME_AR}</h1>
+          <p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-slate-400">
+            طلب انضمام سفراء التسويق الميداني لصالونات حلاق ماب. بوابتا كوافير ماب ومسوّقي المتجر مستقلتان.
+          </p>
         </div>
 
-        <div className="flex flex-wrap justify-center gap-2">
-          {STORE_AFFILIATE_LANES.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() => selectLane(item.id)}
-              className={
-                lane === item.id
-                  ? 'rounded-full bg-teal-500 px-4 py-2 text-sm font-bold text-black'
-                  : 'rounded-full border border-white/15 px-4 py-2 text-sm font-bold text-slate-300 hover:border-teal-400/40'
-              }
-            >
-              {item.titleAr}
-            </button>
-          ))}
-        </div>
-
-        {lane === 'store' ? <AffiliateStoreLane /> : null}
-        {lane === 'coiffeur' ? <CoiffeurAmbassadorEnter embedded /> : null}
-
-        {lane === 'halaq' ? (
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="mx-auto max-w-lg">
           <div className="mb-8 text-center">
             <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-teal-400/30 bg-teal-500/10">
@@ -351,9 +329,18 @@ export default function AmbassadorEnter() {
             </p>
           </form>
         </motion.div>
-        ) : null}
 
-        {lane === 'halaq' ? <AmbassadorMarketingKitPanel /> : null}
+        <AmbassadorMarketingKitPanel />
+        <p className="text-center text-xs leading-7 text-slate-500">
+          بوابات أخرى مستقلة:{' '}
+          <Link to={ROUTE_PATHS.COIFFEUR_AMBASSADORS} className="text-teal-300 hover:underline">
+            مسوّقات كوافير ماب
+          </Link>
+          {' · '}
+          <Link to={ROUTE_PATHS.STORE_AFFILIATES} className="text-teal-300 hover:underline">
+            مسوّقو منتجات المتجر
+          </Link>
+        </p>
       </main>
     </div>
   );

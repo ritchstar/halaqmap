@@ -51,6 +51,18 @@ async function postAction(
   }
 }
 
+export async function applyStoreAffiliate(input: {
+  displayName: string;
+  email: string;
+  phone: string;
+  city: string;
+  channelPlan: string;
+  experience: string;
+  acceptedRules: boolean;
+}) {
+  return postAction({ action: 'apply', ...input });
+}
+
 export async function sendStoreAffiliateMagic(email: string) {
   return postAction({ action: 'send_magic', email });
 }

@@ -29,6 +29,7 @@ import {
 import { toast } from '@/components/ui/sonner';
 
 const HALAQ_AMBASSADOR_HREF = `https://www.halaqmap.com/#${ROUTE_PATHS.AMBASSADOR_ENTER}`;
+const STORE_AFFILIATES_HREF = `https://store.halaqmap.com/#${ROUTE_PATHS.STORE_AFFILIATES}`;
 
 export default function CoiffeurAmbassadorEnter({ embedded = false }: { embedded?: boolean }) {
   useDocumentTitle(COPY.documentTitle);
@@ -253,6 +254,10 @@ export default function CoiffeurAmbassadorEnter({ embedded = false }: { embedded
             {' · '}
             <a href={HALAQ_AMBASSADOR_HREF} className="text-[#f4d4c0] underline-offset-4 hover:underline">
               {COPY.counterpartAr}
+            </a>
+            {' · '}
+            <a href={STORE_AFFILIATES_HREF} className="text-[#f4d4c0] underline-offset-4 hover:underline">
+              مسوّقو منتجات المتجر
             </a>
           </p>
         )}

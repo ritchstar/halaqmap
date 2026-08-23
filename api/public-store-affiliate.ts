@@ -62,7 +62,15 @@ function siteOrigin(request: Request): string {
 }
 
 function magicLoginUrl(request: Request, token: string): string {
-  return `${siteOrigin(request)}/#/ambassadors/enter?lane=store&magic=${encodeURIComponent(token)}`;
+  const host = (request.headers.get('host') || '').trim().toLowerCase();
+  const origin = host.includes('store.halaqmap.com')
+    ? 'https://store.halaqmap.com'
+    : siteOrigin(request);
+  return `${origin}/#/store/affiliates/desk?magic=${encodeURIComponent(token)}`;
+}
+
+function clip(raw: unknown, max: number): string {
+  return String(raw ?? '').replace(/\s+/g, ' ').trim().slice(0, max);
 }
 
 function bearerToken(request: Request): string {
@@ -84,10 +92,10 @@ async function findSession(db: Db, sessionToken: string) {
 async function publicMarketer(db: Db, marketerId: string) {
   const { data: marketer } = await db
     .from('store_affiliate_marketers')
-    .select('email, display_name, code')
+    .select('email, display_name, code, status')
     .eq('id', marketerId)
     .maybeSingle();
-  if (!marketer) return null;
+  if (!marketer || String(marketer.status) !== 'approved') return null;
   const { data: rows } = await db
     .from('store_affiliate_ledger')
     .select('id, product_tag, line_id, price_halalas, commission_halalas, net_halalas, created_at')
@@ -147,11 +155,81 @@ export async function POST(request: Request): Promise<Response> {
     return json({ error: 'Invalid JSON body' }, 400, headers);
   }
   const action = String(body.action || '').trim();
+  if (action === 'apply') return applyMarketer(db, body, headers);
   if (action === 'send_magic') return sendMagic(db, body, headers, request);
   if (action === 'redeem_magic') return redeemMagic(db, body, headers);
   if (action === 'me') return readMe(db, request, headers);
   if (action === 'logout') return logout(db, request, headers);
   return json({ error: 'Unknown action' }, 400, headers);
+}
+
+async function applyMarketer(db: Db, body: Record<string, unknown>, headers: Record<string, string>) {
+  const accepted = body.acceptedRules === true || body.acceptedRules === 'true';
+  const email = clip(body.email, 180).toLowerCase();
+  const displayName = clip(body.displayName, 80);
+  const phone = clip(body.phone, 20);
+  const city = clip(body.city, 120);
+  const channelPlan = clip(body.channelPlan, 400);
+  const experience = clip(body.experience, 600);
+  if (!accepted) return json({ error: 'يجب الموافقة على وثيقة القواعد.' }, 400, headers);
+  if (!isEmail(email)) return json({ error: 'أدخل إيميلاً صالحاً.' }, 400, headers);
+  if (displayName.length < 2) return json({ error: 'الاسم الظاهر مطلوب.' }, 400, headers);
+  if (phone.length < 9) return json({ error: 'أدخل رقم جوال صالحاً.' }, 400, headers);
+  if (city.length < 3) return json({ error: 'اكتب المدينة أو النطاق الذي ستسوّق فيه.' }, 400, headers);
+  if (channelPlan.length < 12) return json({ error: 'اشرح كيف ستسوّق منتجات المتجر.' }, 400, headers);
+  if (experience.length < 20) return json({ error: 'اشرح خبرتك أو استعدادك بجملة أوضح.' }, 400, headers);
+
+  const { data: existing } = await db
+    .from('store_affiliate_marketers')
+    .select('id, status')
+    .ilike('email', email)
+    .maybeSingle();
+
+  if (existing) {
+    if (String(existing.status) === 'approved') {
+      return json({ ok: true, status: 'approved' }, 200, headers);
+    }
+    const { error } = await db
+      .from('store_affiliate_marketers')
+      .update({
+        display_name: displayName,
+        phone,
+        city,
+        channel_plan: channelPlan,
+        experience,
+        status: 'pending_review',
+        review_note: '',
+        reviewed_at: null,
+        reviewed_by: '',
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', existing.id);
+    if (error) return json({ error: 'تعذر حفظ الطلب.' }, 500, headers);
+    return json({ ok: true, status: 'pending_review' }, 200, headers);
+  }
+
+  let code = newAffiliateCode();
+  for (let i = 0; i < 6; i += 1) {
+    const inserted = await db
+      .from('store_affiliate_marketers')
+      .insert({
+        email,
+        display_name: displayName,
+        phone,
+        city,
+        channel_plan: channelPlan,
+        experience,
+        code,
+        status: 'pending_review',
+      })
+      .select('id')
+      .maybeSingle();
+    if (!inserted.error && inserted.data) {
+      return json({ ok: true, status: 'pending_review' }, 200, headers);
+    }
+    code = newAffiliateCode();
+  }
+  return json({ error: 'تعذر حفظ الطلب.' }, 500, headers);
 }
 
 async function sendMagic(db: Db, body: Record<string, unknown>, headers: Record<string, string>, request: Request) {
@@ -161,27 +239,12 @@ async function sendMagic(db: Db, body: Record<string, unknown>, headers: Record<
   const sent = { ok: true, sent: true };
   if (!isEmail(email)) return json(sent, 200, headers);
 
-  let { data: marketer } = await db
+  const { data: marketer } = await db
     .from('store_affiliate_marketers')
-    .select('id, code')
-    .eq('email', email)
+    .select('id, status')
+    .ilike('email', email)
     .maybeSingle();
-  if (!marketer) {
-    let code = newAffiliateCode();
-    for (let i = 0; i < 6; i += 1) {
-      const inserted = await db
-        .from('store_affiliate_marketers')
-        .insert({ email, display_name: email.split('@')[0] || 'مسوّق', code })
-        .select('id, code')
-        .maybeSingle();
-      if (!inserted.error && inserted.data) {
-        marketer = inserted.data;
-        break;
-      }
-      code = newAffiliateCode();
-    }
-  }
-  if (!marketer) return json(sent, 200, headers);
+  if (!marketer || String(marketer.status) !== 'approved') return json(sent, 200, headers);
   const { count } = await db
     .from('store_affiliate_magic_links')
     .select('id', { count: 'exact', head: true })
@@ -211,6 +274,14 @@ async function redeemMagic(db: Db, body: Record<string, unknown>, headers: Recor
     .maybeSingle();
   if (!row || row.used_at || new Date(String(row.expires_at)).getTime() <= Date.now()) {
     return json({ error: 'الرابط منتهٍ أو مستهلك' }, 400, headers);
+  }
+  const { data: marketer } = await db
+    .from('store_affiliate_marketers')
+    .select('status')
+    .eq('id', row.marketer_id)
+    .maybeSingle();
+  if (!marketer || String(marketer.status) !== 'approved') {
+    return json({ error: 'يلزم موافقة الإدارة أولاً' }, 403, headers);
   }
   const sessionToken = newSecret();
   const { error: sessionErr } = await db.from('store_affiliate_sessions').insert({

@@ -28,7 +28,7 @@ function lineTitle(lineId: string): string {
   return lineId;
 }
 
-export function AffiliateStoreLane() {
+export function AffiliateStoreLane({ hideCatalog = false }: { hideCatalog?: boolean }) {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [busy, setBusy] = useState(false);
@@ -48,7 +48,7 @@ export function AffiliateStoreLane() {
         } else {
           toast.error(typeof redeemed.error === 'string' ? redeemed.error : 'الرابط منتهٍ أو مستهلك.');
         }
-        navigate(`${ROUTE_PATHS.AMBASSADOR_ENTER}?lane=store`, { replace: true });
+        navigate(ROUTE_PATHS.STORE_AFFILIATES_DESK, { replace: true });
         setLoading(false);
         return;
       }
@@ -112,6 +112,9 @@ export function AffiliateStoreLane() {
     return (
       <div className="space-y-6">
         <p className="text-sm leading-8 text-slate-300">{STORE_AFFILIATE_COPY.storeLeadAr}</p>
+        <p className="rounded-2xl border border-amber-300/25 bg-amber-400/5 px-4 py-3 text-sm leading-7 text-amber-100">
+          {STORE_AFFILIATE_COPY.storeOngoingAr}
+        </p>
         <section className="rounded-2xl border border-teal-400/25 bg-teal-500/5 p-5">
           <p className="text-base font-extrabold text-white">{STORE_AFFILIATE_COPY.deskTitleAr}</p>
           <p className="mt-2 text-sm text-slate-300">{marketer.displayName}</p>
@@ -179,6 +182,10 @@ export function AffiliateStoreLane() {
   return (
     <div className="space-y-6">
       <p className="text-sm leading-8 text-slate-300">{STORE_AFFILIATE_COPY.storeLeadAr}</p>
+      <p className="rounded-2xl border border-amber-300/25 bg-amber-400/5 px-4 py-3 text-sm leading-7 text-amber-100">
+        {STORE_AFFILIATE_COPY.deskGateAr}
+      </p>
+      {hideCatalog ? null : (
       <ul className="space-y-3">
         {STORE_AFFILIATE_LINES.map((line) => (
           <li
@@ -199,6 +206,7 @@ export function AffiliateStoreLane() {
           </li>
         ))}
       </ul>
+      )}
       <form
         onSubmit={(event) => void onSubmit(event)}
         className="space-y-3 rounded-2xl border border-teal-400/25 bg-teal-500/5 p-5"

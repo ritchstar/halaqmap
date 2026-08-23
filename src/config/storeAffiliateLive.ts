@@ -7,36 +7,61 @@
  */
 export const STORE_AFFILIATE_PUBLIC_ENABLED = true;
 
-export const STORE_AFFILIATE_HUB_TITLE_AR = 'واجهة التسويق بالعمولة لمنتجات خريطة الحل';
+export const STORE_AFFILIATE_HUB_TITLE_AR = 'بوابة مسوّقي منتجات المتجر — خريطة الحل';
 
-export const STORE_AFFILIATE_GROUP_NAME_AR = 'المجموعة التسويقية لخريطة الحل';
+export const STORE_AFFILIATE_GROUP_NAME_AR = 'المجموعة التسويقية للمتجر الإلكتروني';
 
 export type StoreAffiliateLane = 'halaq' | 'coiffeur' | 'store';
 
+/** بوابات مستقلة — ليست تبويبات داخل صفحة واحدة */
 export const STORE_AFFILIATE_LANES = [
-  { id: 'halaq' as const, titleAr: 'مسوّقو حلاق ماب' },
-  { id: 'coiffeur' as const, titleAr: 'مسوّقات كوافير ماب' },
-  { id: 'store' as const, titleAr: 'مسوّقو منتجات المتجر' },
+  { id: 'halaq' as const, titleAr: 'مسوّقو حلاق ماب', pathAr: '/ambassadors' },
+  { id: 'coiffeur' as const, titleAr: 'مسوّقات كوافير ماب', pathAr: '/coiffeur/ambassadors' },
+  { id: 'store' as const, titleAr: 'مسوّقو منتجات المتجر', pathAr: '/store/affiliates' },
 ] as const;
 
 export const STORE_AFFILIATE_COPY = {
-  documentTitle: 'واجهة التسويق بالعمولة — خريطة الحل',
-  kickerAr: 'تسويق بالعمولة',
+  documentTitle: 'بوابة مسوّقي منتجات المتجر — خريطة الحل',
+  kickerAr: 'المجموعة التسويقية للمتجر الإلكتروني',
   titleAr: STORE_AFFILIATE_HUB_TITLE_AR,
   leadAr:
-    'للمسوّق والمسوّقة. ثلاثة مسارات في صفحة واحدة: حلاق ماب، كوافير ماب، ومنتجات المتجر الإلكتروني. المجموعة واحدة: المجموعة التسويقية لخريطة الحل.',
+    'هذه البوابة لمسوّقي ومسوّقات منتجات المتجر فقط. لا استهداف صالونات، ولا فنادق وشقق مخدومة، ولا رخصة نفاذ. سفراء حلاق ماب ومسوّقات كوافير ماب لهما بوابتان مستقلتان.',
+  tableTitleAr: 'طاولة التعليمات',
+  homeApplyCtaAr: 'قدّم طلب الانضمام',
+  homeDeskCtaAr: 'دخول اللوحة',
+  homeRulesCtaAr: 'وثيقة القواعد',
+  nameLabelAr: 'الاسم الظاهر',
+  emailLabelAr: 'الإيميل',
+  phoneLabelAr: 'الجوال',
+  cityLabelAr: 'المدينة أو النطاق الذي ستسوّق فيه',
+  channelLabelAr: 'كيف ستسوّق منتجات المتجر؟',
+  experienceLabelAr: 'خبرتك أو استعدادك',
+  rulesAcceptAr: 'قرأت وأوافق على وثيقة قواعد مسوّقي المتجر',
+  alreadyApprovedAr: 'هذا الإيميل معتمد مسبقاً. اطلب رابط الدخول من اللوحة.',
+  outboundHalaqAr: 'سفراء حلاق ماب',
+  outboundCoiffeurAr: 'مسوّقات كوافير ماب',
   storeLeadAr:
-    'عمولة ثابتة تُقتطع من حصة المنصة بعد سداد فاتورة ميسر عبر رابط المسوّق أو المسوّقة. ما يصل المنصة هو سعر المنتج مخصوماً منه العمولة، ثم تُقيَّد في اللوحة آلياً. لا كاردي8، ولا علاقة بطلب جار الحي نقداً أو شبكة عند الباب.',
+    'عمولة ثابتة تُقتطع من حصة المنصة بعد كل سداد ميسر يصل من رابط المسوّق أو المسوّقة. كل عملية شراء جديدة تُقيَّد بعمولة المنتج المشترى، ولا يتوقف المسار بعد أول بيع. الزبون يدفع السعر كاملاً. لا كاردي8، ولا علاقة بطلب جار الحي نقداً أو شبكة عند الباب.',
+  storeOngoingAr:
+    'كل فاتورة جديدة من رابطك لها عمولة ذلك المنتج. إعادة شراء لاونجا1 أو تمويناتا1 من الرابط تُحسب أيضاً.',
+  isolationAr:
+    'لا تخلط هذا المسار بطلب استهداف حلاق أو شقق مخدومة. تلك أدوات سفراء حلاق ماب ومسوّقات كوافير ماب فقط.',
+  reviewLeadAr:
+    'لا تفعيل فوري. تُجمع بيانات أساسية، ثم تقيّم الإدارة الطلب: موافقة أو اعتذار. بعد الموافقة يُفتح الدخول برابط سري على الإيميل.',
+  applyTitleAr: 'طلب الانضمام والمراجعة المبدئية',
+  applyCtaAr: 'إرسال الطلب لمراجعة الإدارة',
+  applySentAr: 'وصل الطلب. حالتك قيد المراجعة. لا لوحة ولا روابط شراء قبل الموافقة.',
+  deskGateAr: 'الدخول للوحة بعد موافقة الإدارة فقط.',
   storeLoginTitleAr: 'دخول اللوحة',
   storeLoginLeadAr: 'الإيميل مرتكز التحقق. اطلب رابطاً سرياً يصل إلى صندوقك ثم افتح اللوحة منه.',
   storeLoginPlaceholderAr: 'name@example.com',
   storeLoginCtaAr: 'أرسل رابط دخول جديد',
-  storeLoginHintAr: 'يصل الرابط السري إلى إيميلك. افتحه من جهازك. إن تم الشراء من روابطك تُقيَّد عمولتك الثابتة فقط.',
+  storeLoginHintAr: 'يصل الرابط السري إلى إيميلك. افتحه من جهازك. كل شراء جديد من روابطك يُقيَّد بعمولة ذلك المنتج.',
   storeLoginSentAr: 'إن كان الإيميل صالحاً سيصل الرابط السري الآن.',
   deskTitleAr: 'لوحة المسوّق أو المسوّقة',
   deskLinksTitleAr: 'روابط الشراء باسمك',
   deskLedgerTitleAr: 'قيد العمولة',
-  deskEmptyAr: 'لا قيد بعد. العمولة تُسجَّل عند سداد ميسر من رابطك.',
+  deskEmptyAr: 'لا قيد بعد. كل سداد ميسر جديد من رابطك يُسجَّل هنا.',
   deskLogoutAr: 'خروج',
   lineLabelAr: {
     wedding: 'افراحي1',
@@ -150,3 +175,32 @@ export function parseAffiliateLane(raw: string | null | undefined): StoreAffilia
   if (value === 'coiffeur' || value === 'store') return value;
   return 'halaq';
 }
+
+export const STORE_AFFILIATE_RULES_VERSION = '2026-08-23';
+
+export const STORE_AFFILIATE_RULES_SECTIONS = [
+  {
+    id: 'scope',
+    titleAr: 'النطاق',
+    bodyAr:
+      'البوابة تخص بيع منتجات المتجر الإلكتروني عبر رابطك. العمولة من حصة المنصة بعد سداد ميسر. ليست عمولة على خدمة حلاق أو كوافير، وليست مسار استهداف ميداني.',
+  },
+  {
+    id: 'review',
+    titleAr: 'المراجعة والانضباط',
+    bodyAr:
+      'يُنشأ الحساب بعد تقييم مبدئي من الإدارة. الموافقة تفتح اللوحة. الاعتذار يغلق الطلب. الإدارة تعيد التقييم لاحقاً وفق الأداء والانضباط.',
+  },
+  {
+    id: 'forbidden',
+    titleAr: 'المحظور',
+    bodyAr:
+      'ممنوع استهداف صالون أو شقق مخدومة من هذه البوابة. ممنوع كاردي8 ومطعمنا1 حتى يُعتمدا. ممنوع خلط رخصة النفاذ أو محفظة الحلاق أو سلة جار الحي.',
+  },
+  {
+    id: 'pay',
+    titleAr: 'القيد',
+    bodyAr:
+      'كل سداد ميسر جديد من رابطك يُقيَّد مرة واحدة على معرّف الدفع. التجديد من الرابط يُحسب. الدخول بعد الموافقة برابط سري على الإيميل.',
+  },
+] as const;

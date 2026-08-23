@@ -18,8 +18,12 @@ export function rememberStoreAffiliateRef(): string {
   if (typeof window === 'undefined') return '';
   const incoming = parseStoreAffiliateRef(readHashQueryParam('ref'));
   if (incoming) {
-    window.sessionStorage.setItem(KEY, incoming);
+    window.localStorage.setItem(KEY, incoming);
+    window.sessionStorage.removeItem(KEY);
     return incoming;
   }
-  return parseStoreAffiliateRef(window.sessionStorage.getItem(KEY));
+  return (
+    parseStoreAffiliateRef(window.localStorage.getItem(KEY)) ||
+    parseStoreAffiliateRef(window.sessionStorage.getItem(KEY))
+  );
 }
