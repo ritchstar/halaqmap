@@ -103,11 +103,6 @@ export function restaurantLivePaymentMatches(input: {
 }): boolean {
   const product = restaurantLiveMetaProduct(input.meta);
   if (product !== STORE_RESTAURANT_LIVE_PRODUCT) return false;
-  if (product === 'store_occasion_card') return false;
-  if (product === 'store_wedding_live') return false;
-  if (product === 'store_event_live') return false;
-  if (product === 'store_lounge_live') return false;
-  if (product === 'store_grocers_live') return false;
   if (!input.token || restaurantLiveMetaToken(input.meta) !== input.token) return false;
   return isRestaurantPriceHalalas(input.amount);
 }

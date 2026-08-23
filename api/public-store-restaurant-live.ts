@@ -404,7 +404,10 @@ async function markLive(db: Db, id: string, paymentId: string, amount: number): 
   const wasRenewal = current.status === 'pending_renewal' || current.status === 'expired' || current.status === 'live';
   const pack = restaurantPackFromHalalas(Number(current.price_halalas || amount));
   const expiresAt = restaurantLiveTermEndIso(pack.days);
-  const payload = { ...((current.payload || {}) as Record<string, unknown>), chatIncluded: true };
+  const payload: Record<string, unknown> = {
+    ...((current.payload || {}) as Record<string, unknown>),
+    chatIncluded: true,
+  };
   const history = Array.isArray(payload.paymentHistory) ? payload.paymentHistory : [];
   history.push({ id: paymentId, at: new Date().toISOString(), kind: wasRenewal ? 'renewal' : 'purchase' });
   payload.paymentHistory = history.slice(-12);
