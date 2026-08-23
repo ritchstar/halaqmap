@@ -35,6 +35,9 @@ assert(
 const landing = readFileSync(join(root, 'src/pages/store/StoreLanding.tsx'), 'utf8');
 assert('landing_strip', landing.includes('STORE_LANDING_COPY.trustStripTitleAr'));
 assert('landing_trust_route', landing.includes('ROUTE_PATHS.STORE_TRUST'));
+assert('newest_after_banner', landing.indexOf('StoreLiveOpsBanner') < landing.indexOf('store-newest-products'));
+assert('trust_after_newest', landing.indexOf('store-newest-products') < landing.indexOf('store-trust-scan'));
+assert('chat_after_trust', landing.indexOf('store-trust-scan') < landing.indexOf('store-admin-chat'));
 
 if (failed) {
   console.error(`store-trust-copy: ${failed} failed`);

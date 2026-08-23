@@ -1623,6 +1623,29 @@
   animation: honor-board-breathe 4.5s ease-in-out infinite;
 }
 
+@keyframes store-newest-title-pulse {
+  0%,
+  100% {
+    text-shadow: 0 0 10px rgba(232, 197, 71, 0.28), 0 0 28px rgba(232, 197, 71, 0.12);
+    filter: brightness(1);
+  }
+  50% {
+    text-shadow: 0 0 18px rgba(232, 197, 71, 0.7), 0 0 42px rgba(232, 197, 71, 0.35);
+    filter: brightness(1.12);
+  }
+}
+
+.store-newest-title {
+  animation: store-newest-title-pulse 2.2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .store-newest-title {
+    animation: none;
+    text-shadow: 0 0 12px rgba(232, 197, 71, 0.35);
+  }
+}
+
 /* ─── HalaqMap brand mark: calm heartbeat + subtle star shimmer ─── */
 @keyframes halaqmap-brand-pulse {
   0%,

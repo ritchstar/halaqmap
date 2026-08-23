@@ -105,36 +105,117 @@ export default function StoreLanding() {
 
       <StoreLiveOpsBanner />
 
-      <section className="px-4 pb-10">
-        <div className="mx-auto max-w-5xl overflow-hidden rounded-2xl border border-[#e8c547]/30 bg-[#0b1a24]/85">
-          <div className="grid items-center lg:grid-cols-[1.15fr_0.85fr]">
+      <section id="store-newest-products" className="px-4 pb-4">
+        <div className="mx-auto max-w-5xl text-center">
+          <h2 className="store-newest-title text-2xl font-black text-[#e8c547] md:text-3xl">
+            {STORE_LANDING_COPY.newestTitleAr}
+          </h2>
+          <p className="mx-auto mt-3 max-w-3xl text-sm leading-7 text-white/72">{STORE_LANDING_COPY.newestLeadAr}</p>
+        </div>
+      </section>
+
+      {STORE_WEDDING_LIVE_PUBLIC_ENABLED ? (
+      <section className="px-4 pb-8">
+        <div className="mx-auto max-w-5xl space-y-4">
+          <div className="overflow-hidden rounded-2xl border border-[#e8c547]/35 bg-[#0b1a24]/70">
+            <StoreShot reel="wedding" alt="افراحي1 رجالي" className="aspect-[16/7]" />
             <div className="p-5 md:p-6">
-              <p className="text-xs font-black tracking-[0.18em] text-[#e8c547]">{STORE_TRUST_COPY.sslKickerAr}</p>
-              <h2 className="mt-2 text-xl font-extrabold text-[#f4efe4] md:text-2xl">
-                {STORE_LANDING_COPY.trustStripTitleAr}
-              </h2>
-              <p className="mt-3 inline-flex items-center gap-2 rounded-full border border-emerald-400/35 bg-emerald-500/15 px-3 py-1 text-sm font-black text-emerald-100">
-                <span dir="ltr">{PLATFORM_TLS_SSL_LABS_GRADE}</span>
-                <span className="font-bold text-emerald-50/80">Qualys SSL Labs</span>
-              </p>
-              <p className="mt-3 max-w-2xl text-sm leading-7 text-white/75">{STORE_LANDING_COPY.trustStripBodyAr}</p>
-              <Link
-                to={ROUTE_PATHS.STORE_TRUST}
-                className="mt-5 inline-flex rounded-full bg-[#e8c547] px-5 py-2.5 text-sm font-extrabold text-[#061018] hover:bg-[#f0d36a]"
-              >
-                {STORE_LANDING_COPY.trustStripCtaAr}
+              <h2 className="text-xl font-extrabold">{STORE_LANDING_COPY.weddingLiveTitleAr}</h2>
+              <p className="mt-2 max-w-3xl text-sm leading-7 text-white/70">{STORE_LANDING_COPY.weddingLiveLeadAr}</p>
+              <Link to={ROUTE_PATHS.STORE_WEDDING} className="mt-4 inline-flex text-sm font-bold text-[#e8c547]">
+                {STORE_LANDING_COPY.weddingLiveCtaAr}
               </Link>
             </div>
-            <figure className="border-t border-white/10 bg-white lg:border-t-0 lg:border-s">
-              <img
-                src={STORE_TRUST_COPY.sslImage}
-                alt={STORE_TRUST_COPY.sslAltAr}
-                className="aspect-[16/9] w-full bg-white object-contain object-top"
-              />
-            </figure>
+          </div>
+          <div className="overflow-hidden rounded-2xl border border-[#e4b7c5]/35 bg-[#0b1a24]/70">
+            <StoreShot reel="wedding-women" alt="افراحي1 نسائي" className="aspect-[16/7]" />
+            <div className="p-5 md:p-6">
+              <h2 className="text-xl font-extrabold">{STORE_LANDING_COPY.weddingLiveWomenTitleAr}</h2>
+              <p className="mt-2 max-w-3xl text-sm leading-7 text-white/70">{STORE_LANDING_COPY.weddingLiveWomenLeadAr}</p>
+              <Link to={ROUTE_PATHS.STORE_WEDDING_WOMEN} className="mt-4 inline-flex text-sm font-bold text-[#e4b7c5]">
+                {STORE_LANDING_COPY.weddingLiveWomenCtaAr}
+              </Link>
+            </div>
           </div>
         </div>
       </section>
+      ) : null}
+
+      {STORE_EVENT_LIVE_PUBLIC_ENABLED ? (
+      <section className="px-4 pb-8">
+        <div className="mx-auto max-w-5xl">
+          <div className="overflow-hidden rounded-2xl border border-[#e8c547]/30 bg-[#0b1a24]/70">
+            <StoreShot reel="event" alt="اجواء1" className="aspect-[16/7]" />
+            <div className="p-5 md:p-6">
+              <h2 className="text-xl font-extrabold">{STORE_LANDING_COPY.eventLiveTitleAr}</h2>
+              <p className="mt-2 max-w-3xl text-sm leading-7 text-white/70">{STORE_LANDING_COPY.eventLiveLeadAr}</p>
+              <Link to={ROUTE_PATHS.STORE_EVENT} className="mt-4 inline-flex text-sm font-bold text-[#e8c547]">
+                {STORE_LANDING_COPY.eventLiveCtaAr}
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+      ) : null}
+
+      {STORE_LOUNGE_LIVE_PUBLIC_ENABLED ? (
+      <section className="px-4 pb-8">
+        <div className="mx-auto max-w-5xl">
+          <div className="overflow-hidden rounded-2xl border border-[#d4a574]/30 bg-[#0b1a24]/70">
+            <StoreShot reel="lounge" alt="لاونجا1" className="aspect-[16/7]" />
+            <div className="p-5 md:p-6">
+              <h2 className="text-xl font-extrabold">{STORE_LANDING_COPY.loungeLiveTitleAr}</h2>
+              <p className="mt-2 max-w-3xl text-sm leading-7 text-white/70">{STORE_LANDING_COPY.loungeLiveLeadAr}</p>
+              <Link to={ROUTE_PATHS.STORE_LOUNGE} className="mt-4 inline-flex text-sm font-bold text-[#d4a574]">
+                {STORE_LANDING_COPY.loungeLiveCtaAr}
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+      ) : null}
+
+      {STORE_GROCERS_LIVE_PUBLIC_ENABLED ? (
+      <section className="px-4 pb-8">
+        <div className="mx-auto max-w-5xl">
+          <div className="overflow-hidden rounded-2xl border border-[#8fbf7a]/30 bg-[#07140e]/70">
+            <StoreShot
+              reel="grocers"
+              alt={STORE_GROCERS_LIVE.heroAltAr}
+              className="aspect-[16/7] w-full"
+            />
+            <div className="p-5 md:p-6">
+              <h2 className="text-xl font-extrabold">{STORE_LANDING_COPY.grocersLiveTitleAr}</h2>
+              <p className="mt-2 max-w-3xl text-sm leading-7 text-white/70">{STORE_LANDING_COPY.grocersLiveLeadAr}</p>
+              <Link to={ROUTE_PATHS.STORE_GROCERS} className="mt-4 inline-flex text-sm font-bold text-[#8fbf7a]">
+                {STORE_LANDING_COPY.grocersLiveCtaAr}
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+      ) : null}
+
+      {STORE_RESTAURANT_LIVE_PUBLIC_ENABLED ? (
+      <section className="px-4 pb-8">
+        <div className="mx-auto max-w-5xl">
+          <div className="overflow-hidden rounded-2xl border border-[#e08a3c]/30 bg-[#1a1008]/70">
+            <StoreShot
+              reel="restaurant"
+              alt={STORE_RESTAURANT_LIVE.heroAltAr}
+              className="aspect-[16/7] w-full"
+            />
+            <div className="p-5 md:p-6">
+              <h2 className="text-xl font-extrabold">{STORE_LANDING_COPY.restaurantLiveTitleAr}</h2>
+              <p className="mt-2 max-w-3xl text-sm leading-7 text-white/70">{STORE_LANDING_COPY.restaurantLiveLeadAr}</p>
+              <Link to={ROUTE_PATHS.STORE_RESTAURANT} className="mt-4 inline-flex text-sm font-bold text-[#e08a3c]">
+                {STORE_LANDING_COPY.restaurantLiveCtaAr}
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+      ) : null}
 
       <section className="px-4 pb-10">
         <div className="mx-auto max-w-5xl">
@@ -163,16 +244,6 @@ export default function StoreLanding() {
                 <code dir="ltr">{STORE_SECTOR_SPLIT_COPY.coiffeurHost}</code>
               </p>
             </a>
-          </div>
-        </div>
-      </section>
-
-      <section className="px-4 pb-10">
-        <div className="mx-auto max-w-sm">
-          <h2 className="text-center text-lg font-extrabold text-white/90">{STORE_LANDING_COPY.deskChatTitle}</h2>
-          <p className="mt-2 text-center text-sm leading-relaxed text-white/70">{STORE_LANDING_COPY.deskChatLead}</p>
-          <div className="mt-5">
-            <StoreDeskChatCard />
           </div>
         </div>
       </section>
@@ -297,108 +368,46 @@ export default function StoreLanding() {
         </div>
       </section>
 
-      {STORE_WEDDING_LIVE_PUBLIC_ENABLED ? (
-      <section className="px-4 pb-8">
-        <div className="mx-auto max-w-5xl space-y-4">
-          <div className="overflow-hidden rounded-2xl border border-[#e8c547]/35 bg-[#0b1a24]/70">
-            <StoreShot reel="wedding" alt="افراحي1" className="aspect-[16/7]" />
+      <section id="store-trust-scan" className="px-4 pb-10">
+        <div className="mx-auto max-w-5xl overflow-hidden rounded-2xl border border-[#e8c547]/30 bg-[#0b1a24]/85">
+          <div className="grid items-center lg:grid-cols-[1.15fr_0.85fr]">
             <div className="p-5 md:p-6">
-              <h2 className="text-xl font-extrabold">{STORE_LANDING_COPY.weddingLiveTitleAr}</h2>
-              <p className="mt-2 max-w-3xl text-sm leading-7 text-white/70">{STORE_LANDING_COPY.weddingLiveLeadAr}</p>
-              <Link to={ROUTE_PATHS.STORE_WEDDING} className="mt-4 inline-flex text-sm font-bold text-[#e8c547]">
-                {STORE_LANDING_COPY.weddingLiveCtaAr}
+              <p className="text-xs font-black tracking-[0.18em] text-[#e8c547]">{STORE_TRUST_COPY.sslKickerAr}</p>
+              <h2 className="mt-2 text-xl font-extrabold text-[#f4efe4] md:text-2xl">
+                {STORE_LANDING_COPY.trustStripTitleAr}
+              </h2>
+              <p className="mt-3 inline-flex items-center gap-2 rounded-full border border-emerald-400/35 bg-emerald-500/15 px-3 py-1 text-sm font-black text-emerald-100">
+                <span dir="ltr">{PLATFORM_TLS_SSL_LABS_GRADE}</span>
+                <span className="font-bold text-emerald-50/80">Qualys SSL Labs</span>
+              </p>
+              <p className="mt-3 max-w-2xl text-sm leading-7 text-white/75">{STORE_LANDING_COPY.trustStripBodyAr}</p>
+              <Link
+                to={ROUTE_PATHS.STORE_TRUST}
+                className="mt-5 inline-flex rounded-full bg-[#e8c547] px-5 py-2.5 text-sm font-extrabold text-[#061018] hover:bg-[#f0d36a]"
+              >
+                {STORE_LANDING_COPY.trustStripCtaAr}
               </Link>
             </div>
-          </div>
-          <div className="overflow-hidden rounded-2xl border border-[#e4b7c5]/35 bg-[#0b1a24]/70">
-            <StoreShot reel="wedding-women" alt="افراحي1 نسائي" className="aspect-[16/7]" />
-            <div className="p-5 md:p-6">
-              <h2 className="text-xl font-extrabold">{STORE_LANDING_COPY.weddingLiveWomenTitleAr}</h2>
-              <p className="mt-2 max-w-3xl text-sm leading-7 text-white/70">{STORE_LANDING_COPY.weddingLiveWomenLeadAr}</p>
-              <Link to={ROUTE_PATHS.STORE_WEDDING_WOMEN} className="mt-4 inline-flex text-sm font-bold text-[#e4b7c5]">
-                {STORE_LANDING_COPY.weddingLiveWomenCtaAr}
-              </Link>
-            </div>
+            <figure className="border-t border-white/10 bg-white lg:border-t-0 lg:border-s">
+              <img
+                src={STORE_TRUST_COPY.sslImage}
+                alt={STORE_TRUST_COPY.sslAltAr}
+                className="aspect-[16/9] w-full bg-white object-contain object-top"
+              />
+            </figure>
           </div>
         </div>
       </section>
-      ) : null}
 
-      {STORE_EVENT_LIVE_PUBLIC_ENABLED ? (
-      <section className="px-4 pb-8">
-        <div className="mx-auto max-w-5xl">
-          <div className="overflow-hidden rounded-2xl border border-[#e8c547]/30 bg-[#0b1a24]/70">
-            <StoreShot reel="event" alt="اجواء1" className="aspect-[16/7]" />
-            <div className="p-5 md:p-6">
-              <h2 className="text-xl font-extrabold">{STORE_LANDING_COPY.eventLiveTitleAr}</h2>
-              <p className="mt-2 max-w-3xl text-sm leading-7 text-white/70">{STORE_LANDING_COPY.eventLiveLeadAr}</p>
-              <Link to={ROUTE_PATHS.STORE_EVENT} className="mt-4 inline-flex text-sm font-bold text-[#e8c547]">
-                {STORE_LANDING_COPY.eventLiveCtaAr}
-              </Link>
-            </div>
+      <section id="store-admin-chat" className="px-4 pb-10">
+        <div className="mx-auto max-w-sm">
+          <h2 className="text-center text-lg font-extrabold text-white/90">{STORE_LANDING_COPY.deskChatTitle}</h2>
+          <p className="mt-2 text-center text-sm leading-relaxed text-white/70">{STORE_LANDING_COPY.deskChatLead}</p>
+          <div className="mt-5">
+            <StoreDeskChatCard />
           </div>
         </div>
       </section>
-      ) : null}
-
-      {STORE_LOUNGE_LIVE_PUBLIC_ENABLED ? (
-      <section className="px-4 pb-8">
-        <div className="mx-auto max-w-5xl">
-          <div className="overflow-hidden rounded-2xl border border-[#d4a574]/30 bg-[#0b1a24]/70">
-            <StoreShot reel="lounge" alt="لاونجا1" className="aspect-[16/7]" />
-            <div className="p-5 md:p-6">
-              <h2 className="text-xl font-extrabold">{STORE_LANDING_COPY.loungeLiveTitleAr}</h2>
-              <p className="mt-2 max-w-3xl text-sm leading-7 text-white/70">{STORE_LANDING_COPY.loungeLiveLeadAr}</p>
-              <Link to={ROUTE_PATHS.STORE_LOUNGE} className="mt-4 inline-flex text-sm font-bold text-[#d4a574]">
-                {STORE_LANDING_COPY.loungeLiveCtaAr}
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-      ) : null}
-
-      {STORE_GROCERS_LIVE_PUBLIC_ENABLED ? (
-      <section className="px-4 pb-8">
-        <div className="mx-auto max-w-5xl">
-          <div className="overflow-hidden rounded-2xl border border-[#8fbf7a]/30 bg-[#07140e]/70">
-            <StoreShot
-              reel="grocers"
-              alt={STORE_GROCERS_LIVE.heroAltAr}
-              className="aspect-[16/7] w-full"
-            />
-            <div className="p-5 md:p-6">
-              <h2 className="text-xl font-extrabold">{STORE_LANDING_COPY.grocersLiveTitleAr}</h2>
-              <p className="mt-2 max-w-3xl text-sm leading-7 text-white/70">{STORE_LANDING_COPY.grocersLiveLeadAr}</p>
-              <Link to={ROUTE_PATHS.STORE_GROCERS} className="mt-4 inline-flex text-sm font-bold text-[#8fbf7a]">
-                {STORE_LANDING_COPY.grocersLiveCtaAr}
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-      ) : null}
-
-      {STORE_RESTAURANT_LIVE_PUBLIC_ENABLED ? (
-      <section className="px-4 pb-8">
-        <div className="mx-auto max-w-5xl">
-          <div className="overflow-hidden rounded-2xl border border-[#e08a3c]/30 bg-[#1a1008]/70">
-            <StoreShot
-              reel="restaurant"
-              alt={STORE_RESTAURANT_LIVE.heroAltAr}
-              className="aspect-[16/7] w-full"
-            />
-            <div className="p-5 md:p-6">
-              <h2 className="text-xl font-extrabold">{STORE_LANDING_COPY.restaurantLiveTitleAr}</h2>
-              <p className="mt-2 max-w-3xl text-sm leading-7 text-white/70">{STORE_LANDING_COPY.restaurantLiveLeadAr}</p>
-              <Link to={ROUTE_PATHS.STORE_RESTAURANT} className="mt-4 inline-flex text-sm font-bold text-[#e08a3c]">
-                {STORE_LANDING_COPY.restaurantLiveCtaAr}
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-      ) : null}
 
       <StoreVisitorFooter />
     </StoreVisitorShell>
