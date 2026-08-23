@@ -4,8 +4,11 @@
  * شاشة لاونجا1 — فعالية، ترحيبات، تنويه.
  */
 import { STORE_LOUNGE_LIVE, STORE_LOUNGE_LIVE_ACCENT } from '@/config/storeLoungeLive';
+import { STORE_HALL_SCREEN_FRAME } from '@/config/storeHallFrames';
 import { STORE_LOUNGE_MARKETING_FRAMES } from '@/config/storeMarketingReels';
+import { StoreHallFieldPlate } from '@/components/store/StoreHallFieldPlate';
 import { StoreHallNoticePlaque } from '@/components/store/StoreHallNoticePlaque';
+import { StoreHallOrnamentFrame } from '@/components/store/StoreHallOrnamentFrame';
 import { StoreLivePanoramaCycle } from '@/components/store/StoreLivePanoramaCycle';
 import { StoreLoungeNightSky } from '@/components/store/StoreLoungeNightSky';
 import { StoreShot } from '@/components/store/StoreShot';
@@ -17,16 +20,18 @@ export function StoreLoungeHallStage({
   state,
   className,
   immersive = false,
+  preview = false,
 }: {
   state: LoungeLiveLabState;
   className?: string;
   immersive?: boolean;
+  preview?: boolean;
 }) {
   const visible = state.blessings.filter((item) => !item.hidden);
   const ticker = visible
     .map((item) => `${item.name}: ${item.extra ? `${item.cannedText} ${item.extra}` : item.cannedText}`)
     .join('   ·   ');
-  const embed = !state.host.youtubeHidden ? youtubeEmbedSrc(state.host.youtubeUrl) : null;
+  const embed = !preview && !state.host.youtubeHidden ? youtubeEmbedSrc(state.host.youtubeUrl) : null;
   const latest = visible.slice(-4).reverse();
   const accent = STORE_LOUNGE_LIVE_ACCENT;
 
@@ -38,25 +43,36 @@ export function StoreLoungeHallStage({
         className,
       )}
     >
-      <StoreLivePanoramaCycle frames={STORE_LOUNGE_MARKETING_FRAMES} />
-      <StoreLoungeNightSky fixed={false} className="opacity-80" />
+      <StoreLivePanoramaCycle frames={preview ? STORE_LOUNGE_MARKETING_FRAMES.slice(0, 1) : STORE_LOUNGE_MARKETING_FRAMES} />
+      {preview ? null : <StoreLoungeNightSky fixed={false} className="opacity-80" />}
       <div className="absolute inset-0 bg-gradient-to-b from-black/35 via-black/25 to-black/72" />
-      <div className="wedding-hall-lights pointer-events-none absolute inset-0" aria-hidden />
+      {preview ? null : <div className="wedding-hall-lights pointer-events-none absolute inset-0" aria-hidden />}
+      <StoreHallOrnamentFrame src={STORE_HALL_SCREEN_FRAME} className="z-[12]" />
 
-      <div className="relative z-10 flex min-h-[32rem] flex-col gap-5 p-4 pt-6 sm:p-5 sm:pt-8 md:p-8">
+      <div className="relative z-10 flex min-h-[32rem] flex-col gap-5 px-6 pb-6 pt-8 sm:px-8 sm:pt-10 md:px-10 md:pt-12">
         {state.host.announcement.trim() ? (
           <StoreHallNoticePlaque text={state.host.announcement.trim()} accent={accent} />
         ) : null}
 
-        <header className="wedding-hall-masthead">
-          <p className="hall-masthead-kicker" style={{ color: accent }}>
-            {STORE_LOUNGE_LIVE.hallKickerAr}
-          </p>
-          <span className="hall-ornament-rule" style={{ ['--hall-ornament' as string]: accent }} aria-hidden />
-          <p className="hall-masthead-host">{state.host.loungeName}</p>
-          <h2 className="hall-masthead-names">{loungeScreenTitle(state.host)}</h2>
-        </header>
-        <p className="mx-auto mt-5 max-w-xl text-center text-sm leading-8 text-white/85">{state.host.welcomeAr}</p>
+        <StoreHallFieldPlate>
+          <header className="wedding-hall-masthead">
+            <div className="hall-masthead-kicker" data-bidi="off" style={{ color: accent }}>
+              {STORE_LOUNGE_LIVE.hallKickerAr}
+            </div>
+            <div className="hall-ornament-rule" style={{ ['--hall-ornament' as string]: accent }} aria-hidden />
+            <div className="hall-masthead-host" data-bidi="off">
+              {state.host.loungeName}
+            </div>
+            <div className="hall-masthead-names" data-bidi="off">
+              {loungeScreenTitle(state.host)}
+            </div>
+          </header>
+        </StoreHallFieldPlate>
+        <StoreHallFieldPlate>
+          <div className="max-w-xl text-center text-sm leading-8 text-white/85" data-bidi="off">
+            {state.host.welcomeAr}
+          </div>
+        </StoreHallFieldPlate>
 
         <div className="mt-5 grid gap-3 sm:mt-6 sm:gap-4 lg:grid-cols-[1.1fr_0.9fr]">
           <div className="lounge-frame-glow-soft overflow-hidden rounded-2xl border border-[#d4a574]/35 bg-black/45">
@@ -72,7 +88,13 @@ export function StoreLoungeHallStage({
               state.host.panoramaSrc.startsWith('data:') ? (
                 <img src={state.host.panoramaSrc} alt="" className="aspect-video w-full object-cover" />
               ) : (
-                <StoreShot reel="lounge" alt="" className="aspect-video w-full" eager />
+                <StoreShot
+                  src={preview ? STORE_LOUNGE_MARKETING_FRAMES[0] : undefined}
+                  reel={preview ? undefined : 'lounge'}
+                  alt=""
+                  className="aspect-video w-full"
+                  eager={!preview}
+                />
               )
             )}
           </div>

@@ -28,7 +28,7 @@ export function StoreWeddingLiveStudio({ token = STORE_WEDDING_LIVE_LAB_TOKEN }:
   useEffect(() => {
     setState(readWeddingLiveLabState(token));
     const refresh = () => setState(readWeddingLiveLabState(token));
-    const timer = window.setInterval(refresh, 1500);
+    const timer = window.setInterval(refresh, 4000);
     window.addEventListener('storage', refresh);
     return () => {
       window.clearInterval(timer);
@@ -47,10 +47,12 @@ export function StoreWeddingLiveStudio({ token = STORE_WEDDING_LIVE_LAB_TOKEN }:
 
   return (
     <div id="live-preview" className="scroll-mt-8">
-      <p className={cn('text-sm font-bold', voice === 'women' ? 'text-[#e4b7c5]' : 'text-[#e8c547]')}>{copy.labKickerAr}</p>
-      <h2 className="mt-2 text-2xl font-extrabold">{copy.labTitleAr}</h2>
-      <p className="mt-2 max-w-3xl text-sm leading-8 text-white/75">{copy.labLeadAr}</p>
-      <StoreWeddingHallStage state={state} className="mt-6" />
+      <div className="store-live-studio-head">
+        <p className={cn('text-sm font-bold', voice === 'women' ? 'text-[#e4b7c5]' : 'text-[#e8c547]')}>{copy.labKickerAr}</p>
+        <h2 className="mt-2 text-2xl font-extrabold">{copy.labTitleAr}</h2>
+        <p className="mt-2 text-sm leading-8 text-white/75">{copy.labLeadAr}</p>
+      </div>
+      <StoreWeddingHallStage state={state} preview className="mt-6" />
       <div className="mt-5 flex flex-wrap gap-2">
         <button
           type="button"

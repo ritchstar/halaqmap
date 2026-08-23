@@ -1,8 +1,10 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
- * لوحة تنويه الشاشة — داخل التدفق حتى لا تغطي عنوان الدعوة.
+ * لوحة تنويه موسّطة داخل إطار حقلي. بلا p/span حتى لا تُحاذى لبداية السطر.
  */
+import { STORE_HALL_FIELD_FRAME } from '@/config/storeHallFrames';
+import { StoreHallOrnamentFrame } from '@/components/store/StoreHallOrnamentFrame';
 import { cn } from '@/lib/utils';
 
 export function StoreHallNoticePlaque({
@@ -20,19 +22,20 @@ export function StoreHallNoticePlaque({
     <div
       key={text}
       className={cn('hall-notice-plaque hall-notice-pulse', className)}
-      style={{ borderColor: accent, color: accent }}
+      style={{ color: accent }}
     >
-      <span className="hall-notice-corner hall-notice-corner--tl" aria-hidden />
-      <span className="hall-notice-corner hall-notice-corner--tr" aria-hidden />
-      <span className="hall-notice-corner hall-notice-corner--bl" aria-hidden />
-      <span className="hall-notice-corner hall-notice-corner--br" aria-hidden />
-      <p className="hall-notice-kicker" style={{ color: accent }}>
-        {kickerAr}
-      </p>
-      <span className="hall-ornament-rule" style={{ ['--hall-ornament' as string]: accent }} aria-hidden />
-      <p dir="rtl" className="hall-notice-pulse__text chat-arabic-text" style={{ color: accent }}>
-        {text}
-      </p>
+      <StoreHallOrnamentFrame src={STORE_HALL_FIELD_FRAME} />
+      <div className="hall-notice-plaque__inner" data-bidi="off">
+        <div className="hall-notice-kicker" data-bidi="off">
+          {kickerAr}
+        </div>
+        <div className="hall-ornament-rule" style={{ ['--hall-ornament' as string]: accent }} aria-hidden />
+        <div className="hall-notice-pulse__text" data-bidi="off">
+          <div className="hall-notice-pulse__line" data-bidi="off">
+            {text}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

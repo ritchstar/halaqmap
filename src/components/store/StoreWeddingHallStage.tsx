@@ -6,16 +6,21 @@
 import { useEffect, useState } from 'react';
 import { STORE_WEDDING_LIVE, weddingLiveAccent } from '@/config/storeWeddingLive';
 import {
+  STORE_HALL_SCREEN_FRAME,
+  storeHallBackdrops,
+} from '@/config/storeHallFrames';
+import {
   nextWeddingWelcomeSetIndex,
   weddingWelcomeSetAt,
   weddingWelcomeSetCount,
 } from '@/config/storeWeddingWelcomeSets';
 import { StoreHallAtmosphere } from '@/components/store/StoreHallAtmosphere';
+import { StoreHallFieldPlate } from '@/components/store/StoreHallFieldPlate';
 import { StoreHallNoticePlaque } from '@/components/store/StoreHallNoticePlaque';
+import { StoreHallOrnamentFrame } from '@/components/store/StoreHallOrnamentFrame';
 import { StoreLivePanoramaCycle } from '@/components/store/StoreLivePanoramaCycle';
 import { StoreShot } from '@/components/store/StoreShot';
 import { StoreWeddingMapsPin } from '@/components/store/StoreWeddingMapsPin';
-import { STORE_WEDDING_MARKETING_FRAMES, STORE_WEDDING_WOMEN_MARKETING_FRAMES } from '@/config/storeMarketingReels';
 import type { WeddingLiveLabState } from '@/lib/storeWeddingLiveLab';
 import {
   safeMapsHref,
@@ -47,17 +52,19 @@ export function StoreWeddingHallStage({
   className,
   autoWelcome = false,
   immersive = false,
+  preview = false,
 }: {
   state: WeddingLiveLabState;
   className?: string;
   autoWelcome?: boolean;
   immersive?: boolean;
+  preview?: boolean;
 }) {
   const visible = state.blessings.filter((item) => !item.hidden);
   const ticker = visible
     .map((item) => `${item.name}: ${item.extra ? `${item.cannedText} ${item.extra}` : item.cannedText}`)
     .join('   ·   ');
-  const embed = !state.host.youtubeHidden ? youtubeEmbedSrc(state.host.youtubeUrl) : null;
+  const embed = !preview && !state.host.youtubeHidden ? youtubeEmbedSrc(state.host.youtubeUrl) : null;
   const latest = visible.slice(-4).reverse();
   const maps = safeMapsHref(state.host.venueMapsUrl);
   const voice = state.host.voice === 'women' ? 'women' : 'men';
@@ -65,18 +72,19 @@ export function StoreWeddingHallStage({
   const pinnedIndex = Number(state.host.welcomeSetIndex) || 0;
   const [cycleIndex, setCycleIndex] = useState(pinnedIndex);
   const invitation = weddingInvitationLead(state.host);
+  const hallShot = storeHallBackdrops(voice, true)[0];
 
   useEffect(() => {
     setCycleIndex(pinnedIndex);
   }, [pinnedIndex]);
 
   useEffect(() => {
-    if (!autoWelcome || weddingWelcomeSetCount() < 2) return undefined;
+    if (preview || !autoWelcome || weddingWelcomeSetCount() < 2) return undefined;
     const timer = window.setInterval(() => {
       setCycleIndex((current) => nextWeddingWelcomeSetIndex(current));
     }, 28000);
     return () => window.clearInterval(timer);
-  }, [autoWelcome, pinnedIndex]);
+  }, [autoWelcome, pinnedIndex, preview]);
 
   const welcomeSet = weddingWelcomeSetAt(cycleIndex);
   const displayTone = welcomeSet.id === 'display';
@@ -95,30 +103,41 @@ export function StoreWeddingHallStage({
         className,
       )}
     >
-      <StoreLivePanoramaCycle
-        frames={voice === 'women' ? STORE_WEDDING_WOMEN_MARKETING_FRAMES : STORE_WEDDING_MARKETING_FRAMES}
-      />
+      <StoreLivePanoramaCycle frames={storeHallBackdrops(voice, preview)} />
       <div className="absolute inset-0 bg-gradient-to-b from-black/28 via-black/18 to-black/58" />
-      <StoreHallAtmosphere voice={voice} />
+      {preview ? null : <StoreHallAtmosphere voice={voice} />}
+      <StoreHallOrnamentFrame src={STORE_HALL_SCREEN_FRAME} className="z-[12]" />
 
-      <div className="relative z-10 flex min-h-[32rem] flex-col gap-5 p-4 pt-6 sm:p-5 sm:pt-8 md:p-8">
+      <div className="relative z-10 flex min-h-[32rem] flex-col gap-5 px-6 pb-6 pt-8 sm:px-8 sm:pt-10 md:px-10 md:pt-12">
         {state.host.announcement.trim() ? (
           <StoreHallNoticePlaque text={state.host.announcement.trim()} accent={accent} />
         ) : null}
 
-        <header className="wedding-hall-masthead">
-          <p className="hall-masthead-kicker invite-luminous" style={{ color: accent }}>
-            عقد قران
-          </p>
-          <span className="hall-ornament-rule" style={{ ['--hall-ornament' as string]: accent }} aria-hidden />
-          <p className="hall-masthead-host">{weddingHostInviteLine(state.host)}</p>
-          <h2 className="hall-masthead-names invite-luminous">{weddingCoupleLine(state.host)}</h2>
-          <p className="invite-luminous max-w-2xl text-base leading-8 text-white/90 md:text-lg">{invitation}</p>
-          {state.host.welcomeAr.trim() ? (
-            <p className="max-w-xl text-base leading-8 text-white/75">{state.host.welcomeAr.trim()}</p>
-          ) : null}
-          <p className="text-base text-white/70">{state.host.eventTime}</p>
-        </header>
+        <StoreHallFieldPlate>
+          <header className="wedding-hall-masthead">
+            <div className="hall-masthead-kicker invite-luminous" data-bidi="off" style={{ color: accent }}>
+              عقد قران
+            </div>
+            <div className="hall-ornament-rule" style={{ ['--hall-ornament' as string]: accent }} aria-hidden />
+            <div className="hall-masthead-host" data-bidi="off">
+              {weddingHostInviteLine(state.host)}
+            </div>
+            <div className="hall-masthead-names invite-luminous" data-bidi="off">
+              {weddingCoupleLine(state.host)}
+            </div>
+            <div className="invite-luminous max-w-2xl text-base leading-8 text-white/90 md:text-lg" data-bidi="off">
+              {invitation}
+            </div>
+            {state.host.welcomeAr.trim() ? (
+              <div className="max-w-xl text-base leading-8 text-white/75" data-bidi="off">
+                {state.host.welcomeAr.trim()}
+              </div>
+            ) : null}
+            <div className="text-base text-white/70" data-bidi="off">
+              {state.host.eventTime}
+            </div>
+          </header>
+        </StoreHallFieldPlate>
         {maps ? (
           <a
             href={maps}
@@ -131,28 +150,27 @@ export function StoreWeddingHallStage({
           </a>
         ) : null}
 
-        <div
-          dir="rtl"
-          className="wedding-hall-glow mx-auto w-full max-w-2xl rounded-3xl border bg-black/45 px-4 py-5 text-center md:px-6"
-          style={{ borderColor: `${accent}66` }}
-        >
-          <p className="invite-luminous mb-3 text-sm font-bold tracking-wide" style={{ color: accent }}>
-            {welcomeSet.toneAr}
-          </p>
-          <div className="space-y-3">
-            {welcomeSet.lines.map((line) => (
-              <p
-                key={line.id}
-                className={cn('chat-arabic-text', welcomeSizeClass(line.weight, displayTone))}
-                style={{ color: line.weight === 'hero' ? '#fff8ee' : undefined }}
-              >
-                {line.textAr}
-              </p>
-            ))}
+        <StoreHallFieldPlate>
+          <div className="wedding-hall-glow w-full text-center">
+            <div className="invite-luminous mb-3 text-sm font-bold tracking-wide" data-bidi="off" style={{ color: accent }}>
+              {welcomeSet.toneAr}
+            </div>
+            <div className="space-y-3">
+              {welcomeSet.lines.map((line) => (
+                <div
+                  key={line.id}
+                  data-bidi="off"
+                  className={cn(welcomeSizeClass(line.weight, displayTone))}
+                  style={{ color: line.weight === 'hero' ? '#fff8ee' : undefined, textAlign: 'center' }}
+                >
+                  {line.textAr}
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
+        </StoreHallFieldPlate>
 
-        <div className="mx-auto mt-6 w-full max-w-3xl overflow-hidden rounded-2xl border border-white/15 bg-black/45">
+        <div className="relative mx-auto mt-6 w-full max-w-3xl overflow-hidden rounded-2xl border border-white/15 bg-black/45">
           {embed ? (
             <iframe
               title="فيديو المناسبة"
@@ -164,11 +182,7 @@ export function StoreWeddingHallStage({
           ) : state.host.panoramaSrc.startsWith('data:') ? (
             <img src={state.host.panoramaSrc} alt="" className="aspect-video w-full object-cover" />
           ) : (
-            <StoreShot
-              reel={voice === 'women' ? 'wedding-women' : 'wedding'}
-              alt=""
-              className="aspect-video w-full"
-            />
+            <StoreShot src={hallShot} alt="" className="aspect-video w-full" />
           )}
         </div>
 
@@ -176,11 +190,17 @@ export function StoreWeddingHallStage({
           {latest.length ? (
             latest.map((item) => (
               <li key={item.id} className="rounded-2xl border border-white/12 bg-black/50 p-4">
-                <p className="invite-luminous text-base font-extrabold" style={{ color: accent }}>
+                <div className="invite-luminous text-base font-extrabold" data-bidi="off" style={{ color: accent }}>
                   {item.name}
-                </p>
-                <p className="mt-1 text-base leading-7">{item.cannedText}</p>
-                {item.extra ? <p className="mt-1 text-base text-white/70">{item.extra}</p> : null}
+                </div>
+                <div className="mt-1 text-base leading-7" data-bidi="off">
+                  {item.cannedText}
+                </div>
+                {item.extra ? (
+                  <div className="mt-1 text-base text-white/70" data-bidi="off">
+                    {item.extra}
+                  </div>
+                ) : null}
               </li>
             ))
           ) : (

@@ -12,6 +12,7 @@ import {
   StoreVisitorHeader,
   StoreVisitorShell,
 } from '@/components/store/StoreChrome';
+import { STORE_HALL_PREVIEW_BACKDROP, STORE_HALL_PREVIEW_BACKDROP_WOMEN } from '@/config/storeHallFrames';
 import { StoreShot } from '@/components/store/StoreShot';
 import { StoreWeddingInviteCard } from '@/components/store/StoreWeddingInviteCard';
 import { StoreWeddingLiveStudio } from '@/components/store/StoreWeddingLiveStudio';
@@ -121,13 +122,13 @@ export default function StoreWeddingLandingPage() {
           <div className="space-y-4">
             <figure className="overflow-hidden rounded-2xl border border-white/12">
               <StoreShot
-                reel={voice === 'women' ? 'wedding-women' : 'wedding'}
+                src={voice === 'women' ? STORE_HALL_PREVIEW_BACKDROP_WOMEN : STORE_HALL_PREVIEW_BACKDROP}
                 alt={copy.titleAr}
                 className="aspect-[16/9]"
                 eager
               />
             </figure>
-            <StoreWeddingInviteCard host={demo.host} styleId={weddingLiveDefaultStyle(voice)} />
+            <StoreWeddingInviteCard host={demo.host} styleId={weddingLiveDefaultStyle(voice)} still />
           </div>
         </div>
       </section>

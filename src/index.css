@@ -3047,25 +3047,57 @@ html.platform-radar-fullscreen #root {
   }
 }
 
-.hall-notice-plaque {
+.hall-notice-plaque,
+.hall-field-plate {
   position: relative;
   z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   width: 100%;
   max-width: 48rem;
   margin-inline: auto;
   overflow: hidden;
-  border-radius: 1.6rem;
-  border-width: 1px;
   background:
-    linear-gradient(180deg, rgba(18, 12, 6, 0.94), rgba(8, 6, 3, 0.9));
-  padding: 1.1rem 1.35rem 1.2rem;
+    linear-gradient(180deg, rgba(18, 12, 6, 0.88), rgba(8, 6, 3, 0.82));
+  padding: 2rem 2.4rem 2.15rem;
   text-align: center;
 }
 
 @media (min-width: 640px) {
-  .hall-notice-plaque {
-    padding: 1.25rem 2rem 1.35rem;
+  .hall-notice-plaque,
+  .hall-field-plate {
+    padding: 2.15rem 2.8rem 2.3rem;
   }
+}
+
+.hall-notice-plaque__inner,
+.hall-field-plate__inner {
+  position: relative;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  text-align: center;
+}
+
+.store-live-studio-head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 48rem;
+  margin-inline: auto;
+  text-align: center;
+}
+
+.store-live-studio-head > * {
+  margin-inline: auto;
+  width: 100%;
+  max-width: 42rem;
+  text-align: center;
 }
 
 .hall-notice-pulse {
@@ -3078,28 +3110,51 @@ html.platform-radar-fullscreen #root {
 
 .hall-notice-kicker {
   margin: 0;
+  display: block;
+  width: 100%;
   font-size: 0.72rem;
   font-weight: 800;
-  letter-spacing: 0.28em;
+  letter-spacing: 0.18em;
+  text-align: center;
+  unicode-bidi: isolate;
+  direction: rtl;
 }
 
 .hall-notice-pulse__text {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
   margin: 0.55rem 0 0;
+  width: 100%;
   max-width: 100%;
+  padding-inline: 0.4rem;
+  text-align: center;
+}
+
+.hall-notice-pulse__line {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  margin-inline: auto;
   overflow-wrap: anywhere;
   font-size: 1.28rem;
   font-weight: 900;
   line-height: 1.55;
-  letter-spacing: 0.01em;
+  letter-spacing: 0;
+  text-align: center;
+  unicode-bidi: isolate;
+  direction: rtl;
   animation: hall-notice-text 2.6s ease-in-out infinite;
 }
 
-[data-voice='women'] .hall-notice-pulse__text {
+[data-voice='women'] .hall-notice-pulse__line {
   animation-name: hall-notice-text-women;
 }
 
 @media (min-width: 768px) {
-  .hall-notice-pulse__text {
+  .hall-notice-pulse__line {
     font-size: 1.55rem;
   }
 }
@@ -3173,7 +3228,18 @@ html.platform-radar-fullscreen #root {
   position: relative;
   z-index: 1;
   margin: 0;
+  width: 100%;
   max-width: 100%;
+  text-align: center;
+}
+
+.hall-masthead-kicker,
+.hall-masthead-host,
+.hall-masthead-names {
+  width: 100%;
+  text-align: center;
+  unicode-bidi: isolate;
+  direction: rtl;
 }
 
 .hall-masthead-kicker {
@@ -3370,6 +3436,7 @@ html.platform-radar-fullscreen #root {
   .wedding-hall-glow,
   .hall-notice-pulse,
   .hall-notice-pulse__text,
+  .hall-notice-pulse__line,
   .grocers-feature-pulse,
   .grocers-feature-pulse__text,
   .restaurant-feature-pulse,

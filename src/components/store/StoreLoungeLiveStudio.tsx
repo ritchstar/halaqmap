@@ -24,7 +24,7 @@ export function StoreLoungeLiveStudio({ token = STORE_LOUNGE_LIVE_LAB_TOKEN }: {
   useEffect(() => {
     setState(readLoungeLiveLabState(token));
     const refresh = () => setState(readLoungeLiveLabState(token));
-    const timer = window.setInterval(refresh, 1500);
+    const timer = window.setInterval(refresh, 4000);
     window.addEventListener('storage', refresh);
     return () => {
       window.clearInterval(timer);
@@ -39,10 +39,12 @@ export function StoreLoungeLiveStudio({ token = STORE_LOUNGE_LIVE_LAB_TOKEN }: {
 
   return (
     <div id="live-preview" className="scroll-mt-8">
-      <p className="text-sm font-bold text-[#d4a574]">{STORE_LOUNGE_LIVE.labKickerAr}</p>
-      <h2 className="mt-2 text-2xl font-extrabold">{STORE_LOUNGE_LIVE.labTitleAr}</h2>
-      <p className="mt-2 max-w-3xl text-sm leading-8 text-white/75">{STORE_LOUNGE_LIVE.labLeadAr}</p>
-      <StoreLoungeHallStage state={state} className="mt-6" />
+      <div className="store-live-studio-head">
+        <p className="text-sm font-bold text-[#d4a574]">{STORE_LOUNGE_LIVE.labKickerAr}</p>
+        <h2 className="mt-2 text-2xl font-extrabold">{STORE_LOUNGE_LIVE.labTitleAr}</h2>
+        <p className="mt-2 text-sm leading-8 text-white/75">{STORE_LOUNGE_LIVE.labLeadAr}</p>
+      </div>
+      <StoreLoungeHallStage state={state} preview className="mt-6" />
       <div className="mt-5 flex flex-wrap gap-2">
         <button
           type="button"

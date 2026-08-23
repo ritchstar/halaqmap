@@ -134,7 +134,7 @@ export function parseEventLiveOrderBody(body: Record<string, unknown>):
   }
   const voice = parseEventVoice(body.voice);
   const defaultPhoto =
-    voice === 'women' ? '/images/store/lab/lab-luxury-rosegold.png' : '/images/store/lab/lab-luxury-gold.png';
+    voice === 'women' ? '/images/store/live/pano-03-rose.jpg' : '/images/store/live/pano-01-gold.jpg';
   return {
     ok: true,
     email,
@@ -156,7 +156,7 @@ export function parseEventLiveOrderBody(body: Record<string, unknown>):
       youtubeHidden: Boolean(body.youtubeHidden),
       announcement: clip(body.announcement, 160),
       photoSrc: clip(body.photoSrc, 400) || defaultPhoto,
-      panoramaSrc: clip(body.panoramaSrc, 400) || '/images/store/lab/lab-wedding-panorama.png',
+      panoramaSrc: clip(body.panoramaSrc, 400) || defaultPhoto,
       blessings: [],
     },
   };
