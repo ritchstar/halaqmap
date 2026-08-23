@@ -2,6 +2,7 @@
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
 import { IMAGES } from '@/assets/images';
+import { DIGITAL_SHIFT_MONTHLY_ADDON_SAR } from '@/config/subscriptionPricing';
 
 export const PARTNER_BANNERS_PREVIEW_GOLD_GALLERY_MAX = 20;
 export const PARTNER_BANNERS_PREVIEW_DIAMOND_GALLERY_MAX = 40;
@@ -82,7 +83,7 @@ export const PARTNER_BANNERS_PREVIEW_TIERS: readonly BannerPreviewTierConfig[] =
     marketingParagraphs: [
       'الماسية مصممة للصالون الذي يريد انطباع نخبة من أول نظرة: بنر متوهج، شارة مميزة، وحضور بصري يقول للعميل إن هذا المكان يستحق التجربة.',
       'الفيديو القصير الصامت يعرض مهارة الصالون بسرعة، بينما يفتح الشات الخاص والترجمة الذكية مساحة تواصل أسهل مع عملاء من لغات وخلفيات مختلفة.',
-      `معرض الأعمال حتى ${PARTNER_BANNERS_PREVIEW_DIAMOND_GALLERY_MAX} صورة وإدارة المواعيد تكمل رخصة النفاذ الماسية — و«إضافة المكتب الخاص 🏛️» (Add-on اختياري +25 ر.س) تمنحك مساعداً داخلياً يستقبل تعليماتك ومناوباً على الشات ينفّذها أمام الزبائن — والتقارير تصلك تلقائياً.`,
+      `معرض الأعمال حتى ${PARTNER_BANNERS_PREVIEW_DIAMOND_GALLERY_MAX} صورة وإدارة المواعيد تكمل رخصة النفاذ الماسية — و«إضافة المكتب الخاص 🏛️» (Add-on اختياري +${DIGITAL_SHIFT_MONTHLY_ADDON_SAR} ر.س) تمنحك مساعداً داخلياً يستقبل تعليماتك ومناوباً على الشات ينفّذها أمام الزبائن — والتقارير تصلك تلقائياً.`,
     ],
   },
 ] as const;

@@ -54,13 +54,17 @@ export const SOFTWARE_PACKAGE_VALIDITY_LABEL_AR = `${SOFTWARE_PACKAGE_UNIT_LABEL
 
 /** أسعار البطاقة الواحدة (30 يوم إدراج) بالريال السعودي */
 export const TIER_MONTHLY_SAR: Record<SubscriptionTier, number> = {
-  [SubscriptionTier.BRONZE]: 100,
-  [SubscriptionTier.GOLD]: 150,
-  [SubscriptionTier.DIAMOND]: 200,
+  [SubscriptionTier.BRONZE]: 200,
+  [SubscriptionTier.GOLD]: 300,
+  [SubscriptionTier.DIAMOND]: 400,
 };
 
-/** إضافة المكتب الخاص — للباقة الماسية فقط (لكل بطاقة 30 يوم) */
-export const DIGITAL_SHIFT_MONTHLY_ADDON_SAR = 25;
+/** إضافة المكتب الخاص / المناوب — للباقة الماسية فقط (لكل بطاقة 30 يوم). لا عمولة عليها. */
+export const DIGITAL_SHIFT_MONTHLY_ADDON_SAR = 50;
+
+/** ماسي + إضافة المناوب والمكتب الخاص */
+export const DIAMOND_WITH_ADDON_MONTHLY_SAR =
+  TIER_MONTHLY_SAR[SubscriptionTier.DIAMOND] + DIGITAL_SHIFT_MONTHLY_ADDON_SAR;
 
 /** تسمية الإضافة البرمجية المتقدمة — Add-on منفصل عن رخصة الإدراج */
 export const DIGITAL_SHIFT_SOFTWARE_ADDON_BADGE_AR = 'إضافة المكتب الخاص · Software Add-on';
@@ -69,7 +73,7 @@ export const DIGITAL_SHIFT_ADDON_VALUE_AR =
   'إضافة «المكتب الخاص» تمنح رخصتك الماسية قدرتين متصلتين: مساعد داخلي في لوحة تحكمك يستقبل تعليماتك ويُقدّم لك التقارير، ومناوب على الشات يُنفّذ تعليماتك أمام الزبائن ويرسل لك ما يستقبله.';
 
 export const DIGITAL_SHIFT_PRICING_ADDON_LABEL_AR =
-  'إضافة المكتب الخاص (+25 ر.س/حزمة): مساعد داخلي + مناوب شات مترابطان';
+  `إضافة المكتب الخاص (+${DIGITAL_SHIFT_MONTHLY_ADDON_SAR} ر.س/حزمة): مساعد داخلي + مناوب شات مترابطان`;
 
 /** خيارات منتج الباقة الماسية — واجهة التسعير */
 export const DIAMOND_LICENSE_TECHNICAL_VALUE_AR =
@@ -78,9 +82,9 @@ export const DIAMOND_LICENSE_TECHNICAL_VALUE_AR =
 export const DIAMOND_PRODUCT_STANDARD_LABEL_AR = 'الماسية القياسية — رخصة نفاذ';
 export const DIAMOND_PRODUCT_SMART_LABEL_AR = 'الماسية + إضافة المكتب الخاص';
 export const DIAMOND_PRODUCT_STANDARD_HINT_AR =
-  'رخصة نفاذ ضمن نظام الاستجابة الذكية — 200 ر.س/حزمة';
+  `رخصة نفاذ ضمن نظام الاستجابة الذكية — ${TIER_MONTHLY_SAR[SubscriptionTier.DIAMOND]} ر.س/حزمة`;
 export const DIAMOND_PRODUCT_SMART_HINT_AR =
-  'رخصة نفاذ ماسية + إضافة المكتب الخاص — 225 ر.س/حزمة (+25 Add-on)';
+  `رخصة نفاذ ماسية + إضافة المكتب الخاص — ${DIAMOND_WITH_ADDON_MONTHLY_SAR} ر.س/حزمة (+${DIGITAL_SHIFT_MONTHLY_ADDON_SAR} Add-on)`;
 export const DIAMOND_ADDON_OPTION_LINE_AR =
   'Add-on اختياري: إضافة المكتب الخاص — مساعد داخلي يأخذ تعليماتك + مناوب شات ينفّذها أمام الزبائن';
 
@@ -101,14 +105,14 @@ export const DIGITAL_SHIFT_ONBOARDING_SECTION_PLAIN_HEADER_AR =
 
 /** API / لوحة الحلاق — عند غياب Add-on */
 export const DIGITAL_SHIFT_NOT_ENABLED_ERROR_AR =
-  'إضافة المكتب الخاص غير مفعّلة — فعّلها (+25 ر.س/حزمة) مع رخصة الماسية للحصول على المساعد الداخلي والمناوب';
+  `إضافة المكتب الخاص غير مفعّلة — فعّلها (+${DIGITAL_SHIFT_MONTHLY_ADDON_SAR} ر.س/حزمة) مع رخصة الماسية للحصول على المساعد الداخلي والمناوب`;
 
 export const DIGITAL_SHIFT_GATE_LOADING_AR = 'جاري التحقق من صلاحية إضافة المكتب الخاص…';
 
 /** فواتير وZATCA — تسميات موحّدة */
-export const INVOICE_DIAMOND_LICENSE_LABEL_AR = 'رخصة نفاذ ماسية (200 ر.س)';
+export const INVOICE_DIAMOND_LICENSE_LABEL_AR = `رخصة نفاذ ماسية (${TIER_MONTHLY_SAR[SubscriptionTier.DIAMOND]} ر.س)`;
 export const INVOICE_DIAMOND_WITH_ADDON_LABEL_AR =
-  'رخصة نفاذ ماسية + إضافة المكتب الخاص (225 ر.س)';
+  `رخصة نفاذ ماسية + إضافة المكتب الخاص (${DIAMOND_WITH_ADDON_MONTHLY_SAR} ر.س)`;
 
 export const INVOICE_DIGITAL_SHIFT_ADDON_LINE_AR =
   'إضافة المكتب الخاص (مساعد داخلي + مناوب شات · Software Add-on)';

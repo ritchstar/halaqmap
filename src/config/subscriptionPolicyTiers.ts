@@ -16,6 +16,7 @@ import {
 } from '@/config/ownerWatchFeatureCopy';
 import { RATING_QR_PLAN_LINE } from '@/config/ratingQrInvite';
 import {
+  DIGITAL_SHIFT_MONTHLY_ADDON_SAR,
   DIGITAL_SHIFT_PRICING_ADDON_LABEL_AR,
   SOFTWARE_PACKAGE_UNIT_LABEL_AR,
   SOFTWARE_PACKAGE_VALIDITY_LABEL_AR,
@@ -144,11 +145,11 @@ export const SUBSCRIPTION_POLICY_PACKAGE_RENEWAL = {
     },
     {
       title: 'ترقية المستوى',
-      body: 'للانتقال من برونزي/ذهبي إلى مستوى أعلى: اشترِ حزمة المستوى الجديد (100 / 150 / 200 ر.س) عند الحاجة — التفعيل وفق مسار الدفع المعتاد.',
+      body: `للانتقال من برونزي/ذهبي إلى مستوى أعلى: اشترِ حزمة المستوى الجديد (${TIER_MONTHLY_SAR[SubscriptionTier.BRONZE]} / ${TIER_MONTHLY_SAR[SubscriptionTier.GOLD]} / ${TIER_MONTHLY_SAR[SubscriptionTier.DIAMOND]} ر.س) عند الحاجة — التفعيل وفق مسار الدفع المعتاد.`,
     },
     {
       title: 'إضافة المناوب الرقمي (Add-on)',
-      body: 'إضافة برمجية متقدمة للباقة الماسية فقط — +25 ر.س لكل حزمة نفاذ عند اختيار «المناوب الرقمي الذكي» في التسعير أو الدفع. منفصلة عن رخصة النفاذ وتعزّز كفاءة الاستجابة بأتمتة الضيافة والشات.',
+      body: `إضافة برمجية متقدمة للباقة الماسية فقط — +${DIGITAL_SHIFT_MONTHLY_ADDON_SAR} ر.س لكل حزمة نفاذ عند اختيار «المناوب الرقمي الذكي» في التسعير أو الدفع. منفصلة عن رخصة النفاذ وتعزّز كفاءة الاستجابة بأتمتة الضيافة والشات.`,
     },
   ],
 } as const;

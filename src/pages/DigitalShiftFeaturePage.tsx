@@ -18,11 +18,11 @@ import {
   CreditCard, HeadphonesIcon, Bell, Lock, ArrowLeft,
   CheckCircle2, Zap, Users, Clock, Shield,
 } from 'lucide-react';
-import { ROUTE_PATHS } from '@/lib/index';
-import { DIGITAL_SHIFT_MONTHLY_ADDON_SAR } from '@/config/subscriptionPricing';
+import { ROUTE_PATHS, SubscriptionTier } from '@/lib/index';
+import { DIGITAL_SHIFT_MONTHLY_ADDON_SAR, TIER_MONTHLY_SAR } from '@/config/subscriptionPricing';
 import { routeToBuyPackage } from '@/lib/buyPackageRouter';
 
-const PRICE_D = 200;
+const PRICE_D = TIER_MONTHLY_SAR[SubscriptionTier.DIAMOND];
 
 // ─── Section wrapper ──────────────────────────────────────────────────────────
 function Section({ children, className = '' }: { children: React.ReactNode; className?: string }) {
@@ -278,7 +278,7 @@ export default function DigitalShiftFeaturePage() {
                 color: 'border-cyan-500/25 bg-cyan-950/15',
                 badge_color: 'text-cyan-300',
                 features: ['❌ المناوب غير مفعّل', '✅ صدارة النتائج', '✅ معرض حتى 40 صورة', '✅ تحليلات متقدمة'],
-                note: 'يمكن إضافة المناوب متى شئت (+25 ر.س)',
+                note: `يمكن إضافة المناوب متى شئت (+${DIGITAL_SHIFT_MONTHLY_ADDON_SAR} ر.س)`,
               },
               {
                 name: 'ماسي + المناوب',
@@ -293,7 +293,7 @@ export default function DigitalShiftFeaturePage() {
                   '✅ تنبيه انتهاء الرخصة',
                   '✅ كل مزايا الماسي',
                 ],
-                note: 'الباقة الأقوى — 225 ر.س/حزمة',
+                note: `الباقة الأقوى — ${PRICE_D + DIGITAL_SHIFT_MONTHLY_ADDON_SAR} ر.س/حزمة`,
                 recommended: true,
               },
             ].map(tier => (

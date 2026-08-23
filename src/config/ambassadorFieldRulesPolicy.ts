@@ -2,11 +2,11 @@
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
 import { PLATFORM_IDENTITY_PARAGRAPH_AR } from '@/config/platformIdentity';
-import { TIER_MONTHLY_SAR } from '@/config/subscriptionPricing';
+import { DIAMOND_WITH_ADDON_MONTHLY_SAR, TIER_MONTHLY_SAR } from '@/config/subscriptionPricing';
 import { SubscriptionTier } from '@/lib/index';
 
 /** نسخة وثيقة قواعد السفراء — تُحدَّث عند أي تعديل جوهري على العمولات أو المسار. */
-export const AMBASSADOR_RULES_VERSION = '2026-07-14';
+export const AMBASSADOR_RULES_VERSION = '2026-08-23';
 
 export const AMBASSADOR_PROGRAM_NAME_AR = 'نظام سفراء التسويق الميداني — حلاق ماب';
 
@@ -41,7 +41,7 @@ export const AMBASSADOR_HOSPITALITY_LABEL_AR = 'فنادق وشقق مخدومة
 
 export type AmbassadorPackageKey = 'bronze' | 'gold' | 'diamond' | 'diamond_office';
 
-export type AmbassadorDurationMonths = 3 | 6 | 12;
+export type AmbassadorDurationMonths = 1 | 3 | 6 | 12;
 
 export type AmbassadorCommissionRow = {
   packageKey: AmbassadorPackageKey;
@@ -55,44 +55,49 @@ export type AmbassadorCommissionRow = {
  * جداول العمولة المعتمدة — أول تفعيل فقط، لا عمولة على التجديد.
  * المبالغ بالريال السعودي.
  */
+const DIAMOND_COMMISSION = { 1: 200, 3: 400, 6: 800, 12: 1600 } as const;
+
 export const AMBASSADOR_COMMISSION_TABLE: readonly AmbassadorCommissionRow[] = [
   {
     packageKey: 'bronze',
     labelAr: 'برونزي',
     monthlySar: TIER_MONTHLY_SAR[SubscriptionTier.BRONZE],
-    commissionByMonths: { 3: 15, 6: 25, 12: 50 },
+    commissionByMonths: { 1: 100, 3: 300, 6: 600, 12: 1200 },
   },
   {
     packageKey: 'gold',
     labelAr: 'ذهبي',
     monthlySar: TIER_MONTHLY_SAR[SubscriptionTier.GOLD],
-    commissionByMonths: { 3: 25, 6: 50, 12: 100 },
+    commissionByMonths: { 1: 150, 3: 450, 6: 800, 12: 1600 },
   },
   {
     packageKey: 'diamond',
     labelAr: 'ماسي',
     monthlySar: TIER_MONTHLY_SAR[SubscriptionTier.DIAMOND],
-    commissionByMonths: { 3: 50, 6: 75, 12: 150 },
+    commissionByMonths: { ...DIAMOND_COMMISSION },
   },
   {
     packageKey: 'diamond_office',
     labelAr: 'ماسي + مكتب خاص',
-    monthlySar: 225,
-    commissionByMonths: { 3: 75, 6: 150, 12: 200 },
+    monthlySar: DIAMOND_WITH_ADDON_MONTHLY_SAR,
+    commissionByMonths: { ...DIAMOND_COMMISSION },
   },
 ] as const;
 
 export function formatAmbassadorCommissionTableAr(): string {
   const lines: string[] = [];
   for (const row of AMBASSADOR_COMMISSION_TABLE) {
-    const rev3 = row.monthlySar * 3;
-    const rev6 = row.monthlySar * 6;
-    const rev12 = row.monthlySar * 12;
+    const addonNote =
+      row.packageKey === 'diamond_office'
+        ? '\n- لا عمولة على إضافة المناوب أو المكتب الخاص. العمولة هنا هي عمولة الباقة الماسية فقط.'
+        : '';
     lines.push(
       `**${row.labelAr}** (${row.monthlySar} ر.س/شهر):\n` +
-        `- 3 أشهر (إيراد ${rev3}): عمولة **${row.commissionByMonths[3]}** ر.س\n` +
-        `- 6 أشهر (إيراد ${rev6}): عمولة **${row.commissionByMonths[6]}** ر.س\n` +
-        `- 12 شهراً (إيراد ${rev12}): عمولة **${row.commissionByMonths[12]}** ر.س`,
+        `- شهر واحد (إيراد ${row.monthlySar}): عمولة **${row.commissionByMonths[1]}** ر.س\n` +
+        `- 3 أشهر (إيراد ${row.monthlySar * 3}): عمولة **${row.commissionByMonths[3]}** ر.س\n` +
+        `- 6 أشهر (إيراد ${row.monthlySar * 6}): عمولة **${row.commissionByMonths[6]}** ر.س\n` +
+        `- 12 شهرا (إيراد ${row.monthlySar * 12}): عمولة **${row.commissionByMonths[12]}** ر.س` +
+        addonNote,
     );
   }
   return lines.join('\n\n');
@@ -126,11 +131,13 @@ export const AMBASSADOR_RULES_SECTIONS: readonly AmbassadorRulesSection[] = [
   {
     id: 'commission-first-only',
     title: 'قاعدة العمولة — أول تفعيل فقط',
-    content:
-      '- تُستحق العمولة على **أول تفعيل ناجح** للمنشأة على المنصة فقط.\n' +
-      '- **لا عمولة على التجديد** أو إعادة شراء حزم لاحقة لنفس المنشأة.\n' +
-      '- منشأة واحدة = استحقاق عمولة رخصة واحد كحد أقصى (ما لم تُلغَ بسبب clawback ثم يُعاد النظر بقرار تشغيلي موثّق — الاستثناء نادر).\n' +
-      '- مدة الاشتراك المشتراة دفعة واحدة (3 / 6 / 12 شهراً) تحدد صف العمولة من الجدول أدناه.',
+    content: [
+      '- تُستحق العمولة على **أول تفعيل ناجح** للمنشأة على المنصة فقط.',
+      '- **لا عمولة على التجديد** أو إعادة شراء حزم لاحقة لنفس المنشأة.',
+      '- منشأة واحدة = استحقاق عمولة رخصة واحد كحد أقصى (ما لم تُلغَ بسبب clawback ثم يُعاد النظر بقرار تشغيلي موثّق — الاستثناء نادر).',
+      '- مدة الاشتراك المشتراة دفعة واحدة (شهر / 3 / 6 / 12 شهراً) تحدد صف العمولة من الجدول أدناه.',
+      '- لا عمولة على إضافة المناوب أو المكتب الخاص. تُحسب العمولة من سعر الباقة فقط.',
+    ].join('\n'),
   },
   {
     id: 'commission-table',

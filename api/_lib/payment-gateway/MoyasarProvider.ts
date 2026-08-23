@@ -14,7 +14,7 @@ function buildMetadata(request: UnifiedPaymentRequest): Record<string, unknown> 
   const sku = licenseSkuFromTier(request.tier);
   const qty = Math.min(12, Math.max(1, Math.trunc(request.licenseQuantity ?? 1)));
   const addon = request.digitalShiftAddonSelected === true;
-  const addonHalalas = addon ? 2500 * qty : 0;
+  const addonHalalas = addon ? 5000 * qty : 0;
   return {
     payment_gateway: 'MOYASAR',
     tier: request.tier,

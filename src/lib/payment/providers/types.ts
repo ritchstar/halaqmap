@@ -9,7 +9,7 @@ export type UnifiedPaymentInput = {
   amountHalalas: number;
   /** عدد بطاقات حزم الرخصة (1–12) */
   licenseQuantity: number;
-  /** إضافة برمجية متقدمة: المناوب الرقمي — ماسي فقط (+25 ر.س/حزمة) */
+  /** إضافة برمجية متقدمة: المناوب الرقمي — ماسي فقط (+50 ر.س/حزمة)، بلا عمولة */
   digitalShiftAddonSelected?: boolean;
   barberName: string;
   requestId: string;

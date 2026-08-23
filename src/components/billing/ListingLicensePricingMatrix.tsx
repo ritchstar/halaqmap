@@ -10,6 +10,7 @@ import {
   DIAMOND_PRODUCT_SMART_LABEL_AR,
   DIAMOND_PRODUCT_STANDARD_LABEL_AR,
   SOFTWARE_PACKAGE_FOUNDATION_LABEL_AR,
+  DIAMOND_WITH_ADDON_MONTHLY_SAR,
   TIER_MONTHLY_SAR,
 } from '@/config/subscriptionPricing';
 import {
@@ -296,7 +297,7 @@ export function ListingLicensePricingMatrix({
                   <span className="text-2xl font-black tabular-nums text-white">{formatPriceSar(annualPrice)}</span>
                   <span className="text-xs text-slate-400">ر.س</span>
                 </div>
-                <p className="text-[11px] text-slate-500">360 يوم · 100 ر.س/شهر</p>
+                <p className="text-[11px] text-slate-500">360 يوم · {TIER_MONTHLY_SAR[SubscriptionTier.BRONZE]} ر.س/شهر</p>
                 <NavLink to={`${ROUTE_PATHS.PAYMENT}?${params.toString()}`}>
                   <button type="button" className="mt-1 w-full rounded-md border border-slate-600 bg-slate-700 py-2 text-xs font-semibold text-slate-100 hover:bg-slate-600 transition-colors">
                     اشترِ السنوية
@@ -320,7 +321,7 @@ export function ListingLicensePricingMatrix({
                   <span className="text-2xl font-black tabular-nums text-white">{formatPriceSar(annualPrice)}</span>
                   <span className="text-xs text-slate-400">ر.س</span>
                 </div>
-                <p className="text-[11px] text-slate-500">360 يوم · 150 ر.س/شهر</p>
+                <p className="text-[11px] text-slate-500">360 يوم · {TIER_MONTHLY_SAR[SubscriptionTier.GOLD]} ر.س/شهر</p>
                 <NavLink to={`${ROUTE_PATHS.PAYMENT}?${params.toString()}`}>
                   <button type="button" className="mt-1 w-full rounded-md border border-amber-600/60 bg-amber-900/30 py-2 text-xs font-semibold text-amber-200 hover:bg-amber-800/40 transition-colors">
                     اشترِ السنوية
@@ -344,7 +345,7 @@ export function ListingLicensePricingMatrix({
                   <span className="text-2xl font-black tabular-nums text-white">{formatPriceSar(annualPrice)}</span>
                   <span className="text-xs text-slate-400">ر.س</span>
                 </div>
-                <p className="text-[11px] text-slate-500">360 يوم · 200 ر.س/شهر</p>
+                <p className="text-[11px] text-slate-500">360 يوم · {TIER_MONTHLY_SAR[SubscriptionTier.DIAMOND]} ر.س/شهر</p>
                 <NavLink to={`${ROUTE_PATHS.PAYMENT}?${params.toString()}`}>
                   <button type="button" className="mt-1 w-full rounded-md border border-slate-300 bg-slate-100 py-2 text-xs font-semibold text-slate-900 hover:bg-white transition-colors">
                     اشترِ السنوية
@@ -368,7 +369,7 @@ export function ListingLicensePricingMatrix({
                   <span className="text-2xl font-black tabular-nums text-white">{formatPriceSar(annualPrice)}</span>
                   <span className="text-xs text-slate-400">ر.س</span>
                 </div>
-                <p className="text-[11px] text-violet-400/80">360 يوم · 225 ر.س/شهر</p>
+                <p className="text-[11px] text-violet-400/80">360 يوم · {DIAMOND_WITH_ADDON_MONTHLY_SAR} ر.س/شهر</p>
                 <p className="text-[10px] text-slate-600">يشمل Add-on المناوب الرقمي</p>
                 <NavLink to={`${ROUTE_PATHS.PAYMENT}?${params.toString()}`}>
                   <button type="button" className="mt-1 w-full rounded-md border border-violet-500/60 bg-violet-800/40 py-2 text-xs font-semibold text-violet-200 hover:bg-violet-700/50 transition-colors">

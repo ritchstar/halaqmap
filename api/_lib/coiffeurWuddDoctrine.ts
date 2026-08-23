@@ -49,10 +49,10 @@ export const COIFFEUR_WUDD_PAYMENT_URL =
 export const COIFFEUR_WUDD_MEN_SALES_URL =
   `${COIFFEUR_WUDD_PAYMENT_ORIGIN}/#/partners/sales-office` as const;
 
-const PRICE_BRONZE = 100;
-const PRICE_GOLD = 150;
-const PRICE_DIAMOND = 200;
-const PRICE_ADDON = 25;
+const PRICE_BRONZE = 200;
+const PRICE_GOLD = 300;
+const PRICE_DIAMOND = 400;
+const PRICE_ADDON = 50;
 
 const MENS_SURFACE_PATTERN =
   /(?:صالون\s*رجال|حلاق(?:ين)?\s*رجال|أقرب\s*حلاق|أبحث\s*عن\s*حلاق|سجّ?ل(?:ي|ني|وا)?\s*(?:ك)?حلاق|قص(?:ة|ة)\s*رجال|لحية|مدير\s*مبيعات\s*B2B)/u;

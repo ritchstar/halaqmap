@@ -327,7 +327,7 @@ export interface SubscriptionRequest {
   /** إقرار شراء منتج برمجي رقمي وفق ISIC4 474151 */
   softwareProductAcknowledged?: boolean;
   softwareProductAcknowledgedAtIso?: string;
-  /** إضافة برمجية متقدمة (Software Add-on): المناوب الرقمي — ماسي فقط (+25 ر.س/حزمة) */
+  /** إضافة برمجية متقدمة (Software Add-on): المناوب الرقمي — ماسي فقط (+50 ر.س/حزمة)، بلا عمولة */
   digitalShiftAddonSelected?: boolean;
   /** عدد حزم/أشهر النفاذ المطلوب شراؤها ضمن نفس الطلب */
   listingLicenseQuantity?: number;

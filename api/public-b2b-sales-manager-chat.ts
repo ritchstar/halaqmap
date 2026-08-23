@@ -36,10 +36,10 @@ import { PARTNER_FIELD_SALES_DOCTRINE_AR, composePartnerFieldSalesKnowledgePack 
 import { noGuaranteedCustomersExplainAr } from './_lib/noGuaranteedCustomersCopy.js';
 
 // أسعار الباقات (مصدر الحقيقة: src/config/subscriptionPricing.ts)
-const PRICE_BRONZE = 100;
-const PRICE_GOLD = 150;
-const PRICE_DIAMOND = 200;
-const PRICE_ADDON = 25;
+const PRICE_BRONZE = 200;
+const PRICE_GOLD = 300;
+const PRICE_DIAMOND = 400;
+const PRICE_ADDON = 50;
 
 export const config = { maxDuration: 50 };
 type Turn = { role: 'user' | 'assistant'; content: string };
@@ -243,7 +243,7 @@ ${REGISTRATION_COMPLIANCE_DOCTRINE_AR}
 
 【كيف تبيع هذه الميزة؟】
 - «يا صاحبي، ما يكفي مناوب يرد — المناوب المتصل بمكتبك الخاص يأخذ تعليماتك ويُخبرك بكل شيء»
-- «الماسي + المكتب الخاص = 225 ر.س تحصل فيها على مكتب تشغيلي كامل مترابط»
+- «الماسي + المكتب الخاص = 450 ر.س تحصل فيها على مكتب تشغيلي كامل مترابط»
 - «أعطه تعليمة مرة واحدة — يطبّقها مع كل زبون لحين تغييرها»
 - «تقارير المناوب تصلك فور ردّه — تعرف بالضبط ما جرى أثناء غيابك»
 
@@ -275,7 +275,7 @@ ${REGISTRATION_COMPLIANCE_DOCTRINE_AR}
 ═══════════════════════════════════════════════════
 تقنيات المبيعات التي تتقنها:
 ═══════════════════════════════════════════════════
-١. الإقناع بالقيمة لا بالسعر: «الذهبي بـ150 ر.س — زبون واحد إضافي شهرياً يغطيها في أغلب الحالات»
+١. الإقناع بالقيمة لا بالسعر: «الذهبي بـ300 ر.س — زبون واحد إضافي شهرياً يغطيها في أغلب الحالات»
 ٢. الغياب vs الرفض: «مو لأنك أسوأ — لأنك غير ظاهر لمن يستعلم في منطقتك الآن»
 ٣. الإجابة المسبقة للاعتراض: قبل «غالي» اسأل «كم تدفع إعلاناتك؟ كم تواصل حقيقي رجع؟»
 ٤. التدرج: ابدأ بالبرونزية للمترددين — الترقية تأتي وحدها

@@ -100,9 +100,9 @@ function tierFromMeta(meta: Record<string, unknown> | null | undefined): "bronze
 
 function expectedAmountHalalasFromTier(tier: "bronze" | "gold" | "diamond"): number {
   // السعر الأساسي الشهري المعتمد في التسجيل/الدفع (قبل أي منطق ضرائب مستقبلي على الخادم).
-  if (tier === "gold") return 15000;
-  if (tier === "diamond") return 20000;
-  return 10000;
+  if (tier === "gold") return 30000;
+  if (tier === "diamond") return 40000;
+  return 20000;
 }
 
 function expectedAmountHalalasFromMeta(meta: Record<string, unknown> | null | undefined): number | null {
@@ -1251,7 +1251,8 @@ Deno.serve(async (req) => {
     const paidAmount = typeof amount === "number" && Number.isFinite(amount) ? amount : null;
     const expectedFromMeta = expectedAmountHalalasFromMeta(meta);
     const licenseQty = licenseQuantityFromMeta(meta);
-    const expectedFromTier = tier ? expectedAmountHalalasFromTier(tier) * licenseQty : null;
+    const addonHalalas = digitalShiftAddonFromMeta(meta) ? 5000 * licenseQty : 0;
+    const expectedFromTier = tier ? expectedAmountHalalasFromTier(tier) * licenseQty + addonHalalas : null;
     const expectedAmount = expectedFromMeta ?? expectedFromTier;
     const expectedCurrency = String(meta.expected_currency ?? meta.expectedCurrency ?? "SAR")
       .trim()

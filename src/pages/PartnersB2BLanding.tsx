@@ -328,7 +328,7 @@ export default function PartnersB2BLanding() {
                 <div className="mb-5">
                   <span className="text-2xl mb-2 block">🥉</span>
                   <h3 className="text-xl font-black mb-1" style={{ color: "#cd7f32" }}>برونزي</h3>
-                  <div className="font-black text-3xl mt-3" style={{ color: "#F8FAFC", fontFamily: "IBM Plex Mono, monospace" }}>100 <span className="text-base font-normal" style={{ color: "#94A3B8" }}>ر.س / حزمة</span></div>
+                  <div className="font-black text-3xl mt-3" style={{ color: "#F8FAFC", fontFamily: "IBM Plex Mono, monospace" }}>200 <span className="text-base font-normal" style={{ color: "#94A3B8" }}>ر.س / حزمة</span></div>
                 </div>
                 <ul className="space-y-2.5 flex-1 text-sm">
                   {[
@@ -361,7 +361,7 @@ export default function PartnersB2BLanding() {
                 <div className="mb-5">
                   <span className="text-2xl mb-2 block">🥇</span>
                   <h3 className="text-xl font-black mb-1" style={{ color: "#D4AF37" }}>ذهبي</h3>
-                  <div className="font-black text-3xl mt-3" style={{ color: "#F8FAFC", fontFamily: "IBM Plex Mono, monospace" }}>150 <span className="text-base font-normal" style={{ color: "#94A3B8" }}>ر.س / حزمة</span></div>
+                  <div className="font-black text-3xl mt-3" style={{ color: "#F8FAFC", fontFamily: "IBM Plex Mono, monospace" }}>300 <span className="text-base font-normal" style={{ color: "#94A3B8" }}>ر.س / حزمة</span></div>
                 </div>
                 <ul className="space-y-2.5 flex-1 text-sm">
                   {[
@@ -395,9 +395,9 @@ export default function PartnersB2BLanding() {
                   <span className="text-2xl mb-2 block">💎</span>
                   <h3 className="text-xl font-black mb-1" style={{ color: "#06B6D4" }}>ماسي</h3>
                   <div className="font-black text-3xl mt-3" style={{ color: "#F8FAFC", fontFamily: "IBM Plex Mono, monospace" }}>
-                    200 <span className="text-base font-normal" style={{ color: "#94A3B8" }}>ر.س / حزمة</span>
+                    400 <span className="text-base font-normal" style={{ color: "#94A3B8" }}>ر.س / حزمة</span>
                   </div>
-                  <div className="text-xs mt-1" style={{ color: "#06B6D4" }}>+ مكتب خاص: 225 ر.س (+25 إضافة)</div>
+                  <div className="text-xs mt-1" style={{ color: "#06B6D4" }}>+ مكتب خاص: 450 ر.س (+50 إضافة)</div>
                 </div>
                 <ul className="space-y-2.5 flex-1 text-sm">
                   {[

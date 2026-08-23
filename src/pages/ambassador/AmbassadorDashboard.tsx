@@ -336,11 +336,15 @@ function HomeTab({
 
       <section className="rounded-2xl border border-white/10 bg-[#0f0f14] p-5">
         <h2 className="mb-3 text-sm font-bold text-white">جدول العمولات</h2>
+        <p className="mb-3 text-xs leading-6 text-slate-400">
+          العمولة على الباقة فقط، لأول تفعيل. لا عمولة على إضافة المناوب أو المكتب الخاص.
+        </p>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[320px] text-right text-xs">
             <thead>
               <tr className="border-b border-white/10 text-slate-500">
                 <th className="py-2 font-medium">الباقة</th>
+                <th className="py-2 font-medium">شهر</th>
                 <th className="py-2 font-medium">3 أشهر</th>
                 <th className="py-2 font-medium">6 أشهر</th>
                 <th className="py-2 font-medium">سنة</th>
@@ -350,6 +354,7 @@ function HomeTab({
               {AMBASSADOR_COMMISSION_TABLE.map((row) => (
                 <tr key={row.packageKey} className="border-b border-white/5 text-slate-200">
                   <td className="py-2">{row.labelAr}</td>
+                  <td className="py-2">{row.commissionByMonths[1]}</td>
                   <td className="py-2">{row.commissionByMonths[3]}</td>
                   <td className="py-2">{row.commissionByMonths[6]}</td>
                   <td className="py-2">{row.commissionByMonths[12]}</td>
@@ -777,6 +782,7 @@ function ListTab({
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
+                        <SelectItem value="1">شهر</SelectItem>
                         <SelectItem value="3">3 أشهر</SelectItem>
                         <SelectItem value="6">6 أشهر</SelectItem>
                         <SelectItem value="12">12 شهر</SelectItem>

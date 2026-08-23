@@ -6,7 +6,7 @@ import { DIGITAL_SHIFT_MONTHLY_ADDON_SAR, TIER_MONTHLY_SAR } from '@/config/subs
 import { listingLicensePurchaseCtaAr } from '@/config/softwareLicenseTerminology';
 
 export type ListingLicensePricingOptions = {
-  /** إضافة برمجية متقدمة (Software Add-on) — ماسي فقط (+25 ر.س/حزمة) */
+  /** إضافة برمجية متقدمة (Software Add-on) — ماسي فقط (+50 ر.س/حزمة)، بلا عمولة */
   digitalShiftAddon?: boolean;
 };
 

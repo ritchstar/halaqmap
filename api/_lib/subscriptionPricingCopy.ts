@@ -23,7 +23,15 @@ export const SOFTWARE_PACKAGE_FOUNDATION_LABEL_AR =
 export const SOFTWARE_PACKAGE_GEO_PRESENCE_TAGLINE_AR =
   `${ON_DEMAND_VISIBILITY_FUNCTIONAL_DESCRIPTION_AR} اختر المستوى وعدد الحزم (كل حزمة = 30 يوم نفاذ).`;
 
-export const DIGITAL_SHIFT_MONTHLY_ADDON_SAR = 25;
+export const TIER_MONTHLY_SAR = {
+  bronze: 200,
+  gold: 300,
+  diamond: 400,
+} as const;
+
+export const DIGITAL_SHIFT_MONTHLY_ADDON_SAR = 50;
+
+export const DIAMOND_WITH_ADDON_MONTHLY_SAR = TIER_MONTHLY_SAR.diamond + DIGITAL_SHIFT_MONTHLY_ADDON_SAR;
 
 export const DIGITAL_SHIFT_SOFTWARE_ADDON_BADGE_AR = 'إضافة برمجية متقدمة · Software Add-on';
 
@@ -31,7 +39,7 @@ export const DIGITAL_SHIFT_ADDON_VALUE_AR =
   'إضافة «المناوب الرقمي الذكي» تعزّز رخصة النفاذ الماسية — يرد على الشات عند الإغلاق أو تأخر الرد، يرحّب بالعميل، ويساعد على تنظيم الاستجابة بدون ضغط تشغيل دائم.';
 
 export const DIGITAL_SHIFT_PRICING_ADDON_LABEL_AR =
-  'إضافة برمجية متقدمة: المناوب الرقمي الذكي (+25 ر.س/حزمة نفاذ)';
+  `إضافة برمجية متقدمة: المناوب الرقمي الذكي (+${DIGITAL_SHIFT_MONTHLY_ADDON_SAR} ر.س/حزمة نفاذ)`;
 
 export const DIAMOND_PRODUCT_STANDARD_LABEL_AR = 'الماسية القياسية — رخصة نفاذ';
 export const DIAMOND_PRODUCT_SMART_LABEL_AR = 'الماسية + إضافة المكتب الخاص';
@@ -50,11 +58,11 @@ export const DIGITAL_SHIFT_ONBOARDING_SECTION_PLAIN_HEADER_AR =
   '—— المناوب الرقمي الذكي (Software Add-on · رخصة نفاذ ماسية) ——';
 
 export const DIGITAL_SHIFT_NOT_ENABLED_ERROR_AR =
-  'المناوب الذكي غير مفعّل — فعّل إضافة المناوب الرقمي (Add-on +25 ر.س/حزمة) مع رخصة النفاذ الماسية';
+  `المناوب الذكي غير مفعّل — فعّل إضافة المناوب الرقمي (Add-on +${DIGITAL_SHIFT_MONTHLY_ADDON_SAR} ر.س/حزمة) مع رخصة النفاذ الماسية`;
 
-export const INVOICE_DIAMOND_LICENSE_LABEL_AR = 'رخصة نفاذ ماسية (200 ر.س)';
+export const INVOICE_DIAMOND_LICENSE_LABEL_AR = `رخصة نفاذ ماسية (${TIER_MONTHLY_SAR.diamond} ر.س)`;
 export const INVOICE_DIAMOND_WITH_ADDON_LABEL_AR =
-  'رخصة نفاذ ماسية + Add-on المناوب (225 ر.س)';
+  `رخصة نفاذ ماسية + Add-on المناوب (${DIAMOND_WITH_ADDON_MONTHLY_SAR} ر.س)`;
 
 export const INVOICE_DIGITAL_SHIFT_ADDON_LINE_AR =
   'إضافة برمجية متقدمة: المناوب الرقمي الذكي (Software Add-on)';
@@ -63,7 +71,7 @@ export const ZATCA_PLATFORM_PACKAGES_NOTE_AR =
   'حزم رخصة نفاذ حلاق ماب الرقمية (نظام الاستجابة الذكية) B2B — برونزي/ذهبي/ماسي + Add-on المناوب البرمجي. لا عمولة على الحلاقة، والظهور برمجي عند الطلب.';
 
 export const DIGITAL_SHIFT_ADMIN_LAB_PRODUCT_NOTE_AR =
-  'متاح كإضافة برمجية متقدمة (Software Add-on) +25 ر.س/حزمة نفاذ — للرخصة الماسية فقط (Diamond + addon).';
+  `متاح كإضافة برمجية متقدمة (Software Add-on) +${DIGITAL_SHIFT_MONTHLY_ADDON_SAR} ر.س/حزمة نفاذ — للرخصة الماسية فقط (Diamond + addon).`;
 
 /** Mirror of `src/config/ownerWatchFeatureCopy.ts` — API/partner assistant (no frontend imports). */
 export const OWNER_WATCH_FEATURE_GOLD_LINE_AR =

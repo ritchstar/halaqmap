@@ -9,6 +9,7 @@ import {
   DIGITAL_SHIFT_SUPPORTED_LANGUAGES_FEATURE_AR,
   DIGITAL_SHIFT_TRANSLATED_CHAT_FEATURE_AR,
 } from '@/config/digitalShiftAssistant';
+import { DIGITAL_SHIFT_MONTHLY_ADDON_SAR } from '@/config/subscriptionPricing';
 import { staffTheme } from '@/components/admin/staff/staffTheme';
 import type {
   AiStaffAgentDef,
@@ -78,7 +79,7 @@ export const AI_STAFF_BOUNDARIES: AiStaffBoundaryDef[] = [
 ];
 
 const DIGITAL_SHIFT_DOCTRINE: string[] = [
-  'إضافة برمجية متقدمة (Software Add-on) للرخصة الماسية التقنية فقط — +25 ر.س/حزمة، منفصلة عن حزمة الإدراج.',
+  `إضافة برمجية متقدمة (Software Add-on) للرخصة الماسية التقنية فقط — +${DIGITAL_SHIFT_MONTHLY_ADDON_SAR} ر.س/حزمة، منفصلة عن حزمة الإدراج. لا عمولة عليها.`,
   'ممنوع العبث بمحافظ العملاء أو أسعار الخدمة — المناوب يعمل على الآداب والجدولة فقط.',
   DIGITAL_SHIFT_LANGUAGE_DETECTION_FEATURE_AR,
   DIGITAL_SHIFT_SUPPORTED_LANGUAGES_FEATURE_AR,

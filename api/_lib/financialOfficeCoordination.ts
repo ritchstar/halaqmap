@@ -20,7 +20,7 @@ export const FINANCIAL_OFFICE_COORDINATION_DOCTRINE_AR = [
 export const FINANCIAL_OFFICE_ACCOUNTING_SKILLS_AR = [
   '## مهارات الحساب والضرائب (مشتركة)',
   `- ض.ق.م: \`vat_sar = round(subtotal_sar × ${ZATCA_PREPARED_VAT_RATE_PERCENT} / 100)\` · \`total = subtotal + vat\`.`,
-  `- حزم مرجعية: برونزي 100 · ذهبي 150 · ماسي 200 · ماسي+مناوب 225 ر.س — ض.ق.م ${ZATCA_PREPARED_VAT_RATE_PERCENT}% عند التفعيل: 115/172.5/230/258.75 إجمالي تقريبي.`,
+  `- حزم مرجعية: برونزي 200 · ذهبي 300 · ماسي 400 · ماسي+مناوب 450 ر.س — ض.ق.م ${ZATCA_PREPARED_VAT_RATE_PERCENT}% عند التفعيل: 230/345/460/517.5 إجمالي تقريبي.`,
   `- حدود ZATCA: اختياري ${ZATCA_VOLUNTARY_LIMIT_SAR.toLocaleString('ar-SA')} ر.س · إلزامي ${ZATCA_MANDATORY_LIMIT_SAR.toLocaleString('ar-SA')} ر.س.`,
   '- الهللة: 1 ر.س = 100 هللة — رادار ZATCA يفرز `listing_license_orders.amount_halalas`.',
   '- خازن: المبالغ الشهرية/السنوية للالتزامات بالريال؛ ZATCA: الإيرادات المُرصَدة التاريخية + وتيرة 30 يوماً.',

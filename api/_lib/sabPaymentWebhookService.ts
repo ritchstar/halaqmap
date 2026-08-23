@@ -57,9 +57,9 @@ function digitalShiftAddonFromMeta(meta: Record<string, unknown>): boolean {
 }
 
 function expectedAmountHalalasFromTier(tier: 'bronze' | 'gold' | 'diamond'): number {
-  if (tier === 'gold') return 15000;
-  if (tier === 'diamond') return 20000;
-  return 10000;
+  if (tier === 'gold') return 30000;
+  if (tier === 'diamond') return 40000;
+  return 20000;
 }
 
 function expectedAmountHalalasFromMeta(meta: Record<string, unknown>): number | null {
@@ -368,7 +368,8 @@ export async function processSabPaymentWebhook(
 
   const paidAmount = amount;
   const expectedFromMeta = expectedAmountHalalasFromMeta(meta);
-  const expectedFromTier = tier ? expectedAmountHalalasFromTier(tier) * licenseQty : null;
+  const addonHalalas = digitalShiftAddonFromMeta(meta) ? 5000 * licenseQty : 0;
+  const expectedFromTier = tier ? expectedAmountHalalasFromTier(tier) * licenseQty + addonHalalas : null;
   const expectedAmount = expectedFromMeta ?? expectedFromTier;
   const expectedCurrency = String(meta.expected_currency ?? meta.expectedCurrency ?? 'SAR')
     .trim()

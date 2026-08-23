@@ -62,7 +62,7 @@ export type ListingFulfillResult =
     }
   | { ok: false; error: string; status?: number };
 
-const DIGITAL_SHIFT_ADDON_HALALAS_PER_CARD = 2500;
+const DIGITAL_SHIFT_ADDON_HALALAS_PER_CARD = 5000;
 const SHIFT_ADDON_PURCHASE_SYNCED_KEY = 'shift_addon_purchase_synced';
 
 function readConfigSnapshot(snapshot: unknown): Record<string, unknown> {
@@ -171,7 +171,7 @@ async function paidOrderGrantsDigitalShiftAddon(
 }
 
 /**
- * يُصلح حالات الدفع/الاعتماد التي لم تُفعِّل Add-on المناوب — يعتمد على metadata أو مبلغ 225 ر.س للماسي
+ * يُصلح حالات الدفع/الاعتماد التي لم تُفعِّل Add-on المناوب — يعتمد على metadata أو مبلغ 450 ر.س للماسي
  * أو طلب تسجيل مرتبط (digitalShiftAddonSelected داخل payload) أو منحة مؤسس ماسية.
  */
 export async function ensureDigitalShiftAddonFromPaidOrders(

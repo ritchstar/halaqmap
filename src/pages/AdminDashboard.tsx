@@ -132,6 +132,8 @@ import { getOrderedWeekHoursForDisplay } from '@/lib/saudiWorkingWeek';
 import { formatBarberMemberNumber } from '@/lib/barberMemberNumber';
 import { mapCoordinateSaveError, parseMapCoordinates } from '@/lib/parseMapCoordinates';
 import { nearestPlatformCity, resolvePlatformCity } from '@/config/platformCoveredCities';
+import { DIGITAL_SHIFT_MONTHLY_ADDON_SAR, TIER_MONTHLY_SAR } from '@/config/subscriptionPricing';
+import { SubscriptionTier } from '@/lib/index';
 import { fetchPublicPaymentPageConfig } from '@/lib/publicPaymentPageConfigRemote';
 import { ZatcaTaxActivationAlert } from '@/components/admin/ZatcaTaxActivationAlert';
 import { toast } from '@/hooks/use-toast';
@@ -1655,9 +1657,9 @@ function OverviewSection({
             <h3 className={`${staffTheme.sectionTitle} mb-4`}>الإيرادات الشهرية</h3>
             <div className="space-y-0">
               {[
-                { label: 'برونزي', value: (stats.bronzeBarbers * 100).toLocaleString() },
-                { label: 'ذهبي', value: (stats.goldBarbers * 150).toLocaleString() },
-                { label: 'ماسي', value: (stats.diamondBarbers * 200).toLocaleString() },
+                { label: 'برونزي', value: (stats.bronzeBarbers * TIER_MONTHLY_SAR[SubscriptionTier.BRONZE]).toLocaleString() },
+                { label: 'ذهبي', value: (stats.goldBarbers * TIER_MONTHLY_SAR[SubscriptionTier.GOLD]).toLocaleString() },
+                { label: 'ماسي', value: (stats.diamondBarbers * TIER_MONTHLY_SAR[SubscriptionTier.DIAMOND]).toLocaleString() },
               ].map((row) => (
                 <div
                   key={row.label}
@@ -1742,9 +1744,9 @@ function OverviewSection({
 
       <FounderStaggerGrid className="grid gap-5 md:grid-cols-3">
         {[
-          { label: 'باقة برونزية', count: stats.bronzeBarbers, hint: '100 ر.س / حزمة رخصة 30 يوم', emoji: '🥉' },
-          { label: 'باقة ذهبية', count: stats.goldBarbers, hint: '150 ر.س / حزمة رخصة 30 يوم', emoji: '🥇' },
-          { label: 'باقة ماسية', count: stats.diamondBarbers, hint: '200 ر.س / حزمة · Add-on المناوب +25', emoji: '💎' },
+          { label: 'باقة برونزية', count: stats.bronzeBarbers, hint: `${TIER_MONTHLY_SAR[SubscriptionTier.BRONZE]} ر.س / حزمة رخصة 30 يوم`, emoji: '🥉' },
+          { label: 'باقة ذهبية', count: stats.goldBarbers, hint: `${TIER_MONTHLY_SAR[SubscriptionTier.GOLD]} ر.س / حزمة رخصة 30 يوم`, emoji: '🥇' },
+          { label: 'باقة ماسية', count: stats.diamondBarbers, hint: `${TIER_MONTHLY_SAR[SubscriptionTier.DIAMOND]} ر.س / حزمة · Add-on المناوب +${DIGITAL_SHIFT_MONTHLY_ADDON_SAR}`, emoji: '💎' },
         ].map((tier) => (
           <FounderGlassCard key={tier.label} className="p-6" interactive staggered>
             <div className="flex items-center justify-between gap-4">

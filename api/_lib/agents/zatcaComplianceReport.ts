@@ -12,8 +12,10 @@ import {
   type ZatcaRevenueAnalytics,
 } from './zatcaTaxTypes.js';
 import {
+  DIAMOND_WITH_ADDON_MONTHLY_SAR,
   INVOICE_DIAMOND_LICENSE_LABEL_AR,
   INVOICE_DIAMOND_WITH_ADDON_LABEL_AR,
+  TIER_MONTHLY_SAR,
 } from '../subscriptionPricingCopy.js';
 
 function roundSar(n: number): number {
@@ -65,10 +67,10 @@ function buildThresholdRows(currentSar: number): ZatcaComplianceThresholdRow[] {
 
 function buildHypotheticalScenarios(): ZatcaHypotheticalScenario[] {
   const packages = [
-    { labelAr: 'حزمة برونزية (100 ر.س)', subtotalSar: 100 },
-    { labelAr: 'حزمة ذهبية (150 ر.س)', subtotalSar: 150 },
-    { labelAr: INVOICE_DIAMOND_LICENSE_LABEL_AR, subtotalSar: 200 },
-    { labelAr: INVOICE_DIAMOND_WITH_ADDON_LABEL_AR, subtotalSar: 225 },
+    { labelAr: `حزمة برونزية (${TIER_MONTHLY_SAR.bronze} ر.س)`, subtotalSar: TIER_MONTHLY_SAR.bronze },
+    { labelAr: `حزمة ذهبية (${TIER_MONTHLY_SAR.gold} ر.س)`, subtotalSar: TIER_MONTHLY_SAR.gold },
+    { labelAr: INVOICE_DIAMOND_LICENSE_LABEL_AR, subtotalSar: TIER_MONTHLY_SAR.diamond },
+    { labelAr: INVOICE_DIAMOND_WITH_ADDON_LABEL_AR, subtotalSar: DIAMOND_WITH_ADDON_MONTHLY_SAR },
   ];
 
   const invoiceScenarios: ZatcaHypotheticalScenario[] = packages.map((p) => {

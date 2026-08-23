@@ -20,6 +20,8 @@ import { useNavigate } from 'react-router-dom';
 import { CheckCircle2, ChevronRight, Sparkles, Zap } from 'lucide-react';
 import { buildBuyPackageUrl, isBarberLoggedIn } from '@/lib/buyPackageRouter';
 import { BannerRadiationField, bannerRadiationTierFromId } from '@/components/BannerRadiationField';
+import { DIGITAL_SHIFT_MONTHLY_ADDON_SAR, TIER_MONTHLY_SAR } from '@/config/subscriptionPricing';
+import { SubscriptionTier } from '@/lib/index';
 
 type Mode = 'register' | 'recharge' | 'auto';
 
@@ -46,23 +48,23 @@ const TIERS: {
   highlights: string[];
 }[] = [
   {
-    id: 'bronze', emoji: '🥉', name: 'برونزي', pricePerMonth: 100, addonPrice: 0,
+    id: 'bronze', emoji: '🥉', name: 'برونزي', pricePerMonth: TIER_MONTHLY_SAR[SubscriptionTier.BRONZE], addonPrice: 0,
     accentFrom: '#92400e', accentTo: '#d97706', border: 'rgba(217,119,6,0.35)', glow: 'rgba(217,119,6,0.18)',
     highlights: ['ظهور جغرافي على الرادار', 'بطاقة صالون رقمية', 'مفتوح/مغلق لحظي'],
   },
   {
-    id: 'gold', emoji: '🥇', name: 'ذهبي', pricePerMonth: 150, addonPrice: 0,
+    id: 'gold', emoji: '🥇', name: 'ذهبي', pricePerMonth: TIER_MONTHLY_SAR[SubscriptionTier.GOLD], addonPrice: 0,
     accentFrom: '#b45309', accentTo: '#fbbf24', border: 'rgba(251,191,36,0.40)', glow: 'rgba(251,191,36,0.22)',
     highlights: ['أولوية في نتائج البحث', 'معرض أعمال 20 صورة', 'QR تقييم موثّق'],
   },
   {
-    id: 'diamond', emoji: '💎', name: 'ماسي', pricePerMonth: 200, addonPrice: 0,
+    id: 'diamond', emoji: '💎', name: 'ماسي', pricePerMonth: TIER_MONTHLY_SAR[SubscriptionTier.DIAMOND], addonPrice: 0,
     accentFrom: '#0891b2', accentTo: '#22d3ee', border: 'rgba(34,211,238,0.45)', glow: 'rgba(34,211,238,0.25)',
     badge: 'الأكثر اختياراً',
     highlights: ['صدارة المنطقة', 'شات مترجم 7 لغات', 'معرض 40 صورة + مواعيد'],
   },
   {
-    id: 'diamond_office', emoji: '🏛️', name: 'ماسي + المكتب', pricePerMonth: 200, addonPrice: 25,
+    id: 'diamond_office', emoji: '🏛️', name: 'ماسي + المكتب', pricePerMonth: TIER_MONTHLY_SAR[SubscriptionTier.DIAMOND], addonPrice: DIGITAL_SHIFT_MONTHLY_ADDON_SAR,
     accentFrom: '#4f46e5', accentTo: '#a78bfa', border: 'rgba(167,139,250,0.45)', glow: 'rgba(167,139,250,0.28)',
     badge: '✦ الأكمل',
     highlights: ['كل مزايا الماسي', 'مساعد داخلي بتعليماتك', 'مناوب شات ذكي 24/7'],

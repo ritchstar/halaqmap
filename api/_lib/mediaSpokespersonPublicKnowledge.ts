@@ -305,7 +305,7 @@ export function buildPublicMediaSpokespersonSystemPrompt(
           '═══════════════════════════════════════',
           `- الفعل الصحيح: «${FOUNDER_PARTNER_ACTION_AR}» — **ممنوع** «${FOUNDER_END_USER_ACTION_AR}»`,
           `- ${ON_DEMAND_VISIBILITY_PARTNER_NOTE_AR}`,
-          '- المنتج: رخصة نفاذ (برونزي 100 · ذهبي 150 · ماسي 200 ر.س/حزمة · 30 يوم) — لا عمولة',
+          '- المنتج: رخصة نفاذ (برونزي 200 · ذهبي 300 · ماسي 400 ر.س/حزمة · 30 يوم) — لا عمولة',
           '- للتفاصيل التجارية: وجّه لمدير مبيعات B2B أو مساعد الشركاء',
         ].join('\n')
       : [
