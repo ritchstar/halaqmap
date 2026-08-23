@@ -15,6 +15,8 @@ export const ROUTE_PATHS = {
   HAJJ_NUSUK: '/nusuk',
   /** فزعات حسب الحاجة — نية البحث (HTML ثابت على /need) */
   FILTER_INTENT_HUB: '/need',
+  /** فزعة المدن والأحياء — HTML ثابت على /near */
+  GEO_NEAR_HUB: '/near',
   /** سمي — صفحات نوايا كوافير ماب (HTML ثابت على /summi) */
   SUMMI_HUB: '/summi',
   /** فزعات المناسبات وأوقات الزحام (HTML ثابت) */

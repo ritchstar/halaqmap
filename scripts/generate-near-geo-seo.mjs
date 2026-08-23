@@ -34,6 +34,7 @@ import {
   exportFazaaCityMarketingJsonList,
   getFazaaCityMarketing,
 } from './data/fazaaCityMarketingCopy.mjs';
+import { GEO_NEAR_LEGACY_REDIRECTS } from './data/geoNearLegacyRedirects.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
@@ -539,6 +540,24 @@ function writeFileDeep(filePath, content) {
   writeFileSync(filePath, content, 'utf8');
 }
 
+function renderLegacyRedirect(toPath) {
+  const dest = absoluteUrl(toPath);
+  return `<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <title>نقل إلى الصفحة الصحيحة</title>
+  <link rel="canonical" href="${escapeHtml(dest)}">
+  <meta http-equiv="refresh" content="0;url=${escapeHtml(dest)}">
+  <script>location.replace(${JSON.stringify(dest)})</script>
+</head>
+<body>
+  <p><a href="${escapeHtml(dest)}">افتح الصفحة المعتمدة</a></p>
+</body>
+</html>
+`;
+}
+
 function loadAllNodes() {
   const registry = JSON.parse(readFileSync(REGISTRY_PATH, 'utf8'));
   let neighborhoods = { nodes: [] };
@@ -603,6 +622,14 @@ ${urlEntries
     join(DIST, 'near', 'city-marketing.json'),
     `${JSON.stringify(exportFazaaCityMarketingJsonList(), null, 2)}\n`,
   );
+
+  const knownPaths = new Set(urlEntries.map((entry) => entry.loc.replace(ORIGIN, '')));
+  for (const { from, to } of GEO_NEAR_LEGACY_REDIRECTS) {
+    if (!knownPaths.has(to)) {
+      throw new Error(`legacy near redirect target missing: ${to}`);
+    }
+    writeFileDeep(join(DIST, ...from.split('/').filter(Boolean), 'index.html'), renderLegacyRedirect(to));
+  }
 
   const neighCount = nodes.filter((n) => n.kind === 'neighborhood').length;
   console.log(

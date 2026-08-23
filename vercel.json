@@ -69,6 +69,36 @@
       "permanent": true
     },
     {
+      "source": "/near/riyadh/maathar",
+      "destination": "/near/riyadh/maather",
+      "permanent": true
+    },
+    {
+      "source": "/near/riyadh/maathar/",
+      "destination": "/near/riyadh/maather",
+      "permanent": true
+    },
+    {
+      "source": "/near/riyadh/al-maather",
+      "destination": "/near/riyadh/maather",
+      "permanent": true
+    },
+    {
+      "source": "/near/riyadh/al-maather/",
+      "destination": "/near/riyadh/maather",
+      "permanent": true
+    },
+    {
+      "source": "/near/riyadh/al-maathar",
+      "destination": "/near/riyadh/maather",
+      "permanent": true
+    },
+    {
+      "source": "/near/riyadh/al-maathar/",
+      "destination": "/near/riyadh/maather",
+      "permanent": true
+    },
+    {
       "source": "/near/",
       "destination": "/near",
       "permanent": true

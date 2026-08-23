@@ -33,6 +33,8 @@ const FOUNDER_DESK_LANDING_PATH =
   (ROUTE_PATHS as { FOUNDER_DESK_LANDING?: string }).FOUNDER_DESK_LANDING || "/m/hm-desk-k7q3";
 const FOUNDER_DESK_VISITOR_CHAT_PATH =
   (ROUTE_PATHS as { FOUNDER_DESK_VISITOR_CHAT?: string }).FOUNDER_DESK_VISITOR_CHAT || "/partners/live-chat";
+const GEO_NEAR_HUB_PATH =
+  (ROUTE_PATHS as { GEO_NEAR_HUB?: string }).GEO_NEAR_HUB || "/near";
 const STORE_LANDING_PATH =
   (ROUTE_PATHS as { STORE_LANDING?: string }).STORE_LANDING || "/store";
 const STORE_REQUEST_PATH =
@@ -674,6 +676,18 @@ export function App() {
           <Route
             path={`${ROUTE_PATHS.OCCASIONS_HUB}/:slug`}
             element={<LazyRoute><StaticSeoRedirect path="/occasions/:slug" /></LazyRoute>}
+          />
+          <Route
+            path={`${GEO_NEAR_HUB_PATH}/:city/:slug`}
+            element={<LazyRoute><StaticSeoRedirect path="/near/:city/:slug" /></LazyRoute>}
+          />
+          <Route
+            path={`${GEO_NEAR_HUB_PATH}/:city`}
+            element={<LazyRoute><StaticSeoRedirect path="/near/:city" /></LazyRoute>}
+          />
+          <Route
+            path={GEO_NEAR_HUB_PATH}
+            element={<LazyRoute><StaticSeoRedirect path="/near" /></LazyRoute>}
           />
           <Route path={ROUTE_PATHS.TERMS_OF_SERVICE} element={<WithPublicLayout><LazyRoute><TermsOfService /></LazyRoute></WithPublicLayout>} />
           <Route path={ROUTE_PATHS.USER_PRIVACY_POLICY} element={<WithPublicLayout><LazyRoute><UserPrivacyPolicy /></LazyRoute></WithPublicLayout>} />
