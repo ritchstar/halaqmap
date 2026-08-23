@@ -56,7 +56,7 @@ function tierLabelAr(tier: string): string {
 }
 
 function paymentMethodLabelAr(method: string): string {
-  return method === 'bank_transfer' ? 'تحويل بنكي (فترة مسبقة الدفع)' : 'تفعيل الحزمة البرمجية (بطاقة / ميسر)';
+  return method === 'bank_transfer' ? 'تحويل بنكي (فترة مسبقة الدفع)' : 'تفعيل الحزمة البرمجية (بطاقة عبر بوابة الدفع)';
 }
 
 function buildPaymentUrl(

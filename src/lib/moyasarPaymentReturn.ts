@@ -378,15 +378,15 @@ export function formatMoyasarFailureReturnMessage(rawMessage: string): string {
     upper.includes('NOT FOUND') ||
     upper.includes('CARD NOT ENROLLED')
   ) {
-    return 'رفضت البطاقة: الرقم غير صالح للاختبار. استخدم بطاقة ميسر التجريبية `4111 1111 1111 1111` مع تاريخ مستقبلي وأي CVV، ثم أكمل شاشة 3DS بزر Submit.';
+    return 'رفضت البطاقة: الرقم غير صالح للاختبار. استخدم بطاقة الاختبار `4111 1111 1111 1111` مع تاريخ مستقبلي وأي CVV، ثم أكمل شاشة التحقق بزر Submit.';
   }
   if (upper.includes('DECLINED')) {
-    return `رفض البنك العملية (${msg}). جرّب البطاقة التجريبية 4111… أو راجع لوحة ميسر.`;
+    return `رفض البنك العملية (${msg}). جرّب البطاقة التجريبية 4111… أو تواصل مع الدعم.`;
   }
   if (upper.includes('INSUFFICIENT')) {
     return 'الرصيد غير كافٍ. في الاختبار استخدم البطاقة `4111 1111 1111 1111`.';
   }
-  return msg || 'تعذر إتمام الدفع عبر ميسر. أعد المحاولة أو راجع لوحة ميسر.';
+  return msg || 'تعذر إتمام الدفع عبر بوابة الدفع. أعد المحاولة أو تواصل مع الدعم.';
 }
 
 export function expectedHalalasFromReturnSearchParams(

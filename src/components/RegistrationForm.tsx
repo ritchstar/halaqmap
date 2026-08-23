@@ -1104,7 +1104,7 @@ export function RegistrationForm() {
                 : undefined,
             )
           : 0;
-      const payLabel = 'حزمة رخصة (ميسر — بطاقة)';
+      const payLabel = 'حزمة رخصة (بطاقة عبر بوابة الدفع)';
 
       const attributionLines = partnerAttribution
         ? [
@@ -2336,11 +2336,11 @@ export function RegistrationForm() {
                 <Alert className={regAlertClass}>
                   <AlertDescription className="text-sm leading-relaxed space-y-2 text-slate-300">
                     <p>
-                      <strong className="text-slate-100">الدفع عبر بطاقة (ميسر)</strong> — الطريقة الوحيدة لشراء
+                      <strong className="text-slate-100">الدفع عبر بطاقة</strong> — الطريقة الوحيدة لشراء
                       حزمة الرخصة الرقمية على المنصة.
                     </p>
                     <p className={regMutedClass}>
-                      الدفع آلي ومباشر — بعد إرسال الطلب ستنتقل إلى صفحة الدفع عبر بوابة ميسر (مدى، فيزا، ماستركارد). يبدأ تفعيل الحزمة وفق مسار الدفع والحالة الحالية في النظام.
+                      الدفع آلي ومباشر — بعد إرسال الطلب ستنتقل إلى صفحة الدفع عبر بوابة الدفع (مدى، فيزا، ماستركارد). يبدأ تفعيل الحزمة فور نجاح الدفع.
                     </p>
                     {selectedPlan && monthlyPriceBreakdown && (
                       <p className="font-medium text-slate-100">

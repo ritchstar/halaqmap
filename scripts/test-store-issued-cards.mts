@@ -270,7 +270,7 @@ assert.match(legalBlob, /صندوق محادثة/);
 assert.match(legalBlob, /لوحة المشتري/);
 assert.match(legalBlob, /رقابة برمجية صارمة/);
 assert.match(legalBlob, /نظام حماية البيانات الشخصية/);
-assert.match(legalBlob, /ميسر/);
+assert.match(legalBlob, /بوابة الدفع/);
 assert.doesNotMatch(legalBlob, /المؤسس/);
 assert.match(legalBlob, /الإدارة/);
 assert.doesNotMatch(legalBlob, /وفاة|عزاء|bereavement|مسجد|مقبرة/);
@@ -346,7 +346,7 @@ assert.match(payPage, /STORE_OCCASION_CARD_PRODUCT/);
 assert.match(payPage, /isOccasionCardPaymentReturn/);
 assert.match(payPage, /تعذر التحقق من الدفع/);
 assert.match(payPage, /activateOnceRef\.current = false/);
-assert.match(payPage, /مفتاح ميسر الحيّ/);
+assert.match(payPage, /بوابة الدفع غير جاهزة/);
 
 const studio = readFileSync(join(root, 'src/pages/store/StorePaidInviteStudioPage.tsx'), 'utf8');
 assert.match(studio, /invoiceUrl/);

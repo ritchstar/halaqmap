@@ -133,7 +133,7 @@ export default function StorePaidInviteViewPage() {
           <p className="text-center text-white/70">هذا الرابط غير متاح.</p>
         ) : null}
         {status === 'pending_payment' ? (
-          <p className="text-center text-white/70">البطاقة بانتظار إتمام الدفع عبر ميسر.</p>
+          <p className="text-center text-white/70">البطاقة بانتظار إتمام الدفع عبر بوابة الدفع.</p>
         ) : null}
         {live ? (
           <>

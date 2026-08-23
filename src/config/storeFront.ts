@@ -110,7 +110,7 @@ export const STORE_LANDING_COPY = {
   trustStripCtaAr: 'فتح التصنيفات والتحقق',
   paidInvitesTitleAr: 'كاردي8',
   paidInvitesLeadAr:
-    'معاينة مجانية ثم بطاقة حيّة قابلة للمشاركة. ثلاث طبقات معتمدة: 12 و29 و59 ر.س. الدفع عبر ميسر كفاتورة كاردي8.',
+    'معاينة مجانية ثم بطاقة حيّة قابلة للمشاركة. ثلاث طبقات معتمدة: 12 و29 و59 ر.س. الدفع عبر بوابة الدفع الآمنة.',
   paidInvitesCtaAr: 'افتح كاردي8',
   weddingLiveTitleAr: 'افراحي1 رجالي',
   weddingLiveLeadAr:
@@ -193,7 +193,7 @@ export const STORE_ABOUT_COPY = {
     'حلاق ماب وكوافير ماب منتجان قطاعيان ضمن أعمال المتجر.',
     'كاردي8 وافراحي1 واجواء1 ولاونجا1 وتمويناتا1 على صفحاتها.',
     'الطلب الخاص يُدرس إن خرج عن القائمة الحالية.',
-    'الدفع للمنتجات الجاهزة عبر ميسر على النطاق الأم فقط.',
+    'الدفع للمنتجات الجاهزة عبر بوابة الدفع الآمنة فقط.',
   ],
   detailsTitle: 'ما يندرج في تفاصيل الخدمة',
   detailsIn: [
@@ -271,7 +271,7 @@ export const STORE_TRUST_COPY = {
 export const STORE_HALAQMAP_OPS_BANNER = {
   badgeAr: 'منتج',
   ariaAr: 'بنر منتج حلاق ماب ضمن أعمال المتجر',
-  titleAr: 'حلاق ماب منتج ضمن أعمال المتجر — رخصة النفاذ متاحة للاشتراك عبر ميسر.',
+  titleAr: 'حلاق ماب منتج ضمن أعمال المتجر — رخصة النفاذ متاحة للاشتراك عبر بوابة الدفع.',
   ctaAr: 'عرض حزم الرخصة',
   packagesHref: 'https://www.halaqmap.com/#/partners',
 } as const;
@@ -332,7 +332,7 @@ export const STORE_COMMISSION_COPY = {
 export const STORE_SECTOR_SPLIT_COPY = {
   titleAr: 'منتجات ضمن أعمال المتجر',
   leadAr:
-    'حلاق ماب وكوافير ماب منتجان قطاعيان ضمن أعمال المتجر المتنوعة. لكل منهما سطحه، والدفع عبر ميسر على النطاق الأم.',
+    'حلاق ماب وكوافير ماب منتجان قطاعيان ضمن أعمال المتجر المتنوعة. لكل منهما سطحه، والدفع عبر بوابة الدفع الآمنة.',
   halaqNameAr: LEGAL_FIRST_SOFTWARE_PRODUCT_AR,
   halaqBodyAr: 'للرجال. منتج جاهز برخصة النفاذ، وله بنره الخاص ضمن الأعمال.',
   halaqHost: 'www.halaqmap.com',
@@ -366,7 +366,7 @@ export const STORE_LIVE_PRODUCTS = [
   {
     id: 'occasion-card',
     nameAr: 'كاردي8',
-    blurb: 'بطاقة حيّة قابلة للمشاركة. ثلاث طبقات: 12 و29 و59 ر.س. الدفع عبر ميسر على النطاق الأم.',
+    blurb: 'بطاقة حيّة قابلة للمشاركة. ثلاث طبقات: 12 و29 و59 ر.س. الدفع عبر بوابة الدفع الآمنة.',
     href: `${STORE_ORIGIN}/#${ROUTE_PATHS.STORE_INVITES}`,
     image: STORE_VISUALS.cardStudio,
     imageAlt: 'معاينة كاردي8 من المتجر',

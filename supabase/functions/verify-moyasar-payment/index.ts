@@ -184,7 +184,7 @@ Deno.serve(async (req) => {
       {
         ok: false,
         error: "upstream_network",
-        hint: error instanceof Error ? error.message : "تعذر الاتصال ببوابة ميسر.",
+        hint: error instanceof Error ? error.message : "تعذر الاتصال ببوابة الدفع.",
       },
       502,
       origin,
@@ -198,7 +198,7 @@ Deno.serve(async (req) => {
         ok: false,
         error: "invalid_upstream",
         status: upstream.status,
-        hint: "رد غير متوقع من بوابة ميسر (HTML).",
+        hint: "رد غير متوقع من بوابة الدفع.",
       },
       502,
       origin,
@@ -210,7 +210,7 @@ Deno.serve(async (req) => {
     body = text ? (JSON.parse(text) as MoyasarPaymentJson) : {};
   } catch {
     return jsonResponse(
-      { ok: false, error: "invalid_upstream", status: upstream.status, hint: "تعذر تحليل رد بوابة ميسر." },
+      { ok: false, error: "invalid_upstream", status: upstream.status, hint: "تعذر تحليل رد بوابة الدفع." },
       502,
       origin,
     );

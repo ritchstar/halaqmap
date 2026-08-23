@@ -103,7 +103,7 @@ export function StoreRestaurantOrderForm({ renewToken = '' }: { renewToken?: str
         disabled={busy || !STORE_RESTAURANT_LIVE_CHECKOUT_ENABLED}
         className="mt-4 min-h-12 w-full rounded-full bg-[#e08a3c] text-sm font-bold text-[#061018] disabled:opacity-50"
       >
-        {busy ? 'جاري تجهيز ميسر…' : `${STORE_RESTAURANT_LIVE.orderSubmitAr} · ${pack.priceSar} ر.س`}
+        {busy ? 'جاري تجهيز بوابة الدفع…' : `${STORE_RESTAURANT_LIVE.orderSubmitAr} · ${pack.priceSar} ر.س`}
       </button>
     </form>
   );

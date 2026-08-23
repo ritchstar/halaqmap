@@ -181,7 +181,7 @@ export default function StorePaidInviteStudioPage() {
           {error ? <p className="mt-2 text-sm text-red-300">{error}</p> : null}
           <p className="mt-2 text-xs leading-relaxed text-white/45">
             {STORE_PAID_INVITE_CHECKOUT_ENABLED
-              ? 'الدفع عبر ميسر على www.halaqmap.com. بعد نجاح الدفع يصبح الرابط حيّاً ولا يُسترد.'
+              ? 'الدفع عبر بوابة الدفع الآمنة. بعد نجاح الدفع يصبح الرابط حيّاً ولا يُسترد.'
               : STORE_PAID_INVITE_COPY.checkoutClosedAr}
           </p>
           {STORE_PAID_INVITE_CHECKOUT_ENABLED && !occasionCardLivePaymentsEnabled() ? (

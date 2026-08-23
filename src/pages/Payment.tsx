@@ -514,9 +514,9 @@ export default function Payment() {
       errCode === 'sync_timeout' || errCode === 'network'
         ? 'تأخر الاتصال بخادم التفعيل. اضغط «إعادة محاولة إصدار الشهادة» أو انتظر دقيقة ثم أعد التحميل.'
         : errCode === 'payment_not_paid'
-          ? 'الدفع ما زال قيد التأكيد لدى ميسر. انتظر ثوانٍ ثم أعد المحاولة.'
+          ? 'الدفع ما زال قيد التأكيد لدى بوابة الدفع. انتظر ثوانٍ ثم أعد المحاولة.'
           : errCode === 'moyasar_disabled'
-            ? 'خادم التفعيل غير مهيأ (مفاتيح ميسر). تواصل مع الدعم.'
+            ? 'خادم التفعيل غير مهيأ. تواصل مع الدعم.'
             : 'جاري إصدار شهادة التفعيل أو تعذّر إتمامها. أعد المحاولة — إن استمرت المشكلة راجع بريدك أو تواصل مع الدعم.',
     );
   }, []);
@@ -536,7 +536,7 @@ export default function Payment() {
     }
     setWalletTopupError(
       result.error === 'payment_not_paid'
-        ? 'الدفع ما زال قيد التأكيد لدى ميسر. انتظر ثوانٍ ثم أعد المحاولة.'
+        ? 'الدفع ما زال قيد التأكيد لدى بوابة الدفع. انتظر ثوانٍ ثم أعد المحاولة.'
         : result.error === 'wallet_topup_barber_unresolved'
           ? 'تعذّر ربط الدفعة بحساب الحلاق. تواصل مع الدعم مع رقم العملية.'
           : result.error === 'wallet_topup_amount_mismatch'
@@ -569,7 +569,7 @@ export default function Payment() {
     const userMessage = formatMoyasarFailureReturnMessage(failure.message);
     setMoyasarReturnVerify('error');
     setMoyasarVerifyMessage(userMessage);
-    toast.error('فشل الدفع عبر ميسر', { description: userMessage });
+    toast.error('تعذر إتمام الدفع', { description: userMessage });
 
     setSearchParams(
       (prev) => {
@@ -653,10 +653,10 @@ export default function Payment() {
           setMoyasarVerifyMessage(
             'التحقق من الدفع غير مفعّل على الخادم. أضف MOYSAR_SECRET_TEST_API_KEY على Vercel ثم أعد المحاولة.',
           );
-          toast.message('تنبيه', { description: 'خادم التحقق من ميسر غير مهيأ بعد.' });
+          toast.message('تنبيه', { description: 'خادم التحقق من بوابة الدفع غير مهيأ بعد.' });
         } else if (result.error === 'amount_mismatch') {
           setMoyasarVerifyMessage(
-            'المبلغ المدفوع لا يطابق قيمة الحزمة المعروضة. إن كان الدفع ناجحاً في لوحة ميسر، انتظر دقائق أو تواصل مع الدعم.',
+            'المبلغ المدفوع لا يطابق قيمة الحزمة المعروضة. إن اكتمل الدفع بنجاح، انتظر دقائق أو تواصل مع الدعم.',
           );
           toast.error('تباين في المبلغ');
         } else if (result.error === 'moyasar_error') {
@@ -665,9 +665,9 @@ export default function Payment() {
           setMoyasarVerifyMessage(
             result.hint ||
               (notFound
-                ? 'الدفع ناجح في ميسر لكن الخادم لا يجده — غالباً لأن مفتاح السر على Vercel ما زال sk_test_ بينما الدفع كان Live (pk_live_). اضبط PAYMENT_ENV=live وMOYSAR_SECRET_LIVE_API_KEY=sk_live_… ثم أعد النشر، وأضف معرف الدفع (UUID) من لوحة ميسr إلى الرابط: &id=…'
+                ? 'الدفع اكتمل لكن التأكيد لم يصل بعد. انتظر دقيقة ثم أعد المحاولة، أو تواصل مع الدعم برقم العملية.'
                 : result.message ||
-                    'تعذر جلب حالة الدفع من ميسر. تحقق من تطابق مفتاح السر (sk_live_/sk_test_) مع المفتاح العام (pk_live_/pk_test_) على Vercel.'),
+                    'تعذر جلب حالة الدفع. أعد المحاولة بعد دقيقة أو تواصل مع الدعم.'),
           );
           toast.error('فشل التحقق من الدفع');
         } else if (result.error === 'Forbidden') {
@@ -679,7 +679,7 @@ export default function Payment() {
         } else if (result.error === 'invalid_response' || result.error === 'upstream_timeout' || result.error === 'upstream_network') {
           setMoyasarVerifyMessage(
             result.hint ||
-              'خادم التحقق لم يُرجع استجابة صالحة. قد يكون الاتصال بميسر بطيئاً — أعد المحاولة بعد دقيقة.',
+              'خادم التحقق لم يُرجع استجابة صالحة. قد يكون الاتصال ببوابة الدفع بطيئاً — أعد المحاولة بعد دقيقة.',
           );
           toast.error('فشل التحقق من الدفع');
         } else {
@@ -715,12 +715,12 @@ export default function Payment() {
         const statusLabel = String(result.status || 'غير مكتمل');
         const statusHint =
           statusLabel === 'failed'
-            ? 'فشلت العملية في ميسر. تأكد من إدخال بطاقة الاختبار 4111… وأكمل شاشة 3DS بزر Submit.'
+            ? 'تعذر إتمام العملية. تأكد من إدخال بطاقة الاختبار 4111… وأكمل شاشة التحقق بزر Submit.'
             : statusLabel === 'initiated' || statusLabel === 'authorized'
-              ? 'العملية ما زالت قيد المعالجة في ميسر. انتظر دقيقة ثم أعد فتح رابط العودة أو راجع لوحة ميسر.'
-              : 'إن كانت العملية قيد 3DS أكمل الخطوات ثم أعد فتح الرابط.';
-        setMoyasarVerifyMessage(`حالة الدفع من ميسر: ${statusLabel}. ${statusHint}`);
-        toast.message('الدفع غير مكتمل', { description: 'راجع حالة العملية في لوحة ميسر.' });
+              ? 'العملية ما زالت قيد المعالجة. انتظر دقيقة ثم أعد فتح رابط العودة.'
+              : 'إن كانت العملية قيد التحقق أكمل الخطوات ثم أعد فتح الرابط.';
+        setMoyasarVerifyMessage(`حالة الدفع: ${statusLabel}. ${statusHint}`);
+        toast.message('الدفع غير مكتمل', { description: 'راجع حالة العملية أو تواصل مع الدعم.' });
       }
     });
 
@@ -903,7 +903,7 @@ export default function Payment() {
         host.innerHTML = '';
         const Moyasar = getMoyasarGlobal();
         if (!Moyasar?.init) {
-          setMoyasarFormError('تعذر تهيئة مكتبة ميسر.');
+          setMoyasarFormError('تعذر تجهيز بوابة الدفع.');
           return;
         }
         try {
@@ -950,19 +950,19 @@ export default function Payment() {
               if (id) persistMoyasarLastPaymentId(id);
             },
             on_failure: (msg: unknown) => {
-              const raw = typeof msg === 'string' ? msg : 'فشل الدفع عبر ميسر.';
+              const raw = typeof msg === 'string' ? msg : 'تعذر إتمام الدفع.';
               const userMessage = formatMoyasarFailureReturnMessage(raw);
               setMoyasarReturnVerify('error');
               setMoyasarVerifyMessage(userMessage);
-              toast.error('فشل الدفع عبر ميسر', { description: userMessage });
+              toast.error('تعذر إتمام الدفع', { description: userMessage });
             },
           });
         } catch (e) {
-          setMoyasarFormError(e instanceof Error ? e.message : 'تعذر تشغيل نموذج ميسر');
+          setMoyasarFormError(e instanceof Error ? e.message : 'تعذر تشغيل بوابة الدفع');
         }
       })
       .catch(() => {
-        if (!cancelled) setMoyasarFormError('تعذر تحميل سكربت ميسر من CDN.');
+        if (!cancelled) setMoyasarFormError('تعذر تحميل بوابة الدفع.');
       });
 
     return () => {
@@ -1095,7 +1095,7 @@ export default function Payment() {
   const paymentReturnGatewayLabel =
     sabReturnVerify === 'paid' || sabReturnVerify === 'loading' || sabReturnVerify === 'unpaid' || sabReturnVerify === 'error'
       ? 'بنك الأول'
-      : 'ميسر';
+      : 'بوابة الدفع';
 
   useEffect(() => {
     if (!paymentReturnPaid) return;
@@ -1369,13 +1369,13 @@ export default function Payment() {
                       setMoyasarVerifyNonce((n) => n + 1);
                     }}
                   >
-                    إعادة التحقق من ميسر
+                    إعادة التحقق من الدفع
                   </Button>
                 ) : null}
                 {paymentReturnUnpaid || paymentReturnError ? (
                   <p className="text-sm text-foreground/80">
-                    إن ظهرت العملية <strong className="text-foreground">مدفوعة</strong> في لوحة ميسر، انسخ
-                    معرّف الدفع (UUID) من تفاصيل العملية وأضفه للرابط:{' '}
+                    إن ظهرت العملية <strong className="text-foreground">مدفوعة</strong>، انسخ
+                    معرّف الدفع من تفاصيل العملية وأضفه للرابط:{' '}
                     <span dir="ltr" className="font-mono">
                       &amp;id=...
                     </span>
@@ -1554,7 +1554,7 @@ export default function Payment() {
                   <CardHeader className="pb-2">
                     <CardTitle className="text-lg">رمز تجربة برونزي (30 يوماً)</CardTitle>
                     <CardDescription>
-                      إن وصلك رمز مجاني، أدخله هنا لتفعيل الحساب دون دفع. مسار ميسر أدناه يبقى كما هو إن
+                      إن وصلك رمز مجاني، أدخله هنا لتفعيل الحساب دون دفع. مسار بوابة الدفع أدناه يبقى كما هو إن
                       لم يكن لديك رمز.
                     </CardDescription>
                   </CardHeader>
@@ -1650,7 +1650,7 @@ export default function Payment() {
                         <div className="min-w-0 flex-1">
                           <div className="mb-1 flex flex-wrap items-center gap-2">
                             <CreditCard className="h-5 w-5 text-primary" />
-                            <h3 className="font-semibold">ميسر (Moyasar)</h3>
+                            <h3 className="font-semibold">بوابة الدفع</h3>
                             {preferredGatewayCode === 'MOYASAR' && availablePaymentChannels.length > 1 ? (
                               <Badge variant="secondary" className="text-xs">افتراضي</Badge>
                             ) : availablePaymentChannels.length === 1 ? (
@@ -1704,8 +1704,8 @@ export default function Payment() {
                     <Alert variant="destructive">
                       <AlertCircle className="h-4 w-4" />
                       <AlertDescription className="text-sm leading-relaxed">
-                        تعذّر تحميل إعدادات الدفع من الخادم ({pubPayConfig.error || 'خطأ'}). تُعرض ميسر
-                        افتراضياً. تحقق من متغيرات Supabase على Vercel ثم أعد تحميل الصفحة.
+                        تعذّر تحميل إعدادات الدفع من الخادم ({pubPayConfig.error || 'خطأ'}). تُعرض بوابة الدفع
+                        افتراضياً. أعد تحميل الصفحة أو تواصل مع الدعم.
                       </AlertDescription>
                     </Alert>
                   )}
@@ -1714,8 +1714,7 @@ export default function Payment() {
                     <Alert>
                       <AlertCircle className="h-4 w-4" />
                       <AlertDescription className="text-sm leading-relaxed">
-                        لا توجد قناة دفع مفعّلة حالياً. فعّل ميسر أو مسار SAB من{' '}
-                        <strong>لوحة إدارة المنصة → بوابات الدفع</strong>.
+                        لا توجد قناة دفع مفعّلة حالياً. تواصل مع الدعم لإتمام الشراء.
                       </AlertDescription>
                     </Alert>
                   )}
@@ -1758,8 +1757,7 @@ export default function Payment() {
                             </CardTitle>
                             <CardDescription className="text-base leading-relaxed text-foreground/85">
                               {TERM_ACTIVATE_NOW_AR} — منتج رقمي فوري. المبلغ المعروض أعلاه بالريال هو ما يُخصم عبر
-                              البوابة. بعد إتمام العملية يعيد ميسر التوجيه مع <span dir="ltr">?id=</span> ثم يُتحقق من
-                              الخادم تلقائياً وتُصدر الرخصة.
+                              بوابة الدفع. بعد إتمام العملية تُفعَّل الرخصة تلقائياً.
                             </CardDescription>
                           </CardHeader>
                           <CardContent className="space-y-3">
@@ -1775,7 +1773,7 @@ export default function Payment() {
                               dir="ltr"
                             />
                             <p className="text-sm leading-relaxed text-foreground/80 sm:text-base">
-                              تُدخَل بيانات البطاقة داخل نموذج ميسر نفسه وتُعالَج عبر مزوّد الدفع؛ لا يحتفظ
+                              تُدخَل بيانات البطاقة داخل نموذج بوابة الدفع نفسه وتُعالَج عبر المزود المعتمد؛ لا يحتفظ
                               حلاق ماب ببيانات البطاقة الكاملة.
                             </p>
                           </CardContent>

@@ -187,7 +187,7 @@ export function StoreEventOrderForm({ voice = 'men' }: { voice?: StoreEventLiveV
         disabled={busy || !STORE_EVENT_LIVE_CHECKOUT_ENABLED}
         className={cn('mt-5 w-full rounded-full py-3 text-sm font-bold disabled:opacity-50', fill)}
       >
-        {busy ? 'جاري تجهيز ميسر…' : `${copy.orderSubmitAr} · ${STORE_EVENT_LIVE_PRICE_SAR} ر.س`}
+        {busy ? 'جاري تجهيز بوابة الدفع…' : `${copy.orderSubmitAr} · ${STORE_EVENT_LIVE_PRICE_SAR} ر.س`}
       </button>
     </form>
   );

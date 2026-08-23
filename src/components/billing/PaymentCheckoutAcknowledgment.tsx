@@ -51,7 +51,7 @@ export function PaymentCheckoutAcknowledgment({
         <AlertDescription className="space-y-2 text-base leading-relaxed text-foreground">
           {gateway === 'moyasar' ? (
             <p>
-              الدفع عبر <strong>ميسر</strong> يخضع لـ{' '}
+              الدفع عبر <strong>بوابة الدفع</strong> يخضع لـ{' '}
               <a
                 href="https://moyasar.com/ar/resources/terms/"
                 target="_blank"
@@ -126,7 +126,7 @@ export function PaymentCheckoutAcknowledgment({
               رخصة النفاذ الرقمية
             </Link>
             {gateway === 'moyasar'
-              ? '، وشروط بوابة الدفع لشركة مُيسر المالية، وأوافق على المتابعة.'
+              ? '، وشروط بوابة الدفع المعتمدة، وأوافق على المتابعة.'
               : '، وشروط التاجر وبوابة بنك الأول المعتمدة، وأوافق على المتابعة.'}
           </p>
         </CollapsibleContent>

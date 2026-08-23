@@ -371,7 +371,7 @@ export default function SematCardSetup() {
               </div>
 
               <p className="text-center text-xs leading-relaxed text-slate-500">
-                بالضغط على التفعيل لاحقاً ستُفتح بوابة الدفع (ميسر / Apple Pay). المنتج رقمي غير قابل للاسترجاع بعد التسليم وفق سياسة سمات.
+                بالضغط على التفعيل لاحقاً ستُفتح بوابة الدفع (مدى، فيزا، ماستركارد، أو Apple Pay). المنتج رقمي غير قابل للاسترجاع بعد التسليم وفق سياسة سمات.
               </p>
             </motion.div>
           ) : null}

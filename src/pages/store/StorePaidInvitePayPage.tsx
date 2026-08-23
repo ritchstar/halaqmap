@@ -147,7 +147,7 @@ export default function StorePaidInvitePayPage() {
         if (cancelled) return;
         const Moyasar = getMoyasarGlobal();
         if (!Moyasar?.init) {
-          setError('تعذر تهيئة مكتبة ميسر.');
+          setError('تعذر تجهيز بوابة الدفع.');
           return;
         }
         const applePaySupported = (() => {
@@ -209,7 +209,7 @@ export default function StorePaidInvitePayPage() {
         });
       })
       .catch(() => {
-        if (!cancelled) setError('تعذر تحميل سكربت ميسر من CDN.');
+        if (!cancelled) setError('تعذر تحميل بوابة الدفع.');
       });
     return () => {
       cancelled = true;
@@ -256,12 +256,12 @@ export default function StorePaidInvitePayPage() {
                 href={invoiceUrl}
                 className="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-[#e8c547] px-4 py-3 text-sm font-bold text-[#061018]"
               >
-                إتمام الدفع عبر فاتورة ميسر
+                إتمام الدفع عبر بوابة الدفع
               </a>
             ) : null}
             {!hostedInvoice && !publishableKey.startsWith('pk_') ? (
               <p className="mt-4 text-sm text-red-300">
-                {liveMoney ? 'مفتاح ميسر الحيّ غير مهيأ لهذه البطاقة.' : 'مفتاح ميسر التجريبي غير مهيأ لهذه البطاقة.'}
+                {liveMoney ? 'بوابة الدفع غير جاهزة حالياً.' : 'بوابة الدفع التجريبية غير جاهزة حالياً.'}
               </p>
             ) : null}
             {!hostedInvoice && publishableKey.startsWith('pk_') ? (

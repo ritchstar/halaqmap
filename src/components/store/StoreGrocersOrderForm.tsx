@@ -112,7 +112,7 @@ export function StoreGrocersOrderForm({ renewToken = '' }: { renewToken?: string
         className="mt-4 min-h-12 w-full rounded-full bg-[#8fbf7a] text-sm font-bold text-[#061018] disabled:opacity-50"
       >
         {busy
-          ? 'جاري تجهيز ميسر…'
+          ? 'جاري تجهيز بوابة الدفع…'
           : `${STORE_GROCERS_LIVE.orderSubmitAr} · ${pack.priceSar + (chatAddon ? grocersChatAddonSar(pack.id) : 0)} ر.س`}
       </button>
       <p className="mt-2 text-xs leading-6 text-white/50">لا يُخلط هذا الاشتراك بفاتورة الرخصة أو قاعات المناسبة.</p>

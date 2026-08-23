@@ -165,8 +165,8 @@ async function handleVerifyMoyasarPayment(
         ok: false,
         error: timedOut ? 'upstream_timeout' : 'upstream_network',
         hint: timedOut
-          ? 'انتهت مهلة الاتصال ببوابة ميسر. أعد المحاولة خلال ثوانٍ.'
-          : 'تعذر الاتصال ببوابة ميسر من الخادم. تحقق من MOYSAR_SECRET_TEST_API_KEY وMOYSAR_API_BASE على Vercel.',
+          ? 'انتهت مهلة الاتصال ببوابة الدفع. أعد المحاولة خلال ثوانٍ.'
+          : 'تعذر الاتصال ببوابة الدفع من الخادم. أعد المحاولة أو تواصل مع الدعم.',
       },
       { status: 502, headers },
     );
@@ -201,7 +201,7 @@ async function handleVerifyMoyasarPayment(
         ok: false,
         error: 'invalid_upstream',
         status: upstream.status,
-        hint: 'تعذر تحليل رد بوابة ميسر.',
+        hint: 'تعذر تحليل رد بوابة الدفع.',
       },
       { status: 502, headers },
     );

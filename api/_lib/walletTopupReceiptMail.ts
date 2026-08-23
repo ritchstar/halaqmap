@@ -37,7 +37,7 @@ function walletLabelAr(sku: string): string {
 
 function sourceLabelAr(source: string): string {
   const s = String(source ?? '').trim().toLowerCase();
-  if (s === 'moyasar_invoice') return 'فاتورة يدوية عبر ميسر';
+  if (s === 'moyasar_invoice') return 'فاتورة يدوية عبر بوابة الدفع';
   return 'شحن ذاتي من لوحة التحكم';
 }
 

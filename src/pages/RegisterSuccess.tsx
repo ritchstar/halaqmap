@@ -228,7 +228,7 @@ export default function RegisterSuccess() {
               <p>
                 <span className="text-muted-foreground">طريقة الدفع:</span>{' '}
                 <span className="font-medium">
-                  حزمة رخصة (ميسر)
+                  حزمة رخصة (بوابة الدفع)
                 </span>
               </p>
               <p>
@@ -251,7 +251,7 @@ export default function RegisterSuccess() {
                   <p className="font-semibold text-foreground mb-1">لديك كود تجربة برونزي؟</p>
                   <p className="text-muted-foreground">
                     إن وصلك بالبريد رمز يبدأ بـ <span dir="ltr" className="font-mono">HM-TRY-</span> أدخله هنا
-                    للتفعيل دون دفع. مسار ميسر أدناه يبقى متاحاً إن لم يكن لديك رمز.
+                    للتفعيل دون دفع. مسار بوابة الدفع أدناه يبقى متاحاً إن لم يكن لديك رمز.
                   </p>
                 </div>
                 <div className="space-y-2">
@@ -317,8 +317,8 @@ export default function RegisterSuccess() {
                 <p className="font-semibold text-foreground mb-1">إتمام الدفع وتفعيل حزمة رخصة النفاذ الرقمية</p>
                 <p className="text-muted-foreground mb-3">
                   {data.tier === SubscriptionTier.BRONZE
-                    ? 'إن لم يكن لديك كود تجربة، انتقل إلى صفحة الدفع برقم طلبك — لن تحتاج لإعادة إدخال بياناتك. يُمرَّر رقم الطلب تلقائياً إلى ميسر لربط العملية بطلبك.'
-                    : 'إن لم تُكمل الدفع بعد، انتقل إلى صفحة الدفع برقم طلبك والباقة التي اخترتها — لن تحتاج لإعادة إدخال بياناتك. يُمرَّر رقم الطلب تلقائياً إلى ميسر مع الدفع لربط العملية بطلبك في النظام.'}
+                    ? 'إن لم يكن لديك كود تجربة، انتقل إلى صفحة الدفع برقم طلبك — لن تحتاج لإعادة إدخال بياناتك. يُربط رقم الطلب تلقائياً بعملية الدفع.'
+                    : 'إن لم تُكمل الدفع بعد، انتقل إلى صفحة الدفع برقم طلبك والباقة التي اخترتها — لن تحتاج لإعادة إدخال بياناتك. يُربط رقم الطلب تلقائياً بعملية الدفع.'}
                 </p>
                 <Button className="w-full gap-2 font-semibold" asChild>
                   <Link to={paymentTo}>

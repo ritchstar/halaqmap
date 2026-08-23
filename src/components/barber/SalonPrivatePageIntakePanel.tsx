@@ -117,8 +117,8 @@ export function SalonPrivatePageIntakePanel({
             صفحة عرض خاصة
           </CardTitle>
           <CardDescription className="text-sm leading-relaxed">
-            إضافة برمجية لأصحاب الرخصة الذهبية والماسية المفعّلة. املأ التفاهم ثم أرسل الطلب. الدفع عبر ميسر
-            يُربط لاحقاً بنفس أسلوب شحن المناوب — لا يُشترى بلا رخصة سارية.
+            إضافة برمجية لأصحاب الرخصة الذهبية والماسية المفعّلة. املأ التفاهم ثم أرسل الطلب. الدفع عبر بوابة الدفع
+            بعد اعتماد الطلب — لا يُشترى بلا رخصة سارية.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-5">

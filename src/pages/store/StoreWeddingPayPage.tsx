@@ -135,7 +135,7 @@ export default function StoreWeddingPayPage() {
         if (cancelled) return;
         const Moyasar = getMoyasarGlobal();
         if (!Moyasar?.init) {
-          setError('تعذر تهيئة مكتبة ميسر.');
+          setError('تعذر تجهيز بوابة الدفع.');
           return;
         }
         const applePaySupported = (() => {
@@ -194,7 +194,7 @@ export default function StoreWeddingPayPage() {
         });
       })
       .catch(() => {
-        if (!cancelled) setError('تعذر تحميل سكربت ميسر من CDN.');
+        if (!cancelled) setError('تعذر تحميل بوابة الدفع.');
       });
     return () => {
       cancelled = true;
@@ -227,7 +227,7 @@ export default function StoreWeddingPayPage() {
             </p>
             {!liveMoney ? (
               <p className="mt-3 rounded-xl border border-[#e8c547]/30 bg-[#e8c547]/10 px-3 py-2 text-xs leading-6">
-                التحصيل الآن في البيئة التجريبية لميسر. لا خصم حقيقي، وبطاقة الاختبار `4111 1111 1111 1111`.
+                هذه تجربة دفع تجريبية. لا يُخصم مبلغ حقيقي، وبطاقة الاختبار `4111 1111 1111 1111`.
               </p>
             ) : null}
             {activating ? <p className="mt-4 text-sm text-white/70">جاري تفعيل الدعوة بعد الدفع…</p> : null}
@@ -237,12 +237,12 @@ export default function StoreWeddingPayPage() {
                 href={invoiceUrl}
                 className="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-[#e8c547] px-4 py-3 text-sm font-bold text-[#061018]"
               >
-                إتمام الدفع عبر فاتورة ميسر
+                إتمام الدفع عبر بوابة الدفع
               </a>
             ) : null}
             {!hostedInvoice && !publishableKey.startsWith('pk_') ? (
               <p className="mt-4 text-sm text-red-300">
-                {liveMoney ? 'مفتاح ميسر الحيّ غير مهيأ لهذه الدعوة.' : 'مفتاح ميسر التجريبي غير مهيأ لهذه الدعوة.'}
+                {liveMoney ? 'بوابة الدفع غير جاهزة حالياً.' : 'بوابة الدفع التجريبية غير جاهزة حالياً.'}
               </p>
             ) : null}
             {!hostedInvoice && publishableKey.startsWith('pk_') ? (

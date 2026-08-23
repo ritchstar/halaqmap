@@ -88,6 +88,6 @@ export function bronzeTrialErrorMessageAr(code: string): string {
     case 'voucher_pepper_not_configured':
       return 'إعداد الخادم غير مكتمل — تواصل مع الدعم.';
     default:
-      return 'تعذّر تفعيل رمز التجربة. حاول لاحقاً أو ادفع عبر ميسر.';
+      return 'تعذّر تفعيل رمز التجربة. حاول لاحقاً أو ادفع عبر بوابة الدفع.';
   }
 }

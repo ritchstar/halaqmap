@@ -138,7 +138,7 @@ export function StoreLoungeOrderForm({ renewToken = '' }: { renewToken?: string 
         disabled={busy || !STORE_LOUNGE_LIVE_CHECKOUT_ENABLED}
         className="mt-5 w-full rounded-full bg-[#d4a574] py-3 text-sm font-bold text-[#12090c] disabled:opacity-50"
       >
-        {busy ? 'جاري تجهيز ميسر…' : `${STORE_LOUNGE_LIVE.orderSubmitAr} · ${STORE_LOUNGE_LIVE_PRICE_SAR} ر.س`}
+        {busy ? 'جاري تجهيز بوابة الدفع…' : `${STORE_LOUNGE_LIVE.orderSubmitAr} · ${STORE_LOUNGE_LIVE_PRICE_SAR} ر.س`}
       </button>
     </form>
   );
