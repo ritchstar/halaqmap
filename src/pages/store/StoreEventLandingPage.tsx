@@ -13,7 +13,6 @@ import {
   StoreVisitorShell,
 } from '@/components/store/StoreChrome';
 import { StoreEventInviteCard } from '@/components/store/StoreEventInviteCard';
-import { STORE_HALL_PREVIEW_BACKDROP, STORE_HALL_PREVIEW_BACKDROP_WOMEN } from '@/config/storeHallFrames';
 import { StoreShot } from '@/components/store/StoreShot';
 import { StoreEventLiveStudio } from '@/components/store/StoreEventLiveStudio';
 import { StoreEventOrderForm } from '@/components/store/StoreEventOrderForm';
@@ -120,13 +119,13 @@ export default function StoreEventLandingPage() {
           <div className="space-y-4">
             <figure className="overflow-hidden rounded-2xl border border-white/12">
               <StoreShot
-                src={voice === 'women' ? STORE_HALL_PREVIEW_BACKDROP_WOMEN : STORE_HALL_PREVIEW_BACKDROP}
+                reel={voice === 'women' ? 'event-women' : 'event'}
                 alt={copy.titleAr}
                 className="aspect-[16/9]"
                 eager
               />
             </figure>
-            <StoreEventInviteCard host={demo.host} styleId={eventLiveDefaultStyle(voice)} still />
+            <StoreEventInviteCard host={demo.host} styleId={eventLiveDefaultStyle(voice)} />
           </div>
         </div>
       </section>

@@ -99,18 +99,15 @@ const weddingHall = readFileSync(join(root, 'src/components/store/StoreWeddingHa
 const eventHall = readFileSync(join(root, 'src/components/store/StoreEventHallStage.tsx'), 'utf8');
 assert.match(weddingHall, /StoreHallAtmosphere/);
 assert.match(weddingHall, /StoreHallNoticePlaque/);
-assert.match(weddingHall, /storeHallBackdrops/);
-assert.match(weddingHall, /STORE_HALL_SCREEN_FRAME/);
-assert.match(weddingHall, /StoreHallOrnamentFrame/);
-assert.match(weddingHall, /StoreHallFieldPlate/);
-assert.doesNotMatch(weddingHall, /STORE_WEDDING_MARKETING_FRAMES/);
+assert.match(weddingHall, /STORE_WEDDING_MARKETING_FRAMES/);
+assert.match(weddingHall, /StoreHallVideoWell/);
+assert.match(weddingHall, /wedding-hall-center/);
 assert.doesNotMatch(weddingHall, /chat-arabic-text/);
 assert.doesNotMatch(weddingHall, /absolute inset-x-3 top-3/);
 assert.match(eventHall, /StoreHallAtmosphere/);
 assert.match(eventHall, /StoreHallNoticePlaque/);
-assert.match(eventHall, /storeHallBackdrops/);
-assert.match(eventHall, /STORE_HALL_SCREEN_FRAME/);
-assert.doesNotMatch(eventHall, /STORE_EVENT_MARKETING_FRAMES/);
+assert.match(eventHall, /STORE_EVENT_MARKETING_FRAMES/);
+assert.match(eventHall, /StoreHallVideoWell/);
 assert.doesNotMatch(eventHall, /absolute inset-x-3 top-3/);
 
 assert.ok(existsSync(join(root, 'public/images/store/frames/hall-screen-frame.png')));

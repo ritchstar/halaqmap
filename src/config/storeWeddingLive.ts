@@ -232,8 +232,8 @@ export const STORE_WEDDING_LIVE_DEMO = {
   youtubeUrl: 'https://www.youtube.com/watch?v=F-DNzLPph-k&list=RDF-DNzLPph-k&start_radio=1',
   youtubeHidden: false,
   announcement: 'حياكم الله على العشاء',
-  photoSrc: '/images/store/live/pano-01-gold.jpg',
-  panoramaSrc: '/images/store/live/pano-01-gold.jpg',
+  photoSrc: '/images/store/lab/lab-luxury-gold.png',
+  panoramaSrc: '/images/store/lab/lab-wedding-panorama.png',
 } as const;
 
 export const STORE_WEDDING_LIVE_DEMO_WOMEN = {
@@ -242,6 +242,5 @@ export const STORE_WEDDING_LIVE_DEMO_WOMEN = {
   hostRole: 'groom_mother' as StoreWeddingLiveHostRole,
   hostName: 'نورة',
   welcomeAr: '',
-  photoSrc: '/images/store/live/pano-03-rose.jpg',
-  panoramaSrc: '/images/store/live/pano-03-rose.jpg',
+  photoSrc: '/images/store/lab/lab-luxury-rosegold.png',
 } as const;
