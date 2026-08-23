@@ -14,6 +14,8 @@ import {
   moyasarPaymentIsPaid,
   resolveOccasionCardMoyasarSecretKey,
 } from './_lib/moyasarApiClient.js';
+import { storeAffiliateCodeFromMeta } from './_lib/storeAffiliateCode.js';
+import { creditStoreAffiliateLedger } from './_lib/storeAffiliateLedger.js';
 import { isAllowedMoyasarInvoiceUrl } from './_lib/storeIssuedCards.js';
 import {
   isWeddingLiveCheckoutEnabled,
@@ -230,7 +232,7 @@ async function createPending(
       back_url: `${storeOrigin()}/#/store/wedding`,
       callback_url: `${payOrigin(request)}/api/public-store-wedding-live`,
       expired_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-      metadata: weddingLiveInvoiceMetadata(displayToken),
+      metadata: weddingLiveInvoiceMetadata(displayToken, body.affiliateCode),
     });
     if (created.status < 400) {
       try {
@@ -341,6 +343,14 @@ async function fulfillFromPaymentId(db: Db, token: string, paymentId: string, he
     }
   }
   const ok = await markLive(db, String(data.id), paymentId);
+  if (ok) {
+    await creditStoreAffiliateLedger(db, {
+      productTag: STORE_WEDDING_LIVE_PRODUCT,
+      amountHalalas: Number(parsed.amount),
+      paymentId,
+      affiliateCode: storeAffiliateCodeFromMeta(parsed.metadata),
+    });
+  }
   if (!ok) return json({ error: 'تعذر تفعيل الدعوة' }, 409, headers);
   return json({ ok: true, token, displayUrl: displayUrl(token) }, 200, headers);
 }
@@ -379,6 +389,14 @@ async function syncPaid(db: Db, body: Record<string, unknown>, headers: Record<s
     const paid = (parsed.payments || []).find((item) => moyasarPaymentIsPaid(String(item.status || '')));
     const paymentId = String(paid?.id || `invoice:${invoiceId}`);
     const ok = await markLive(db, String(data.id), paymentId);
+    if (ok) {
+      await creditStoreAffiliateLedger(db, {
+        productTag: STORE_WEDDING_LIVE_PRODUCT,
+        amountHalalas: Number(parsed.amount),
+        paymentId,
+        affiliateCode: storeAffiliateCodeFromMeta(parsed.metadata),
+      });
+    }
     if (!ok) return json({ error: 'تعذر تفعيل الدعوة' }, 409, headers);
     return json({ ok: true, token, displayUrl: displayUrl(token) }, 200, headers);
   } catch {

@@ -4,6 +4,7 @@
  * تحقق لاونجا1 — وسم ميسر مستقل، مبلغ 600 ر.س فقط، مدة ثلاثة أشهر.
  */
 import { randomBytes } from 'node:crypto';
+import { withStoreAffiliateCode } from './storeAffiliateCode.js';
 
 export const STORE_LOUNGE_LIVE_TABLE = 'store_lounge_live_orders' as const;
 export const STORE_LOUNGE_LIVE_PRODUCT = 'store_lounge_live' as const;
@@ -41,13 +42,20 @@ export function loungeLiveInvoiceDescription(): string {
   return 'halaqmap — لاونجا1 تشغيل شاشات اللاونج';
 }
 
-export function loungeLiveInvoiceMetadata(token: string, kind: 'purchase' | 'renewal' = 'purchase'): Record<string, string> {
-  return {
-    product: STORE_LOUNGE_LIVE_PRODUCT,
-    product_type: STORE_LOUNGE_LIVE_PRODUCT,
-    store_lounge_token: token,
-    store_lounge_kind: kind,
-  };
+export function loungeLiveInvoiceMetadata(
+  token: string,
+  kind: 'purchase' | 'renewal' = 'purchase',
+  affiliateCode?: unknown,
+): Record<string, string> {
+  return withStoreAffiliateCode(
+    {
+      product: STORE_LOUNGE_LIVE_PRODUCT,
+      product_type: STORE_LOUNGE_LIVE_PRODUCT,
+      store_lounge_token: token,
+      store_lounge_kind: kind,
+    },
+    affiliateCode,
+  );
 }
 
 export function loungeLiveMetaProduct(meta: Record<string, unknown> | undefined): string {

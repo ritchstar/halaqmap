@@ -14,6 +14,8 @@ import {
   moyasarPaymentIsPaid,
   resolveOccasionCardMoyasarSecretKey,
 } from './_lib/moyasarApiClient.js';
+import { storeAffiliateCodeFromMeta } from './_lib/storeAffiliateCode.js';
+import { creditStoreAffiliateLedger } from './_lib/storeAffiliateLedger.js';
 import { isAllowedMoyasarInvoiceUrl } from './_lib/storeIssuedCards.js';
 import {
   grocersChargeHalalas,
@@ -244,6 +246,7 @@ async function attachInvoice(
   packId: 'm6' | 'm12',
   kind: 'purchase' | 'renewal',
   chatAddon = false,
+  affiliateCode?: unknown,
 ): Promise<string> {
   let invoiceUrl = '';
   const secret = resolveOccasionCardMoyasarSecretKey();
@@ -256,7 +259,7 @@ async function attachInvoice(
     back_url: `${storeOrigin()}/#/store/grocers`,
     callback_url: `${payOrigin(request)}/api/public-store-grocers-live`,
     expired_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-    metadata: grocersLiveInvoiceMetadata(shopToken, packId, kind, chatAddon),
+    metadata: grocersLiveInvoiceMetadata(shopToken, packId, kind, chatAddon, affiliateCode),
   });
   if (created.status >= 400) return invoiceUrl;
   try {
@@ -285,7 +288,7 @@ async function createPending(db: Db, body: Record<string, unknown>, headers: Rec
     return json({ error: 'تحصيل تموينات الحي مغلق حالياً.' }, 503, headers);
   }
   const renewToken = String(body.renewToken || '').trim();
-  if (renewToken) return createRenewal(db, renewToken, headers, request);
+  if (renewToken) return createRenewal(db, renewToken, headers, request, body.affiliateCode);
   const parsed = parseGrocersLiveOrderBody(body);
   if (!parsed.ok) return json({ error: parsed.error }, 400, headers);
   const charge = grocersChargeHalalas(parsed.packId, parsed.chatAddon);
@@ -310,6 +313,7 @@ async function createPending(db: Db, body: Record<string, unknown>, headers: Rec
     parsed.packId,
     'purchase',
     parsed.chatAddon,
+    body.affiliateCode,
   );
   return json(
     {
@@ -327,7 +331,13 @@ async function createPending(db: Db, body: Record<string, unknown>, headers: Rec
   );
 }
 
-async function createRenewal(db: Db, renewToken: string, headers: Record<string, string>, request: Request) {
+async function createRenewal(
+  db: Db,
+  renewToken: string,
+  headers: Record<string, string>,
+  request: Request,
+  affiliateCode?: unknown,
+) {
   const row = await findByAnyToken(db, renewToken);
   if (!row) return json({ error: 'الرابط غير موجود' }, 404, headers);
   if (row.status === 'revoked') return json({ error: 'هذا التشغيل ملغى' }, 403, headers);
@@ -364,6 +374,7 @@ async function createRenewal(db: Db, renewToken: string, headers: Record<string,
     pack.id,
     'renewal',
     grocersChatAddonFromHalalas(row.price_halalas),
+    affiliateCode,
   );
   return json(
     {
@@ -468,6 +479,14 @@ async function fulfillFromPaymentId(db: Db, token: string, paymentId: string, he
     }
   }
   const ok = await markLive(db, String(row.id), paymentId, Number(parsed.amount));
+  if (ok) {
+    await creditStoreAffiliateLedger(db, {
+      productTag: STORE_GROCERS_LIVE_PRODUCT,
+      amountHalalas: Number(parsed.amount),
+      paymentId,
+      affiliateCode: storeAffiliateCodeFromMeta(parsed.metadata),
+    });
+  }
   if (!ok) return json({ error: 'تعذر تفعيل التشغيل' }, 409, headers);
   return json({ ok: true, token, shopUrl: shopUrl(token) }, 200, headers);
 }
@@ -509,6 +528,14 @@ async function syncPaid(db: Db, body: Record<string, unknown>, headers: Record<s
     const paid = (parsed.payments || []).find((item) => moyasarPaymentIsPaid(String(item.status || '')));
     const paymentId = String(paid?.id || `invoice:${invoiceId}`);
     const ok = await markLive(db, String(row.id), paymentId, Number(parsed.amount));
+    if (ok) {
+      await creditStoreAffiliateLedger(db, {
+        productTag: STORE_GROCERS_LIVE_PRODUCT,
+        amountHalalas: Number(parsed.amount),
+        paymentId,
+        affiliateCode: storeAffiliateCodeFromMeta(parsed.metadata),
+      });
+    }
     if (!ok) return json({ error: 'تعذر تفعيل التشغيل' }, 409, headers);
     return json({ ok: true, token, shopUrl: shopUrl(token) }, 200, headers);
   } catch {

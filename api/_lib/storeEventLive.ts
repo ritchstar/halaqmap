@@ -4,6 +4,7 @@
  * تحقق الدعوة الحرة التفاعلية — وسم ميسر مستقل، مبلغ 899 ر.س فقط.
  */
 import { randomBytes } from 'node:crypto';
+import { withStoreAffiliateCode } from './storeAffiliateCode.js';
 
 export const STORE_EVENT_LIVE_TABLE = 'store_event_live_orders' as const;
 export const STORE_EVENT_LIVE_PRODUCT = 'store_event_live' as const;
@@ -30,12 +31,15 @@ export function eventLiveInvoiceDescription(): string {
   return 'halaqmap — اجواء1';
 }
 
-export function eventLiveInvoiceMetadata(token: string): Record<string, string> {
-  return {
-    product: STORE_EVENT_LIVE_PRODUCT,
-    product_type: STORE_EVENT_LIVE_PRODUCT,
-    store_event_token: token,
-  };
+export function eventLiveInvoiceMetadata(token: string, affiliateCode?: unknown): Record<string, string> {
+  return withStoreAffiliateCode(
+    {
+      product: STORE_EVENT_LIVE_PRODUCT,
+      product_type: STORE_EVENT_LIVE_PRODUCT,
+      store_event_token: token,
+    },
+    affiliateCode,
+  );
 }
 
 export function eventLiveMetaProduct(meta: Record<string, unknown> | undefined): string {

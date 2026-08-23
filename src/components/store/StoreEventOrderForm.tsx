@@ -18,6 +18,7 @@ import {
 } from '@/config/storeEventLive';
 import { normalizeEventHostRole, normalizeEventVenueKind, type EventLiveHostRole } from '@/lib/storeEventLiveLab';
 import type { StoreEventVenueKind } from '@/config/storeEventLive';
+import { rememberStoreAffiliateRef } from '@/lib/storeAffiliateRef';
 import { createEventLivePending } from '@/lib/storeEventLiveRemote';
 import { eventLivePayHref } from '@/lib/storeHostRedirect';
 import { cn } from '@/lib/utils';
@@ -52,6 +53,7 @@ export function StoreEventOrderForm({ voice = 'men' }: { voice?: StoreEventLiveV
     const result = await createEventLivePending({
       email,
       buyerName: hostName,
+      affiliateCode: rememberStoreAffiliateRef(),
       voice,
       hostName,
       hostRole,

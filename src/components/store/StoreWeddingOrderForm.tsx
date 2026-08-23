@@ -15,6 +15,7 @@ import {
   weddingLiveHostRoles,
   type StoreWeddingLiveVoice,
 } from '@/config/storeWeddingLive';
+import { rememberStoreAffiliateRef } from '@/lib/storeAffiliateRef';
 import { createWeddingLivePending } from '@/lib/storeWeddingLiveRemote';
 import { weddingLivePayHref } from '@/lib/storeHostRedirect';
 import {
@@ -59,6 +60,7 @@ export function StoreWeddingOrderForm({ voice = 'men' }: { voice?: StoreWeddingL
     const result = await createWeddingLivePending({
       email,
       buyerName: hostName,
+      affiliateCode: rememberStoreAffiliateRef(),
       voice,
       hostName,
       hostRole,

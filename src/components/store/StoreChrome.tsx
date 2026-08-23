@@ -9,10 +9,14 @@ import { KSACityClocksBar } from '@/components/KSACityClocksBar';
 import { EcommerceVerifiedFooterBadge } from '@/components/EcommerceVerifiedFooterBadge';
 import { StoreVisitorEngage } from '@/components/store/StoreVisitorEngage';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { rememberStoreAffiliateRef } from '@/lib/storeAffiliateRef';
 import { useEffect, type ReactNode } from 'react';
 
 export function StoreVisitorShell({ children }: { children: ReactNode }) {
-  useEffect(() => lockPartnerDarkCanvas(), []);
+  useEffect(() => {
+    lockPartnerDarkCanvas();
+    rememberStoreAffiliateRef();
+  }, []);
   return (
     <div dir="rtl" className="min-h-[100svh] bg-[#061018] text-[#f4efe4]">
       {children}

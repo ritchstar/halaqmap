@@ -14,6 +14,8 @@ import {
   moyasarPaymentIsPaid,
   resolveOccasionCardMoyasarSecretKey,
 } from './_lib/moyasarApiClient.js';
+import { storeAffiliateCodeFromMeta } from './_lib/storeAffiliateCode.js';
+import { creditStoreAffiliateLedger } from './_lib/storeAffiliateLedger.js';
 import { isAllowedMoyasarInvoiceUrl } from './_lib/storeIssuedCards.js';
 import {
   isLoungeLiveCheckoutEnabled,
@@ -239,6 +241,7 @@ async function attachInvoice(
   payload: Record<string, unknown>,
   request: Request,
   kind: 'purchase' | 'renewal',
+  affiliateCode?: unknown,
 ): Promise<string> {
   let invoiceUrl = '';
   const secret = resolveOccasionCardMoyasarSecretKey();
@@ -251,7 +254,7 @@ async function attachInvoice(
     back_url: `${storeOrigin()}/#/store/lounge`,
     callback_url: `${payOrigin(request)}/api/public-store-lounge-live`,
     expired_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-    metadata: loungeLiveInvoiceMetadata(displayToken, kind),
+    metadata: loungeLiveInvoiceMetadata(displayToken, kind, affiliateCode),
   });
   if (created.status >= 400) return invoiceUrl;
   try {
@@ -286,7 +289,7 @@ async function createPending(
   }
   const renewToken = String(body.renewToken || '').trim();
   if (renewToken) {
-    return createRenewal(db, renewToken, headers, request);
+    return createRenewal(db, renewToken, headers, request, body.affiliateCode);
   }
   const parsed = parseLoungeLiveOrderBody(body);
   if (!parsed.ok) return json({ error: parsed.error }, 400, headers);
@@ -306,7 +309,14 @@ async function createPending(
   });
   if (error) return json({ error: 'تعذر إنشاء طلب التشغيل' }, 500, headers);
 
-  const invoiceUrl = await attachInvoice(db, displayToken, parsed.payload as unknown as Record<string, unknown>, request, 'purchase');
+  const invoiceUrl = await attachInvoice(
+    db,
+    displayToken,
+    parsed.payload as unknown as Record<string, unknown>,
+    request,
+    'purchase',
+    body.affiliateCode,
+  );
 
   return json(
     {
@@ -326,7 +336,13 @@ async function createPending(
   );
 }
 
-async function createRenewal(db: Db, renewToken: string, headers: Record<string, string>, request: Request) {
+async function createRenewal(
+  db: Db,
+  renewToken: string,
+  headers: Record<string, string>,
+  request: Request,
+  affiliateCode?: unknown,
+) {
   const row = await findByAnyToken(db, renewToken);
   if (!row) return json({ error: 'الرابط غير موجود' }, 404, headers);
   if (row.status === 'revoked') return json({ error: 'هذا التشغيل ملغى' }, 403, headers);
@@ -365,6 +381,7 @@ async function createRenewal(db: Db, renewToken: string, headers: Record<string,
     { ...(row.payload || {}) },
     request,
     'renewal',
+    affiliateCode,
   );
   return json(
     {
@@ -477,6 +494,14 @@ async function fulfillFromPaymentId(db: Db, token: string, paymentId: string, he
     }
   }
   const ok = await markLive(db, String(row.id), paymentId);
+  if (ok) {
+    await creditStoreAffiliateLedger(db, {
+      productTag: STORE_LOUNGE_LIVE_PRODUCT,
+      amountHalalas: Number(parsed.amount),
+      paymentId,
+      affiliateCode: storeAffiliateCodeFromMeta(parsed.metadata),
+    });
+  }
   if (!ok) return json({ error: 'تعذر تفعيل التشغيل' }, 409, headers);
   return json({ ok: true, token, displayUrl: displayUrl(token) }, 200, headers);
 }
@@ -518,6 +543,14 @@ async function syncPaid(db: Db, body: Record<string, unknown>, headers: Record<s
     const paid = (parsed.payments || []).find((item) => moyasarPaymentIsPaid(String(item.status || '')));
     const paymentId = String(paid?.id || `invoice:${invoiceId}`);
     const ok = await markLive(db, String(row.id), paymentId);
+    if (ok) {
+      await creditStoreAffiliateLedger(db, {
+        productTag: STORE_LOUNGE_LIVE_PRODUCT,
+        amountHalalas: Number(parsed.amount),
+        paymentId,
+        affiliateCode: storeAffiliateCodeFromMeta(parsed.metadata),
+      });
+    }
     if (!ok) return json({ error: 'تعذر تفعيل التشغيل' }, 409, headers);
     return json({ ok: true, token, displayUrl: displayUrl(token) }, 200, headers);
   } catch {

@@ -227,6 +227,62 @@ function isGrocersLiveMeta(meta: Record<string, unknown> | null | undefined): bo
   return pt === "store_grocers_live";
 }
 
+function storeAffiliateCodeFromMeta(meta: Record<string, unknown> | null | undefined): string {
+  if (!meta || typeof meta !== "object") return "";
+  const value = String(meta.store_affiliate_code ?? meta.storeAffiliateCode ?? "")
+    .trim()
+    .toLowerCase();
+  return /^[a-z0-9]{8,12}$/.test(value) ? value : "";
+}
+
+function matchStoreAffiliateCommission(
+  productTag: string,
+  amountHalalas: number,
+): { lineId: string; commissionHalalas: number } | null {
+  const tag = String(productTag || "").trim().toLowerCase();
+  const amount = Math.trunc(Number(amountHalalas) || 0);
+  if (tag === "store_occasion_card") return null;
+  if (tag === "store_wedding_live" && amount === 89900) return { lineId: "wedding", commissionHalalas: 9900 };
+  if (tag === "store_event_live" && amount === 89900) return { lineId: "event", commissionHalalas: 9900 };
+  if (tag === "store_lounge_live" && amount === 60000) return { lineId: "lounge", commissionHalalas: 10000 };
+  if (tag === "store_grocers_live") {
+    if (amount === 59900) return { lineId: "grocers_6", commissionHalalas: 9900 };
+    if (amount === 89900) return { lineId: "grocers_12", commissionHalalas: 19900 };
+    if (amount === 89800) return { lineId: "grocers_chat_6", commissionHalalas: 19700 };
+    if (amount === 139800) return { lineId: "grocers_chat_12", commissionHalalas: 39800 };
+  }
+  return null;
+}
+
+async function creditStoreAffiliateLedger(
+  supabase: ReturnType<typeof createClient>,
+  productTag: string,
+  amountHalalas: number,
+  paymentId: string,
+  meta: Record<string, unknown> | null | undefined,
+): Promise<boolean> {
+  const code = storeAffiliateCodeFromMeta(meta);
+  const match = matchStoreAffiliateCommission(productTag, amountHalalas);
+  if (!code || !match || !paymentId || productTag === "store_occasion_card") return false;
+  const { data: marketer } = await supabase
+    .from("store_affiliate_marketers")
+    .select("id")
+    .eq("code", code)
+    .maybeSingle();
+  if (!marketer?.id) return false;
+  const price = Math.trunc(Number(amountHalalas) || 0);
+  const { error } = await supabase.from("store_affiliate_ledger").insert({
+    marketer_id: marketer.id,
+    moyasar_payment_id: paymentId,
+    product_tag: productTag,
+    line_id: match.lineId,
+    price_halalas: price,
+    commission_halalas: match.commissionHalalas,
+    net_halalas: price - match.commissionHalalas,
+  });
+  return !error || error.code === "23505";
+}
+
 function clampRegistrationQty(raw: unknown): number {
   const n =
     typeof raw === "number" && Number.isFinite(raw)
@@ -811,6 +867,9 @@ Deno.serve(async (req) => {
         .eq("status", "pending_payment");
       activated = !weddingErr;
     }
+    const credited = successStatus && amountOk
+      ? await creditStoreAffiliateLedger(supabase, "store_wedding_live", amount, paymentId, meta)
+      : false;
     return jsonResponse(
       {
         ok: true,
@@ -818,6 +877,7 @@ Deno.serve(async (req) => {
         eventId: eventId || null,
         skipped: "store_wedding_live",
         activated,
+        credited,
       },
       200,
     );
@@ -840,6 +900,9 @@ Deno.serve(async (req) => {
         .eq("status", "pending_payment");
       activated = !eventErr;
     }
+    const credited = successStatus && amountOk
+      ? await creditStoreAffiliateLedger(supabase, "store_event_live", amount, paymentId, meta)
+      : false;
     return jsonResponse(
       {
         ok: true,
@@ -847,6 +910,7 @@ Deno.serve(async (req) => {
         eventId: eventId || null,
         skipped: "store_event_live",
         activated,
+        credited,
       },
       200,
     );
@@ -871,6 +935,9 @@ Deno.serve(async (req) => {
         .in("status", ["pending_payment", "pending_renewal", "expired"]);
       activated = !loungeErr;
     }
+    const credited = successStatus && amountOk
+      ? await creditStoreAffiliateLedger(supabase, "store_lounge_live", amount, paymentId, meta)
+      : false;
     return jsonResponse(
       {
         ok: true,
@@ -878,6 +945,7 @@ Deno.serve(async (req) => {
         eventId: eventId || null,
         skipped: "store_lounge_live",
         activated,
+        credited,
       },
       200,
     );
@@ -902,6 +970,9 @@ Deno.serve(async (req) => {
         .in("status", ["pending_payment", "pending_renewal", "expired"]);
       activated = !grocersErr;
     }
+    const credited = successStatus && days
+      ? await creditStoreAffiliateLedger(supabase, "store_grocers_live", amount, paymentId, meta)
+      : false;
     return jsonResponse(
       {
         ok: true,
@@ -909,6 +980,7 @@ Deno.serve(async (req) => {
         eventId: eventId || null,
         skipped: "store_grocers_live",
         activated,
+        credited,
       },
       200,
     );

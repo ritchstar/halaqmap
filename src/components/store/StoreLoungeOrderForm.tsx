@@ -13,6 +13,7 @@ import {
   loungeLiveEventById,
   type StoreLoungeLiveEventId,
 } from '@/config/storeLoungeLive';
+import { rememberStoreAffiliateRef } from '@/lib/storeAffiliateRef';
 import { createLoungeLivePending } from '@/lib/storeLoungeLiveRemote';
 import { loungeLivePayHref } from '@/lib/storeHostRedirect';
 import { cn } from '@/lib/utils';
@@ -36,9 +37,10 @@ export function StoreLoungeOrderForm({ renewToken = '' }: { renewToken?: string 
     }
     setBusy(true);
     setError('');
+    const affiliateCode = rememberStoreAffiliateRef();
     const result = await createLoungeLivePending(
       renewing
-        ? { email, renewToken }
+        ? { email, renewToken, affiliateCode }
         : {
             email,
             buyerName: hostName,
@@ -46,6 +48,7 @@ export function StoreLoungeOrderForm({ renewToken = '' }: { renewToken?: string 
             loungeName,
             activeEventId,
             welcomeAr,
+            affiliateCode,
           },
     );
     if (!result.ok || typeof result.token !== 'string') {

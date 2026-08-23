@@ -9,6 +9,7 @@ import {
   STORE_GROCERS_LIVE_PACKS,
   type StoreGrocersLivePackId,
 } from '@/config/storeGrocersLive';
+import { rememberStoreAffiliateRef } from '@/lib/storeAffiliateRef';
 import { createGrocersLivePending } from '@/lib/storeGrocersLiveRemote';
 import { grocersLivePayHref } from '@/lib/storeHostRedirect';
 import { cn } from '@/lib/utils';
@@ -32,8 +33,11 @@ export function StoreGrocersOrderForm({ renewToken = '' }: { renewToken?: string
     }
     setBusy(true);
     setError('');
+    const affiliateCode = rememberStoreAffiliateRef();
     const result = await createGrocersLivePending(
-      renewing ? { email, renewToken, chatAddon } : { email, buyerName: shopName, shopName, packId, chatAddon },
+      renewing
+        ? { email, renewToken, chatAddon, affiliateCode }
+        : { email, buyerName: shopName, shopName, packId, chatAddon, affiliateCode },
     );
     if (!result.ok || typeof result.token !== 'string') {
       setBusy(false);

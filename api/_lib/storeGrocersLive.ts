@@ -4,6 +4,7 @@
  * تحقق تمويناتا1 — وسم store_grocers_live، 599 أو 899 ر.س، وصندوق محادثة 299 أو 499.
  */
 import { randomBytes } from 'node:crypto';
+import { withStoreAffiliateCode } from './storeAffiliateCode.js';
 
 export const STORE_GROCERS_LIVE_TABLE = 'store_grocers_live_orders' as const;
 export const STORE_GROCERS_LIVE_PRODUCT = 'store_grocers_live' as const;
@@ -93,15 +94,19 @@ export function grocersLiveInvoiceMetadata(
   packId: 'm6' | 'm12',
   kind: 'purchase' | 'renewal' = 'purchase',
   chatAddon = false,
+  affiliateCode?: unknown,
 ): Record<string, string> {
-  return {
-    product: STORE_GROCERS_LIVE_PRODUCT,
-    product_type: STORE_GROCERS_LIVE_PRODUCT,
-    store_grocers_token: token,
-    store_grocers_pack: packId,
-    store_grocers_kind: kind,
-    store_grocers_chat: chatAddon ? '1' : '0',
-  };
+  return withStoreAffiliateCode(
+    {
+      product: STORE_GROCERS_LIVE_PRODUCT,
+      product_type: STORE_GROCERS_LIVE_PRODUCT,
+      store_grocers_token: token,
+      store_grocers_pack: packId,
+      store_grocers_kind: kind,
+      store_grocers_chat: chatAddon ? '1' : '0',
+    },
+    affiliateCode,
+  );
 }
 
 export function grocersLiveMetaProduct(meta: Record<string, unknown> | undefined): string {

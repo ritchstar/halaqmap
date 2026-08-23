@@ -4,6 +4,7 @@
  * تحقق دعوة الزواج التفاعلية — وسم ميسر مستقل، مبلغ 899 ر.س فقط.
  */
 import { randomBytes } from 'node:crypto';
+import { withStoreAffiliateCode } from './storeAffiliateCode.js';
 
 export const STORE_WEDDING_LIVE_TABLE = 'store_wedding_live_orders' as const;
 export const STORE_WEDDING_LIVE_PRODUCT = 'store_wedding_live' as const;
@@ -30,12 +31,15 @@ export function weddingLiveInvoiceDescription(): string {
   return 'halaqmap — افراحي1';
 }
 
-export function weddingLiveInvoiceMetadata(token: string): Record<string, string> {
-  return {
-    product: STORE_WEDDING_LIVE_PRODUCT,
-    product_type: STORE_WEDDING_LIVE_PRODUCT,
-    store_wedding_token: token,
-  };
+export function weddingLiveInvoiceMetadata(token: string, affiliateCode?: unknown): Record<string, string> {
+  return withStoreAffiliateCode(
+    {
+      product: STORE_WEDDING_LIVE_PRODUCT,
+      product_type: STORE_WEDDING_LIVE_PRODUCT,
+      store_wedding_token: token,
+    },
+    affiliateCode,
+  );
 }
 
 export function weddingLiveMetaProduct(meta: Record<string, unknown> | undefined): string {

@@ -40,7 +40,9 @@ import { toast } from '@/components/ui/sonner';
 export default function AmbassadorEnter() {
   useDocumentTitle(STORE_AFFILIATE_COPY.documentTitle);
   const navigate = useNavigate();
-  const [lane, setLane] = useState<StoreAffiliateLane>(() => parseAffiliateLane(readHashQueryParam('lane')));
+  const [lane, setLane] = useState<StoreAffiliateLane>(() =>
+    readHashQueryParam('magic') ? 'store' : parseAffiliateLane(readHashQueryParam('lane')),
+  );
   const [ready, setReady] = useState(false);
   const [existing, setExisting] = useState(false);
   const [displayName, setDisplayName] = useState('');
