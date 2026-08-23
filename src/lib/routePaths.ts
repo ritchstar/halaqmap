@@ -78,6 +78,11 @@ export const ROUTE_PATHS = {
   STORE_GROCERS_VIEW: '/g/:token',
   STORE_GROCERS_DESK: '/g/:token/desk',
   STORE_GROCERS_PAY: '/pay/grocers/:token',
+  /** مطعمنا1 — صفحة مطعم الحي ولوحة مطبخ، باقتا 6 و12 شهراً */
+  STORE_RESTAURANT: '/store/restaurant',
+  STORE_RESTAURANT_VIEW: '/r/:token',
+  STORE_RESTAURANT_DESK: '/r/:token/desk',
+  STORE_RESTAURANT_PAY: '/pay/restaurant/:token',
   /** بلاغات الوفاة والعزاء — خدمة مجتمعية مستقلة */
   STORE_BEREAVEMENT: '/store/bereavement',
   STORE_BEREAVEMENT_CREATE: '/store/bereavement/create',

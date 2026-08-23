@@ -13,6 +13,7 @@ export type StoreMarketingReelId =
   | 'landing'
   | 'lounge'
   | 'grocers'
+  | 'restaurant'
   | 'wedding'
   | 'wedding-women'
   | 'event'
@@ -57,6 +58,16 @@ const GROCERS_GENERATED = [
 export const STORE_GROCERS_MARKETING_FRAMES = [
   '/images/store/grocers-hero-marketing.jpg',
   ...GROCERS_GENERATED,
+] as const;
+
+const RESTAURANT_GENERATED = [
+  '/images/store/restaurant/restaurant-01.jpg',
+  '/images/store/restaurant/restaurant-02.jpg',
+] as const;
+
+export const STORE_RESTAURANT_MARKETING_FRAMES = [
+  '/images/store/restaurant-hero-marketing.jpg',
+  ...RESTAURANT_GENERATED,
 ] as const;
 
 const OCCASION_QUICK = [
@@ -192,6 +203,7 @@ const REELS: Record<StoreMarketingReelId, readonly string[]> = {
   landing: STORE_LANDING_MARKETING_FRAMES,
   lounge: STORE_LOUNGE_MARKETING_FRAMES,
   grocers: STORE_GROCERS_MARKETING_FRAMES,
+  restaurant: STORE_RESTAURANT_MARKETING_FRAMES,
   wedding: STORE_WEDDING_MARKETING_FRAMES,
   'wedding-women': STORE_WEDDING_WOMEN_MARKETING_FRAMES,
   event: STORE_EVENT_MARKETING_FRAMES,

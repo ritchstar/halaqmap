@@ -11,6 +11,7 @@ import {
   STORE_LANDING_MARKETING_FRAMES,
   STORE_LOUNGE_MARKETING_FRAMES,
   STORE_OCCASION_MARKETING_FRAMES,
+  STORE_RESTAURANT_MARKETING_FRAMES,
   STORE_WEDDING_MARKETING_FRAMES,
   loungeFrameIsWeddingHall,
   storeLiveProductReel,
@@ -38,6 +39,7 @@ assert.ok(STORE_LANDING_MARKETING_FRAMES.length <= 12);
 for (const src of STORE_LANDING_MARKETING_FRAMES) {
   assert.equal(src.includes('/images/store/lounge/lounge-'), false, src);
   assert.equal(src.includes('/images/store/grocers/grocers-'), false, src);
+  assert.equal(src.includes('/images/store/restaurant/restaurant-'), false, src);
   assert.equal(src.includes('/images/store/live/pano-'), false, src);
 }
 
@@ -47,6 +49,11 @@ for (const src of STORE_LOUNGE_MARKETING_FRAMES) {
 }
 
 for (const src of STORE_GROCERS_MARKETING_FRAMES) {
+  assert.ok(existsSync(join(root, 'public', src.replace(/^\//, ''))), src);
+}
+
+assert.ok(STORE_RESTAURANT_MARKETING_FRAMES.length >= 3);
+for (const src of STORE_RESTAURANT_MARKETING_FRAMES) {
   assert.ok(existsSync(join(root, 'public', src.replace(/^\//, ''))), src);
 }
 
@@ -80,6 +87,7 @@ assert.doesNotMatch(hall, /<StoreLivePanoramaCycle \/>/);
 assert.match(landing, /reel="landing"/);
 assert.match(landing, /reel="lounge"/);
 assert.match(landing, /reel="grocers"/);
+assert.match(landing, /reel="restaurant"/);
 assert.match(landing, /reel="wedding"/);
 assert.match(landing, /reel="event"/);
 assert.match(loungeLanding, /reel="lounge"/);

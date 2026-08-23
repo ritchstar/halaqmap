@@ -3115,6 +3115,57 @@ html.platform-radar-fullscreen #root {
   }
 }
 
+.restaurant-feature-pulse {
+  animation: restaurant-feature-pulse 2.6s ease-in-out infinite;
+}
+
+.restaurant-feature-pulse__text {
+  font-size: 1.25rem;
+  font-weight: 900;
+  line-height: 1.7;
+  color: #e08a3c;
+  transform-origin: right center;
+  animation: restaurant-feature-text 2.6s ease-in-out infinite;
+}
+
+@media (min-width: 768px) {
+  .restaurant-feature-pulse__text {
+    font-size: 1.45rem;
+  }
+}
+
+@keyframes restaurant-feature-pulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 14px rgba(224, 138, 60, 0.28),
+      0 0 32px rgba(224, 138, 60, 0.14);
+  }
+  50% {
+    box-shadow:
+      0 0 28px rgba(240, 176, 104, 0.55),
+      0 0 64px rgba(224, 138, 60, 0.32);
+  }
+}
+
+@keyframes restaurant-feature-text {
+  0%,
+  100% {
+    opacity: 0.9;
+    transform: scale(1);
+    text-shadow:
+      0 0 10px rgba(240, 176, 104, 0.4),
+      0 0 22px rgba(224, 138, 60, 0.24);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.03);
+    text-shadow:
+      0 0 18px rgba(255, 214, 160, 0.82),
+      0 0 36px rgba(224, 138, 60, 0.48);
+  }
+}
+
 .grocers-feature-pulse {
   animation: grocers-feature-pulse 2.6s ease-in-out infinite;
 }
@@ -3177,6 +3228,8 @@ html.platform-radar-fullscreen #root {
   .hall-notice-pulse__text,
   .grocers-feature-pulse,
   .grocers-feature-pulse__text,
+  .restaurant-feature-pulse,
+  .restaurant-feature-pulse__text,
   .store-live-lights,
   .store-live-sparkle {
     animation: none;
@@ -3245,6 +3298,46 @@ html.platform-radar-fullscreen #root {
   box-shadow:
     0 0 0 1px rgba(228, 183, 197, 0.28),
     0 0 28px rgba(228, 183, 197, 0.2);
+}
+
+.restaurant-field {
+  margin-top: 0.25rem;
+  height: 3rem;
+  width: 100%;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(224, 138, 60, 0.28);
+  background: rgba(0, 0, 0, 0.4);
+  padding: 0 0.75rem;
+  color: #f4efe4;
+}
+
+.restaurant-flash {
+  animation: restaurant-flash-slide 18s linear infinite;
+}
+
+.restaurant-alert {
+  box-shadow: 0 0 28px rgba(224, 138, 60, 0.35);
+}
+
+@keyframes restaurant-flash-slide {
+  0% {
+    box-shadow: 0 0 0 rgba(224, 138, 60, 0.15);
+  }
+  50% {
+    box-shadow: 0 0 18px rgba(224, 138, 60, 0.35);
+  }
+  100% {
+    box-shadow: 0 0 0 rgba(224, 138, 60, 0.15);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .restaurant-flash,
+  .restaurant-alert,
+  .restaurant-feature-pulse,
+  .restaurant-feature-pulse__text {
+    animation: none;
+  }
 }
 
 .grocers-field {

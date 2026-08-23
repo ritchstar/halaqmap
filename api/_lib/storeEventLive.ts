@@ -62,6 +62,7 @@ export function eventLivePaymentMatches(input: {
   if (eventLiveMetaProduct(input.meta) === 'store_wedding_live') return false;
   if (eventLiveMetaProduct(input.meta) === 'store_lounge_live') return false;
   if (eventLiveMetaProduct(input.meta) === 'store_grocers_live') return false;
+  if (eventLiveMetaProduct(input.meta) === 'store_restaurant_live') return false;
   if (!input.token || eventLiveMetaToken(input.meta) !== input.token) return false;
   return input.amount === STORE_EVENT_LIVE_PRICE_HALALAS;
 }

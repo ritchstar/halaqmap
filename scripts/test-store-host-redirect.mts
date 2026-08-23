@@ -52,6 +52,7 @@ assert.equal(isStoreHostPaymentPath('/pay/wedding/abc'), true);
 assert.equal(isStoreHostPaymentPath('/pay/event/abc'), true);
 assert.equal(isStoreHostPaymentPath('/pay/lounge/abc'), true);
 assert.equal(isStoreHostPaymentPath('/pay/grocers/abc'), true);
+assert.equal(isStoreHostPaymentPath('/pay/restaurant/abc'), true);
 assert.equal(
   resolveMensHostStoreRedirect({
     host: 'www.halaqmap.com',
@@ -138,6 +139,22 @@ assert.equal(
     hashPath: '/g/grocers-lab/desk',
   }),
   'https://store.halaqmap.com/#/g/grocers-lab/desk',
+);
+
+assert.equal(
+  resolveMensHostStoreRedirect({
+    host: 'www.halaqmap.com',
+    hashPath: ROUTE_PATHS.STORE_RESTAURANT,
+  }),
+  'https://store.halaqmap.com/#/store/restaurant',
+);
+
+assert.equal(
+  resolveMensHostStoreRedirect({
+    host: 'www.halaqmap.com',
+    hashPath: '/r/restaurant-lab/desk',
+  }),
+  'https://store.halaqmap.com/#/r/restaurant-lab/desk',
 );
 
 assert.equal(

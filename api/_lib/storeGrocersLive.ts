@@ -129,6 +129,7 @@ export function grocersLivePaymentMatches(input: {
   if (grocersLiveMetaProduct(input.meta) === 'store_wedding_live') return false;
   if (grocersLiveMetaProduct(input.meta) === 'store_event_live') return false;
   if (grocersLiveMetaProduct(input.meta) === 'store_lounge_live') return false;
+  if (grocersLiveMetaProduct(input.meta) === 'store_restaurant_live') return false;
   if (!input.token || grocersLiveMetaToken(input.meta) !== input.token) return false;
   return isGrocersPriceHalalas(input.amount);
 }
