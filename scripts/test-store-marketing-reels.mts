@@ -52,7 +52,8 @@ for (const src of STORE_GROCERS_MARKETING_FRAMES) {
   assert.ok(existsSync(join(root, 'public', src.replace(/^\//, ''))), src);
 }
 
-assert.ok(STORE_RESTAURANT_MARKETING_FRAMES.length >= 3);
+assert.ok(STORE_RESTAURANT_MARKETING_FRAMES.length >= 2);
+assert.equal(new Set(STORE_RESTAURANT_MARKETING_FRAMES).size, STORE_RESTAURANT_MARKETING_FRAMES.length);
 for (const src of STORE_RESTAURANT_MARKETING_FRAMES) {
   assert.ok(existsSync(join(root, 'public', src.replace(/^\//, ''))), src);
 }
@@ -78,6 +79,7 @@ assert.equal(storeLiveProductReel('halaq-map'), 'halaq');
 assert.equal(storeLiveProductReel('coiffeur-map'), 'coiffeur');
 assert.equal(storeLiveProductReel('occasion-card'), 'occasion');
 assert.equal(storeLiveProductReel('live-halls'), 'lounge');
+assert.equal(storeLiveProductReel('restaurant'), 'restaurant');
 assert.equal(storeSoftwareShotReel(0), 'halaq');
 assert.equal(storeSoftwareShotReel(2), 'lounge');
 

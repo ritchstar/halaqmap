@@ -60,14 +60,9 @@ export const STORE_GROCERS_MARKETING_FRAMES = [
   ...GROCERS_GENERATED,
 ] as const;
 
-const RESTAURANT_GENERATED = [
-  '/images/store/restaurant/restaurant-01.jpg',
-  '/images/store/restaurant/restaurant-02.jpg',
-] as const;
-
 export const STORE_RESTAURANT_MARKETING_FRAMES = [
   '/images/store/restaurant-hero-marketing.jpg',
-  ...RESTAURANT_GENERATED,
+  '/images/store/restaurant/restaurant-02.jpg',
 ] as const;
 
 const OCCASION_QUICK = [
@@ -223,6 +218,7 @@ export function storeLiveProductReel(productId: string): StoreMarketingReelId {
   if (productId === 'coiffeur-map') return 'coiffeur';
   if (productId === 'occasion-card') return 'occasion';
   if (productId === 'live-halls') return 'lounge';
+  if (productId === 'restaurant') return 'restaurant';
   return 'landing';
 }
 
