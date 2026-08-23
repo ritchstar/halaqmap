@@ -30,7 +30,7 @@ import { toast } from '@/components/ui/sonner';
 
 const HALAQ_AMBASSADOR_HREF = `https://www.halaqmap.com/#${ROUTE_PATHS.AMBASSADOR_ENTER}`;
 
-export default function CoiffeurAmbassadorEnter() {
+export default function CoiffeurAmbassadorEnter({ embedded = false }: { embedded?: boolean }) {
   useDocumentTitle(COPY.documentTitle);
   const [displayName, setDisplayName] = useState('');
   const [phone, setPhone] = useState('');
@@ -93,17 +93,16 @@ export default function CoiffeurAmbassadorEnter() {
     setSubmitted(true);
   };
 
-  return (
-    <CoiffeurVisitorShell withMobileDock={false}>
-      <CoiffeurVisitorHeader brandTo={ROUTE_PATHS.COIFFEUR_LANDING} />
-
-      <main className="mx-auto max-w-lg px-4 py-10 pb-16">
-        <div className="mb-8 text-center">
+  const body = (
+    <>
+      <div className={embedded ? 'mb-6 text-center' : 'mb-8 text-center'}>
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-[#f4d4c0]/35 bg-[#e8b4a2]/15">
             <Handshake className="h-7 w-7 text-[#f4d4c0]" aria-hidden />
           </div>
           <p className="text-xs font-bold tracking-[0.14em] text-[#f4d4c0]">{COPY.badgeAr}</p>
-          <h1 className="mt-2 text-3xl font-black text-white">{COPY.titleAr}</h1>
+          <h1 className={embedded ? 'mt-2 text-2xl font-black text-white' : 'mt-2 text-3xl font-black text-white'}>
+            {COPY.titleAr}
+          </h1>
           <p className="mt-2 text-sm leading-relaxed text-rose-100/80">{COPY.leadAr}</p>
           <p className="mt-3 text-xs leading-relaxed text-[#f4d4c0]/90">{COPY.reviewHintAr}</p>
           <p className="mt-2 text-xs text-rose-100/50">
@@ -248,15 +247,24 @@ export default function CoiffeurAmbassadorEnter() {
           </div>
         </div>
 
-        <p className="mt-8 text-center text-xs text-rose-100/45">
-          {COPY.counterpartKickerAr}
-          {' · '}
-          <a href={HALAQ_AMBASSADOR_HREF} className="text-[#f4d4c0] underline-offset-4 hover:underline">
-            {COPY.counterpartAr}
-          </a>
-        </p>
-      </main>
+        {embedded ? null : (
+          <p className="mt-8 text-center text-xs text-rose-100/45">
+            {COPY.counterpartKickerAr}
+            {' · '}
+            <a href={HALAQ_AMBASSADOR_HREF} className="text-[#f4d4c0] underline-offset-4 hover:underline">
+              {COPY.counterpartAr}
+            </a>
+          </p>
+        )}
+    </>
+  );
 
+  if (embedded) return <div className="mx-auto max-w-lg">{body}</div>;
+
+  return (
+    <CoiffeurVisitorShell withMobileDock={false}>
+      <CoiffeurVisitorHeader brandTo={ROUTE_PATHS.COIFFEUR_LANDING} />
+      <main className="mx-auto max-w-lg px-4 py-10 pb-16">{body}</main>
       <CoiffeurVisitorFooter showPartnersLater />
     </CoiffeurVisitorShell>
   );

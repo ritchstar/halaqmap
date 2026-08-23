@@ -47,7 +47,7 @@ export function AmbassadorTelegramGroupBanner({ className, compact = false }: Pr
         </span>
 
         <span className="min-w-0 flex-1 text-right">
-          <span className="mb-0.5 block text-[11px] font-semibold text-[#7dd3fc]">مجتمع السفراء</span>
+          <span className="mb-0.5 block text-[11px] font-semibold text-[#7dd3fc]">المجموعة التسويقية</span>
           <span
             className={cn(
               'block font-black leading-snug text-white',

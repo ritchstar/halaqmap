@@ -31,6 +31,7 @@ assert('no_serp', !blob.includes('أقرب حلاق'));
 assert('license_not_craft', rulesBlob.includes('ليست عمولة على خدمة التجميل'));
 assert('store_pair_halaq', STORE_COMMISSION_COPY.halaqHref.includes('/ambassadors'));
 assert('store_pair_coiffeur', STORE_COMMISSION_COPY.coiffeurHref.includes('/coiffeur/ambassadors'));
+assert('store_pair_store', STORE_COMMISSION_COPY.storeHref.includes('lane=store'));
 assert('store_email', STORE_CONTACT_EMAIL.includes('@halaqmap.com'));
 assert('store_x', STORE_CONTACT_X_URL === 'https://x.com/halaqmap');
 

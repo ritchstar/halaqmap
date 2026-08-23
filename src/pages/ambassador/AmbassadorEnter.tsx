@@ -2,11 +2,13 @@
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
 import { useEffect, useState, type FormEvent } from 'react';
-import { Link, Navigate, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Handshake, Presentation } from 'lucide-react';
+import { AffiliateStoreLane } from '@/components/affiliate/AffiliateStoreLane';
 import { AmbassadorMarketingKitPanel } from '@/components/ambassador/AmbassadorMarketingKitPanel';
 import { AmbassadorTelegramGroupBanner } from '@/components/ambassador/AmbassadorTelegramGroupBanner';
+import CoiffeurAmbassadorEnter from '@/pages/coiffeur/CoiffeurAmbassadorEnter';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
@@ -16,7 +18,14 @@ import {
   AMBASSADOR_PROGRAM_NAME_AR,
   AMBASSADOR_RULES_VERSION,
 } from '@/config/ambassadorFieldRulesPolicy';
+import {
+  STORE_AFFILIATE_COPY,
+  STORE_AFFILIATE_LANES,
+  parseAffiliateLane,
+  type StoreAffiliateLane,
+} from '@/config/storeAffiliateLive';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
+import { readHashQueryParam } from '@/lib/hashQueryParams';
 import { ROUTE_PATHS } from '@/lib';
 import {
   readAmbassadorPortal,
@@ -29,8 +38,9 @@ import {
 import { toast } from '@/components/ui/sonner';
 
 export default function AmbassadorEnter() {
-  useDocumentTitle('طلب انضمام سفير · حلاق ماب');
+  useDocumentTitle(STORE_AFFILIATE_COPY.documentTitle);
   const navigate = useNavigate();
+  const [lane, setLane] = useState<StoreAffiliateLane>(() => parseAffiliateLane(readHashQueryParam('lane')));
   const [ready, setReady] = useState(false);
   const [existing, setExisting] = useState(false);
   const [displayName, setDisplayName] = useState('');
@@ -56,16 +66,17 @@ export default function AmbassadorEnter() {
     setReady(true);
   }, []);
 
+  function selectLane(next: StoreAffiliateLane) {
+    setLane(next);
+    navigate(next === 'halaq' ? ROUTE_PATHS.AMBASSADOR_ENTER : `${ROUTE_PATHS.AMBASSADOR_ENTER}?lane=${next}`);
+  }
+
   if (!ready) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#07070a] text-sm text-slate-400" dir="rtl">
         جاري التحميل…
       </div>
     );
-  }
-
-  if (existing) {
-    return <Navigate to={ROUTE_PATHS.AMBASSADOR_DASHBOARD} replace />;
   }
 
   const onSubmit = async (e: FormEvent) => {
@@ -138,7 +149,7 @@ export default function AmbassadorEnter() {
             className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-teal-200"
           >
             <ArrowLeft className="h-4 w-4" aria-hidden />
-            حلاق ماب
+            خريطة الحل
           </Link>
           <div className="flex items-center gap-3">
             <Link
@@ -157,18 +168,54 @@ export default function AmbassadorEnter() {
       <main className="relative z-10 container mx-auto max-w-3xl space-y-8 px-4 py-8 pb-16">
         <AmbassadorTelegramGroupBanner />
 
+        <div className="text-center">
+          <p className="text-xs font-bold tracking-[0.14em] text-teal-300">{STORE_AFFILIATE_COPY.kickerAr}</p>
+          <h1 className="mt-2 text-3xl font-black leading-tight text-white">
+            واجهة التسويق بالعمولة لمنتجات <code className="text-[0.7em] font-bold">halaqmap</code> خريطة الحل
+          </h1>
+          <p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-slate-400">{STORE_AFFILIATE_COPY.leadAr}</p>
+        </div>
+
+        <div className="flex flex-wrap justify-center gap-2">
+          {STORE_AFFILIATE_LANES.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => selectLane(item.id)}
+              className={
+                lane === item.id
+                  ? 'rounded-full bg-teal-500 px-4 py-2 text-sm font-bold text-black'
+                  : 'rounded-full border border-white/15 px-4 py-2 text-sm font-bold text-slate-300 hover:border-teal-400/40'
+              }
+            >
+              {item.titleAr}
+            </button>
+          ))}
+        </div>
+
+        {lane === 'store' ? <AffiliateStoreLane /> : null}
+        {lane === 'coiffeur' ? <CoiffeurAmbassadorEnter embedded /> : null}
+
+        {lane === 'halaq' ? (
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="mx-auto max-w-lg">
           <div className="mb-8 text-center">
             <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-teal-400/30 bg-teal-500/10">
               <Handshake className="h-7 w-7 text-teal-300" aria-hidden />
             </div>
-            <h1 className="mb-2 text-3xl font-black text-white">طلب الانضمام والمقابلة الرقمية</h1>
+            <h2 className="mb-2 text-2xl font-black text-white">طلب الانضمام والمقابلة الرقمية</h2>
             <p className="text-sm leading-relaxed text-slate-400">{AMBASSADOR_PROGRAM_NAME_AR}</p>
             <p className="mt-3 text-xs leading-relaxed text-amber-200/90">
               لا تفعيل فوري. بعد الإرسال تكون حالتك <strong>قيد المراجعة</strong>. التفعيل المؤقت ثم الاعتماد الرسمي
               يأتيان بعد قبول الطلب ثم أول إغلاق صالون ناجح.
             </p>
             <p className="mt-2 text-xs text-slate-500">نسخة القواعد: {AMBASSADOR_RULES_VERSION}</p>
+            {existing ? (
+              <p className="mt-3 text-sm text-teal-200">
+                <Link to={ROUTE_PATHS.AMBASSADOR_DASHBOARD} className="font-bold underline">
+                  افتح لوحة طلبك القائم
+                </Link>
+              </p>
+            ) : null}
             <Button
               asChild
               variant="outline"
@@ -302,18 +349,9 @@ export default function AmbassadorEnter() {
             </p>
           </form>
         </motion.div>
+        ) : null}
 
-        <AmbassadorMarketingKitPanel />
-
-        <p className="text-center text-xs text-slate-500">
-          مسار مقابل ·{' '}
-          <a
-            href="https://coiffeur.halaqmap.com/#/coiffeur/ambassadors"
-            className="text-teal-300/80 underline-offset-4 hover:underline"
-          >
-            نسخة المسوّقات لكوافير ماب
-          </a>
-        </p>
+        {lane === 'halaq' ? <AmbassadorMarketingKitPanel /> : null}
       </main>
     </div>
   );

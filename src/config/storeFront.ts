@@ -310,14 +310,16 @@ export const STORE_LATER_SERVICES_COPY = {
 
 /** فرصة مشاركة هادئة — ليست باب برمجة رابعاً. */
 export const STORE_COMMISSION_COPY = {
-  kickerAr: 'مشاركة',
-  titleAr: 'مشاركة منتجات جاهزة',
+  kickerAr: 'تسويق بالعمولة',
+  titleAr: 'واجهة التسويق بالعمولة لخريطة الحل',
   leadAr:
-    'فرصة مستقلة عن أبواب البرمجة. لكل منتج قطاعي مسار مشاركته. ليست تحصيلاً من زائر صفحات المتجر الأخرى.',
-  halaqLabelAr: 'مسوّقون لحلاق ماب',
-  coiffeurLabelAr: 'مسوّقات لكوافير ماب',
+    'للمسوّق والمسوّقة. حلاق ماب وكوافير ماب ومنتجات المتجر في صفحة واحدة. كاردي8 خارج هذا المسار.',
+  halaqLabelAr: 'مسوّقو حلاق ماب',
+  coiffeurLabelAr: 'مسوّقات كوافير ماب',
+  storeLabelAr: 'مسوّقو منتجات المتجر',
   halaqHref: `https://www.halaqmap.com/#${ROUTE_PATHS.AMBASSADOR_ENTER}`,
   coiffeurHref: `https://coiffeur.halaqmap.com/#${ROUTE_PATHS.COIFFEUR_AMBASSADORS}`,
+  storeHref: `https://www.halaqmap.com/#${ROUTE_PATHS.AMBASSADOR_ENTER}?lane=store`,
 } as const;
 
 export const STORE_SECTOR_SPLIT_COPY = {

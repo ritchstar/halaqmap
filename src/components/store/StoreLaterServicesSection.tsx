@@ -71,6 +71,9 @@ export function StoreLaterServicesSection({ onOpenForm, nested = false }: Props)
           <a href={STORE_COMMISSION_COPY.coiffeurHref} className="text-white/70 underline-offset-4 hover:text-[#e8c547] hover:underline">
             {STORE_COMMISSION_COPY.coiffeurLabelAr}
           </a>
+          <a href={STORE_COMMISSION_COPY.storeHref} className="text-white/70 underline-offset-4 hover:text-[#e8c547] hover:underline">
+            {STORE_COMMISSION_COPY.storeLabelAr}
+          </a>
         </div>
       </div>
     </div>
