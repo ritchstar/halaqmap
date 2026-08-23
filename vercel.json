@@ -205,6 +205,16 @@
     },
     {
       "source": "/store",
+      "has": [{ "type": "host", "value": "store.halaqmap.com" }],
+      "destination": "/store-index.html"
+    },
+    {
+      "source": "/store/:path*",
+      "has": [{ "type": "host", "value": "store.halaqmap.com" }],
+      "destination": "/store-index.html"
+    },
+    {
+      "source": "/store",
       "destination": "/index.html"
     },
     {

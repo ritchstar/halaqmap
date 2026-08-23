@@ -103,6 +103,25 @@ for (const rel of ['summi/index.html', 'summi/near-me/index.html', 'summi/beauty
   }
 }
 
+const storeShare = join(dist, 'store-index.html');
+if (!existsSync(storeShare)) {
+  errors.push('missing store-index.html');
+} else {
+  const storeHtml = readFileSync(storeShare, 'utf8');
+  if (!storeHtml.includes('store.halaqmap.com')) {
+    errors.push('store-index.html must point og tags at store.halaqmap.com');
+  }
+  if (!storeHtml.includes('خريطة الحل')) {
+    errors.push('store-index.html must use store public name');
+  }
+  if (storeHtml.includes('اقرب حلاق · حلاق قريب | حلاق ماب')) {
+    errors.push('store-index.html must not keep Halaq Map share title');
+  }
+  if (!/\/assets\/[^"']+\.(js|css)\?v=/.test(storeHtml)) {
+    errors.push('store-index.html missing ?v= on /assets/*.js or *.css');
+  }
+}
+
 if (errors.length) {
   console.error('verify-dist-index failed:', errors.join('; '));
   process.exit(1);
