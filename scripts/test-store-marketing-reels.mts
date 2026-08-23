@@ -97,9 +97,13 @@ assert.match(loungeLanding, /reel="lounge"/);
 const weddingHall = readFileSync(join(root, 'src/components/store/StoreWeddingHallStage.tsx'), 'utf8');
 const eventHall = readFileSync(join(root, 'src/components/store/StoreEventHallStage.tsx'), 'utf8');
 assert.match(weddingHall, /StoreHallAtmosphere/);
+assert.match(weddingHall, /StoreHallNoticePlaque/);
 assert.match(weddingHall, /STORE_WEDDING_MARKETING_FRAMES/);
+assert.doesNotMatch(weddingHall, /absolute inset-x-3 top-3/);
 assert.match(eventHall, /StoreHallAtmosphere/);
+assert.match(eventHall, /StoreHallNoticePlaque/);
 assert.match(eventHall, /STORE_EVENT_MARKETING_FRAMES/);
+assert.doesNotMatch(eventHall, /absolute inset-x-3 top-3/);
 assert.doesNotMatch(weddingHall, /<StoreLivePanoramaCycle \/>/);
 assert.doesNotMatch(eventHall, /<StoreLivePanoramaCycle \/>/);
 

@@ -3047,6 +3047,27 @@ html.platform-radar-fullscreen #root {
   }
 }
 
+.hall-notice-plaque {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 48rem;
+  margin-inline: auto;
+  overflow: hidden;
+  border-radius: 1.6rem;
+  border-width: 1px;
+  background:
+    linear-gradient(180deg, rgba(18, 12, 6, 0.94), rgba(8, 6, 3, 0.9));
+  padding: 1.1rem 1.35rem 1.2rem;
+  text-align: center;
+}
+
+@media (min-width: 640px) {
+  .hall-notice-plaque {
+    padding: 1.25rem 2rem 1.35rem;
+  }
+}
+
 .hall-notice-pulse {
   animation: hall-notice-pulse 2.6s ease-in-out infinite;
 }
@@ -3055,12 +3076,21 @@ html.platform-radar-fullscreen #root {
   animation-name: hall-notice-pulse-women;
 }
 
+.hall-notice-kicker {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.28em;
+}
+
 .hall-notice-pulse__text {
-  font-size: 1.75rem;
+  margin: 0.55rem 0 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  font-size: 1.28rem;
   font-weight: 900;
-  line-height: 1.7;
-  letter-spacing: 0.02em;
-  transform-origin: center;
+  line-height: 1.55;
+  letter-spacing: 0.01em;
   animation: hall-notice-text 2.6s ease-in-out infinite;
 }
 
@@ -3070,7 +3100,102 @@ html.platform-radar-fullscreen #root {
 
 @media (min-width: 768px) {
   .hall-notice-pulse__text {
-    font-size: 2.15rem;
+    font-size: 1.55rem;
+  }
+}
+
+.hall-notice-corner {
+  position: absolute;
+  width: 1.15rem;
+  height: 1.15rem;
+  border-color: currentColor;
+  opacity: 0.72;
+}
+
+.hall-notice-corner--tl {
+  top: 0.55rem;
+  inset-inline-start: 0.55rem;
+  border-top: 1px solid;
+  border-inline-start: 1px solid;
+}
+
+.hall-notice-corner--tr {
+  top: 0.55rem;
+  inset-inline-end: 0.55rem;
+  border-top: 1px solid;
+  border-inline-end: 1px solid;
+}
+
+.hall-notice-corner--bl {
+  bottom: 0.55rem;
+  inset-inline-start: 0.55rem;
+  border-bottom: 1px solid;
+  border-inline-start: 1px solid;
+}
+
+.hall-notice-corner--br {
+  bottom: 0.55rem;
+  inset-inline-end: 0.55rem;
+  border-bottom: 1px solid;
+  border-inline-end: 1px solid;
+}
+
+.hall-ornament-rule {
+  display: block;
+  height: 0.7rem;
+  margin: 0.45rem auto 0;
+  width: min(14rem, 70%);
+  background:
+    radial-gradient(circle at 50% 50%, var(--hall-ornament, #d4af67) 0 0.16rem, transparent 0.18rem),
+    linear-gradient(
+      90deg,
+      transparent,
+      color-mix(in srgb, var(--hall-ornament, #d4af67) 70%, transparent),
+      transparent
+    );
+  background-repeat: no-repeat;
+  background-position: center, center;
+  background-size: 0.7rem 0.7rem, 100% 1px;
+}
+
+.wedding-hall-masthead {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.7rem;
+  width: 100%;
+  max-width: 42rem;
+  margin-inline: auto;
+  text-align: center;
+}
+
+.wedding-hall-masthead > * {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  max-width: 100%;
+}
+
+.hall-masthead-kicker {
+  font-size: 0.82rem;
+  letter-spacing: 0.32em;
+}
+
+.hall-masthead-host {
+  font-size: 1rem;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.hall-masthead-names {
+  font-size: 1.85rem;
+  font-weight: 900;
+  line-height: 1.35;
+}
+
+@media (min-width: 768px) {
+  .hall-masthead-names {
+    font-size: 3rem;
   }
 }
 
@@ -3105,15 +3230,13 @@ html.platform-radar-fullscreen #root {
 @keyframes hall-notice-text {
   0%,
   100% {
-    opacity: 0.9;
-    transform: scale(1);
+    opacity: 0.92;
     text-shadow:
       0 0 10px rgba(255, 224, 170, 0.45),
       0 0 22px rgba(232, 197, 71, 0.28);
   }
   50% {
     opacity: 1;
-    transform: scale(1.035);
     text-shadow:
       0 0 18px rgba(255, 236, 190, 0.85),
       0 0 36px rgba(232, 197, 71, 0.5);
@@ -3123,15 +3246,13 @@ html.platform-radar-fullscreen #root {
 @keyframes hall-notice-text-women {
   0%,
   100% {
-    opacity: 0.9;
-    transform: scale(1);
+    opacity: 0.92;
     text-shadow:
       0 0 10px rgba(244, 205, 216, 0.5),
       0 0 22px rgba(228, 183, 197, 0.3);
   }
   50% {
     opacity: 1;
-    transform: scale(1.035);
     text-shadow:
       0 0 18px rgba(255, 228, 234, 0.88),
       0 0 36px rgba(228, 183, 197, 0.52);

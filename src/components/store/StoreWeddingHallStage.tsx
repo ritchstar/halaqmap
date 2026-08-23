@@ -11,6 +11,7 @@ import {
   weddingWelcomeSetCount,
 } from '@/config/storeWeddingWelcomeSets';
 import { StoreHallAtmosphere } from '@/components/store/StoreHallAtmosphere';
+import { StoreHallNoticePlaque } from '@/components/store/StoreHallNoticePlaque';
 import { StoreLivePanoramaCycle } from '@/components/store/StoreLivePanoramaCycle';
 import { StoreShot } from '@/components/store/StoreShot';
 import { StoreWeddingMapsPin } from '@/components/store/StoreWeddingMapsPin';
@@ -100,40 +101,24 @@ export function StoreWeddingHallStage({
       <div className="absolute inset-0 bg-gradient-to-b from-black/28 via-black/18 to-black/58" />
       <StoreHallAtmosphere voice={voice} />
 
-      {state.host.announcement.trim() ? (
-        <div
-          key={state.host.announcement.trim()}
-          className="hall-notice-pulse absolute inset-x-3 top-3 z-20 rounded-2xl border bg-black/80 px-4 py-3.5 text-center sm:inset-x-4 sm:top-4"
-          style={{ borderColor: accent }}
-        >
-          <p className="hall-notice-pulse__text" style={{ color: accent }}>
-            {state.host.announcement.trim()}
-          </p>
-        </div>
-      ) : null}
-
-      <div
-        className={cn(
-          'relative z-10 flex min-h-[32rem] flex-col p-4 sm:p-5 md:p-8',
-          state.host.announcement.trim() ? 'pt-28 sm:pt-32' : 'pt-14 sm:pt-16',
-        )}
-      >
-        <p className="invite-luminous text-center text-sm tracking-[0.35em]" style={{ color: accent }}>
-          عقد قران
-        </p>
-        <p className="mt-2 text-center text-base text-white/75">{weddingHostInviteLine(state.host)}</p>
-        <h2 className="invite-luminous mt-1 text-center text-3xl font-black md:text-5xl">
-          {weddingCoupleLine(state.host)}
-        </h2>
-        <p className="invite-luminous mx-auto mt-4 max-w-2xl text-center text-base leading-8 text-white/90 md:text-lg">
-          {invitation}
-        </p>
-        {state.host.welcomeAr.trim() ? (
-          <p className="mx-auto mt-3 max-w-xl text-center text-base leading-8 text-white/75">
-            {state.host.welcomeAr.trim()}
-          </p>
+      <div className="relative z-10 flex min-h-[32rem] flex-col gap-5 p-4 pt-6 sm:p-5 sm:pt-8 md:p-8">
+        {state.host.announcement.trim() ? (
+          <StoreHallNoticePlaque text={state.host.announcement.trim()} accent={accent} />
         ) : null}
-        <p className="mt-3 text-center text-base text-white/70">{state.host.eventTime}</p>
+
+        <header className="wedding-hall-masthead">
+          <p className="hall-masthead-kicker invite-luminous" style={{ color: accent }}>
+            عقد قران
+          </p>
+          <span className="hall-ornament-rule" style={{ ['--hall-ornament' as string]: accent }} aria-hidden />
+          <p className="hall-masthead-host">{weddingHostInviteLine(state.host)}</p>
+          <h2 className="hall-masthead-names invite-luminous">{weddingCoupleLine(state.host)}</h2>
+          <p className="invite-luminous max-w-2xl text-base leading-8 text-white/90 md:text-lg">{invitation}</p>
+          {state.host.welcomeAr.trim() ? (
+            <p className="max-w-xl text-base leading-8 text-white/75">{state.host.welcomeAr.trim()}</p>
+          ) : null}
+          <p className="text-base text-white/70">{state.host.eventTime}</p>
+        </header>
         {maps ? (
           <a
             href={maps}
@@ -148,7 +133,7 @@ export function StoreWeddingHallStage({
 
         <div
           dir="rtl"
-          className="wedding-hall-glow mx-auto mt-6 w-full max-w-2xl rounded-3xl border bg-black/45 px-4 py-5 text-center md:px-6"
+          className="wedding-hall-glow mx-auto w-full max-w-2xl rounded-3xl border bg-black/45 px-4 py-5 text-center md:px-6"
           style={{ borderColor: `${accent}66` }}
         >
           <p className="invite-luminous mb-3 text-sm font-bold tracking-wide" style={{ color: accent }}>

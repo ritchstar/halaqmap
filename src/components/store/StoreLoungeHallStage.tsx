@@ -5,6 +5,7 @@
  */
 import { STORE_LOUNGE_LIVE, STORE_LOUNGE_LIVE_ACCENT } from '@/config/storeLoungeLive';
 import { STORE_LOUNGE_MARKETING_FRAMES } from '@/config/storeMarketingReels';
+import { StoreHallNoticePlaque } from '@/components/store/StoreHallNoticePlaque';
 import { StoreLivePanoramaCycle } from '@/components/store/StoreLivePanoramaCycle';
 import { StoreLoungeNightSky } from '@/components/store/StoreLoungeNightSky';
 import { StoreShot } from '@/components/store/StoreShot';
@@ -42,29 +43,19 @@ export function StoreLoungeHallStage({
       <div className="absolute inset-0 bg-gradient-to-b from-black/35 via-black/25 to-black/72" />
       <div className="wedding-hall-lights pointer-events-none absolute inset-0" aria-hidden />
 
-      {state.host.announcement.trim() ? (
-        <div
-          key={state.host.announcement.trim()}
-          className="hall-notice-pulse absolute inset-x-3 top-3 z-20 rounded-2xl border bg-black/80 px-4 py-3.5 text-center sm:inset-x-4 sm:top-4"
-          style={{ borderColor: accent }}
-        >
-          <p className="hall-notice-pulse__text" style={{ color: accent }}>
-            {state.host.announcement.trim()}
-          </p>
-        </div>
-      ) : null}
+      <div className="relative z-10 flex min-h-[32rem] flex-col gap-5 p-4 pt-6 sm:p-5 sm:pt-8 md:p-8">
+        {state.host.announcement.trim() ? (
+          <StoreHallNoticePlaque text={state.host.announcement.trim()} accent={accent} />
+        ) : null}
 
-      <div
-        className={cn(
-          'relative z-10 flex min-h-[32rem] flex-col p-4 sm:p-5 md:p-8',
-          state.host.announcement.trim() ? 'pt-28 sm:pt-32' : 'pt-14 sm:pt-16',
-        )}
-      >
-        <p className="text-center text-[11px] tracking-[0.35em]" style={{ color: accent }}>
-          {STORE_LOUNGE_LIVE.hallKickerAr}
-        </p>
-        <p className="mt-2 text-center text-sm text-white/70">{state.host.loungeName}</p>
-        <h2 className="mt-1 text-center text-3xl font-black md:text-5xl">{loungeScreenTitle(state.host)}</h2>
+        <header className="wedding-hall-masthead">
+          <p className="hall-masthead-kicker" style={{ color: accent }}>
+            {STORE_LOUNGE_LIVE.hallKickerAr}
+          </p>
+          <span className="hall-ornament-rule" style={{ ['--hall-ornament' as string]: accent }} aria-hidden />
+          <p className="hall-masthead-host">{state.host.loungeName}</p>
+          <h2 className="hall-masthead-names">{loungeScreenTitle(state.host)}</h2>
+        </header>
         <p className="mx-auto mt-5 max-w-xl text-center text-sm leading-8 text-white/85">{state.host.welcomeAr}</p>
 
         <div className="mt-5 grid gap-3 sm:mt-6 sm:gap-4 lg:grid-cols-[1.1fr_0.9fr]">
