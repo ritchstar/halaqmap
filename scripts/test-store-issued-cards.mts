@@ -267,7 +267,7 @@ assert.match(legalBlob, /كاردي8/);
 assert.match(legalBlob, /اجواء1/);
 assert.match(legalBlob, /تمويناتا1/);
 assert.match(legalBlob, /صندوق محادثة/);
-assert.match(legalBlob, /لوحة المشتري/);
+assert.match(legalBlob, /لوحة المضيف/);
 assert.match(legalBlob, /رقابة برمجية صارمة/);
 assert.match(legalBlob, /نظام حماية البيانات الشخصية/);
 assert.match(legalBlob, /بوابة الدفع/);

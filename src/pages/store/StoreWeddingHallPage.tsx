@@ -114,7 +114,12 @@ export default function StoreWeddingHallPage() {
     return <Navigate to={ROUTE_PATHS.STORE_LANDING} replace />;
   }
   if (mode === 'guest' && gate.status === 'blocked') {
-    return <StoreGuestDeviceBlocked productAr={copy.titleAr} />;
+    return (
+      <StoreGuestDeviceBlocked
+        productAr={copy.titleAr}
+        hostAr={voice === 'women' ? 'المضيفة' : 'المضيف'}
+      />
+    );
   }
 
   return (
