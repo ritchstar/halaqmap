@@ -95,7 +95,16 @@ export default function StoreAboutPage() {
           </section>
 
           <section className="mt-8">
-            <h2 className="text-2xl font-extrabold text-[#f4efe4]">{STORE_ABOUT_COPY.activitiesTitle}</h2>
+            <p className="max-w-3xl text-sm leading-7 text-[#f4efe4] md:text-base">
+              {STORE_ABOUT_COPY.activitiesLicenseNoticeAr}
+              {' نحن في '}
+              <code dir="ltr" className="inline-block rounded bg-white/10 px-1.5 py-0.5 text-[0.85em] font-bold text-[#e8c547]">
+                {STORE_BRAND_LATIN}
+              </code>
+              {' '}
+              {STORE_ABOUT_COPY.activitiesLicenseNoticeCloseAr}
+            </p>
+            <h2 className="mt-6 text-2xl font-extrabold text-[#f4efe4]">{STORE_ABOUT_COPY.activitiesTitle}</h2>
             <p className="mt-3 max-w-3xl text-sm leading-7 text-white/75 md:text-base">
               {STORE_ABOUT_COPY.activitiesLead}
             </p>
