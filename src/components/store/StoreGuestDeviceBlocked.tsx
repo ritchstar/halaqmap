@@ -16,8 +16,8 @@ export function StoreGuestDeviceBlocked({
 }) {
   const askAr =
     hostAr === 'المضيفة'
-      ? 'اطلبي من المضيفة أن تزوّدك برابط خاص.'
-      : 'اطلب من المضيف أن يزوّدك برابط خاص.';
+      ? 'يرجى التواصل مع صاحبة الدعوة للحصول على رابط خاص بك.'
+      : 'يرجى التواصل مع صاحب الدعوة للحصول على رابط خاص بك.';
 
   return (
     <div
@@ -36,11 +36,12 @@ export function StoreGuestDeviceBlocked({
           {productAr}
         </p>
         <h1 className={cn('mt-2 font-extrabold', compact ? 'text-base leading-7' : 'text-2xl')}>
-          عذراً، غير مسموح قانونياً عرض هذه الدعوة.
+          هذه الدعوة مخصصة للاستخدام الشخصي فقط
         </h1>
         <p className={cn('mt-3 leading-7 text-white/75', compact ? 'text-xs' : 'mt-4 text-sm leading-8')}>
-          هذا الرابط معاد استخدامه طبقاً لسياسات الخصوصية، وقد حُظر الرابط. {askAr}
+          تم استخدام هذا الرابط مسبقاً من جهاز آخر. حفاظاً على خصوصية الحفل وحماية بيانات الدعوة، تم إيقاف الرابط.
         </p>
+        <p className={cn('mt-3 leading-7 text-white/75', compact ? 'text-xs' : 'text-sm leading-8')}>{askAr}</p>
         <p className={cn('mt-2 leading-7 text-white/60', compact ? 'text-xs' : 'mt-3 text-sm leading-8')}>
           <code dir="ltr">halaqmap</code> خريطة الحل
         </p>

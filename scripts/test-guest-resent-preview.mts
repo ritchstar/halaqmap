@@ -19,14 +19,14 @@ const preview = readFileSync(join(root, 'src/components/store/StoreGuestResentLi
 const eventWomen = eventLiveCopy('women');
 const weddingWomen = weddingLiveCopy('women');
 
-assert.equal(eventWomen.resentPreviewKickerAr, 'رابط أُعيد إرساله');
-assert.match(eventWomen.resentPreviewCaptionAr, /أُعيد إرساله/);
+assert.equal(eventWomen.resentPreviewKickerAr, 'نظام الأمان ومنع التداول (رابط مُستخدَم)');
+assert.match(eventWomen.resentPreviewCaptionAr, /خصوصية المناسبة/);
 assert.equal(weddingWomen.resentPreviewKickerAr, eventWomen.resentPreviewKickerAr);
 assert.equal(eventLiveCopy('men').titleAr, 'اجواء1');
 assert.equal(eventWomen.titleAr, 'اجواء1 نسائي');
 
-assert.match(blocked, /غير مسموح قانونياً عرض هذه الدعوة/);
-assert.match(blocked, /هذا الرابط معاد استخدامه/);
+assert.match(blocked, /هذه الدعوة مخصصة للاستخدام الشخصي فقط/);
+assert.match(blocked, /تم استخدام هذا الرابط مسبقاً من جهاز آخر/);
 assert.match(preview, /data-resent-preview="1"/);
 assert.match(preview, /StoreGuestDeviceBlocked/);
 assert.match(preview, /compact/);

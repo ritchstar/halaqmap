@@ -1,7 +1,7 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
- * نموذج مصغّر لصفحة الحظر التي يراها من أتى برابط أُعيد إرساله.
+ * نموذج مصغّر لصفحة التنبيه عند فتح رابط حُوّل أو أُعيد إرساله.
  */
 import { StoreGuestDeviceBlocked } from '@/components/store/StoreGuestDeviceBlocked';
 import { cn } from '@/lib/utils';
