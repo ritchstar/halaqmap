@@ -262,4 +262,9 @@ export const ProductEvents = {
     trackProductEvent('store_card_studio_view', { occasion: props?.occasion }),
   storeCardDownload: (props: { occasion: string }) =>
     trackProductEvent('store_card_download', { occasion: props.occasion }),
+  storeIntroCardStudioView: () => trackProductEvent('store_intro_card_studio_view'),
+  storeIntroCardView: () => trackProductEvent('store_intro_card_view'),
+  storeIntroCardShare: (props: { method: string }) =>
+    trackProductEvent('store_intro_card_share', { method: props.method }),
+  storeIntroCardOpenLanding: () => trackProductEvent('store_intro_card_open_landing'),
 } as const;

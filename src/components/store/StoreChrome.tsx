@@ -88,6 +88,9 @@ export function StoreVisitorFooter() {
           <Link to={ROUTE_PATHS.STORE_LANDING} className="text-white/80">
             واجهة المتجر
           </Link>
+          <Link to={ROUTE_PATHS.STORE_INTRO_CARDS} className="text-white/80">
+            كروت تعريفية
+          </Link>
           <Link to={ROUTE_PATHS.STORE_ISSUED_CARDS_LEGAL} className="text-white/80">
             {STORE_LANDING_COPY.issuedCardsLegalAr}
           </Link>

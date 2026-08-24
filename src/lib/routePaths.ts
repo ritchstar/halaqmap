@@ -37,6 +37,9 @@ export const ROUTE_PATHS = {
   STORE_REQUEST: '/store/request',
   /** بطاقات تهنئة مجانية يصدرها العميل لنفسه */
   STORE_CARDS: '/store/cards',
+  /** كروت تعريفية وتسويقية لواجهة المتجر — مستقلة عن كاردي8 وتهنئة المناسبات */
+  STORE_INTRO_CARDS: '/store/id-cards',
+  STORE_INTRO_CARD_VIEW: '/store/id-card',
   /** تعريف المتجر والأنشطة والمنتجات البرمجية */
   STORE_ABOUT: '/store/about',
   /** تصنيفات وفحوص مستقلة قابلة للتحقق */

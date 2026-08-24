@@ -41,6 +41,10 @@ const STORE_REQUEST_PATH =
   (ROUTE_PATHS as { STORE_REQUEST?: string }).STORE_REQUEST || "/store/request";
 const STORE_CARDS_PATH =
   (ROUTE_PATHS as { STORE_CARDS?: string }).STORE_CARDS || "/store/cards";
+const STORE_INTRO_CARDS_PATH =
+  (ROUTE_PATHS as { STORE_INTRO_CARDS?: string }).STORE_INTRO_CARDS || "/store/id-cards";
+const STORE_INTRO_CARD_VIEW_PATH =
+  (ROUTE_PATHS as { STORE_INTRO_CARD_VIEW?: string }).STORE_INTRO_CARD_VIEW || "/store/id-card";
 const STORE_ABOUT_PATH =
   (ROUTE_PATHS as { STORE_ABOUT?: string }).STORE_ABOUT || "/store/about";
 const STORE_TRUST_PATH =
@@ -209,6 +213,8 @@ const CoiffeurCardViewPage = lazy(() => import("@/pages/coiffeur/CoiffeurCardVie
 const StoreLanding = lazy(() => import("@/pages/store/StoreLanding"));
 const StoreRequestPage = lazy(() => import("@/pages/store/StoreRequestPage"));
 const StoreCardStudioPage = lazy(() => import("@/pages/store/StoreCardStudioPage"));
+const StoreIntroCardStudioPage = lazy(() => import("@/pages/store/StoreIntroCardStudioPage"));
+const StoreIntroCardViewPage = lazy(() => import("@/pages/store/StoreIntroCardViewPage"));
 const StoreAboutPage = lazy(() => import("@/pages/store/StoreAboutPage"));
 const StoreTrustPage = lazy(() => import("@/pages/store/StoreTrustPage"));
 const StoreIssuedCardsLegalHub = lazy(() => import("@/pages/store/StoreIssuedCardsLegalHub"));
@@ -716,6 +722,8 @@ export function App() {
           <Route path={STORE_LANDING_PATH} element={<LazyRoute><StoreLanding /></LazyRoute>} />
           <Route path={STORE_REQUEST_PATH} element={<LazyRoute><StoreRequestPage /></LazyRoute>} />
           <Route path={STORE_CARDS_PATH} element={<LazyRoute><StoreCardStudioPage /></LazyRoute>} />
+          <Route path={STORE_INTRO_CARDS_PATH} element={<LazyRoute><StoreIntroCardStudioPage /></LazyRoute>} />
+          <Route path={STORE_INTRO_CARD_VIEW_PATH} element={<LazyRoute><StoreIntroCardViewPage /></LazyRoute>} />
           <Route path={STORE_ABOUT_PATH} element={<LazyRoute><StoreAboutPage /></LazyRoute>} />
           <Route path={STORE_TRUST_PATH} element={<LazyRoute><StoreTrustPage /></LazyRoute>} />
           <Route path={STORE_ISSUED_CARDS_LEGAL_PATH} element={<LazyRoute><StoreIssuedCardsLegalHub /></LazyRoute>} />

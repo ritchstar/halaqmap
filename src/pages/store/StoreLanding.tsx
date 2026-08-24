@@ -25,6 +25,7 @@ import {
   STORE_TRUST_COPY,
   storeCardsPath,
 } from '@/config/storeFront';
+import { STORE_INTRO_CARD_COPY } from '@/config/storeIntroCardCopy';
 import { PLATFORM_TLS_SSL_LABS_GRADE } from '@/config/platformTlsTrust';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { ProductEvents } from '@/lib/analytics/productAnalytics';
@@ -352,6 +353,22 @@ export default function StoreLanding() {
             className="mt-4 inline-flex text-sm font-bold text-white/70 underline-offset-4 hover:underline"
           >
             فتح الاستوديو
+          </Link>
+        </div>
+      </section>
+
+      <section className="px-4 pb-14">
+        <div className="mx-auto max-w-5xl rounded-2xl border border-[#e8c547]/25 bg-[#0b1a24]/70 p-5 md:p-6">
+          <h2 className="text-2xl font-extrabold">{STORE_INTRO_CARD_COPY.landingDoorTitleAr}</h2>
+          <p className="mt-2 max-w-3xl text-sm leading-relaxed text-white/70">
+            {STORE_INTRO_CARD_COPY.landingDoorLeadAr}
+          </p>
+          <Link
+            to={ROUTE_PATHS.STORE_INTRO_CARDS}
+            className="mt-4 inline-flex items-center gap-1 text-sm font-bold text-[#e8c547]"
+          >
+            {STORE_INTRO_CARD_COPY.landingDoorCtaAr}
+            <ArrowLeft className="h-4 w-4" />
           </Link>
         </div>
       </section>
