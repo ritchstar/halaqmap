@@ -2,6 +2,7 @@
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
  * روابط مدعوي افراحي1 واجواء1: يصدرها المشتري من لوحته، لمرة واحدة وجهاز واحد.
+ * رابط الإرسال بلا هاش حتى يقرأ واتساب كرت الدعوة، لا شعار جذر المتجر.
  */
 import { readHashQueryParam } from '@/lib/hashQueryParams';
 
@@ -250,6 +251,11 @@ export function replaceGuestSeatInUrl(seatId: string): void {
 
 export function guestInviteHref(pathPrefix: '/w' | '/e', token: string, inviteId: string): string {
   const path = `${pathPrefix}/${encodeURIComponent(token)}/guest?invite=${encodeURIComponent(inviteId)}`;
-  if (typeof window === 'undefined') return `https://store.halaqmap.com/#${path}`;
-  return `${window.location.origin}/#${path}`;
+  if (typeof window === 'undefined') return `https://store.halaqmap.com${path}`;
+  const host = String(window.location.hostname || '').toLowerCase();
+  const origin =
+    host === 'localhost' || host.endsWith('.localhost') || host === '127.0.0.1' || host.includes('store.halaqmap.com')
+      ? window.location.origin
+      : 'https://store.halaqmap.com';
+  return `${origin}${path}`;
 }

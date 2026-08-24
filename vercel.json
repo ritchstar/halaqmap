@@ -140,6 +140,22 @@
       "destination": "/api/public-store-occasion-card?token=:token"
     },
     {
+      "source": "/w/:token/guest",
+      "destination": "/api/public-store-live-invite-share?kind=wedding&token=:token"
+    },
+    {
+      "source": "/w/:token/guest/",
+      "destination": "/api/public-store-live-invite-share?kind=wedding&token=:token"
+    },
+    {
+      "source": "/e/:token/guest",
+      "destination": "/api/public-store-live-invite-share?kind=event&token=:token"
+    },
+    {
+      "source": "/e/:token/guest/",
+      "destination": "/api/public-store-live-invite-share?kind=event&token=:token"
+    },
+    {
       "source": "/rate/:path*",
       "destination": "/index.html"
     },

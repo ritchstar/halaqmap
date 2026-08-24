@@ -84,7 +84,7 @@ function displayUrl(token: string): string {
   return `${storeOrigin()}/#/w/${encodeURIComponent(token)}`;
 }
 function guestUrl(token: string): string {
-  return `${storeOrigin()}/#/w/${encodeURIComponent(token)}/guest`;
+  return `${storeOrigin()}/w/${encodeURIComponent(token)}/guest`;
 }
 function hostUrl(token: string): string {
   return `${storeOrigin()}/#/w/${encodeURIComponent(token)}/host`;
