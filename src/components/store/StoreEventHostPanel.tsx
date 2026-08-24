@@ -1,7 +1,7 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import {
   STORE_EVENT_LIVE_AUDIO,
   STORE_EVENT_LIVE_OCCASIONS,
@@ -15,6 +15,7 @@ import {
 import { downloadInviteCardAsPng } from '@/lib/downloadInviteCardAsPng';
 import {
   compressImageFile,
+  eventHostInviteLine,
   eventLiveArchiveBlob,
   eventPlaceLine,
   normalizeEventHostRole,
@@ -25,6 +26,7 @@ import {
   type EventLiveStyleId,
 } from '@/lib/storeEventLiveLab';
 import { StoreEventInviteCard } from '@/components/store/StoreEventInviteCard';
+import { StoreGuestResentLinkPreview } from '@/components/store/StoreGuestResentLinkPreview';
 import { StoreHostGuestInviteIssuance } from '@/components/store/StoreHostGuestInviteIssuance';
 import { cn } from '@/lib/utils';
 
@@ -43,7 +45,6 @@ export function StoreEventHostPanel({
   hostToken?: string;
   isLab?: boolean;
 }) {
-  const stillRef = useRef<HTMLDivElement>(null);
   const [uploadError, setUploadError] = useState('');
   const [downloadBusy, setDownloadBusy] = useState<EventLiveStyleId | ''>('');
   const [downloadError, setDownloadError] = useState('');
@@ -86,24 +87,25 @@ export function StoreEventHostPanel({
   }
 
   async function downloadCard(styleId: EventLiveStyleId) {
-    const node = stillRef.current?.querySelector(`[data-event-card="${styleId}"][data-still="1"]`);
-    if (!(node instanceof HTMLElement)) {
+    const style = styles.find((item) => item.id === styleId);
+    if (!style?.image) {
       setDownloadError('تعذر تجهيز الكرت. حدّث الصفحة ثم أعد المحاولة.');
       return;
     }
     setDownloadBusy(styleId);
     setDownloadError('');
-    const style = styles.find((item) => item.id === styleId);
     try {
-      await downloadInviteCardAsPng(node, `ajwa-${styleId}.png`, {
+      await downloadInviteCardAsPng(`ajwa-${styleId}.png`, {
+        kickerAr: 'مناسبة خاصة',
+        hostLineAr: eventHostInviteLine(host),
         titleAr: host.occasionTitle || copy.titleAr,
         leadAr: host.welcomeAr,
         dateAr: host.eventDate,
         timeAr: host.eventTime,
         placeAr: eventPlaceLine(host),
         stampAr: 'خريطة الحل - halaqmap',
-        accent: style?.accent || (voice === 'women' ? '#e4b7c5' : '#e8c547'),
-        photoSrc: host.photoSrc || style?.image,
+        accent: style.accent || (voice === 'women' ? '#e4b7c5' : '#e8c547'),
+        photoSrc: style.image,
         voice,
       });
     } catch {
@@ -309,11 +311,6 @@ export function StoreEventHostPanel({
               <StoreEventInviteCard key={item.id} host={host} styleId={item.id} />
             ))}
           </div>
-          <div ref={stillRef} aria-hidden className="pointer-events-none fixed left-0 top-0 z-[-1] w-[360px] opacity-0">
-            {styles.map((item) => (
-              <StoreEventInviteCard key={`still-${item.id}`} host={host} styleId={item.id} still />
-            ))}
-          </div>
           <div className="mt-3 grid w-full grid-cols-1 gap-2 sm:grid-cols-2">
             {styles.map((item, index) => (
               <button
@@ -332,6 +329,12 @@ export function StoreEventHostPanel({
             ))}
           </div>
           {downloadError ? <p className={cn('mt-2 text-sm', text)}>{downloadError}</p> : null}
+          <StoreGuestResentLinkPreview
+            productAr={copy.titleAr}
+            hostAr={voice === 'women' ? 'المضيفة' : 'المضيف'}
+            kickerAr={copy.resentPreviewKickerAr}
+            captionAr={copy.resentPreviewCaptionAr}
+          />
         </div>
       ) : null}
     </div>

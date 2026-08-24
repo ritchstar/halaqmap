@@ -7,6 +7,7 @@ import { STORE_EVENT_LIVE, STORE_EVENT_LIVE_STYLES, eventLiveStyles } from '@/co
 import { StoreHallAtmosphere } from '@/components/store/StoreHallAtmosphere';
 import { StoreInviteCardFrame } from '@/components/store/StoreInviteCardFrame';
 import { StoreWeddingMapsPin } from '@/components/store/StoreWeddingMapsPin';
+import { inviteCardPhotoSrc } from '@/lib/downloadInviteCardAsPng';
 import { cn } from '@/lib/utils';
 import {
   eventHostInviteLine,
@@ -33,7 +34,7 @@ export function StoreEventInviteCard({
     eventLiveStyles(voice)[0] ||
     STORE_EVENT_LIVE_STYLES[0];
   const maps = safeMapsHref(host.venueMapsUrl);
-  const bg = host.photoSrc || style.image;
+  const bg = inviteCardPhotoSrc(host.photoSrc, style.image);
   return (
     <article
       data-event-card={styleId}

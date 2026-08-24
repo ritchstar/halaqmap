@@ -41,6 +41,8 @@ export const STORE_EVENT_LIVE = {
   guestSubmitAr: 'أظهر تهنئتي على القاعة',
   guestOnlyHintAr: 'هكذا يرى المدعو الدعوة على جواله.',
   guestDeviceLockAr: 'رابطكم صدر من لوحة المضيف ويُربط بهذا الجهاز فقط. إعادة إرساله من مدعو تُحظر.',
+  resentPreviewKickerAr: 'رابط أُعيد إرساله',
+  resentPreviewCaptionAr: 'نموذج الصفحة التي تظهر لمن أتى من رابط أُعيد إرساله.',
   hostInviteTitleAr: 'لوحة إرسال روابط المدعوين',
   hostInviteLeadAr: 'جهّزوا من هذه اللوحة ما يكفي مناسبتكم من الروابط الخاصة. كل رابط لمدعو واحد. أرسلوا من واتساب جهازكم.',
   hostInviteCtaAr: 'جهّز دفعة روابط',

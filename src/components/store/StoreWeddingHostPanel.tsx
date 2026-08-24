@@ -1,7 +1,7 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import {
   STORE_WEDDING_LIVE_AUDIO,
   STORE_WEDDING_VENUE_KINDS,
@@ -22,6 +22,8 @@ import {
   normalizeVenueKind,
   normalizeWeddingHostRole,
   playWeddingLiveChime,
+  weddingCoupleLine,
+  weddingHostInviteLine,
   weddingInvitationLead,
   weddingLiveArchiveBlob,
   type WeddingLiveAudioId,
@@ -31,6 +33,7 @@ import {
   type WeddingVenueKind,
 } from '@/lib/storeWeddingLiveLab';
 import { StoreWeddingInviteCard } from '@/components/store/StoreWeddingInviteCard';
+import { StoreGuestResentLinkPreview } from '@/components/store/StoreGuestResentLinkPreview';
 import { StoreHostGuestInviteIssuance } from '@/components/store/StoreHostGuestInviteIssuance';
 import { cn } from '@/lib/utils';
 
@@ -49,7 +52,6 @@ export function StoreWeddingHostPanel({
   hostToken?: string;
   isLab?: boolean;
 }) {
-  const stillRef = useRef<HTMLDivElement>(null);
   const [uploadError, setUploadError] = useState('');
   const [downloadBusy, setDownloadBusy] = useState<WeddingLiveStyleId | ''>('');
   const [downloadError, setDownloadError] = useState('');
@@ -93,24 +95,25 @@ export function StoreWeddingHostPanel({
   }
 
   async function downloadCard(styleId: WeddingLiveStyleId) {
-    const node = stillRef.current?.querySelector(`[data-wedding-card="${styleId}"][data-still="1"]`);
-    if (!(node instanceof HTMLElement)) {
+    const style = styles.find((item) => item.id === styleId);
+    if (!style?.image) {
       setDownloadError('تعذر تجهيز الكرت. حدّث الصفحة ثم أعد المحاولة.');
       return;
     }
     setDownloadBusy(styleId);
     setDownloadError('');
-    const style = styles.find((item) => item.id === styleId);
     try {
-      await downloadInviteCardAsPng(node, `afrahi-${styleId}.png`, {
-        titleAr: copy.titleAr,
+      await downloadInviteCardAsPng(`afrahi-${styleId}.png`, {
+        kickerAr: 'عقد قران',
+        hostLineAr: weddingHostInviteLine(host),
+        titleAr: weddingCoupleLine(host) || copy.titleAr,
         leadAr: invitation,
         dateAr: [host.eventDate, host.eventDateEn].filter(Boolean).join(' · '),
         timeAr: host.eventTime,
         placeAr: host.venueName,
         stampAr: 'خريطة الحل - halaqmap',
-        accent: style?.accent || (voice === 'women' ? '#e4b7c5' : '#e8c547'),
-        photoSrc: host.photoSrc || style?.image,
+        accent: style.accent || (voice === 'women' ? '#e4b7c5' : '#e8c547'),
+        photoSrc: style.image,
         voice,
       });
     } catch {
@@ -397,15 +400,6 @@ export function StoreWeddingHostPanel({
               <StoreWeddingInviteCard key={item.id} host={host} styleId={item.id} />
             ))}
           </div>
-          <div
-            ref={stillRef}
-            aria-hidden
-            className="pointer-events-none fixed left-0 top-0 z-[-1] w-[360px] opacity-0"
-          >
-            {styles.map((item) => (
-              <StoreWeddingInviteCard key={`still-${item.id}`} host={host} styleId={item.id} still />
-            ))}
-          </div>
           <div className="mt-3 grid w-full grid-cols-1 gap-2 sm:grid-cols-2">
             {styles.map((item, index) => (
               <button
@@ -427,6 +421,12 @@ export function StoreWeddingHostPanel({
             ))}
           </div>
           {downloadError ? <p className={cn('mt-2 text-sm', text)}>{downloadError}</p> : null}
+          <StoreGuestResentLinkPreview
+            productAr={copy.titleAr}
+            hostAr={voice === 'women' ? 'المضيفة' : 'المضيف'}
+            kickerAr={copy.resentPreviewKickerAr}
+            captionAr={copy.resentPreviewCaptionAr}
+          />
         </div>
       ) : null}
     </div>
