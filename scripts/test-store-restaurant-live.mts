@@ -44,6 +44,7 @@ const landing = readFileSync(join(root, 'src/pages/store/StoreLanding.tsx'), 'ut
 const webhook = readFileSync(join(root, 'supabase/functions/moyasar-webhook/index.ts'), 'utf8');
 const indexHtml = readFileSync(join(root, 'index.html'), 'utf8');
 const remote = readFileSync(join(root, 'src/lib/storeRestaurantLiveRemote.ts'), 'utf8');
+const restaurantApi = readFileSync(join(root, 'api/public-store-restaurant-live.ts'), 'utf8');
 const sql = readFileSync(join(root, 'supabase/migrations/175_store_restaurant_live.sql'), 'utf8');
 const copyBlob = [
   STORE_RESTAURANT_LIVE.leadAr,
@@ -129,8 +130,14 @@ assert.equal(
   }),
   false,
 );
-assert.equal(matchStoreAffiliateCommission('store_restaurant_live', 69900), null);
-assert.equal(matchStoreAffiliateCommission('store_restaurant_live', 99900), null);
+assert.deepEqual(matchStoreAffiliateCommission('store_restaurant_live', 69900), {
+  lineId: 'restaurant_6',
+  commissionHalalas: 9900,
+});
+assert.deepEqual(matchStoreAffiliateCommission('store_restaurant_live', 99900), {
+  lineId: 'restaurant_12',
+  commissionHalalas: 19900,
+});
 
 const parsed = parseRestaurantLiveOrderBody({
   email: 'kitchen@example.com',
@@ -158,7 +165,9 @@ assert.match(webhook, /skipped: "store_restaurant_live"/);
 assert.match(webhook, /store_restaurant_live_orders/);
 assert.match(webhook, /69900/);
 assert.match(webhook, /99900/);
-assert.doesNotMatch(webhook, /creditStoreAffiliateLedger\(supabase, "store_restaurant_live"/);
+assert.match(webhook, /creditStoreAffiliateLedger\(supabase, "store_restaurant_live"/);
+assert.match(restaurantApi, /creditStoreAffiliateLedger/);
+assert.match(restaurantApi, /storeAffiliateCodeFromMeta/);
 assert.match(indexHtml, /store_restaurant_live/);
 assert.match(indexHtml, /\/pay\/restaurant\//);
 assert.match(remote, /public-store-restaurant-live/);

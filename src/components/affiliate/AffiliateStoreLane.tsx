@@ -108,6 +108,7 @@ export function AffiliateStoreLane({ hideCatalog = false }: { hideCatalog?: bool
       { id: 'event' as const, href: marketer.links.event },
       { id: 'lounge' as const, href: marketer.links.lounge },
       { id: 'grocers' as const, href: marketer.links.grocers },
+      { id: 'restaurant' as const, href: marketer.links.restaurant },
     ];
     return (
       <div className="space-y-6">

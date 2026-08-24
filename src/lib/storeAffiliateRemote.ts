@@ -25,6 +25,7 @@ export type StoreAffiliateMarketer = {
     event: string;
     lounge: string;
     grocers: string;
+    restaurant: string;
   };
   ledger: StoreAffiliateLedgerRow[];
 };

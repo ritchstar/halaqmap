@@ -14,11 +14,13 @@ import {
   STORE_AFFILIATE_LINES,
   affiliateNetSar,
   grocersAffiliateCommissionSar,
+  restaurantAffiliateCommissionSar,
   parseAffiliateLane,
 } from '../src/config/storeAffiliateLive.ts';
 import { STORE_EVENT_LIVE_PRICE_SAR } from '../src/config/storeEventLive.ts';
 import { STORE_GROCERS_CHAT_ADDON_12_SAR, STORE_GROCERS_CHAT_ADDON_6_SAR, STORE_GROCERS_LIVE_PRICE_12_SAR, STORE_GROCERS_LIVE_PRICE_6_SAR } from '../src/config/storeGrocersLive.ts';
 import { STORE_LOUNGE_LIVE_PRICE_SAR } from '../src/config/storeLoungeLive.ts';
+import { STORE_RESTAURANT_LIVE_PRICE_12_SAR, STORE_RESTAURANT_LIVE_PRICE_6_SAR } from '../src/config/storeRestaurantLive.ts';
 import { STORE_WEDDING_LIVE_PRICE_SAR } from '../src/config/storeWeddingLive.ts';
 import { parseStoreAffiliateCode, withStoreAffiliateCode } from '../api/_lib/storeAffiliateCode.ts';
 import { matchStoreAffiliateCommission } from '../api/_lib/storeAffiliateLive.ts';
@@ -26,6 +28,7 @@ import { weddingLiveInvoiceMetadata } from '../api/_lib/storeWeddingLive.ts';
 import { eventLiveInvoiceMetadata } from '../api/_lib/storeEventLive.ts';
 import { loungeLiveInvoiceMetadata } from '../api/_lib/storeLoungeLive.ts';
 import { grocersLiveInvoiceMetadata } from '../api/_lib/storeGrocersLive.ts';
+import { restaurantLiveInvoiceMetadata } from '../api/_lib/storeRestaurantLive.ts';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const app = readFileSync(join(root, 'src/App.tsx'), 'utf8');
@@ -61,6 +64,10 @@ assert.equal(byId.grocers_chat_6.priceSar, STORE_GROCERS_CHAT_ADDON_6_SAR);
 assert.equal(byId.grocers_chat_6.commissionSar, 98);
 assert.equal(byId.grocers_chat_12.priceSar, STORE_GROCERS_CHAT_ADDON_12_SAR);
 assert.equal(byId.grocers_chat_12.commissionSar, 199);
+assert.equal(byId.restaurant_6.priceSar, STORE_RESTAURANT_LIVE_PRICE_6_SAR);
+assert.equal(byId.restaurant_6.commissionSar, 99);
+assert.equal(byId.restaurant_12.priceSar, STORE_RESTAURANT_LIVE_PRICE_12_SAR);
+assert.equal(byId.restaurant_12.commissionSar, 199);
 
 assert.equal(affiliateNetSar(899, 99), 800);
 assert.equal(affiliateNetSar(600, 100), 500);
@@ -72,6 +79,10 @@ assert.equal(grocersAffiliateCommissionSar('m6', false), 99);
 assert.equal(grocersAffiliateCommissionSar('m6', true), 197);
 assert.equal(grocersAffiliateCommissionSar('m12', false), 199);
 assert.equal(grocersAffiliateCommissionSar('m12', true), 398);
+assert.equal(affiliateNetSar(699, 99), 600);
+assert.equal(affiliateNetSar(999, 199), 800);
+assert.equal(restaurantAffiliateCommissionSar('m6'), 99);
+assert.equal(restaurantAffiliateCommissionSar('m12'), 199);
 
 assert.doesNotMatch(linesBlob, /store_occasion_card/);
 assert.ok(STORE_AFFILIATE_LINES.every((line) => ![12, 29, 59].includes(line.priceSar)));
@@ -90,6 +101,8 @@ assert.deepEqual(matchStoreAffiliateCommission('store_grocers_live', 59900), { l
 assert.deepEqual(matchStoreAffiliateCommission('store_grocers_live', 89900), { lineId: 'grocers_12', commissionHalalas: 19900 });
 assert.deepEqual(matchStoreAffiliateCommission('store_grocers_live', 89800), { lineId: 'grocers_chat_6', commissionHalalas: 19700 });
 assert.deepEqual(matchStoreAffiliateCommission('store_grocers_live', 139800), { lineId: 'grocers_chat_12', commissionHalalas: 39800 });
+assert.deepEqual(matchStoreAffiliateCommission('store_restaurant_live', 69900), { lineId: 'restaurant_6', commissionHalalas: 9900 });
+assert.deepEqual(matchStoreAffiliateCommission('store_restaurant_live', 99900), { lineId: 'restaurant_12', commissionHalalas: 19900 });
 assert.equal(matchStoreAffiliateCommission('store_occasion_card', 5900), null);
 assert.equal(matchStoreAffiliateCommission('store_occasion_card', 1200), null);
 assert.equal(matchStoreAffiliateCommission('store_wedding_live', 5900), null);
@@ -99,6 +112,7 @@ assert.equal(weddingLiveInvoiceMetadata('tok_w', 'abcdef12').store_affiliate_cod
 assert.equal(eventLiveInvoiceMetadata('tok_e', 'abcdef12').store_affiliate_code, 'abcdef12');
 assert.equal(loungeLiveInvoiceMetadata('tok_l', 'purchase', 'abcdef12').store_affiliate_code, 'abcdef12');
 assert.equal(grocersLiveInvoiceMetadata('tok_g', 'm6', 'purchase', true, 'abcdef12').store_affiliate_code, 'abcdef12');
+assert.equal(restaurantLiveInvoiceMetadata('tok_r', 'm6', 'purchase', 'abcdef12').store_affiliate_code, 'abcdef12');
 assert.equal('store_affiliate_code' in weddingLiveInvoiceMetadata('tok_w'), false);
 
 const webhook = readFileSync(join(root, 'supabase/functions/moyasar-webhook/index.ts'), 'utf8');
@@ -113,6 +127,7 @@ const weddingForm = readFileSync(join(root, 'src/components/store/StoreWeddingOr
 const eventForm = readFileSync(join(root, 'src/components/store/StoreEventOrderForm.tsx'), 'utf8');
 const loungeForm = readFileSync(join(root, 'src/components/store/StoreLoungeOrderForm.tsx'), 'utf8');
 const grocersForm = readFileSync(join(root, 'src/components/store/StoreGrocersOrderForm.tsx'), 'utf8');
+const restaurantForm = readFileSync(join(root, 'src/components/store/StoreRestaurantOrderForm.tsx'), 'utf8');
 const chrome = readFileSync(join(root, 'src/components/store/StoreChrome.tsx'), 'utf8');
 
 assert.match(webhook, /store_affiliate_ledger/);
@@ -149,6 +164,11 @@ assert.match(weddingForm, /affiliateCode: rememberStoreAffiliateRef/);
 assert.match(eventForm, /affiliateCode: rememberStoreAffiliateRef/);
 assert.match(loungeForm, /affiliateCode/);
 assert.match(grocersForm, /affiliateCode/);
+assert.match(restaurantForm, /affiliateCode/);
+assert.match(lane, /restaurant/);
+assert.match(api, /store\/restaurant\?ref=/);
+assert.doesNotMatch(STORE_AFFILIATE_COPY.storeLeadAr, /مطعمنا1 حتى/);
+assert.match(STORE_AFFILIATE_COPY.storeOngoingAr, /مطعمنا1/);
 assert.match(chrome, /rememberStoreAffiliateRef/);
 assert.match(readFileSync(join(root, 'src/lib/storeAffiliateRef.ts'), 'utf8'), /localStorage/);
 

@@ -37,6 +37,8 @@ import {
   type RestaurantLiveOrderPayload,
 } from './_lib/storeRestaurantLive.js';
 import { sendRestaurantLiveLinksEmail } from './_lib/storeRestaurantLiveMail.js';
+import { storeAffiliateCodeFromMeta } from './_lib/storeAffiliateCode.js';
+import { creditStoreAffiliateLedger } from './_lib/storeAffiliateLedger.js';
 
 export const config = { maxDuration: 20 };
 
@@ -476,6 +478,14 @@ async function fulfillFromPaymentId(db: Db, token: string, paymentId: string, he
     }
   }
   const ok = await markLive(db, String(row.id), paymentId, Number(parsed.amount));
+  if (ok) {
+    await creditStoreAffiliateLedger(db, {
+      productTag: STORE_RESTAURANT_LIVE_PRODUCT,
+      amountHalalas: Number(parsed.amount),
+      paymentId,
+      affiliateCode: storeAffiliateCodeFromMeta(parsed.metadata),
+    });
+  }
   if (!ok) return json({ error: 'تعذر تفعيل التشغيل' }, 409, headers);
   return json({ ok: true, token, shopUrl: shopUrl(token) }, 200, headers);
 }
@@ -517,6 +527,14 @@ async function syncPaid(db: Db, body: Record<string, unknown>, headers: Record<s
     const paid = (parsed.payments || []).find((item) => moyasarPaymentIsPaid(String(item.status || '')));
     const paymentId = String(paid?.id || `invoice:${invoiceId}`);
     const ok = await markLive(db, String(row.id), paymentId, Number(parsed.amount));
+    if (ok) {
+      await creditStoreAffiliateLedger(db, {
+        productTag: STORE_RESTAURANT_LIVE_PRODUCT,
+        amountHalalas: Number(parsed.amount),
+        paymentId,
+        affiliateCode: storeAffiliateCodeFromMeta(parsed.metadata),
+      });
+    }
     if (!ok) return json({ error: 'تعذر تفعيل التشغيل' }, 409, headers);
     return json({ ok: true, token, shopUrl: shopUrl(token) }, 200, headers);
   } catch {

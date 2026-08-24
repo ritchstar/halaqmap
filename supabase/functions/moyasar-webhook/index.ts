@@ -258,6 +258,10 @@ function matchStoreAffiliateCommission(
     if (amount === 89800) return { lineId: "grocers_chat_6", commissionHalalas: 19700 };
     if (amount === 139800) return { lineId: "grocers_chat_12", commissionHalalas: 39800 };
   }
+  if (tag === "store_restaurant_live") {
+    if (amount === 69900) return { lineId: "restaurant_6", commissionHalalas: 9900 };
+    if (amount === 99900) return { lineId: "restaurant_12", commissionHalalas: 19900 };
+  }
   return null;
 }
 
@@ -1012,6 +1016,9 @@ Deno.serve(async (req) => {
         .in("status", ["pending_payment", "pending_renewal", "expired"]);
       activated = !restaurantErr;
     }
+    const credited = successStatus && days
+      ? await creditStoreAffiliateLedger(supabase, "store_restaurant_live", amount, paymentId, meta)
+      : false;
     return jsonResponse(
       {
         ok: true,
@@ -1019,7 +1026,7 @@ Deno.serve(async (req) => {
         eventId: eventId || null,
         skipped: "store_restaurant_live",
         activated,
-        credited: false,
+        credited,
       },
       200,
     );

@@ -114,6 +114,7 @@ async function publicMarketer(db: Db, marketerId: string) {
       event: `https://www.halaqmap.com/#/store/event?ref=${marketer.code}`,
       lounge: `https://www.halaqmap.com/#/store/lounge?ref=${marketer.code}`,
       grocers: `https://www.halaqmap.com/#/store/grocers?ref=${marketer.code}`,
+      restaurant: `https://www.halaqmap.com/#/store/restaurant?ref=${marketer.code}`,
     },
     ledger: ledger.map((row) => ({
       id: row.id,

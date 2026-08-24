@@ -43,7 +43,7 @@ export const STORE_AFFILIATE_COPY = {
   storeLeadAr:
     'عمولة ثابتة تُقتطع من حصة المنصة بعد كل عملية دفع ناجحة تصل من رابط المسوّق أو المسوّقة. كل عملية شراء جديدة تُقيَّد بعمولة المنتج المشترى، ولا يتوقف المسار بعد أول بيع. الزبون يدفع السعر كاملاً. لا كاردي8، ولا علاقة بطلب جار الحي نقداً أو شبكة عند الباب.',
   storeOngoingAr:
-    'كل فاتورة جديدة من رابطك لها عمولة ذلك المنتج. إعادة شراء لاونجا1 أو تمويناتا1 من الرابط تُحسب أيضاً.',
+    'كل فاتورة جديدة من رابطك لها عمولة ذلك المنتج. إعادة شراء لاونجا1 أو تمويناتا1 أو مطعمنا1 من الرابط تُحسب أيضاً.',
   isolationAr:
     'لا تخلط هذا المسار بطلب استهداف حلاق أو شقق مخدومة. تلك أدوات سفراء حلاق ماب ومسوّقات كوافير ماب فقط.',
   reviewLeadAr:
@@ -71,12 +71,15 @@ export const STORE_AFFILIATE_COPY = {
     grocers_12: 'تمويناتا1 اثنا عشر شهراً',
     grocers_chat_6: 'تمويناتا1 ستة أشهر مع صندوق المحادثة',
     grocers_chat_12: 'تمويناتا1 اثنا عشر شهراً مع صندوق المحادثة',
+    restaurant_6: 'مطعمنا1 ستة أشهر',
+    restaurant_12: 'مطعمنا1 اثنا عشر شهراً',
   },
   deskLinkAr: {
     wedding: 'افراحي1',
     event: 'اجواء1',
     lounge: 'لاونجا1',
     grocers: 'تمويناتا1',
+    restaurant: 'مطعمنا1',
   },
   netLabelAr: 'صافي المنصة',
   commissionLabelAr: 'عمولة المسوّق أو المسوّقة',
@@ -90,11 +93,13 @@ export type StoreAffiliateLineId =
   | 'grocers_6'
   | 'grocers_12'
   | 'grocers_chat_6'
-  | 'grocers_chat_12';
+  | 'grocers_chat_12'
+  | 'restaurant_6'
+  | 'restaurant_12';
 
 export type StoreAffiliateLine = {
   id: StoreAffiliateLineId;
-  productTag: 'store_wedding_live' | 'store_event_live' | 'store_lounge_live' | 'store_grocers_live';
+  productTag: 'store_wedding_live' | 'store_event_live' | 'store_lounge_live' | 'store_grocers_live' | 'store_restaurant_live';
   titleAr: string;
   packAr: string;
   priceSar: number;
@@ -158,6 +163,22 @@ export const STORE_AFFILIATE_LINES: readonly StoreAffiliateLine[] = [
     priceSar: 499,
     commissionSar: 199,
   },
+  {
+    id: 'restaurant_6',
+    productTag: 'store_restaurant_live',
+    titleAr: 'مطعمنا1',
+    packAr: 'ستة أشهر، صندوق المحادثة مدرج',
+    priceSar: 699,
+    commissionSar: 99,
+  },
+  {
+    id: 'restaurant_12',
+    productTag: 'store_restaurant_live',
+    titleAr: 'مطعمنا1',
+    packAr: 'اثنا عشر شهراً، صندوق المحادثة مدرج',
+    priceSar: 999,
+    commissionSar: 199,
+  },
 ] as const;
 
 export function affiliateNetSar(priceSar: number, commissionSar: number): number {
@@ -170,13 +191,17 @@ export function grocersAffiliateCommissionSar(packId: 'm6' | 'm12', chatAddon: b
   return pack + chat;
 }
 
+export function restaurantAffiliateCommissionSar(packId: 'm6' | 'm12'): number {
+  return packId === 'm12' ? 199 : 99;
+}
+
 export function parseAffiliateLane(raw: string | null | undefined): StoreAffiliateLane {
   const value = String(raw || '').trim().toLowerCase();
   if (value === 'coiffeur' || value === 'store') return value;
   return 'halaq';
 }
 
-export const STORE_AFFILIATE_RULES_VERSION = '2026-08-23';
+export const STORE_AFFILIATE_RULES_VERSION = '2026-08-24';
 
 export const STORE_AFFILIATE_RULES_SECTIONS = [
   {
@@ -195,7 +220,7 @@ export const STORE_AFFILIATE_RULES_SECTIONS = [
     id: 'forbidden',
     titleAr: 'المحظور',
     bodyAr:
-      'ممنوع استهداف صالون أو شقق مخدومة من هذه البوابة. ممنوع كاردي8 ومطعمنا1 حتى يُعتمدا. ممنوع خلط رخصة النفاذ أو محفظة الحلاق أو سلة جار الحي.',
+      'ممنوع استهداف صالون أو شقق مخدومة من هذه البوابة. ممنوع كاردي8. ممنوع خلط رخصة النفاذ أو محفظة الحلاق أو سلة جار الحي أو تحصيل طلب ضيف الحي عبر بوابة الدفع.',
   },
   {
     id: 'pay',
