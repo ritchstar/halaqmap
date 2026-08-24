@@ -241,6 +241,8 @@ export const ROUTE_PATHS = {
   ADMIN_COIFFEUR_HUB: '/coiffeur-hub',
   /** مكتب طلبات متجر halaqmap — اجتماع وكلاء ومسودة الرد */
   ADMIN_STORE_DESK: '/store-desk',
+  /** مركز قيد مبيعات المتجر الإلكتروني */
+  ADMIN_STORE_SALES: '/store-sales',
   /** مركز موافقات إبراز فزعة على الصفحات العامة */
   ADMIN_FAZAA_LISTING: '/fazaa-listing',
   /** شرح مفصّل للمناوب الرقمي الذكي */

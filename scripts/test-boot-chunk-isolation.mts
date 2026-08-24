@@ -74,6 +74,31 @@ assert.match(
 );
 assert.match(
   app,
+  /@\/app\/admin\/store-sales\/page/,
+  'App must lazy-load the store sales hub',
+);
+assert.match(
+  app,
+  /@\/app\/admin\/store-sales\/\[product\]\/page/,
+  'App must lazy-load the store sales ledger',
+);
+assert.match(
+  app,
+  /\$\{adminBase\}\/store-sales/,
+  'App must mount store sales under the admin portal',
+);
+assert.doesNotMatch(
+  app,
+  /from ['"]@\/config\/storeSalesLedger['"]/,
+  'App must not statically import store sales ledger copy',
+);
+assert.doesNotMatch(
+  app,
+  /from ['"]@\/config\/storeWeddingLive['"]/,
+  'App must not statically import wedding live catalog',
+);
+assert.match(
+  app,
   /@\/pages\/coiffeur\/CoiffeurMarketingPage/,
   'App must lazy-load the coiffeur marketing page',
 );

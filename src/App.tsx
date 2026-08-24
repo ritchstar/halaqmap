@@ -153,6 +153,8 @@ const AdminCyberOperationsPage = lazy(() => import("@/app/admin/cyber/page"));
 const StaffHubPage = lazy(() => import("@/app/admin/staff-hub/page"));
 const CoiffeurHubPage = lazy(() => import("@/app/admin/coiffeur-hub/page"));
 const StoreDeskPage = lazy(() => import("@/app/admin/store-desk/page"));
+const StoreSalesHubPage = lazy(() => import("@/app/admin/store-sales/page"));
+const StoreSalesLedgerPage = lazy(() => import("@/app/admin/store-sales/[product]/page"));
 const FazaaListingAdminPage = lazy(() => import("@/app/admin/fazaa-listing/page"));
 const FazaaListingConsentLanding = lazy(() => import("@/pages/FazaaListingConsentLanding"));
 const AdminDashboard = lazyPage(() => import("@/pages/AdminDashboard"), "AdminDashboard");
@@ -378,6 +380,19 @@ const LegacyPartnerRedirect = ({ to }: { to: string }) => {
  */
 const LegacyAdminRedirect = ({ suffix }: { suffix: string }) => {
   const location = useLocation();
+  return (
+    <Navigate
+      to={`${getAdminPortalBasePath()}${suffix}${location.search || ''}`}
+      replace
+    />
+  );
+};
+
+const LegacyAdminStoreSalesLedgerRedirect = () => {
+  const { product = '' } = useParams<{ product: string }>();
+  const location = useLocation();
+  const safe = /^[a-z0-9-]+$/.test(product) ? product : '';
+  const suffix = safe ? `/store-sales/${safe}` : '/store-sales';
   return (
     <Navigate
       to={`${getAdminPortalBasePath()}${suffix}${location.search || ''}`}
@@ -880,6 +895,8 @@ export function App() {
               <Route path={`${adminBase}/staff-hub`} element={<LazyRoute><StaffHubPage /></LazyRoute>} />
               <Route path={`${adminBase}/coiffeur-hub`} element={<LazyRoute><CoiffeurHubPage /></LazyRoute>} />
               <Route path={`${adminBase}/store-desk`} element={<LazyRoute><StoreDeskPage /></LazyRoute>} />
+              <Route path={`${adminBase}/store-sales`} element={<LazyRoute><StoreSalesHubPage /></LazyRoute>} />
+              <Route path={`${adminBase}/store-sales/:product`} element={<LazyRoute><StoreSalesLedgerPage /></LazyRoute>} />
               <Route path={`${adminBase}/fazaa-listing`} element={<LazyRoute><FazaaListingAdminPage /></LazyRoute>} />
             </Fragment>
           ))}
@@ -892,6 +909,8 @@ export function App() {
           <Route path="/admin/staff-hub" element={<LegacyAdminRedirect suffix="/staff-hub" />} />
           <Route path="/admin/coiffeur-hub" element={<LegacyAdminRedirect suffix="/coiffeur-hub" />} />
           <Route path="/admin/store-desk" element={<LegacyAdminRedirect suffix="/store-desk" />} />
+          <Route path="/admin/store-sales" element={<LegacyAdminRedirect suffix="/store-sales" />} />
+          <Route path="/admin/store-sales/:product" element={<LegacyAdminStoreSalesLedgerRedirect />} />
           <Route path="/admin/fazaa-listing" element={<LegacyAdminRedirect suffix="/fazaa-listing" />} />
           <Route path="/admin" element={<LegacyAdminRedirect suffix="/in" />} />
           <Route path={ROUTE_PATHS.RATE_BARBER} element={<LazyRoute><RateBarber /></LazyRoute>} />
