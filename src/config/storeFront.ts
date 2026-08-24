@@ -133,7 +133,7 @@ export const STORE_LANDING_COPY = {
   eventLiveCtaAr: 'افتح اجواء1',
   loungeLiveTitleAr: 'لاونجا1',
   loungeLiveLeadAr:
-    'حزمة فعاليات على شاشة اللاونج، ولوحة تحكم، ورابط ترحيب للزبائن. 600 ر.س لثلاثة أشهر شراء مرة واحدة، بلا تحصيل من الزائر.',
+    'ابتكار رقمي يمنح لاونجك طابعاً فاخراً وتفاعلياً. الباقة التشغيلية 600 ر.س لثلاثة أشهر، شراء مرة واحدة، بلا تحصيل من الزائر.',
   loungeLiveCtaAr: 'افتح لاونجا1',
   grocersLiveTitleAr: 'تمويناتا1',
   grocersLiveLeadAr:

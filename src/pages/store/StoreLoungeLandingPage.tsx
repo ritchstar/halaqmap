@@ -27,14 +27,6 @@ import { readHashQueryParam } from '@/lib/hashQueryParams';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { cn } from '@/lib/utils';
 
-const FEATURES = [
-  'حزمة فعاليات جاهزة للشاشة: ترحيب، عيد ميلاد، إهداء ترحيب، افتتاحية الليلة، وما يضيفه اللاونج.',
-  'لوحة تحكم لإدارة ما يظهر على الشاشات.',
-  'رابط يوزّعه اللاونج على زبائنه لترحيبات باسمهم تظهر على الشاشة.',
-  'شراء مرة واحدة لثلاثة أشهر. عند الانتهاء يبقى الرابط ويحوّلكم لإعادة الشراء على نفس الصفحة.',
-  'لا تحصيل من الزائر غير سعر المنتج.',
-] as const;
-
 export default function StoreLoungeLandingPage() {
   const [termsOpen, setTermsOpen] = useState(false);
   const renewToken = useMemo(() => readHashQueryParam('renew') || '', []);
@@ -62,9 +54,13 @@ export default function StoreLoungeLandingPage() {
                 {STORE_LOUNGE_LIVE.expiredLeadAr}
               </p>
             ) : null}
-            <ul className="mt-6 space-y-2 text-sm leading-7 text-white/75">
-              {FEATURES.map((item) => (
-                <li key={item}>{item}</li>
+            <ul className="mt-6 space-y-3 text-sm leading-7 text-white/75">
+              {STORE_LOUNGE_LIVE.featurePoints.map((item) => (
+                <li key={item.titleAr}>
+                  <span className="font-extrabold text-[#d4a574]">{item.titleAr}</span>
+                  {' '}
+                  {item.bodyAr}
+                </li>
               ))}
             </ul>
             <div className="mt-5 flex flex-wrap gap-2">

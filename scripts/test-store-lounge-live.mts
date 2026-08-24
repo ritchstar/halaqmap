@@ -53,7 +53,7 @@ assert.notEqual(STORE_LOUNGE_LIVE_PRICE_SAR, 12);
 assert.notEqual(STORE_LOUNGE_LIVE_PRICE_SAR, 29);
 assert.notEqual(STORE_LOUNGE_LIVE_PRICE_SAR, 59);
 
-assert.match(STORE_LOUNGE_LIVE.leadAr, /600/);
+assert.match(STORE_LOUNGE_LIVE.priceLineAr, /600/);
 assert.match(STORE_LOUNGE_LIVE.priceLineAr, /ثلاثة أشهر/);
 assert.match(STORE_LOUNGE_LIVE.durationLineAr, /إعادة الشراء/);
 assert.doesNotMatch(STORE_LOUNGE_LIVE.leadAr, /12 و29 و59/);
