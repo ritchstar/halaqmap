@@ -59,19 +59,24 @@ export default function StoreLanding() {
         <div className="mx-auto grid max-w-5xl items-center gap-8 lg:grid-cols-[1.05fr_0.95fr]">
           <div>
             <p className="text-sm font-bold tracking-wide text-[#e8c547]">{STORE_LANDING_COPY.kicker}</p>
-            <h1 className="mt-2 text-4xl font-extrabold leading-tight text-[#f4efe4] md:text-5xl">
-              {STORE_LANDING_COPY.latinMark}
+            <h1 className="mt-2 text-3xl font-extrabold leading-tight text-[#f4efe4] md:text-4xl">
+              {STORE_LANDING_COPY.heroHeadlineAr}
             </h1>
-            <p className="mt-2 text-2xl font-extrabold text-[#e8c547] md:text-3xl">
-              {STORE_LANDING_COPY.publicName}
-            </p>
             <p className="mt-4 max-w-3xl text-base leading-relaxed text-white/78 md:text-lg">
               {STORE_LANDING_COPY.heroLead}
             </p>
-            <p className="mt-3 max-w-3xl text-base leading-relaxed text-white/78 md:text-lg">
-              {STORE_LANDING_COPY.heroReadyExample}
+            <p className="mt-5 text-base font-extrabold text-[#e8c547] md:text-lg">
+              {STORE_LANDING_COPY.heroSolutionsTitleAr}
             </p>
-            <p className="mt-4 max-w-3xl text-base leading-relaxed text-white/78 md:text-lg">
+            <ul className="mt-2 max-w-3xl space-y-2 text-base leading-relaxed text-white/78 md:text-lg">
+              {STORE_LANDING_COPY.heroSolutions.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+            <p className="mt-5 text-base font-extrabold text-[#e8c547] md:text-lg">
+              {STORE_LANDING_COPY.heroInviteKickerAr}
+            </p>
+            <p className="mt-2 max-w-3xl text-base leading-relaxed text-white/78 md:text-lg">
               {STORE_LANDING_COPY.heroInviteBefore}
               <Link
                 to={ROUTE_PATHS.STORE_REQUEST}
@@ -393,6 +398,7 @@ export default function StoreLanding() {
               <h2 className="mt-2 text-xl font-extrabold text-[#f4efe4] md:text-2xl">
                 {STORE_LANDING_COPY.trustStripTitleAr}
               </h2>
+              <p className="mt-2 text-sm font-bold leading-7 text-[#e8c547]">{STORE_LANDING_COPY.trustStripLeadAr}</p>
               <p className="mt-3 inline-flex items-center gap-2 rounded-full border border-emerald-400/35 bg-emerald-500/15 px-3 py-1 text-sm font-black text-emerald-100">
                 <span dir="ltr">{PLATFORM_TLS_SSL_LABS_GRADE}</span>
                 <span className="font-bold text-emerald-50/80">Qualys SSL Labs</span>

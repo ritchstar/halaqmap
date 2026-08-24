@@ -44,8 +44,13 @@ export default function StoreAboutPage() {
                 <span className="mx-2 text-white/35">·</span>
                 {STORE_PUBLIC_NAME_AR}
               </p>
+              <p className="mt-3 max-w-3xl text-lg font-bold leading-8 text-[#f4efe4]">
+                {STORE_ABOUT_COPY.introTaglineAr}
+              </p>
               <p className="mt-4 max-w-3xl text-base leading-relaxed text-white/78 md:text-lg">
-                {STORE_ABOUT_COPY.intro}
+                {STORE_ABOUT_COPY.introBeforeMark}
+                <code dir="ltr">{STORE_BRAND_LATIN}</code>
+                {STORE_ABOUT_COPY.introAfterMark}
               </p>
             </div>
             <figure className="overflow-hidden rounded-2xl border border-[#e8c547]/30 shadow-[0_24px_60px_-28px_rgba(232,197,71,0.45)]">
@@ -63,13 +68,15 @@ export default function StoreAboutPage() {
             <p className="mt-3 text-sm leading-7 text-white/75 md:text-base md:leading-8">
               {STORE_ABOUT_COPY.natureBody}
             </p>
-            <ul className="mt-4 grid gap-2 sm:grid-cols-2">
+            <p className="mt-5 text-base font-extrabold text-[#e8c547]">{STORE_ABOUT_COPY.natureServicesTitleAr}</p>
+            <ul className="mt-3 grid gap-2 sm:grid-cols-2">
               {STORE_ABOUT_COPY.naturePoints.map((point) => (
                 <li
-                  key={point}
+                  key={point.titleAr}
                   className="rounded-xl border border-white/10 bg-[#061018]/70 px-4 py-3 text-sm leading-7 text-white/80 md:text-base"
                 >
-                  {point}
+                  <p className="font-extrabold text-[#e8c547]">{point.titleAr}</p>
+                  <p className="mt-1">{point.bodyAr}</p>
                 </li>
               ))}
             </ul>
@@ -83,6 +90,7 @@ export default function StoreAboutPage() {
 
           <section className="mt-8 rounded-2xl border border-[#e8c547]/25 bg-[#0b1a24]/70 p-5 md:p-6">
             <h2 className="text-2xl font-extrabold text-[#f4efe4]">{STORE_ABOUT_COPY.trustTeaserTitleAr}</h2>
+            <p className="mt-2 text-base font-bold leading-8 text-[#e8c547]">{STORE_ABOUT_COPY.trustTeaserLeadAr}</p>
             <p className="mt-3 max-w-3xl text-sm leading-7 text-white/75 md:text-base">
               {STORE_ABOUT_COPY.trustTeaserBodyAr}
             </p>
@@ -95,14 +103,23 @@ export default function StoreAboutPage() {
           </section>
 
           <section className="mt-8">
-            <p className="max-w-3xl text-sm leading-7 text-[#f4efe4] md:text-base">
-              {STORE_ABOUT_COPY.activitiesLicenseNoticeAr}
-              {' نحن في '}
+            <h2 className="text-2xl font-extrabold text-[#f4efe4]">{STORE_ABOUT_COPY.licenseTitleAr}</h2>
+            <p className="mt-3 max-w-3xl text-sm leading-7 text-[#f4efe4] md:text-base">
+              نعمل في{' '}
               <code dir="ltr" className="inline-block rounded bg-white/10 px-1.5 py-0.5 text-[0.85em] font-bold text-[#e8c547]">
                 {STORE_BRAND_LATIN}
               </code>
+              {STORE_ABOUT_COPY.licenseAfterMarkAr}
+            </p>
+            <p className="mt-4 max-w-3xl text-sm leading-7 text-white/75 md:text-base">
+              <span className="font-extrabold text-[#e8c547]">{STORE_ABOUT_COPY.licenseFraudTitleAr}</span>
               {' '}
-              {STORE_ABOUT_COPY.activitiesLicenseNoticeCloseAr}
+              {STORE_ABOUT_COPY.licenseFraudBodyAr}
+            </p>
+            <p className="mt-3 max-w-3xl text-sm leading-7 text-white/75 md:text-base">
+              <span className="font-extrabold text-[#e8c547]">{STORE_ABOUT_COPY.licenseGovernanceTitleAr}</span>
+              {' '}
+              {STORE_ABOUT_COPY.licenseGovernanceBodyAr}
             </p>
             <h2 className="mt-6 text-2xl font-extrabold text-[#f4efe4]">{STORE_ABOUT_COPY.activitiesTitle}</h2>
             <p className="mt-3 max-w-3xl text-sm leading-7 text-white/75 md:text-base">

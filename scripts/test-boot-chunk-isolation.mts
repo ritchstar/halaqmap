@@ -133,7 +133,8 @@ assert.match(
 );
 
 const storeFront = readFileSync(join(root, 'src/config/storeFront.ts'), 'utf8');
-assert.match(storeFront, /متنوع الإنتاج/);
+assert.match(storeFront, /متجر إلكتروني موثّق متخصص/);
+assert.match(storeFront, /دون عمولة على الخدمات الحِرَفية/);
 assert.match(storeFront, /منتجات ضمن أعمال المتجر/);
 assert.match(storeFront, /حلول تشغيل للمنشآت/);
 assert.match(storeFront, /طلب خاص يُدرس/);
