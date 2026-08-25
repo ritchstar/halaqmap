@@ -103,6 +103,31 @@ for (const rel of ['summi/index.html', 'summi/near-me/index.html', 'summi/beauty
   }
 }
 
+for (const spec of [
+  { rel: 'terms/index.html', canonical: 'https://www.halaqmap.com/terms', heading: 'شروط الاستخدام' },
+  { rel: 'about/index.html', canonical: 'https://www.halaqmap.com/about', heading: 'من نحن' },
+  { rel: 'privacy-policy/index.html', canonical: 'https://www.halaqmap.com/privacy-policy', heading: 'سياسة خصوصية المستخدم' },
+]) {
+  const path = join(dist, spec.rel);
+  if (!existsSync(path)) {
+    errors.push(`missing ${spec.rel}`);
+    continue;
+  }
+  const body = readFileSync(path, 'utf8');
+  if (!body.includes(`<link rel="canonical" href="${spec.canonical}"`)) {
+    errors.push(`${spec.rel} missing unique canonical`);
+  }
+  if (body.includes('canonical" href="https://www.halaqmap.com/"')) {
+    errors.push(`${spec.rel} must not canonize the homepage`);
+  }
+  if (body.includes('<title>اقرب حلاق')) {
+    errors.push(`${spec.rel} must not reuse homepage title`);
+  }
+  if (!body.includes(`<h1>${spec.heading}</h1>`)) {
+    errors.push(`${spec.rel} missing heading`);
+  }
+}
+
 const storeShare = join(dist, 'store-index.html');
 if (!existsSync(storeShare)) {
   errors.push('missing store-index.html');

@@ -196,19 +196,7 @@
       "destination": "/index.html"
     },
     {
-      "source": "/about",
-      "destination": "/index.html"
-    },
-    {
       "source": "/privacy/:path*",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/privacy-policy",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/terms",
       "destination": "/index.html"
     },
     {
@@ -299,6 +287,33 @@
     },
     {
       "source": "/need",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600, stale-while-revalidate=86400"
+        }
+      ]
+    },
+    {
+      "source": "/terms",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600, stale-while-revalidate=86400"
+        }
+      ]
+    },
+    {
+      "source": "/about",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600, stale-while-revalidate=86400"
+        }
+      ]
+    },
+    {
+      "source": "/privacy-policy",
       "headers": [
         {
           "key": "Cache-Control",

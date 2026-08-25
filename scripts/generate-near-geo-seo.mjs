@@ -90,12 +90,18 @@ function placeType(kind) {
 
 function sitemapPriority(node, isHub = false) {
   if (isHub) return '0.9';
-  if (node.kind === 'city' && (node.slug === 'makkah' || node.slug === 'madinah')) return '0.95';
-  if (node.kind === 'city') return '0.85';
-  if (node.kind === 'neighborhood' && node.slug === 'hittin') return '0.9';
-  if (node.kind === 'neighborhood') return '0.75';
-  if (node.kind === 'direction') return '0.65';
-  return '0.7';
+  if (node.kind === 'city' && (node.slug === 'makkah' || node.slug === 'madinah')) return '0.98';
+  if (node.kind === 'city' && (node.slug === 'riyadh' || node.slug === 'jeddah')) return '0.96';
+  if (node.kind === 'city') return '0.92';
+  if (node.kind === 'neighborhood' && node.slug === 'hittin') return '0.55';
+  if (node.kind === 'neighborhood') return '0.4';
+  if (node.kind === 'direction') return '0.35';
+  return '0.5';
+}
+
+function sitemapChangefreq(node) {
+  if (!node || node.kind === 'city') return 'weekly';
+  return 'monthly';
 }
 
 /** أحياء واجهة فخامة — عنوان يطابق نية «أقرب حلاق من موقعي» */
@@ -579,7 +585,7 @@ function main() {
   const hubHtml = renderPage({ node: null, nodes, isHub: true });
   writeFileDeep(join(DIST, 'near', 'index.html'), hubHtml);
 
-  const urlEntries = [{ loc: `${ORIGIN}/near`, priority: '0.9', images: [] }];
+  const urlEntries = [{ loc: `${ORIGIN}/near`, priority: '0.9', changefreq: 'weekly', images: [] }];
   for (const node of nodes) {
     const path = nodePath(node);
     const html = renderPage({ node, nodes, isHub: false });
@@ -590,6 +596,7 @@ function main() {
     urlEntries.push({
       loc: absoluteUrl(path),
       priority: sitemapPriority(node),
+      changefreq: sitemapChangefreq(node),
       images: citySlug ? featuredPartnerSitemapImages(citySlug, neighSlug) : [],
     });
   }
@@ -610,7 +617,7 @@ ${urlEntries
     return `  <url>
     <loc>${u.loc}</loc>
     <lastmod>${lastmod}</lastmod>
-    <changefreq>weekly</changefreq>
+    <changefreq>${u.changefreq || 'weekly'}</changefreq>
     <priority>${u.priority}</priority>${imageXml ? `\n${imageXml}` : ''}
   </url>`;
   })

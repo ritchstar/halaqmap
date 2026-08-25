@@ -507,8 +507,9 @@
           if (path.indexOf('/api/') === 0) return;
           if (path.indexOf('/oc/') === 0 || path === '/oc') return;
           if (path.indexOf('/c/') === 0 || path === '/c') return;
-          /* صفحات SEO جغرافية ثابتة — لا تُحوَّل إلى HashRouter */
+          /* صفحات SEO جغرافية وثابتة — لا تُحوَّل إلى HashRouter */
           if (path === '/near' || path.indexOf('/near/') === 0) return;
+          if (path === '/terms' || path === '/about' || path === '/privacy-policy') return;
           if (/\.[a-zA-Z0-9]{1,12}$/.test(path)) return;
           /* أبقِ ?query على أصل العنوان حتى يقرأ بكسل تيك توك/جوجل ttclid وtt_test_id.
              السابق كان /#/path?query فيُفرَّغ location.search ويضيع اختبار الأحداث والإحالة. */

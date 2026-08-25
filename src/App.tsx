@@ -164,10 +164,7 @@ const FazaaListingConsentLanding = lazy(() => import("@/pages/FazaaListingConsen
 const AdminDashboard = lazyPage(() => import("@/pages/AdminDashboard"), "AdminDashboard");
 const BarberDashboard = lazyPage(() => import("@/pages/BarberDashboard"), "BarberDashboard");
 const SaudiAgentLanding = lazy(() => import("@/pages/SaudiAgentLanding"));
-const About = lazy(() => import("@/pages/About"));
 const Privacy = lazy(() => import("@/pages/Privacy"));
-const TermsOfService = lazy(() => import("@/pages/TermsOfService"));
-const UserPrivacyPolicy = lazy(() => import("@/pages/UserPrivacyPolicy"));
 const EphemeralProcessingGovernance = lazy(() => import("@/pages/EphemeralProcessingGovernance"));
 const PlatformReviews = lazy(() => import("@/pages/PlatformReviews"));
 const Register = lazy(() => import("@/pages/Register"));
@@ -654,7 +651,7 @@ export function App() {
             path={ROUTE_PATHS.MAP_CONTACT_CARD}
             element={<LazyRoute><MapContactCardPage /></LazyRoute>}
           />
-          <Route path={ROUTE_PATHS.ABOUT} element={<WithPublicLayout><LazyRoute><About /></LazyRoute></WithPublicLayout>} />
+          <Route path={ROUTE_PATHS.ABOUT} element={<LazyRoute><StaticSeoRedirect path="/about" /></LazyRoute>} />
           {/**
            * مركز نسك الحج — نسخة React داخل الهاش؛ والفهرسة على `/nusuk` الثابت.
            */}
@@ -710,8 +707,8 @@ export function App() {
             path={GEO_NEAR_HUB_PATH}
             element={<LazyRoute><StaticSeoRedirect path="/near" /></LazyRoute>}
           />
-          <Route path={ROUTE_PATHS.TERMS_OF_SERVICE} element={<WithPublicLayout><LazyRoute><TermsOfService /></LazyRoute></WithPublicLayout>} />
-          <Route path={ROUTE_PATHS.USER_PRIVACY_POLICY} element={<WithPublicLayout><LazyRoute><UserPrivacyPolicy /></LazyRoute></WithPublicLayout>} />
+          <Route path={ROUTE_PATHS.TERMS_OF_SERVICE} element={<LazyRoute><StaticSeoRedirect path="/terms" /></LazyRoute>} />
+          <Route path={ROUTE_PATHS.USER_PRIVACY_POLICY} element={<LazyRoute><StaticSeoRedirect path="/privacy-policy" /></LazyRoute>} />
           <Route path={ROUTE_PATHS.EPHEMERAL_PROCESSING_GOVERNANCE} element={<WithPublicLayout><LazyRoute><EphemeralProcessingGovernance /></LazyRoute></WithPublicLayout>} />
           <Route path={ROUTE_PATHS.PRIVACY_DETAILED} element={<WithPublicLayout><LazyRoute><Privacy /></LazyRoute></WithPublicLayout>} />
           <Route path={ROUTE_PATHS.PRIVACY} element={<Navigate to={ROUTE_PATHS.PRIVACY_DETAILED} replace />} />
