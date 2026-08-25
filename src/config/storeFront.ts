@@ -313,6 +313,7 @@ export const STORE_TRUST_COPY = {
 export const STORE_HALAQMAP_OPS_BANNER = {
   badgeAr: 'منتج',
   ariaAr: 'بنر منتج حلاق ماب ضمن أعمال المتجر',
+  headingAr: 'لطلبات المنشآت والمراسلات وما يتصل بها',
   titleAr: 'حلاق ماب منتج ضمن أعمال المتجر — رخصة النفاذ متاحة للاشتراك عبر بوابة الدفع.',
   ctaAr: 'عرض حزم الرخصة',
   packagesHref: 'https://www.halaqmap.com/#/partners',

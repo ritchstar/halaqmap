@@ -146,6 +146,7 @@ assert.doesNotMatch(storeFront, /يرغب العميل في تصميمه/);
 assert.match(storeFront, /ثلاثة أبواب فقط/);
 assert.match(storeFront, /مسوّقات لكوافير ماب/);
 assert.match(storeFront, /حلاق ماب منتج ضمن أعمال المتجر/);
+assert.match(storeFront, /لطلبات المنشآت والمراسلات وما يتصل بها/);
 assert.doesNotMatch(storeFront, /إيراد المنتجات الجاهزة من رخص النفاذ الرقمية للصالون/);
 
 assert.match(
