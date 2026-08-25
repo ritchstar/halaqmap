@@ -141,7 +141,7 @@ export const STORE_LANDING_COPY = {
   grocersLiveCtaAr: 'افتح تمويناتا1',
   restaurantLiveTitleAr: 'مطعمنا1',
   restaurantLiveLeadAr:
-    'صفحة مطعم للحي: صور الأطباق وطبق اليوم وتذكرة المطبخ. 699 ر.س لستة أشهر، أو 999 ر.س لاثني عشر شهراً. صندوق المحادثة مدرج.',
+    'صفحة وجبات عبر رمز QR ولوحة كاشير ومطبخ وصندوق محادثة مدرج. 699 ر.س لستة أشهر، أو 999 ر.س لاثني عشر شهراً. لا عمولة على قيمة الطلبات.',
   restaurantLiveCtaAr: 'افتح مطعمنا1',
   bereavementTitleAr: 'بلاغات الوفاة والعزاء',
   bereavementLeadAr:

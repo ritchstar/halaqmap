@@ -12,6 +12,7 @@ import {
   STORE_RESTAURANT_LIVE_CHECKOUT_ENABLED,
   STORE_RESTAURANT_LIVE_DAYS_12,
   STORE_RESTAURANT_LIVE_DAYS_6,
+  STORE_RESTAURANT_LIVE_FEATURES,
   STORE_RESTAURANT_LIVE_PACKS,
   STORE_RESTAURANT_LIVE_PRICE_12_HALALAS,
   STORE_RESTAURANT_LIVE_PRICE_12_SAR,
@@ -46,11 +47,23 @@ const indexHtml = readFileSync(join(root, 'index.html'), 'utf8');
 const remote = readFileSync(join(root, 'src/lib/storeRestaurantLiveRemote.ts'), 'utf8');
 const restaurantApi = readFileSync(join(root, 'api/public-store-restaurant-live.ts'), 'utf8');
 const sql = readFileSync(join(root, 'supabase/migrations/175_store_restaurant_live.sql'), 'utf8');
+const restaurantLanding = readFileSync(join(root, 'src/pages/store/StoreRestaurantLandingPage.tsx'), 'utf8');
 const copyBlob = [
   STORE_RESTAURANT_LIVE.leadAr,
+  STORE_RESTAURANT_LIVE.howLeadAr,
+  STORE_RESTAURANT_LIVE.whatsappLineAr,
+  STORE_RESTAURANT_LIVE.payIndependenceAr,
+  STORE_RESTAURANT_LIVE.opsBodyAr,
+  STORE_RESTAURANT_LIVE.privacyAr,
+  STORE_RESTAURANT_LIVE.closeAr,
+  STORE_RESTAURANT_LIVE.kickerAr,
   STORE_RESTAURANT_LIVE.termsFoldBodyAr,
   STORE_RESTAURANT_LIVE.priceLineAr,
+  STORE_RESTAURANT_LIVE.durationLineAr,
+  STORE_RESTAURANT_LIVE.labLeadAr,
   STORE_LANDING_COPY.restaurantLiveLeadAr,
+  STORE_RESTAURANT_LIVE.ticketItems.join('\n'),
+  STORE_RESTAURANT_LIVE_FEATURES.map((item) => `${item.titleAr}\n${item.bodyAr}`).join('\n'),
 ].join('\n');
 
 assert.equal(STORE_RESTAURANT_LIVE_PUBLIC_ENABLED, true);
@@ -78,9 +91,21 @@ assert.equal(isRestaurantPriceHalalas(89900), false);
 assert.equal(isRestaurantPriceHalalas(60000), false);
 assert.match(restaurantLiveInvoiceDescription('m6'), /مطعمنا1/);
 assert.match(STORE_RESTAURANT_LIVE.titleAr, /مطعمنا1/);
+assert.match(STORE_RESTAURANT_LIVE.leadAr, /699/);
+assert.match(STORE_RESTAURANT_LIVE.leadAr, /بنقرة واحدة/);
+assert.match(STORE_RESTAURANT_LIVE.howLeadAr, /خلال ثوانٍ/);
+assert.match(STORE_RESTAURANT_LIVE.opsBodyAr, /جهاز تشغيل واحد/);
+assert.match(STORE_RESTAURANT_LIVE.privacyAr, /دفتر زبائن/);
+assert.match(STORE_RESTAURANT_LIVE.closeAr, /عامل التوصيل/);
+assert.match(STORE_RESTAURANT_LIVE.enterpriseEmail, /admin@halaqmap\.com/);
+assert.doesNotMatch(copyBlob, /لحظة بلحظة|لوكيشن|واجهة المنزل|صفر عمولات|آلياً/);
 assert.doesNotMatch(copyBlob, /تمويناتا1|افراحي1|اجواء1|لاونجا1|كاردي8/);
 assert.doesNotMatch(copyBlob, /599|600|898|1398/);
-assert.match(STORE_RESTAURANT_LIVE.leadAr, /699/);
+assert.match(restaurantLanding, /howTitleAr/);
+assert.match(restaurantLanding, /ticketItems/);
+assert.match(restaurantLanding, /enterpriseEmail/);
+assert.match(restaurantLanding, /privacyAr/);
+assert.match(restaurantLanding, /closeAr/);
 assert.match(STORE_RESTAURANT_LIVE.priceLineAr, /999/);
 assert.match(STORE_LANDING_COPY.restaurantLiveTitleAr, /مطعمنا1/);
 assert.match(STORE_LANDING_COPY.restaurantLiveLeadAr, /699/);

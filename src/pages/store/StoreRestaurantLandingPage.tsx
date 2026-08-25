@@ -48,6 +48,17 @@ export default function StoreRestaurantLandingPage() {
                 انتهت المدة. الرابط ما زال لديكم. أتمّوا الشراء مرة أخرى لتمديد نفس الصفحة.
               </p>
             ) : null}
+            <p className="mt-6 text-base font-extrabold text-[#f4efe4]">{STORE_RESTAURANT_LIVE.howTitleAr}</p>
+            <p className="mt-2 max-w-xl text-sm leading-7 text-white/75">{STORE_RESTAURANT_LIVE.howLeadAr}</p>
+            <ul className="mt-3 max-w-xl list-disc space-y-1 pr-5 text-sm leading-7 text-white/75">
+              {STORE_RESTAURANT_LIVE.ticketItems.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+            <p className="mt-3 max-w-xl text-sm leading-7 text-white/75">{STORE_RESTAURANT_LIVE.whatsappLineAr}</p>
+            <p className="mt-3 max-w-xl text-sm leading-7 text-white/75">{STORE_RESTAURANT_LIVE.payIndependenceAr}</p>
+            <p className="mt-6 text-base font-extrabold text-[#f4efe4]">{STORE_RESTAURANT_LIVE.opsTitleAr}</p>
+            <p className="mt-2 max-w-xl text-sm leading-7 text-white/75">{STORE_RESTAURANT_LIVE.opsBodyAr}</p>
             <p className="mt-6 text-base font-extrabold text-[#f4efe4]">{STORE_RESTAURANT_LIVE.featuresTitleAr}</p>
             <ul className="mt-3 space-y-3">
               {STORE_RESTAURANT_LIVE_FEATURES.map((item) => (
@@ -72,6 +83,14 @@ export default function StoreRestaurantLandingPage() {
                 </li>
               ))}
             </ul>
+            <p className="mt-6 max-w-xl text-sm leading-7 text-white/75">{STORE_RESTAURANT_LIVE.privacyAr}</p>
+            <p className="mt-3 max-w-xl text-sm font-extrabold leading-7 text-[#f4efe4]">{STORE_RESTAURANT_LIVE.closeAr}</p>
+            <p className="mt-4 max-w-xl text-sm leading-7 text-white/70">
+              {STORE_RESTAURANT_LIVE.enterpriseAr}{' '}
+              <a className="text-[#e08a3c] underline" href={`mailto:${STORE_RESTAURANT_LIVE.enterpriseEmail}`}>
+                <code dir="ltr">{STORE_RESTAURANT_LIVE.enterpriseEmail}</code>
+              </a>
+            </p>
             <div className="mt-5 flex flex-wrap gap-2">
               {STORE_RESTAURANT_LIVE_PACKS.map((pack) => (
                 <span key={pack.id} className="rounded-full border border-[#e08a3c]/35 px-3 py-1 text-xs text-[#e08a3c]">
