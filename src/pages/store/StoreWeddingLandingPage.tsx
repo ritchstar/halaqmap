@@ -12,6 +12,7 @@ import {
   StoreVisitorHeader,
   StoreVisitorShell,
 } from '@/components/store/StoreChrome';
+import { StoreEnterpriseDirectMail } from '@/components/store/StoreEnterpriseDirectMail';
 import { StoreShot } from '@/components/store/StoreShot';
 import { StoreWeddingInviteCard } from '@/components/store/StoreWeddingInviteCard';
 import { StoreWeddingLiveStudio } from '@/components/store/StoreWeddingLiveStudio';
@@ -101,6 +102,11 @@ export default function StoreWeddingLandingPage() {
                 {sisterLabel}
               </Link>
             </div>
+            <StoreEnterpriseDirectMail
+              className="mt-5 max-w-xl"
+              linkClassName={text}
+              productTitleAr={copy.titleAr}
+            />
             <Collapsible open={termsOpen} onOpenChange={setTermsOpen} className="mt-6">
               <CollapsibleTrigger
                 type="button"

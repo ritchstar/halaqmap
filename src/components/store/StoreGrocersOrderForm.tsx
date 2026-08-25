@@ -2,6 +2,7 @@
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
 import { useState } from 'react';
+import { StoreEnterpriseDirectMail } from '@/components/store/StoreEnterpriseDirectMail';
 import {
   STORE_GROCERS_LIVE,
   STORE_GROCERS_LIVE_CHECKOUT_ENABLED,
@@ -116,6 +117,11 @@ export function StoreGrocersOrderForm({ renewToken = '' }: { renewToken?: string
           : `${STORE_GROCERS_LIVE.orderSubmitAr} · ${pack.priceSar + (chatAddon ? grocersChatAddonSar(pack.id) : 0)} ر.س`}
       </button>
       <p className="mt-2 text-xs leading-6 text-white/50">لا يُخلط هذا الاشتراك بفاتورة الرخصة أو قاعات المناسبة.</p>
+      <StoreEnterpriseDirectMail
+        className="mt-4"
+        linkClassName="text-[#8fbf7a]"
+        productTitleAr={STORE_GROCERS_LIVE.titleAr}
+      />
     </form>
   );
 }

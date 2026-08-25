@@ -88,8 +88,6 @@ export const STORE_RESTAURANT_LIVE = {
   privacyAr:
     'تُستخدم بيانات الضيف لتنفيذ الطلب فقط، وتُحفظ على جهازه إن وافق، ولا دفتر زبائن لدى المنصة.',
   closeAr: 'من رمز QR إلى المطبخ، ثم إلى عامل التوصيل.',
-  enterpriseAr: 'لطلب المنتج للمنشآت الكبرى:',
-  enterpriseEmail: 'admin@halaqmap.com',
   chatBuyerTitleAr: 'صندوق ملاحظة للمطبخ',
   chatBuyerHintAr: 'اكتب تخصيصاً أو سؤالاً عن الطبق. ليس دردشة عامة.',
   chatBuyerSendAr: 'أرسل للمطبخ',

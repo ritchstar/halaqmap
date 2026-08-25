@@ -8,6 +8,7 @@ import { Link, Navigate } from 'react-router-dom';
 import { ChevronDown } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { StoreVisitorFooter, StoreVisitorHeader, StoreVisitorShell } from '@/components/store/StoreChrome';
+import { StoreEnterpriseDirectMail } from '@/components/store/StoreEnterpriseDirectMail';
 import { StoreGrocersOrderForm } from '@/components/store/StoreGrocersOrderForm';
 import { StoreShot } from '@/components/store/StoreShot';
 import { StoreGrocersStudio } from '@/components/store/StoreGrocersStudio';
@@ -101,6 +102,11 @@ export default function StoreGrocersLandingPage() {
                 {STORE_GROCERS_LIVE.orderCtaAr}
               </a>
             </div>
+            <StoreEnterpriseDirectMail
+              className="mt-5 max-w-xl"
+              linkClassName="text-[#8fbf7a]"
+              productTitleAr={STORE_GROCERS_LIVE.titleAr}
+            />
             <Collapsible open={termsOpen} onOpenChange={setTermsOpen} className="mt-6">
               <CollapsibleTrigger type="button" className="flex w-full items-center justify-between gap-3 rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-right text-sm font-semibold">
                 <span>{STORE_GROCERS_LIVE.termsFoldTriggerAr}</span>

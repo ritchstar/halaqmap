@@ -4,6 +4,7 @@
  * فورم طلب الدعوة الحرة ثم التحويل إلى ميسر على www.
  */
 import { useState } from 'react';
+import { StoreEnterpriseDirectMail } from '@/components/store/StoreEnterpriseDirectMail';
 import {
   STORE_EVENT_LIVE_CHECKOUT_ENABLED,
   STORE_EVENT_LIVE_DEMO,
@@ -14,6 +15,7 @@ import {
   eventLiveCopy,
   eventLiveFillClass,
   eventLiveHostRoles,
+  eventLiveTextClass,
   type StoreEventLiveVoice,
 } from '@/config/storeEventLive';
 import { normalizeEventHostRole, normalizeEventVenueKind, type EventLiveHostRole } from '@/lib/storeEventLiveLab';
@@ -82,6 +84,7 @@ export function StoreEventOrderForm({ voice = 'men' }: { voice?: StoreEventLiveV
 
   const field = 'mt-1 h-12 w-full rounded-md border border-white/15 bg-[#061018] px-3 text-[#f4efe4]';
   const fill = eventLiveFillClass(voice);
+  const text = eventLiveTextClass(voice);
   const border = voice === 'women' ? 'border-[#e4b7c5]/30' : 'border-[#e8c547]/30';
 
   return (
@@ -189,6 +192,11 @@ export function StoreEventOrderForm({ voice = 'men' }: { voice?: StoreEventLiveV
       >
         {busy ? 'جاري تجهيز بوابة الدفع…' : `${copy.orderSubmitAr} · ${STORE_EVENT_LIVE_PRICE_SAR} ر.س`}
       </button>
+      <StoreEnterpriseDirectMail
+        className="mt-4"
+        linkClassName={text}
+        productTitleAr={copy.titleAr}
+      />
     </form>
   );
 }

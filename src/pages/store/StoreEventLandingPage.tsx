@@ -12,6 +12,7 @@ import {
   StoreVisitorHeader,
   StoreVisitorShell,
 } from '@/components/store/StoreChrome';
+import { StoreEnterpriseDirectMail } from '@/components/store/StoreEnterpriseDirectMail';
 import { StoreEventInviteCard } from '@/components/store/StoreEventInviteCard';
 import { StoreShot } from '@/components/store/StoreShot';
 import { StoreEventLiveStudio } from '@/components/store/StoreEventLiveStudio';
@@ -99,6 +100,11 @@ export default function StoreEventLandingPage() {
                 غيّر التصنيف
               </Link>
             </div>
+            <StoreEnterpriseDirectMail
+              className="mt-5 max-w-xl"
+              linkClassName={text}
+              productTitleAr={copy.titleAr}
+            />
             <Collapsible open={termsOpen} onOpenChange={setTermsOpen} className="mt-6">
               <CollapsibleTrigger
                 type="button"

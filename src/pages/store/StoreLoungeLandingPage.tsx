@@ -12,6 +12,7 @@ import {
   StoreVisitorHeader,
   StoreVisitorShell,
 } from '@/components/store/StoreChrome';
+import { StoreEnterpriseDirectMail } from '@/components/store/StoreEnterpriseDirectMail';
 import { StoreLoungeLiveStudio } from '@/components/store/StoreLoungeLiveStudio';
 import { StoreLoungeNightSky } from '@/components/store/StoreLoungeNightSky';
 import { StoreLoungeOrderForm } from '@/components/store/StoreLoungeOrderForm';
@@ -92,6 +93,11 @@ export default function StoreLoungeLandingPage() {
                 {renewToken ? STORE_LOUNGE_LIVE.renewCtaAr : STORE_LOUNGE_LIVE.orderCtaAr}
               </a>
             </div>
+            <StoreEnterpriseDirectMail
+              className="mt-5 max-w-xl"
+              linkClassName="text-[#d4a574]"
+              productTitleAr={STORE_LOUNGE_LIVE.titleAr}
+            />
             <Collapsible open={termsOpen} onOpenChange={setTermsOpen} className="mt-6">
               <CollapsibleTrigger
                 type="button"

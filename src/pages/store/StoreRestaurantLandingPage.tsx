@@ -8,6 +8,7 @@ import { Link, Navigate } from 'react-router-dom';
 import { ChevronDown } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { StoreVisitorFooter, StoreVisitorHeader, StoreVisitorShell } from '@/components/store/StoreChrome';
+import { StoreEnterpriseDirectMail } from '@/components/store/StoreEnterpriseDirectMail';
 import { StoreRestaurantOrderForm } from '@/components/store/StoreRestaurantOrderForm';
 import { StoreShot } from '@/components/store/StoreShot';
 import { StoreRestaurantStudio } from '@/components/store/StoreRestaurantStudio';
@@ -85,12 +86,11 @@ export default function StoreRestaurantLandingPage() {
             </ul>
             <p className="mt-6 max-w-xl text-sm leading-7 text-white/75">{STORE_RESTAURANT_LIVE.privacyAr}</p>
             <p className="mt-3 max-w-xl text-sm font-extrabold leading-7 text-[#f4efe4]">{STORE_RESTAURANT_LIVE.closeAr}</p>
-            <p className="mt-4 max-w-xl text-sm leading-7 text-white/70">
-              {STORE_RESTAURANT_LIVE.enterpriseAr}{' '}
-              <a className="text-[#e08a3c] underline" href={`mailto:${STORE_RESTAURANT_LIVE.enterpriseEmail}`}>
-                <code dir="ltr">{STORE_RESTAURANT_LIVE.enterpriseEmail}</code>
-              </a>
-            </p>
+            <StoreEnterpriseDirectMail
+              className="mt-4 max-w-xl"
+              linkClassName="text-[#e08a3c]"
+              productTitleAr={STORE_RESTAURANT_LIVE.titleAr}
+            />
             <div className="mt-5 flex flex-wrap gap-2">
               {STORE_RESTAURANT_LIVE_PACKS.map((pack) => (
                 <span key={pack.id} className="rounded-full border border-[#e08a3c]/35 px-3 py-1 text-xs text-[#e08a3c]">

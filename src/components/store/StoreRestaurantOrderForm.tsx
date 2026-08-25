@@ -2,6 +2,7 @@
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
 import { useState } from 'react';
+import { StoreEnterpriseDirectMail } from '@/components/store/StoreEnterpriseDirectMail';
 import {
   STORE_RESTAURANT_LIVE,
   STORE_RESTAURANT_LIVE_CHECKOUT_ENABLED,
@@ -105,6 +106,11 @@ export function StoreRestaurantOrderForm({ renewToken = '' }: { renewToken?: str
       >
         {busy ? 'جاري تجهيز بوابة الدفع…' : `${STORE_RESTAURANT_LIVE.orderSubmitAr} · ${pack.priceSar} ر.س`}
       </button>
+      <StoreEnterpriseDirectMail
+        className="mt-4"
+        linkClassName="text-[#e08a3c]"
+        productTitleAr={STORE_RESTAURANT_LIVE.titleAr}
+      />
     </form>
   );
 }
