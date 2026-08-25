@@ -60,6 +60,8 @@ export const STORE_AFFILIATE_COPY = {
   storeLoginSentAr: 'إن كان الإيميل صالحاً سيصل الرابط السري الآن.',
   deskTitleAr: 'لوحة المسوّق أو المسوّقة',
   deskLinksTitleAr: 'روابط الشراء باسمك',
+  deskLinksHintAr: 'اضغط أيقونة المنتج لنسخ رابط الشراء باسمك. المتجر يصدر المسارات أيقونات تشغيل جاهزة.',
+  deskLinkCopiedAr: 'نُسخ رابط المنتج.',
   deskLedgerTitleAr: 'قيد العمولة',
   deskEmptyAr: 'لا قيد بعد. كل عملية دفع ناجحة من رابطك تُسجَّل هنا.',
   deskLogoutAr: 'خروج',

@@ -24,3 +24,24 @@ export function storeAffiliateCodeFromMeta(meta: Record<string, unknown> | null 
   if (!meta || typeof meta !== 'object') return '';
   return parseStoreAffiliateCode(meta.store_affiliate_code ?? meta.storeAffiliateCode);
 }
+
+export type StoreAffiliateCheckoutLinks = {
+  wedding: string;
+  event: string;
+  lounge: string;
+  grocers: string;
+  restaurant: string;
+};
+
+/** روابط شراء منتجات المتجر باسم المسوّق — ليست كاردي8. */
+export function storeAffiliateCheckoutLinks(rawCode: unknown): StoreAffiliateCheckoutLinks {
+  const code = parseStoreAffiliateCode(rawCode);
+  const q = code ? `?ref=${code}` : '';
+  return {
+    wedding: `https://www.halaqmap.com/#/store/wedding${q}`,
+    event: `https://www.halaqmap.com/#/store/event${q}`,
+    lounge: `https://www.halaqmap.com/#/store/lounge${q}`,
+    grocers: `https://www.halaqmap.com/#/store/grocers${q}`,
+    restaurant: `https://www.halaqmap.com/#/store/restaurant${q}`,
+  };
+}

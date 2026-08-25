@@ -6,6 +6,7 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/components/ui/sonner';
+import { StoreProductLinkIconGrid } from '@/components/store/StoreProductLinkIconGrid';
 import {
   STORE_AFFILIATE_COPY,
   STORE_AFFILIATE_LINES,
@@ -84,7 +85,7 @@ export function AffiliateStoreLane({ hideCatalog = false }: { hideCatalog?: bool
   async function copyLink(url: string) {
     try {
       await navigator.clipboard.writeText(url);
-      toast.success('نُسخ الرابط.');
+      toast.success(STORE_AFFILIATE_COPY.deskLinkCopiedAr);
     } catch {
       toast.error('انسخ الرابط يدوياً.');
     }
@@ -103,13 +104,6 @@ export function AffiliateStoreLane({ hideCatalog = false }: { hideCatalog?: bool
   }
 
   if (marketer) {
-    const links = [
-      { id: 'wedding' as const, href: marketer.links.wedding },
-      { id: 'event' as const, href: marketer.links.event },
-      { id: 'lounge' as const, href: marketer.links.lounge },
-      { id: 'grocers' as const, href: marketer.links.grocers },
-      { id: 'restaurant' as const, href: marketer.links.restaurant },
-    ];
     return (
       <div className="space-y-6">
         <p className="text-sm leading-8 text-slate-300">{STORE_AFFILIATE_COPY.storeLeadAr}</p>
@@ -126,28 +120,19 @@ export function AffiliateStoreLane({ hideCatalog = false }: { hideCatalog?: bool
             {STORE_AFFILIATE_COPY.commissionLabelAr}: {marketer.commissionSar} ر.س
           </p>
         </section>
-        <section className="space-y-3">
-          <p className="text-base font-extrabold text-white">{STORE_AFFILIATE_COPY.deskLinksTitleAr}</p>
-          {links.map((item) => (
-            <div
-              key={item.id}
-              className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3"
-            >
-              <div className="min-w-0">
-                <p className="font-bold text-white">{STORE_AFFILIATE_COPY.deskLinkAr[item.id]}</p>
-                <p className="mt-1 truncate text-xs text-slate-400" dir="ltr">
-                  {item.href}
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => void copyLink(item.href)}
-                className="rounded-xl border border-teal-400/40 px-3 py-2 text-xs font-bold text-teal-100 hover:bg-teal-500/10"
-              >
-                نسخ الرابط
-              </button>
-            </div>
-          ))}
+        <section className="space-y-3 rounded-2xl border border-[#e8c547]/25 bg-[#07141c] px-4 py-5">
+          <p className="text-center text-base font-extrabold text-white">{STORE_AFFILIATE_COPY.deskLinksTitleAr}</p>
+          <p className="text-center text-sm leading-7 text-slate-400">{STORE_AFFILIATE_COPY.deskLinksHintAr}</p>
+          <StoreProductLinkIconGrid
+            links={{
+              wedding: marketer.links.wedding,
+              event: marketer.links.event,
+              lounge: marketer.links.lounge,
+              grocers: marketer.links.grocers,
+              restaurant: marketer.links.restaurant,
+            }}
+            onPick={(href) => void copyLink(href)}
+          />
         </section>
         <section className="space-y-3">
           <p className="text-base font-extrabold text-white">{STORE_AFFILIATE_COPY.deskLedgerTitleAr}</p>

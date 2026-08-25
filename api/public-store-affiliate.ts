@@ -9,6 +9,7 @@ import { runRegistrationRouteGuards } from './_lib/registrationRouteGuard.js';
 import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
 import { runSecurityGuard } from './_lib/securityGuard.js';
 import { sendStoreAffiliateMagicEmail } from './_lib/storeAffiliateMail.js';
+import { storeAffiliateCheckoutLinks } from './_lib/storeAffiliateCode.js';
 
 export const config = { maxDuration: 20 };
 
@@ -109,13 +110,7 @@ async function publicMarketer(db: Db, marketerId: string) {
     displayName: marketer.display_name,
     code: marketer.code,
     commissionSar,
-    links: {
-      wedding: `https://www.halaqmap.com/#/store/wedding?ref=${marketer.code}`,
-      event: `https://www.halaqmap.com/#/store/event?ref=${marketer.code}`,
-      lounge: `https://www.halaqmap.com/#/store/lounge?ref=${marketer.code}`,
-      grocers: `https://www.halaqmap.com/#/store/grocers?ref=${marketer.code}`,
-      restaurant: `https://www.halaqmap.com/#/store/restaurant?ref=${marketer.code}`,
-    },
+    links: storeAffiliateCheckoutLinks(marketer.code),
     ledger: ledger.map((row) => ({
       id: row.id,
       productTag: row.product_tag,
@@ -242,7 +237,7 @@ async function sendMagic(db: Db, body: Record<string, unknown>, headers: Record<
 
   const { data: marketer } = await db
     .from('store_affiliate_marketers')
-    .select('id, status')
+    .select('id, status, code')
     .ilike('email', email)
     .maybeSingle();
   if (!marketer || String(marketer.status) !== 'approved') return json(sent, 200, headers);
@@ -260,7 +255,11 @@ async function sendMagic(db: Db, body: Record<string, unknown>, headers: Record<
     expires_at: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
   });
   if (!error) {
-    await sendStoreAffiliateMagicEmail({ to: email, loginUrl: magicLoginUrl(request, token) });
+    await sendStoreAffiliateMagicEmail({
+      to: email,
+      loginUrl: magicLoginUrl(request, token),
+      productLinks: storeAffiliateCheckoutLinks(marketer.code),
+    });
   }
   return json(sent, 200, headers);
 }
