@@ -3,7 +3,7 @@
  *
  * لوحة QR عمودية لواجهة المتجر — مناسبة لشاشة الآيفون وللتحميل PNG.
  */
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useState } from 'react';
 import QRCode from 'react-qr-code';
 import { Copy, Download } from 'lucide-react';
 import { toast } from '@/components/ui/sonner';
@@ -12,27 +12,14 @@ import {
   STORE_QR_BOARD_COPY as COPY,
   storeQrBoardTargetUrl,
 } from '@/config/storeQrBoard';
-import { downloadElementAsPngCard } from '@/lib/downloadElementAsPngCard';
+import { downloadStoreQrBoardPng } from '@/lib/storeQrBoardPng';
 import { cn } from '@/lib/utils';
 
 type Props = {
   className?: string;
 };
 
-// #region agent log
-function dbgLog(hypothesisId: string, location: string, message: string, data: Record<string, unknown>) {
-  const payload = { hypothesisId, location, message, data, timestamp: Date.now() };
-  console.info(`[store-qr-board] ${message}`, data);
-  void fetch('http://127.0.0.1:7242/ingest/store-qr-board', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
-  }).catch(() => {});
-}
-// #endregion
-
 export function StoreQrBoard({ className }: Props) {
-  const boardRef = useRef<HTMLDivElement>(null);
   const targetUrl = storeQrBoardTargetUrl();
   const [busy, setBusy] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -49,57 +36,21 @@ export function StoreQrBoard({ className }: Props) {
   }, [targetUrl]);
 
   const downloadPng = useCallback(async () => {
-    const el = boardRef.current;
-    // #region agent log
-    dbgLog('C', 'StoreQrBoard.tsx:downloadPng:entry', 'downloadPng entry', {
-      hasEl: Boolean(el),
-      busy,
-      clientW: el?.clientWidth ?? null,
-      clientH: el?.clientHeight ?? null,
-      scrollW: el?.scrollWidth ?? null,
-      scrollH: el?.scrollHeight ?? null,
-      svgCount: el?.querySelectorAll('svg').length ?? -1,
-      hasAspectRatio: Boolean(el?.style.aspectRatio),
-      hasGradientBg: Boolean(el?.style.backgroundImage?.includes('gradient')),
-    });
-    // #endregion
-    if (!el || busy) return;
+    if (busy) return;
     setBusy(true);
     try {
-      await downloadElementAsPngCard(el, COPY.fileName);
-      // #region agent log
-      dbgLog('D', 'StoreQrBoard.tsx:downloadPng:success', 'downloadPng succeeded', {
-        fileName: COPY.fileName,
-      });
-      // #endregion
+      await downloadStoreQrBoardPng({ targetUrl, fileName: COPY.fileName });
       toast.success(COPY.downloadDoneAr);
-    } catch (err) {
-      // #region agent log
-      const errMsg = err instanceof Error ? err.message : String(err);
-      const errName = err instanceof Error ? err.name : typeof err;
-      const errStack = err instanceof Error ? (err.stack || '').slice(0, 600) : '';
-      el.setAttribute('data-download-error', errMsg.slice(0, 200));
-      console.error('[store-qr-board] downloadPng failed:', errMsg, err);
-      dbgLog('A', 'StoreQrBoard.tsx:downloadPng:catch', 'downloadPng failed', {
-        errMsg,
-        errName,
-        errStack,
-        hasSvg: Boolean(el.querySelector('svg')),
-        svgTag: el.querySelector('svg')?.tagName ?? null,
-        logoComplete: (el.querySelector('img') as HTMLImageElement | null)?.complete ?? null,
-        logoNaturalW: (el.querySelector('img') as HTMLImageElement | null)?.naturalWidth ?? null,
-      });
-      // #endregion
+    } catch {
       toast.error(COPY.downloadFailAr);
     } finally {
       setBusy(false);
     }
-  }, [busy]);
+  }, [busy, targetUrl]);
 
   return (
     <div className={cn('mx-auto flex w-full max-w-[420px] flex-col gap-4', className)}>
       <div
-        ref={boardRef}
         id="store-qr-board"
         dir="rtl"
         className="relative overflow-hidden rounded-[1.75rem] border border-[#e8c547]/40 text-[#f4efe4] shadow-[0_24px_60px_-20px_rgba(6,16,24,0.75)]"
@@ -152,14 +103,14 @@ export function StoreQrBoard({ className }: Props) {
           </p>
 
           <div className="mt-4 flex flex-1 flex-col items-center justify-center">
-            <div className="rounded-2xl bg-white p-3 shadow-[0_0_28px_rgba(232,197,71,0.22)] ring-2 ring-[#e8c547]/40 ring-offset-2 ring-offset-[#0c1a2e] sm:p-4">
+            <div className="rounded-2xl bg-[#f4efe4] p-3 shadow-[0_0_28px_rgba(232,197,71,0.28)] ring-[3px] ring-[#e8c547] ring-offset-2 ring-offset-[#0c1a2e] sm:p-4">
               <QRCode
                 value={targetUrl}
                 size={220}
                 style={{ height: 'auto', maxWidth: '100%', width: '100%' }}
                 fgColor="#061018"
-                bgColor="#ffffff"
-                level="M"
+                bgColor="#f4efe4"
+                level="H"
               />
             </div>
             <p
