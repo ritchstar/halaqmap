@@ -7,6 +7,7 @@
 import QRCode from 'qrcode';
 import { STORE_VISUALS } from '@/config/storeFront';
 import {
+  STORE_QR_BOARD_COLORS as C,
   STORE_QR_BOARD_COPY as COPY,
   storeQrBoardTargetUrl,
 } from '@/config/storeQrBoard';
@@ -14,16 +15,16 @@ import {
 const FONT = "Tajawal, 'Segoe UI', Tahoma, Arial, sans-serif";
 const LOGO_PNG = STORE_VISUALS.logo;
 
-/** ألوان العلامة — تباين عالٍ لمسح QR (كحلي على كريمي). */
+/** ألوان العلامة — تباين عالٍ لمسح QR (كحلي على كريمي + إطار ذهبي). */
 const NAVY = {
-  bg0: '#061018',
-  bg1: '#0c1a2e',
+  bg0: C.navy,
+  bg1: C.navyMid,
   bg2: '#12243a',
-  cream: '#f4efe4',
-  gold: '#e8c547',
-  bronze: '#d4af67',
-  qrDark: '#061018',
-  qrLight: '#f4efe4',
+  cream: C.cream,
+  gold: C.gold,
+  bronze: C.bronze,
+  qrDark: C.qrDark,
+  qrLight: C.qrLight,
 } as const;
 
 function safePngName(fileName: string): string {
@@ -345,19 +346,63 @@ export async function renderStoreQrBoardPng(input?: {
   const qrBoxY = kickY + 100;
 
   ctx.save();
-  ctx.shadowColor = 'rgba(232, 197, 71, 0.35)';
-  ctx.shadowBlur = 28;
+  ctx.shadowColor = 'rgba(232, 197, 71, 0.4)';
+  ctx.shadowBlur = 32;
   ctx.fillStyle = NAVY.cream;
   roundRect(ctx, qrBoxX, qrBoxY, qrOuter, qrOuter, 36);
   ctx.fill();
   ctx.shadowBlur = 0;
   ctx.strokeStyle = NAVY.gold;
-  ctx.lineWidth = 8;
-  roundRect(ctx, qrBoxX + 4, qrBoxY + 4, qrOuter - 8, qrOuter - 8, 32);
+  ctx.lineWidth = 10;
+  roundRect(ctx, qrBoxX + 5, qrBoxY + 5, qrOuter - 10, qrOuter - 10, 32);
+  ctx.stroke();
+  ctx.strokeStyle = NAVY.bronze;
+  ctx.lineWidth = 3;
+  roundRect(ctx, qrBoxX + 18, qrBoxY + 18, qrOuter - 36, qrOuter - 36, 26);
+  ctx.stroke();
+  // زوايا ذهبية حول لوحة QR
+  const corner = 28;
+  const inset = 22;
+  ctx.strokeStyle = NAVY.gold;
+  ctx.lineWidth = 5;
+  ctx.lineCap = 'square';
+  // أعلى يمين
+  ctx.beginPath();
+  ctx.moveTo(qrBoxX + qrOuter - inset - corner, qrBoxY + inset);
+  ctx.lineTo(qrBoxX + qrOuter - inset, qrBoxY + inset);
+  ctx.lineTo(qrBoxX + qrOuter - inset, qrBoxY + inset + corner);
+  ctx.stroke();
+  // أعلى يسار
+  ctx.beginPath();
+  ctx.moveTo(qrBoxX + inset + corner, qrBoxY + inset);
+  ctx.lineTo(qrBoxX + inset, qrBoxY + inset);
+  ctx.lineTo(qrBoxX + inset, qrBoxY + inset + corner);
+  ctx.stroke();
+  // أسفل يمين
+  ctx.beginPath();
+  ctx.moveTo(qrBoxX + qrOuter - inset - corner, qrBoxY + qrOuter - inset);
+  ctx.lineTo(qrBoxX + qrOuter - inset, qrBoxY + qrOuter - inset);
+  ctx.lineTo(qrBoxX + qrOuter - inset, qrBoxY + qrOuter - inset - corner);
+  ctx.stroke();
+  // أسفل يسار
+  ctx.beginPath();
+  ctx.moveTo(qrBoxX + inset + corner, qrBoxY + qrOuter - inset);
+  ctx.lineTo(qrBoxX + inset, qrBoxY + qrOuter - inset);
+  ctx.lineTo(qrBoxX + inset, qrBoxY + qrOuter - inset - corner);
   ctx.stroke();
   ctx.restore();
 
   ctx.drawImage(qr, qrBoxX + qrPad, qrBoxY + qrPad, qrInner, qrInner);
+
+  // شعار صغير في منتصف الرمز (تصحيح خطأ H يحافظ على المسح)
+  const eye = Math.round(qrInner * 0.18);
+  paintLogo(
+    ctx,
+    logo,
+    qrBoxX + qrPad + (qrInner - eye) / 2,
+    qrBoxY + qrPad + (qrInner - eye) / 2,
+    eye,
+  );
 
   try {
     ctx.direction = 'ltr';
@@ -367,7 +412,12 @@ export async function renderStoreQrBoardPng(input?: {
   ctx.textAlign = 'center';
   ctx.fillStyle = NAVY.gold;
   ctx.font = `800 28px ${FONT}`;
-  ctx.fillText(COPY.hostLine, w / 2, qrBoxY + qrOuter + 56);
+  ctx.fillText(COPY.hostLine, w / 2, qrBoxY + qrOuter + 48);
+
+  setCenterRtl(ctx);
+  ctx.fillStyle = '#d4af67';
+  ctx.font = `700 22px ${FONT}`;
+  ctx.fillText(COPY.verifiedAr, w / 2, qrBoxY + qrOuter + 82);
 
   setCenterRtl(ctx);
   ctx.fillStyle = 'rgba(244, 239, 228, 0.58)';

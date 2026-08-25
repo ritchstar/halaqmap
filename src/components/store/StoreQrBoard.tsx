@@ -9,6 +9,7 @@ import { Copy, Download } from 'lucide-react';
 import { toast } from '@/components/ui/sonner';
 import { STORE_VISUALS } from '@/config/storeFront';
 import {
+  STORE_QR_BOARD_COLORS as C,
   STORE_QR_BOARD_COPY as COPY,
   storeQrBoardTargetUrl,
 } from '@/config/storeQrBoard';
@@ -18,6 +19,15 @@ import { cn } from '@/lib/utils';
 type Props = {
   className?: string;
 };
+
+function GoldCorner({ className }: { className?: string }) {
+  return (
+    <span
+      aria-hidden
+      className={cn('pointer-events-none absolute h-5 w-5 border-[#e8c547]', className)}
+    />
+  );
+}
 
 export function StoreQrBoard({ className }: Props) {
   const targetUrl = storeQrBoardTargetUrl();
@@ -53,17 +63,17 @@ export function StoreQrBoard({ className }: Props) {
       <div
         id="store-qr-board"
         dir="rtl"
-        className="relative overflow-hidden rounded-[1.75rem] border border-[#e8c547]/40 text-[#f4efe4] shadow-[0_24px_60px_-20px_rgba(6,16,24,0.75)]"
+        className="relative overflow-hidden rounded-[1.75rem] border border-[#e8c547]/45 text-[#f4efe4] shadow-[0_24px_60px_-20px_rgba(6,16,24,0.75)]"
         style={{
           aspectRatio: '9 / 16',
           backgroundImage:
-            'radial-gradient(ellipse 90% 48% at 50% 0%, rgba(232,197,71,0.28), transparent 58%), linear-gradient(168deg, #061018 0%, #0c1a2e 46%, #12243a 100%)',
+            'radial-gradient(ellipse 90% 48% at 50% 0%, rgba(232,197,71,0.32), transparent 58%), linear-gradient(168deg, #061018 0%, #0c1a2e 46%, #12243a 100%)',
         }}
       >
         <div
           className="absolute inset-x-0 top-0 h-1.5"
           style={{
-            background: 'linear-gradient(90deg, #b8860b 0%, #e8c547 48%, #f4efe4 100%)',
+            background: `linear-gradient(90deg, ${C.bronze} 0%, ${C.gold} 48%, ${C.cream} 100%)`,
           }}
           aria-hidden
         />
@@ -72,7 +82,7 @@ export function StoreQrBoard({ className }: Props) {
           aria-hidden
         />
         <div
-          className="pointer-events-none absolute inset-4 rounded-[1.2rem] border border-[#e8c547]/30"
+          className="pointer-events-none absolute inset-4 rounded-[1.2rem] border border-[#e8c547]/35"
           aria-hidden
         />
 
@@ -98,27 +108,44 @@ export function StoreQrBoard({ className }: Props) {
             {COPY.leadAr}
           </p>
 
-          <p className="mt-5 rounded-full border border-[#e8c547]/45 bg-[#061018]/75 px-4 py-1.5 text-xs font-extrabold text-[#e8c547] sm:text-sm">
+          <p className="mt-5 rounded-full border border-[#e8c547]/55 bg-[#061018]/80 px-4 py-1.5 text-xs font-extrabold text-[#e8c547] sm:text-sm">
             {COPY.kickerAr}
           </p>
 
           <div className="mt-4 flex flex-1 flex-col items-center justify-center">
-            <div className="rounded-2xl bg-[#f4efe4] p-3 shadow-[0_0_28px_rgba(232,197,71,0.28)] ring-[3px] ring-[#e8c547] ring-offset-2 ring-offset-[#0c1a2e] sm:p-4">
-              <QRCode
-                value={targetUrl}
-                size={220}
-                style={{ height: 'auto', maxWidth: '100%', width: '100%' }}
-                fgColor="#061018"
-                bgColor="#f4efe4"
-                level="H"
-              />
+            <div className="relative rounded-2xl bg-[#f4efe4] p-3.5 shadow-[0_0_32px_rgba(232,197,71,0.35)] ring-[3px] ring-[#e8c547] ring-offset-[3px] ring-offset-[#0c1a2e] sm:p-4">
+              <GoldCorner className="start-1.5 top-1.5 rounded-tl-md border-s-[3px] border-t-[3px]" />
+              <GoldCorner className="end-1.5 top-1.5 rounded-tr-md border-e-[3px] border-t-[3px]" />
+              <GoldCorner className="bottom-1.5 start-1.5 rounded-bl-md border-s-[3px] border-b-[3px]" />
+              <GoldCorner className="bottom-1.5 end-1.5 rounded-br-md border-e-[3px] border-b-[3px]" />
+              <div className="relative">
+                <QRCode
+                  value={targetUrl}
+                  size={220}
+                  style={{ height: 'auto', maxWidth: '100%', width: '100%' }}
+                  fgColor={C.qrDark}
+                  bgColor={C.qrLight}
+                  level="H"
+                />
+                <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                  <img
+                    src={STORE_VISUALS.logo}
+                    alt=""
+                    width={44}
+                    height={44}
+                    className="h-11 w-11 rounded-full object-cover ring-2 ring-[#e8c547] shadow-[0_0_12px_rgba(232,197,71,0.55)]"
+                    decoding="async"
+                  />
+                </div>
+              </div>
             </div>
             <p
               dir="ltr"
-              className="mt-3 max-w-[16rem] break-all text-center text-[0.65rem] font-bold leading-tight text-[#e8c547]/90 sm:text-xs"
+              className="mt-3 max-w-[16rem] break-all text-center text-[0.7rem] font-black leading-tight text-[#e8c547] sm:text-xs"
             >
               {COPY.hostLine}
             </p>
+            <p className="mt-1 text-center text-[0.65rem] font-bold text-[#d4af67]">{COPY.verifiedAr}</p>
           </div>
         </div>
       </div>
