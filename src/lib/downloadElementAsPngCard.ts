@@ -137,27 +137,112 @@ export async function captureElementAsPngBlob(element: HTMLElement): Promise<Blo
   // امنح المتصفح إطاراً لإكمال التخطيط قبل الالتقاط
   await new Promise<void>((r) => requestAnimationFrame(() => r()));
 
-  const canvas = await html2canvas(element, {
-    scale: Math.min(2.5, (window.devicePixelRatio || 1) * 2),
-    useCORS: true,
-    allowTaint: false,
-    backgroundColor: '#0a4f4a',
-    logging: false,
-    foreignObjectRendering: false,
-    imageTimeout: 12000,
-    removeContainer: true,
-    windowWidth: Math.max(element.scrollWidth, element.clientWidth),
-    windowHeight: Math.max(element.scrollHeight, element.clientHeight),
-    onclone: (_doc, cloned) => {
-      prepareCloneForCapture(element, cloned);
+  // #region agent log
+  const pre = {
+    hypothesisId: 'B',
+    location: 'downloadElementAsPngCard.ts:captureElementAsPngBlob:pre',
+    message: 'html2canvas about to run',
+    data: {
+      id: element.id || null,
+      clientW: element.clientWidth,
+      clientH: element.clientHeight,
+      svgCount: element.querySelectorAll('svg').length,
+      imgCount: element.querySelectorAll('img').length,
+      bgImageSnippet: (element.style.backgroundImage || '').slice(0, 100),
     },
-  });
+    timestamp: Date.now(),
+  };
+  console.info('[png-card] html2canvas pre', pre.data);
+  void fetch('http://127.0.0.1:7242/ingest/store-qr-board', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(pre),
+  }).catch(() => {});
+  // #endregion
+
+  let canvas: HTMLCanvasElement;
+  try {
+    canvas = await html2canvas(element, {
+      scale: Math.min(2.5, (window.devicePixelRatio || 1) * 2),
+      useCORS: true,
+      allowTaint: false,
+      backgroundColor: '#0a4f4a',
+      logging: false,
+      foreignObjectRendering: false,
+      imageTimeout: 12000,
+      removeContainer: true,
+      windowWidth: Math.max(element.scrollWidth, element.clientWidth),
+      windowHeight: Math.max(element.scrollHeight, element.clientHeight),
+      onclone: (_doc, cloned) => {
+        prepareCloneForCapture(element, cloned);
+      },
+    });
+  } catch (err) {
+    // #region agent log
+    const errMsg = err instanceof Error ? err.message : String(err);
+    const fail = {
+      hypothesisId: 'A',
+      location: 'downloadElementAsPngCard.ts:captureElementAsPngBlob:html2canvas',
+      message: 'html2canvas threw',
+      data: {
+        errMsg,
+        errName: err instanceof Error ? err.name : typeof err,
+        errStack: err instanceof Error ? (err.stack || '').slice(0, 600) : '',
+        svgCount: element.querySelectorAll('svg').length,
+      },
+      timestamp: Date.now(),
+    };
+    console.error('[png-card] html2canvas threw', errMsg, err);
+    void fetch('http://127.0.0.1:7242/ingest/store-qr-board', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(fail),
+    }).catch(() => {});
+    // #endregion
+    throw err;
+  }
+
+  // #region agent log
+  const post = {
+    hypothesisId: 'D',
+    location: 'downloadElementAsPngCard.ts:captureElementAsPngBlob:post',
+    message: 'html2canvas returned canvas',
+    data: { width: canvas.width, height: canvas.height },
+    timestamp: Date.now(),
+  };
+  console.info('[png-card] html2canvas post', post.data);
+  void fetch('http://127.0.0.1:7242/ingest/store-qr-board', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(post),
+  }).catch(() => {});
+  // #endregion
 
   if (!canvas.width || !canvas.height) {
     throw new Error('canvas_empty');
   }
 
-  return canvasToPngBlob(canvas);
+  try {
+    return await canvasToPngBlob(canvas);
+  } catch (err) {
+    // #region agent log
+    const errMsg = err instanceof Error ? err.message : String(err);
+    const fail = {
+      hypothesisId: 'E',
+      location: 'downloadElementAsPngCard.ts:captureElementAsPngBlob:toBlob',
+      message: 'canvasToPngBlob failed',
+      data: { errMsg, canvasW: canvas.width, canvasH: canvas.height },
+      timestamp: Date.now(),
+    };
+    console.error('[png-card] toBlob failed', errMsg, err);
+    void fetch('http://127.0.0.1:7242/ingest/store-qr-board', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(fail),
+    }).catch(() => {});
+    // #endregion
+    throw err;
+  }
 }
 
 /**

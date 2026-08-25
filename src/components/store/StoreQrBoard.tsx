@@ -19,6 +19,18 @@ type Props = {
   className?: string;
 };
 
+// #region agent log
+function dbgLog(hypothesisId: string, location: string, message: string, data: Record<string, unknown>) {
+  const payload = { hypothesisId, location, message, data, timestamp: Date.now() };
+  console.info(`[store-qr-board] ${message}`, data);
+  void fetch('http://127.0.0.1:7242/ingest/store-qr-board', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  }).catch(() => {});
+}
+// #endregion
+
 export function StoreQrBoard({ className }: Props) {
   const boardRef = useRef<HTMLDivElement>(null);
   const targetUrl = storeQrBoardTargetUrl();
@@ -38,12 +50,46 @@ export function StoreQrBoard({ className }: Props) {
 
   const downloadPng = useCallback(async () => {
     const el = boardRef.current;
+    // #region agent log
+    dbgLog('C', 'StoreQrBoard.tsx:downloadPng:entry', 'downloadPng entry', {
+      hasEl: Boolean(el),
+      busy,
+      clientW: el?.clientWidth ?? null,
+      clientH: el?.clientHeight ?? null,
+      scrollW: el?.scrollWidth ?? null,
+      scrollH: el?.scrollHeight ?? null,
+      svgCount: el?.querySelectorAll('svg').length ?? -1,
+      hasAspectRatio: Boolean(el?.style.aspectRatio),
+      hasGradientBg: Boolean(el?.style.backgroundImage?.includes('gradient')),
+    });
+    // #endregion
     if (!el || busy) return;
     setBusy(true);
     try {
       await downloadElementAsPngCard(el, COPY.fileName);
+      // #region agent log
+      dbgLog('D', 'StoreQrBoard.tsx:downloadPng:success', 'downloadPng succeeded', {
+        fileName: COPY.fileName,
+      });
+      // #endregion
       toast.success(COPY.downloadDoneAr);
-    } catch {
+    } catch (err) {
+      // #region agent log
+      const errMsg = err instanceof Error ? err.message : String(err);
+      const errName = err instanceof Error ? err.name : typeof err;
+      const errStack = err instanceof Error ? (err.stack || '').slice(0, 600) : '';
+      el.setAttribute('data-download-error', errMsg.slice(0, 200));
+      console.error('[store-qr-board] downloadPng failed:', errMsg, err);
+      dbgLog('A', 'StoreQrBoard.tsx:downloadPng:catch', 'downloadPng failed', {
+        errMsg,
+        errName,
+        errStack,
+        hasSvg: Boolean(el.querySelector('svg')),
+        svgTag: el.querySelector('svg')?.tagName ?? null,
+        logoComplete: (el.querySelector('img') as HTMLImageElement | null)?.complete ?? null,
+        logoNaturalW: (el.querySelector('img') as HTMLImageElement | null)?.naturalWidth ?? null,
+      });
+      // #endregion
       toast.error(COPY.downloadFailAr);
     } finally {
       setBusy(false);
