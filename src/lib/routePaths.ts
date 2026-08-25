@@ -40,6 +40,8 @@ export const ROUTE_PATHS = {
   /** كروت تعريفية وتسويقية لواجهة المتجر — مستقلة عن كاردي8 وتهنئة المناسبات */
   STORE_INTRO_CARDS: '/store/id-cards',
   STORE_INTRO_CARD_VIEW: '/store/id-card',
+  /** لوحة QR لواجهة المتجر — عرض على الجوال وتحميل PNG */
+  STORE_QR_BOARD: '/store/qr',
   /** تعريف المتجر والأنشطة والمنتجات البرمجية */
   STORE_ABOUT: '/store/about',
   /** تصنيفات وفحوص مستقلة قابلة للتحقق */
