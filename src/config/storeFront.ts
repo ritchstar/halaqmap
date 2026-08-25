@@ -71,7 +71,8 @@ export const STORE_SOFTWARE_SHOTS = [
 ] as const;
 
 export const STORE_LANDING_COPY = {
-  documentTitle: `${STORE_BRAND_LATIN} — ${STORE_PUBLIC_NAME_AR}`,
+  documentTitle: `متجر خريطة الحل — ${STORE_BRAND_LATIN}`,
+  shopNameAr: 'متجر خريطة الحل',
   cardsTitle: `${STORE_PUBLIC_NAME_AR} — بطاقة تهنئة مجانية`,
   kicker: STORE_ENGLISH_LINE,
   publicName: STORE_PUBLIC_NAME_AR,
@@ -161,7 +162,7 @@ export const STORE_ENGAGE_COPY = {
   rateThanksAr: 'شكراً لتقييمك.',
   shareTitleAr: 'شارك المتجر',
   shareLeadAr: 'أرسل رابط المتجر لمن يحتاجه.',
-  shareTextAr: 'خريطة الحل — متجر برمجيات وخدمات سحابية. كاردي8، افراحي1، اجواء1، لاونجا1، وتمويناتا1.',
+  shareTextAr: 'متجر خريطة الحل — برمجيات وخدمات سحابية. كاردي8، افراحي1، اجواء1، لاونجا1، وتمويناتا1.',
   copyAr: 'نسخ الرابط',
   copiedAr: 'تم النسخ',
   whatsappAr: 'واتساب',

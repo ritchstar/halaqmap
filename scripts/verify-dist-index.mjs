@@ -34,7 +34,7 @@ if (!/\/assets\/[^"']+\.(js|css)\?v=/.test(html)) {
   errors.push('missing ?v= on /assets/*.js or *.css');
 }
 
-for (const name of ['sitemap.xml', 'sitemap-pages.xml', 'sitemap-geo.xml', 'sitemap-en.xml', 'sitemap-summi.xml']) {
+for (const name of ['sitemap.xml', 'sitemap-pages.xml', 'sitemap-geo.xml', 'sitemap-en.xml', 'sitemap-summi.xml', 'sitemap-store.xml']) {
   const path = join(dist, name);
   if (!existsSync(path)) {
     errors.push(`missing ${name}`);
@@ -55,6 +55,12 @@ for (const name of ['sitemap.xml', 'sitemap-pages.xml', 'sitemap-geo.xml', 'site
   }
   if (name === 'sitemap.xml' && !body.includes('sitemap-summi.xml')) {
     errors.push('sitemap.xml index must reference sitemap-summi.xml');
+  }
+  if (name === 'sitemap.xml' && !body.includes('sitemap-store.xml')) {
+    errors.push('sitemap.xml index must reference sitemap-store.xml');
+  }
+  if (name === 'sitemap-store.xml' && !body.includes('store.halaqmap.com/store')) {
+    errors.push('sitemap-store.xml missing store.halaqmap.com/store');
   }
   if (name === 'sitemap-summi.xml' && !body.includes('coiffeur.halaqmap.com/summi')) {
     errors.push('sitemap-summi.xml missing coiffeur.halaqmap.com/summi URLs');
@@ -136,8 +142,11 @@ if (!existsSync(storeShare)) {
   if (!storeHtml.includes('store.halaqmap.com')) {
     errors.push('store-index.html must point og tags at store.halaqmap.com');
   }
-  if (!storeHtml.includes('خريطة الحل')) {
-    errors.push('store-index.html must use store public name');
+  if (!storeHtml.includes('متجر خريطة الحل')) {
+    errors.push('store-index.html must use store shop name');
+  }
+  if (!storeHtml.includes('OnlineStore')) {
+    errors.push('store-index.html missing OnlineStore json-ld');
   }
   if (storeHtml.includes('اقرب حلاق · حلاق قريب | حلاق ماب')) {
     errors.push('store-index.html must not keep Halaq Map share title');

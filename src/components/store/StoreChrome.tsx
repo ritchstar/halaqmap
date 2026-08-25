@@ -4,7 +4,7 @@
 import { Link } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { lockPartnerDarkCanvas } from '@/lib/partnerDarkCanvas';
-import { STORE_ABOUT_COPY, STORE_BRAND_LATIN, STORE_CONTACT_EMAIL, STORE_CONTACT_PHONE_DISPLAY, STORE_CONTACT_PHONE_E164, STORE_CONTACT_WHATSAPP_URL, STORE_CONTACT_X_HANDLE, STORE_CONTACT_X_URL, STORE_FOOTER_CONTACT, STORE_LANDING_COPY, STORE_ORIGIN, STORE_PUBLIC_NAME_AR, STORE_VISUALS } from '@/config/storeFront';
+import { STORE_ABOUT_COPY, STORE_BRAND_LATIN, STORE_CONTACT_EMAIL, STORE_CONTACT_PHONE_DISPLAY, STORE_CONTACT_PHONE_E164, STORE_CONTACT_WHATSAPP_URL, STORE_CONTACT_X_HANDLE, STORE_CONTACT_X_URL, STORE_FOOTER_CONTACT, STORE_LANDING_COPY, STORE_ORIGIN, STORE_VISUALS } from '@/config/storeFront';
 import { KSACityClocksBar } from '@/components/KSACityClocksBar';
 import { EcommerceVerifiedFooterBadge } from '@/components/EcommerceVerifiedFooterBadge';
 import { StoreVisitorEngage } from '@/components/store/StoreVisitorEngage';
@@ -41,7 +41,7 @@ export function StoreVisitorHeader() {
             />
             <span className="min-w-0">
               <p className="text-[0.7rem] font-bold tracking-wide text-[#e8c547]">{STORE_BRAND_LATIN}</p>
-              <p className="truncate text-lg font-extrabold text-[#f4efe4]">{STORE_PUBLIC_NAME_AR}</p>
+              <p className="truncate text-lg font-extrabold text-[#f4efe4]">{STORE_LANDING_COPY.shopNameAr}</p>
             </span>
           </Link>
           <nav className="flex shrink-0 items-center gap-2 text-sm font-bold">

@@ -60,8 +60,11 @@ export default function StoreLanding() {
           <div>
             <p className="text-sm font-bold tracking-wide text-[#e8c547]">{STORE_LANDING_COPY.kicker}</p>
             <h1 className="mt-2 text-3xl font-extrabold leading-tight text-[#f4efe4] md:text-4xl">
-              {STORE_LANDING_COPY.heroHeadlineAr}
+              {STORE_LANDING_COPY.shopNameAr}
             </h1>
+            <p className="mt-3 text-xl font-extrabold leading-tight text-white/90 md:text-2xl">
+              {STORE_LANDING_COPY.heroHeadlineAr}
+            </p>
             <p className="mt-4 max-w-3xl text-base leading-relaxed text-white/78 md:text-lg">
               {STORE_LANDING_COPY.heroLead}
             </p>

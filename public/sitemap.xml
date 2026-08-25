@@ -12,4 +12,7 @@
   <sitemap>
     <loc>https://coiffeur.halaqmap.com/sitemap-summi.xml</loc>
   </sitemap>
+  <sitemap>
+    <loc>https://store.halaqmap.com/sitemap-store.xml</loc>
+  </sitemap>
 </sitemapindex>

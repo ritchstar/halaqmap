@@ -59,6 +59,18 @@
       "permanent": true
     },
     {
+      "source": "/",
+      "has": [{ "type": "host", "value": "store.halaqmap.com" }],
+      "destination": "https://store.halaqmap.com/store",
+      "permanent": true
+    },
+    {
+      "source": "/index.html",
+      "has": [{ "type": "host", "value": "store.halaqmap.com" }],
+      "destination": "https://store.halaqmap.com/store",
+      "permanent": true
+    },
+    {
       "source": "/near/riyadh/manfuha",
       "destination": "/near/riyadh/hittin",
       "permanent": true

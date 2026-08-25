@@ -20,3 +20,4 @@ Allow: /occasions/
 Allow: /summi/
 
 Sitemap: https://www.halaqmap.com/sitemap.xml
+Sitemap: https://store.halaqmap.com/sitemap-store.xml

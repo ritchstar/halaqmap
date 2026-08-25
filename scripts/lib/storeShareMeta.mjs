@@ -7,14 +7,38 @@
 export const STORE_SHARE_ORIGIN = 'https://store.halaqmap.com';
 
 export const STORE_SHARE_META = {
-  title: 'halaqmap — خريطة الحل',
+  title: 'متجر خريطة الحل — halaqmap',
   description:
-    'متجر إلكتروني للبيع بالتجزئة للبرمجيات والخدمات السحابية. افراحي1، اجواء1، لاونجا1، تمويناتا1، مطعمنا1، وكاردي8.',
-  siteName: 'halaqmap · خريطة الحل',
-  url: `${STORE_SHARE_ORIGIN}/`,
+    'متجر خريطة الحل: متجر إلكتروني للبيع بالتجزئة للبرمجيات والخدمات السحابية. افراحي1، اجواء1، لاونجا1، تمويناتا1، مطعمنا1، وكاردي8.',
+  siteName: 'متجر خريطة الحل',
+  url: `${STORE_SHARE_ORIGIN}/store`,
   image: `${STORE_SHARE_ORIGIN}/images/halaqmap-store-mark-radar-square-1200x1200.png`,
-  imageAlt: 'شعار متجر halaqmap — خريطة الحل',
+  imageAlt: 'شعار متجر خريطة الحل — halaqmap',
   author: 'خريطة الحل',
+};
+
+export const STORE_SHARE_JSON_LD = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'OnlineStore',
+      '@id': `${STORE_SHARE_ORIGIN}/#store`,
+      name: 'متجر خريطة الحل',
+      alternateName: ['خريطة الحل', 'halaqmap'],
+      url: STORE_SHARE_META.url,
+      inLanguage: 'ar-SA',
+      description: STORE_SHARE_META.description,
+      image: STORE_SHARE_META.image,
+    },
+    {
+      '@type': 'WebSite',
+      '@id': `${STORE_SHARE_ORIGIN}/#website`,
+      name: 'متجر خريطة الحل',
+      url: STORE_SHARE_META.url,
+      inLanguage: 'ar-SA',
+      publisher: { '@id': `${STORE_SHARE_ORIGIN}/#store` },
+    },
+  ],
 };
 
 function escapeAttr(value) {
@@ -66,6 +90,15 @@ export function applyStoreShareMeta(html) {
   next = replaceNameMeta(next, 'twitter:image', STORE_SHARE_META.image);
   next = replacePropertyMeta(next, 'og:image:width', '1200');
   next = replacePropertyMeta(next, 'og:image:height', '1200');
+  const jsonLdTag = `<script type="application/ld+json">${JSON.stringify(STORE_SHARE_JSON_LD)}</script>`;
+  if (/<script type="application\/ld\+json">[\s\S]*?<\/script>/i.test(next)) {
+    next = next.replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>/i, jsonLdTag);
+  } else {
+    next = next.replace('</head>', `    ${jsonLdTag}\n  </head>`);
+  }
+  if (!next.includes('<noscript><h1>متجر خريطة الحل</h1></noscript>')) {
+    next = next.replace(/<body([^>]*)>/i, '<body$1>\n    <noscript><h1>متجر خريطة الحل</h1></noscript>');
+  }
   if (next.includes('اقرب حلاق · حلاق قريب | حلاق ماب')) {
     throw new Error('store share HTML still carries Halaq Map share title');
   }

@@ -392,6 +392,12 @@ export function Layout({ children }: LayoutProps) {
                   {link.label}
                 </NavLink>
               ))}
+              <a
+                href="https://store.halaqmap.com/store"
+                className="text-[0.7rem] text-slate-600 hover:text-teal-400 transition-colors"
+              >
+                متجر خريطة الحل
+              </a>
               <span className="text-slate-700 text-[0.7rem]">© ٢٠٢٦ حلاق ماب · ISIC4 474151</span>
             </div>
             <AppBuildStamp className="opacity-30" />
