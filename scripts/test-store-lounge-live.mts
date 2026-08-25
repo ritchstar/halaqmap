@@ -27,6 +27,7 @@ import {
   loungeLivePaymentMatches,
   loungeLiveTermEndIso,
   parseLoungeLiveOrderBody,
+  publicLoungePayload,
 } from '../api/_lib/storeLoungeLive.ts';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -107,7 +108,56 @@ const parsed = parseLoungeLiveOrderBody({
   welcomeAr: 'حياكم الله',
 });
 assert.equal(parsed.ok, true);
+if (parsed.ok) {
+  assert.equal(parsed.payload.guestPaused, false);
+  assert.equal(parsed.payload.reviewBeforeShow, false);
+  const pending = publicLoungePayload(
+    {
+      ...parsed.payload,
+      blessings: [
+        {
+          id: '1',
+          name: 'ضيف',
+          cannedId: 'welcome',
+          cannedText: 'حياك الله',
+          extra: '',
+          hidden: false,
+          pending: true,
+          at: '2026-08-24T00:00:00.000Z',
+        },
+      ],
+    },
+    'display',
+  );
+  assert.equal(pending.blessings.length, 0);
+  const hostView = publicLoungePayload(
+    {
+      ...parsed.payload,
+      blessings: [
+        {
+          id: '1',
+          name: 'ضيف',
+          cannedId: 'welcome',
+          cannedText: 'حياك الله',
+          extra: '',
+          hidden: false,
+          pending: true,
+          at: '2026-08-24T00:00:00.000Z',
+        },
+      ],
+    },
+    'host',
+  );
+  assert.equal(hostView.blessings.length, 1);
+}
 
+assert.match(STORE_LOUNGE_LIVE.kickerAr, /ثلاثة أشهر/);
+assert.match(STORE_LOUNGE_LIVE.featurePoints[3].bodyAr, /قيمة الباقة فقط/);
+assert.doesNotMatch(STORE_LOUNGE_LIVE.durationLineAr, /اشتراك/);
+assert.match(
+  readFileSync(join(root, 'src/components/store/StoreLoungeHallStage.tsx'), 'utf8'),
+  /QRCode/,
+);
 assert.match(app, /\/store\/lounge/);
 assert.match(app, /\/l\/:token\/guest/);
 assert.match(app, /\/pay\/lounge\/:token/);

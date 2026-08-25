@@ -3,25 +3,53 @@
  */
 import { useMemo, useRef, useState } from 'react';
 import { STORE_LOUNGE_LIVE, STORE_LOUNGE_LIVE_CANNED } from '@/config/storeLoungeLive';
-import type { LoungeLiveBlessing, LoungeLiveLabState } from '@/lib/storeLoungeLiveLab';
+import {
+  loungeBlessingDuplicate,
+  loungeTextBlocked,
+  type LoungeLiveBlessing,
+  type LoungeLiveLabState,
+} from '@/lib/storeLoungeLiveLab';
 import { cn } from '@/lib/utils';
 
 const WRITE_ID = 'write';
+const RATE_MS = 45_000;
+
+function lastSendKey(rateKey: string): string {
+  return `hm-lounge-last-send:${rateKey}`;
+}
+
+function readLastSend(rateKey: string): number {
+  if (typeof window === 'undefined') return 0;
+  return Number(window.localStorage.getItem(lastSendKey(rateKey)) || 0) || 0;
+}
+
+function writeLastSend(rateKey: string, at: number): void {
+  if (typeof window === 'undefined') return;
+  try {
+    window.localStorage.setItem(lastSendKey(rateKey), String(at));
+  } catch {
+    /* ignore */
+  }
+}
 
 export function StoreLoungeGuestForm({
   state,
   onChange,
+  rateKey = 'lounge',
 }: {
   state: LoungeLiveLabState;
   onChange: (next: LoungeLiveLabState) => void;
+  rateKey?: string;
 }) {
   const [guestName, setGuestName] = useState('');
   const [cannedId, setCannedId] = useState<string>(STORE_LOUNGE_LIVE_CANNED[0].id);
   const [message, setMessage] = useState(STORE_LOUNGE_LIVE_CANNED[0].textAr);
   const [extra, setExtra] = useState('');
   const [showExtra, setShowExtra] = useState(false);
-  const [sent, setSent] = useState(false);
+  const [sent, setSent] = useState<'live' | 'pending' | ''>('');
+  const [error, setError] = useState('');
   const messageRef = useRef<HTMLTextAreaElement>(null);
+  const paused = state.host.guestPaused === true;
   const matched = useMemo(
     () => STORE_LOUNGE_LIVE_CANNED.find((item) => item.textAr === message.trim()),
     [message],
@@ -40,26 +68,48 @@ export function StoreLoungeGuestForm({
   }
 
   function submitBlessing() {
+    setError('');
+    if (paused) {
+      setError(STORE_LOUNGE_LIVE.guestPausedAr);
+      return;
+    }
     const text = message.trim();
     if (!text) {
       messageRef.current?.focus();
       return;
     }
+    const extraText = extra.trim().slice(0, 80);
+    if (loungeTextBlocked(`${text} ${extraText}`)) {
+      setError(STORE_LOUNGE_LIVE.guestBlockedAr);
+      return;
+    }
+    const now = Date.now();
+    if (now - readLastSend(rateKey) < RATE_MS) {
+      setError(STORE_LOUNGE_LIVE.guestRateAr);
+      return;
+    }
+    if (loungeBlessingDuplicate(state.blessings, { cannedText: text, extra: extraText })) {
+      setError(STORE_LOUNGE_LIVE.guestDupAr);
+      return;
+    }
+    const pending = state.host.reviewBeforeShow === true;
     const blessing: LoungeLiveBlessing = {
-      id: `${Date.now()}`,
+      id: `${now}`,
       name: (guestName.trim() || 'ضيف').slice(0, 40),
       cannedId: matched?.id || WRITE_ID,
       cannedText: text.slice(0, 120),
-      extra: extra.trim().slice(0, 80),
+      extra: extraText,
       hidden: false,
-      at: new Date().toISOString(),
+      pending,
+      at: new Date(now).toISOString(),
     };
     onChange({ ...state, blessings: [...state.blessings, blessing] });
+    writeLastSend(rateKey, now);
     setGuestName('');
     setExtra('');
     setMessage(STORE_LOUNGE_LIVE_CANNED[0].textAr);
     setCannedId(STORE_LOUNGE_LIVE_CANNED[0].id);
-    setSent(true);
+    setSent(pending ? 'pending' : 'live');
   }
 
   return (
@@ -71,19 +121,22 @@ export function StoreLoungeGuestForm({
       }}
     >
       <h2 className="text-base font-extrabold">{STORE_LOUNGE_LIVE.guestFormTitleAr}</h2>
-      <p className="mt-2 text-xs leading-6 text-white/55">{STORE_LOUNGE_LIVE.guestPickHintAr}</p>
+      <p className="mt-2 text-xs leading-6 text-white/55">
+        {paused ? STORE_LOUNGE_LIVE.guestPausedAr : STORE_LOUNGE_LIVE.guestPickHintAr}
+      </p>
       <label className="mt-3 block text-sm">
         {STORE_LOUNGE_LIVE.guestMessageLabelAr}
         <textarea
           ref={messageRef}
           value={message}
+          disabled={paused}
           onChange={(event) => {
             const next = event.target.value;
             setMessage(next);
             const hit = STORE_LOUNGE_LIVE_CANNED.find((item) => item.textAr === next.trim());
             setCannedId(hit?.id || WRITE_ID);
           }}
-          className="mt-1 min-h-[4.5rem] w-full resize-none rounded-xl border border-[#d4a574]/45 bg-black/40 px-3 py-2 text-base leading-7 text-[#f4efe4]"
+          className="mt-1 min-h-[4.5rem] w-full resize-none rounded-xl border border-[#d4a574]/45 bg-black/40 px-3 py-2 text-base leading-7 text-[#f4efe4] disabled:opacity-50"
           maxLength={120}
           rows={3}
         />
@@ -93,9 +146,10 @@ export function StoreLoungeGuestForm({
           <button
             key={item.id}
             type="button"
+            disabled={paused}
             onClick={() => pickCanned(item.id, item.textAr)}
             className={cn(
-              'min-h-11 rounded-full border px-3 py-2 text-right text-xs leading-5',
+              'min-h-11 rounded-full border px-3 py-2 text-right text-xs leading-5 disabled:opacity-50',
               cannedId === item.id
                 ? 'border-[#d4a574] bg-[#d4a574]/15 text-[#f7edd8]'
                 : 'border-white/12 bg-black/30 text-white/80',
@@ -106,9 +160,10 @@ export function StoreLoungeGuestForm({
         ))}
         <button
           type="button"
+          disabled={paused}
           onClick={startWriting}
           className={cn(
-            'min-h-11 rounded-full border px-3 py-2 text-right text-xs leading-5',
+            'min-h-11 rounded-full border px-3 py-2 text-right text-xs leading-5 disabled:opacity-50',
             cannedId === WRITE_ID
               ? 'border-[#d4a574] bg-[#d4a574]/15 text-[#f7edd8]'
               : 'border-white/12 bg-black/30 text-white/80',
@@ -121,8 +176,9 @@ export function StoreLoungeGuestForm({
         {STORE_LOUNGE_LIVE.guestNameLabelAr}
         <input
           value={guestName}
+          disabled={paused}
           onChange={(e) => setGuestName(e.target.value)}
-          className="mt-1 h-11 w-full rounded-xl border border-white/15 bg-black/40 px-3 text-base text-[#f4efe4]"
+          className="mt-1 h-11 w-full rounded-xl border border-white/15 bg-black/40 px-3 text-base text-[#f4efe4] disabled:opacity-50"
           maxLength={40}
           autoComplete="name"
           inputMode="text"
@@ -133,23 +189,27 @@ export function StoreLoungeGuestForm({
           {STORE_LOUNGE_LIVE.guestExtraLabelAr}
           <input
             value={extra}
+            disabled={paused}
             onChange={(e) => setExtra(e.target.value)}
-            className="mt-1 h-11 w-full rounded-xl border border-white/15 bg-black/40 px-3 text-[#f4efe4]"
+            className="mt-1 h-11 w-full rounded-xl border border-white/15 bg-black/40 px-3 text-[#f4efe4] disabled:opacity-50"
             maxLength={80}
           />
         </label>
       ) : (
-        <button type="button" onClick={() => setShowExtra(true)} className="mt-3 text-xs text-white/45 underline">
+        <button type="button" disabled={paused} onClick={() => setShowExtra(true)} className="mt-3 text-xs text-white/45 underline disabled:opacity-50">
           سطر إضافي إن رغبت
         </button>
       )}
       <button
         type="submit"
-        className="mt-4 min-h-12 w-full rounded-full bg-[#d4a574] text-sm font-bold text-[#12090c]"
+        disabled={paused}
+        className="mt-4 min-h-12 w-full rounded-full bg-[#d4a574] text-sm font-bold text-[#12090c] disabled:opacity-50"
       >
         {STORE_LOUNGE_LIVE.guestSubmitAr}
       </button>
-      {sent ? <p className="mt-3 text-sm text-[#d4a574]">ظهر ترحيبك على الشاشة.</p> : null}
+      {error ? <p className="mt-3 text-sm text-red-300">{error}</p> : null}
+      {sent === 'pending' ? <p className="mt-3 text-sm text-[#d4a574]">{STORE_LOUNGE_LIVE.guestPendingAr}</p> : null}
+      {sent === 'live' ? <p className="mt-3 text-sm text-[#d4a574]">{STORE_LOUNGE_LIVE.guestSentAr}</p> : null}
     </form>
   );
 }

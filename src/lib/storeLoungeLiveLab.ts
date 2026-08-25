@@ -27,6 +27,7 @@ export type LoungeLiveBlessing = {
   cannedText: string;
   extra: string;
   hidden: boolean;
+  pending?: boolean;
   at: string;
 };
 
@@ -41,6 +42,8 @@ export type LoungeLiveHostState = {
   announcement: string;
   photoSrc: string;
   panoramaSrc: string;
+  guestPaused: boolean;
+  reviewBeforeShow: boolean;
 };
 
 export type LoungeLiveLabState = {
@@ -52,9 +55,33 @@ function storageKey(token: string): string {
   return `store-lounge-live:v1:${token.trim() || 'lounge-lab'}`;
 }
 
+export function loungeBlessingOnScreen(item: LoungeLiveBlessing): boolean {
+  return item.hidden !== true && item.pending !== true;
+}
+
+const ABUSE_RE = /قحب|شرمو|نيك|كس ام|كسم /i;
+
+export function loungeTextBlocked(raw: unknown): boolean {
+  return ABUSE_RE.test(String(raw || ''));
+}
+
+export function loungeBlessingDuplicate(
+  list: LoungeLiveBlessing[],
+  input: { cannedText: string; extra: string },
+  withinMs = 45_000,
+  now = Date.now(),
+): boolean {
+  const text = `${input.cannedText}|${input.extra}`.replace(/\s+/g, ' ').trim();
+  return list.some((item) => {
+    const other = `${item.cannedText}|${item.extra}`.replace(/\s+/g, ' ').trim();
+    const at = Date.parse(item.at);
+    return other === text && Number.isFinite(at) && now - at < withinMs;
+  });
+}
+
 export function defaultLoungeLiveLabState(): LoungeLiveLabState {
   return {
-    host: { ...STORE_LOUNGE_LIVE_DEMO },
+    host: { ...STORE_LOUNGE_LIVE_DEMO, guestPaused: false, reviewBeforeShow: false },
     blessings: [],
   };
 }
@@ -83,7 +110,12 @@ export function readLoungeLiveLabState(token: string): LoungeLiveLabState {
     if (!raw) return fallback;
     const parsed = JSON.parse(raw) as Partial<LoungeLiveLabState>;
     return {
-      host: { ...fallback.host, ...(parsed.host || {}) },
+      host: {
+        ...fallback.host,
+        ...(parsed.host || {}),
+        guestPaused: parsed.host?.guestPaused === true,
+        reviewBeforeShow: parsed.host?.reviewBeforeShow === true,
+      },
       blessings: Array.isArray(parsed.blessings) ? parsed.blessings : [],
     };
   } catch {

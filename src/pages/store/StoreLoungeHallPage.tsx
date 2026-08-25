@@ -28,6 +28,8 @@ function payloadToState(payload: Record<string, unknown>, fallback: LoungeLiveLa
   const host = {
     ...fallback.host,
     ...(payload as Partial<LoungeLiveHostState>),
+    guestPaused: payload.guestPaused === true,
+    reviewBeforeShow: payload.reviewBeforeShow === true,
   };
   const blessings = Array.isArray(payload.blessings) ? payload.blessings : fallback.blessings;
   return { host, blessings: blessings as LoungeLiveLabState['blessings'] };
@@ -51,11 +53,15 @@ export default function StoreLoungeHallPage() {
   const [guestUrl, setGuestUrl] = useState('');
   const [displayUrl, setDisplayUrl] = useState('');
   const [expiresAt, setExpiresAt] = useState('');
+  const [screenLive, setScreenLive] = useState(true);
   useDocumentTitle(STORE_LOUNGE_LIVE.documentTitle);
 
   useEffect(() => {
     if (isLab) {
       setState(readLoungeLiveLabState(safeToken));
+      setGuestUrl(`${window.location.origin}/#/l/${encodeURIComponent(safeToken)}/guest`);
+      setDisplayUrl(`${window.location.origin}/#/l/${encodeURIComponent(safeToken)}`);
+      setScreenLive(true);
       const refresh = () => setState(readLoungeLiveLabState(safeToken));
       const timer = window.setInterval(refresh, 1500);
       window.addEventListener('storage', refresh);
@@ -75,12 +81,14 @@ export default function StoreLoungeHallPage() {
         }
         if (!result.ok || !result.payload || typeof result.payload !== 'object') {
           setGate('missing');
+          setScreenLive(false);
           return;
         }
         setState(payloadToState(result.payload as Record<string, unknown>, defaultLoungeLiveLabState()));
         setGuestUrl(typeof result.guestUrl === 'string' ? result.guestUrl : '');
         setDisplayUrl(typeof result.displayUrl === 'string' ? result.displayUrl : '');
         setExpiresAt(typeof result.expiresAt === 'string' ? result.expiresAt : '');
+        setScreenLive(true);
         setGate('ok');
       });
     };
@@ -91,6 +99,28 @@ export default function StoreLoungeHallPage() {
       window.clearInterval(timer);
     };
   }, [safeToken, mode, isLab]);
+
+  useEffect(() => {
+    if (mode !== 'display' || gate !== 'ok') return;
+    const nav = navigator as Navigator & { wakeLock?: { request: (type: 'screen') => Promise<{ release: () => Promise<void> }> } };
+    let sentinel: { release: () => Promise<void> } | undefined;
+    const lock = async () => {
+      try {
+        sentinel = await nav.wakeLock?.request('screen');
+      } catch {
+        /* الجهاز قد يرفض الإبقاء مستيقظاً */
+      }
+    };
+    void lock();
+    const onVis = () => {
+      if (document.visibilityState === 'visible') void lock();
+    };
+    document.addEventListener('visibilitychange', onVis);
+    return () => {
+      document.removeEventListener('visibilitychange', onVis);
+      void sentinel?.release();
+    };
+  }, [mode, gate]);
 
   const commit = (next: LoungeLiveLabState) => {
     if (isLab) {
@@ -124,8 +154,13 @@ export default function StoreLoungeHallPage() {
       ) : null}
       {gate === 'ok' ? (
         <>
-          <StoreLoungeHallStage state={state} immersive />
-          {mode === 'guest' ? <StoreLoungeGuestForm state={state} onChange={commit} /> : null}
+          <StoreLoungeHallStage
+            state={state}
+            immersive
+            guestUrl={mode === 'guest' ? '' : guestUrl}
+            screenLive={screenLive}
+          />
+          {mode === 'guest' ? <StoreLoungeGuestForm state={state} onChange={commit} rateKey={safeToken} /> : null}
           {mode === 'host' ? (
             <div className="relative z-20 px-3 pb-10 pt-3">
               <StoreLoungeHostPanel

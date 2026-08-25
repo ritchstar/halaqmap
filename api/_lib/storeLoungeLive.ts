@@ -105,6 +105,7 @@ export type LoungeLiveBlessing = {
   cannedText: string;
   extra: string;
   hidden: boolean;
+  pending?: boolean;
   at: string;
 };
 
@@ -119,8 +120,34 @@ export type LoungeLiveOrderPayload = {
   announcement: string;
   photoSrc: string;
   panoramaSrc: string;
+  guestPaused: boolean;
+  reviewBeforeShow: boolean;
   blessings: LoungeLiveBlessing[];
 };
+
+const ABUSE_RE = /قحب|شرمو|نيك|كس ام|كسم /i;
+
+export function loungeBlessingOnScreen(item: LoungeLiveBlessing): boolean {
+  return item.hidden !== true && item.pending !== true;
+}
+
+export function loungeTextBlocked(raw: unknown): boolean {
+  return ABUSE_RE.test(String(raw || ''));
+}
+
+export function loungeBlessingDuplicate(
+  list: LoungeLiveBlessing[],
+  input: { cannedText: string; extra: string },
+  withinMs = 45_000,
+  now = Date.now(),
+): boolean {
+  const text = `${input.cannedText}|${input.extra}`.replace(/\s+/g, ' ').trim();
+  return list.some((item) => {
+    const other = `${item.cannedText}|${item.extra}`.replace(/\s+/g, ' ').trim();
+    const at = Date.parse(item.at);
+    return other === text && Number.isFinite(at) && now - at < withinMs;
+  });
+}
 
 export function parseLoungeLiveOrderBody(body: Record<string, unknown>):
   | { ok: true; email: string; buyerName: string; payload: LoungeLiveOrderPayload }
@@ -147,12 +174,18 @@ export function parseLoungeLiveOrderBody(body: Record<string, unknown>):
       announcement: clip(body.announcement, 160),
       photoSrc: clip(body.photoSrc, 400) || '/images/store/lab/lab-lounge-interior.jpg',
       panoramaSrc: clip(body.panoramaSrc, 400) || '/images/store/lab/lab-lounge-interior.jpg',
+      guestPaused: false,
+      reviewBeforeShow: false,
       blessings: [],
     },
   };
 }
 
-export function publicLoungePayload(payload: LoungeLiveOrderPayload) {
+export function publicLoungePayload(
+  payload: LoungeLiveOrderPayload,
+  role: 'display' | 'guest' | 'host' = 'display',
+) {
+  const blessings = Array.isArray(payload.blessings) ? payload.blessings : [];
   return {
     loungeName: payload.loungeName,
     hostName: payload.hostName,
@@ -164,6 +197,8 @@ export function publicLoungePayload(payload: LoungeLiveOrderPayload) {
     announcement: payload.announcement,
     photoSrc: payload.photoSrc,
     panoramaSrc: payload.panoramaSrc,
-    blessings: (payload.blessings || []).filter((item) => !item.hidden),
+    guestPaused: payload.guestPaused === true,
+    reviewBeforeShow: payload.reviewBeforeShow === true,
+    blessings: role === 'host' ? blessings.slice(-80) : blessings.filter(loungeBlessingOnScreen),
   };
 }

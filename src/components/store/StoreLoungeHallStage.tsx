@@ -3,6 +3,7 @@
  *
  * شاشة لاونجا1 — فعالية، ترحيبات، تنويه.
  */
+import QRCode from 'react-qr-code';
 import { STORE_LOUNGE_LIVE, STORE_LOUNGE_LIVE_ACCENT } from '@/config/storeLoungeLive';
 import { STORE_LOUNGE_MARKETING_FRAMES } from '@/config/storeMarketingReels';
 import { StoreHallNoticePlaque } from '@/components/store/StoreHallNoticePlaque';
@@ -11,19 +12,23 @@ import { StoreLivePanoramaCycle } from '@/components/store/StoreLivePanoramaCycl
 import { StoreLoungeNightSky } from '@/components/store/StoreLoungeNightSky';
 import { StoreShot } from '@/components/store/StoreShot';
 import type { LoungeLiveLabState } from '@/lib/storeLoungeLiveLab';
-import { loungeScreenTitle, youtubeEmbedSrc } from '@/lib/storeLoungeLiveLab';
+import { loungeBlessingOnScreen, loungeScreenTitle, youtubeEmbedSrc } from '@/lib/storeLoungeLiveLab';
 import { cn } from '@/lib/utils';
 
 export function StoreLoungeHallStage({
   state,
   className,
   immersive = false,
+  guestUrl = '',
+  screenLive = true,
 }: {
   state: LoungeLiveLabState;
   className?: string;
   immersive?: boolean;
+  guestUrl?: string;
+  screenLive?: boolean;
 }) {
-  const visible = state.blessings.filter((item) => !item.hidden);
+  const visible = state.blessings.filter(loungeBlessingOnScreen);
   const ticker = visible
     .map((item) => `${item.name}: ${item.extra ? `${item.cannedText} ${item.extra}` : item.cannedText}`)
     .join('   ·   ');
@@ -50,6 +55,9 @@ export function StoreLoungeHallStage({
         ) : null}
 
         <header className="wedding-hall-masthead">
+          <p className="mb-2 text-center text-[11px] tracking-wide text-white/55">
+            {screenLive ? STORE_LOUNGE_LIVE.screenLiveAr : STORE_LOUNGE_LIVE.screenStaleAr}
+          </p>
           <div className="hall-masthead-kicker" data-bidi="off" style={{ color: accent }}>
             {STORE_LOUNGE_LIVE.hallKickerAr}
           </div>
@@ -89,8 +97,18 @@ export function StoreLoungeHallStage({
               </li>
             ))
           ) : (
-            <li className="lounge-frame-glow-soft rounded-2xl border border-[#d4a574]/30 bg-black/50 p-4 text-sm text-white/55 sm:col-span-2">
-              بانتظار أولى الترحيبات على الشاشة.
+            <li className="lounge-frame-glow-soft flex flex-col items-center gap-3 rounded-2xl border border-[#d4a574]/30 bg-black/50 p-5 text-center sm:col-span-2 sm:flex-row sm:text-right">
+              {guestUrl ? (
+                <div className="rounded-xl bg-white p-2">
+                  <QRCode value={guestUrl} size={112} />
+                </div>
+              ) : null}
+              <div>
+                <p className="text-sm font-extrabold text-[#f4efe4]">{STORE_LOUNGE_LIVE.screenIdleCtaAr}</p>
+                <p className="mt-1 text-xs leading-6 text-white/60">
+                  {guestUrl ? STORE_LOUNGE_LIVE.screenQrHintAr : 'بانتظار أولى الترحيبات على الشاشة.'}
+                </p>
+              </div>
             </li>
           )}
         </ul>

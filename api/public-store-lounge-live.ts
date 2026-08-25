@@ -26,6 +26,8 @@ import {
   loungeLiveTermEndIso,
   newLoungeToken,
   parseLoungeEventId,
+  loungeBlessingDuplicate,
+  loungeTextBlocked,
   parseLoungeLiveOrderBody,
   publicLoungePayload,
   STORE_LOUNGE_LIVE_POLICY,
@@ -217,8 +219,9 @@ async function readByRole(db: Db, token: string, role: string, headers: Record<s
       ok: true,
       status: row.status,
       role,
-      payload: publicLoungePayload(payload),
+      payload: publicLoungePayload(payload, role === 'host' || role === 'guest' || role === 'display' ? role : 'display'),
       expiresAt: row.expires_at,
+      ...(role === 'display' ? { guestUrl: guestUrl(row.guest_token) } : {}),
       ...(role === 'host'
         ? {
             displayToken: row.display_token,
@@ -569,7 +572,12 @@ async function addBlessing(db: Db, body: Record<string, unknown>, headers: Recor
   const row = data as LoungeRow;
   if (row.status !== 'live' || isTermExpired(row)) return json({ error: 'انتهت مدة التشغيل' }, 403, headers);
   const payload = { ...(row.payload as LoungeLiveOrderPayload) };
+  if (payload.guestPaused === true) return json({ error: 'الاستقبال متوقف مؤقتاً' }, 403, headers);
+  if (loungeTextBlocked(`${cannedText} ${extra}`)) return json({ error: 'تعذر إرسال هذه العبارة' }, 400, headers);
   const blessings = Array.isArray(payload.blessings) ? payload.blessings : [];
+  if (loungeBlessingDuplicate(blessings, { cannedText, extra })) {
+    return json({ error: 'هذه العبارة أُرسلت للتو' }, 429, headers);
+  }
   blessings.push({
     id: `${Date.now()}`,
     name,
@@ -577,6 +585,7 @@ async function addBlessing(db: Db, body: Record<string, unknown>, headers: Recor
     cannedText,
     extra,
     hidden: false,
+    pending: payload.reviewBeforeShow === true,
     at: new Date().toISOString(),
   });
   payload.blessings = blessings.slice(-80);
@@ -607,6 +616,8 @@ async function saveHost(db: Db, body: Record<string, unknown>, headers: Record<s
     announcement: String(body.announcement ?? current.announcement).slice(0, 160),
     photoSrc: String(body.photoSrc ?? current.photoSrc).slice(0, 350000),
     panoramaSrc: String(body.panoramaSrc ?? current.panoramaSrc).slice(0, 350000),
+    guestPaused: body.guestPaused == null ? current.guestPaused === true : Boolean(body.guestPaused),
+    reviewBeforeShow: body.reviewBeforeShow == null ? current.reviewBeforeShow === true : Boolean(body.reviewBeforeShow),
     blessings: Array.isArray(body.blessings) ? (body.blessings as LoungeLiveOrderPayload['blessings']) : current.blessings,
   };
   await db

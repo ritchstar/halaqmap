@@ -44,7 +44,11 @@ export function StoreLoungeLiveStudio({ token = STORE_LOUNGE_LIVE_LAB_TOKEN }: {
         <h2 className="mt-2 text-2xl font-extrabold">{STORE_LOUNGE_LIVE.labTitleAr}</h2>
         <p className="mt-2 text-sm leading-8 text-white/75">{STORE_LOUNGE_LIVE.labLeadAr}</p>
       </div>
-      <StoreLoungeHallStage state={state} className="mt-6" />
+      <StoreLoungeHallStage
+        state={state}
+        className="mt-6"
+        guestUrl={`${typeof window !== 'undefined' ? window.location.origin : 'https://store.halaqmap.com'}/#/l/${encodeURIComponent(token)}/guest`}
+      />
       <div className="mt-5 flex flex-wrap gap-2">
         <button
           type="button"
@@ -68,8 +72,14 @@ export function StoreLoungeLiveStudio({ token = STORE_LOUNGE_LIVE_LAB_TOKEN }: {
         </button>
       </div>
       <div className="mt-5">
-        {tab === 'guest' ? <StoreLoungeGuestForm state={state} onChange={commit} /> : null}
-        {tab === 'host' ? <StoreLoungeHostPanel state={state} onChange={commit} /> : null}
+        {tab === 'guest' ? <StoreLoungeGuestForm state={state} onChange={commit} rateKey={token} /> : null}
+        {tab === 'host' ? (
+          <StoreLoungeHostPanel
+            state={state}
+            onChange={commit}
+            guestUrl={`${typeof window !== 'undefined' ? window.location.origin : 'https://store.halaqmap.com'}/#/l/${encodeURIComponent(token)}/guest`}
+          />
+        ) : null}
       </div>
     </div>
   );
