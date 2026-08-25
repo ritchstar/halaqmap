@@ -9,8 +9,11 @@ import { fileURLToPath } from 'node:url';
 import {
   STORE_INTRO_CARD_COPY,
   STORE_INTRO_CARD_ROLES,
+  STORE_INTRO_CARD_SECTORS,
   storeIntroCardCta,
+  storeIntroCardLandingUrl,
   storeIntroCardPitch,
+  storeIntroCardPublicUrl,
 } from '../src/config/storeIntroCardCopy.ts';
 import {
   decodeStoreIntroCardToken,
@@ -49,7 +52,21 @@ assert.equal(storeIntroCardCta('المالك'), STORE_INTRO_CARD_COPY.cta);
 assert.equal(storeIntroCardPitch('عضوية فخرية').kicker, 'عضوية فخرية');
 assert.equal(storeIntroCardPitch('رئيس مجموعة تسويقية').kicker, 'المجموعة التسويقية');
 assert.match(STORE_INTRO_CARD_COPY.headline, /واجهة المتجر/);
+assert.deepEqual([...STORE_INTRO_CARD_SECTORS], [
+  'افراحي1',
+  'اجواء1',
+  'تمويناتا1',
+  'لاونجا1',
+  'مطعمنا1',
+]);
+assert.ok(STORE_INTRO_CARD_SECTORS.every((item) => !item.includes(' ')));
+assert.doesNotMatch(STORE_INTRO_CARD_SECTORS.join(' '), /افراحي 1|اجواء 1|تموينات 1|كاردي8/);
+assert.equal(storeIntroCardLandingUrl(), 'https://store.halaqmap.com/store');
+assert.doesNotMatch(storeIntroCardLandingUrl(), /#/);
+assert.match(storeIntroCardPublicUrl('فهد العتيبي', 'المالك'), /\/store\/id-card\?c=/);
+assert.doesNotMatch(storeIntroCardPublicUrl('فهد العتيبي', 'المالك'), /#/);
 assert.doesNotMatch(JSON.stringify(STORE_INTRO_CARD_COPY), /store_occasion_card|كاردي8|كوافير ماب/);
+assert.doesNotMatch(JSON.stringify(STORE_INTRO_CARD_SECTORS), /كاردي8/);
 
 assert.match(app, /@\/pages\/store\/StoreIntroCardStudioPage/);
 assert.match(app, /@\/pages\/store\/StoreIntroCardViewPage/);
@@ -58,5 +75,9 @@ assert.doesNotMatch(app, /from ['"]@\/lib\/storeIntroCard['"]/);
 assert.doesNotMatch(studio, /coiffeurIntroCard|CoiffeurIntroCard/);
 assert.match(preview, /data-bidi="off"/);
 assert.match(preview, /storeIntroCardCenteredNameClass/);
+assert.match(preview, /STORE_INTRO_CARD_SECTORS/);
+assert.match(preview, /unicode-bidi:isolate/);
+assert.match(readFileSync(join(root, 'src/lib/storeIntroCard.ts'), 'utf8'), /STORE_INTRO_CARD_SECTORS/);
+assert.match(readFileSync(join(root, 'src/lib/storeIntroCard.ts'), 'utf8'), /qrSize = 168/);
 
 console.log('store-intro-card: ok');

@@ -18,6 +18,15 @@ export const STORE_INTRO_CARD_NAME_MAX = 40;
 export const STORE_INTRO_CARD_ROLE_MAX = 48;
 export const STORE_INTRO_CARD_SHARE_ASPECT = '4 / 5' as const;
 
+/** أسماء المنتجات الرسمية على الكرت — كل اسم معزول حتى لا ينفصل الرقم. بلا كاردي8. */
+export const STORE_INTRO_CARD_SECTORS = [
+  'افراحي1',
+  'اجواء1',
+  'تمويناتا1',
+  'لاونجا1',
+  'مطعمنا1',
+] as const;
+
 /** أضف صنفاً هنا لاحقاً دون تغيير الواجهة */
 export const STORE_INTRO_CARD_ROLES = [
   { id: 'owner', labelAr: 'المالك' },
@@ -59,7 +68,6 @@ export const STORE_INTRO_CARD_COPY = {
   needFields: 'اكتب الاسم والصفة أولاً.',
   headline: 'واجهة المتجر الإلكتروني',
   tagline: 'منتجات برمجية جاهزة — من الواجهة بلا تطبيق',
-  sectors: 'افراحي1 · اجواء1 · تمويناتا1 · لاونجا1',
   cta: 'ادخل خريطة الحل',
   ctaFemale: 'ادخلي خريطة الحل',
   privacyLine: 'الاسم والصفة يظهران على البطاقة فقط، ولا يُحفظان على الخادم.',
@@ -143,14 +151,14 @@ const STORE_INTRO_CARD_VIEW_PATH =
 
 export function storeIntroCardLandingUrl(): string {
   const origin = storeIntroCardOrigin();
-  return `${origin}/#${STORE_LANDING_PATH}?utm_source=intro_card&utm_medium=share&utm_campaign=store_card`;
+  return `${origin}${STORE_LANDING_PATH}`;
 }
 
 export function storeIntroCardPublicUrl(name: string, role: string): string {
   const origin = storeIntroCardOrigin();
   const token = encodeStoreIntroCardToken(name, role);
-  if (!token) return `${origin}/#${STORE_LANDING_PATH}`;
-  return `${origin}/#${STORE_INTRO_CARD_VIEW_PATH}?c=${encodeURIComponent(token)}`;
+  if (!token) return `${origin}${STORE_LANDING_PATH}`;
+  return `${origin}${STORE_INTRO_CARD_VIEW_PATH}?c=${encodeURIComponent(token)}`;
 }
 
 export function buildStoreIntroCardWhatsAppText(input: {

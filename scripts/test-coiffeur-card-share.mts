@@ -40,6 +40,10 @@ async function main() {
   assert.match(preview, /data-bidi="off"/);
   assert.match(preview, /coiffeurCardCenteredNameClass/);
   assert.match(preview, /text-align-last:center/);
+  assert.match(preview, /COIFFEUR_INTRO_CARD_SECTORS/);
+  assert.equal(copy.coiffeurCardLandingUrl(), 'https://coiffeur.halaqmap.com/coiffeur');
+  assert.doesNotMatch(copy.coiffeurCardLandingUrl(), /#/);
+  assert.deepEqual([...copy.COIFFEUR_INTRO_CARD_SECTORS], ['كوافير', 'تجميل', 'سبا', 'مكياج']);
   assert.ok(copy.COIFFEUR_CARD_ROLE_CHIPS.includes(role));
   assert.equal(copy.coiffeurCardPitch(role).kicker, copy.COIFFEUR_INTRO_CARD_COPY.marketingKicker);
   assert.match(copy.buildCoiffeurCardWhatsAppText({ name, role, cardUrl: 'https://coiffeur.halaqmap.com/c/x' }), /أدعوك إلى كوافير ماب/);

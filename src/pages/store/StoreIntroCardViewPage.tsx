@@ -61,7 +61,7 @@ export default function StoreIntroCardViewPage() {
     QRCode.toDataURL(landingUrl, {
       errorCorrectionLevel: 'M',
       margin: 1,
-      width: 256,
+      width: 384,
       color: { dark: '#061018', light: '#ffffff' },
     })
       .then((url) => {

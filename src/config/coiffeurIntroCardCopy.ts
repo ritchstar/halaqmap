@@ -17,6 +17,8 @@ export const COIFFEUR_CARD_ROLE_MAX = 36;
 /** نسبة واتساب الظاهرة في المحادثة دون قصّ أعلى البطاقة */
 export const COIFFEUR_CARD_SHARE_ASPECT = '4 / 5' as const;
 
+export const COIFFEUR_INTRO_CARD_SECTORS = ['كوافير', 'تجميل', 'سبا', 'مكياج'] as const;
+
 export const COIFFEUR_CARD_MARKETING_LEAD_ROLE = 'رئيسة مجموعة تسويقية' as const;
 
 export const COIFFEUR_INTRO_CARD_COPY = {
@@ -48,7 +50,6 @@ export const COIFFEUR_INTRO_CARD_COPY = {
   needFields: 'اكتبي الاسم والصفة أولاً.',
   headline: 'أقرب مشغل يناسبك',
   tagline: 'استعلمي من موقعك — مجاناً وبلا تطبيق',
-  sectors: 'كوافير · تجميل · سبا · مكياج',
   cta: 'ادخلي كوافير ماب',
   privacyLine: 'الاسم والصفة يظهران على البطاقة فقط، ولا يُحفظان على الخادم.',
   marketingKicker: 'بداية المجموعة التسويقية',
@@ -117,8 +118,7 @@ export function coiffeurSatelliteOrigin(): string {
 /** هبوط المنصة — مقصد الضغط ومسح الرمز */
 export function coiffeurCardLandingUrl(): string {
   const origin = coiffeurSatelliteOrigin();
-  const q = 'utm_source=intro_card&utm_medium=share&utm_campaign=coiffeur_card';
-  return `${origin}/#${ROUTE_PATHS.COIFFEUR_LANDING}?${q}`;
+  return `${origin}${ROUTE_PATHS.COIFFEUR_LANDING}`;
 }
 
 export function coiffeurCardPublicUrl(name: string, role: string): string {

@@ -103,7 +103,7 @@ export default function CoiffeurCardStudioPage() {
     QRCode.toDataURL(landingUrl, {
       errorCorrectionLevel: 'M',
       margin: 1,
-      width: 256,
+      width: 384,
       color: { dark: '#14080e', light: '#ffffff' },
     })
       .then((url) => {

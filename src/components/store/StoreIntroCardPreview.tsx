@@ -6,6 +6,7 @@ import {
   STORE_BRAND_LATIN,
   STORE_INTRO_CARD_COPY as COPY,
   STORE_INTRO_CARD_SHARE_ASPECT,
+  STORE_INTRO_CARD_SECTORS,
   STORE_PUBLIC_NAME_AR,
   STORE_SATELLITE_HOST,
   storeIntroCardCenteredNameClass,
@@ -105,7 +106,17 @@ export function StoreIntroCardPreview({ displayName, role, qrDataUrl, className 
           {pitch.invite ? (
             <p className="mt-1 text-[0.62rem] font-bold text-[#e8c547]">{pitch.invite}</p>
           ) : null}
-          <p className="mt-1 text-[0.62rem] font-bold text-[#d4af67]">{COPY.sectors}</p>
+          <ul className="mt-2 flex flex-wrap justify-center gap-1.5" data-bidi="off">
+            {STORE_INTRO_CARD_SECTORS.map((item) => (
+              <li
+                key={item}
+                dir="rtl"
+                className="rounded-full border border-[#e8c547]/45 bg-[#061018]/90 px-2 py-0.5 text-[0.62rem] font-extrabold text-[#e8c547] [unicode-bidi:isolate]"
+              >
+                {item}
+              </li>
+            ))}
+          </ul>
         </div>
 
         <p className="mt-2 w-full rounded-full bg-gradient-to-l from-[#f4efe4] via-[#e8c547] to-[#b8860b] py-1.5 text-center text-[0.78rem] font-black text-[#061018] shadow-[0_0_18px_rgba(232,197,71,0.35)]">
@@ -114,11 +125,11 @@ export function StoreIntroCardPreview({ displayName, role, qrDataUrl, className 
 
         <div className="mt-auto flex flex-col items-center pb-1 pt-2">
           {qrDataUrl ? (
-            <div className="rounded-xl bg-white p-1">
-              <img src={qrDataUrl} alt="" width={72} height={72} className="h-16 w-16" />
+            <div className="rounded-xl bg-white p-1.5">
+              <img src={qrDataUrl} alt="" width={96} height={96} className="h-24 w-24" />
             </div>
           ) : (
-            <div className="h-16 w-16 rounded-xl bg-white/90" aria-hidden />
+            <div className="h-24 w-24 rounded-xl bg-white/90" aria-hidden />
           )}
           <p dir="ltr" className="mt-1.5 text-[0.62rem] font-bold tracking-wide text-[#f4efe4]/90">
             {STORE_SATELLITE_HOST}

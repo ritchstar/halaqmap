@@ -7,6 +7,7 @@ import { STORE_VISUALS } from '@/config/storeFront';
 import {
   STORE_BRAND_LATIN,
   STORE_INTRO_CARD_COPY as COPY,
+  STORE_INTRO_CARD_SECTORS,
   STORE_PUBLIC_NAME_AR,
   STORE_SATELLITE_HOST,
   storeIntroCardCta,
@@ -36,7 +37,6 @@ const NAVY = {
   bg2: '#12243a',
   cream: '#f4efe4',
   gold: '#e8c547',
-  bronze: '#d4af67',
 } as const;
 
 function safePngName(fileName: string): string {
@@ -305,6 +305,71 @@ function paintMoodBand(
   ctx.stroke();
 }
 
+function paintNamedChips(
+  ctx: CanvasRenderingContext2D,
+  names: readonly string[],
+  plateX: number,
+  y: number,
+  plateW: number,
+  border: string,
+  textColor: string,
+): number {
+  ctx.save();
+  ctx.font = `800 20px ${FONT}`;
+  try {
+    ctx.direction = 'rtl';
+  } catch {
+    /* عزل الاسم داخل الشارة */
+  }
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  const gap = 10;
+  const chipH = 36;
+  const padX = 16;
+  const maxW = plateW - 40;
+  const chips = names.map((name) => ({
+    name,
+    w: Math.min(maxW, Math.max(88, ctx.measureText(name).width + padX * 2)),
+  }));
+  const rows: (typeof chips)[] = [];
+  let row: typeof chips = [];
+  let rowW = 0;
+  for (const chip of chips) {
+    const add = chip.w + (row.length ? gap : 0);
+    if (row.length && rowW + add > maxW) {
+      rows.push(row);
+      row = [chip];
+      rowW = chip.w;
+    } else {
+      row.push(chip);
+      rowW += add;
+    }
+  }
+  if (row.length) rows.push(row);
+
+  let cy = y;
+  for (const items of rows) {
+    const visual = [...items].reverse();
+    const total = visual.reduce((sum, chip) => sum + chip.w, 0) + gap * (visual.length - 1);
+    let x = plateX + (plateW - total) / 2;
+    for (const chip of visual) {
+      ctx.fillStyle = 'rgba(6, 16, 24, 0.92)';
+      roundRect(ctx, x, cy, chip.w, chipH, 18);
+      ctx.fill();
+      ctx.strokeStyle = border;
+      ctx.lineWidth = 1.5;
+      roundRect(ctx, x, cy, chip.w, chipH, 18);
+      ctx.stroke();
+      ctx.fillStyle = textColor;
+      ctx.fillText(`\u2067${chip.name}\u2069`, x + chip.w / 2, cy + chipH / 2 + 1);
+      x += chip.w + gap;
+    }
+    cy += chipH + 8;
+  }
+  ctx.restore();
+  return cy;
+}
+
 function setCenterRtl(ctx: CanvasRenderingContext2D): void {
   ctx.textAlign = 'center';
   try {
@@ -396,8 +461,8 @@ export async function renderStoreIntroCardPng(input: {
     cursorY += 56;
   }
 
-  paintMoodBand(ctx, photo, 92, cursorY, w - 184, 118);
-  const nameTop = photo && photo.naturalWidth > 0 ? cursorY + 132 : cursorY + 8;
+  paintMoodBand(ctx, photo, 92, cursorY, w - 184, 90);
+  const nameTop = photo && photo.naturalWidth > 0 ? cursorY + 104 : cursorY + 8;
   paintPlate(ctx, 92, nameTop, w - 184, 118, 24);
   ctx.fillStyle = NAVY.cream;
   ctx.font = `900 44px ${FONT}`;
@@ -418,26 +483,33 @@ export async function renderStoreIntroCardPng(input: {
   paintCenteredPlateLines(ctx, roleLines, (w - roleW) / 2, roleY, roleW, roleH, 34);
 
   const pitchY = roleY + roleH + 16;
-  const pitchH = pitch.invite ? 168 : 148;
+  const pitchH = pitch.invite ? 228 : 200;
   paintPlate(ctx, 92, pitchY, w - 184, pitchH, 22);
   ctx.fillStyle = NAVY.cream;
   ctx.font = `900 30px ${FONT}`;
-  ctx.fillText(pitch.headline, w / 2, pitchY + 44);
+  ctx.fillText(pitch.headline, w / 2, pitchY + 40);
   ctx.fillStyle = NAVY.gold;
   ctx.font = `800 22px ${FONT}`;
   const tagLines = wrapLines(ctx, pitch.tagline, w - 260, 2);
-  let ty = pitchY + 80;
+  let ty = pitchY + 74;
   for (const ln of tagLines) {
     ctx.fillText(ln, w / 2, ty);
     ty += 30;
   }
-  ctx.fillStyle = NAVY.bronze;
-  ctx.font = `800 20px ${FONT}`;
-  ctx.fillText(COPY.sectors, w / 2, ty + 6);
+  const chipsEnd = paintNamedChips(
+    ctx,
+    STORE_INTRO_CARD_SECTORS,
+    92,
+    ty + 8,
+    w - 184,
+    'rgba(232, 197, 71, 0.7)',
+    NAVY.gold,
+  );
   if (pitch.invite) {
     ctx.fillStyle = NAVY.gold;
     ctx.font = `800 20px ${FONT}`;
-    ctx.fillText(pitch.invite, w / 2, ty + 34);
+    ctx.textAlign = 'center';
+    ctx.fillText(pitch.invite, w / 2, Math.min(chipsEnd + 22, pitchY + pitchH - 18));
   }
 
   const ctaW = 600;
@@ -457,11 +529,11 @@ export async function renderStoreIntroCardPng(input: {
   ctx.font = `900 26px ${FONT}`;
   ctx.fillText(cta, w / 2, ctaY + 42);
 
-  const qrSize = 118;
-  const qrY = h - 214;
+  const qrSize = 168;
+  const qrY = h - 268;
   if (qr && qr.naturalWidth > 0) {
     ctx.fillStyle = '#ffffff';
-    roundRect(ctx, (w - qrSize) / 2 - 8, qrY - 8, qrSize + 16, qrSize + 16, 14);
+    roundRect(ctx, (w - qrSize) / 2 - 10, qrY - 10, qrSize + 20, qrSize + 20, 16);
     ctx.fill();
     ctx.drawImage(qr, (w - qrSize) / 2, qrY, qrSize, qrSize);
   }
