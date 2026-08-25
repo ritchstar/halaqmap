@@ -3,7 +3,7 @@
  *
  * هبوط دعوة الزواج التفاعلية — معاينة كاملة داخل الصفحة.
  */
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, Navigate, useLocation } from 'react-router-dom';
 import { ChevronDown } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -27,20 +27,21 @@ import {
   type StoreWeddingLiveVoice,
 } from '@/config/storeWeddingLive';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
+import { ProductEvents } from '@/lib/analytics/productAnalytics';
 import { defaultWeddingLiveLabState, weddingLiveDefaultStyle } from '@/lib/storeWeddingLiveLab';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { cn } from '@/lib/utils';
 
 const FEATURES_MEN = [
-  'قاعة تفاعلية حية تتصل بشاشة عرض القاعة، فيرسل الضيوف التهاني لتظهر فوراً في وسط الشاشة.',
-  'شريط التنويهات والوسائط: فيديو أو يوتيوب، وتنويه نابض على الشاشة عند تغيّر حالة الحفل.',
-  'لوحة تحكم فورية لمراجعة التهاني وتحديد ما يُعرض على شاشة القاعة.',
+  'أرسل تهنئة لتظهر على شاشة القاعة أمامك الآن.',
+  'عدّل الأسماء والتاريخ والتنويه من لوحة المضيف.',
+  'بعد الشراء تصلك روابط سرية، وكل رابط مدعو يُربط بجهازه.',
 ] as const;
 
 const FEATURES_WOMEN = [
-  'قاعة تفاعلية حية تتصل بشاشة عرض القاعة، فترسل الضيفات التهاني لتظهر فوراً في وسط الشاشة.',
-  'شريط التنويهات والوسائط: فيديو أو يوتيوب، وتنويه نابض على الشاشة عند تغيّر حالة الحفل.',
-  'لوحة تحكم فورية لمراجعة التهاني وتحديد ما يُعرض على شاشة القاعة.',
+  'أرسلي تهنئة لتظهر على شاشة القاعة أمامك الآن.',
+  'عدّلي الأسماء والتاريخ والتنويه من لوحة المضيفة.',
+  'بعد الشراء تصلك روابط سرية، وكل رابط مدعوة يُربط بجهازها.',
 ] as const;
 
 export default function StoreWeddingLandingPage() {
@@ -50,6 +51,10 @@ export default function StoreWeddingLandingPage() {
   const demo = defaultWeddingLiveLabState(voice);
   const [termsOpen, setTermsOpen] = useState(false);
   useDocumentTitle(copy.documentTitle);
+
+  useEffect(() => {
+    ProductEvents.storeWeddingLandingView({ voice });
+  }, [voice]);
 
   if (!STORE_WEDDING_LIVE_PUBLIC_ENABLED) {
     return <Navigate to={ROUTE_PATHS.STORE_LANDING} replace />;
@@ -61,6 +66,10 @@ export default function StoreWeddingLandingPage() {
   const labToken = voice === 'women' ? STORE_WEDDING_LIVE_LAB_TOKEN_WOMEN : STORE_WEDDING_LIVE_LAB_TOKEN;
   const sisterHref = voice === 'women' ? ROUTE_PATHS.STORE_WEDDING : ROUTE_PATHS.STORE_WEDDING_WOMEN;
   const sisterLabel = voice === 'women' ? 'النموذج الرجالي' : 'النموذج النسائي';
+
+  function scrollToId(id: string) {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
 
   return (
     <StoreVisitorShell>
@@ -83,7 +92,8 @@ export default function StoreWeddingLandingPage() {
                 className={cn('rounded-full px-5 py-2.5 text-sm font-bold', fill)}
                 onClick={(event) => {
                   event.preventDefault();
-                  document.getElementById('live-preview')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  ProductEvents.storeWeddingTryClick({ voice });
+                  scrollToId('live-preview');
                 }}
               >
                 {copy.tryCtaAr}
@@ -93,7 +103,8 @@ export default function StoreWeddingLandingPage() {
                 className="rounded-full border border-white/20 px-5 py-2.5 text-sm font-bold text-white/80"
                 onClick={(event) => {
                   event.preventDefault();
-                  document.getElementById('wedding-order')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  ProductEvents.storeWeddingOrderOpen({ voice });
+                  scrollToId('wedding-order');
                 }}
               >
                 {copy.orderCtaAr}
@@ -137,7 +148,7 @@ export default function StoreWeddingLandingPage() {
           </div>
         </div>
       </section>
-      <section className="px-4 pb-14">
+      <section className="px-4 pb-28">
         <div className="mx-auto max-w-6xl">
           <StoreWeddingLiveStudio token={labToken} />
           <div className="mt-10 max-w-2xl">
@@ -145,7 +156,27 @@ export default function StoreWeddingLandingPage() {
           </div>
         </div>
       </section>
-      <StoreVisitorFooter />
+      <aside
+        id="wedding-sticky-buy"
+        className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-[#061018]/95 px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur"
+      >
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3">
+          <p className={cn('text-sm font-black sm:text-base', text)}>{copy.stickyBuyLineAr}</p>
+          <button
+            type="button"
+            className={cn('shrink-0 rounded-full px-4 py-2 text-sm font-bold', fill)}
+            onClick={() => {
+              ProductEvents.storeWeddingOrderOpen({ voice });
+              scrollToId('wedding-order');
+            }}
+          >
+            {copy.stickyBuyCtaAr}
+          </button>
+        </div>
+      </aside>
+      <div className="pb-24">
+        <StoreVisitorFooter />
+      </div>
     </StoreVisitorShell>
   );
 }

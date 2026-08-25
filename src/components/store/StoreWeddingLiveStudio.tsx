@@ -2,6 +2,7 @@
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
  * معاينة كاملة داخل صفحة المنتج: قاعة + ضيف + مضيف.
+ * الجوال: القاعة مضغوطة ثم تبويب الضيف افتراضياً. المكتب: عمودان، المضيف يميناً.
  */
 import { useEffect, useState } from 'react';
 import {
@@ -23,7 +24,7 @@ type StudioTab = 'guest' | 'host';
 
 export function StoreWeddingLiveStudio({ token = STORE_WEDDING_LIVE_LAB_TOKEN }: { token?: string }) {
   const [state, setState] = useState<WeddingLiveLabState>(() => readWeddingLiveLabState(token));
-  const [tab, setTab] = useState<StudioTab>('host');
+  const [tab, setTab] = useState<StudioTab>('guest');
 
   useEffect(() => {
     setState(readWeddingLiveLabState(token));
@@ -51,9 +52,14 @@ export function StoreWeddingLiveStudio({ token = STORE_WEDDING_LIVE_LAB_TOKEN }:
         <p className={cn('text-sm font-bold', voice === 'women' ? 'text-[#e4b7c5]' : 'text-[#e8c547]')}>{copy.labKickerAr}</p>
         <h2 className="mt-2 text-2xl font-extrabold">{copy.labTitleAr}</h2>
         <p className="mt-2 text-sm leading-8 text-white/75">{copy.labLeadAr}</p>
+        <ul className="mt-4 max-w-xl space-y-1 text-sm leading-7 text-white/70">
+          {copy.labStepsAr.map((step) => (
+            <li key={step}>{step}</li>
+          ))}
+        </ul>
       </div>
-      <StoreWeddingHallStage state={state} autoWelcome className="mt-6" />
-      <div className="mt-5 flex flex-wrap gap-2">
+      <StoreWeddingHallStage compact state={state} autoWelcome className="store-wedding-studio-hall mt-6" />
+      <div className="mt-5 flex flex-wrap gap-2 lg:hidden">
         <button
           type="button"
           onClick={() => setTab('guest')}
@@ -69,9 +75,13 @@ export function StoreWeddingLiveStudio({ token = STORE_WEDDING_LIVE_LAB_TOKEN }:
           {copy.hostLinkAr}
         </button>
       </div>
-      <div className="mt-5">
-        {tab === 'guest' ? <StoreWeddingGuestForm state={state} onChange={commit} /> : null}
-        {tab === 'host' ? <StoreWeddingHostPanel state={state} onChange={commit} hostToken={token} isLab /> : null}
+      <div className="mt-5 grid gap-5 lg:grid-cols-2">
+        <div className={cn('lg:order-1', tab !== 'host' && 'hidden lg:block')}>
+          <StoreWeddingHostPanel state={state} onChange={commit} hostToken={token} isLab />
+        </div>
+        <div className={cn('lg:order-2', tab !== 'guest' && 'hidden lg:block')}>
+          <StoreWeddingGuestForm state={state} onChange={commit} isLab />
+        </div>
       </div>
     </div>
   );

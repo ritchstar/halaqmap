@@ -3,15 +3,18 @@
  */
 import { useMemo, useState } from 'react';
 import { STORE_WEDDING_LIVE_CANNED, weddingLiveCopy, weddingLiveFillClass } from '@/config/storeWeddingLive';
+import { ProductEvents } from '@/lib/analytics/productAnalytics';
 import type { WeddingLiveBlessing, WeddingLiveLabState } from '@/lib/storeWeddingLiveLab';
 import { cn } from '@/lib/utils';
 
 export function StoreWeddingGuestForm({
   state,
   onChange,
+  isLab = false,
 }: {
   state: WeddingLiveLabState;
   onChange: (next: WeddingLiveLabState) => void;
+  isLab?: boolean;
 }) {
   const [guestName, setGuestName] = useState('');
   const [cannedId, setCannedId] = useState<(typeof STORE_WEDDING_LIVE_CANNED)[number]['id']>('baraka');
@@ -39,6 +42,7 @@ export function StoreWeddingGuestForm({
       at: new Date().toISOString(),
     };
     onChange({ ...state, blessings: [...state.blessings, blessing] });
+    ProductEvents.storeWeddingBlessingSend({ voice });
     setGuestName('');
     setExtra('');
     setSent(true);
@@ -47,14 +51,18 @@ export function StoreWeddingGuestForm({
   return (
     <form
       data-voice={voice}
-      className="invite-host-panel relative z-20 border-t border-white/10 bg-[#050308]/94 px-3 pb-[max(1rem,env(safe-area-inset-bottom))] pt-4 backdrop-blur-md"
+      className={
+        isLab
+          ? 'invite-host-panel rounded-[28px] border border-white/12 bg-[#0b1a24]/92 p-5'
+          : 'invite-host-panel relative z-20 border-t border-white/10 bg-[#050308]/94 px-3 pb-[max(1rem,env(safe-area-inset-bottom))] pt-4 backdrop-blur-md'
+      }
       onSubmit={(event) => {
         event.preventDefault();
         submitBlessing();
       }}
     >
       <h2 className="invite-luminous text-lg font-extrabold">{copy.guestFormTitleAr}</h2>
-      <p className="mt-2 text-sm leading-7 text-white/60">{copy.guestDeviceLockAr}</p>
+      <p className="mt-2 text-sm leading-7 text-white/60">{isLab ? copy.guestLabHintAr : copy.guestDeviceLockAr}</p>
       <label className="mt-3 block text-sm">
         {copy.guestNameLabelAr}
         <input

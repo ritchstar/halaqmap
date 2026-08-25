@@ -62,6 +62,7 @@ import {
   STORE_WEDDING_LIVE_PRICE_SAR,
   STORE_WEDDING_LIVE_PRODUCT,
   STORE_WEDDING_LIVE_PUBLIC_ENABLED,
+  weddingLiveCopy,
 } from '../src/config/storeWeddingLive.ts';
 import {
   STORE_EVENT_LIVE,
@@ -481,6 +482,41 @@ assert.equal(
   false,
 );
 assert.match(weddingLanding, /StoreWeddingOrderForm/);
+assert.match(weddingLanding, /wedding-sticky-buy/);
+assert.match(weddingLanding, /storeWeddingLandingView/);
+assert.match(weddingLanding, /storeWeddingTryClick/);
+assert.match(weddingLanding, /storeWeddingOrderOpen/);
+assert.doesNotMatch(weddingLanding, /ثلاثة أشهر/);
+assert.doesNotMatch(weddingLanding, /كاردي8/);
+assert.doesNotMatch(weddingLanding, /12 و29 و59/);
+assert.match(STORE_WEDDING_LIVE.labLeadAr, /معاينة تجريبية/);
+assert.match(STORE_WEDDING_LIVE.labLeadAr, /ولا تُنشئ دعوة مدفوعة/);
+assert.match(STORE_WEDDING_LIVE.hostInviteLeadAr, /دفعة حتى مئتي/);
+assert.match(STORE_WEDDING_LIVE.hostInviteLeadAr, /بلا سقف إجمالي/);
+assert.match(STORE_WEDDING_LIVE.stickyBuyLineAr, /899/);
+assert.doesNotMatch(STORE_WEDDING_LIVE.labLeadAr, /ثلاثة أشهر/);
+assert.doesNotMatch(STORE_WEDDING_LIVE.leadAr, /ثلاثة أشهر/);
+assert.doesNotMatch(JSON.stringify(STORE_WEDDING_LIVE), /كاردي8/);
+assert.equal(weddingLiveCopy('women').stickyBuyLineAr, STORE_WEDDING_LIVE.stickyBuyLineAr);
+const weddingStudio = readFileSync(join(root, 'src/components/store/StoreWeddingLiveStudio.tsx'), 'utf8');
+assert.match(weddingStudio, /useState<StudioTab>\('guest'\)/);
+assert.match(weddingStudio, /lg:grid-cols-2/);
+assert.match(weddingStudio, /lg:order-1/);
+const weddingHostPanel = readFileSync(join(root, 'src/components/store/StoreWeddingHostPanel.tsx'), 'utf8');
+assert.match(weddingHostPanel, /hostLabAdvancedAr/);
+assert.match(weddingHostPanel, /hostLabCoreLeadAr/);
+const weddingGuestForm = readFileSync(join(root, 'src/components/store/StoreWeddingGuestForm.tsx'), 'utf8');
+assert.match(weddingGuestForm, /guestLabHintAr/);
+assert.match(weddingGuestForm, /storeWeddingBlessingSend/);
+const weddingOrderForm = readFileSync(join(root, 'src/components/store/StoreWeddingOrderForm.tsx'), 'utf8');
+assert.match(weddingOrderForm, /storeWeddingPayClick/);
+const productAnalytics = readFileSync(join(root, 'src/lib/analytics/productAnalytics.ts'), 'utf8');
+assert.match(productAnalytics, /store_wedding_landing_view/);
+assert.match(productAnalytics, /store_wedding_try_click/);
+assert.match(productAnalytics, /store_wedding_blessing_send/);
+assert.match(productAnalytics, /store_wedding_order_open/);
+assert.match(productAnalytics, /store_wedding_pay_click/);
+assert.match(productAnalytics, /voice: props\.voice/);
 const weddingRemote = readFileSync(join(root, 'src/lib/storeWeddingLiveRemote.ts'), 'utf8');
 assert.match(weddingRemote, /LIVE_API_HOSTS/);
 assert.match(weddingRemote, /store\.halaqmap\.com/);

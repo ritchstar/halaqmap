@@ -2,6 +2,8 @@
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
 import { useState } from 'react';
+import { ChevronDown } from 'lucide-react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import {
   STORE_WEDDING_LIVE_AUDIO,
   STORE_WEDDING_VENUE_KINDS,
@@ -55,6 +57,7 @@ export function StoreWeddingHostPanel({
   const [uploadError, setUploadError] = useState('');
   const [downloadBusy, setDownloadBusy] = useState<WeddingLiveStyleId | ''>('');
   const [downloadError, setDownloadError] = useState('');
+  const [advancedOpen, setAdvancedOpen] = useState(false);
   const host = state.host;
   const voice = host.voice === 'women' ? 'women' : 'men';
   const copy = weddingLiveCopy(voice);
@@ -133,20 +136,219 @@ export function StoreWeddingHostPanel({
     window.setTimeout(() => URL.revokeObjectURL(url), 1500);
   }
 
+  const issuance = hostToken ? (
+    <StoreHostGuestInviteIssuance
+      kind="wedding"
+      hostToken={hostToken}
+      isLab={isLab}
+      titleAr={copy.hostInviteTitleAr}
+      leadAr={copy.hostInviteLeadAr}
+      ctaAr={copy.hostInviteCtaAr}
+    />
+  ) : null;
+
+  const mapsField = (
+    <label className="block text-base sm:col-span-2">
+      {copy.venueMapsLabelAr}
+      <input
+        className={fieldClass}
+        dir="ltr"
+        value={host.venueMapsUrl}
+        onChange={(e) => patchHost({ venueMapsUrl: e.target.value })}
+        placeholder="https://maps.google.com/..."
+      />
+      <span className="mt-1 block text-sm text-white/55">{copy.venueMapsHintAr}</span>
+    </label>
+  );
+
+  const hallTools = (
+    <>
+      <div className="mt-4 rounded-2xl border border-white/12 bg-[#061018]/80 p-4">
+        <p className="text-base font-extrabold">{copy.hostWelcomeSetsTitleAr}</p>
+        <p className="mt-1 text-sm leading-7 text-white/70">{copy.hostWelcomeSetsLeadAr}</p>
+        <p className={cn('mt-2 text-sm font-bold', text)}>
+          {copy.hostWelcomeSetStatusAr} {((host.welcomeSetIndex || 0) % weddingWelcomeSetCount()) + 1}
+          {' / '}
+          {weddingWelcomeSetCount()}
+          {' · '}
+          {weddingWelcomeSetAt(host.welcomeSetIndex).toneAr}
+        </p>
+        <ul className="mt-3 space-y-2">
+          {weddingWelcomeSetAt(host.welcomeSetIndex).lines.map((line) => (
+            <li
+              key={line.id}
+              className={cn(
+                'rounded-xl border border-white/10 px-3 py-2 leading-7 text-white/85',
+                line.weight === 'hero' ? 'text-base font-black' : 'text-base font-bold',
+              )}
+            >
+              {line.textAr}
+            </li>
+          ))}
+        </ul>
+        <button
+          type="button"
+          onClick={() => {
+            const next = nextWeddingWelcomeSetIndex(host.welcomeSetIndex);
+            patchHost({ welcomeSetIndex: next });
+          }}
+          className={cn('mt-4 w-full rounded-full py-2 text-base font-bold', fill)}
+        >
+          {copy.hostWelcomeNextAr}
+        </button>
+      </div>
+      <label className="mt-4 block text-base">
+        {copy.hostWelcomeLabelAr}
+        <textarea
+          value={host.welcomeAr}
+          onChange={(e) => patchHost({ welcomeAr: e.target.value })}
+          className="mt-1 h-24 w-full rounded-md border border-white/15 bg-[#061018] px-3 py-2 text-base text-[#f4efe4]"
+        />
+      </label>
+      <label className="mt-4 block text-base">
+        {copy.hostYoutubeLabelAr}
+        <input
+          className={fieldClass}
+          dir="ltr"
+          value={host.youtubeUrl}
+          onChange={(e) => patchHost({ youtubeUrl: e.target.value, youtubeHidden: false })}
+        />
+      </label>
+      <div className="mt-3 flex flex-wrap gap-2">
+        <button
+          type="button"
+          onClick={() => patchHost({ youtubeHidden: true })}
+          className={cn(
+            'rounded-full px-3 py-1.5 text-sm',
+            host.youtubeHidden ? cn('font-bold', fill) : 'border border-white/20',
+          )}
+        >
+          {copy.hostYoutubeHideAr}
+        </button>
+        <button
+          type="button"
+          onClick={() => patchHost({ youtubeHidden: false })}
+          className={cn(
+            'rounded-full px-3 py-1.5 text-sm',
+            !host.youtubeHidden ? cn('font-bold', fill) : 'border border-white/20',
+          )}
+        >
+          {copy.hostYoutubeShowAr}
+        </button>
+      </div>
+      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+        <label className="block text-base">
+          {copy.hostUploadPhotoAr}
+          <input
+            type="file"
+            accept="image/*"
+            className="mt-2 block w-full text-sm"
+            onChange={(e) => void onUpload(e.target.files?.[0], 'photo')}
+          />
+        </label>
+        <label className="block text-base">
+          {copy.hostUploadPanoramaAr}
+          <input
+            type="file"
+            accept="image/*"
+            className="mt-2 block w-full text-sm"
+            onChange={(e) => void onUpload(e.target.files?.[0], 'panorama')}
+          />
+        </label>
+      </div>
+      {uploadError ? <p className={cn('mt-2 text-base', text)}>{uploadError}</p> : null}
+      <p className="mt-4 text-base">{copy.hostAudioLabelAr}</p>
+      <div className="mt-2 flex flex-wrap gap-2">
+        {STORE_WEDDING_LIVE_AUDIO.map((item) => (
+          <button
+            key={item.id}
+            type="button"
+            onClick={() => playAudio(item.id)}
+            className={cn(
+              'rounded-full px-3 py-1.5 text-sm',
+              host.audioClipId === item.id ? cn('font-bold', fill) : 'border border-white/20',
+            )}
+          >
+            {item.labelAr}
+          </button>
+        ))}
+      </div>
+    </>
+  );
+
+  const blessingList = (
+    <>
+      <p className="mt-5 text-base">تهاني الشاشة</p>
+      <ul className="mt-2 space-y-2">
+        {state.blessings.map((item) => (
+          <li key={item.id} className="flex items-center justify-between gap-3 rounded-xl border border-white/10 px-3 py-2 text-base">
+            <span className={item.hidden ? 'text-white/35 line-through' : ''}>{item.name}</span>
+            {!item.hidden ? (
+              <button type="button" className="text-sm text-white/50" onClick={() => hideBlessing(item.id)}>
+                إخفاء
+              </button>
+            ) : (
+              <span className="text-sm text-white/35">مخفية</span>
+            )}
+          </li>
+        ))}
+      </ul>
+    </>
+  );
+
+  const archiveButton = (
+    <button
+      type="button"
+      onClick={downloadArchive}
+      className={cn('mt-5 w-full rounded-full border py-2 text-base font-bold', borderAccent, text)}
+    >
+      {copy.archiveCtaAr}
+    </button>
+  );
+
+  const cardsColumn = showCards ? (
+    <div>
+      <div className="space-y-3">
+        {styles.map((item) => (
+          <StoreWeddingInviteCard key={item.id} host={host} styleId={item.id} />
+        ))}
+      </div>
+      <div className="mt-3 grid w-full grid-cols-1 gap-2 sm:grid-cols-2">
+        {styles.map((item, index) => (
+          <button
+            key={item.id}
+            type="button"
+            disabled={Boolean(downloadBusy)}
+            onClick={() => void downloadCard(item.id)}
+            className={cn(
+              'w-full rounded-full px-4 py-2.5 text-sm font-bold disabled:opacity-60',
+              index === 0 ? fill : 'border border-white/20',
+            )}
+          >
+            {downloadBusy === item.id
+              ? 'جاري التحميل…'
+              : index === 0
+                ? copy.downloadGoldAr
+                : copy.downloadIvoryAr}
+          </button>
+        ))}
+      </div>
+      {downloadError ? <p className={cn('mt-2 text-sm', text)}>{downloadError}</p> : null}
+      <StoreGuestResentLinkPreview
+        productAr={copy.titleAr}
+        hostAr={voice === 'women' ? 'المضيفة' : 'المضيف'}
+        kickerAr={copy.resentPreviewKickerAr}
+        captionAr={copy.resentPreviewCaptionAr}
+      />
+    </div>
+  ) : null;
+
   return (
-    <div className={showCards ? 'grid gap-5 lg:grid-cols-[1fr_0.85fr]' : ''} data-voice={voice}>
+    <div className={showCards && !isLab ? 'grid gap-5 lg:grid-cols-[1fr_0.85fr]' : ''} data-voice={voice}>
       <div className="invite-host-panel rounded-[28px] border border-white/12 bg-[#0b1a24]/92 p-5">
         <h2 className="invite-luminous text-xl font-extrabold">{copy.hostPanelTitleAr}</h2>
-        {hostToken ? (
-          <StoreHostGuestInviteIssuance
-            kind="wedding"
-            hostToken={hostToken}
-            isLab={isLab}
-            titleAr={copy.hostInviteTitleAr}
-            leadAr={copy.hostInviteLeadAr}
-            ctaAr={copy.hostInviteCtaAr}
-          />
-        ) : null}
+        {isLab ? <p className="mt-2 text-sm leading-7 text-white/70">{copy.hostLabCoreLeadAr}</p> : null}
+        {!isLab ? issuance : null}
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
           <label className="block text-base">
             {copy.hostRoleLabelAr}
@@ -235,17 +437,7 @@ export function StoreWeddingHostPanel({
             {copy.venueNameLabelAr}
             <input className={fieldClass} value={host.venueName} onChange={(e) => patchHost({ venueName: e.target.value })} />
           </label>
-          <label className="block text-base sm:col-span-2">
-            {copy.venueMapsLabelAr}
-            <input
-              className={fieldClass}
-              dir="ltr"
-              value={host.venueMapsUrl}
-              onChange={(e) => patchHost({ venueMapsUrl: e.target.value })}
-              placeholder="https://maps.google.com/..."
-            />
-            <span className="mt-1 block text-sm text-white/55">{copy.venueMapsHintAr}</span>
-          </label>
+          {!isLab ? mapsField : null}
         </div>
         <div className="mt-4 rounded-2xl border border-white/12 bg-[#061018]/80 p-4">
           <p className="text-base font-extrabold">{copy.invitationPreviewAr}</p>
@@ -260,175 +452,35 @@ export function StoreWeddingHostPanel({
             placeholder="حياكم الله على العشاء"
           />
         </label>
-        <div className="mt-4 rounded-2xl border border-white/12 bg-[#061018]/80 p-4">
-          <p className="text-base font-extrabold">{copy.hostWelcomeSetsTitleAr}</p>
-          <p className="mt-1 text-sm leading-7 text-white/70">{copy.hostWelcomeSetsLeadAr}</p>
-          <p className={cn('mt-2 text-sm font-bold', text)}>
-            {copy.hostWelcomeSetStatusAr} {((host.welcomeSetIndex || 0) % weddingWelcomeSetCount()) + 1}
-            {' / '}
-            {weddingWelcomeSetCount()}
-            {' · '}
-            {weddingWelcomeSetAt(host.welcomeSetIndex).toneAr}
-          </p>
-          <ul className="mt-3 space-y-2">
-            {weddingWelcomeSetAt(host.welcomeSetIndex).lines.map((line) => (
-              <li
-                key={line.id}
-                className={cn(
-                  'rounded-xl border border-white/10 px-3 py-2 leading-7 text-white/85',
-                  line.weight === 'hero' ? 'text-base font-black' : 'text-base font-bold',
-                )}
-              >
-                {line.textAr}
-              </li>
-            ))}
-          </ul>
-          <button
-            type="button"
-            onClick={() => {
-              const next = nextWeddingWelcomeSetIndex(host.welcomeSetIndex);
-              patchHost({ welcomeSetIndex: next });
-            }}
-            className={cn('mt-4 w-full rounded-full py-2 text-base font-bold', fill)}
-          >
-            {copy.hostWelcomeNextAr}
-          </button>
-        </div>
-        <label className="mt-4 block text-base">
-          {copy.hostWelcomeLabelAr}
-          <textarea
-            value={host.welcomeAr}
-            onChange={(e) => patchHost({ welcomeAr: e.target.value })}
-            className="mt-1 h-24 w-full rounded-md border border-white/15 bg-[#061018] px-3 py-2 text-base text-[#f4efe4]"
-          />
-        </label>
-        <label className="mt-4 block text-base">
-          {copy.hostYoutubeLabelAr}
-          <input
-            className={fieldClass}
-            dir="ltr"
-            value={host.youtubeUrl}
-            onChange={(e) => patchHost({ youtubeUrl: e.target.value, youtubeHidden: false })}
-          />
-        </label>
-        <div className="mt-3 flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={() => patchHost({ youtubeHidden: true })}
-            className={cn(
-              'rounded-full px-3 py-1.5 text-sm',
-              host.youtubeHidden ? cn('font-bold', fill) : 'border border-white/20',
-            )}
-          >
-            {copy.hostYoutubeHideAr}
-          </button>
-          <button
-            type="button"
-            onClick={() => patchHost({ youtubeHidden: false })}
-            className={cn(
-              'rounded-full px-3 py-1.5 text-sm',
-              !host.youtubeHidden ? cn('font-bold', fill) : 'border border-white/20',
-            )}
-          >
-            {copy.hostYoutubeShowAr}
-          </button>
-        </div>
-        <div className="mt-4 grid gap-3 sm:grid-cols-2">
-          <label className="block text-base">
-            {copy.hostUploadPhotoAr}
-            <input
-              type="file"
-              accept="image/*"
-              className="mt-2 block w-full text-sm"
-              onChange={(e) => void onUpload(e.target.files?.[0], 'photo')}
-            />
-          </label>
-          <label className="block text-base">
-            {copy.hostUploadPanoramaAr}
-            <input
-              type="file"
-              accept="image/*"
-              className="mt-2 block w-full text-sm"
-              onChange={(e) => void onUpload(e.target.files?.[0], 'panorama')}
-            />
-          </label>
-        </div>
-        {uploadError ? <p className={cn('mt-2 text-base', text)}>{uploadError}</p> : null}
-        <p className="mt-4 text-base">{copy.hostAudioLabelAr}</p>
-        <div className="mt-2 flex flex-wrap gap-2">
-          {STORE_WEDDING_LIVE_AUDIO.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() => playAudio(item.id)}
-              className={cn(
-                'rounded-full px-3 py-1.5 text-sm',
-                host.audioClipId === item.id ? cn('font-bold', fill) : 'border border-white/20',
-              )}
-            >
-              {item.labelAr}
-            </button>
-          ))}
-        </div>
-        <p className="mt-5 text-base">تهاني الشاشة</p>
-        <ul className="mt-2 space-y-2">
-          {state.blessings.map((item) => (
-            <li key={item.id} className="flex items-center justify-between gap-3 rounded-xl border border-white/10 px-3 py-2 text-base">
-              <span className={item.hidden ? 'text-white/35 line-through' : ''}>{item.name}</span>
-              {!item.hidden ? (
-                <button type="button" className="text-sm text-white/50" onClick={() => hideBlessing(item.id)}>
-                  إخفاء
-                </button>
-              ) : (
-                <span className="text-sm text-white/35">مخفية</span>
-              )}
-            </li>
-          ))}
-        </ul>
-        <button
-          type="button"
-          onClick={downloadArchive}
-          className={cn('mt-5 w-full rounded-full border py-2 text-base font-bold', borderAccent, text)}
-        >
-          {copy.archiveCtaAr}
-        </button>
-      </div>
-      {showCards ? (
-        <div>
-          <div className="space-y-3">
-            {styles.map((item) => (
-              <StoreWeddingInviteCard key={item.id} host={host} styleId={item.id} />
-            ))}
-          </div>
-          <div className="mt-3 grid w-full grid-cols-1 gap-2 sm:grid-cols-2">
-            {styles.map((item, index) => (
-              <button
-                key={item.id}
+        {isLab ? (
+          <>
+            {blessingList}
+            <Collapsible open={advancedOpen} onOpenChange={setAdvancedOpen} className="mt-5">
+              <CollapsibleTrigger
                 type="button"
-                disabled={Boolean(downloadBusy)}
-                onClick={() => void downloadCard(item.id)}
-                className={cn(
-                  'w-full rounded-full px-4 py-2.5 text-sm font-bold disabled:opacity-60',
-                  index === 0 ? fill : 'border border-white/20',
-                )}
+                className="flex w-full items-center justify-between gap-3 rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-right text-sm font-semibold"
               >
-                {downloadBusy === item.id
-                  ? 'جاري التحميل…'
-                  : index === 0
-                    ? copy.downloadGoldAr
-                    : copy.downloadIvoryAr}
-              </button>
-            ))}
-          </div>
-          {downloadError ? <p className={cn('mt-2 text-sm', text)}>{downloadError}</p> : null}
-          <StoreGuestResentLinkPreview
-            productAr={copy.titleAr}
-            hostAr={voice === 'women' ? 'المضيفة' : 'المضيف'}
-            kickerAr={copy.resentPreviewKickerAr}
-            captionAr={copy.resentPreviewCaptionAr}
-          />
-        </div>
-      ) : null}
+                <span>{copy.hostLabAdvancedAr}</span>
+                <ChevronDown className={cn('h-4 w-4 shrink-0 transition-transform', text, advancedOpen && 'rotate-180')} />
+              </CollapsibleTrigger>
+              <CollapsibleContent className="mt-4">
+                {issuance}
+                <div className="mt-4 grid gap-3 sm:grid-cols-2">{mapsField}</div>
+                {hallTools}
+                {archiveButton}
+                {cardsColumn}
+              </CollapsibleContent>
+            </Collapsible>
+          </>
+        ) : (
+          <>
+            {hallTools}
+            {blessingList}
+            {archiveButton}
+          </>
+        )}
+      </div>
+      {!isLab ? cardsColumn : null}
     </div>
   );
 }

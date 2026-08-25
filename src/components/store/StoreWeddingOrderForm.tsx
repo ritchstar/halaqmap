@@ -18,6 +18,7 @@ import {
   type StoreWeddingLiveVoice,
 } from '@/config/storeWeddingLive';
 import { rememberStoreAffiliateRef } from '@/lib/storeAffiliateRef';
+import { ProductEvents } from '@/lib/analytics/productAnalytics';
 import { createWeddingLivePending } from '@/lib/storeWeddingLiveRemote';
 import { weddingLivePayHref } from '@/lib/storeHostRedirect';
 import {
@@ -57,6 +58,7 @@ export function StoreWeddingOrderForm({ voice = 'men' }: { voice?: StoreWeddingL
       setError('الموافقة على شروط الخدمة مطلوبة قبل الدفع.');
       return;
     }
+    ProductEvents.storeWeddingPayClick({ voice });
     setBusy(true);
     setError('');
     const result = await createWeddingLivePending({

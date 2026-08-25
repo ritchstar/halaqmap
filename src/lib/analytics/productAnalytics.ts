@@ -267,4 +267,14 @@ export const ProductEvents = {
   storeIntroCardShare: (props: { method: string }) =>
     trackProductEvent('store_intro_card_share', { method: props.method }),
   storeIntroCardOpenLanding: () => trackProductEvent('store_intro_card_open_landing'),
+  storeWeddingLandingView: (props: { voice: 'men' | 'women' }) =>
+    trackProductEvent('store_wedding_landing_view', { voice: props.voice }),
+  storeWeddingTryClick: (props: { voice: 'men' | 'women' }) =>
+    trackProductEvent('store_wedding_try_click', { voice: props.voice }),
+  storeWeddingBlessingSend: (props: { voice: 'men' | 'women' }) =>
+    trackProductEvent('store_wedding_blessing_send', { voice: props.voice }),
+  storeWeddingOrderOpen: (props: { voice: 'men' | 'women' }) =>
+    trackProductEvent('store_wedding_order_open', { voice: props.voice }),
+  storeWeddingPayClick: (props: { voice: 'men' | 'women' }) =>
+    trackProductEvent('store_wedding_pay_click', { voice: props.voice }),
 } as const;

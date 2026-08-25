@@ -3100,6 +3100,17 @@ html.platform-radar-fullscreen #root {
   text-align: center;
 }
 
+@media (max-width: 1023px) {
+  .store-wedding-studio-hall .wedding-hall-center {
+    min-height: 0;
+    gap: 0.5rem;
+  }
+
+  .store-wedding-studio-hall .wedding-hall-video-well {
+    max-width: 18rem;
+  }
+}
+
 .hall-notice-pulse {
   animation: hall-notice-pulse 2.6s ease-in-out infinite;
 }

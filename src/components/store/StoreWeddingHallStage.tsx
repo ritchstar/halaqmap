@@ -48,11 +48,13 @@ export function StoreWeddingHallStage({
   className,
   autoWelcome = false,
   immersive = false,
+  compact = false,
 }: {
   state: WeddingLiveLabState;
   className?: string;
   autoWelcome?: boolean;
   immersive?: boolean;
+  compact?: boolean;
 }) {
   const visible = state.blessings.filter((item) => !item.hidden);
   const ticker = visible
@@ -105,7 +107,14 @@ export function StoreWeddingHallStage({
       <div className="absolute inset-0 bg-gradient-to-b from-black/28 via-black/18 to-black/58" />
       <StoreHallAtmosphere voice={voice} />
 
-      <div className="relative z-10 flex min-h-[36rem] flex-col gap-4 p-4 pt-5 sm:p-6 sm:pt-7 md:min-h-[42rem] md:p-8">
+      <div
+        className={cn(
+          'relative z-10 flex flex-col gap-4 p-4 pt-5 sm:p-6 sm:pt-7 md:p-8',
+          compact
+            ? 'max-h-[42vh] min-h-[16rem] overflow-hidden lg:max-h-none lg:min-h-[36rem]'
+            : 'min-h-[36rem] md:min-h-[42rem]',
+        )}
+      >
         {state.host.announcement.trim() ? (
           <StoreHallNoticePlaque text={state.host.announcement.trim()} accent={accent} />
         ) : null}
@@ -159,18 +168,20 @@ export function StoreWeddingHallStage({
             </div>
           </div>
 
-          <StoreHallVideoWell
-            embed={embed}
-            fallback={
-              state.host.panoramaSrc.startsWith('data:') ? (
-                <img src={state.host.panoramaSrc} alt="" />
-              ) : (
-                <StoreShot reel={reel} alt="" className="h-full w-full" />
-              )
-            }
-          />
+          <div className={cn(compact && 'hidden lg:block')}>
+            <StoreHallVideoWell
+              embed={embed}
+              fallback={
+                state.host.panoramaSrc.startsWith('data:') ? (
+                  <img src={state.host.panoramaSrc} alt="" />
+                ) : (
+                  <StoreShot reel={reel} alt="" className="h-full w-full" />
+                )
+              }
+            />
+          </div>
 
-          <div className="w-full max-w-4xl space-y-3 text-center">
+          <div className={cn('w-full max-w-4xl space-y-3 text-center', compact && 'hidden lg:block')}>
             {restLines.map((line) => (
               <div
                 key={line.id}
