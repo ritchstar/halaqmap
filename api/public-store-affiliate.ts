@@ -8,8 +8,8 @@ import { createClient } from '@supabase/supabase-js';
 import { runRegistrationRouteGuards } from './_lib/registrationRouteGuard.js';
 import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
 import { runSecurityGuard } from './_lib/securityGuard.js';
-import { sendStoreAffiliateMagicEmail } from './_lib/storeAffiliateMail.js';
 import { storeAffiliateCheckoutLinks } from './_lib/storeAffiliateCode.js';
+import { issueStoreAffiliateMagic } from './_lib/storeAffiliateMagic.js';
 import {
   isStoreProductTrialKey,
   requestStoreProductTrial,
@@ -59,21 +59,6 @@ function newAffiliateCode(): string {
     .toLowerCase()
     .replace(/[^a-z0-9]/g, '');
   return `${raw}aaaaaaa`.slice(0, 8);
-}
-
-function siteOrigin(request: Request): string {
-  const host = (request.headers.get('host') || '').trim().toLowerCase();
-  const proto = (request.headers.get('x-forwarded-proto') || 'https').split(',')[0]?.trim() || 'https';
-  if (host.endsWith('.vercel.app')) return `${proto}://${host}`.replace(/\/+$/, '');
-  return 'https://www.halaqmap.com';
-}
-
-function magicLoginUrl(request: Request, token: string): string {
-  const host = (request.headers.get('host') || '').trim().toLowerCase();
-  const origin = host.includes('store.halaqmap.com')
-    ? 'https://store.halaqmap.com'
-    : siteOrigin(request);
-  return `${origin}/#/store/affiliates/desk?magic=${encodeURIComponent(token)}`;
 }
 
 function clip(raw: unknown, max: number): string {
@@ -249,26 +234,13 @@ async function sendMagic(db: Db, body: Record<string, unknown>, headers: Record<
     .ilike('email', email)
     .maybeSingle();
   if (!marketer || String(marketer.status) !== 'approved') return json(sent, 200, headers);
-  const { count } = await db
-    .from('store_affiliate_magic_links')
-    .select('id', { count: 'exact', head: true })
-    .eq('marketer_id', marketer.id)
-    .gte('created_at', new Date(Date.now() - 60 * 60 * 1000).toISOString());
-  if ((count || 0) >= 3) return json(sent, 200, headers);
-
-  const token = newSecret();
-  const { error } = await db.from('store_affiliate_magic_links').insert({
-    marketer_id: marketer.id,
-    token_hash: sha256(token),
-    expires_at: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
+  await issueStoreAffiliateMagic({
+    db,
+    request,
+    marketerId: String(marketer.id),
+    email,
+    code: String(marketer.code || ''),
   });
-  if (!error) {
-    await sendStoreAffiliateMagicEmail({
-      to: email,
-      loginUrl: magicLoginUrl(request, token),
-      productLinks: storeAffiliateCheckoutLinks(marketer.code),
-    });
-  }
   return json(sent, 200, headers);
 }
 

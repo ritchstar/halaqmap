@@ -46,6 +46,8 @@ export function storeAffiliateAdminErrorAr(code: string): string {
       return 'الطلب غير موجود.';
     case 'not_pending_review':
       return 'الطلب ليس قيد المراجعة.';
+    case 'not_approved':
+      return 'المسوّق ليس معتمداً بعد.';
     case 'reject_reason_required':
       return 'اكتب سبب الاعتذار قبل التنفيذ.';
     case 'missing_application_id':
@@ -85,7 +87,7 @@ export async function adminListStoreAffiliatesRemote(input: {
 
 export async function adminStoreAffiliateActionRemote(input: {
   accessToken: string;
-  action: 'approve' | 'decline';
+  action: 'approve' | 'decline' | 'send_login';
   applicationId: string;
   reason?: string;
 }): Promise<{ ok: true; row?: StoreAffiliateAdminRow } | { ok: false; error: string }> {

@@ -119,6 +119,7 @@ const webhook = readFileSync(join(root, 'supabase/functions/moyasar-webhook/inde
 const sql = readFileSync(join(root, 'supabase/migrations/174_store_affiliate_live.sql'), 'utf8');
 const reviewSql = readFileSync(join(root, 'supabase/migrations/177_store_affiliate_review_gate.sql'), 'utf8');
 const api = readFileSync(join(root, 'api/public-store-affiliate.ts'), 'utf8');
+const magicLib = readFileSync(join(root, 'api/_lib/storeAffiliateMagic.ts'), 'utf8');
 const adminApi = readFileSync(join(root, 'api/admin-store-affiliate.ts'), 'utf8');
 const enterPage = readFileSync(join(root, 'src/pages/store/StoreAffiliatesEnterPage.tsx'), 'utf8');
 const ambassadorEnter = readFileSync(join(root, 'src/pages/ambassador/AmbassadorEnter.tsx'), 'utf8');
@@ -142,7 +143,7 @@ assert.match(api, /sent: true/);
 assert.match(api, /token_hash/);
 assert.match(api, /action === 'apply'/);
 assert.match(api, /pending_review/);
-assert.match(api, /store\/affiliates\/desk/);
+assert.match(magicLib, /store\/affiliates\/desk/);
 assert.match(api, /status\) !== 'approved'/);
 assert.doesNotMatch(api, /display_name: email\.split/);
 assert.match(reviewSql, /pending_review/);
@@ -150,6 +151,14 @@ assert.match(reviewSql, /approved/);
 assert.match(reviewSql, /declined/);
 assert.match(adminApi, /approve/);
 assert.match(adminApi, /decline/);
+assert.match(adminApi, /send_login/);
+assert.match(adminApi, /issueStoreAffiliateMagic/);
+assert.match(api, /issueStoreAffiliateMagic/);
+assert.match(magicLib, /STORE_AFFILIATE_MAGIC_TTL_MS = 24/);
+assert.match(
+  readFileSync(join(root, 'src/components/admin/StoreAffiliateApplicationsPanel.tsx'), 'utf8'),
+  /send_login/,
+);
 assert.match(enterPage, /applyStoreAffiliate/);
 assert.match(app, /StoreAffiliatesHomePage/);
 assert.match(app, /StoreAffiliatesEnterPage/);
@@ -167,7 +176,7 @@ assert.match(grocersForm, /affiliateCode/);
 assert.match(restaurantForm, /affiliateCode/);
 assert.match(lane, /restaurant/);
 assert.match(api, /storeAffiliateCheckoutLinks/);
-assert.match(api, /productLinks/);
+assert.match(magicLib, /productLinks/);
 assert.match(readFileSync(join(root, 'api/_lib/storeAffiliateCode.ts'), 'utf8'), /store\/restaurant\$\{q\}/);
 assert.match(lane, /StoreProductLinkIconGrid/);
 assert.doesNotMatch(STORE_AFFILIATE_COPY.storeLeadAr, /مطعمنا1 حتى/);

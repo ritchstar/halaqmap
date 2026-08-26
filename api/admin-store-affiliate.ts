@@ -2,11 +2,12 @@
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
  * مراجعة طلبات مسوّقي المتجر — أدمن.
- * GET قائمة | POST approve | decline
+ * GET قائمة | POST approve | decline | send_login
  */
 import { createClient } from '@supabase/supabase-js';
 import { verifyPlatformAdminFromRequestAny } from './_lib/adminManageBarbersAuth.js';
 import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
+import { issueStoreAffiliateMagic } from './_lib/storeAffiliateMagic.js';
 
 export const config = { maxDuration: 30 };
 
@@ -96,16 +97,42 @@ export async function POST(request: Request): Promise<Response> {
     return Response.json({ ok: false, error: 'missing_application_id' }, { status: 400, headers });
   }
 
-  const { data: existing } = await db.from('store_affiliate_marketers').select('id, status').eq('id', id).maybeSingle();
+  const { data: existing } = await db
+    .from('store_affiliate_marketers')
+    .select('id, status, email, code')
+    .eq('id', id)
+    .maybeSingle();
   if (!existing) {
     return Response.json({ ok: false, error: 'not_found' }, { status: 404, headers });
-  }
-  if (String(existing.status) !== 'pending_review') {
-    return Response.json({ ok: false, error: 'not_pending_review' }, { status: 409, headers });
   }
 
   const now = new Date().toISOString();
   const reviewer = String(auth.actorEmail || '').trim();
+
+  if (action === 'send_login') {
+    if (String(existing.status) !== 'approved') {
+      return Response.json({ ok: false, error: 'not_approved' }, { status: 409, headers });
+    }
+    const issued = await issueStoreAffiliateMagic({
+      db,
+      request,
+      marketerId: String(existing.id),
+      email: String(existing.email || '').trim().toLowerCase(),
+      code: String(existing.code || ''),
+      skipHourlyCap: true,
+    });
+    if (!issued.ok) {
+      return Response.json({ ok: false, error: 'تعذر إنشاء رابط الدخول.' }, { status: 500, headers });
+    }
+    if (!issued.mailed) {
+      return Response.json({ ok: false, error: 'تعذر إرسال البريد. أعد المحاولة.' }, { status: 502, headers });
+    }
+    return Response.json({ ok: true, mailed: true }, { headers });
+  }
+
+  if (String(existing.status) !== 'pending_review') {
+    return Response.json({ ok: false, error: 'not_pending_review' }, { status: 409, headers });
+  }
 
   if (action === 'approve') {
     const { data, error } = await db
@@ -124,7 +151,15 @@ export async function POST(request: Request): Promise<Response> {
     if (error || !data) {
       return Response.json({ ok: false, error: 'تعذر اعتماد الطلب.' }, { status: 500, headers });
     }
-    return Response.json({ ok: true, row: data }, { headers });
+    const issued = await issueStoreAffiliateMagic({
+      db,
+      request,
+      marketerId: String(data.id),
+      email: String(data.email || '').trim().toLowerCase(),
+      code: String(data.code || ''),
+      skipHourlyCap: true,
+    });
+    return Response.json({ ok: true, row: data, mailed: issued.ok && issued.mailed }, { headers });
   }
 
   if (action === 'decline') {

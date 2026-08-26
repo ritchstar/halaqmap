@@ -66,7 +66,7 @@ export function StoreAffiliateApplicationsPanel({ accessToken }: Props) {
     setSelected(row);
   };
 
-  const act = async (action: 'approve' | 'decline', row: StoreAffiliateAdminRow) => {
+  const act = async (action: 'approve' | 'decline' | 'send_login', row: StoreAffiliateAdminRow) => {
     if (action === 'decline' && declineReason.trim().length < 4) {
       toast.error('اكتب سبب الاعتذار قبل التنفيذ');
       return;
@@ -83,7 +83,11 @@ export function StoreAffiliateApplicationsPanel({ accessToken }: Props) {
       toast.error(storeAffiliateAdminErrorAr(res.error));
       return;
     }
-    toast.success(action === 'approve' ? 'تم اعتماد مسوّق المتجر' : 'تم الاعتذار عن الطلب');
+    if (action === 'send_login') {
+      toast.success('أُرسل رابط الدخول إلى إيميل المسوّق. صلاحية الرابط أربع وعشرون ساعة.');
+      return;
+    }
+    toast.success(action === 'approve' ? 'تم اعتماد مسوّق المتجر وأُرسل رابط الدخول' : 'تم الاعتذار عن الطلب');
     setSelected(null);
     void refresh();
   };
@@ -257,6 +261,11 @@ export function StoreAffiliateApplicationsPanel({ accessToken }: Props) {
                         اعتذار
                       </Button>
                     </>
+                  ) : null}
+                  {selected.status === 'approved' ? (
+                    <Button disabled={busyId === selected.id} onClick={() => void act('send_login', selected)}>
+                      أرسل رابط الدخول
+                    </Button>
                   ) : null}
                   <Button type="button" variant="ghost" onClick={() => setSelected(null)}>
                     إغلاق

@@ -56,7 +56,7 @@ export const STORE_AFFILIATE_COPY = {
   storeLoginLeadAr: 'الإيميل مرتكز التحقق. اطلب رابطاً سرياً يصل إلى صندوقك ثم افتح اللوحة منه.',
   storeLoginPlaceholderAr: 'name@example.com',
   storeLoginCtaAr: 'أرسل رابط دخول جديد',
-  storeLoginHintAr: 'يصل الرابط السري إلى إيميلك. افتحه من جهازك. كل شراء جديد من روابطك يُقيَّد بعمولة ذلك المنتج.',
+  storeLoginHintAr: 'يصل الرابط السري إلى إيميلك ويبقى صالحاً أربعاً وعشرين ساعة. افتحه من جهازك. كل شراء جديد من روابطك يُقيَّد بعمولة ذلك المنتج.',
   storeLoginSentAr: 'إن كان الإيميل صالحاً سيصل الرابط السري الآن.',
   deskTitleAr: 'لوحة المسوّق أو المسوّقة',
   deskLinksTitleAr: 'روابط الشراء باسمك',
