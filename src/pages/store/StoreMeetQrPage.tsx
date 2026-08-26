@@ -16,11 +16,9 @@ import { toast } from '@/components/ui/sonner';
 import { STORE_MEET_QR_COPY as COPY, STORE_MEET_QR_TARGET_URL } from '@/config/storeMeetQr';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { ProductEvents } from '@/lib/analytics/productAnalytics';
-import { renderStoreMeetQrPng, saveStoreMeetQrPng, storeMeetQrDataUrl } from '@/lib/storeMeetQr';
 
 export default function StoreMeetQrPage() {
   useDocumentTitle(COPY.documentTitle);
-  const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
   const [present, setPresent] = useState(false);
   const [busy, setBusy] = useState(false);
 
@@ -34,20 +32,6 @@ export default function StoreMeetQrPage() {
 
   useEffect(() => {
     ProductEvents.storeMeetQrView();
-  }, []);
-
-  useEffect(() => {
-    let cancelled = false;
-    storeMeetQrDataUrl(720)
-      .then((url) => {
-        if (!cancelled) setQrDataUrl(url);
-      })
-      .catch(() => {
-        if (!cancelled) setQrDataUrl(null);
-      });
-    return () => {
-      cancelled = true;
-    };
   }, []);
 
   useEffect(() => {
@@ -74,9 +58,10 @@ export default function StoreMeetQrPage() {
   }, [present]);
 
   const onSave = async () => {
-    if (!qrDataUrl) return;
     setBusy(true);
     try {
+      const { renderStoreMeetQrPng, saveStoreMeetQrPng, storeMeetQrDataUrl } = await import('@/lib/storeMeetQr');
+      const qrDataUrl = await storeMeetQrDataUrl(720);
       const blob = await renderStoreMeetQrPng(qrDataUrl);
       const result = await saveStoreMeetQrPng(blob);
       if (!result.ok) {
@@ -91,7 +76,7 @@ export default function StoreMeetQrPage() {
     }
   };
 
-  const board = <StoreMeetQrBoard qrDataUrl={qrDataUrl} present={present} />;
+  const board = <StoreMeetQrBoard present={present} />;
 
   if (present) {
     return (
@@ -142,7 +127,7 @@ export default function StoreMeetQrPage() {
           <Button
             type="button"
             variant="outline"
-            disabled={busy || !qrDataUrl}
+            disabled={busy}
             onClick={() => void onSave()}
             className="border-[#e8c547]/35 bg-transparent text-[#f4efe4]"
           >

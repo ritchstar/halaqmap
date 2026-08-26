@@ -220,6 +220,10 @@
       "destination": "/index.html"
     },
     {
+      "source": "/store/qr",
+      "destination": "/store-qr.html"
+    },
+    {
       "source": "/store",
       "has": [{ "type": "host", "value": "store.halaqmap.com" }],
       "destination": "/store-index.html"

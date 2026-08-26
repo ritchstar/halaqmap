@@ -3,23 +3,20 @@
  *
  * لوحة رمز المقابلة بستايل المتجر — للعرض من الآيفون.
  */
+import QRCode from 'react-qr-code';
 import { STORE_VISUALS } from '@/config/storeFront';
 import {
   STORE_BRAND_LATIN,
   STORE_MEET_QR_COPY as COPY,
   STORE_MEET_QR_SECTORS,
+  STORE_MEET_QR_TARGET_URL,
   STORE_PUBLIC_NAME_AR,
 } from '@/config/storeMeetQr';
 import { StoreGoldFrame } from '@/components/store/StoreGoldFrame';
 import { cn } from '@/lib/utils';
 
-export function StoreMeetQrBoard({
-  qrDataUrl,
-  present = false,
-}: {
-  qrDataUrl: string | null;
-  present?: boolean;
-}) {
+export function StoreMeetQrBoard({ present = false }: { present?: boolean }) {
+  const size = present ? 280 : 232;
   return (
     <StoreGoldFrame className={cn('mx-auto w-full', present ? 'max-w-[26rem]' : 'max-w-[22rem]')}>
       <div
@@ -56,26 +53,15 @@ export function StoreMeetQrBoard({
           {COPY.kickerAr}
         </p>
 
-        <div
-          className={cn(
-            'mt-4 rounded-[1.35rem] bg-gradient-to-br from-[#f4efe4] via-[#e8c547] to-[#b8860b] p-[3px] shadow-[0_0_28px_rgba(232,197,71,0.35)]',
-          )}
-        >
+        <div className="mt-4 rounded-[1.35rem] bg-gradient-to-br from-[#f4efe4] via-[#e8c547] to-[#b8860b] p-[3px] shadow-[0_0_28px_rgba(232,197,71,0.35)]">
           <div className="rounded-[1.2rem] bg-white p-3">
-            {qrDataUrl ? (
-              <img
-                src={qrDataUrl}
-                alt={COPY.scanHintAr}
-                width={present ? 280 : 232}
-                height={present ? 280 : 232}
-                className={cn(present ? 'h-[min(58vw,17.5rem)] w-[min(58vw,17.5rem)]' : 'h-[14.5rem] w-[14.5rem]')}
-              />
-            ) : (
-              <div
-                className={cn('bg-white', present ? 'h-[min(58vw,17.5rem)] w-[min(58vw,17.5rem)]' : 'h-[14.5rem] w-[14.5rem]')}
-                aria-hidden
-              />
-            )}
+            <QRCode
+              value={STORE_MEET_QR_TARGET_URL}
+              size={size}
+              bgColor="#ffffff"
+              fgColor="#061018"
+              className={cn(present ? 'h-[min(58vw,17.5rem)] w-[min(58vw,17.5rem)]' : 'h-[14.5rem] w-[14.5rem]')}
+            />
           </div>
         </div>
 

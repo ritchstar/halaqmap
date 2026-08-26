@@ -656,6 +656,10 @@ assert.match(STORE_MEET_QR_COPY.hostLine, /store\.halaqmap\.com\/store/);
 assert.match(app, /STORE_MEET_QR/);
 assert.match(readFileSync(join(root, 'src/pages/store/StoreMeetQrPage.tsx'), 'utf8'), /STORE_MEET_QR_TARGET_URL/);
 assert.match(readFileSync(join(root, 'src/lib/routePaths.ts'), 'utf8'), /STORE_MEET_QR: '\/store\/qr'/);
+assert.match(readFileSync(join(root, 'vercel.json'), 'utf8'), /\/store\/qr[\s\S]*store-qr\.html/);
+assert.match(readFileSync(join(root, 'middleware.js'), 'utf8'), /path === '\/store\/qr'/);
+assert.match(readFileSync(join(root, 'public/store-qr.html'), 'utf8'), /https:\/\/store\.halaqmap\.com\/store/);
+assert.doesNotMatch(readFileSync(join(root, 'public/store-qr.html'), 'utf8'), /https:\/\/store\.halaqmap\.com\/#\/store/);
 
 const vercel = readFileSync(join(root, 'vercel.json'), 'utf8');
 assert.match(vercel, /\/oc\/:token/);

@@ -16,7 +16,8 @@ function isStoreShareHost(host) {
 }
 
 function isStoreSharePath(pathname) {
-  const path = String(pathname || '/').split('?')[0] || '/';
+  const path = String(pathname || '/').split('?')[0].replace(/\/+$/, '') || '/';
+  if (path === '/store/qr') return false;
   return path === '/' || path === '/index.html' || path === '/store' || path.startsWith('/store/');
 }
 

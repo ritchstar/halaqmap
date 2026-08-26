@@ -134,6 +134,22 @@ for (const spec of [
   }
 }
 
+const storeQr = join(dist, 'store-qr.html');
+if (!existsSync(storeQr)) {
+  errors.push('missing store-qr.html');
+} else {
+  const qrHtml = readFileSync(storeQr, 'utf8');
+  if (!qrHtml.includes('https://store.halaqmap.com/store')) {
+    errors.push('store-qr.html must encode the store landing without hash');
+  }
+  if (qrHtml.includes('https://store.halaqmap.com/#/store')) {
+    errors.push('store-qr.html must not use a hash store URL');
+  }
+  if (!qrHtml.includes('متجر خريطة الحل')) {
+    errors.push('store-qr.html must use store shop name');
+  }
+}
+
 const storeShare = join(dist, 'store-index.html');
 if (!existsSync(storeShare)) {
   errors.push('missing store-index.html');
