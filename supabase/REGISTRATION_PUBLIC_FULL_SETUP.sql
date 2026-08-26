@@ -47,10 +47,9 @@ CREATE POLICY "anon_insert_registration_uploads"
   ON storage.objects FOR INSERT TO anon
   WITH CHECK (bucket_id = 'registration-uploads');
 
+-- الحاوية عامة: الرابط المباشر يعمل بلا سياسة SELECT. سياسة القراءة السابقة
+-- كانت تسمح بسرد كل الملفات — أُلغيت في migration 178.
 DROP POLICY IF EXISTS "public_read_registration_uploads" ON storage.objects;
-CREATE POLICY "public_read_registration_uploads"
-  ON storage.objects FOR SELECT
-  USING (bucket_id = 'registration-uploads');
 
 -- =====================================================
 -- انتهى. تحقق: Storage →Buckets → registration-uploads
