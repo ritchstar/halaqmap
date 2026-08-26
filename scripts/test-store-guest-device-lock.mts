@@ -8,9 +8,16 @@ import {
   guestInviteStats,
   guestSeatMatches,
   markGuestInviteSent,
+  markGuestInvitesSent,
   mintGuestInvite,
   mintGuestInviteBatch,
 } from '../api/_lib/storeGuestDeviceLock.ts';
+import {
+  GUEST_DELEGATE_PACK_SIZES,
+  buildGuestDelegatePackText,
+  guestDelegateWhatsappHref,
+  normalizeGuestDelegatePackSize,
+} from '../src/lib/storeGuestDeviceLock.ts';
 
 const minted = mintGuestInvite([]);
 assert.ok(minted.stamp.id);
@@ -58,6 +65,26 @@ if (marked.ok) {
   assert.equal(guestInviteStats(marked.stamps).remaining, 199);
 }
 const overflow = mintGuestInviteBatch(batch.stamps, 10);
-assert.equal(overflow.created.length, 0);
+assert.equal(overflow.created.length, 10);
+assert.equal(guestInviteStats(overflow.stamps).remaining, 210);
+
+const pack = markGuestInvitesSent(batch.stamps, batch.created.slice(0, 25).map((item) => item.id));
+assert.equal(pack.ok, true);
+if (pack.ok) {
+  assert.equal(pack.marked, 25);
+  assert.equal(guestInviteStats(pack.stamps).remaining, 175);
+}
+assert.equal(markGuestInvitesSent(batch.stamps, []).ok, false);
+assert.equal(normalizeGuestDelegatePackSize(75), 75);
+assert.equal(normalizeGuestDelegatePackSize(13), 25);
+assert.deepEqual([...GUEST_DELEGATE_PACK_SIZES], [25, 50, 75, 100]);
+const packText = buildGuestDelegatePackText([
+  { guestUrl: 'https://store.halaqmap.com/w/lab/guest?invite=ia' },
+  { guestUrl: 'https://store.halaqmap.com/w/lab/guest?invite=ib' },
+]);
+assert.match(packText, /لا تفتحوا أي رابط/);
+assert.match(packText, /تفويض إرسال دعوات/);
+assert.doesNotMatch(packText, /RSVP|قائمة ضيوف/);
+assert.match(guestDelegateWhatsappHref(packText), /^https:\/\/wa\.me\/\?text=/);
 
 console.log('store-guest-device-lock ok');

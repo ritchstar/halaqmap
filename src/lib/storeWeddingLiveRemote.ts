@@ -92,3 +92,7 @@ export async function listWeddingGuestInvites(token: string) {
 export async function markWeddingGuestInviteSent(token: string, inviteId: string) {
   return postAction({ action: 'mark_guest_invite_sent', token, inviteId });
 }
+
+export async function markWeddingGuestInvitesSent(token: string, inviteIds: string[]) {
+  return postAction({ action: 'mark_guest_invite_sent', token, inviteIds });
+}

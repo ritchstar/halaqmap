@@ -34,6 +34,42 @@ const DEVICE_KEY = 'hm-guest-device-id';
 export const GUEST_INVITE_BATCH_SIZE = 200;
 export const MAX_GUEST_INVITES = GUEST_INVITE_BATCH_SIZE;
 export const GUEST_INVITE_TTL_MS = 90 * 24 * 60 * 60 * 1000;
+export const GUEST_DELEGATE_PACK_SIZES = [25, 50, 75, 100] as const;
+export type GuestDelegatePackSize = (typeof GUEST_DELEGATE_PACK_SIZES)[number];
+
+export function normalizeGuestDelegatePackSize(raw: unknown): GuestDelegatePackSize {
+  const n = Math.floor(Number(raw) || 0);
+  return (GUEST_DELEGATE_PACK_SIZES as readonly number[]).includes(n) ? (n as GuestDelegatePackSize) : 25;
+}
+
+export function buildGuestDelegatePackText(rows: Pick<GuestInviteRow, 'guestUrl'>[]): string {
+  const links = rows.map((row, index) => `${index + 1}.\n${row.guestUrl}`).join('\n\n');
+  return [
+    'تفويض إرسال دعوات من مضيف الحفل.',
+    '',
+    'هذه دفعة روابط مدعوين نظيفة. كل رابط لمدعو واحد فقط.',
+    '',
+    'لا تفتحوا أي رابط. أرسلوه كما هو قبل أن يُفتح على أي جهاز.',
+    '',
+    'إن فُتح الرابط على جهازكم يُربط به، ويتعذر إرساله لمدعو آخر.',
+    '',
+    links,
+  ].join('\n');
+}
+
+export function guestDelegateWhatsappHref(text: string): string {
+  const full = `https://wa.me/?text=${encodeURIComponent(text)}`;
+  if (full.length <= 1800) return full;
+  const count = (text.match(/https?:\/\//g) || []).length;
+  const short = [
+    'تفويض إرسال دعوات من مضيف الحفل.',
+    '',
+    `دفعة ${count} روابط مدعوين نظيفة نُسخت إلى الحافظة.`,
+    '',
+    'الصقوا النص الكامل في هذه المحادثة. لا تفتحوا أي رابط. أرسلوا كل رابط لمدعو واحد وهو نظيف.',
+  ].join('\n');
+  return `https://wa.me/?text=${encodeURIComponent(short)}`;
+}
 
 export function readOrCreateGuestDeviceId(): string {
   if (typeof window === 'undefined') return '';
@@ -146,6 +182,22 @@ export function markLocalGuestInviteSent(kind: GuestLockKind, token: string, inv
   const stamp = { ...found, sentAt: found.sentAt || new Date().toISOString() };
   writeLocalGuestInvites(kind, token, stamps.map((item) => (item.id === id ? stamp : item)));
   return { ok: true as const, stamp };
+}
+
+export function markLocalGuestInvitesSent(kind: GuestLockKind, token: string, inviteIds: string[]) {
+  const ids = [...new Set(inviteIds.map((item) => String(item || '').trim()).filter(Boolean))].slice(0, 100);
+  if (!ids.length) return { ok: false as const, marked: 0 };
+  const wanted = new Set(ids);
+  const nowIso = new Date().toISOString();
+  let marked = 0;
+  const stamps = readLocalGuestInvites(kind, token).map((item) => {
+    if (!wanted.has(item.id)) return item;
+    marked += 1;
+    return { ...item, sentAt: item.sentAt || nowIso };
+  });
+  if (!marked) return { ok: false as const, marked: 0 };
+  writeLocalGuestInvites(kind, token, stamps);
+  return { ok: true as const, marked };
 }
 
 export function guestInviteStats(stamps: GuestInviteStamp[], now = Date.now()) {

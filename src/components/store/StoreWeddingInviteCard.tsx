@@ -13,7 +13,8 @@ import {
   safeMapsHref,
   weddingCoupleLine,
   weddingHostInviteLine,
-  weddingInvitationLead,
+  weddingInvitationText,
+  weddingKickerText,
   type WeddingLiveHostState,
   type WeddingLiveStyleId,
 } from '@/lib/storeWeddingLiveLab';
@@ -36,7 +37,8 @@ export function StoreWeddingInviteCard({
     STORE_WEDDING_LIVE_STYLES[0];
   const maps = safeMapsHref(host.venueMapsUrl);
   const bg = inviteCardPhotoSrc(host.photoSrc, style.image);
-  const invitation = weddingInvitationLead(host);
+  const invitation = weddingInvitationText(host);
+  const kicker = weddingKickerText(host);
   return (
     <article
       data-wedding-card={styleId}
@@ -64,7 +66,7 @@ export function StoreWeddingInviteCard({
           )}
           style={{ borderColor: `${style.accent}73` }}
         >
-          <p className="invite-luminous text-sm tracking-wide opacity-80">عقد قران</p>
+          <p className="invite-luminous text-sm tracking-wide opacity-80">{kicker}</p>
           <p className="mt-1 text-sm opacity-80">{weddingHostInviteLine(host)}</p>
           <h2 className="invite-luminous mt-2 text-2xl font-black">{weddingCoupleLine(host)}</h2>
           <p className="invite-luminous mt-3 text-base leading-8 opacity-95">{invitation}</p>

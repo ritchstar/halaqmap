@@ -21,6 +21,7 @@ import {
   normalizeVenueKind,
   normalizeWeddingHostRole,
   normalizeWeddingVoice,
+  normalizeWeddingWelcomeLinesAr,
   readWeddingLiveLabState,
   writeWeddingLiveLabState,
   type WeddingLiveHostState,
@@ -48,6 +49,9 @@ function payloadToState(payload: Record<string, unknown>, fallback: WeddingLiveL
     offspringKind: normalizeOffspringKind((payload as Partial<WeddingLiveHostState>).offspringKind),
     venueKind: normalizeVenueKind((payload as Partial<WeddingLiveHostState>).venueKind),
     eventDateEn: String((payload as Partial<WeddingLiveHostState>).eventDateEn ?? fallback.host.eventDateEn),
+    invitationAr: String((payload as Partial<WeddingLiveHostState>).invitationAr ?? ''),
+    kickerAr: String((payload as Partial<WeddingLiveHostState>).kickerAr ?? ''),
+    welcomeLinesAr: normalizeWeddingWelcomeLinesAr((payload as Partial<WeddingLiveHostState>).welcomeLinesAr),
   };
   const blessings = Array.isArray(payload.blessings) ? payload.blessings : fallback.blessings;
   return { host, blessings: blessings as WeddingLiveLabState['blessings'] };

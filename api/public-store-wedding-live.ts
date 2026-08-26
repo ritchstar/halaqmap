@@ -23,6 +23,7 @@ import {
   parseWeddingHostRole,
   parseWeddingLiveOrderBody,
   parseWeddingVoice,
+  parseWeddingWelcomeLinesAr,
   publicWeddingPayload,
   STORE_WEDDING_LIVE_POLICY,
   STORE_WEDDING_LIVE_PRICE_HALALAS,
@@ -38,6 +39,7 @@ import {
   guestInviteStats,
   guestSeatMatches,
   markGuestInviteSent,
+  markGuestInvitesSent,
   mintGuestInviteBatch,
   parseGuestInvites,
   parseGuestSeats,
@@ -485,11 +487,20 @@ async function markGuestInviteSentAction(db: Db, body: Record<string, unknown>, 
   const data = await loadHostInvites(db, token);
   if (!data) return json({ error: 'رابط المضيف غير صالح' }, 404, headers);
   const payload = { ...(data.payload as WeddingLiveOrderPayload & { guestInvites?: unknown }) };
-  const marked = markGuestInviteSent(parseGuestInvites(payload.guestInvites), String(body.inviteId || ''));
+  const batchIds = Array.isArray(body.inviteIds) ? body.inviteIds : null;
+  const stamps = parseGuestInvites(payload.guestInvites);
+  const base = guestUrl(String(data.guest_token));
+  if (batchIds) {
+    const marked = markGuestInvitesSent(stamps, batchIds);
+    if (!marked.ok) return json({ error: 'الرابط غير صالح أو مستهلك' }, 404, headers);
+    payload.guestInvites = marked.stamps;
+    await db.from(STORE_WEDDING_LIVE_TABLE).update({ payload, updated_at: new Date().toISOString() }).eq('id', data.id);
+    return json({ ...hostInvitePayload(base, marked.stamps), marked: marked.marked }, 200, headers);
+  }
+  const marked = markGuestInviteSent(stamps, String(body.inviteId || ''));
   if (!marked.ok) return json({ error: 'الرابط غير صالح أو مستهلك' }, 404, headers);
   payload.guestInvites = marked.stamps;
   await db.from(STORE_WEDDING_LIVE_TABLE).update({ payload, updated_at: new Date().toISOString() }).eq('id', data.id);
-  const base = guestUrl(String(data.guest_token));
   return json({
     ...hostInvitePayload(base, marked.stamps),
     inviteId: marked.stamp.id,
@@ -558,11 +569,16 @@ async function saveHost(db: Db, body: Record<string, unknown>, headers: Record<s
       : 'hall',
     venueName: String(body.venueName ?? current.venueName).slice(0, 120),
     venueMapsUrl: String(body.venueMapsUrl ?? current.venueMapsUrl).slice(0, 500),
+    invitationAr: String(body.invitationAr ?? current.invitationAr ?? '').slice(0, 800),
+    kickerAr: String(body.kickerAr ?? current.kickerAr ?? '').slice(0, 80),
     welcomeAr: String(body.welcomeAr ?? current.welcomeAr).slice(0, 400),
     welcomeSetIndex: Math.max(
       0,
       Math.min(99, Number(body.welcomeSetIndex ?? current.welcomeSetIndex) || 0),
     ),
+    welcomeLinesAr: Array.isArray(body.welcomeLinesAr)
+      ? parseWeddingWelcomeLinesAr(body.welcomeLinesAr)
+      : parseWeddingWelcomeLinesAr(current.welcomeLinesAr),
     youtubeUrl: String(body.youtubeUrl ?? current.youtubeUrl).slice(0, 300),
     youtubeHidden: body.youtubeHidden == null ? current.youtubeHidden : Boolean(body.youtubeHidden),
     announcement: String(body.announcement ?? current.announcement).slice(0, 160),

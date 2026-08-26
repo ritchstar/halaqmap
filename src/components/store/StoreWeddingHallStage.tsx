@@ -21,8 +21,11 @@ import type { WeddingLiveLabState } from '@/lib/storeWeddingLiveLab';
 import {
   safeMapsHref,
   weddingCoupleLine,
+  weddingHasCustomWelcomeLines,
   weddingHostInviteLine,
-  weddingInvitationLead,
+  weddingInvitationText,
+  weddingKickerText,
+  weddingWelcomeLines,
   youtubeEmbedSrc,
 } from '@/lib/storeWeddingLiveLab';
 import { cn } from '@/lib/utils';
@@ -70,7 +73,9 @@ export function StoreWeddingHallStage({
   const accent = weddingLiveAccent(voice);
   const pinnedIndex = Number(state.host.welcomeSetIndex) || 0;
   const [cycleIndex, setCycleIndex] = useState(pinnedIndex);
-  const invitation = weddingInvitationLead(state.host);
+  const invitation = weddingInvitationText(state.host);
+  const kicker = weddingKickerText(state.host);
+  const customWelcome = weddingHasCustomWelcomeLines(state.host);
   const reel = voice === 'women' ? 'wedding-women' : 'wedding';
 
   useEffect(() => {
@@ -78,17 +83,18 @@ export function StoreWeddingHallStage({
   }, [pinnedIndex]);
 
   useEffect(() => {
-    if (!autoWelcome || weddingWelcomeSetCount() < 2) return undefined;
+    if (!autoWelcome || customWelcome || weddingWelcomeSetCount() < 2) return undefined;
     const timer = window.setInterval(() => {
       setCycleIndex((current) => nextWeddingWelcomeSetIndex(current));
     }, 28000);
     return () => window.clearInterval(timer);
-  }, [autoWelcome, pinnedIndex]);
+  }, [autoWelcome, pinnedIndex, customWelcome]);
 
-  const welcomeSet = weddingWelcomeSetAt(cycleIndex);
+  const welcomeSet = weddingWelcomeSetAt(customWelcome ? pinnedIndex : cycleIndex);
+  const resolvedLines = customWelcome ? weddingWelcomeLines(state.host) : welcomeSet.lines.map((line) => ({ ...line }));
   const displayTone = welcomeSet.id === 'display';
-  const heroLine = welcomeSet.lines.find((line) => line.weight === 'hero') ?? welcomeSet.lines[0];
-  const restLines = welcomeSet.lines.filter((line) => line.id !== heroLine.id);
+  const heroLine = resolvedLines.find((line) => line.weight === 'hero') ?? resolvedLines[0];
+  const restLines = resolvedLines.filter((line) => line.id !== heroLine.id);
 
   return (
     <div
@@ -128,7 +134,7 @@ export function StoreWeddingHallStage({
             data-bidi="off"
             style={{ color: accent }}
           >
-            عقد قران
+            {kicker}
           </div>
           <div
             className={cn('hall-ornament-rule', compact && 'hidden lg:block')}

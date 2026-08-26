@@ -38,6 +38,7 @@ import {
   guestInviteStats,
   guestSeatMatches,
   markGuestInviteSent,
+  markGuestInvitesSent,
   mintGuestInviteBatch,
   parseGuestInvites,
   parseGuestSeats,
@@ -485,11 +486,20 @@ async function markGuestInviteSentAction(db: Db, body: Record<string, unknown>, 
   const data = await loadHostInvites(db, token);
   if (!data) return json({ error: 'رابط المضيف غير صالح' }, 404, headers);
   const payload = { ...(data.payload as EventLiveOrderPayload & { guestInvites?: unknown }) };
-  const marked = markGuestInviteSent(parseGuestInvites(payload.guestInvites), String(body.inviteId || ''));
+  const batchIds = Array.isArray(body.inviteIds) ? body.inviteIds : null;
+  const stamps = parseGuestInvites(payload.guestInvites);
+  const base = guestUrl(String(data.guest_token));
+  if (batchIds) {
+    const marked = markGuestInvitesSent(stamps, batchIds);
+    if (!marked.ok) return json({ error: 'الرابط غير صالح أو مستهلك' }, 404, headers);
+    payload.guestInvites = marked.stamps;
+    await db.from(STORE_EVENT_LIVE_TABLE).update({ payload, updated_at: new Date().toISOString() }).eq('id', data.id);
+    return json({ ...hostInvitePayload(base, marked.stamps), marked: marked.marked }, 200, headers);
+  }
+  const marked = markGuestInviteSent(stamps, String(body.inviteId || ''));
   if (!marked.ok) return json({ error: 'الرابط غير صالح أو مستهلك' }, 404, headers);
   payload.guestInvites = marked.stamps;
   await db.from(STORE_EVENT_LIVE_TABLE).update({ payload, updated_at: new Date().toISOString() }).eq('id', data.id);
-  const base = guestUrl(String(data.guest_token));
   return json({
     ...hostInvitePayload(base, marked.stamps),
     inviteId: marked.stamp.id,

@@ -72,7 +72,7 @@ import {
   STORE_EVENT_LIVE_PUBLIC_ENABLED,
 } from '../src/config/storeEventLive.ts';
 import { STORE_MEET_QR_COPY, STORE_MEET_QR_TARGET_URL } from '../src/config/storeMeetQr.ts';
-import { parseYoutubeVideoId, safeMapsHref, weddingCoupleLine, weddingHostInviteLine, youtubeEmbedSrc } from '../src/lib/storeWeddingLiveLab.ts';
+import { parseYoutubeVideoId, safeMapsHref, defaultWeddingLiveLabState, weddingCoupleLine, weddingHostInviteLine, weddingInvitationText, weddingKickerText, youtubeEmbedSrc } from '../src/lib/storeWeddingLiveLab.ts';
 import { eventHostInviteLine } from '../src/lib/storeEventLiveLab.ts';
 import {
   STORE_WEDDING_LIVE_PRICE_HALALAS,
@@ -543,6 +543,9 @@ assert.match(hallEmbed, /playlist=aqz-KE-bpKQ/);
 assert.match(hallEmbed, /enablejsapi=1/);
 assert.match(readFileSync(join(root, 'src/components/store/StoreHallYoutubePlayer.tsx'), 'utf8'), /unMute/);
 assert.match(weddingHostPanel, /hostYoutubeHintAr/);
+assert.match(weddingHostPanel, /invitationAr/);
+assert.match(weddingHostPanel, /welcomeLinesAr/);
+assert.match(weddingHostPanel, /invitationRegenAr/);
 assert.match(readFileSync(join(root, 'src/components/store/StoreWeddingHallStage.tsx'), 'utf8'), /hostYoutubeSoundAr/);
 const hallToolsBlock = weddingHostPanel.slice(
   weddingHostPanel.indexOf('const hallTools'),
@@ -577,6 +580,11 @@ assert.match(weddingCoupleLine({
 assert.equal(weddingHostInviteLine({ hostRole: 'self', hostName: 'أحمد' }), 'الداعي أحمد');
 assert.equal(weddingHostInviteLine({ hostRole: 'groom_father', hostName: 'أحمد' }), 'والد العريس أحمد');
 assert.equal(weddingHostInviteLine({ hostRole: 'bride_father', hostName: 'فهد' }), 'والد العروس فهد');
+const editableHost = defaultWeddingLiveLabState('men').host;
+assert.match(weddingInvitationText(editableHost), /يسرنا دعوتكم/);
+assert.equal(weddingInvitationText({ ...editableHost, invitationAr: 'دعوة خاصة من العائلة.' }), 'دعوة خاصة من العائلة.');
+assert.equal(weddingKickerText(editableHost), 'عقد قران');
+assert.equal(weddingKickerText({ ...editableHost, kickerAr: 'حفل زفاف' }), 'حفل زفاف');
 assert.equal(weddingHostInviteLine({ voice: 'women', hostRole: 'self', hostName: 'نورة' }), 'الداعية نورة');
 assert.equal(weddingHostInviteLine({ voice: 'women', hostRole: 'groom_mother', hostName: 'نورة' }), 'والدة العريس نورة');
 assert.equal(weddingHostInviteLine({ voice: 'women', hostRole: 'bride_mother', hostName: 'منى' }), 'والدة العروس منى');

@@ -17,7 +17,11 @@ import {
   type StoreWeddingOffspringKind,
   type StoreWeddingVenueKind,
 } from '@/config/storeWeddingLive';
-import { normalizeWeddingWelcomeSetIndex } from '@/config/storeWeddingWelcomeSets';
+import {
+  normalizeWeddingWelcomeSetIndex,
+  weddingWelcomeSetAt,
+  type WeddingWelcomeLine,
+} from '@/config/storeWeddingWelcomeSets';
 
 export type WeddingLiveAudioId = (typeof STORE_WEDDING_LIVE_AUDIO)[number]['id'];
 export type WeddingLiveStyleId = (typeof STORE_WEDDING_LIVE_STYLES)[number]['id'];
@@ -50,8 +54,11 @@ export type WeddingLiveHostState = {
   venueKind: WeddingVenueKind;
   venueName: string;
   venueMapsUrl: string;
+  invitationAr: string;
+  kickerAr: string;
   welcomeAr: string;
   welcomeSetIndex: number;
+  welcomeLinesAr: string[];
   youtubeUrl: string;
   youtubeHidden: boolean;
   announcement: string;
@@ -155,6 +162,37 @@ export function weddingInvitationLead(host: WeddingLiveHostState): string {
   return `${invite} إلى حفل زفاف ${childPart}${spousePart}${evening}${dinner}.`;
 }
 
+export function normalizeWeddingWelcomeLinesAr(raw: unknown): string[] {
+  if (!Array.isArray(raw)) return [];
+  return raw.slice(0, 3).map((item) => String(item ?? '').slice(0, 400));
+}
+
+export function weddingHasCustomWelcomeLines(host: Pick<WeddingLiveHostState, 'welcomeLinesAr'>): boolean {
+  return (host.welcomeLinesAr || []).some((line) => String(line || '').trim());
+}
+
+export function weddingInvitationText(host: WeddingLiveHostState): string {
+  const custom = String(host.invitationAr || '').trim();
+  return custom || weddingInvitationLead(host);
+}
+
+export function weddingKickerText(host: Pick<WeddingLiveHostState, 'kickerAr'>): string {
+  const custom = String(host.kickerAr || '').trim();
+  return custom || 'عقد قران';
+}
+
+export function weddingWelcomeLines(host: Pick<WeddingLiveHostState, 'welcomeSetIndex' | 'welcomeLinesAr'>): WeddingWelcomeLine[] {
+  const preset = weddingWelcomeSetAt(host.welcomeSetIndex);
+  const custom = normalizeWeddingWelcomeLinesAr(host.welcomeLinesAr);
+  if (!weddingHasCustomWelcomeLines({ welcomeLinesAr: custom })) {
+    return preset.lines.map((line) => ({ ...line }));
+  }
+  return preset.lines.map((line, index) => ({
+    ...line,
+    textAr: String(custom[index] ?? '').trim() || line.textAr,
+  }));
+}
+
 export function safeMapsHref(raw: string): string | null {
   const t = String(raw || '').trim();
   if (!t) return null;
@@ -186,8 +224,11 @@ export function defaultWeddingLiveLabState(voice: StoreWeddingLiveVoice = 'men')
       venueKind: demo.venueKind,
       venueName: demo.venueName,
       venueMapsUrl: demo.venueMapsUrl,
+      invitationAr: '',
+      kickerAr: '',
       welcomeAr: demo.welcomeAr,
       welcomeSetIndex: 0,
+      welcomeLinesAr: [],
       youtubeUrl: demo.youtubeUrl,
       youtubeHidden: demo.youtubeHidden,
       announcement: demo.announcement,
@@ -229,7 +270,10 @@ export function readWeddingLiveLabState(token: string): WeddingLiveLabState {
         offspringKind: normalizeOffspringKind(parsedHost?.offspringKind),
         eventDateEn: String(parsedHost?.eventDateEn ?? fallback.host.eventDateEn),
         venueKind: normalizeVenueKind(parsedHost?.venueKind),
+        invitationAr: String(parsedHost?.invitationAr ?? ''),
+        kickerAr: String(parsedHost?.kickerAr ?? ''),
         welcomeSetIndex: normalizeWeddingWelcomeSetIndex(parsedHost?.welcomeSetIndex),
+        welcomeLinesAr: normalizeWeddingWelcomeLinesAr(parsedHost?.welcomeLinesAr),
         cardStyleId: parsedHost?.cardStyleId || weddingLiveDefaultStyle(nextVoice),
       },
       blessings: Array.isArray(parsed.blessings) ? parsed.blessings : fallback.blessings,
@@ -373,8 +417,11 @@ export function weddingLiveArchiveBlob(state: WeddingLiveLabState): Blob {
     eventTime: state.host.eventTime,
     venueKind: state.host.venueKind,
     venueName: state.host.venueName,
+    invitationAr: state.host.invitationAr,
+    kickerAr: state.host.kickerAr,
     welcomeAr: state.host.welcomeAr,
     welcomeSetIndex: state.host.welcomeSetIndex,
+    welcomeLinesAr: state.host.welcomeLinesAr,
     announcement: state.host.announcement,
     blessings: visible,
   };

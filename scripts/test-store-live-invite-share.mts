@@ -63,5 +63,12 @@ assert.match(eventApi, /\/e\/\$\{encodeURIComponent\(token\)\}\/guest/);
 assert.doesNotMatch(weddingApi, /\/#\/w\/\$\{encodeURIComponent\(token\)\}\/guest/);
 assert.match(indexHtml, /liveGuest/);
 assert.match(indexHtml, /invite=/);
+const issuance = readFileSync(join(root, 'src/components/store/StoreHostGuestInviteIssuance.tsx'), 'utf8');
+assert.match(issuance, /دفعة لمفوض من العائلة/);
+assert.match(issuance, /لا تفتحوا أي رابط/);
+assert.match(issuance, /markWeddingGuestInvitesSent/);
+assert.match(weddingApi, /inviteIds/);
+assert.match(eventApi, /inviteIds/);
+assert.doesNotMatch(app, /StoreHostGuestInviteIssuance|storeGuestDeviceLock/);
 
 console.log('store-live-invite-share: ok');

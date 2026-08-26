@@ -111,6 +111,29 @@ export function markGuestInviteSent(
   };
 }
 
+export function markGuestInvitesSent(
+  stamps: GuestInviteStamp[],
+  inviteIds: unknown,
+  now = Date.now(),
+): { ok: true; stamps: GuestInviteStamp[]; marked: number } | { ok: false } {
+  const ids = [...new Set(
+    (Array.isArray(inviteIds) ? inviteIds : [inviteIds])
+      .map((item) => String(item || '').trim())
+      .filter(Boolean),
+  )].slice(0, 100);
+  if (!ids.length) return { ok: false };
+  let next = stamps;
+  let marked = 0;
+  for (const id of ids) {
+    const result = markGuestInviteSent(next, id, now);
+    if (!result.ok) continue;
+    next = result.stamps;
+    marked += 1;
+  }
+  if (!marked) return { ok: false };
+  return { ok: true, stamps: next, marked };
+}
+
 export function nextReadyInvite(stamps: GuestInviteStamp[], now = Date.now()): GuestInviteStamp | null {
   return stamps.find((item) => !item.sentAt && !item.usedBy && item.exp > now) || null;
 }

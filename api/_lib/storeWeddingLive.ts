@@ -67,6 +67,15 @@ function clip(raw: unknown, max: number): string {
   return String(raw ?? '').replace(/\s+/g, ' ').trim().slice(0, max);
 }
 
+function clipMultiline(raw: unknown, max: number): string {
+  return String(raw ?? '').replace(/\r\n/g, '\n').trim().slice(0, max);
+}
+
+export function parseWeddingWelcomeLinesAr(raw: unknown): string[] {
+  if (!Array.isArray(raw)) return [];
+  return raw.slice(0, 3).map((item) => String(item ?? '').slice(0, 400));
+}
+
 function isEmail(raw: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(raw) && raw.length <= 180;
 }
@@ -113,8 +122,11 @@ export type WeddingLiveOrderPayload = {
   venueKind: 'hall' | 'resthouse' | 'hotel' | 'other';
   venueName: string;
   venueMapsUrl: string;
+  invitationAr?: string;
+  kickerAr?: string;
   welcomeAr: string;
   welcomeSetIndex?: number;
+  welcomeLinesAr?: string[];
   youtubeUrl: string;
   youtubeHidden: boolean;
   announcement: string;
@@ -162,8 +174,11 @@ export function parseWeddingLiveOrderBody(body: Record<string, unknown>):
       venueKind: parseVenueKind(body.venueKind),
       venueName: clip(body.venueName, 120),
       venueMapsUrl: clip(body.venueMapsUrl, 500),
+      invitationAr: clipMultiline(body.invitationAr, 800),
+      kickerAr: clip(body.kickerAr, 80),
       welcomeAr: clip(body.welcomeAr, 400),
       welcomeSetIndex: Math.max(0, Math.min(99, Number(body.welcomeSetIndex) || 0)),
+      welcomeLinesAr: parseWeddingWelcomeLinesAr(body.welcomeLinesAr),
       youtubeUrl: clip(body.youtubeUrl, 300),
       youtubeHidden: Boolean(body.youtubeHidden),
       announcement: clip(body.announcement, 160),
@@ -188,8 +203,11 @@ export function publicWeddingPayload(payload: WeddingLiveOrderPayload) {
     venueKind: parseVenueKind(payload.venueKind),
     venueName: payload.venueName,
     venueMapsUrl: payload.venueMapsUrl,
+    invitationAr: clipMultiline(payload.invitationAr, 800),
+    kickerAr: clip(payload.kickerAr, 80),
     welcomeAr: payload.welcomeAr,
     welcomeSetIndex: Number(payload.welcomeSetIndex) || 0,
+    welcomeLinesAr: parseWeddingWelcomeLinesAr(payload.welcomeLinesAr),
     youtubeUrl: payload.youtubeUrl,
     youtubeHidden: payload.youtubeHidden,
     announcement: payload.announcement,

@@ -26,8 +26,10 @@ import {
   playWeddingLiveChime,
   weddingCoupleLine,
   weddingHostInviteLine,
-  weddingInvitationLead,
+  weddingInvitationText,
+  weddingKickerText,
   weddingLiveArchiveBlob,
+  weddingWelcomeLines,
   type WeddingLiveAudioId,
   type WeddingLiveLabState,
   type WeddingLiveStyleId,
@@ -68,7 +70,9 @@ export function StoreWeddingHostPanel({
   const text = voice === 'women' ? 'text-[#e4b7c5]' : 'text-[#e8c547]';
   const borderAccent = voice === 'women' ? 'border-[#e4b7c5]/40' : 'border-[#e8c547]/40';
   const offspringKind = normalizeOffspringKind(host.offspringKind);
-  const invitation = weddingInvitationLead(host);
+  const invitation = weddingInvitationText(host);
+  const kicker = weddingKickerText(host);
+  const welcomeLines = weddingWelcomeLines(host);
 
   function patchHost(partial: Partial<typeof host>) {
     onChange({ ...state, host: { ...host, ...partial } });
@@ -108,7 +112,7 @@ export function StoreWeddingHostPanel({
     setDownloadError('');
     try {
       await downloadInviteCardAsPng(`afrahi-${styleId}.png`, {
-        kickerAr: 'عقد قران',
+        kickerAr: kicker,
         hostLineAr: weddingHostInviteLine(host),
         titleAr: weddingCoupleLine(host) || copy.titleAr,
         leadAr: invitation,
@@ -175,15 +179,20 @@ export function StoreWeddingHostPanel({
           {weddingWelcomeSetAt(host.welcomeSetIndex).toneAr}
         </p>
         <ul className="mt-3 space-y-2">
-          {weddingWelcomeSetAt(host.welcomeSetIndex).lines.map((line) => (
-            <li
-              key={line.id}
-              className={cn(
-                'rounded-xl border border-white/10 px-3 py-2 leading-7 text-white/85',
-                line.weight === 'hero' ? 'text-base font-black' : 'text-base font-bold',
-              )}
-            >
-              {line.textAr}
+          {welcomeLines.map((line, index) => (
+            <li key={line.id}>
+              <textarea
+                value={line.textAr}
+                onChange={(e) => {
+                  const nextLines = welcomeLines.map((item) => item.textAr);
+                  nextLines[index] = e.target.value;
+                  patchHost({ welcomeLinesAr: nextLines });
+                }}
+                className={cn(
+                  'w-full rounded-xl border border-white/10 bg-[#061018] px-3 py-2 leading-7 text-[#f4efe4]',
+                  line.weight === 'hero' ? 'min-h-[5.5rem] text-base font-black' : 'min-h-[4.5rem] text-base font-bold',
+                )}
+              />
             </li>
           ))}
         </ul>
@@ -191,7 +200,7 @@ export function StoreWeddingHostPanel({
           type="button"
           onClick={() => {
             const next = nextWeddingWelcomeSetIndex(host.welcomeSetIndex);
-            patchHost({ welcomeSetIndex: next });
+            patchHost({ welcomeSetIndex: next, welcomeLinesAr: [] });
           }}
           className={cn('mt-4 w-full rounded-full py-2 text-base font-bold', fill)}
         >
@@ -410,9 +419,33 @@ export function StoreWeddingHostPanel({
           </label>
           {!isLab ? mapsField : null}
         </div>
+        <label className="mt-4 block text-base">
+          {copy.invitationKickerLabelAr}
+          <input
+            className={fieldClass}
+            value={host.kickerAr}
+            onChange={(e) => patchHost({ kickerAr: e.target.value })}
+            placeholder="عقد قران"
+          />
+          <span className="mt-1 block text-sm text-white/55">{copy.invitationKickerHintAr}</span>
+        </label>
         <div className="mt-4 rounded-2xl border border-white/12 bg-[#061018]/80 p-4">
-          <p className="text-base font-extrabold">{copy.invitationPreviewAr}</p>
-          <p className="invite-luminous mt-2 text-base leading-8 text-[#f7edd8]">{invitation}</p>
+          <label className="block text-base font-extrabold">
+            {copy.invitationPreviewAr}
+            <textarea
+              value={invitation}
+              onChange={(e) => patchHost({ invitationAr: e.target.value })}
+              className="mt-2 h-32 w-full rounded-md border border-white/15 bg-[#061018] px-3 py-2 text-base font-normal leading-8 text-[#f7edd8]"
+            />
+          </label>
+          <p className="mt-2 text-sm leading-7 text-white/55">{copy.invitationEditHintAr}</p>
+          <button
+            type="button"
+            onClick={() => patchHost({ invitationAr: '' })}
+            className="mt-3 rounded-full border border-white/20 px-4 py-1.5 text-sm font-bold"
+          >
+            {copy.invitationRegenAr}
+          </button>
         </div>
         <label className="mt-4 block text-base">
           {copy.hostAnnouncementLabelAr}
