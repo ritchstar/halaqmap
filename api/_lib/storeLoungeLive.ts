@@ -60,7 +60,7 @@ export function newLoungeToken(): string {
   return randomBytes(24).toString('base64url');
 }
 
-export function loungeLiveTermEndIso(days = STORE_LOUNGE_LIVE_DAYS, fromMs = Date.now()): string {
+export function loungeLiveTermEndIso(days: number = STORE_LOUNGE_LIVE_DAYS, fromMs = Date.now()): string {
   return new Date(fromMs + days * 24 * 60 * 60 * 1000).toISOString();
 }
 
