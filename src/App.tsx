@@ -247,7 +247,7 @@ const StoreAffiliatesHomePage = lazy(() => import("@/pages/store/StoreAffiliates
 const StoreAffiliatesEnterPage = lazy(() => import("@/pages/store/StoreAffiliatesEnterPage"));
 const StoreAffiliatesDeskPage = lazy(() => import("@/pages/store/StoreAffiliatesDeskPage"));
 const StoreAffiliatesRulesPage = lazy(() => import("@/pages/store/StoreAffiliatesRulesPage"));
-const StoreOpsDeskPage = lazy(() => import("@/pages/store/StoreOpsDeskPage"));
+const StoreOpsDeskPage = lazyPage(() => import("@/pages/store/StoreOpsDeskPage"), "StoreOpsDeskPage");
 const StoreBereavementCreatePage = lazy(() => import("@/pages/store/StoreBereavementCreatePage"));
 const StoreBereavementViewPage = lazy(() => import("@/pages/store/StoreBereavementViewPage"));
 const PartnerStoryPage = lazy(() => import("@/pages/PartnerStoryPage"));
@@ -399,9 +399,9 @@ const LegacyAdminRedirect = ({ suffix }: { suffix: string }) => {
   );
 };
 
-/** الرابط العام القديم على نطاق المتجر يفتح دخول الإدارة ثم لوحة إصدار التجارب. */
+/** بعد الدخول: مكتب المتجر العامل، لا مسار جديد قد يسقط الحزمة. */
 function StoreOpsPortalRedirect() {
-  const dest = `${getAdminPortalBasePath()}${ADMIN_STORE_OPS_PATH}`;
+  const dest = `${getAdminPortalBasePath()}${ROUTE_PATHS.ADMIN_STORE_DESK}`;
   const login = `${getAdminLoginPath()}?next=${encodeURIComponent(dest)}`;
   if (typeof window !== 'undefined' && isHalaqmapStoreHost(window.location.hostname)) {
     window.location.replace(`https://www.halaqmap.com/#${login}`);

@@ -3,6 +3,7 @@
  */
 import type { ReactNode } from 'react';
 import { Component } from 'react';
+import { getAdminDashboardPath } from '@/config/adminAuth';
 import { forceHardRefresh } from '@/lib/platformBuildSync';
 
 type Props = { children: ReactNode };
@@ -35,8 +36,13 @@ function isLazyDefaultExportError(error: Error): boolean {
   return (
     /reading ['"]default['"]/i.test(error.message) ||
     /failed to load$/i.test(error.message) ||
+    /Failed to fetch dynamically imported module/i.test(error.message) ||
+    /Importing a module script failed/i.test(error.message) ||
+    /ChunkLoadError/i.test(error.message) ||
+    /Loading chunk [\w-]+ failed/i.test(error.message) ||
     /AdminDashboard failed to load/i.test(error.message) ||
     /BarberDashboard failed to load/i.test(error.message) ||
+    /StoreOpsDeskPage failed to load/i.test(error.message) ||
     /LandingPreview failed to load/i.test(error.message) ||
     /PartnerMarketingPreview failed to load/i.test(error.message) ||
     /normalizeLocationHash/i.test(error.message)
@@ -197,6 +203,16 @@ export class RootErrorBoundary extends Component<Props, State> {
             onClick={domMismatch || lazyDefaultMismatch ? this.handleRecoverClick : () => window.location.reload()}
           >
             إعادة التحميل
+          </button>
+          <button
+            type="button"
+            className="text-sm font-bold text-teal-200 underline"
+            onClick={() => {
+              window.location.hash = `#${getAdminDashboardPath()}`;
+              window.location.reload();
+            }}
+          >
+            لوحة التحكم
           </button>
         </div>
       );

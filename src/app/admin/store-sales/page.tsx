@@ -113,7 +113,7 @@ export default function StoreSalesHubPage() {
             <p className="mt-2 max-w-3xl text-sm leading-7 text-slate-300">{STORE_SALES_LEDGER_COPY.leadAr}</p>
             <button
               type="button"
-              onClick={() => navigate(`${getAdminPortalBasePath()}${ROUTE_PATHS.ADMIN_STORE_OPS}`)}
+              onClick={() => navigate(`${getAdminPortalBasePath()}${ROUTE_PATHS.ADMIN_STORE_DESK}`)}
               className="mt-3 rounded-xl border border-[#e8c547]/35 bg-[#1a1508] px-4 py-2 text-sm font-bold text-[#e8c547]"
             >
               إصدار التجارب والمسدد المفعَّل

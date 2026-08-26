@@ -16,7 +16,8 @@ import {
 } from 'lucide-react';
 import { FounderCommandShell } from '@/components/admin/founder/FounderCommandShell';
 import { founderTheme } from '@/components/admin/founder/founderTheme';
-import { getAdminDashboardPathFor, getAdminPortalBasePath } from '@/config/adminAuth';
+import { StoreTrialOpsBoard } from '@/components/admin/StoreTrialOpsBoard';
+import { getAdminDashboardPathFor } from '@/config/adminAuth';
 import { STORE_DESK_COPY, STORE_DESK_STATUS_AR } from '@/config/storeDeskCopy';
 import { STORE_LIVE_PRODUCTS, STORE_SOFTWARE_SHOTS } from '@/config/storeFront';
 import { StoreShot } from '@/components/store/StoreShot';
@@ -30,7 +31,6 @@ import {
   type StoreDeskStatus,
 } from '@/lib/adminStoreDeskRemote';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
-import { ROUTE_PATHS } from '@/lib/routePaths';
 import { cn } from '@/lib/utils';
 
 type AuthPhase = 'loading' | 'ok' | 'denied';
@@ -64,6 +64,7 @@ export default function StoreDeskPage() {
   const [followUp, setFollowUp] = useState('');
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState('');
+  const [accessToken, setAccessToken] = useState('');
   const autoMeetFor = useRef('');
 
   useDocumentTitle(STORE_DESK_COPY.documentTitle);
@@ -113,7 +114,10 @@ export default function StoreDeskPage() {
         if (!cancelled) setPhase('denied');
         return;
       }
-      if (!cancelled) setPhase('ok');
+      if (!cancelled) {
+        setAccessToken(data.session?.access_token || '');
+        setPhase('ok');
+      }
       await loadList();
     })();
     return () => {
@@ -244,13 +248,11 @@ export default function StoreDeskPage() {
       }
     >
       <p className="max-w-3xl text-sm leading-7 text-white/70">{STORE_DESK_COPY.leadAr}</p>
-      <button
-        type="button"
-        onClick={() => navigate(`${getAdminPortalBasePath()}${ROUTE_PATHS.ADMIN_STORE_OPS}`)}
-        className="mt-3 rounded-xl border border-[#e8c547]/35 bg-[#1a1508] px-4 py-2 text-sm font-bold text-[#e8c547]"
-      >
-        إصدار التجارب والمسدد المفعَّل
-      </button>
+      {accessToken ? (
+        <div className="mt-8">
+          <StoreTrialOpsBoard accessToken={accessToken} />
+        </div>
+      ) : null}
       {hint ? <p className="mt-2 text-sm text-amber-200/80">{hint}</p> : null}
       {!openaiConfigured ? (
         <p className="mt-2 text-sm text-amber-200/80">{STORE_DESK_COPY.openaiMissingAr}</p>

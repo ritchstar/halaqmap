@@ -788,7 +788,7 @@ export default function AdminDashboard() {
                 className="h-9 shrink-0 gap-1.5 border border-[#e8c547]/35 bg-[#1a1508] px-2.5 text-[#e8c547] hover:bg-[#2a2010] hover:text-[#f4e4a4]"
                 title="إصدار تجارب المتجر"
                 aria-label="إصدار تجارب المتجر"
-                onClick={() => navigate(`${getAdminPortalBasePath()}${ROUTE_PATHS.ADMIN_STORE_OPS}`)}
+                onClick={() => navigate(`${getAdminPortalBasePath()}${ROUTE_PATHS.ADMIN_STORE_DESK}`)}
               >
                 <FlaskConical className="h-4 w-4" />
                 <span className="hidden md:inline">تجارب المتجر</span>
@@ -1061,7 +1061,7 @@ export default function AdminDashboard() {
               </div>
               <button
                 type="button"
-                onClick={() => navigate(`${getAdminPortalBasePath()}${ROUTE_PATHS.ADMIN_STORE_OPS}`)}
+                onClick={() => navigate(`${getAdminPortalBasePath()}${ROUTE_PATHS.ADMIN_STORE_DESK}`)}
                 className="flex items-center gap-1.5 rounded-xl border border-[#e8c547]/35 bg-[#2a2010] px-4 py-2 text-xs font-bold text-[#e8c547] hover:bg-[#3a2c14] transition-all"
               >
                 فتح الإصدار
@@ -1207,7 +1207,7 @@ export default function AdminDashboard() {
                 <StoreAffiliateApplicationsPanel accessToken={adminAccessToken} />
                 <button
                   type="button"
-                  onClick={() => navigate(`${getAdminPortalBasePath()}${ROUTE_PATHS.ADMIN_STORE_OPS}`)}
+                  onClick={() => navigate(`${getAdminPortalBasePath()}${ROUTE_PATHS.ADMIN_STORE_DESK}`)}
                   className="block w-full rounded-xl border border-teal-400/30 bg-teal-500/10 px-4 py-3 text-right text-sm font-bold text-teal-100 hover:bg-teal-500/20"
                 >
                   إصدار تجارب المتجر: إتمام الطلب والمصدر تجريبياً والمسدد المفعَّل
