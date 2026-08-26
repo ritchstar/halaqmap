@@ -71,6 +71,7 @@ import {
   STORE_EVENT_LIVE_PRODUCT,
   STORE_EVENT_LIVE_PUBLIC_ENABLED,
 } from '../src/config/storeEventLive.ts';
+import { STORE_MEET_QR_COPY, STORE_MEET_QR_TARGET_URL } from '../src/config/storeMeetQr.ts';
 import { parseYoutubeVideoId, safeMapsHref, weddingCoupleLine, weddingHostInviteLine, youtubeEmbedSrc } from '../src/lib/storeWeddingLiveLab.ts';
 import { eventHostInviteLine } from '../src/lib/storeEventLiveLab.ts';
 import {
@@ -648,6 +649,13 @@ assert.match(eventRemote, /public-store-event-live/);
 assert.match(eventRemote, /vercel\.app/);
 assert.doesNotMatch(eventRemote, /public-store-wedding-live/);
 assert.doesNotMatch(app, /from ['"]@\/config\/storeLoungeLive['"]/);
+assert.doesNotMatch(app, /from ['"]@\/config\/storeMeetQr['"]/);
+assert.equal(STORE_MEET_QR_TARGET_URL, 'https://store.halaqmap.com/store');
+assert.doesNotMatch(STORE_MEET_QR_TARGET_URL, /#/);
+assert.match(STORE_MEET_QR_COPY.hostLine, /store\.halaqmap\.com\/store/);
+assert.match(app, /STORE_MEET_QR/);
+assert.match(readFileSync(join(root, 'src/pages/store/StoreMeetQrPage.tsx'), 'utf8'), /STORE_MEET_QR_TARGET_URL/);
+assert.match(readFileSync(join(root, 'src/lib/routePaths.ts'), 'utf8'), /STORE_MEET_QR: '\/store\/qr'/);
 
 const vercel = readFileSync(join(root, 'vercel.json'), 'utf8');
 assert.match(vercel, /\/oc\/:token/);

@@ -45,6 +45,8 @@ const STORE_INTRO_CARDS_PATH =
   (ROUTE_PATHS as { STORE_INTRO_CARDS?: string }).STORE_INTRO_CARDS || "/store/id-cards";
 const STORE_INTRO_CARD_VIEW_PATH =
   (ROUTE_PATHS as { STORE_INTRO_CARD_VIEW?: string }).STORE_INTRO_CARD_VIEW || "/store/id-card";
+const STORE_MEET_QR_PATH =
+  (ROUTE_PATHS as { STORE_MEET_QR?: string }).STORE_MEET_QR || "/store/qr";
 const STORE_ABOUT_PATH =
   (ROUTE_PATHS as { STORE_ABOUT?: string }).STORE_ABOUT || "/store/about";
 const STORE_TRUST_PATH =
@@ -212,6 +214,7 @@ const StoreRequestPage = lazy(() => import("@/pages/store/StoreRequestPage"));
 const StoreCardStudioPage = lazy(() => import("@/pages/store/StoreCardStudioPage"));
 const StoreIntroCardStudioPage = lazy(() => import("@/pages/store/StoreIntroCardStudioPage"));
 const StoreIntroCardViewPage = lazy(() => import("@/pages/store/StoreIntroCardViewPage"));
+const StoreMeetQrPage = lazy(() => import("@/pages/store/StoreMeetQrPage"));
 const StoreAboutPage = lazy(() => import("@/pages/store/StoreAboutPage"));
 const StoreTrustPage = lazy(() => import("@/pages/store/StoreTrustPage"));
 const StoreIssuedCardsLegalHub = lazy(() => import("@/pages/store/StoreIssuedCardsLegalHub"));
@@ -721,6 +724,7 @@ export function App() {
           <Route path={STORE_CARDS_PATH} element={<LazyRoute><StoreCardStudioPage /></LazyRoute>} />
           <Route path={STORE_INTRO_CARDS_PATH} element={<LazyRoute><StoreIntroCardStudioPage /></LazyRoute>} />
           <Route path={STORE_INTRO_CARD_VIEW_PATH} element={<LazyRoute><StoreIntroCardViewPage /></LazyRoute>} />
+          <Route path={STORE_MEET_QR_PATH} element={<LazyRoute><StoreMeetQrPage /></LazyRoute>} />
           <Route path={STORE_ABOUT_PATH} element={<LazyRoute><StoreAboutPage /></LazyRoute>} />
           <Route path={STORE_TRUST_PATH} element={<LazyRoute><StoreTrustPage /></LazyRoute>} />
           <Route path={STORE_ISSUED_CARDS_LEGAL_PATH} element={<LazyRoute><StoreIssuedCardsLegalHub /></LazyRoute>} />

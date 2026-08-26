@@ -267,6 +267,7 @@ export const ProductEvents = {
   storeIntroCardShare: (props: { method: string }) =>
     trackProductEvent('store_intro_card_share', { method: props.method }),
   storeIntroCardOpenLanding: () => trackProductEvent('store_intro_card_open_landing'),
+  storeMeetQrView: () => trackProductEvent('store_meet_qr_view'),
   storeWeddingLandingView: (props: { voice: 'men' | 'women' }) =>
     trackProductEvent('store_wedding_landing_view', { voice: props.voice }),
   storeWeddingTryClick: (props: { voice: 'men' | 'women' }) =>

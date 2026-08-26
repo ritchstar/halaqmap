@@ -260,6 +260,12 @@ export default function StoreIntroCardStudioPage() {
           <p dir="ltr" className="mt-2 text-xs font-bold tracking-wide text-[#e8c547]/80">
             {STORE_BRAND_LATIN}
           </p>
+          <Link
+            to={(ROUTE_PATHS as { STORE_MEET_QR?: string }).STORE_MEET_QR || '/store/qr'}
+            className="mt-4 inline-flex text-sm font-bold text-[#e8c547]"
+          >
+            رمز المقابلة على الآيفون
+          </Link>
         </div>
       </section>
 

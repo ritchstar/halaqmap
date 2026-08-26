@@ -26,6 +26,7 @@ import {
   storeCardsPath,
 } from '@/config/storeFront';
 import { STORE_INTRO_CARD_COPY } from '@/config/storeIntroCardCopy';
+import { STORE_MEET_QR_COPY } from '@/config/storeMeetQr';
 import { PLATFORM_TLS_SSL_LABS_GRADE } from '@/config/platformTlsTrust';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { ProductEvents } from '@/lib/analytics/productAnalytics';
@@ -376,6 +377,22 @@ export default function StoreLanding() {
             className="mt-4 inline-flex items-center gap-1 text-sm font-bold text-[#e8c547]"
           >
             {STORE_INTRO_CARD_COPY.landingDoorCtaAr}
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
+        </div>
+      </section>
+
+      <section className="px-4 pb-14">
+        <div className="mx-auto max-w-5xl rounded-2xl border border-[#e8c547]/25 bg-[#0b1a24]/70 p-5 md:p-6">
+          <h2 className="text-2xl font-extrabold">{STORE_MEET_QR_COPY.landingDoorTitleAr}</h2>
+          <p className="mt-2 max-w-3xl text-sm leading-relaxed text-white/70">
+            {STORE_MEET_QR_COPY.landingDoorLeadAr}
+          </p>
+          <Link
+            to={ROUTE_PATHS.STORE_MEET_QR}
+            className="mt-4 inline-flex items-center gap-1 text-sm font-bold text-[#e8c547]"
+          >
+            {STORE_MEET_QR_COPY.landingDoorCtaAr}
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </div>
