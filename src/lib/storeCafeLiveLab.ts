@@ -101,6 +101,15 @@ function storageKey(token: string): string {
   return `store-cafe-live:v1:${token.trim() || 'cafe-lab'}`;
 }
 
+export function cafeLabRaw(token: string): string {
+  if (typeof window === 'undefined') return '';
+  try {
+    return window.localStorage.getItem(storageKey(token)) || '';
+  } catch {
+    return '';
+  }
+}
+
 const DEMO_IDS = [
   'hot-qahwa',
   'hot-latte',

@@ -87,6 +87,8 @@ assert.ok(STORE_GROCERS_CATALOG.length >= 200);
 assert.match(STORE_GROCERS_LIVE.leadAr, /599/);
 assert.match(STORE_GROCERS_LIVE.priceLineAr, /899/);
 assert.doesNotMatch(STORE_GROCERS_LIVE.leadAr, /12 و29 و59/);
+assert.doesNotMatch(STORE_GROCERS_LIVE.leadAr, /تجربة ستون|المسوّق/);
+assert.doesNotMatch(STORE_GROCERS_LIVE.durationLineAr, /تجربة ستون|المسوّق/);
 assert.doesNotMatch(STORE_GROCERS_LIVE.termsFoldBodyAr, /store_lounge_live/);
 assert.match(STORE_LANDING_COPY.grocersLiveTitleAr, /تمويناتا1/);
 assert.match(STORE_LANDING_COPY.grocersLiveLeadAr, /599/);

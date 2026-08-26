@@ -6,7 +6,7 @@ import { STORE_CAFE_LIVE, STORE_CAFE_LIVE_LAB_TOKEN } from '@/config/storeCafeLi
 import { StoreCafeDesk } from '@/components/store/StoreCafeDesk';
 import { StoreCafeHallStage } from '@/components/store/StoreCafeHallStage';
 import { StoreCafeShop } from '@/components/store/StoreCafeShop';
-import { readCafeLabState, writeCafeLabState, type CafeLabState } from '@/lib/storeCafeLiveLab';
+import { cafeLabRaw, readCafeLabState, writeCafeLabState, type CafeLabState } from '@/lib/storeCafeLiveLab';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { cn } from '@/lib/utils';
 
@@ -21,8 +21,14 @@ export function StoreCafeStudio({ token = STORE_CAFE_LIVE_LAB_TOKEN }: { token?:
       : `${window.location.origin}/#${ROUTE_PATHS.STORE_CAFE_VIEW.replace(':token', token)}`;
 
   useEffect(() => {
+    let raw = cafeLabRaw(token);
     setState(readCafeLabState(token));
-    const refresh = () => setState(readCafeLabState(token));
+    const refresh = () => {
+      const next = cafeLabRaw(token);
+      if (next === raw) return;
+      raw = next;
+      setState(readCafeLabState(token));
+    };
     const timer = window.setInterval(refresh, 1500);
     window.addEventListener('storage', refresh);
     return () => {

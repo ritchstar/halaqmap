@@ -53,6 +53,9 @@ const cafeApi = readFileSync(join(root, 'api/public-store-cafe-live.ts'), 'utf8'
 const sql = readFileSync(join(root, 'supabase/migrations/181_store_cafe_live.sql'), 'utf8');
 const cafeLanding = readFileSync(join(root, 'src/pages/store/StoreCafeLandingPage.tsx'), 'utf8');
 const shop = readFileSync(join(root, 'src/components/store/StoreCafeShop.tsx'), 'utf8');
+const desk = readFileSync(join(root, 'src/components/store/StoreCafeDesk.tsx'), 'utf8');
+const studio = readFileSync(join(root, 'src/components/store/StoreCafeStudio.tsx'), 'utf8');
+const shopPage = readFileSync(join(root, 'src/pages/store/StoreCafeShopPage.tsx'), 'utf8');
 const copyBlob = [
   STORE_CAFE_LIVE.leadAr,
   STORE_CAFE_LIVE.howLeadAr,
@@ -109,6 +112,8 @@ assert.match(STORE_CAFE_LIVE.servicePickupAr, /استلام من المحل/);
 assert.match(STORE_CAFE_LIVE.serviceDeliveryAr, /توصيل في الحي/);
 assert.doesNotMatch(copyBlob, /لحظة بلحظة|لوكيشن|واجهة المنزل|صفر عمولات|آلياً/);
 assert.doesNotMatch(copyBlob, /تمويناتا1|افراحي1|اجواء1|لاونجا1|كاردي8|مطعمنا1/);
+assert.doesNotMatch(copyBlob, /تجربة ستون|المسوّق/);
+assert.match(STORE_CAFE_LIVE.durationLineAr, /صندوق المحادثة مدرج/);
 assert.doesNotMatch(copyBlob, /599|600|698|699|898|899|999|1398/);
 assert.match(cafeLanding, /howTitleAr/);
 assert.match(cafeLanding, /ticketItems/);
@@ -120,6 +125,11 @@ assert.ok(STORE_PRODUCT_TRIAL_KEYS.includes('cafe'));
 assert.equal(STORE_PRODUCT_TRIAL_PRODUCTS.cafe.productTag, 'store_cafe_live');
 assert.match(shop, /setService\('delivery'\)/);
 assert.match(shop, /setService\('pickup'\)/);
+assert.match(desk, /showTrialNote/);
+assert.doesNotMatch(studio, /showTrialNote=\{true\}/);
+assert.match(shopPage, /showTrialNote=\{isTrial\}/);
+assert.match(shopPage, /cafeLabRaw/);
+assert.match(studio, /cafeLabRaw/);
 
 const end6 = Date.parse(cafeLiveTermEndIso(180, Date.parse('2026-01-01T00:00:00.000Z')));
 assert.equal(end6 - Date.parse('2026-01-01T00:00:00.000Z'), 180 * 24 * 60 * 60 * 1000);

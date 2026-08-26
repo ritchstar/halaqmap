@@ -18,6 +18,7 @@ import {
 } from '@/config/storeCafeLive';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import {
+  cafeLabRaw,
   defaultCafeLabState,
   readCafeLabState,
   writeCafeLabState,
@@ -114,10 +115,12 @@ export default function StoreCafeShopPage() {
   const [menuUrl, setMenuUrl] = useState('');
   const [screenLive, setScreenLive] = useState(true);
   const [asDisplay, setAsDisplay] = useState(false);
+  const [isTrial, setIsTrial] = useState(false);
   useDocumentTitle(STORE_CAFE_LIVE.documentTitle);
 
   useEffect(() => {
     if (isLab) {
+      let raw = cafeLabRaw(safeToken);
       setState(readCafeLabState(safeToken));
       const origin = window.location.origin;
       setShopUrl(`${origin}/#/c/${encodeURIComponent(safeToken)}`);
@@ -127,7 +130,13 @@ export default function StoreCafeShopPage() {
       setMenuUrl(`${origin}/#/c/${encodeURIComponent(safeToken)}/menu`);
       setScreenLive(true);
       setAsDisplay(false);
-      const refresh = () => setState(readCafeLabState(safeToken));
+      setIsTrial(false);
+      const refresh = () => {
+        const next = cafeLabRaw(safeToken);
+        if (next === raw) return;
+        raw = next;
+        setState(readCafeLabState(safeToken));
+      };
       const timer = window.setInterval(refresh, 1500);
       window.addEventListener('storage', refresh);
       return () => {
@@ -157,6 +166,7 @@ export default function StoreCafeShopPage() {
         if (typeof result.quietUrl === 'string') setQuietUrl(result.quietUrl);
         if (typeof result.menuUrl === 'string') setMenuUrl(result.menuUrl);
         setAsDisplay(result.role === 'display' && mode === 'shop');
+        setIsTrial(result.isTrial === true);
         setScreenLive(true);
         setGate('ok');
       });
@@ -230,7 +240,9 @@ export default function StoreCafeShopPage() {
       ) : null}
       {gate === 'ok' && !screen ? (
         <div className="mx-auto max-w-3xl px-3 py-5">
-          {mode === 'desk' ? <StoreCafeDesk state={state} onChange={commit} shopUrl={shopUrl} /> : null}
+          {mode === 'desk' ? (
+            <StoreCafeDesk state={state} onChange={commit} shopUrl={shopUrl} showTrialNote={isTrial} />
+          ) : null}
           {mode === 'host' ? (
             <StoreCafeHostPanel
               state={state}

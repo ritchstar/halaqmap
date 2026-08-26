@@ -19,10 +19,12 @@ export function StoreCafeDesk({
   state,
   onChange,
   shopUrl,
+  showTrialNote = false,
 }: {
   state: CafeLabState;
   onChange: (next: CafeLabState) => void;
   shopUrl: string;
+  showTrialNote?: boolean;
 }) {
   const seenCount = useRef(state.orders.length);
   const [flashOn, setFlashOn] = useState(false);
@@ -74,7 +76,7 @@ export function StoreCafeDesk({
 
   return (
     <div className="space-y-6">
-      <StoreTrialOpsNote productKey="cafe" />
+      {showTrialNote ? <StoreTrialOpsNote productKey="cafe" /> : null}
       <div className={cn('rounded-2xl border p-4', flashOn || unread.length ? 'restaurant-alert border-[#c48a4a]' : 'border-white/12')}>
         <h2 className="text-lg font-extrabold">{STORE_CAFE_LIVE.liveOrdersAr}</h2>
         <p className="mt-1 text-sm text-white/60">{unread.length ? `${unread.length} تذكرة جديدة` : 'لا تذاكر جديدة الآن.'}</p>

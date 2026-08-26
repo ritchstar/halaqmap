@@ -99,6 +99,7 @@ assert.match(STORE_RESTAURANT_LIVE.privacyAr, /دفتر زبائن/);
 assert.match(STORE_RESTAURANT_LIVE.closeAr, /عامل التوصيل/);
 assert.doesNotMatch(copyBlob, /لحظة بلحظة|لوكيشن|واجهة المنزل|صفر عمولات|آلياً/);
 assert.doesNotMatch(copyBlob, /تمويناتا1|افراحي1|اجواء1|لاونجا1|كاردي8/);
+assert.doesNotMatch(copyBlob, /تجربة ستون|المسوّق/);
 assert.doesNotMatch(copyBlob, /599|600|898|1398/);
 assert.match(restaurantLanding, /howTitleAr/);
 assert.match(restaurantLanding, /ticketItems/);
