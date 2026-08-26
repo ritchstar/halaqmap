@@ -35,7 +35,7 @@ export function StoreRestaurantOrderForm({ renewToken = '' }: { renewToken?: str
     const affiliateCode = rememberStoreAffiliateRef();
     const result = await createRestaurantLivePending(
       renewing
-        ? { email, renewToken, affiliateCode }
+        ? { email, renewToken, packId, affiliateCode }
         : { email, buyerName: shopName, shopName, packId, affiliateCode },
     );
     if (!result.ok || typeof result.token !== 'string') {
@@ -65,8 +65,7 @@ export function StoreRestaurantOrderForm({ renewToken = '' }: { renewToken?: str
           ? 'نفس روابط الصفحة ولوحة المطبخ تُمدَّد بعد السداد.'
           : 'بعد السداد يصلك رابط ضيف الحي ورابط لوحة المطبخ وملصق QR. صندوق المحادثة مدرج.'}
       </p>
-      {!renewing ? (
-        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+      <div className="mt-4 grid gap-3 sm:grid-cols-2">
           {STORE_RESTAURANT_LIVE_PACKS.map((item) => (
             <button
               key={item.id}
@@ -83,7 +82,6 @@ export function StoreRestaurantOrderForm({ renewToken = '' }: { renewToken?: str
             </button>
           ))}
         </div>
-      ) : null}
       <label className="mt-4 block text-sm">
         البريد لاستلام روابط الصفحة ولوحة المطبخ وملصق QR
         <input className="restaurant-field" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />

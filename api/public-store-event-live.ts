@@ -44,6 +44,7 @@ import {
   summarizeGuestInvites,
 } from './_lib/storeGuestDeviceLock.js';
 import { sendEventLiveLinksEmail } from './_lib/storeEventLiveMail.js';
+import { applyStoreTrialClock, markStoreTrialConverted } from './_lib/storeProductTrial.js';
 
 export const config = { maxDuration: 20 };
 
@@ -178,6 +179,19 @@ async function readByRole(db: Db, token: string, role: string, headers: Record<s
       headers,
     );
   }
+  const clock = await applyStoreTrialClock(db, data, STORE_EVENT_LIVE_TABLE);
+  if (clock.expired) {
+    return json(
+      {
+        ok: true,
+        expired: true,
+        trialGiftEnded: clock.giftEnded,
+        expiresAt: clock.expiresAt,
+      },
+      200,
+      headers,
+    );
+  }
   if (data.status !== 'live') return json({ error: 'الدعوة لم تُفعَّل بعد' }, 403, headers);
   return json(
     {
@@ -185,7 +199,8 @@ async function readByRole(db: Db, token: string, role: string, headers: Record<s
       status: data.status,
       role,
       payload: publicEventPayload(payload),
-      expiresAt: data.expires_at,
+      expiresAt: clock.expiresAt,
+      isTrial: clock.isTrial,
     },
     200,
     headers,
@@ -297,6 +312,7 @@ async function markLive(db: Db, id: string, paymentId: string): Promise<boolean>
       hostUrl: hostUrl(String(updated.host_token)),
       expiresLabel: exp,
     });
+    void markStoreTrialConverted(db, String(updated.id));
     return true;
   }
   const { data: again } = await db.from(STORE_EVENT_LIVE_TABLE).select('status').eq('id', id).maybeSingle();

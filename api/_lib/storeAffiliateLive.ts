@@ -23,8 +23,10 @@ export function matchStoreAffiliateCommission(
   if (tag === 'store_event_live' && amount === 89900) {
     return { lineId: 'event', commissionHalalas: 9900 };
   }
-  if (tag === 'store_lounge_live' && amount === 60000) {
-    return { lineId: 'lounge', commissionHalalas: 10000 };
+  if (tag === 'store_lounge_live') {
+    if (amount === 60000) return { lineId: 'lounge', commissionHalalas: 10000 };
+    if (amount === 120000) return { lineId: 'lounge_6', commissionHalalas: 20000 };
+    if (amount === 240000) return { lineId: 'lounge_12', commissionHalalas: 40000 };
   }
   if (tag === 'store_grocers_live') {
     if (amount === 59900) return { lineId: 'grocers_6', commissionHalalas: 9900 };

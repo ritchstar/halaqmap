@@ -12,6 +12,7 @@ import {
 } from '@/lib/storeRestaurantLiveLab';
 import { StoreRestaurantMenuBoard } from '@/components/store/StoreRestaurantMenuBoard';
 import { StoreRestaurantDeskChat } from '@/components/store/StoreRestaurantChat';
+import { StoreTrialOpsNote } from '@/components/store/StoreTrialOpsNote';
 import { cn } from '@/lib/utils';
 
 export function StoreRestaurantDesk({
@@ -73,6 +74,7 @@ export function StoreRestaurantDesk({
 
   return (
     <div className="space-y-6">
+      <StoreTrialOpsNote productKey="restaurant" />
       <div className={cn('rounded-2xl border p-4', flashOn || unread.length ? 'restaurant-alert border-[#e08a3c]' : 'border-white/12')}>
         <h2 className="text-lg font-extrabold">{STORE_RESTAURANT_LIVE.liveOrdersAr}</h2>
         <p className="mt-1 text-sm text-white/60">{unread.length ? `${unread.length} تذكرة جديدة` : 'لا تذاكر جديدة الآن.'}</p>

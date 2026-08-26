@@ -37,6 +37,7 @@ import {
   type RestaurantLiveOrderPayload,
 } from './_lib/storeRestaurantLive.js';
 import { sendRestaurantLiveLinksEmail } from './_lib/storeRestaurantLiveMail.js';
+import { applyStoreTrialClock, markStoreTrialConverted } from './_lib/storeProductTrial.js';
 import { storeAffiliateCodeFromMeta } from './_lib/storeAffiliateCode.js';
 import { creditStoreAffiliateLedger } from './_lib/storeAffiliateLedger.js';
 
@@ -194,13 +195,13 @@ async function readByRole(db: Db, token: string, role: string, headers: Record<s
   if (!data && role !== 'pay') {
     const again = await findByAnyToken(db, token);
     if (!again) return json({ error: 'الرابط غير موجود' }, 404, headers);
-    return readRow(again, role, headers);
+    return readRow(db, again, role, headers);
   }
   if (!data) return json({ error: 'الرابط غير موجود' }, 404, headers);
-  return readRow(data as RestaurantRow, role, headers);
+  return readRow(db, data as RestaurantRow, role, headers);
 }
 
-function readRow(row: RestaurantRow, role: string, headers: Record<string, string>) {
+async function readRow(db: Db, row: RestaurantRow, role: string, headers: Record<string, string>) {
   const payload = (row.payload || {}) as RestaurantLiveOrderPayload;
   if (role === 'pay') {
     return json(
@@ -217,7 +218,8 @@ function readRow(row: RestaurantRow, role: string, headers: Record<string, strin
       headers,
     );
   }
-  if (isTermExpired(row)) return json(expiredPayload(row), 200, headers);
+  const clock = await applyStoreTrialClock(db, row, STORE_RESTAURANT_LIVE_TABLE);
+  if (clock.expired || isTermExpired(row)) return json(expiredPayload(row), 200, headers);
   if (row.status !== 'live') return json({ error: 'التشغيل لم يُفعَّل بعد' }, 403, headers);
   return json(
     {
@@ -225,7 +227,8 @@ function readRow(row: RestaurantRow, role: string, headers: Record<string, strin
       status: row.status,
       role,
       payload: publicRestaurantPayload(payload),
-      expiresAt: row.expires_at,
+      expiresAt: clock.expiresAt,
+      isTrial: clock.isTrial,
       shopUrl: shopUrl(row.shop_token),
       deskUrl: deskUrl(row.desk_token),
       ...(role === 'desk' || role === 'host'
@@ -286,7 +289,7 @@ async function createPending(db: Db, body: Record<string, unknown>, headers: Rec
     return json({ error: 'تحصيل مطعم الحي مغلق حالياً.' }, 503, headers);
   }
   const renewToken = String(body.renewToken || '').trim();
-  if (renewToken) return createRenewal(db, renewToken, headers, request, body.affiliateCode);
+  if (renewToken) return createRenewal(db, body, headers, request);
   const parsed = parseRestaurantLiveOrderBody(body);
   if (!parsed.ok) return json({ error: parsed.error }, 400, headers);
   const charge = restaurantChargeHalalas(parsed.packId);
@@ -330,15 +333,16 @@ async function createPending(db: Db, body: Record<string, unknown>, headers: Rec
 
 async function createRenewal(
   db: Db,
-  renewToken: string,
+  body: Record<string, unknown>,
   headers: Record<string, string>,
   request: Request,
-  affiliateCode?: unknown,
 ) {
+  const renewToken = String(body.renewToken || '').trim();
+  const packId = parseRestaurantPackId(body.packId);
+  const charge = restaurantChargeHalalas(packId);
   const row = await findByAnyToken(db, renewToken);
   if (!row) return json({ error: 'الرابط غير موجود' }, 404, headers);
   if (row.status === 'revoked') return json({ error: 'هذا التشغيل ملغى' }, 403, headers);
-  const pack = restaurantPackFromHalalas(row.price_halalas);
   if (row.status === 'pending_payment') {
     return json(
       {
@@ -358,19 +362,25 @@ async function createRenewal(
   if (row.status === 'live' && !restaurantLiveIsExpired(row.expires_at)) {
     return json({ error: 'التشغيل ما زال سارياً. إعادة الشراء بعد انتهاء المدة.' }, 409, headers);
   }
+  const payload = { ...(row.payload || {}), packId, chatIncluded: true };
   await db
     .from(STORE_RESTAURANT_LIVE_TABLE)
-    .update({ status: 'pending_renewal', updated_at: new Date().toISOString() })
+    .update({
+      status: 'pending_renewal',
+      price_halalas: charge,
+      payload,
+      updated_at: new Date().toISOString(),
+    })
     .eq('id', row.id)
     .in('status', ['live', 'expired', 'pending_renewal']);
   const invoiceUrl = await attachInvoice(
     db,
     row.shop_token,
-    { ...(row.payload || {}) },
+    payload,
     request,
-    pack.id,
+    packId,
     'renewal',
-    affiliateCode,
+    body.affiliateCode,
   );
   return json(
     {
@@ -378,7 +388,7 @@ async function createRenewal(
       token: row.shop_token,
       deskToken: row.desk_token,
       renewed: true,
-      priceHalalas: row.price_halalas,
+      priceHalalas: charge,
       payPath: `/pay/restaurant/${row.shop_token}`,
       invoiceUrl,
       shopUrl: shopUrl(row.shop_token),
@@ -404,10 +414,11 @@ async function markLive(db: Db, id: string, paymentId: string, amount: number): 
     return true;
   }
   const wasRenewal = current.status === 'pending_renewal' || current.status === 'expired' || current.status === 'live';
-  const pack = restaurantPackFromHalalas(Number(current.price_halalas || amount));
+  const pack = restaurantPackFromHalalas(amount);
   const expiresAt = restaurantLiveTermEndIso(pack.days);
   const payload: Record<string, unknown> = {
     ...((current.payload || {}) as Record<string, unknown>),
+    packId: pack.id,
     chatIncluded: true,
   };
   const history = Array.isArray(payload.paymentHistory) ? payload.paymentHistory : [];
@@ -419,6 +430,8 @@ async function markLive(db: Db, id: string, paymentId: string, amount: number): 
       status: 'live',
       moyasar_payment_id: paymentId,
       expires_at: expiresAt,
+      price_halalas: amount,
+      is_trial: false,
       last_public_change_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
       payload,
@@ -437,6 +450,7 @@ async function markLive(db: Db, id: string, paymentId: string, amount: number): 
       expiresLabel: exp,
       renewed: wasRenewal,
     });
+    void markStoreTrialConverted(db, String(updated.id));
     return true;
   }
   const { data: again } = await db.from(STORE_RESTAURANT_LIVE_TABLE).select('status').eq('id', id).maybeSingle();
@@ -459,7 +473,7 @@ async function fulfillFromPaymentId(db: Db, token: string, paymentId: string, he
     return json({ error: 'تعذر قراءة نتيجة الدفع' }, 502, headers);
   }
   if (!moyasarPaymentIsPaid(String(parsed.status || ''))) return json({ error: 'الدفع لم يكتمل' }, 402, headers);
-  if (!isRestaurantPriceHalalas(Number(parsed.amount)) || Number(parsed.amount) !== row.price_halalas) {
+  if (!isRestaurantPriceHalalas(Number(parsed.amount)) || (Number(row.price_halalas) > 0 && Number(parsed.amount) !== Number(row.price_halalas))) {
     return json({ error: 'مبلغ الدفع لا يطابق باقة مطعم الحي' }, 409, headers);
   }
   const metaOk = restaurantLivePaymentMatches({ meta: parsed.metadata, token, amount: Number(parsed.amount) });

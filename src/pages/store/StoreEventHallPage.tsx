@@ -28,6 +28,7 @@ import {
 import { addEventLiveBlessing, fetchEventLivePublic, saveEventLiveHost } from '@/lib/storeEventLiveRemote';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { StoreGuestDeviceBlocked } from '@/components/store/StoreGuestDeviceBlocked';
+import { StoreTrialGiftEnded } from '@/components/store/StoreTrialOpsNote';
 import { useGuestDeviceGate } from '@/hooks/useGuestDeviceGate';
 
 type HallMode = 'display' | 'guest' | 'host';
@@ -103,9 +104,22 @@ export default function StoreEventHallPage() {
     isLab,
   });
   const { state, commit } = useEventLabState(safeToken, mode, gate);
+  const [giftEnded, setGiftEnded] = useState(false);
   const voice = state.host.voice === 'women' ? 'women' : 'men';
   const copy = eventLiveCopy(voice);
   useDocumentTitle(copy.documentTitle);
+
+  useEffect(() => {
+    if (isLab) return;
+    let cancelled = false;
+    void fetchEventLivePublic(safeToken, mode).then((result) => {
+      if (cancelled) return;
+      if (result.trialGiftEnded === true) setGiftEnded(true);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [safeToken, mode, isLab]);
 
   if (!STORE_EVENT_LIVE_PUBLIC_ENABLED) {
     return <Navigate to={ROUTE_PATHS.STORE_LANDING} replace />;
@@ -116,6 +130,13 @@ export default function StoreEventHallPage() {
         productAr={copy.titleAr}
         hostAr={voice === 'women' ? 'المضيفة' : 'المضيف'}
       />
+    );
+  }
+  if (giftEnded) {
+    return (
+      <StorePurchasedShell>
+        <StoreTrialGiftEnded titleAr={copy.titleAr} />
+      </StorePurchasedShell>
     );
   }
 

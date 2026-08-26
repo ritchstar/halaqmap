@@ -123,6 +123,8 @@ const STORE_AFFILIATES_DESK_PATH =
   (ROUTE_PATHS as { STORE_AFFILIATES_DESK?: string }).STORE_AFFILIATES_DESK || "/store/affiliates/desk";
 const STORE_AFFILIATES_RULES_PATH =
   (ROUTE_PATHS as { STORE_AFFILIATES_RULES?: string }).STORE_AFFILIATES_RULES || "/store/affiliates/rules";
+const STORE_OPS_PATH =
+  (ROUTE_PATHS as { STORE_OPS?: string }).STORE_OPS || "/store/ops";
 const STORE_BEREAVEMENT_PATH =
   (ROUTE_PATHS as { STORE_BEREAVEMENT?: string }).STORE_BEREAVEMENT || "/store/bereavement";
 const STORE_BEREAVEMENT_CREATE_PATH =
@@ -243,6 +245,7 @@ const StoreAffiliatesHomePage = lazy(() => import("@/pages/store/StoreAffiliates
 const StoreAffiliatesEnterPage = lazy(() => import("@/pages/store/StoreAffiliatesEnterPage"));
 const StoreAffiliatesDeskPage = lazy(() => import("@/pages/store/StoreAffiliatesDeskPage"));
 const StoreAffiliatesRulesPage = lazy(() => import("@/pages/store/StoreAffiliatesRulesPage"));
+const StoreOpsDeskPage = lazy(() => import("@/pages/store/StoreOpsDeskPage"));
 const StoreBereavementCreatePage = lazy(() => import("@/pages/store/StoreBereavementCreatePage"));
 const StoreBereavementViewPage = lazy(() => import("@/pages/store/StoreBereavementViewPage"));
 const PartnerStoryPage = lazy(() => import("@/pages/PartnerStoryPage"));
@@ -761,6 +764,7 @@ export function App() {
           <Route path={STORE_AFFILIATES_DESK_PATH} element={<LazyRoute><StoreAffiliatesDeskPage /></LazyRoute>} />
           <Route path={STORE_AFFILIATES_RULES_PATH} element={<LazyRoute><StoreAffiliatesRulesPage /></LazyRoute>} />
           <Route path={STORE_AFFILIATES_PATH} element={<LazyRoute><StoreAffiliatesHomePage /></LazyRoute>} />
+          <Route path={STORE_OPS_PATH} element={<LazyRoute><StoreOpsDeskPage /></LazyRoute>} />
           <Route path="/oc/:token" element={<OccasionCardShareRedirect />} />
           <Route path={STORE_INVITES_VIEW_PATH} element={<LazyRoute><StorePaidInviteViewPage /></LazyRoute>} />
           <Route path={STORE_OCCASION_CARD_PAY_PATH} element={<LazyRoute><StorePaidInvitePayPage /></LazyRoute>} />

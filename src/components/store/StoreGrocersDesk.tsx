@@ -12,6 +12,7 @@ import {
 } from '@/lib/storeGrocersLiveLab';
 import { StoreGrocersIngest } from '@/components/store/StoreGrocersIngest';
 import { StoreGrocersDeskChat } from '@/components/store/StoreGrocersChat';
+import { StoreTrialOpsNote } from '@/components/store/StoreTrialOpsNote';
 import { cn } from '@/lib/utils';
 
 export function StoreGrocersDesk({
@@ -73,6 +74,7 @@ export function StoreGrocersDesk({
 
   return (
     <div className="space-y-6">
+      <StoreTrialOpsNote productKey="grocers" />
       <div className={cn('rounded-2xl border p-4', flashOn || unread.length ? 'grocers-alert border-[#8fbf7a]' : 'border-white/12')}>
         <h2 className="text-lg font-extrabold">{STORE_GROCERS_LIVE.liveOrdersAr}</h2>
         <p className="mt-1 text-sm text-white/60">{unread.length ? `${unread.length} طلب جديد` : 'لا طلبات جديدة الآن.'}</p>

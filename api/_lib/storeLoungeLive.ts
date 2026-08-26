@@ -1,7 +1,7 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
- * تحقق لاونجا1 — وسم ميسر مستقل، مبلغ 600 ر.س فقط، مدة ثلاثة أشهر.
+ * تحقق لاونجا1 — وسم ميسر مستقل، باقات 3 و6 و12 شهراً.
  */
 import { randomBytes } from 'node:crypto';
 import { withStoreAffiliateCode } from './storeAffiliateCode.js';
@@ -11,7 +11,39 @@ export const STORE_LOUNGE_LIVE_PRODUCT = 'store_lounge_live' as const;
 export const STORE_LOUNGE_LIVE_PRICE_SAR = 600 as const;
 export const STORE_LOUNGE_LIVE_PRICE_HALALAS = 60000 as const;
 export const STORE_LOUNGE_LIVE_DAYS = 90 as const;
-export const STORE_LOUNGE_LIVE_POLICY = '2026-08-22' as const;
+export const STORE_LOUNGE_LIVE_POLICY = '2026-08-26' as const;
+
+export type LoungeLivePackId = 'm3' | 'm6' | 'm12';
+
+const LOUNGE_PACKS = {
+  m3: { id: 'm3' as const, days: 90, priceHalalas: 60000 },
+  m6: { id: 'm6' as const, days: 180, priceHalalas: 120000 },
+  m12: { id: 'm12' as const, days: 365, priceHalalas: 240000 },
+} as const;
+
+export function parseLoungePackId(raw: unknown): LoungeLivePackId {
+  const id = String(raw || '').trim();
+  if (id === 'm6' || id === 'm12') return id;
+  return 'm3';
+}
+
+export function loungePackFromId(id: LoungeLivePackId) {
+  return LOUNGE_PACKS[id];
+}
+
+export function loungePackFromHalalas(amount: number) {
+  if (amount === 120000) return LOUNGE_PACKS.m6;
+  if (amount === 240000) return LOUNGE_PACKS.m12;
+  return LOUNGE_PACKS.m3;
+}
+
+export function isLoungePriceHalalas(amount: number): boolean {
+  return amount === 60000 || amount === 120000 || amount === 240000;
+}
+
+export function loungeChargeHalalas(packId: LoungeLivePackId): number {
+  return LOUNGE_PACKS[packId].priceHalalas;
+}
 
 function envFlag(raw: string | undefined, fallback: boolean): boolean {
   const value = String(raw ?? '').trim().toLowerCase();
@@ -28,8 +60,8 @@ export function newLoungeToken(): string {
   return randomBytes(24).toString('base64url');
 }
 
-export function loungeLiveTermEndIso(fromMs = Date.now()): string {
-  return new Date(fromMs + STORE_LOUNGE_LIVE_DAYS * 24 * 60 * 60 * 1000).toISOString();
+export function loungeLiveTermEndIso(days = STORE_LOUNGE_LIVE_DAYS, fromMs = Date.now()): string {
+  return new Date(fromMs + days * 24 * 60 * 60 * 1000).toISOString();
 }
 
 export function loungeLiveIsExpired(expiresAt: string | null | undefined, nowMs = Date.now()): boolean {
@@ -38,14 +70,16 @@ export function loungeLiveIsExpired(expiresAt: string | null | undefined, nowMs 
   return Number.isFinite(t) && t <= nowMs;
 }
 
-export function loungeLiveInvoiceDescription(): string {
-  return 'halaqmap — لاونجا1 تشغيل شاشات اللاونج';
+export function loungeLiveInvoiceDescription(packId: LoungeLivePackId = 'm3'): string {
+  const months = packId === 'm12' ? 'اثني عشر شهراً' : packId === 'm6' ? 'ستة أشهر' : 'ثلاثة أشهر';
+  return `halaqmap — لاونجا1 تشغيل شاشات اللاونج · ${months}`;
 }
 
 export function loungeLiveInvoiceMetadata(
   token: string,
   kind: 'purchase' | 'renewal' = 'purchase',
   affiliateCode?: unknown,
+  packId: LoungeLivePackId = 'm3',
 ): Record<string, string> {
   return withStoreAffiliateCode(
     {
@@ -53,6 +87,7 @@ export function loungeLiveInvoiceMetadata(
       product_type: STORE_LOUNGE_LIVE_PRODUCT,
       store_lounge_token: token,
       store_lounge_kind: kind,
+      store_lounge_pack: packId,
     },
     affiliateCode,
   );
@@ -80,7 +115,7 @@ export function loungeLivePaymentMatches(input: {
   if (loungeLiveMetaProduct(input.meta) === 'store_grocers_live') return false;
   if (loungeLiveMetaProduct(input.meta) === 'store_restaurant_live') return false;
   if (!input.token || loungeLiveMetaToken(input.meta) !== input.token) return false;
-  return input.amount === STORE_LOUNGE_LIVE_PRICE_HALALAS;
+  return isLoungePriceHalalas(input.amount);
 }
 
 function clip(raw: unknown, max: number): string {
@@ -110,6 +145,7 @@ export type LoungeLiveBlessing = {
 };
 
 export type LoungeLiveOrderPayload = {
+  packId?: LoungeLivePackId;
   loungeName: string;
   hostName: string;
   activeEventId: 'welcome' | 'birthday' | 'cheers' | 'tonight' | 'custom';
@@ -164,6 +200,7 @@ export function parseLoungeLiveOrderBody(body: Record<string, unknown>):
     email,
     buyerName: clip(body.buyerName, 80) || hostName,
     payload: {
+      packId: parseLoungePackId(body.packId),
       loungeName,
       hostName,
       activeEventId: parseLoungeEventId(body.activeEventId),

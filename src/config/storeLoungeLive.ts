@@ -2,7 +2,7 @@
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
  * لاونجا1 — تشغيل شاشات اللاونج. لا يُستورد من App.
- * السعر الافتتاحي 600 ر.س لثلاثة أشهر. مستقل عن الدعوة الحرة والزواج وبطاقة المناسبة.
+ * باقات: 600 ر.س لثلاثة أشهر، 1200 لستة، و2400 لاثني عشر شهراً.
  */
 export const STORE_LOUNGE_LIVE_PUBLIC_ENABLED = true;
 
@@ -13,6 +13,49 @@ export const STORE_LOUNGE_LIVE_PRODUCT = 'store_lounge_live' as const;
 export const STORE_LOUNGE_LIVE_PRICE_SAR = 600 as const;
 export const STORE_LOUNGE_LIVE_PRICE_HALALAS = 60000 as const;
 export const STORE_LOUNGE_LIVE_DAYS = 90 as const;
+
+export type StoreLoungeLivePackId = 'm3' | 'm6' | 'm12';
+
+export const STORE_LOUNGE_LIVE_PACKS = [
+  {
+    id: 'm3' as const,
+    months: 3,
+    days: 90,
+    priceSar: 600,
+    priceHalalas: 60000,
+    titleAr: 'ثلاثة أشهر',
+    priceLineAr: '600 ر.س',
+    lineAr: 'تشغيل الشاشة ثلاثة أشهر.',
+  },
+  {
+    id: 'm6' as const,
+    months: 6,
+    days: 180,
+    priceSar: 1200,
+    priceHalalas: 120000,
+    titleAr: 'ستة أشهر',
+    priceLineAr: '1200 ر.س',
+    lineAr: 'تشغيل الشاشة ستة أشهر.',
+  },
+  {
+    id: 'm12' as const,
+    months: 12,
+    days: 365,
+    priceSar: 2400,
+    priceHalalas: 240000,
+    titleAr: 'اثنا عشر شهراً',
+    priceLineAr: '2400 ر.س',
+    lineAr: 'تشغيل الشاشة سنة كاملة.',
+  },
+] as const;
+
+export function loungeLivePackById(id: string) {
+  return STORE_LOUNGE_LIVE_PACKS.find((item) => item.id === id) || STORE_LOUNGE_LIVE_PACKS[0];
+}
+
+export function isLoungeLivePriceHalalas(amount: number): boolean {
+  return STORE_LOUNGE_LIVE_PACKS.some((item) => item.priceHalalas === amount);
+}
 
 function envEnabled(name: string, fallback: boolean): boolean {
   const raw = String((import.meta as { env?: Record<string, unknown> }).env?.[name] ?? '')
@@ -29,13 +72,13 @@ export const STORE_LOUNGE_LIVE_ACCENT = '#d4a574' as const;
 
 export const STORE_LOUNGE_LIVE = {
   documentTitle: 'لاونجا1 — تشغيل شاشات اللاونج — خريطة الحل',
-  kickerAr: 'شاشة اللاونج تعمل طوال ثلاثة أشهر',
+  kickerAr: 'شاشة اللاونج تعمل حسب المدة التي تختارونها',
   titleAr: 'لاونجا1',
   leadAr:
     'ابتكار رقمي يمنح لاونجك طابعاً فاخراً وتفاعلياً. حزمة فعاليات شاشة متكاملة تتيح لزوارك مشاركة الإهداءات والترحيب باسمهم مباشرة، مع لوحة تحكم سريعة لإدارة المحتوى.',
-  priceLineAr: 'الباقة التشغيلية لثلاثة أشهر: 600 ر.س',
+  priceLineAr: 'الباقات: 600 ر.س لثلاثة أشهر، 1200 لستة أشهر، و2400 لاثني عشر شهراً',
   durationLineAr:
-    'شراء لمرة واحدة. بعد انتهاء المدة يبقى الرابط لديكم، وإعادة الشراء من نفس الرابط تمدّد الشاشة ذاتها.',
+    'شراء لمرة واحدة حسب المدة. بعد انتهاء المدة يبقى الرابط لديكم، وإعادة الشراء من نفس الرابط تمدّد الشاشة ذاتها.',
   featurePoints: [
     {
       titleAr: 'فعاليات جاهزة',
@@ -92,8 +135,8 @@ export const STORE_LOUNGE_LIVE = {
   eventPackTitleAr: 'فعاليات الشاشة',
   customEventLabelAr: 'اسم فعالية تضيفونها',
   customEventCtaAr: 'اعرض هذه الفعالية',
-  orderCtaAr: 'اشترِ 600 ر.س لثلاثة أشهر',
-  renewCtaAr: 'أعد الشراء 600 ر.س لثلاثة أشهر',
+  orderCtaAr: 'اختَر المدة ثم ادفع',
+  renewCtaAr: 'أعد الشراء على نفس الصفحة',
   orderEmailLabelAr: 'البريد لاستلام روابط الشاشة والضيف والمضيف',
   orderConsentAr: 'قرأت شروط الخدمة وأوافق على بدء التحصيل عبر بوابة الدفع. لا تحصيل من الزائر غير سعر هذا المنتج.',
   orderSubmitAr: 'الانتقال إلى الدفع',
@@ -105,12 +148,12 @@ export const STORE_LOUNGE_LIVE = {
   termsFoldTitleAr: 'شروط الخدمة قبل الطلب',
   termsFoldTriggerAr: 'اقرأ شروط الخدمة',
   termsFoldBodyAr:
-    'شغّل شاشة اللاونج ثلاثة أشهر: فعاليات جاهزة، لوحة تحكم، ورابط ترحيب باسم الزائر. السعر 600 ر.س مرة واحدة عبر بوابة الدفع الآمنة. لا تحصيل من الزائر غير سعر الباقة. عند إعادة الشراء تبقى الروابط وتمتد المدة على الشاشة ذاتها. التفاصيل في شروط الخدمة.',
+    'شغّل شاشة اللاونج حسب المدة: فعاليات جاهزة، لوحة تحكم، ورابط ترحيب باسم الزائر. الأسعار 600 أو 1200 أو 2400 ر.س عبر بوابة الدفع الآمنة. لا تحصيل من الزائر غير سعر الباقة. عند إعادة الشراء تبقى الروابط وتمتد المدة على الشاشة ذاتها. التفاصيل في شروط الخدمة.',
   labKickerAr: 'معاينة حيّة داخل الصفحة',
   labTitleAr: 'هكذا تظهر الشاشة لزبائن اللاونج',
   labLeadAr: 'اختَر فعالية، امسح الرمز أو أرسل ترحيباً باسم الزبون، واكتب تنويهاً كما في ليلة التشغيل.',
   expiredTitleAr: 'انتهت مدة التشغيل',
-  expiredLeadAr: 'الرابط ما زال لديكم. أتمّوا الشراء مرة أخرى لتمديد نفس الشاشة ثلاثة أشهر.',
+  expiredLeadAr: 'الرابط ما زال لديكم. اختاروا المدة وأتمّوا الشراء لتمديد نفس الشاشة.',
   heroImage: '/images/store/lounge-hero-marketing.jpg',
   heroAltAr: 'لاونج ليلي بشاشة حائط مضيئة ومقاعد فاخرة',
   heroCaptionAr: 'هكذا تبدو ليلة التشغيل على شاشة اللاونج',

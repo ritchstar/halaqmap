@@ -37,6 +37,7 @@ import {
 import { StoreWeddingInviteCard } from '@/components/store/StoreWeddingInviteCard';
 import { StoreGuestResentLinkPreview } from '@/components/store/StoreGuestResentLinkPreview';
 import { StoreHostGuestInviteIssuance } from '@/components/store/StoreHostGuestInviteIssuance';
+import { StoreTrialOpsNote } from '@/components/store/StoreTrialOpsNote';
 import { cn } from '@/lib/utils';
 
 const fieldClass = 'mt-1 h-12 w-full rounded-md border border-white/15 bg-[#061018] px-3 text-base text-[#f4efe4]';
@@ -316,6 +317,7 @@ export function StoreWeddingHostPanel({
     <div className={showCards && !isLab ? 'grid gap-5 lg:grid-cols-[1fr_0.85fr]' : ''} data-voice={voice}>
       <div className="invite-host-panel rounded-[28px] border border-white/12 bg-[#0b1a24]/92 p-5">
         <h2 className="invite-luminous text-xl font-extrabold">{copy.hostPanelTitleAr}</h2>
+        {isLab ? null : <div className="mt-3"><StoreTrialOpsNote productKey="wedding" /></div>}
         {isLab ? <p className="mt-2 text-sm leading-7 text-white/70">{copy.hostLabCoreLeadAr}</p> : null}
         {!isLab ? issuance : null}
         <div className="mt-4 grid gap-3 sm:grid-cols-2">

@@ -37,7 +37,7 @@ export function StoreGrocersOrderForm({ renewToken = '' }: { renewToken?: string
     const affiliateCode = rememberStoreAffiliateRef();
     const result = await createGrocersLivePending(
       renewing
-        ? { email, renewToken, chatAddon, affiliateCode }
+        ? { email, renewToken, packId, chatAddon, affiliateCode }
         : { email, buyerName: shopName, shopName, packId, chatAddon, affiliateCode },
     );
     if (!result.ok || typeof result.token !== 'string') {
@@ -67,8 +67,7 @@ export function StoreGrocersOrderForm({ renewToken = '' }: { renewToken?: string
           ? 'نفس روابط المتجر والكاشير تُمدَّد بعد السداد.'
           : 'بعد السداد يصلك رابط المتجر ورابط لوحة الكاشير وملصق QR.'}
       </p>
-      {!renewing ? (
-        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+      <div className="mt-4 grid gap-3 sm:grid-cols-2">
           {STORE_GROCERS_LIVE_PACKS.map((item) => (
             <button
               key={item.id}
@@ -85,7 +84,6 @@ export function StoreGrocersOrderForm({ renewToken = '' }: { renewToken?: string
             </button>
           ))}
         </div>
-      ) : null}
       <label className="mt-4 block text-sm">
         البريد لاستلام روابط المتجر والكاشير وملصق QR
         <input className="grocers-field" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />

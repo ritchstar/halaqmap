@@ -252,6 +252,8 @@ function matchStoreAffiliateCommission(
   if (tag === "store_wedding_live" && amount === 89900) return { lineId: "wedding", commissionHalalas: 9900 };
   if (tag === "store_event_live" && amount === 89900) return { lineId: "event", commissionHalalas: 9900 };
   if (tag === "store_lounge_live" && amount === 60000) return { lineId: "lounge", commissionHalalas: 10000 };
+  if (tag === "store_lounge_live" && amount === 120000) return { lineId: "lounge_6", commissionHalalas: 20000 };
+  if (tag === "store_lounge_live" && amount === 240000) return { lineId: "lounge_12", commissionHalalas: 40000 };
   if (tag === "store_grocers_live") {
     if (amount === 59900) return { lineId: "grocers_6", commissionHalalas: 9900 };
     if (amount === 89900) return { lineId: "grocers_12", commissionHalalas: 19900 };
@@ -929,22 +931,34 @@ Deno.serve(async (req) => {
 
   if (isLoungeLiveMeta(meta)) {
     const token = String(meta.store_lounge_token ?? meta.storeLoungeToken ?? "").trim();
-    const amountOk = amount === 60000;
+    const days = amount === 240000 ? 365 : amount === 120000 ? 180 : amount === 60000 ? 90 : 0;
+    const amountOk = days > 0;
     let activated = false;
     if (successStatus && token && amountOk) {
-      const expiresAt = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString();
-      const { error: loungeErr } = await supabase
+      const expiresAt = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString();
+      const { data: loungeRow, error: loungeErr } = await supabase
         .from("store_lounge_live_orders")
         .update({
           status: "live",
           moyasar_payment_id: paymentId,
           expires_at: expiresAt,
+          price_halalas: amount,
+          is_trial: false,
           last_public_change_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         })
         .eq("display_token", token)
-        .in("status", ["pending_payment", "pending_renewal", "expired"]);
+        .in("status", ["pending_payment", "pending_renewal", "expired"])
+        .select("id")
+        .maybeSingle();
       activated = !loungeErr;
+      if (loungeRow?.id) {
+        await supabase
+          .from("store_product_trials")
+          .update({ status: "converted", updated_at: new Date().toISOString() })
+          .eq("order_id", loungeRow.id)
+          .in("status", ["issued", "activated", "expired"]);
+      }
     }
     const credited = successStatus && amountOk
       ? await creditStoreAffiliateLedger(supabase, "store_lounge_live", amount, paymentId, meta)
@@ -968,18 +982,29 @@ Deno.serve(async (req) => {
     let activated = false;
     if (successStatus && token && days) {
       const expiresAt = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString();
-      const { error: grocersErr } = await supabase
+      const { data: grocersRow, error: grocersErr } = await supabase
         .from("store_grocers_live_orders")
         .update({
           status: "live",
           moyasar_payment_id: paymentId,
           expires_at: expiresAt,
+          price_halalas: amount,
+          is_trial: false,
           last_public_change_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         })
         .eq("shop_token", token)
-        .in("status", ["pending_payment", "pending_renewal", "expired"]);
+        .in("status", ["pending_payment", "pending_renewal", "expired"])
+        .select("id")
+        .maybeSingle();
       activated = !grocersErr;
+      if (grocersRow?.id) {
+        await supabase
+          .from("store_product_trials")
+          .update({ status: "converted", updated_at: new Date().toISOString() })
+          .eq("order_id", grocersRow.id)
+          .in("status", ["issued", "activated", "expired"]);
+      }
     }
     const credited = successStatus && days
       ? await creditStoreAffiliateLedger(supabase, "store_grocers_live", amount, paymentId, meta)
@@ -1003,18 +1028,29 @@ Deno.serve(async (req) => {
     let activated = false;
     if (successStatus && token && days) {
       const expiresAt = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString();
-      const { error: restaurantErr } = await supabase
+      const { data: restaurantRow, error: restaurantErr } = await supabase
         .from("store_restaurant_live_orders")
         .update({
           status: "live",
           moyasar_payment_id: paymentId,
           expires_at: expiresAt,
+          price_halalas: amount,
+          is_trial: false,
           last_public_change_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         })
         .eq("shop_token", token)
-        .in("status", ["pending_payment", "pending_renewal", "expired"]);
+        .in("status", ["pending_payment", "pending_renewal", "expired"])
+        .select("id")
+        .maybeSingle();
       activated = !restaurantErr;
+      if (restaurantRow?.id) {
+        await supabase
+          .from("store_product_trials")
+          .update({ status: "converted", updated_at: new Date().toISOString() })
+          .eq("order_id", restaurantRow.id)
+          .in("status", ["issued", "activated", "expired"]);
+      }
     }
     const credited = successStatus && days
       ? await creditStoreAffiliateLedger(supabase, "store_restaurant_live", amount, paymentId, meta)

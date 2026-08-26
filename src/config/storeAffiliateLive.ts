@@ -68,7 +68,9 @@ export const STORE_AFFILIATE_COPY = {
   lineLabelAr: {
     wedding: 'افراحي1',
     event: 'اجواء1',
-    lounge: 'لاونجا1',
+    lounge: 'لاونجا1 ثلاثة أشهر',
+    lounge_6: 'لاونجا1 ستة أشهر',
+    lounge_12: 'لاونجا1 اثنا عشر شهراً',
     grocers_6: 'تمويناتا1 ستة أشهر',
     grocers_12: 'تمويناتا1 اثنا عشر شهراً',
     grocers_chat_6: 'تمويناتا1 ستة أشهر مع صندوق المحادثة',
@@ -92,6 +94,8 @@ export type StoreAffiliateLineId =
   | 'wedding'
   | 'event'
   | 'lounge'
+  | 'lounge_6'
+  | 'lounge_12'
   | 'grocers_6'
   | 'grocers_12'
   | 'grocers_chat_6'
@@ -132,6 +136,22 @@ export const STORE_AFFILIATE_LINES: readonly StoreAffiliateLine[] = [
     packAr: 'ثلاثة أشهر',
     priceSar: 600,
     commissionSar: 100,
+  },
+  {
+    id: 'lounge_6',
+    productTag: 'store_lounge_live',
+    titleAr: 'لاونجا1',
+    packAr: 'ستة أشهر',
+    priceSar: 1200,
+    commissionSar: 200,
+  },
+  {
+    id: 'lounge_12',
+    productTag: 'store_lounge_live',
+    titleAr: 'لاونجا1',
+    packAr: 'اثنا عشر شهراً',
+    priceSar: 2400,
+    commissionSar: 400,
   },
   {
     id: 'grocers_6',

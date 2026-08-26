@@ -10,9 +10,11 @@ import {
   STORE_LOUNGE_LIVE_CHECKOUT_ENABLED,
   STORE_LOUNGE_LIVE_DEMO,
   STORE_LOUNGE_LIVE_EVENTS,
-  STORE_LOUNGE_LIVE_PRICE_SAR,
+  STORE_LOUNGE_LIVE_PACKS,
   loungeLiveEventById,
+  loungeLivePackById,
   type StoreLoungeLiveEventId,
+  type StoreLoungeLivePackId,
 } from '@/config/storeLoungeLive';
 import { rememberStoreAffiliateRef } from '@/lib/storeAffiliateRef';
 import { createLoungeLivePending } from '@/lib/storeLoungeLiveRemote';
@@ -21,6 +23,7 @@ import { cn } from '@/lib/utils';
 
 export function StoreLoungeOrderForm({ renewToken = '' }: { renewToken?: string }) {
   const renewing = Boolean(renewToken);
+  const [packId, setPackId] = useState<StoreLoungeLivePackId>('m3');
   const [email, setEmail] = useState('');
   const [hostName, setHostName] = useState<string>(STORE_LOUNGE_LIVE_DEMO.hostName);
   const [loungeName, setLoungeName] = useState<string>(STORE_LOUNGE_LIVE_DEMO.loungeName);
@@ -29,6 +32,7 @@ export function StoreLoungeOrderForm({ renewToken = '' }: { renewToken?: string 
   const [consent, setConsent] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const pack = loungeLivePackById(packId);
 
   async function submit() {
     if (!STORE_LOUNGE_LIVE_CHECKOUT_ENABLED || busy) return;
@@ -41,7 +45,7 @@ export function StoreLoungeOrderForm({ renewToken = '' }: { renewToken?: string 
     const affiliateCode = rememberStoreAffiliateRef();
     const result = await createLoungeLivePending(
       renewing
-        ? { email, renewToken, affiliateCode }
+        ? { email, renewToken, packId, affiliateCode }
         : {
             email,
             buyerName: hostName,
@@ -49,6 +53,7 @@ export function StoreLoungeOrderForm({ renewToken = '' }: { renewToken?: string 
             loungeName,
             activeEventId,
             welcomeAr,
+            packId,
             affiliateCode,
           },
     );
@@ -81,9 +86,26 @@ export function StoreLoungeOrderForm({ renewToken = '' }: { renewToken?: string 
       <h2 className="text-xl font-extrabold">{renewing ? STORE_LOUNGE_LIVE.renewCtaAr : STORE_LOUNGE_LIVE.orderCtaAr}</h2>
       <p className="mt-2 text-sm text-white/70">
         {renewing
-          ? 'نفس روابط الشاشة والضيف والمضيف تُمدَّد ثلاثة أشهر بعد السداد.'
+          ? 'نفس روابط الشاشة والضيف والمضيف تُمدَّد بعد السداد حسب المدة المختارة.'
           : 'بعد السداد تصلك ثلاثة روابط: الشاشة، الزبون، ولوحة المضيف.'}
       </p>
+      <div className="mt-4 grid gap-3 sm:grid-cols-3">
+        {STORE_LOUNGE_LIVE_PACKS.map((item) => (
+          <button
+            key={item.id}
+            type="button"
+            onClick={() => setPackId(item.id)}
+            className={cn(
+              'rounded-2xl border px-4 py-3 text-right',
+              packId === item.id ? 'border-[#d4a574] bg-[#d4a574]/15' : 'border-white/15',
+            )}
+          >
+            <p className="font-extrabold">{item.titleAr}</p>
+            <p className="mt-1 text-lg font-black text-[#d4a574]">{item.priceLineAr}</p>
+            <p className="mt-1 text-xs leading-6 text-white/65">{item.lineAr}</p>
+          </button>
+        ))}
+      </div>
       <label className="mt-4 block text-sm">
         {STORE_LOUNGE_LIVE.orderEmailLabelAr}
         <input className={field} type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
@@ -139,7 +161,7 @@ export function StoreLoungeOrderForm({ renewToken = '' }: { renewToken?: string 
         disabled={busy || !STORE_LOUNGE_LIVE_CHECKOUT_ENABLED}
         className="mt-5 w-full rounded-full bg-[#d4a574] py-3 text-sm font-bold text-[#12090c] disabled:opacity-50"
       >
-        {busy ? 'جاري تجهيز بوابة الدفع…' : `${STORE_LOUNGE_LIVE.orderSubmitAr} · ${STORE_LOUNGE_LIVE_PRICE_SAR} ر.س`}
+        {busy ? 'جاري تجهيز بوابة الدفع…' : `${STORE_LOUNGE_LIVE.orderSubmitAr} · ${pack.priceSar} ر.س`}
       </button>
       <StoreEnterpriseDirectMail
         className="mt-4"

@@ -1,7 +1,7 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
- * دفع لاونجا1 — 600 ر.س لثلاثة أشهر، وسم store_lounge_live.
+ * دفع لاونجا1 — باقات 600 و1200 و2400 ر.س، وسم store_lounge_live.
  */
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
@@ -10,9 +10,9 @@ import { LEGAL_ECOMMERCE_STORE_NAME } from '@/config/partnerLegal';
 import {
   STORE_LOUNGE_LIVE,
   STORE_LOUNGE_LIVE_CHECKOUT_ENABLED,
-  STORE_LOUNGE_LIVE_PRICE_HALALAS,
-  STORE_LOUNGE_LIVE_PRICE_SAR,
   STORE_LOUNGE_LIVE_PRODUCT,
+  isLoungeLivePriceHalalas,
+  loungeLivePackById,
 } from '@/config/storeLoungeLive';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import {
@@ -53,7 +53,10 @@ export default function StoreLoungePayPage() {
 
   const publishableKey = useMemo(() => resolveLoungeLivePublishableKey(), []);
   const liveMoney = loungeLiveLivePaymentsEnabled();
-  const amountOk = priceHalalas === STORE_LOUNGE_LIVE_PRICE_HALALAS;
+  const amountOk = isLoungeLivePriceHalalas(priceHalalas);
+  const pack = loungeLivePackById(
+    priceHalalas === 240000 ? 'm12' : priceHalalas === 120000 ? 'm6' : 'm3',
+  );
   const payable = status === 'pending_payment' || status === 'pending_renewal';
 
   useEffect(() => {
@@ -149,7 +152,7 @@ export default function StoreLoungePayPage() {
         })();
         Moyasar.init({
           element: host,
-          amount: STORE_LOUNGE_LIVE_PRICE_HALALAS,
+          amount: priceHalalas,
           currency: 'SAR',
           description: 'halaqmap — لاونجا1 تشغيل شاشات اللاونج',
           publishable_api_key: publishableKey,
@@ -201,7 +204,7 @@ export default function StoreLoungePayPage() {
       cancelled = true;
       if (hostRef.current) hostRef.current.innerHTML = '';
     };
-  }, [status, activating, hostedInvoice, amountOk, publishableKey, token, payable]);
+  }, [status, activating, hostedInvoice, amountOk, publishableKey, token, payable, priceHalalas]);
 
   return (
     <div dir="rtl" className="min-h-[100svh] bg-[#061018] text-[#f4efe4]">
@@ -224,7 +227,7 @@ export default function StoreLoungePayPage() {
         {payable && STORE_LOUNGE_LIVE_CHECKOUT_ENABLED ? (
           <>
             <p className="mt-3 text-sm leading-7 text-white/70">
-              {loungeName || STORE_LOUNGE_LIVE.titleAr} — {STORE_LOUNGE_LIVE_PRICE_SAR} ر.س لثلاثة أشهر
+              {loungeName || STORE_LOUNGE_LIVE.titleAr} — {pack.priceSar} ر.س · {pack.titleAr}
             </p>
             {!liveMoney ? (
               <p className="mt-3 rounded-xl border border-[#d4a574]/30 bg-[#d4a574]/10 px-3 py-2 text-xs leading-6">

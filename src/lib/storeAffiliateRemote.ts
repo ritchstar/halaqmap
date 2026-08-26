@@ -89,3 +89,27 @@ export async function logoutStoreAffiliate() {
   if (session) await postAction({ action: 'logout' }, session);
   clearStoreAffiliateSession();
 }
+
+export type StoreAffiliateTrialRow = {
+  id: string;
+  product_key: string;
+  beneficiary_email: string;
+  status: string;
+  issuer_kind: string;
+  issued_by_label: string;
+  first_opened_at: string | null;
+  trial_ends_at: string | null;
+  created_at: string;
+};
+
+export async function requestStoreAffiliateTrial(productKey: string, email: string) {
+  const session = readStoreAffiliateSession();
+  if (!session) return { ok: false as const, error: 'يلزم رابط دخول جديد' };
+  return postAction({ action: 'request_trial', productKey, email }, session);
+}
+
+export async function listStoreAffiliateTrials() {
+  const session = readStoreAffiliateSession();
+  if (!session) return { ok: false as const, error: 'يلزم رابط دخول جديد' };
+  return postAction({ action: 'list_trials' }, session);
+}

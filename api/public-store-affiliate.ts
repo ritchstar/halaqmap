@@ -10,6 +10,12 @@ import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiC
 import { runSecurityGuard } from './_lib/securityGuard.js';
 import { sendStoreAffiliateMagicEmail } from './_lib/storeAffiliateMail.js';
 import { storeAffiliateCheckoutLinks } from './_lib/storeAffiliateCode.js';
+import {
+  isStoreProductTrialKey,
+  requestStoreProductTrial,
+  STORE_PRODUCT_TRIAL_QUOTA,
+  STORE_PRODUCT_TRIAL_TABLE,
+} from './_lib/storeProductTrial.js';
 
 export const config = { maxDuration: 20 };
 
@@ -156,6 +162,8 @@ export async function POST(request: Request): Promise<Response> {
   if (action === 'redeem_magic') return redeemMagic(db, body, headers);
   if (action === 'me') return readMe(db, request, headers);
   if (action === 'logout') return logout(db, request, headers);
+  if (action === 'request_trial') return requestTrial(db, body, headers, request);
+  if (action === 'list_trials') return listTrials(db, request, headers);
   return json({ error: 'Unknown action' }, 400, headers);
 }
 
@@ -314,4 +322,55 @@ async function logout(db: Db, request: Request, headers: Record<string, string>)
     await db.from('store_affiliate_sessions').delete().eq('token_hash', sha256(token));
   }
   return json({ ok: true }, 200, headers);
+}
+
+async function requestTrial(
+  db: Db,
+  body: Record<string, unknown>,
+  headers: Record<string, string>,
+  request: Request,
+) {
+  const session = await findSession(db, bearerToken(request));
+  if (!session) return json({ error: 'يلزم رابط دخول جديد' }, 401, headers);
+  const { data: marketer } = await db
+    .from('store_affiliate_marketers')
+    .select('id, display_name, status')
+    .eq('id', session.marketer_id)
+    .maybeSingle();
+  if (!marketer || String(marketer.status) !== 'approved') {
+    return json({ error: 'يلزم موافقة الإدارة أولاً' }, 403, headers);
+  }
+  const productKey = body.productKey;
+  if (!isStoreProductTrialKey(productKey)) {
+    return json({ error: 'حدّد المنتج.' }, 400, headers);
+  }
+  const result = await requestStoreProductTrial(db, {
+    productKey,
+    email: String(body.email || ''),
+    marketerId: String(marketer.id),
+    marketerLabel: String(marketer.display_name || 'مسوّق'),
+  });
+  if (!result.ok) return json({ error: result.error }, 400, headers);
+  return json({ ok: true, trialId: result.trialId }, 200, headers);
+}
+
+async function listTrials(db: Db, request: Request, headers: Record<string, string>) {
+  const session = await findSession(db, bearerToken(request));
+  if (!session) return json({ error: 'يلزم رابط دخول جديد' }, 401, headers);
+  const { data } = await db
+    .from(STORE_PRODUCT_TRIAL_TABLE)
+    .select(
+      'id, product_key, beneficiary_email, status, issuer_kind, issued_by_label, first_opened_at, trial_ends_at, created_at',
+    )
+    .eq('marketer_id', session.marketer_id)
+    .order('created_at', { ascending: false })
+    .limit(80);
+  const rows = data || [];
+  const used: Record<string, number> = {};
+  for (const row of rows) {
+    if (String(row.status) === 'declined') continue;
+    const key = String(row.product_key);
+    used[key] = (used[key] || 0) + 1;
+  }
+  return json({ ok: true, quota: STORE_PRODUCT_TRIAL_QUOTA, used, rows }, 200, headers);
 }
