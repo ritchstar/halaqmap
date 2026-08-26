@@ -234,6 +234,13 @@ function isRestaurantLiveMeta(meta: Record<string, unknown> | null | undefined):
   return pt === "store_restaurant_live";
 }
 
+/** كافينا1 — اشتراك صاحب المقهى، مستقل عن المطاعم وتموينات الحي والقاعات ورخصة النفاذ. */
+function isCafeLiveMeta(meta: Record<string, unknown> | null | undefined): boolean {
+  if (!meta || typeof meta !== "object") return false;
+  const pt = String(meta.product_type ?? meta.productType ?? meta.product ?? "").trim().toLowerCase();
+  return pt === "store_cafe_live";
+}
+
 function storeAffiliateCodeFromMeta(meta: Record<string, unknown> | null | undefined): string {
   if (!meta || typeof meta !== "object") return "";
   const value = String(meta.store_affiliate_code ?? meta.storeAffiliateCode ?? "")
@@ -263,6 +270,10 @@ function matchStoreAffiliateCommission(
   if (tag === "store_restaurant_live") {
     if (amount === 69900) return { lineId: "restaurant_6", commissionHalalas: 9900 };
     if (amount === 99900) return { lineId: "restaurant_12", commissionHalalas: 19900 };
+  }
+  if (tag === "store_cafe_live") {
+    if (amount === 119900) return { lineId: "cafe_6", commissionHalalas: 19900 };
+    if (amount === 209900) return { lineId: "cafe_12", commissionHalalas: 49900 };
   }
   return null;
 }
@@ -1061,6 +1072,52 @@ Deno.serve(async (req) => {
         paymentId,
         eventId: eventId || null,
         skipped: "store_restaurant_live",
+        activated,
+        credited,
+      },
+      200,
+    );
+  }
+
+  if (isCafeLiveMeta(meta)) {
+    const token = String(meta.store_cafe_token ?? meta.storeCafeToken ?? "").trim();
+    const days = amount === 209900 ? 365 : amount === 119900 ? 180 : 0;
+    let activated = false;
+    if (successStatus && token && days) {
+      const expiresAt = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString();
+      const { data: cafeRow, error: cafeErr } = await supabase
+        .from("store_cafe_live_orders")
+        .update({
+          status: "live",
+          moyasar_payment_id: paymentId,
+          expires_at: expiresAt,
+          price_halalas: amount,
+          is_trial: false,
+          last_public_change_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        })
+        .eq("shop_token", token)
+        .in("status", ["pending_payment", "pending_renewal", "expired"])
+        .select("id")
+        .maybeSingle();
+      activated = !cafeErr;
+      if (cafeRow?.id) {
+        await supabase
+          .from("store_product_trials")
+          .update({ status: "converted", updated_at: new Date().toISOString() })
+          .eq("order_id", cafeRow.id)
+          .in("status", ["issued", "activated", "expired"]);
+      }
+    }
+    const credited = successStatus && days
+      ? await creditStoreAffiliateLedger(supabase, "store_cafe_live", amount, paymentId, meta)
+      : false;
+    return jsonResponse(
+      {
+        ok: true,
+        paymentId,
+        eventId: eventId || null,
+        skipped: "store_cafe_live",
         activated,
         credited,
       },

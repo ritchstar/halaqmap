@@ -56,7 +56,21 @@ async function attachTrialLinks(
   for (const [key, ids] of idsByKey) {
     const unique = [...new Set(ids)];
     const table = trialOrderTable(key);
-    if (key === 'grocers' || key === 'restaurant') {
+    if (key === 'cafe') {
+      const { data } = await db.from(table).select('id, shop_token, desk_token, display_token, guest_token').in('id', unique);
+      for (const order of data || []) {
+        const rec = order as { id: string; shop_token?: string; desk_token?: string; display_token?: string; guest_token?: string };
+        linksByOrder.set(
+          String(rec.id),
+          publicTrialHrefs(key, {
+            shop: String(rec.shop_token || ''),
+            desk: String(rec.desk_token || ''),
+            display: String(rec.display_token || ''),
+            guest: String(rec.guest_token || ''),
+          }),
+        );
+      }
+    } else if (key === 'grocers' || key === 'restaurant') {
       const { data } = await db.from(table).select('id, shop_token, desk_token').in('id', unique);
       for (const order of data || []) {
         const rec = order as { id: string; shop_token?: string; desk_token?: string };

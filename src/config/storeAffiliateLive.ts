@@ -43,7 +43,7 @@ export const STORE_AFFILIATE_COPY = {
   storeLeadAr:
     'عمولة ثابتة تُقتطع من حصة المنصة بعد كل عملية دفع ناجحة تصل من رابط المسوّق أو المسوّقة. كل عملية شراء جديدة تُقيَّد بعمولة المنتج المشترى، ولا يتوقف المسار بعد أول بيع. الزبون يدفع السعر كاملاً. لا كاردي8، ولا علاقة بطلب جار الحي نقداً أو شبكة عند الباب.',
   storeOngoingAr:
-    'كل فاتورة جديدة من رابطك لها عمولة ذلك المنتج. إعادة شراء لاونجا1 أو تمويناتا1 أو مطعمنا1 من الرابط تُحسب أيضاً.',
+    'كل فاتورة جديدة من رابطك لها عمولة ذلك المنتج. إعادة شراء لاونجا1 أو تمويناتا1 أو مطعمنا1 أو كافينا1 من الرابط تُحسب أيضاً.',
   isolationAr:
     'لا تخلط هذا المسار بطلب استهداف حلاق أو شقق مخدومة. تلك أدوات سفراء حلاق ماب ومسوّقات كوافير ماب فقط.',
   reviewLeadAr:
@@ -77,6 +77,8 @@ export const STORE_AFFILIATE_COPY = {
     grocers_chat_12: 'تمويناتا1 اثنا عشر شهراً مع صندوق المحادثة',
     restaurant_6: 'مطعمنا1 ستة أشهر',
     restaurant_12: 'مطعمنا1 اثنا عشر شهراً',
+    cafe_6: 'كافينا1 ستة أشهر',
+    cafe_12: 'كافينا1 اثنا عشر شهراً',
   },
   deskLinkAr: {
     wedding: 'افراحي1',
@@ -84,6 +86,7 @@ export const STORE_AFFILIATE_COPY = {
     lounge: 'لاونجا1',
     grocers: 'تمويناتا1',
     restaurant: 'مطعمنا1',
+    cafe: 'كافينا1',
   },
   netLabelAr: 'صافي المنصة',
   commissionLabelAr: 'عمولة المسوّق أو المسوّقة',
@@ -101,11 +104,13 @@ export type StoreAffiliateLineId =
   | 'grocers_chat_6'
   | 'grocers_chat_12'
   | 'restaurant_6'
-  | 'restaurant_12';
+  | 'restaurant_12'
+  | 'cafe_6'
+  | 'cafe_12';
 
 export type StoreAffiliateLine = {
   id: StoreAffiliateLineId;
-  productTag: 'store_wedding_live' | 'store_event_live' | 'store_lounge_live' | 'store_grocers_live' | 'store_restaurant_live';
+  productTag: 'store_wedding_live' | 'store_event_live' | 'store_lounge_live' | 'store_grocers_live' | 'store_restaurant_live' | 'store_cafe_live';
   titleAr: string;
   packAr: string;
   priceSar: number;
@@ -201,6 +206,22 @@ export const STORE_AFFILIATE_LINES: readonly StoreAffiliateLine[] = [
     priceSar: 999,
     commissionSar: 199,
   },
+  {
+    id: 'cafe_6',
+    productTag: 'store_cafe_live',
+    titleAr: 'كافينا1',
+    packAr: 'ستة أشهر، صندوق المحادثة مدرج',
+    priceSar: 1199,
+    commissionSar: 199,
+  },
+  {
+    id: 'cafe_12',
+    productTag: 'store_cafe_live',
+    titleAr: 'كافينا1',
+    packAr: 'اثنا عشر شهراً، صندوق المحادثة مدرج',
+    priceSar: 2099,
+    commissionSar: 499,
+  },
 ] as const;
 
 export function affiliateNetSar(priceSar: number, commissionSar: number): number {
@@ -215,6 +236,10 @@ export function grocersAffiliateCommissionSar(packId: 'm6' | 'm12', chatAddon: b
 
 export function restaurantAffiliateCommissionSar(packId: 'm6' | 'm12'): number {
   return packId === 'm12' ? 199 : 99;
+}
+
+export function cafeAffiliateCommissionSar(packId: 'm6' | 'm12'): number {
+  return packId === 'm12' ? 499 : 199;
 }
 
 export function parseAffiliateLane(raw: string | null | undefined): StoreAffiliateLane {

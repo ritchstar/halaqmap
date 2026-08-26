@@ -440,6 +440,20 @@ function grocersLiveReturnPath(params: URLSearchParams): string | null {
   return `/pay/grocers/${encodeURIComponent(token)}`;
 }
 
+function restaurantLiveReturnPath(params: URLSearchParams): string | null {
+  const purpose = (params.get('purpose') || '').trim();
+  const token = (params.get('store_restaurant_token') || params.get('token') || '').trim();
+  if (purpose !== 'store_restaurant_live' || !token) return null;
+  return `/pay/restaurant/${encodeURIComponent(token)}`;
+}
+
+function cafeLiveReturnPath(params: URLSearchParams): string | null {
+  const purpose = (params.get('purpose') || '').trim();
+  const token = (params.get('store_cafe_token') || params.get('token') || '').trim();
+  if (purpose !== 'store_cafe_live' || !token) return null;
+  return `/pay/cafe/${encodeURIComponent(token)}`;
+}
+
 function storePayReturnPath(params: URLSearchParams | null): string | null {
   if (!params) return null;
   return (
@@ -447,7 +461,9 @@ function storePayReturnPath(params: URLSearchParams | null): string | null {
     weddingLiveReturnPath(params) ||
     eventLiveReturnPath(params) ||
     loungeLiveReturnPath(params) ||
-    grocersLiveReturnPath(params)
+    grocersLiveReturnPath(params) ||
+    restaurantLiveReturnPath(params) ||
+    cafeLiveReturnPath(params)
   );
 }
 

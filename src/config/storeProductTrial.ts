@@ -7,7 +7,7 @@
 export const STORE_PRODUCT_TRIAL_DAYS = 60 as const;
 export const STORE_PRODUCT_TRIAL_QUOTA = 5 as const;
 
-export type StoreProductTrialKey = 'wedding' | 'event' | 'lounge' | 'grocers' | 'restaurant';
+export type StoreProductTrialKey = 'wedding' | 'event' | 'lounge' | 'grocers' | 'restaurant' | 'cafe';
 
 export const STORE_PRODUCT_TRIAL_KEYS: readonly StoreProductTrialKey[] = [
   'wedding',
@@ -15,6 +15,7 @@ export const STORE_PRODUCT_TRIAL_KEYS: readonly StoreProductTrialKey[] = [
   'lounge',
   'grocers',
   'restaurant',
+  'cafe',
 ] as const;
 
 export function isGiftTrialProduct(key: StoreProductTrialKey): boolean {
@@ -78,7 +79,8 @@ export const STORE_PRODUCT_TRIAL_PRODUCTS: Record<
       | 'store_event_live'
       | 'store_lounge_live'
       | 'store_grocers_live'
-      | 'store_restaurant_live';
+      | 'store_restaurant_live'
+      | 'store_cafe_live';
     opsNoteAr: string;
     deskNoteAr: string;
     howToAr: string;
@@ -133,5 +135,15 @@ export const STORE_PRODUCT_TRIAL_PRODUCTS: Record<
       'الأتمتة التقنية للمطبخ والصفحة مستوفية بالكامل. يتبقى الربط التقني والتفعيل لأدوات العمل فعلياً في المطعم.',
     howToAr:
       'بعد ستين يوماً من أول دخول تشتري ستة أشهر بـ 699 أو اثني عشر بـ 999 على نفس الصفحة. الصندوق مدرج. البيانات محفوظة بالإيميل.',
+  },
+  cafe: {
+    titleAr: 'كافينا1',
+    productTag: 'store_cafe_live',
+    opsNoteAr:
+      'الأتمتة التقنية لصفحة جار الحي والشاشات الثلاث ولوحة الكاشير وصندوق المحادثة المدرّج مستوفية. يتبقى ربط أجهزة الشاشات والكاشير وتفعيل الخدمة.',
+    deskNoteAr:
+      'الأتمتة التقنية للكاشير والصفحة والشاشات مستوفية بالكامل. يتبقى الربط التقني والتفعيل لأدوات العمل فعلياً في المقهى.',
+    howToAr:
+      'ستون يوماً من أول دخول. بعدها تشتري ستة أشهر بـ 1199 أو اثني عشر بـ 2099 على نفس الصفحة. الصندوق مدرج. البيانات محفوظة بالإيميل.',
   },
 };

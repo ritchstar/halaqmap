@@ -90,6 +90,15 @@ export const ROUTE_PATHS = {
   STORE_RESTAURANT_VIEW: '/r/:token',
   STORE_RESTAURANT_DESK: '/r/:token/desk',
   STORE_RESTAURANT_PAY: '/pay/restaurant/:token',
+  /** كافينا1 — شاشات المقهى وصفحة الحي، باقتا 6 و12 شهراً */
+  STORE_CAFE: '/store/cafe',
+  STORE_CAFE_VIEW: '/c/:token',
+  STORE_CAFE_DESK: '/c/:token/desk',
+  STORE_CAFE_HOST: '/c/:token/host',
+  STORE_CAFE_GUEST: '/c/:token/guest',
+  STORE_CAFE_QUIET: '/c/:token/quiet',
+  STORE_CAFE_MENU: '/c/:token/menu',
+  STORE_CAFE_PAY: '/pay/cafe/:token',
   /** بوابة مسوّقي منتجات المتجر — مستقلة عن سفراء حلاق ماب وكوافير ماب */
   STORE_AFFILIATES: '/store/affiliates',
   STORE_AFFILIATES_ENTER: '/store/affiliates/enter',

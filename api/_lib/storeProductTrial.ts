@@ -12,6 +12,8 @@ import { newLoungeToken } from './storeLoungeLive.js';
 import { sendLoungeLiveLinksEmail } from './storeLoungeLiveMail.js';
 import { newRestaurantToken } from './storeRestaurantLive.js';
 import { sendRestaurantLiveLinksEmail } from './storeRestaurantLiveMail.js';
+import { newCafeToken } from './storeCafeLive.js';
+import { sendCafeLiveLinksEmail } from './storeCafeLiveMail.js';
 import { newWeddingToken } from './storeWeddingLive.js';
 import { sendWeddingLiveLinksEmail } from './storeWeddingLiveMail.js';
 
@@ -19,7 +21,7 @@ export const STORE_PRODUCT_TRIAL_TABLE = 'store_product_trials' as const;
 export const STORE_PRODUCT_TRIAL_DAYS = 60 as const;
 export const STORE_PRODUCT_TRIAL_QUOTA = 5 as const;
 
-export type StoreProductTrialKey = 'wedding' | 'event' | 'lounge' | 'grocers' | 'restaurant';
+export type StoreProductTrialKey = 'wedding' | 'event' | 'lounge' | 'grocers' | 'restaurant' | 'cafe';
 
 export type StoreProductTrialRow = {
   id: string;
@@ -47,6 +49,7 @@ const PRODUCT_TAG: Record<StoreProductTrialKey, string> = {
   lounge: 'store_lounge_live',
   grocers: 'store_grocers_live',
   restaurant: 'store_restaurant_live',
+  cafe: 'store_cafe_live',
 };
 
 const ORDER_TABLE: Record<StoreProductTrialKey, string> = {
@@ -55,12 +58,13 @@ const ORDER_TABLE: Record<StoreProductTrialKey, string> = {
   lounge: 'store_lounge_live_orders',
   grocers: 'store_grocers_live_orders',
   restaurant: 'store_restaurant_live_orders',
+  cafe: 'store_cafe_live_orders',
 };
 
 const GIFT_KEYS = new Set<StoreProductTrialKey>(['wedding', 'event']);
 
 export function isStoreProductTrialKey(raw: unknown): raw is StoreProductTrialKey {
-  return raw === 'wedding' || raw === 'event' || raw === 'lounge' || raw === 'grocers' || raw === 'restaurant';
+  return raw === 'wedding' || raw === 'event' || raw === 'lounge' || raw === 'grocers' || raw === 'restaurant' || raw === 'cafe';
 }
 
 export function isGiftTrialProduct(key: StoreProductTrialKey): boolean {
@@ -87,6 +91,13 @@ function storeOrigin(): string {
 }
 
 function productLinks(key: StoreProductTrialKey, tokens: Record<string, string>): { a: string; b: string; c?: string } {
+  if (key === 'cafe') {
+    return {
+      a: `${storeOrigin()}/#/c/${encodeURIComponent(tokens.shop)}`,
+      b: `${storeOrigin()}/#/c/${encodeURIComponent(tokens.desk)}/desk`,
+      c: `${storeOrigin()}/#/c/${encodeURIComponent(tokens.display)}`,
+    };
+  }
   if (key === 'grocers') {
     return {
       a: `${storeOrigin()}/#/g/${encodeURIComponent(tokens.shop)}`,
@@ -125,6 +136,13 @@ export function publicTrialHrefs(
   tokens: Record<string, string>,
 ): { titleAr: string; href: string }[] {
   const links = productLinks(key, tokens);
+  if (key === 'cafe') {
+    return [
+      { titleAr: 'جار الحي', href: links.a },
+      { titleAr: 'الكاشير', href: links.b },
+      { titleAr: 'الشاشة', href: links.c || '' },
+    ];
+  }
   if (key === 'grocers') {
     return [
       { titleAr: 'المتجر', href: links.a },
@@ -145,6 +163,32 @@ export function publicTrialHrefs(
 }
 
 function trialPayload(key: StoreProductTrialKey, email: string): Record<string, unknown> {
+  if (key === 'cafe') {
+    return {
+      packId: 'm6',
+      shopName: 'تجربة كافينا1',
+      hostName: 'الكاشير',
+      blurbAr: 'نموذج تجريبي لمقهى الحي.',
+      customFields: ['', '', '', '', ''],
+      flashAr: '',
+      shelf: [],
+      orders: [],
+      chatIncluded: true,
+      chats: [],
+      nextTicket: 1,
+      welcomeAr: 'أهلاً بكم في شاشة التجربة.',
+      youtubeUrl: '',
+      youtubeHidden: true,
+      announcement: '',
+      photoSrc: '',
+      panoramaSrc: '',
+      guestPaused: false,
+      reviewBeforeShow: false,
+      activeEventId: 'welcome',
+      customEventTitle: '',
+      blessings: [],
+    };
+  }
   if (key === 'grocers') {
     return {
       packId: 'm6',
@@ -269,6 +313,20 @@ export async function findBlockingTrial(
 async function sendIssuedMail(key: StoreProductTrialKey, email: string, tokens: Record<string, string>): Promise<void> {
   const links = productLinks(key, tokens);
   const expiresLabel = 'ستون يوماً من أول دخول للرابط';
+  if (key === 'cafe') {
+    await sendCafeLiveLinksEmail({
+      to: email,
+      shopUrl: links.a,
+      deskUrl: links.b,
+      displayUrl: links.c || links.a,
+      quietUrl: `${storeOrigin()}/#/c/${encodeURIComponent(tokens.display)}/quiet`,
+      menuUrl: `${storeOrigin()}/#/c/${encodeURIComponent(tokens.display)}/menu`,
+      guestUrl: `${storeOrigin()}/#/c/${encodeURIComponent(tokens.guest)}/guest`,
+      hostUrl: `${storeOrigin()}/#/c/${encodeURIComponent(tokens.desk)}/host`,
+      expiresLabel,
+    });
+    return;
+  }
   if (key === 'grocers') {
     await sendGrocersLiveLinksEmail({ to: email, shopUrl: links.a, deskUrl: links.b, expiresLabel });
     return;
@@ -315,6 +373,35 @@ async function insertLiveOrder(
   const table = ORDER_TABLE[key];
   const payload = trialPayload(key, email);
   const now = new Date().toISOString();
+  if (key === 'cafe') {
+    const shop = newCafeToken();
+    const desk = newCafeToken();
+    const display = newCafeToken();
+    const guest = newCafeToken();
+    const { data, error } = await db
+      .from(table)
+      .insert({
+        status: 'live',
+        display_token: display,
+        guest_token: guest,
+        shop_token: shop,
+        desk_token: desk,
+        buyer_email: email,
+        buyer_name: 'تجربة كافينا1',
+        price_halalas: 0,
+        payload,
+        policy_version: 'trial-60',
+        is_trial: true,
+        trial_id: trialId,
+        expires_at: null,
+        created_at: now,
+        updated_at: now,
+      })
+      .select('id')
+      .maybeSingle();
+    if (error || !data) return { error: 'تعذر إنشاء صفحة المقهى التجريبية.' };
+    return { orderId: String(data.id), tokens: { shop, desk, display, guest } };
+  }
   if (key === 'grocers') {
     const shop = newGrocersToken();
     const desk = newGrocersToken();

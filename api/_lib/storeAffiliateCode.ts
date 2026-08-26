@@ -31,6 +31,7 @@ export type StoreAffiliateCheckoutLinks = {
   lounge: string;
   grocers: string;
   restaurant: string;
+  cafe: string;
 };
 
 /** روابط شراء منتجات المتجر باسم المسوّق — ليست كاردي8. */
@@ -43,5 +44,6 @@ export function storeAffiliateCheckoutLinks(rawCode: unknown): StoreAffiliateChe
     lounge: `https://www.halaqmap.com/#/store/lounge${q}`,
     grocers: `https://www.halaqmap.com/#/store/grocers${q}`,
     restaurant: `https://www.halaqmap.com/#/store/restaurant${q}`,
+    cafe: `https://www.halaqmap.com/#/store/cafe${q}`,
   };
 }

@@ -7,7 +7,7 @@
 import { resolveResendFromAddress } from './resendFrom.js';
 import { storeAffiliateCheckoutLinks, type StoreAffiliateCheckoutLinks } from './storeAffiliateCode.js';
 
-export type StoreMailThemeId = 'wedding' | 'event' | 'lounge' | 'grocers' | 'restaurant' | 'affiliate';
+export type StoreMailThemeId = 'wedding' | 'event' | 'lounge' | 'grocers' | 'restaurant' | 'cafe' | 'affiliate';
 
 export type StoreMailTheme = {
   id: StoreMailThemeId;
@@ -72,6 +72,15 @@ const THEMES: Record<StoreMailThemeId, StoreMailTheme> = {
     ink: '#1a0e08',
     canvas: '#1a120c',
     ring: '#f0b27a',
+  },
+  cafe: {
+    id: 'cafe',
+    markAr: 'ك',
+    titleAr: 'كافينا1',
+    accent: '#c48a4a',
+    ink: '#1a1008',
+    canvas: '#1a120c',
+    ring: '#e0b27a',
   },
   affiliate: {
     id: 'affiliate',
@@ -392,6 +401,88 @@ export function buildRestaurantLiveLinksHtml(input: {
   });
 }
 
+export function buildCafeLiveLinksHtml(input: {
+  shopUrl: string;
+  deskUrl: string;
+  displayUrl: string;
+  quietUrl: string;
+  menuUrl: string;
+  guestUrl: string;
+  hostUrl: string;
+  expiresLabel: string;
+  renewed?: boolean;
+}): string {
+  const theme = THEMES.cafe;
+  return buildStoreMailHtml({
+    theme: 'cafe',
+    kickerAr: theme.titleAr,
+    titleAr: input.renewed ? 'تمديد صفحة المقهى' : 'روابط التشغيل جاهزة',
+    leadAr: input.renewed
+      ? 'الروابط نفسها لم تتغير. اضغط الأيقونة لفتح المسار.'
+      : 'اضغط الأيقونة لفتح صفحة جار الحي أو الشاشات أو لوحة الكاشير.',
+    iconRows: [
+      [
+        {
+          href: input.shopUrl,
+          markAr: theme.markAr,
+          titleAr: theme.titleAr,
+          captionAr: 'صفحة جار الحي',
+          theme: 'cafe',
+        },
+        {
+          href: input.deskUrl,
+          markAr: 'ك',
+          titleAr: theme.titleAr,
+          captionAr: 'لوحة الكاشير',
+          theme: 'cafe',
+        },
+        {
+          href: input.hostUrl,
+          markAr: 'ش',
+          titleAr: theme.titleAr,
+          captionAr: 'لوحة الشاشات',
+          theme: 'cafe',
+        },
+      ],
+      [
+        {
+          href: input.displayUrl,
+          markAr: 'ر',
+          titleAr: theme.titleAr,
+          captionAr: 'الشاشة الرئيسية',
+          theme: 'cafe',
+        },
+        {
+          href: input.quietUrl,
+          markAr: 'ه',
+          titleAr: theme.titleAr,
+          captionAr: 'الشاشة الهادئة',
+          theme: 'cafe',
+        },
+        {
+          href: input.menuUrl,
+          markAr: 'ق',
+          titleAr: theme.titleAr,
+          captionAr: 'شاشة القائمة',
+          theme: 'cafe',
+        },
+      ],
+      [
+        {
+          href: input.guestUrl,
+          markAr: 'ض',
+          titleAr: theme.titleAr,
+          captionAr: 'رابط المشاركة',
+          theme: 'cafe',
+        },
+      ],
+    ],
+    notesAr: [
+      `تنتهي المدة في ${input.expiresLabel}. بعد انتهائها تبقى الروابط وتحيلكم لإعادة الشراء على نفس الصفحة.`,
+    ],
+  });
+}
+
 export function buildStoreAffiliateMagicHtml(input: {
   loginUrl: string;
   productLinks: StoreAffiliateCheckoutLinks;
@@ -432,6 +523,13 @@ export function buildStoreAffiliateMagicHtml(input: {
       titleAr: THEMES.restaurant.titleAr,
       captionAr: 'رابط الشراء',
       theme: 'restaurant',
+    },
+    {
+      href: input.productLinks.cafe,
+      markAr: THEMES.cafe.markAr,
+      titleAr: THEMES.cafe.titleAr,
+      captionAr: 'رابط الشراء',
+      theme: 'cafe',
     },
   ];
   return buildStoreMailHtml({
