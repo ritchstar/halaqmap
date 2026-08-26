@@ -57,6 +57,7 @@ const STATIC_LAB_CLONE_PATHS = new Set<string>([
   '/admin/coiffeur-hub',
   '/admin/store-desk',
   '/admin/store-sales',
+  '/admin/store-ops',
   '/admin/fazaa-listing',
   '/admin',
 ]);
@@ -111,6 +112,7 @@ function isAdminPortalPath(pathname: string): boolean {
       || pathname === `${adminBase}/store-desk`
       || pathname === `${adminBase}/store-sales`
       || pathname.startsWith(`${adminBase}/store-sales/`)
+      || pathname === `${adminBase}/store-ops`
       || pathname === `${adminBase}/fazaa-listing`,
   );
 }

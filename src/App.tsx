@@ -24,7 +24,7 @@ import {
 } from "@/lib/storeHostRedirect";
 import { readHashQueryParam } from "@/lib/hashQueryParams";
 import { buildMapContactPartnerInterestPath } from "@/config/mapContactCardCopy";
-import { getAdminPortalBasePath, getAdminPortalBasePaths } from "@/config/adminAuth";
+import { getAdminLoginPath, getAdminPortalBasePath, getAdminPortalBasePaths } from "@/config/adminAuth";
 import { PUBLIC_PULSE_EXPERIENCE_ENABLED } from '@/config/publicPulseExperience';
 import { AdminAuthHashGate, AdminSentinelSecurityGate } from "@/components/AdminAuthHashGate";
 
@@ -125,6 +125,8 @@ const STORE_AFFILIATES_RULES_PATH =
   (ROUTE_PATHS as { STORE_AFFILIATES_RULES?: string }).STORE_AFFILIATES_RULES || "/store/affiliates/rules";
 const STORE_OPS_PATH =
   (ROUTE_PATHS as { STORE_OPS?: string }).STORE_OPS || "/store/ops";
+const ADMIN_STORE_OPS_PATH =
+  (ROUTE_PATHS as { ADMIN_STORE_OPS?: string }).ADMIN_STORE_OPS || "/store-ops";
 const STORE_BEREAVEMENT_PATH =
   (ROUTE_PATHS as { STORE_BEREAVEMENT?: string }).STORE_BEREAVEMENT || "/store/bereavement";
 const STORE_BEREAVEMENT_CREATE_PATH =
@@ -396,6 +398,17 @@ const LegacyAdminRedirect = ({ suffix }: { suffix: string }) => {
     />
   );
 };
+
+/** الرابط العام القديم على نطاق المتجر يفتح دخول الإدارة ثم لوحة إصدار التجارب. */
+function StoreOpsPortalRedirect() {
+  const dest = `${getAdminPortalBasePath()}${ADMIN_STORE_OPS_PATH}`;
+  const login = `${getAdminLoginPath()}?next=${encodeURIComponent(dest)}`;
+  if (typeof window !== 'undefined' && isHalaqmapStoreHost(window.location.hostname)) {
+    window.location.replace(`https://www.halaqmap.com/#${login}`);
+    return null;
+  }
+  return <Navigate to={login} replace />;
+}
 
 const LegacyAdminStoreSalesLedgerRedirect = () => {
   const { product = '' } = useParams<{ product: string }>();
@@ -764,7 +777,7 @@ export function App() {
           <Route path={STORE_AFFILIATES_DESK_PATH} element={<LazyRoute><StoreAffiliatesDeskPage /></LazyRoute>} />
           <Route path={STORE_AFFILIATES_RULES_PATH} element={<LazyRoute><StoreAffiliatesRulesPage /></LazyRoute>} />
           <Route path={STORE_AFFILIATES_PATH} element={<LazyRoute><StoreAffiliatesHomePage /></LazyRoute>} />
-          <Route path={STORE_OPS_PATH} element={<LazyRoute><StoreOpsDeskPage /></LazyRoute>} />
+          <Route path={STORE_OPS_PATH} element={<StoreOpsPortalRedirect />} />
           <Route path="/oc/:token" element={<OccasionCardShareRedirect />} />
           <Route path={STORE_INVITES_VIEW_PATH} element={<LazyRoute><StorePaidInviteViewPage /></LazyRoute>} />
           <Route path={STORE_OCCASION_CARD_PAY_PATH} element={<LazyRoute><StorePaidInvitePayPage /></LazyRoute>} />
@@ -910,6 +923,7 @@ export function App() {
               <Route path={`${adminBase}/store-desk`} element={<LazyRoute><StoreDeskPage /></LazyRoute>} />
               <Route path={`${adminBase}/store-sales`} element={<LazyRoute><StoreSalesHubPage /></LazyRoute>} />
               <Route path={`${adminBase}/store-sales/:product`} element={<LazyRoute><StoreSalesLedgerPage /></LazyRoute>} />
+              <Route path={`${adminBase}${ADMIN_STORE_OPS_PATH}`} element={<LazyRoute><StoreOpsDeskPage /></LazyRoute>} />
               <Route path={`${adminBase}/fazaa-listing`} element={<LazyRoute><FazaaListingAdminPage /></LazyRoute>} />
             </Fragment>
           ))}
@@ -924,6 +938,7 @@ export function App() {
           <Route path="/admin/store-desk" element={<LegacyAdminRedirect suffix="/store-desk" />} />
           <Route path="/admin/store-sales" element={<LegacyAdminRedirect suffix="/store-sales" />} />
           <Route path="/admin/store-sales/:product" element={<LegacyAdminStoreSalesLedgerRedirect />} />
+          <Route path="/admin/store-ops" element={<LegacyAdminRedirect suffix={ADMIN_STORE_OPS_PATH} />} />
           <Route path="/admin/fazaa-listing" element={<LegacyAdminRedirect suffix="/fazaa-listing" />} />
           <Route path="/admin" element={<LegacyAdminRedirect suffix="/in" />} />
           <Route path={ROUTE_PATHS.RATE_BARBER} element={<LazyRoute><RateBarber /></LazyRoute>} />

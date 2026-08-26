@@ -23,7 +23,7 @@ export function isGiftTrialProduct(key: StoreProductTrialKey): boolean {
 
 export const STORE_PRODUCT_TRIAL_COPY = {
   opsTitleAr: 'لوحة المتجر الإلكتروني',
-  opsKickerAr: 'مسار مستقل عن رخصة النفاذ ومحفظة الحلاق',
+  opsKickerAr: 'من لوحة التحكم · مستقل عن رخصة النفاذ ومحفظة الحلاق',
   opsLeadAr:
     'سيطرة يدوية على النشر: أتمّ الطلب بإيميل المستفيد فيُدرج في المصدر تجريبياً. عند السداد ينتقل إلى المسدد المفعَّل.',
   inboxTitleAr: 'إتمام الطلب',

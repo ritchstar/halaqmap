@@ -95,7 +95,7 @@ export const ROUTE_PATHS = {
   STORE_AFFILIATES_ENTER: '/store/affiliates/enter',
   STORE_AFFILIATES_DESK: '/store/affiliates/desk',
   STORE_AFFILIATES_RULES: '/store/affiliates/rules',
-  /** لوحة تشغيل المتجر — تجارب ومسوّقون، مستقلة عن رخصة النفاذ */
+  /** مسار قديم على نطاق المتجر — يُحوَّل إلى لوحة التحكم */
   STORE_OPS: '/store/ops',
   /** بلاغات الوفاة والعزاء — خدمة مجتمعية مستقلة */
   STORE_BEREAVEMENT: '/store/bereavement',
@@ -250,6 +250,8 @@ export const ROUTE_PATHS = {
   ADMIN_STORE_DESK: '/store-desk',
   /** مركز قيد مبيعات المتجر الإلكتروني */
   ADMIN_STORE_SALES: '/store-sales',
+  /** إصدار التجارب والمسدد المفعَّل — داخل لوحة التحكم */
+  ADMIN_STORE_OPS: '/store-ops',
   /** مركز موافقات إبراز فزعة على الصفحات العامة */
   ADMIN_FAZAA_LISTING: '/fazaa-listing',
   /** شرح مفصّل للمناوب الرقمي الذكي */

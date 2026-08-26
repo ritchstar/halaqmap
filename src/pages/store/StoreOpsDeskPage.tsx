@@ -4,9 +4,10 @@
  * لوحة المتجر الإلكتروني — مسار مستقل عن رخصة النفاذ ومحفظة الحلاق.
  */
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { StoreAffiliateApplicationsPanel } from '@/components/admin/StoreAffiliateApplicationsPanel';
 import { toast } from '@/components/ui/sonner';
-import { getAdminLoginPath } from '@/config/adminAuth';
+import { getAdminDashboardPathFor, getAdminLoginPathFor } from '@/config/adminAuth';
 import {
   STORE_PRODUCT_TRIAL_COPY,
   STORE_PRODUCT_TRIAL_KEYS,
@@ -21,7 +22,6 @@ import {
   type StoreOpsTrialLink,
   type StoreOpsTrialRow,
 } from '@/lib/adminStoreOpsRemote';
-import { ROUTE_PATHS } from '@/lib/routePaths';
 
 function statusLabel(status: string): string {
   const map = STORE_PRODUCT_TRIAL_COPY.statusAr as Record<string, string>;
@@ -93,6 +93,8 @@ function TrialMeta({ row }: { row: StoreOpsTrialRow }) {
 
 export default function StoreOpsDeskPage() {
   useDocumentTitle(STORE_PRODUCT_TRIAL_COPY.opsTitleAr);
+  const navigate = useNavigate();
+  const location = useLocation();
   const [accessToken, setAccessToken] = useState('');
   const [authReady, setAuthReady] = useState(false);
   const [rows, setRows] = useState<StoreOpsTrialRow[]>([]);
@@ -216,6 +218,13 @@ export default function StoreOpsDeskPage() {
     <div className="min-h-screen bg-[#07070a] text-slate-100" dir="rtl">
       <header className="border-b border-white/8 bg-black/40">
         <div className="container mx-auto max-w-3xl px-4 py-4">
+          <button
+            type="button"
+            onClick={() => navigate(getAdminDashboardPathFor(location.pathname))}
+            className="mb-3 text-sm font-bold text-teal-200"
+          >
+            لوحة التحكم
+          </button>
           <p className="text-xs font-bold tracking-wide text-teal-300">{STORE_PRODUCT_TRIAL_COPY.opsKickerAr}</p>
           <h1 className="mt-1 text-2xl font-black">{STORE_PRODUCT_TRIAL_COPY.opsTitleAr}</h1>
           <p className="mt-2 text-sm leading-7 text-slate-400">{STORE_PRODUCT_TRIAL_COPY.opsLeadAr}</p>
@@ -228,7 +237,7 @@ export default function StoreOpsDeskPage() {
             <p>سجّل الدخول بصفة الإدارة ثم افتح هذه الصفحة.</p>
             <a
               className="mt-3 inline-block font-bold text-teal-200 underline"
-              href={`https://www.halaqmap.com/#${getAdminLoginPath()}?next=${encodeURIComponent(ROUTE_PATHS.STORE_OPS)}`}
+              href={`/#${getAdminLoginPathFor(location.pathname)}?next=${encodeURIComponent(location.pathname)}`}
             >
               دخول الإدارة
             </a>

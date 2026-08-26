@@ -20,6 +20,7 @@ export function isHalaqmapMensHost(host: string): boolean {
 }
 
 function isStoreSurfacePath(path: string): boolean {
+  if (path === '/store/ops' || path.startsWith('/store/ops/')) return false;
   return (
     path === '/store' ||
     path.startsWith('/store/') ||

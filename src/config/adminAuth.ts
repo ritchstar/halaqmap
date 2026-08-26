@@ -145,5 +145,15 @@ export function resolveSafeAdminNext(raw: string | null | undefined, fallback: s
   const path = String(raw || '').trim();
   if (!path.startsWith('/') || path.startsWith('//') || path.includes('://')) return fallback;
   if (SAFE_ADMIN_NEXT_PATHS.has(path)) return path;
+  for (const base of getAdminPortalBasePaths()) {
+    if (
+      path === `${base}/store-ops` ||
+      path === `${base}/store-desk` ||
+      path === `${base}/store-sales` ||
+      path.startsWith(`${base}/store-sales/`)
+    ) {
+      return path;
+    }
+  }
   return fallback;
 }

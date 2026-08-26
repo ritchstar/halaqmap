@@ -19,6 +19,7 @@ const AdminCyberOperationsPage = lazy(() => import('@/app/admin/cyber/page'));
 const StaffHubPage = lazy(() => import('@/app/admin/staff-hub/page'));
 const CoiffeurHubPage = lazy(() => import('@/app/admin/coiffeur-hub/page'));
 const StoreDeskPage = lazy(() => import('@/app/admin/store-desk/page'));
+const StoreOpsDeskPage = lazy(() => import('@/pages/store/StoreOpsDeskPage'));
 const StoreSalesHubPage = lazy(() => import('@/app/admin/store-sales/page'));
 const StoreSalesLedgerPage = lazy(() => import('@/app/admin/store-sales/[product]/page'));
 const FazaaListingAdminPage = lazy(() => import('@/app/admin/fazaa-listing/page'));
@@ -140,6 +141,7 @@ function buildLabRoutes(): RouteObject[] {
     { path: `${adminBase.slice(1)}/store-desk`, element: <LazyRoute><StoreDeskPage /></LazyRoute> },
     { path: `${adminBase.slice(1)}/store-sales`, element: <LazyRoute><StoreSalesHubPage /></LazyRoute> },
     { path: `${adminBase.slice(1)}/store-sales/:product`, element: <LazyRoute><StoreSalesLedgerPage /></LazyRoute> },
+    { path: `${adminBase.slice(1)}/store-ops`, element: <LazyRoute><StoreOpsDeskPage /></LazyRoute> },
     { path: `${adminBase.slice(1)}/fazaa-listing`, element: <LazyRoute><FazaaListingAdminPage /></LazyRoute> },
   ]));
 
@@ -203,6 +205,7 @@ function buildLabRoutes(): RouteObject[] {
         { path: 'admin/store-desk', element: <LazyRoute><StoreDeskPage /></LazyRoute> },
         { path: 'admin/store-sales', element: <LazyRoute><StoreSalesHubPage /></LazyRoute> },
         { path: 'admin/store-sales/:product', element: <LazyRoute><StoreSalesLedgerPage /></LazyRoute> },
+        { path: 'admin/store-ops', element: <LazyRoute><StoreOpsDeskPage /></LazyRoute> },
         { path: 'admin/fazaa-listing', element: <LazyRoute><FazaaListingAdminPage /></LazyRoute> },
         { path: 'admin', element: <Navigate to="/admin/in" replace /> },
 
