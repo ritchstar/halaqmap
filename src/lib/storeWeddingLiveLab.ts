@@ -282,28 +282,59 @@ export function parseYoutubeVideoId(raw: string): string | null {
   if (!t) return null;
   if (/^[a-zA-Z0-9_-]{11}$/.test(t)) return t;
   try {
-    const u = new URL(t);
-    if (u.hostname.replace(/^www\./, '') === 'youtu.be') {
-      const id = u.pathname.replace(/^\//, '').slice(0, 11);
+    const u = new URL(t.startsWith('http') ? t : `https://${t}`);
+    const host = u.hostname.replace(/^www\./, '').toLowerCase();
+    if (host === 'youtu.be') {
+      const id = u.pathname.replace(/^\//, '').split('/')[0] || '';
       return /^[a-zA-Z0-9_-]{11}$/.test(id) ? id : null;
     }
-    const host = u.hostname.replace(/^www\./, '');
-    if (host !== 'youtube.com' && host !== 'youtube-nocookie.com' && host !== 'm.youtube.com') {
+    if (
+      host !== 'youtube.com' &&
+      host !== 'm.youtube.com' &&
+      host !== 'music.youtube.com' &&
+      host !== 'youtube-nocookie.com'
+    ) {
       return null;
     }
     const v = u.searchParams.get('v');
     if (v && /^[a-zA-Z0-9_-]{11}$/.test(v)) return v;
-    const embed = u.pathname.match(/\/embed\/([a-zA-Z0-9_-]{11})/);
-    return embed?.[1] || null;
+    const parts = u.pathname.split('/').filter(Boolean);
+    for (const key of ['embed', 'shorts', 'live', 'watch']) {
+      const idx = parts.indexOf(key);
+      const next = idx >= 0 ? parts[idx + 1] : '';
+      if (next && /^[a-zA-Z0-9_-]{11}$/.test(next)) return next;
+    }
+    return null;
   } catch {
     return null;
   }
 }
 
-export function youtubeEmbedSrc(raw: string): string | null {
+export type YoutubeHallEmbedOpts = {
+  autoplay?: boolean;
+  mute?: boolean;
+  loop?: boolean;
+};
+
+export function youtubeEmbedSrc(raw: string, opts: YoutubeHallEmbedOpts = {}): string | null {
   const id = parseYoutubeVideoId(raw);
   if (!id) return null;
-  return `https://www.youtube-nocookie.com/embed/${id}?rel=0&modestbranding=1`;
+  const params = new URLSearchParams({
+    rel: '0',
+    modestbranding: '1',
+    playsinline: '1',
+    enablejsapi: '1',
+  });
+  if (opts.autoplay) params.set('autoplay', '1');
+  if (opts.autoplay || opts.mute) params.set('mute', opts.mute === false ? '0' : '1');
+  if (opts.loop !== false) {
+    params.set('loop', '1');
+    params.set('playlist', id);
+  }
+  if (typeof window !== 'undefined' && window.location?.origin) {
+    params.set('origin', window.location.origin);
+  }
+  return `https://www.youtube.com/embed/${id}?${params.toString()}`;
 }
 
 export function playWeddingLiveChime(kind: Exclude<WeddingLiveAudioId, 'none'>): void {

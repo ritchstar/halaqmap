@@ -4,7 +4,7 @@
  * مشهد قاعة الحفل — يوتيوب في الوسط، تهاني منسّقة، تنويه، ترحيب ثلاثي.
  */
 import { useEffect, useState } from 'react';
-import { STORE_WEDDING_LIVE, weddingLiveAccent } from '@/config/storeWeddingLive';
+import { STORE_WEDDING_LIVE, weddingLiveAccent, weddingLiveCopy } from '@/config/storeWeddingLive';
 import {
   nextWeddingWelcomeSetIndex,
   weddingWelcomeSetAt,
@@ -60,10 +60,13 @@ export function StoreWeddingHallStage({
   const ticker = visible
     .map((item) => `${item.name}: ${item.extra ? `${item.cannedText} ${item.extra}` : item.cannedText}`)
     .join('   ·   ');
-  const embed = !state.host.youtubeHidden ? youtubeEmbedSrc(state.host.youtubeUrl) : null;
+  const voice = state.host.voice === 'women' ? 'women' : 'men';
+  const copy = weddingLiveCopy(voice);
+  const embed = !state.host.youtubeHidden
+    ? youtubeEmbedSrc(state.host.youtubeUrl, { autoplay: true, mute: true, loop: true })
+    : null;
   const latest = visible.slice(-4).reverse();
   const maps = safeMapsHref(state.host.venueMapsUrl);
-  const voice = state.host.voice === 'women' ? 'women' : 'men';
   const accent = weddingLiveAccent(voice);
   const pinnedIndex = Number(state.host.welcomeSetIndex) || 0;
   const [cycleIndex, setCycleIndex] = useState(pinnedIndex);
@@ -111,7 +114,7 @@ export function StoreWeddingHallStage({
         className={cn(
           'relative z-10 flex flex-col gap-4 p-4 pt-5 sm:p-6 sm:pt-7 md:p-8',
           compact
-            ? 'max-h-[42vh] min-h-[16rem] overflow-hidden lg:max-h-none lg:min-h-[36rem]'
+            ? 'max-h-[56vh] min-h-[20rem] overflow-hidden lg:max-h-none lg:min-h-[36rem]'
             : 'min-h-[36rem] md:min-h-[42rem]',
         )}
       >
@@ -120,25 +123,39 @@ export function StoreWeddingHallStage({
         ) : null}
 
         <header className="wedding-hall-masthead">
-          <div className="hall-masthead-kicker invite-luminous" data-bidi="off" style={{ color: accent }}>
+          <div
+            className={cn('hall-masthead-kicker invite-luminous', compact && 'hidden lg:block')}
+            data-bidi="off"
+            style={{ color: accent }}
+          >
             عقد قران
           </div>
-          <div className="hall-ornament-rule" style={{ ['--hall-ornament' as string]: accent }} aria-hidden />
-          <div className="hall-masthead-host" data-bidi="off">
+          <div
+            className={cn('hall-ornament-rule', compact && 'hidden lg:block')}
+            style={{ ['--hall-ornament' as string]: accent }}
+            aria-hidden
+          />
+          <div className={cn('hall-masthead-host', compact && 'hidden lg:block')} data-bidi="off">
             {weddingHostInviteLine(state.host)}
           </div>
           <div className="hall-masthead-names invite-luminous" data-bidi="off">
             {weddingCoupleLine(state.host)}
           </div>
-          <div className="invite-luminous max-w-2xl text-base leading-8 text-white/90 md:text-lg" data-bidi="off">
+          <div
+            className={cn(
+              'invite-luminous max-w-2xl text-base leading-8 text-white/90 md:text-lg',
+              compact && 'hidden lg:block',
+            )}
+            data-bidi="off"
+          >
             {invitation}
           </div>
           {state.host.welcomeAr.trim() ? (
-            <div className="max-w-xl text-base leading-8 text-white/75" data-bidi="off">
+            <div className={cn('max-w-xl text-base leading-8 text-white/75', compact && 'hidden lg:block')} data-bidi="off">
               {state.host.welcomeAr.trim()}
             </div>
           ) : null}
-          <div className="text-base text-white/70" data-bidi="off">
+          <div className={cn('text-base text-white/70', compact && 'hidden lg:block')} data-bidi="off">
             {state.host.eventTime}
           </div>
         </header>
@@ -147,7 +164,10 @@ export function StoreWeddingHallStage({
             href={maps}
             target="_blank"
             rel="noreferrer"
-            className="mx-auto inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-sm font-bold"
+            className={cn(
+              'mx-auto inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-sm font-bold',
+              compact && 'hidden lg:inline-flex',
+            )}
           >
             <StoreWeddingMapsPin className="h-5 w-5" />
             {STORE_WEDDING_LIVE.mapsLabelAr}
@@ -155,7 +175,7 @@ export function StoreWeddingHallStage({
         ) : null}
 
         <div className="wedding-hall-center">
-          <div className="wedding-hall-glow w-full max-w-4xl text-center">
+          <div className={cn('wedding-hall-glow w-full max-w-4xl text-center', compact && 'hidden lg:block')}>
             <div className="invite-luminous mb-3 text-sm font-bold tracking-wide" data-bidi="off" style={{ color: accent }}>
               {welcomeSet.toneAr}
             </div>
@@ -168,18 +188,17 @@ export function StoreWeddingHallStage({
             </div>
           </div>
 
-          <div className={cn(compact && 'hidden lg:block')}>
-            <StoreHallVideoWell
-              embed={embed}
-              fallback={
-                state.host.panoramaSrc.startsWith('data:') ? (
-                  <img src={state.host.panoramaSrc} alt="" />
-                ) : (
-                  <StoreShot reel={reel} alt="" className="h-full w-full" />
-                )
-              }
-            />
-          </div>
+          <StoreHallVideoWell
+            embed={embed}
+            soundLabelAr={copy.hostYoutubeSoundAr}
+            fallback={
+              state.host.panoramaSrc.startsWith('data:') ? (
+                <img src={state.host.panoramaSrc} alt="" />
+              ) : (
+                <StoreShot reel={reel} alt="" className="h-full w-full" />
+              )
+            }
+          />
 
           <div className={cn('w-full max-w-4xl space-y-3 text-center', compact && 'hidden lg:block')}>
             {restLines.map((line) => (
@@ -195,7 +214,7 @@ export function StoreWeddingHallStage({
           </div>
         </div>
 
-        <ul className="mx-auto mt-2 grid w-full max-w-4xl gap-3 sm:grid-cols-2">
+        <ul className={cn('mx-auto mt-2 grid w-full max-w-4xl gap-3 sm:grid-cols-2', compact && 'hidden lg:grid')}>
           {latest.length ? (
             latest.map((item) => (
               <li key={item.id} className="rounded-2xl border border-white/12 bg-black/40 p-4">
@@ -219,7 +238,10 @@ export function StoreWeddingHallStage({
           )}
         </ul>
 
-        <div className="mt-auto overflow-hidden border-t pt-4" style={{ borderColor: `${accent}4d` }}>
+        <div
+          className={cn('mt-auto overflow-hidden border-t pt-4', compact && 'hidden lg:block')}
+          style={{ borderColor: `${accent}4d` }}
+        >
           <p
             className="wedding-live-ticker whitespace-nowrap text-base"
             data-bidi="off"

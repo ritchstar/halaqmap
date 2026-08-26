@@ -59,6 +59,7 @@ import { STORE_OCCASION_CARD_LAB_ENABLED } from '../src/config/storeOccasionCard
 import { STORE_LANDING_COPY } from '../src/config/storeFront.ts';
 import {
   STORE_WEDDING_LIVE,
+  STORE_WEDDING_LIVE_DEMO,
   STORE_WEDDING_LIVE_PRICE_SAR,
   STORE_WEDDING_LIVE_PRODUCT,
   STORE_WEDDING_LIVE_PUBLIC_ENABLED,
@@ -70,7 +71,7 @@ import {
   STORE_EVENT_LIVE_PRODUCT,
   STORE_EVENT_LIVE_PUBLIC_ENABLED,
 } from '../src/config/storeEventLive.ts';
-import { parseYoutubeVideoId, safeMapsHref, weddingCoupleLine, weddingHostInviteLine } from '../src/lib/storeWeddingLiveLab.ts';
+import { parseYoutubeVideoId, safeMapsHref, weddingCoupleLine, weddingHostInviteLine, youtubeEmbedSrc } from '../src/lib/storeWeddingLiveLab.ts';
 import { eventHostInviteLine } from '../src/lib/storeEventLiveLab.ts';
 import {
   STORE_WEDDING_LIVE_PRICE_HALALAS,
@@ -522,6 +523,34 @@ assert.match(weddingRemote, /LIVE_API_HOSTS/);
 assert.match(weddingRemote, /store\.halaqmap\.com/);
 assert.match(weddingRemote, /vercel\.app/);
 assert.equal(parseYoutubeVideoId('https://www.youtube.com/watch?v=aqz-KE-bpKQ'), 'aqz-KE-bpKQ');
+assert.equal(parseYoutubeVideoId('https://youtu.be/aqz-KE-bpKQ'), 'aqz-KE-bpKQ');
+assert.equal(parseYoutubeVideoId('https://www.youtube.com/shorts/aqz-KE-bpKQ'), 'aqz-KE-bpKQ');
+assert.equal(parseYoutubeVideoId('https://music.youtube.com/watch?v=aqz-KE-bpKQ'), 'aqz-KE-bpKQ');
+assert.equal(parseYoutubeVideoId('https://www.youtube.com/live/aqz-KE-bpKQ'), 'aqz-KE-bpKQ');
+assert.equal(
+  parseYoutubeVideoId('https://www.youtube.com/watch?v=F-DNzLPph-k&list=RDF-DNzLPph-k&start_radio=1'),
+  'F-DNzLPph-k',
+);
+const hallEmbed =
+  youtubeEmbedSrc('https://www.youtube.com/watch?v=aqz-KE-bpKQ', { autoplay: true, mute: true, loop: true }) || '';
+assert.match(hallEmbed, /youtube\.com\/embed\/aqz-KE-bpKQ/);
+assert.doesNotMatch(hallEmbed, /youtube-nocookie/);
+assert.match(hallEmbed, /autoplay=1/);
+assert.match(hallEmbed, /mute=1/);
+assert.match(hallEmbed, /loop=1/);
+assert.match(hallEmbed, /playlist=aqz-KE-bpKQ/);
+assert.match(hallEmbed, /enablejsapi=1/);
+assert.match(readFileSync(join(root, 'src/components/store/StoreHallYoutubePlayer.tsx'), 'utf8'), /unMute/);
+assert.match(weddingHostPanel, /hostYoutubeHintAr/);
+assert.match(readFileSync(join(root, 'src/components/store/StoreWeddingHallStage.tsx'), 'utf8'), /hostYoutubeSoundAr/);
+const hallToolsBlock = weddingHostPanel.slice(
+  weddingHostPanel.indexOf('const hallTools'),
+  weddingHostPanel.indexOf('const blessingList'),
+);
+assert.doesNotMatch(hallToolsBlock, /hostYoutubeLabelAr/);
+assert.match(readFileSync(join(root, 'src/components/store/StoreWeddingHallStage.tsx'), 'utf8'), /autoplay: true/);
+assert.equal(STORE_WEDDING_LIVE_DEMO.youtubeUrl, 'https://www.youtube.com/watch?v=F-DNzLPph-k');
+assert.equal(STORE_WEDDING_LIVE.hostYoutubeSoundAr, 'تشغيل الصوت');
 assert.ok(safeMapsHref('https://maps.google.com/?q=riyadh'));
 assert.equal(safeMapsHref('javascript:alert(1)'), null);
 assert.match(weddingCoupleLine({

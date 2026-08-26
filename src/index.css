@@ -3107,7 +3107,8 @@ html.platform-radar-fullscreen #root {
   }
 
   .store-wedding-studio-hall .wedding-hall-video-well {
-    max-width: 18rem;
+    flex-shrink: 0;
+    max-width: min(100%, 28rem);
   }
 }
 

@@ -205,37 +205,6 @@ export function StoreWeddingHostPanel({
           className="mt-1 h-24 w-full rounded-md border border-white/15 bg-[#061018] px-3 py-2 text-base text-[#f4efe4]"
         />
       </label>
-      <label className="mt-4 block text-base">
-        {copy.hostYoutubeLabelAr}
-        <input
-          className={fieldClass}
-          dir="ltr"
-          value={host.youtubeUrl}
-          onChange={(e) => patchHost({ youtubeUrl: e.target.value, youtubeHidden: false })}
-        />
-      </label>
-      <div className="mt-3 flex flex-wrap gap-2">
-        <button
-          type="button"
-          onClick={() => patchHost({ youtubeHidden: true })}
-          className={cn(
-            'rounded-full px-3 py-1.5 text-sm',
-            host.youtubeHidden ? cn('font-bold', fill) : 'border border-white/20',
-          )}
-        >
-          {copy.hostYoutubeHideAr}
-        </button>
-        <button
-          type="button"
-          onClick={() => patchHost({ youtubeHidden: false })}
-          className={cn(
-            'rounded-full px-3 py-1.5 text-sm',
-            !host.youtubeHidden ? cn('font-bold', fill) : 'border border-white/20',
-          )}
-        >
-          {copy.hostYoutubeShowAr}
-        </button>
-      </div>
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
         <label className="block text-base">
           {copy.hostUploadPhotoAr}
@@ -452,6 +421,41 @@ export function StoreWeddingHostPanel({
             placeholder="حياكم الله على العشاء"
           />
         </label>
+        <div className="mt-4 rounded-2xl border border-white/12 bg-[#061018]/80 p-4">
+          <label className="block text-base">
+            {copy.hostYoutubeLabelAr}
+            <input
+              className={fieldClass}
+              dir="ltr"
+              value={host.youtubeUrl}
+              onChange={(e) => patchHost({ youtubeUrl: e.target.value, youtubeHidden: false })}
+              placeholder="https://www.youtube.com/watch?v=..."
+            />
+          </label>
+          <p className="mt-1 text-sm leading-7 text-white/55">{copy.hostYoutubeHintAr}</p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => patchHost({ youtubeHidden: true })}
+              className={cn(
+                'rounded-full px-3 py-1.5 text-sm',
+                host.youtubeHidden ? cn('font-bold', fill) : 'border border-white/20',
+              )}
+            >
+              {copy.hostYoutubeHideAr}
+            </button>
+            <button
+              type="button"
+              onClick={() => patchHost({ youtubeHidden: false })}
+              className={cn(
+                'rounded-full px-3 py-1.5 text-sm',
+                !host.youtubeHidden ? cn('font-bold', fill) : 'border border-white/20',
+              )}
+            >
+              {copy.hostYoutubeShowAr}
+            </button>
+          </div>
+        </div>
         {isLab ? (
           <>
             {blessingList}
