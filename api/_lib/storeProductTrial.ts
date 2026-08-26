@@ -120,6 +120,30 @@ function productLinks(key: StoreProductTrialKey, tokens: Record<string, string>)
   };
 }
 
+export function publicTrialHrefs(
+  key: StoreProductTrialKey,
+  tokens: Record<string, string>,
+): { titleAr: string; href: string }[] {
+  const links = productLinks(key, tokens);
+  if (key === 'grocers') {
+    return [
+      { titleAr: 'المتجر', href: links.a },
+      { titleAr: 'الكاشير', href: links.b },
+    ];
+  }
+  if (key === 'restaurant') {
+    return [
+      { titleAr: 'ضيف الحي', href: links.a },
+      { titleAr: 'المطبخ', href: links.b },
+    ];
+  }
+  return [
+    { titleAr: 'الشاشة', href: links.a },
+    { titleAr: 'المضيف', href: links.b },
+    ...(links.c ? [{ titleAr: 'الضيف', href: links.c }] : []),
+  ];
+}
+
 function trialPayload(key: StoreProductTrialKey, email: string): Record<string, unknown> {
   if (key === 'grocers') {
     return {
@@ -427,11 +451,11 @@ export async function issueStoreProductTrial(
   if (!isTrialEmail(email)) return { ok: false, error: 'أدخل إيميلاً صالحاً للمستفيد المستهدف.' };
 
   let trialId = String(input.existingTrialId || '').trim();
+  const blocking = await findBlockingTrial(db, input.productKey, email);
+  if (blocking && (!trialId || blocking.id !== trialId)) {
+    return { ok: false, error: 'هذا الإيميل مرتبط بنموذج لنفس المنتج. يُطلب الدخول بالإيميل المسجَّل.' };
+  }
   if (!trialId) {
-    const blocking = await findBlockingTrial(db, input.productKey, email);
-    if (blocking) {
-      return { ok: false, error: 'هذا الإيميل مرتبط بنموذج لنفس المنتج. يُطلب الدخول بالإيميل المسجَّل.' };
-    }
     if (input.issuerKind === 'marketer' && input.marketerId) {
       const used = await countMarketerTrials(db, input.marketerId, input.productKey);
       if (used >= STORE_PRODUCT_TRIAL_QUOTA) {
@@ -465,6 +489,7 @@ export async function issueStoreProductTrial(
     .update({
       status: 'issued',
       order_id: created.orderId,
+      beneficiary_email: email,
       issued_by_label: input.issuedByLabel,
       reviewed_by: input.reviewer || '',
       reviewed_at: now,

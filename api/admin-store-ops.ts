@@ -1,17 +1,20 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
- * لوحة المتجر المستقلة: إصدار تجارب ومراجعة طلبات المسوّقين.
+ * لوحة المتجر المستقلة: إتمام الطلب والمصدر تجريبياً والمسدد المفعَّل.
  */
 import { createClient } from '@supabase/supabase-js';
 import { verifyPlatformAdminFromRequestAny } from './_lib/adminManageBarbersAuth.js';
 import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
 import {
-  findBlockingTrial,
   isStoreProductTrialKey,
+  isTrialEmail,
   issueStoreProductTrial,
   normalizeTrialEmail,
+  publicTrialHrefs,
   STORE_PRODUCT_TRIAL_TABLE,
+  trialOrderTable,
+  type StoreProductTrialKey,
 } from './_lib/storeProductTrial.js';
 
 export const config = { maxDuration: 30 };
@@ -34,6 +37,55 @@ function serviceClient() {
   return createClient(url, serviceRole, { auth: { persistSession: false, autoRefreshToken: false } });
 }
 
+type TrialLink = { titleAr: string; href: string };
+
+async function attachTrialLinks(
+  db: NonNullable<ReturnType<typeof serviceClient>>,
+  rows: Record<string, unknown>[],
+): Promise<Record<string, unknown>[]> {
+  const idsByKey = new Map<StoreProductTrialKey, string[]>();
+  for (const row of rows) {
+    const key = row.product_key;
+    const orderId = String(row.order_id || '').trim();
+    if (!isStoreProductTrialKey(key) || !orderId) continue;
+    const list = idsByKey.get(key) || [];
+    list.push(orderId);
+    idsByKey.set(key, list);
+  }
+  const linksByOrder = new Map<string, TrialLink[]>();
+  for (const [key, ids] of idsByKey) {
+    const unique = [...new Set(ids)];
+    const table = trialOrderTable(key);
+    if (key === 'grocers' || key === 'restaurant') {
+      const { data } = await db.from(table).select('id, shop_token, desk_token').in('id', unique);
+      for (const order of data || []) {
+        const rec = order as { id: string; shop_token?: string; desk_token?: string };
+        linksByOrder.set(
+          String(rec.id),
+          publicTrialHrefs(key, { shop: String(rec.shop_token || ''), desk: String(rec.desk_token || '') }),
+        );
+      }
+    } else {
+      const { data } = await db.from(table).select('id, display_token, guest_token, host_token').in('id', unique);
+      for (const order of data || []) {
+        const rec = order as { id: string; display_token?: string; guest_token?: string; host_token?: string };
+        linksByOrder.set(
+          String(rec.id),
+          publicTrialHrefs(key, {
+            display: String(rec.display_token || ''),
+            guest: String(rec.guest_token || ''),
+            host: String(rec.host_token || ''),
+          }),
+        );
+      }
+    }
+  }
+  return rows.map((row) => ({
+    ...row,
+    links: linksByOrder.get(String(row.order_id || '')) || [],
+  }));
+}
+
 export async function OPTIONS(request: Request): Promise<Response> {
   return publicApiOptionsResponse(request, CORS_OPTS);
 }
@@ -53,13 +105,14 @@ export async function GET(request: Request): Promise<Response> {
   }
 
   const status = new URL(request.url).searchParams.get('status')?.trim() || '';
-  let query = db.from(STORE_PRODUCT_TRIAL_TABLE).select('*').order('updated_at', { ascending: false }).limit(120);
+  let query = db.from(STORE_PRODUCT_TRIAL_TABLE).select('*').order('updated_at', { ascending: false }).limit(200);
   if (status) query = query.eq('status', status);
   const { data, error } = await query;
   if (error) {
     return Response.json({ ok: false, error: 'تعذر قراءة طلبات التجربة.' }, { status: 500, headers });
   }
-  return Response.json({ ok: true, rows: data || [] }, { headers });
+  const rows = await attachTrialLinks(db, (data || []) as Record<string, unknown>[]);
+  return Response.json({ ok: true, rows }, { headers });
 }
 
 export async function POST(request: Request): Promise<Response> {
@@ -137,13 +190,14 @@ export async function POST(request: Request): Promise<Response> {
     if (!isStoreProductTrialKey(productKey)) {
       return Response.json({ ok: false, error: 'منتج غير صالح.' }, { status: 400, headers });
     }
-    const blocking = await findBlockingTrial(db, productKey, String(existing.beneficiary_email));
-    if (blocking && blocking.id !== id) {
-      return Response.json({ ok: false, error: 'هذا الإيميل مرتبط بنموذج لنفس المنتج.' }, { status: 409, headers });
+    const emailRaw = body.email !== undefined ? body.email : existing.beneficiary_email;
+    const email = normalizeTrialEmail(emailRaw);
+    if (!isTrialEmail(email)) {
+      return Response.json({ ok: false, error: 'أدخل إيميلاً صالحاً للمستفيد المستهدف.' }, { status: 400, headers });
     }
     const result = await issueStoreProductTrial(db, {
       productKey,
-      email: String(existing.beneficiary_email),
+      email,
       issuerKind: String(existing.issuer_kind) === 'marketer' ? 'marketer' : 'admin',
       marketerId: existing.marketer_id ? String(existing.marketer_id) : null,
       issuedByLabel: String(existing.issued_by_label || 'مسوّق'),

@@ -1176,7 +1176,7 @@ export default function AdminDashboard() {
                   href="https://store.halaqmap.com/#/store/ops"
                   className="block rounded-xl border border-teal-400/30 bg-teal-500/10 px-4 py-3 text-sm font-bold text-teal-100 hover:bg-teal-500/20"
                 >
-                  لوحة المتجر الإلكتروني: إصدار التجارب ومراجعة المسوّقين
+                  لوحة المتجر الإلكتروني: إتمام الطلب والمصدر تجريبياً والمسدد المفعَّل
                 </a>
                 <EnterpriseAnchorCohortPanel accessToken={adminAccessToken} />
                 <BronzeTrialApplicationsPanel accessToken={adminAccessToken} />

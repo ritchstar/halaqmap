@@ -4,6 +4,11 @@
 import { getSupabaseClient } from '@/integrations/supabase/client';
 import type { StoreProductTrialKey } from '@/config/storeProductTrial';
 
+export type StoreOpsTrialLink = {
+  titleAr: string;
+  href: string;
+};
+
 export type StoreOpsTrialRow = {
   id: string;
   product_key: StoreProductTrialKey | string;
@@ -12,12 +17,14 @@ export type StoreOpsTrialRow = {
   issuer_kind: string;
   issued_by_label: string;
   marketer_id: string | null;
+  order_id?: string | null;
   review_note: string;
   reviewed_by: string;
   first_opened_at: string | null;
   trial_ends_at: string | null;
   created_at: string;
   updated_at: string;
+  links?: StoreOpsTrialLink[];
 };
 
 function adminEndpoint(): string {
