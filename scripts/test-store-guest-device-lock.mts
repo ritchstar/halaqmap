@@ -16,6 +16,7 @@ import {
   GUEST_DELEGATE_PACK_SIZES,
   buildGuestDelegatePackText,
   guestDelegateWhatsappHref,
+  GUEST_DELEGATE_WHATSAPP_HREF_MAX,
   normalizeGuestDelegatePackSize,
 } from '../src/lib/storeGuestDeviceLock.ts';
 
@@ -86,5 +87,18 @@ assert.match(packText, /لا تفتحوا أي رابط/);
 assert.match(packText, /تفويض إرسال دعوات/);
 assert.doesNotMatch(packText, /RSVP|قائمة ضيوف/);
 assert.match(guestDelegateWhatsappHref(packText), /^https:\/\/wa\.me\/\?text=/);
+assert.match(decodeURIComponent(guestDelegateWhatsappHref(packText)), /store\.halaqmap\.com\/w\/lab\/guest\?invite=ia/);
+
+const longPack = buildGuestDelegatePackText(
+  Array.from({ length: 25 }, (_, i) => ({
+    guestUrl: `https://store.halaqmap.com/w/tok_${'x'.repeat(24)}/guest?invite=i${String(i).padStart(16, '0')}`,
+  })),
+);
+const longHref = guestDelegateWhatsappHref(longPack);
+assert.match(longHref, /^https:\/\/wa\.me\/\?text=/);
+assert.ok(longHref.length <= GUEST_DELEGATE_WHATSAPP_HREF_MAX);
+assert.match(decodeURIComponent(longHref), /هذه الرسالة بلا روابط/);
+assert.doesNotMatch(decodeURIComponent(longHref), /guest\?invite=/);
+assert.doesNotMatch(decodeURIComponent(longHref), /تفويض إرسال دعوات/);
 
 console.log('store-guest-device-lock ok');

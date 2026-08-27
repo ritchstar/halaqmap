@@ -123,6 +123,7 @@ export function StoreHostGuestInviteIssuance({
   const [invites, setInvites] = useState<GuestInviteRow[]>([]);
   const [selectedId, setSelectedId] = useState('');
   const [packSize, setPackSize] = useState<GuestDelegatePackSize>(25);
+  const [packDraft, setPackDraft] = useState('');
 
   const ready = useMemo(() => readyRows(invites), [invites]);
   const consumed = useMemo(() => invites.filter((item) => item.sent || item.opened), [invites]);
@@ -219,6 +220,7 @@ export function StoreHostGuestInviteIssuance({
     }
     const text = buildGuestDelegatePackText(pack);
     const copied = await copyText(text);
+    setPackDraft(text);
     const ids = pack.map((item) => item.id);
     if (isLab) {
       markLocalGuestInvitesSent(kind, hostToken, ids);
@@ -229,8 +231,8 @@ export function StoreHostGuestInviteIssuance({
     }
     setNote(
       copied
-        ? 'نُسخ نص الدفعة. اختاروا المفوض في واتساب. ذكّروه ألا يفتح أي رابط. إن لم تظهر الروابط كاملة فالصقوا من الحافظة.'
-        : 'أُرسلت الدفعة إلى واتساب. ذكّروا المفوض ألا يفتح أي رابط. إن لم يظهر النص فأعيدوا المحاولة.',
+        ? 'نُسخ نص الدفعة كاملاً. رسالة واتساب القصيرة بلا روابط. الصقوا النص الظاهر أدناه في محادثة المفوض ثم أرسلوا. لا تفتحوا أي رابط.'
+        : 'انسخوا النص الظاهر أدناه والصقوه في محادثة المفوض. رسالة واتساب القصيرة بلا روابط. لا تفتحوا أي رابط.',
     );
     setBusy(false);
     window.open(guestDelegateWhatsappHref(text), '_blank', 'noopener,noreferrer');
@@ -307,6 +309,35 @@ export function StoreHostGuestInviteIssuance({
         >
           {busy ? 'جاري تجهيز الدفعة…' : `جهّز وأرسل دفعة ${packSize} في واتساب`}
         </button>
+        {packDraft ? (
+          <div className="mt-4">
+            <p className="text-sm leading-7 text-[#f4d7a8]">
+              نص الدفعة كامل هنا. الصقوه في واتساب قبل الإرسال. لا ترسلوا الرسالة القصيرة وحدها.
+            </p>
+            <textarea
+              readOnly
+              dir="rtl"
+              rows={8}
+              value={packDraft}
+              className="mt-2 w-full rounded-xl border border-[#d4a574]/35 bg-[#061018] p-3 text-xs leading-6 text-white/85"
+            />
+            <button
+              type="button"
+              onClick={() => {
+                void copyText(packDraft).then((ok) => {
+                  setNote(
+                    ok
+                      ? 'نُسخ نص الدفعة مرة أخرى. الصقوه في محادثة المفوض ثم أرسلوا.'
+                      : 'تعذر النسخ. حدّدوا النص أعلاه وانسخوه يدوياً.',
+                  );
+                });
+              }}
+              className="mt-2 rounded-full border border-[#d4a574]/50 px-4 py-2 text-sm font-bold"
+            >
+              انسخ الدفعة مرة أخرى
+            </button>
+          </div>
+        ) : null}
       </div>
       {error ? <p className="mt-3 text-sm text-red-300">{error}</p> : null}
       {note ? <p className="mt-3 text-sm leading-7 text-[#f4d7a8]">{note}</p> : null}

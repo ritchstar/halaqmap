@@ -66,6 +66,8 @@ assert.match(indexHtml, /invite=/);
 const issuance = readFileSync(join(root, 'src/components/store/StoreHostGuestInviteIssuance.tsx'), 'utf8');
 assert.match(issuance, /دفعة لمفوض من العائلة/);
 assert.match(issuance, /لا تفتحوا أي رابط/);
+assert.match(issuance, /packDraft/);
+assert.match(issuance, /لا ترسلوا الرسالة القصيرة وحدها/);
 assert.match(issuance, /markWeddingGuestInvitesSent/);
 assert.match(weddingApi, /inviteIds/);
 assert.match(eventApi, /inviteIds/);

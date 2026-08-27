@@ -57,16 +57,16 @@ export function buildGuestDelegatePackText(rows: Pick<GuestInviteRow, 'guestUrl'
   ].join('\n');
 }
 
+export const GUEST_DELEGATE_WHATSAPP_HREF_MAX = 1800;
+
 export function guestDelegateWhatsappHref(text: string): string {
   const full = `https://wa.me/?text=${encodeURIComponent(text)}`;
-  if (full.length <= 1800) return full;
+  if (full.length <= GUEST_DELEGATE_WHATSAPP_HREF_MAX) return full;
   const count = (text.match(/https?:\/\//g) || []).length;
   const short = [
-    'تفويض إرسال دعوات من مضيف الحفل.',
-    '',
-    `دفعة ${count} روابط مدعوين نظيفة نُسخت إلى الحافظة.`,
-    '',
-    'الصقوا النص الكامل في هذه المحادثة. لا تفتحوا أي رابط. أرسلوا كل رابط لمدعو واحد وهو نظيف.',
+    'هذه الرسالة بلا روابط.',
+    `دفعة ${count} في الحافظة.`,
+    'الصقوا الآن في هذه المحادثة ثم أرسلوا. لا تفتحوا أي رابط.',
   ].join('\n');
   return `https://wa.me/?text=${encodeURIComponent(short)}`;
 }
