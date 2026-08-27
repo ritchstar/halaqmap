@@ -204,6 +204,8 @@ export function StoreTrialOpsBoard({ accessToken }: { accessToken: string }) {
             </select>
           </label>
           <p className="mt-2 text-xs leading-6 text-slate-500">{issueProduct.opsNoteAr}</p>
+          <p className="mt-2 text-xs leading-6 text-amber-200/80">{STORE_PRODUCT_TRIAL_COPY.firstVisitAr}</p>
+          <p className="mt-1 text-xs leading-6 text-slate-500">{issueProduct.howToAr}</p>
           <label className="mt-3 block text-sm">
             {STORE_PRODUCT_TRIAL_COPY.issueFieldAr}
             <input

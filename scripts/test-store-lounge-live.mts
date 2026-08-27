@@ -65,8 +65,9 @@ assert.match(STORE_LANDING_COPY.loungeLiveTitleAr, /لاونجا1/);
 assert.match(STORE_LANDING_COPY.loungeLiveLeadAr, /600/);
 assert.ok(STORE_LOUNGE_LIVE_EVENTS.length >= 4);
 
-const end = Date.parse(loungeLiveTermEndIso(Date.parse('2026-01-01T00:00:00.000Z')));
-assert.equal(end - Date.parse('2026-01-01T00:00:00.000Z'), 90 * 24 * 60 * 60 * 1000);
+const from = Date.parse('2026-01-01T00:00:00.000Z');
+const end = Date.parse(loungeLiveTermEndIso(STORE_LOUNGE_LIVE_DAYS, from));
+assert.equal(end - from, 90 * 24 * 60 * 60 * 1000);
 assert.equal(loungeLiveIsExpired('2026-01-01T00:00:00.000Z', Date.parse('2026-01-01T00:00:01.000Z')), true);
 assert.equal(loungeLiveIsExpired('2026-04-01T00:00:00.000Z', Date.parse('2026-01-01T00:00:00.000Z')), false);
 
@@ -153,7 +154,8 @@ if (parsed.ok) {
   assert.equal(hostView.blessings.length, 1);
 }
 
-assert.match(STORE_LOUNGE_LIVE.kickerAr, /ثلاثة أشهر/);
+assert.match(STORE_LOUNGE_LIVE.kickerAr, /المدة التي تختارونها/);
+assert.match(STORE_LOUNGE_LIVE.priceLineAr, /ثلاثة أشهر/);
 assert.match(STORE_LOUNGE_LIVE.featurePoints[3].bodyAr, /قيمة الباقة فقط/);
 assert.doesNotMatch(STORE_LOUNGE_LIVE.durationLineAr, /اشتراك/);
 assert.match(
@@ -195,5 +197,19 @@ assert.doesNotMatch(
   readFileSync(join(root, 'src/pages/store/StoreEventHallPage.tsx'), 'utf8'),
   /StoreVisitorHeader|StoreVisitorFooter/,
 );
+const loungeHost = readFileSync(join(root, 'src/components/store/StoreLoungeHostPanel.tsx'), 'utf8');
+const loungeHall = readFileSync(join(root, 'src/pages/store/StoreLoungeHallPage.tsx'), 'utf8');
+const loungeLanding = readFileSync(join(root, 'src/pages/store/StoreLoungeLandingPage.tsx'), 'utf8');
+const trialNote = readFileSync(join(root, 'src/components/store/StoreTrialOpsNote.tsx'), 'utf8');
+const trialOps = readFileSync(join(root, 'src/components/admin/StoreTrialOpsBoard.tsx'), 'utf8');
+const affiliateLane = readFileSync(join(root, 'src/components/affiliate/AffiliateStoreLane.tsx'), 'utf8');
+assert.doesNotMatch(loungeHost, /ستون يوماً/);
+assert.doesNotMatch(loungeLanding, /ستون يوماً/);
+assert.match(loungeHall, /showTrialNote=\{isTrial\}/);
+assert.doesNotMatch(trialNote, /howToAr/);
+assert.match(trialOps, /howToAr/);
+assert.match(trialOps, /firstVisitAr/);
+assert.match(affiliateLane, /firstVisitAr/);
+assert.match(affiliateLane, /howToAr/);
 
 console.log('store-lounge-live: ok');

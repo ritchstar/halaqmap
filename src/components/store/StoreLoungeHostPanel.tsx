@@ -24,12 +24,14 @@ export function StoreLoungeHostPanel({
   guestUrl,
   displayUrl,
   expiresAt,
+  showTrialNote = false,
 }: {
   state: LoungeLiveLabState;
   onChange: (next: LoungeLiveLabState) => void;
   guestUrl?: string;
   displayUrl?: string;
   expiresAt?: string;
+  showTrialNote?: boolean;
 }) {
   const [uploadError, setUploadError] = useState('');
   const [customTitle, setCustomTitle] = useState(state.host.customEventTitle);
@@ -79,9 +81,11 @@ export function StoreLoungeHostPanel({
   return (
     <div className="rounded-2xl border border-white/12 bg-[#0b1a24]/90 p-5">
       <h2 className="text-lg font-extrabold">{STORE_LOUNGE_LIVE.hostPanelTitleAr}</h2>
-      <div className="mt-3">
-        <StoreTrialOpsNote productKey="lounge" />
-      </div>
+      {showTrialNote ? (
+        <div className="mt-3">
+          <StoreTrialOpsNote productKey="lounge" />
+        </div>
+      ) : null}
       {expiresAt ? (
         <p className="mt-2 text-xs text-white/55">تنتهي مدة التشغيل في {expiresAt.slice(0, 10)}.</p>
       ) : null}

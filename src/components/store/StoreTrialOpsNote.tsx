@@ -15,7 +15,6 @@ export function StoreTrialOpsNote({ productKey }: { productKey: StoreProductTria
     <div className="rounded-2xl border border-amber-300/25 bg-amber-400/8 px-4 py-3 text-sm leading-7 text-amber-50">
       <p className="font-extrabold">{copy.titleAr}</p>
       <p className="mt-1">{copy.deskNoteAr}</p>
-      <p className="mt-2 text-amber-100/85">{copy.howToAr}</p>
     </div>
   );
 }

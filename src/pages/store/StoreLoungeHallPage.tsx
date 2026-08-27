@@ -54,6 +54,7 @@ export default function StoreLoungeHallPage() {
   const [displayUrl, setDisplayUrl] = useState('');
   const [expiresAt, setExpiresAt] = useState('');
   const [screenLive, setScreenLive] = useState(true);
+  const [isTrial, setIsTrial] = useState(false);
   useDocumentTitle(STORE_LOUNGE_LIVE.documentTitle);
 
   useEffect(() => {
@@ -62,6 +63,7 @@ export default function StoreLoungeHallPage() {
       setGuestUrl(`${window.location.origin}/#/l/${encodeURIComponent(safeToken)}/guest`);
       setDisplayUrl(`${window.location.origin}/#/l/${encodeURIComponent(safeToken)}`);
       setScreenLive(true);
+      setIsTrial(false);
       const refresh = () => setState(readLoungeLiveLabState(safeToken));
       const timer = window.setInterval(refresh, 1500);
       window.addEventListener('storage', refresh);
@@ -88,6 +90,7 @@ export default function StoreLoungeHallPage() {
         setGuestUrl(typeof result.guestUrl === 'string' ? result.guestUrl : '');
         setDisplayUrl(typeof result.displayUrl === 'string' ? result.displayUrl : '');
         setExpiresAt(typeof result.expiresAt === 'string' ? result.expiresAt : '');
+        setIsTrial(result.isTrial === true);
         setScreenLive(true);
         setGate('ok');
       });
@@ -169,6 +172,7 @@ export default function StoreLoungeHallPage() {
                 guestUrl={guestUrl}
                 displayUrl={displayUrl}
                 expiresAt={expiresAt}
+                showTrialNote={isTrial}
               />
             </div>
           ) : null}
