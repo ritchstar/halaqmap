@@ -12,9 +12,13 @@ const dirs = [
   join(root, 'public/images/store/lounge'),
   join(root, 'public/images/store/grocers'),
   join(root, 'public/images/store/restaurant'),
+  join(root, 'public/images/store/kitchen'),
 ];
 const ONLY_RESTAURANT = process.argv.includes('--restaurant');
-const singles = [join(root, 'public/images/store/restaurant-hero-marketing.jpg')];
+const singles = [
+  join(root, 'public/images/store/restaurant-hero-marketing.jpg'),
+  join(root, 'public/images/store/kitchen-hero-marketing.jpg'),
+];
 const MAX_WIDTH = 1280;
 const QUALITY = 70;
 

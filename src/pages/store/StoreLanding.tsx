@@ -254,9 +254,11 @@ export default function StoreLanding() {
       <section className="px-4 pb-8">
         <div className="mx-auto max-w-5xl">
           <div className="overflow-hidden rounded-2xl border border-[#b45a3c]/30 bg-[#1a0c08]/70">
-            <div className="flex aspect-[16/7] items-center justify-center bg-gradient-to-br from-[#b45a3c]/40 to-[#061018] px-6 text-center">
-              <p className="text-3xl font-black">{STORE_KITCHEN_LIVE.titleAr}</p>
-            </div>
+            <StoreShot
+              reel="kitchen"
+              alt={STORE_KITCHEN_LIVE.heroAltAr}
+              className="aspect-[16/7] w-full"
+            />
             <div className="p-5 md:p-6">
               <h2 className="text-xl font-extrabold">{STORE_LANDING_COPY.kitchenLiveTitleAr}</h2>
               <p className="mt-2 max-w-3xl text-sm leading-7 text-white/70">{STORE_LANDING_COPY.kitchenLiveLeadAr}</p>

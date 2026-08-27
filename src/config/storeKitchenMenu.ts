@@ -10,6 +10,41 @@ export type StoreKitchenMenuItem = {
   defaultPrice: number;
 };
 
+export const STORE_KITCHEN_STILLS = {
+  hero: '/images/store/kitchen-hero-marketing.jpg',
+  kabsa: '/images/store/kitchen/kitchen-01.jpg',
+  pot: '/images/store/kitchen/kitchen-02.jpg',
+  grape: '/images/store/kitchen/kitchen-03.jpg',
+  luqaimat: '/images/store/kitchen/kitchen-04.jpg',
+  samboosa: '/images/store/kitchen/kitchen-05.jpg',
+  qahwa: '/images/store/kitchen/kitchen-06.jpg',
+} as const;
+
+export function kitchenDemoPhotoSrc(catalogId: string): string {
+  switch (catalogId) {
+    case 'rice-home-kabsa':
+    case 'rice-madghut':
+    case 'today-board':
+      return STORE_KITCHEN_STILLS.kabsa;
+    case 'pot-marqooq':
+    case 'pot-jareesh':
+    case 'pot-salona':
+      return STORE_KITCHEN_STILLS.pot;
+    case 'roll-grape':
+    case 'side-salad':
+      return STORE_KITCHEN_STILLS.grape;
+    case 'sweet-luqaimat':
+      return STORE_KITCHEN_STILLS.luqaimat;
+    case 'bake-samboosa':
+      return STORE_KITCHEN_STILLS.samboosa;
+    case 'drink-qahwa':
+    case 'drink-laban':
+      return STORE_KITCHEN_STILLS.qahwa;
+    default:
+      return '';
+  }
+}
+
 export const STORE_KITCHEN_MENU: readonly StoreKitchenMenuItem[] = [
   { id: 'rice-home-kabsa', nameAr: 'كبسة البيت', category: 'أرز', defaultPrice: 25 },
   { id: 'rice-madghut', nameAr: 'مضغوط لحم', category: 'أرز', defaultPrice: 35 },

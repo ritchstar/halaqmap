@@ -8,6 +8,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   STORE_GROCERS_MARKETING_FRAMES,
+  STORE_KITCHEN_MARKETING_FRAMES,
   STORE_LANDING_MARKETING_FRAMES,
   STORE_LOUNGE_MARKETING_FRAMES,
   STORE_OCCASION_MARKETING_FRAMES,
@@ -41,6 +42,7 @@ for (const src of STORE_LANDING_MARKETING_FRAMES) {
   assert.equal(src.includes('/images/store/lounge/lounge-'), false, src);
   assert.equal(src.includes('/images/store/grocers/grocers-'), false, src);
   assert.equal(src.includes('/images/store/restaurant/restaurant-'), false, src);
+  assert.equal(src.includes('/images/store/kitchen/kitchen-'), false, src);
   assert.equal(src.includes('/images/store/live/pano-'), false, src);
 }
 
@@ -59,10 +61,20 @@ for (const src of STORE_RESTAURANT_MARKETING_FRAMES) {
   assert.ok(existsSync(join(root, 'public', src.replace(/^\//, ''))), src);
 }
 
+assert.ok(STORE_KITCHEN_MARKETING_FRAMES.length >= 7);
+assert.equal(new Set(STORE_KITCHEN_MARKETING_FRAMES).size, STORE_KITCHEN_MARKETING_FRAMES.length);
+for (const src of STORE_KITCHEN_MARKETING_FRAMES) {
+  assert.ok(existsSync(join(root, 'public', src.replace(/^\//, ''))), src);
+  assert.equal(src.includes('/images/store/restaurant'), false, src);
+  assert.equal(src.includes('/images/store/grocers'), false, src);
+  assert.equal(src.includes('/images/store/lounge'), false, src);
+}
+
 const ids: StoreMarketingReelId[] = [
   'landing',
   'lounge',
   'grocers',
+  'kitchen',
   'wedding',
   'wedding-women',
   'event',
@@ -81,6 +93,7 @@ assert.equal(storeLiveProductReel('coiffeur-map'), 'coiffeur');
 assert.equal(storeLiveProductReel('occasion-card'), 'occasion');
 assert.equal(storeLiveProductReel('live-halls'), 'lounge');
 assert.equal(storeLiveProductReel('restaurant'), 'restaurant');
+assert.equal(storeLiveProductReel('kitchen'), 'kitchen');
 assert.equal(storeSoftwareShotReel(0), 'halaq');
 assert.equal(storeSoftwareShotReel(2), 'lounge');
 
@@ -91,6 +104,7 @@ assert.match(landing, /reel="landing"/);
 assert.match(landing, /reel="lounge"/);
 assert.match(landing, /reel="grocers"/);
 assert.match(landing, /reel="restaurant"/);
+assert.match(landing, /reel="kitchen"/);
 assert.match(landing, /reel="wedding"/);
 assert.match(landing, /reel="event"/);
 assert.match(loungeLanding, /reel="lounge"/);

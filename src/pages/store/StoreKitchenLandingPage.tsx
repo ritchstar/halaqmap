@@ -11,6 +11,7 @@ import { StoreVisitorFooter, StoreVisitorHeader, StoreVisitorShell } from '@/com
 import { StoreEnterpriseDirectMail } from '@/components/store/StoreEnterpriseDirectMail';
 import { StoreKitchenOrderForm } from '@/components/store/StoreKitchenOrderForm';
 import { StoreKitchenStudio } from '@/components/store/StoreKitchenStudio';
+import { StoreShot } from '@/components/store/StoreShot';
 import {
   STORE_KITCHEN_LIVE,
   STORE_KITCHEN_LIVE_FEATURES,
@@ -130,9 +131,12 @@ export default function StoreKitchenLandingPage() {
             </Collapsible>
           </div>
           <figure className="overflow-hidden rounded-2xl border border-[#b45a3c]/35 bg-[#1a0c08]">
-            <div className="flex aspect-[16/10] items-center justify-center bg-gradient-to-br from-[#b45a3c]/45 to-[#061018] px-6 text-center">
-              <p className="text-3xl font-black">{STORE_KITCHEN_LIVE.titleAr}</p>
-            </div>
+            <StoreShot
+              reel="kitchen"
+              alt={STORE_KITCHEN_LIVE.heroAltAr}
+              className="aspect-[16/10] w-full"
+              eager
+            />
             <figcaption className="border-t border-[#b45a3c]/20 bg-[#1a0c08] px-5 py-4">
               <p className="text-xl font-black">{STORE_KITCHEN_LIVE.heroCaptionAr}</p>
               <p className="mt-2 text-sm leading-7 text-white/70">{STORE_KITCHEN_LIVE.qrPhraseAr}</p>

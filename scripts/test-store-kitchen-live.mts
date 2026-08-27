@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { STORE_KITCHEN_MENU, parseKitchenListText } from '../src/config/storeKitchenMenu.ts';
+import { STORE_KITCHEN_MENU, STORE_KITCHEN_STILLS, kitchenDemoPhotoSrc, parseKitchenListText } from '../src/config/storeKitchenMenu.ts';
 import {
   STORE_KITCHEN_LIVE,
   STORE_KITCHEN_LIVE_CHECKOUT_ENABLED,
@@ -108,6 +108,9 @@ assert.match(kitchenLanding, /howTitleAr/);
 assert.match(kitchenLanding, /ticketItems/);
 assert.match(kitchenLanding, /StoreEnterpriseDirectMail/);
 assert.match(kitchenLanding, /StoreKitchenOrderForm/);
+assert.match(kitchenLanding, /reel="kitchen"/);
+assert.match(kitchenLanding, /StoreShot/);
+assert.match(landing, /reel="kitchen"/);
 assert.match(kitchenLanding, /STORE_KITCHEN_LIVE_PACKS/);
 assert.match(kitchenLanding, /supportLineAr/);
 assert.doesNotMatch(kitchenLanding, /checkoutClosedAr/);
@@ -206,6 +209,12 @@ assert.doesNotMatch(wa, /أكلنا1|مطعمنا1|كافينا1/);
 
 assert.ok(STORE_KITCHEN_MENU.length >= 10);
 assert.ok(STORE_KITCHEN_MENU.length <= STORE_KITCHEN_LIVE_LAB_ITEM_CAP);
+assert.equal(kitchenDemoPhotoSrc('rice-home-kabsa'), STORE_KITCHEN_STILLS.kabsa);
+assert.ok(defaultKitchenLabState().shelf.some((item) => item.photoSrc.includes('/images/store/kitchen/')));
+for (const src of Object.values(STORE_KITCHEN_STILLS)) {
+  assert.ok(existsSync(join(root, 'public', src.replace(/^\//, ''))), src);
+  assert.doesNotMatch(src, /restaurant|grocers|lounge|أكلنا1/);
+}
 const rows = parseKitchenListText('كبسة البيت 25\nسمبوسة 12');
 assert.equal(rows.length, 2);
 assert.equal(rows[0].price, 25);

@@ -3,7 +3,7 @@
  *
  * حالة معاينة طبختنا1 — محلية بلا خلط بمنتجات أخرى.
  */
-import { STORE_KITCHEN_MENU, kitchenMenuById, parseKitchenListText } from '@/config/storeKitchenMenu';
+import { STORE_KITCHEN_MENU, kitchenDemoPhotoSrc, kitchenMenuById, parseKitchenListText } from '@/config/storeKitchenMenu';
 import {
   STORE_KITCHEN_LIVE_DEMO,
   STORE_KITCHEN_LIVE_LAB_ITEM_CAP,
@@ -110,7 +110,7 @@ export function defaultKitchenLabState(): KitchenLabState {
       price: item.defaultPrice,
       inStock: true,
       featured: index < 8,
-      photoSrc: '',
+      photoSrc: kitchenDemoPhotoSrc(item.id),
     };
   });
   return {
@@ -160,7 +160,10 @@ export function readKitchenLabState(token: string): KitchenLabState {
         opsPhone: String(parsed.host?.opsPhone || '').slice(0, 20),
       },
       shelf: Array.isArray(parsed.shelf) && parsed.shelf.length
-        ? parsed.shelf.slice(0, STORE_KITCHEN_LIVE_LAB_ITEM_CAP).map((item) => ({ ...item, photoSrc: item.photoSrc || '' }))
+        ? parsed.shelf.slice(0, STORE_KITCHEN_LIVE_LAB_ITEM_CAP).map((item) => ({
+            ...item,
+            photoSrc: item.photoSrc || kitchenDemoPhotoSrc(item.catalogId),
+          }))
         : fallback.shelf,
       orders: Array.isArray(parsed.orders) ? parsed.orders : [],
     };
@@ -230,7 +233,7 @@ export function activateKitchenDish(
         price: price ?? catalog.defaultPrice,
         inStock: true,
         featured: featuredCount < 8,
-        photoSrc: '',
+        photoSrc: kitchenDemoPhotoSrc(catalog.id),
       },
     ],
   };

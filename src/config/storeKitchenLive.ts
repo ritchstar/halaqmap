@@ -149,6 +149,7 @@ export const STORE_KITCHEN_LIVE = {
   labKickerAr: 'معاينة حيّة داخل الصفحة',
   labTitleAr: 'هكذا يطلب الزبون وتصل التذكرة للنشاط',
   labLeadAr: 'فعّل صنفاً، أرسل طلباً تجريبياً، وأرسل مذكرة واتساب بنقرة واحدة كما في ساعة الذروة.',
+  heroImage: '/images/store/kitchen-hero-marketing.jpg',
   heroAltAr: 'أصناف منزلية جاهزة للطلب من الجوال',
   heroCaptionAr: 'من رمز QR إلى نشاط الأسرة، ثم إلى التسليم',
   checkoutClosedAr: 'بوابة الاشتراك غير مفتوحة لهذا المنتج بعد.',
