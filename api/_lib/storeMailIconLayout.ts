@@ -216,7 +216,10 @@ export async function sendStoreResendEmail(input: {
 }): Promise<boolean> {
   const apiKey = (process.env.RESEND_API_KEY || '').trim();
   const from = resolveResendFromAddress();
-  if (!apiKey || !from) return false;
+  if (!apiKey || !from) {
+    console.error('[store-mail] resend_not_configured');
+    return false;
+  }
   const resp = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: {
@@ -230,7 +233,12 @@ export async function sendStoreResendEmail(input: {
       html: input.html,
     }),
   });
-  return resp.ok;
+  if (!resp.ok) {
+    const detail = (await resp.text().catch(() => '')).slice(0, 280);
+    console.error('[store-mail] resend_failed', resp.status, detail);
+    return false;
+  }
+  return true;
 }
 
 export function buildWeddingLiveLinksHtml(input: {

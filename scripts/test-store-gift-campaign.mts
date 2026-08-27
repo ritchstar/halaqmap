@@ -32,6 +32,7 @@ const kitchen = readFileSync(join(root, 'src/pages/store/StoreKitchenLandingPage
 const grocers = readFileSync(join(root, 'src/pages/store/StoreGrocersLandingPage.tsx'), 'utf8');
 const restaurant = readFileSync(join(root, 'src/pages/store/StoreRestaurantLandingPage.tsx'), 'utf8');
 const lounge = readFileSync(join(root, 'src/pages/store/StoreLoungeLandingPage.tsx'), 'utf8');
+const api = readFileSync(join(root, 'api/public-store-gift.ts'), 'utf8');
 
 assert.equal(STORE_GIFT_SLOT_COUNT, 5);
 assert.equal(STORE_GIFT_CYCLE_CAP, 50);
@@ -73,5 +74,9 @@ assert.doesNotMatch(restaurant, /StoreGiftPromoBanner/);
 assert.doesNotMatch(lounge, /StoreGiftPromoBanner/);
 assert.match(STORE_GIFT_TERMS_COPY.sections.map((s) => s.bodyAr).join('\n'), /ستون يوماً/);
 assert.match(STORE_GIFT_TERMS_COPY.sections.map((s) => s.bodyAr).join('\n'), /لا ترسل نيابة/);
+assert.doesNotMatch(STORE_GIFT_TERMS_COPY.sections.map((s) => s.titleAr).join('\n'), /العزل/);
+assert.match(api, /await sendGiftConfirmEmail/);
+assert.doesNotMatch(api, /void sendGiftConfirmEmail/);
+assert.match(form, /company_url_hp/);
 
 console.log('test-store-gift-campaign: ok');

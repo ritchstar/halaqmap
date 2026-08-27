@@ -80,7 +80,7 @@ export async function POST(request: Request): Promise<Response> {
   } catch {
     return json({ ok: false, error: 'تعذر قراءة الطلب.' }, 400, headers);
   }
-  if (String(body.website ?? '').trim()) {
+  if (String(body.website ?? body.company_url_hp ?? '').trim()) {
     await recordHoneypotTrip(request, 'public-store-gift');
     return json({ ok: true }, 200, headers);
   }
@@ -103,9 +103,12 @@ export async function POST(request: Request): Promise<Response> {
     acceptedTerms: body.acceptedTerms,
   });
   if (!entered.ok) return json(entered, 400, headers);
-  void sendGiftConfirmEmail({
+  const mailed = await sendGiftConfirmEmail({
     to: String(body.email || '').trim().toLowerCase(),
     confirmUrl: giftConfirmUrl(entered.confirmToken),
   });
+  if (!mailed) {
+    return json({ ok: false, error: 'تعذر إرسال رسالة التأكيد. أعد الإرسال من النموذج.' }, 503, headers);
+  }
   return json({ ok: true }, 200, headers);
 }

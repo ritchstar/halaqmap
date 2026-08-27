@@ -101,7 +101,7 @@ export function StoreGiftEnterForm({ accepting }: { accepting: boolean }) {
     <form
       id="store-gift-enter"
       onSubmit={onSubmit}
-      className="rounded-2xl border border-[#e8c547]/30 bg-[#0b1a24]/80 p-5 md:p-6"
+      className="relative rounded-2xl border border-[#e8c547]/30 bg-[#0b1a24]/80 p-5 md:p-6"
     >
       <h2 className="text-2xl font-extrabold text-[#f4efe4]">{copy.formTitleAr}</h2>
       <label className="mt-5 block text-sm font-bold text-white/80">
@@ -217,7 +217,14 @@ export function StoreGiftEnterForm({ accepting }: { accepting: boolean }) {
         </span>
       </label>
 
-      <input type="text" name="website" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden="true" />
+      <input
+        type="text"
+        name="company_url_hp"
+        tabIndex={-1}
+        autoComplete="off"
+        className="absolute -left-[9999px] h-0 w-0 overflow-hidden opacity-0"
+        aria-hidden="true"
+      />
 
       <button
         type="submit"
