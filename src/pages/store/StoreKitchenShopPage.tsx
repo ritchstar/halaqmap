@@ -11,9 +11,11 @@ import { StorePurchasedShell } from '@/components/store/StorePurchasedShell';
 import {
   STORE_KITCHEN_LIVE,
   STORE_KITCHEN_LIVE_LAB_TOKEN,
+  STORE_KITCHEN_LIVE_PRODUCT,
   STORE_KITCHEN_LIVE_PUBLIC_ENABLED,
 } from '@/config/storeKitchenLive';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
+import { useStoreShopPresence } from '@/hooks/useStoreShopPresence';
 import { readHashQueryParam } from '@/lib/hashQueryParams';
 import {
   defaultKitchenLabState,
@@ -73,7 +75,14 @@ export default function StoreKitchenShopPage() {
       : kitchenShopUrl(safeToken, ''),
   );
   const qrParam = readHashQueryParam('qr') || '';
+  const qrOk = desk || kitchenQrMatches(state.host, qrParam);
   useDocumentTitle(STORE_KITCHEN_LIVE.documentTitle);
+  useStoreShopPresence({
+    role: 'shop',
+    productTag: STORE_KITCHEN_LIVE_PRODUCT,
+    token: safeToken,
+    enabled: !desk && gate === 'ok' && qrOk,
+  });
 
   useEffect(() => {
     if (isLab) {
@@ -122,7 +131,6 @@ export default function StoreKitchenShopPage() {
   const liveShopUrl = isLab
     ? kitchenShopUrl(safeToken, state.host.qrActive ? state.host.qrStamp : '')
     : shopUrl;
-  const qrOk = desk || kitchenQrMatches(state.host, qrParam);
 
   const commit = (next: KitchenLabState) => {
     if (isLab) writeKitchenLabState(safeToken, next);
@@ -153,7 +161,7 @@ export default function StoreKitchenShopPage() {
           !qrOk ? (
             <p className="pt-[30svh] text-center text-sm text-white/70">{STORE_KITCHEN_LIVE.qrRevokedAr}</p>
           ) : desk ? (
-            <StoreKitchenDesk state={state} onChange={commit} shopUrl={liveShopUrl} />
+            <StoreKitchenDesk state={state} onChange={commit} shopUrl={liveShopUrl} token={safeToken} />
           ) : (
             <StoreKitchenShop state={state} onChange={commit} />
           )

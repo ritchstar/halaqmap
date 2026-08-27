@@ -57,7 +57,7 @@ export function StoreRestaurantStudio({ token = STORE_RESTAURANT_LIVE_LAB_TOKEN 
         </button>
       </div>
       <div className="mt-5 rounded-2xl border border-[#e08a3c]/30 bg-[#1a1008]/80 p-4">
-        {tab === 'shop' ? <StoreRestaurantShop state={state} onChange={commit} /> : <StoreRestaurantDesk state={state} onChange={commit} shopUrl={shopUrl} />}
+        {tab === 'shop' ? <StoreRestaurantShop state={state} onChange={commit} /> : <StoreRestaurantDesk state={state} onChange={commit} shopUrl={shopUrl} token={token} />}
       </div>
     </div>
   );

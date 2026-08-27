@@ -12,6 +12,7 @@ import {
 } from '@/lib/storeGrocersLiveLab';
 import { StoreGrocersIngest } from '@/components/store/StoreGrocersIngest';
 import { StoreGrocersDeskChat } from '@/components/store/StoreGrocersChat';
+import { StoreShopPresenceCount } from '@/components/store/StoreShopPresenceCount';
 import { StoreTrialOpsNote } from '@/components/store/StoreTrialOpsNote';
 import { cn } from '@/lib/utils';
 
@@ -19,10 +20,12 @@ export function StoreGrocersDesk({
   state,
   onChange,
   shopUrl,
+  token,
 }: {
   state: GrocersLabState;
   onChange: (next: GrocersLabState) => void;
   shopUrl: string;
+  token: string;
 }) {
   const seenCount = useRef(state.orders.length);
   const [flashOn, setFlashOn] = useState(false);
@@ -78,6 +81,7 @@ export function StoreGrocersDesk({
       <div className={cn('rounded-2xl border p-4', flashOn || unread.length ? 'grocers-alert border-[#8fbf7a]' : 'border-white/12')}>
         <h2 className="text-lg font-extrabold">{STORE_GROCERS_LIVE.liveOrdersAr}</h2>
         <p className="mt-1 text-sm text-white/60">{unread.length ? `${unread.length} طلب جديد` : 'لا طلبات جديدة الآن.'}</p>
+        <StoreShopPresenceCount productTag="store_grocers_live" token={token} />
         <ul className="mt-3 space-y-3">
           {state.orders.slice(0, 20).map((order) => (
             <li key={order.id} className="rounded-xl border border-white/10 bg-black/30 p-3 text-sm">

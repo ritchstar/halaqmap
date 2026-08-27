@@ -11,9 +11,11 @@ import { StorePurchasedShell } from '@/components/store/StorePurchasedShell';
 import {
   STORE_RESTAURANT_LIVE,
   STORE_RESTAURANT_LIVE_LAB_TOKEN,
+  STORE_RESTAURANT_LIVE_PRODUCT,
   STORE_RESTAURANT_LIVE_PUBLIC_ENABLED,
 } from '@/config/storeRestaurantLive';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
+import { useStoreShopPresence } from '@/hooks/useStoreShopPresence';
 import {
   defaultRestaurantLabState,
   readRestaurantLabState,
@@ -70,6 +72,12 @@ export default function StoreRestaurantShopPage() {
       : `${window.location.origin}/#/r/${encodeURIComponent(safeToken)}`,
   );
   useDocumentTitle(STORE_RESTAURANT_LIVE.documentTitle);
+  useStoreShopPresence({
+    role: 'shop',
+    productTag: STORE_RESTAURANT_LIVE_PRODUCT,
+    token: safeToken,
+    enabled: !desk && gate === 'ok',
+  });
 
   useEffect(() => {
     if (isLab) {
@@ -148,7 +156,7 @@ export default function StoreRestaurantShopPage() {
         {gate === 'missing' ? <p className="pt-[30svh] text-center text-sm text-white/70">الرابط غير صالح.</p> : null}
         {gate === 'ok' ? (
           desk ? (
-            <StoreRestaurantDesk state={state} onChange={commit} shopUrl={shopUrl} />
+            <StoreRestaurantDesk state={state} onChange={commit} shopUrl={shopUrl} token={safeToken} />
           ) : (
             <StoreRestaurantShop state={state} onChange={commit} />
           )

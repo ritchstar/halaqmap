@@ -14,9 +14,11 @@ import { StorePurchasedShell } from '@/components/store/StorePurchasedShell';
 import {
   STORE_CAFE_LIVE,
   STORE_CAFE_LIVE_LAB_TOKEN,
+  STORE_CAFE_LIVE_PRODUCT,
   STORE_CAFE_LIVE_PUBLIC_ENABLED,
 } from '@/config/storeCafeLive';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
+import { useStoreShopPresence } from '@/hooks/useStoreShopPresence';
 import {
   cafeLabRaw,
   defaultCafeLabState,
@@ -116,7 +118,14 @@ export default function StoreCafeShopPage() {
   const [screenLive, setScreenLive] = useState(true);
   const [asDisplay, setAsDisplay] = useState(false);
   const [isTrial, setIsTrial] = useState(false);
+  const neighborhoodShop = mode === 'shop' && !displayMode && !asDisplay;
   useDocumentTitle(STORE_CAFE_LIVE.documentTitle);
+  useStoreShopPresence({
+    role: 'shop',
+    productTag: STORE_CAFE_LIVE_PRODUCT,
+    token: safeToken,
+    enabled: gate === 'ok' && neighborhoodShop,
+  });
 
   useEffect(() => {
     if (isLab) {
@@ -241,7 +250,7 @@ export default function StoreCafeShopPage() {
       {gate === 'ok' && !screen ? (
         <div className="mx-auto max-w-3xl px-3 py-5">
           {mode === 'desk' ? (
-            <StoreCafeDesk state={state} onChange={commit} shopUrl={shopUrl} showTrialNote={isTrial} />
+            <StoreCafeDesk state={state} onChange={commit} shopUrl={shopUrl} showTrialNote={isTrial} token={safeToken} />
           ) : null}
           {mode === 'host' ? (
             <StoreCafeHostPanel

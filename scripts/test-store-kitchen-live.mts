@@ -232,6 +232,8 @@ const visitorFiles = [
 assert.doesNotMatch(visitorFiles, /أكلنا1/);
 assert.doesNotMatch(visitorFiles, /WhatsApp Business API/);
 assert.doesNotMatch(visitorFiles, /مطعمنا1|كافينا1/);
+assert.match(readFileSync(join(root, 'src/components/store/StoreKitchenDesk.tsx'), 'utf8'), /StoreShopPresenceCount/);
+assert.match(readFileSync(join(root, 'src/pages/store/StoreKitchenShopPage.tsx'), 'utf8'), /useStoreShopPresence/);
 
 const apiLib = readFileSync(join(root, 'api/_lib/storeKitchenLive.ts'), 'utf8');
 const apiRoute = readFileSync(join(root, 'api/public-store-kitchen-live.ts'), 'utf8');

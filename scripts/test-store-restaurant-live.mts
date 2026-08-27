@@ -184,6 +184,8 @@ assert.match(app, /StoreRestaurantShopPage/);
 assert.match(app, /StoreRestaurantPayPage/);
 assert.doesNotMatch(app, /from ['"]@\/config\/storeRestaurantLive['"]/);
 assert.doesNotMatch(app, /from ['"]@\/lib\/storeRestaurantLiveRemote['"]/);
+assert.match(readFileSync(join(root, 'src/components/store/StoreRestaurantDesk.tsx'), 'utf8'), /StoreShopPresenceCount/);
+assert.match(readFileSync(join(root, 'src/pages/store/StoreRestaurantShopPage.tsx'), 'utf8'), /useStoreShopPresence/);
 assert.match(landing, /restaurantLiveTitleAr/);
 assert.match(landing, /STORE_RESTAURANT/);
 assert.match(webhook, /skipped: "store_restaurant_live"/);

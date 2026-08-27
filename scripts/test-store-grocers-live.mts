@@ -186,6 +186,8 @@ assert.match(app, /StoreGrocersShopPage/);
 assert.match(app, /StoreGrocersPayPage/);
 assert.doesNotMatch(app, /from ['"]@\/config\/storeGrocersLive['"]/);
 assert.doesNotMatch(app, /from ['"]@\/lib\/storeGrocersLiveRemote['"]/);
+assert.match(readFileSync(join(root, 'src/components/store/StoreGrocersDesk.tsx'), 'utf8'), /StoreShopPresenceCount/);
+assert.match(readFileSync(join(root, 'src/pages/store/StoreGrocersShopPage.tsx'), 'utf8'), /useStoreShopPresence/);
 assert.match(landing, /grocersLiveTitleAr/);
 assert.match(landing, /STORE_GROCERS/);
 assert.match(webhook, /skipped: "store_grocers_live"/);

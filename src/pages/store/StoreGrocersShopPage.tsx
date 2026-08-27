@@ -8,8 +8,14 @@ import { Navigate, useLocation, useParams } from 'react-router-dom';
 import { StoreGrocersDesk } from '@/components/store/StoreGrocersDesk';
 import { StoreGrocersShop } from '@/components/store/StoreGrocersShop';
 import { StorePurchasedShell } from '@/components/store/StorePurchasedShell';
-import { STORE_GROCERS_LIVE, STORE_GROCERS_LIVE_LAB_TOKEN, STORE_GROCERS_LIVE_PUBLIC_ENABLED } from '@/config/storeGrocersLive';
+import {
+  STORE_GROCERS_LIVE,
+  STORE_GROCERS_LIVE_LAB_TOKEN,
+  STORE_GROCERS_LIVE_PRODUCT,
+  STORE_GROCERS_LIVE_PUBLIC_ENABLED,
+} from '@/config/storeGrocersLive';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
+import { useStoreShopPresence } from '@/hooks/useStoreShopPresence';
 import {
   defaultGrocersLabState,
   readGrocersLabState,
@@ -57,6 +63,12 @@ export default function StoreGrocersShopPage() {
     typeof window === 'undefined' ? `/#/g/${encodeURIComponent(safeToken)}` : `${window.location.origin}/#/g/${encodeURIComponent(safeToken)}`,
   );
   useDocumentTitle(STORE_GROCERS_LIVE.documentTitle);
+  useStoreShopPresence({
+    role: 'shop',
+    productTag: STORE_GROCERS_LIVE_PRODUCT,
+    token: safeToken,
+    enabled: !desk && gate === 'ok',
+  });
 
   useEffect(() => {
     if (isLab) {
@@ -135,7 +147,7 @@ export default function StoreGrocersShopPage() {
         {gate === 'missing' ? <p className="pt-[30svh] text-center text-sm text-white/70">الرابط غير صالح.</p> : null}
         {gate === 'ok' ? (
           desk ? (
-            <StoreGrocersDesk state={state} onChange={commit} shopUrl={shopUrl} />
+            <StoreGrocersDesk state={state} onChange={commit} shopUrl={shopUrl} token={safeToken} />
           ) : (
             <StoreGrocersShop state={state} onChange={commit} />
           )

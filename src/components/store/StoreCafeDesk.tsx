@@ -12,6 +12,7 @@ import {
 } from '@/lib/storeCafeLiveLab';
 import { StoreCafeMenuBoard } from '@/components/store/StoreCafeMenuBoard';
 import { StoreCafeDeskChat } from '@/components/store/StoreCafeChat';
+import { StoreShopPresenceCount } from '@/components/store/StoreShopPresenceCount';
 import { StoreTrialOpsNote } from '@/components/store/StoreTrialOpsNote';
 import { cn } from '@/lib/utils';
 
@@ -20,11 +21,13 @@ export function StoreCafeDesk({
   onChange,
   shopUrl,
   showTrialNote = false,
+  token,
 }: {
   state: CafeLabState;
   onChange: (next: CafeLabState) => void;
   shopUrl: string;
   showTrialNote?: boolean;
+  token: string;
 }) {
   const seenCount = useRef(state.orders.length);
   const [flashOn, setFlashOn] = useState(false);
@@ -80,6 +83,7 @@ export function StoreCafeDesk({
       <div className={cn('rounded-2xl border p-4', flashOn || unread.length ? 'restaurant-alert border-[#c48a4a]' : 'border-white/12')}>
         <h2 className="text-lg font-extrabold">{STORE_CAFE_LIVE.liveOrdersAr}</h2>
         <p className="mt-1 text-sm text-white/60">{unread.length ? `${unread.length} تذكرة جديدة` : 'لا تذاكر جديدة الآن.'}</p>
+        <StoreShopPresenceCount productTag="store_cafe_live" token={token} />
         <ul className="mt-3 space-y-3">
           {state.orders.slice(0, 20).map((order) => (
             <li key={order.id} className="rounded-xl border border-white/10 bg-black/30 p-3 text-sm">
