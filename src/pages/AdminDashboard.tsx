@@ -1075,7 +1075,7 @@ export default function AdminDashboard() {
                 </div>
                 <div>
                   <p className="text-sm font-bold text-white">قيد مبيعات المتجر</p>
-                  <p className="text-[0.62rem] text-[#e8c547]/75">افراحي1 · اجواء1 · تمويناتا1 · لاونجا1</p>
+                  <p className="text-[0.62rem] text-[#e8c547]/75">افراحي1 · اجواء1 · تمويناتا1 · مطعمنا1 · كافينا1 · لاونجا1</p>
                 </div>
               </div>
               <button

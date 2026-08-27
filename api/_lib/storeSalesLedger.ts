@@ -8,6 +8,8 @@ export const STORE_SALES_LEDGER_PRODUCTS = [
   'wedding-women',
   'event',
   'grocers',
+  'restaurant',
+  'cafe',
   'lounge',
 ] as const;
 
@@ -18,17 +20,26 @@ const TITLES: Record<StoreSalesLedgerProduct, string> = {
   'wedding-women': 'افراحي1 نسائي',
   event: 'اجواء1',
   grocers: 'تمويناتا1',
+  restaurant: 'مطعمنا1',
+  cafe: 'كافينا1',
   lounge: 'لاونجا1',
 };
 
 export const STORE_SALES_TABLE: Record<
   StoreSalesLedgerProduct,
-  'store_wedding_live_orders' | 'store_event_live_orders' | 'store_grocers_live_orders' | 'store_lounge_live_orders'
+  | 'store_wedding_live_orders'
+  | 'store_event_live_orders'
+  | 'store_grocers_live_orders'
+  | 'store_restaurant_live_orders'
+  | 'store_cafe_live_orders'
+  | 'store_lounge_live_orders'
 > = {
   wedding: 'store_wedding_live_orders',
   'wedding-women': 'store_wedding_live_orders',
   event: 'store_event_live_orders',
   grocers: 'store_grocers_live_orders',
+  restaurant: 'store_restaurant_live_orders',
+  cafe: 'store_cafe_live_orders',
   lounge: 'store_lounge_live_orders',
 };
 
@@ -72,6 +83,10 @@ function grocersPackAr(payload: Record<string, unknown>, amountSar: number): str
   return chat ? `${pack} + صندوق محادثة` : pack;
 }
 
+function shopTermPackAr(payload: Record<string, unknown>, amountSar: number, twelveSar: number): string {
+  return clip(payload.packId, 8) === 'm12' || amountSar >= twelveSar ? 'اثنا عشر شهراً' : 'ستة أشهر';
+}
+
 export function mapStoreSalesRow(
   product: StoreSalesLedgerProduct,
   row: Record<string, unknown>,
@@ -95,6 +110,12 @@ export function mapStoreSalesRow(
   } else if (product === 'grocers') {
     subjectAr = clip(payload.shopName, 80) || '—';
     packAr = grocersPackAr(payload, amountSar);
+  } else if (product === 'restaurant') {
+    subjectAr = clip(payload.shopName, 80) || '—';
+    packAr = shopTermPackAr(payload, amountSar, 999);
+  } else if (product === 'cafe') {
+    subjectAr = clip(payload.shopName, 80) || '—';
+    packAr = shopTermPackAr(payload, amountSar, 2099);
   } else {
     subjectAr = clip(payload.loungeName, 80) || '—';
     packAr = 'ثلاثة أشهر';
