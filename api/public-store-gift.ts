@@ -90,7 +90,18 @@ export async function POST(request: Request): Promise<Response> {
     if (!confirmed.ok) return json(confirmed, 400, headers);
     return json({ ok: true, confirmed: true }, 200, headers);
   }
-  const entered = await enterGiftCampaign(db, body);
+  const entered = await enterGiftCampaign(db, {
+    givenName: body.givenName,
+    email: body.email,
+    productChoice: body.productChoice,
+    eventVoice: body.eventVoice,
+    city: body.city,
+    occasionDate: body.occasionDate,
+    source: body.source,
+    opinionBefore: body.opinionBefore,
+    opinionAfter: body.opinionAfter,
+    acceptedTerms: body.acceptedTerms,
+  });
   if (!entered.ok) return json(entered, 400, headers);
   void sendGiftConfirmEmail({
     to: String(body.email || '').trim().toLowerCase(),
