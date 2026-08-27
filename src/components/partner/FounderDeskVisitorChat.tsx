@@ -109,6 +109,7 @@ export function FounderDeskVisitorChat({ className, compact, expanded, origin = 
 
   const leftMs = conversation ? remainingMs(conversation.expires_at) : 0;
   void tick;
+  const isStore = deskOrigin === 'store';
 
   const send = async () => {
     const text = draft.trim();
@@ -130,23 +131,51 @@ export function FounderDeskVisitorChat({ className, compact, expanded, origin = 
     <div
       dir="rtl"
       className={cn(
-        'overflow-hidden rounded-[1.15rem] border border-[#cfe6ee] bg-[#fbfeff] shadow-[0_10px_22px_rgba(148,163,184,0.08)]',
+        'overflow-hidden rounded-[1.35rem]',
+        isStore
+          ? 'border border-[#e8c547]/25 bg-[#061018]/85'
+          : 'border border-[#cfe6ee] bg-[#fbfeff] shadow-[0_10px_22px_rgba(148,163,184,0.08)]',
         className,
       )}
     >
-      <div className="flex items-center justify-between gap-2 border-b border-[#deeff4] px-3 py-2.5">
-        <p className="text-[0.72rem] font-black text-[#215d6a]">{FOUNDER_DESK_COPY.chatTitleAr}</p>
-        <span className="inline-flex items-center gap-1 rounded-full bg-[#18687a]/10 px-2 py-0.5 text-[0.58rem] font-bold text-[#18687a]">
+      <div
+        className={cn(
+          'flex items-center justify-between gap-2 border-b px-3 py-2.5',
+          isStore ? 'border-[#e8c547]/20' : 'border-[#deeff4]',
+        )}
+      >
+        <p className={cn('text-[0.72rem] font-black', isStore ? 'text-[#f4efe4]' : 'text-[#215d6a]')}>
+          {FOUNDER_DESK_COPY.chatTitleAr}
+        </p>
+        <span
+          className={cn(
+            'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[0.58rem] font-bold',
+            isStore ? 'bg-[#e8c547]/15 text-[#e8c547]' : 'bg-[#18687a]/10 text-[#18687a]',
+          )}
+        >
           <Hourglass className="h-3 w-3" />
           {FOUNDER_DESK_COPY.remainingAr} {formatMmSs(leftMs)}
         </span>
       </div>
-      <p className="px-3 pt-2 text-[0.68rem] leading-6 text-slate-600">{FOUNDER_DESK_COPY.chatIntroAr}</p>
-      <p className="flex items-start gap-1.5 px-3 pt-1 text-[0.62rem] leading-5 text-slate-500">
-        <Lock className="mt-0.5 h-3 w-3 shrink-0 text-[#18687a]" aria-hidden />
+      <p className={cn('px-3 pt-2 text-[0.68rem] leading-6', isStore ? 'text-white/70' : 'text-slate-600')}>
+        {FOUNDER_DESK_COPY.chatIntroAr}
+      </p>
+      <p
+        className={cn(
+          'flex items-start gap-1.5 px-3 pt-1 text-[0.62rem] leading-5',
+          isStore ? 'text-white/50' : 'text-slate-500',
+        )}
+      >
+        <Lock className={cn('mt-0.5 h-3 w-3 shrink-0', isStore ? 'text-[#e8c547]' : 'text-[#18687a]')} aria-hidden />
         <span>
           {FOUNDER_DESK_COPY.privacyNoticeAr}{' '}
-          <Link to={PRIVACY_PATH} className="font-bold text-[#18687a] underline underline-offset-2">
+          <Link
+            to={PRIVACY_PATH}
+            className={cn(
+              'font-bold underline underline-offset-2',
+              isStore ? 'text-[#e8c547]' : 'text-[#18687a]',
+            )}
+          >
             {FOUNDER_DESK_COPY.privacyPolicyLinkAr}
           </Link>
           .
@@ -160,15 +189,25 @@ export function FounderDeskVisitorChat({ className, compact, expanded, origin = 
         )}
       >
         {loading ? (
-          <div className="flex items-center justify-center py-6 text-[#18687a]">
+          <div className={cn('flex items-center justify-center py-6', isStore ? 'text-[#e8c547]' : 'text-[#18687a]')}>
             <Loader2 className="h-4 w-4 animate-spin" />
           </div>
         ) : unavailable ? (
-          <p className="rounded-lg border border-dashed border-slate-200 p-3 text-center text-xs text-slate-500">
+          <p
+            className={cn(
+              'rounded-2xl border border-dashed p-3 text-center text-xs',
+              isStore ? 'border-[#e8c547]/25 text-white/55' : 'border-slate-200 text-slate-500',
+            )}
+          >
             {FOUNDER_DESK_COPY.unavailableAr}
           </p>
         ) : messages.length === 0 ? (
-          <p className="rounded-lg border border-dashed border-slate-200 p-3 text-center text-xs text-slate-500">
+          <p
+            className={cn(
+              'rounded-2xl border border-dashed p-3 text-center text-xs',
+              isStore ? 'border-[#e8c547]/25 text-white/55' : 'border-slate-200 text-slate-500',
+            )}
+          >
             {FOUNDER_DESK_COPY.emptyAr}
           </p>
         ) : (
@@ -180,8 +219,12 @@ export function FounderDeskVisitorChat({ className, compact, expanded, origin = 
                   className={cn(
                     'max-w-[88%] rounded-2xl px-3 py-2 text-sm leading-relaxed',
                     mine
-                      ? 'rounded-br-md bg-[#18687a] text-white'
-                      : 'rounded-bl-md bg-white text-slate-800 ring-1 ring-[#d5e9f0]',
+                      ? isStore
+                        ? 'rounded-br-md bg-[#e8c547] text-[#061018]'
+                        : 'rounded-br-md bg-[#18687a] text-white'
+                      : isStore
+                        ? 'rounded-bl-md bg-[#0b1a24] text-[#f4efe4] ring-1 ring-[#e8c547]/25'
+                        : 'rounded-bl-md bg-white text-slate-800 ring-1 ring-[#d5e9f0]',
                   )}
                 >
                   <p className="mb-1 text-[10px] opacity-80">
@@ -198,12 +241,21 @@ export function FounderDeskVisitorChat({ className, compact, expanded, origin = 
         <div ref={bottomRef} />
       </div>
 
-      {notice ? <p className="px-3 pb-1 text-[0.65rem] text-rose-700">{notice}</p> : null}
+      {notice ? (
+        <p className={cn('px-3 pb-1 text-[0.65rem]', isStore ? 'text-rose-300' : 'text-rose-700')}>{notice}</p>
+      ) : null}
       {expired && !unavailable ? (
-        <p className="px-3 pb-2 text-[0.65rem] text-slate-500">{FOUNDER_DESK_COPY.expiredAr}</p>
+        <p className={cn('px-3 pb-2 text-[0.65rem]', isStore ? 'text-white/50' : 'text-slate-500')}>
+          {FOUNDER_DESK_COPY.expiredAr}
+        </p>
       ) : null}
 
-      <div className="flex items-center gap-2 border-t border-[#deeff4] p-2.5">
+      <div
+        className={cn(
+          'flex items-center gap-2 border-t p-2.5',
+          isStore ? 'border-[#e8c547]/20' : 'border-[#deeff4]',
+        )}
+      >
         <input
           value={draft}
           onChange={(e) => setDraft(e.target.value.slice(0, FOUNDER_DESK_MAX_BODY))}
@@ -216,13 +268,21 @@ export function FounderDeskVisitorChat({ className, compact, expanded, origin = 
           disabled={loading || sending || expired || unavailable}
           maxLength={FOUNDER_DESK_MAX_BODY}
           placeholder={FOUNDER_DESK_COPY.emptyAr}
-          className="h-10 flex-1 rounded-xl border border-[#cfe6ee] bg-white px-3 text-sm text-slate-800 outline-none focus:border-[#18687a]"
+          className={cn(
+            'h-10 flex-1 rounded-full border px-3 text-sm outline-none',
+            isStore
+              ? 'border-[#e8c547]/25 bg-[#0b1a24] text-[#f4efe4] placeholder:text-white/40 focus:border-[#e8c547]'
+              : 'border-[#cfe6ee] bg-white text-slate-800 focus:border-[#18687a]',
+          )}
         />
         <button
           type="button"
           onClick={() => void send()}
           disabled={loading || sending || expired || unavailable || !draft.trim()}
-          className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-[#18687a] text-white disabled:opacity-40"
+          className={cn(
+            'inline-flex h-10 w-10 items-center justify-center rounded-full disabled:opacity-40',
+            isStore ? 'bg-[#e8c547] text-[#061018]' : 'bg-[#18687a] text-white',
+          )}
           aria-label={FOUNDER_DESK_COPY.sendAr}
         >
           {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
@@ -232,7 +292,7 @@ export function FounderDeskVisitorChat({ className, compact, expanded, origin = 
             href={whatsappHref}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-xl text-white"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full text-white"
             style={{ background: 'linear-gradient(135deg, #2bbd6a, #1c7d6a)' }}
             aria-label={FOUNDER_DESK_COPY.whatsappAriaAr}
           >
