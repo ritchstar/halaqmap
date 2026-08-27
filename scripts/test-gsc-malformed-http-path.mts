@@ -27,8 +27,8 @@ assert.doesNotMatch(siteRelativePath('https://www.halaqmap.com/store'), /^\/http
 
 assert.match(siteOrigin, /siteRelativePath\(path\)/);
 
-assert.match(vercel, /\/https\\\\:\/\/www\.halaqmap\.com\/:path\*/);
 assert.doesNotMatch(vercel, /:protocol\(https\)/);
+assert.doesNotMatch(vercel, /"source": "\/https/);
 assert.match(vercel, /"source": "\/pay\/wedding"/);
 assert.match(vercel, /"source": "\/pay\/event"/);
 assert.match(vercel, /"source": "\/pay\/lounge"/);

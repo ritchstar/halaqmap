@@ -2,46 +2,6 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "redirects": [
     {
-      "source": "/https\\:/www.halaqmap.com/:path*",
-      "destination": "https://www.halaqmap.com/:path*",
-      "permanent": true
-    },
-    {
-      "source": "/https\\://www.halaqmap.com/:path*",
-      "destination": "https://www.halaqmap.com/:path*",
-      "permanent": true
-    },
-    {
-      "source": "/https\\:/www.halaqmap.com",
-      "destination": "https://www.halaqmap.com/",
-      "permanent": true
-    },
-    {
-      "source": "/https\\://www.halaqmap.com",
-      "destination": "https://www.halaqmap.com/",
-      "permanent": true
-    },
-    {
-      "source": "/https\\:/halaqmap.com/:path*",
-      "destination": "https://www.halaqmap.com/:path*",
-      "permanent": true
-    },
-    {
-      "source": "/https\\://halaqmap.com/:path*",
-      "destination": "https://www.halaqmap.com/:path*",
-      "permanent": true
-    },
-    {
-      "source": "/https\\:/store.halaqmap.com/:path*",
-      "destination": "https://store.halaqmap.com/:path*",
-      "permanent": true
-    },
-    {
-      "source": "/https\\://store.halaqmap.com/:path*",
-      "destination": "https://store.halaqmap.com/:path*",
-      "permanent": true
-    },
-    {
       "source": "/pay/wedding",
       "destination": "https://store.halaqmap.com/store/wedding",
       "permanent": true

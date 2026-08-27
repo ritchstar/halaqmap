@@ -107,9 +107,9 @@ export default function StoreDeskPage() {
       const allowed =
         access.allowed &&
         (access.bootstrap ||
-          access.permissions.includes('view_overview') ||
-          access.permissions.includes('view_requests') ||
-          access.permissions.includes('review_requests'));
+          access.permissions.view_overview ||
+          access.permissions.view_requests ||
+          access.permissions.review_requests);
       if (!allowed) {
         if (!cancelled) setPhase('denied');
         return;

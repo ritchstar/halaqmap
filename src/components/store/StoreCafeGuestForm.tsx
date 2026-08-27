@@ -43,7 +43,7 @@ export function StoreCafeGuestForm({
 }) {
   const [guestName, setGuestName] = useState('');
   const [cannedId, setCannedId] = useState<string>(STORE_CAFE_LIVE_CANNED[0].id);
-  const [message, setMessage] = useState(STORE_CAFE_LIVE_CANNED[0].textAr);
+  const [message, setMessage] = useState<string>(STORE_CAFE_LIVE_CANNED[0].textAr);
   const [extra, setExtra] = useState('');
   const [showExtra, setShowExtra] = useState(false);
   const [sent, setSent] = useState<'live' | 'pending' | ''>('');

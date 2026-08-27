@@ -63,7 +63,7 @@ export function FounderDeskVisitorChat({ className, compact, expanded, origin = 
     setLoading(true);
     const started = await startFounderDeskChat(deskOrigin);
     if (!started.ok) {
-      setUnavailable(started.tableMissing === true || started.error === FOUNDER_DESK_COPY.unavailableAr);
+      setUnavailable(('tableMissing' in started && started.tableMissing === true) || started.error === FOUNDER_DESK_COPY.unavailableAr);
       setNotice(started.error);
       setLoading(false);
       return;
@@ -74,7 +74,7 @@ export function FounderDeskVisitorChat({ className, compact, expanded, origin = 
     if (listed.ok) {
       setMessages(listed.messages);
       setExpired(listed.expired);
-    } else if (listed.tableMissing) {
+    } else if ('tableMissing' in listed && listed.tableMissing) {
       setUnavailable(true);
       setNotice(listed.error);
     }
@@ -119,7 +119,7 @@ export function FounderDeskVisitorChat({ className, compact, expanded, origin = 
     setSending(false);
     if (!result.ok) {
       setNotice(result.error);
-      if (result.tableMissing) setUnavailable(true);
+      if ('tableMissing' in result && result.tableMissing) setUnavailable(true);
       return;
     }
     setDraft('');
