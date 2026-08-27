@@ -42,5 +42,9 @@ export function matchStoreAffiliateCommission(
     if (amount === 119900) return { lineId: 'cafe_6', commissionHalalas: 19900 };
     if (amount === 209900) return { lineId: 'cafe_12', commissionHalalas: 49900 };
   }
+  if (tag === 'store_kitchen_live') {
+    if (amount === 30000) return { lineId: 'kitchen_6', commissionHalalas: 10000 };
+    if (amount === 60000) return { lineId: 'kitchen_12', commissionHalalas: 20000 };
+  }
   return null;
 }

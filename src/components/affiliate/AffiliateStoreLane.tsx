@@ -175,6 +175,7 @@ export function AffiliateStoreLane({ hideCatalog = false }: { hideCatalog?: bool
               grocers: marketer.links.grocers,
               restaurant: marketer.links.restaurant,
               cafe: marketer.links.cafe,
+              kitchen: marketer.links.kitchen || '',
             }}
             onPick={(href) => void copyLink(href)}
           />

@@ -241,6 +241,13 @@ function isCafeLiveMeta(meta: Record<string, unknown> | null | undefined): boole
   return pt === "store_cafe_live";
 }
 
+/** طبختنا1 — اشتراك الأسرة المنتجة. المطابقة بالوسم أولاً حتى لا يُخلط 600 ر.س مع لاونجا1. */
+function isKitchenLiveMeta(meta: Record<string, unknown> | null | undefined): boolean {
+  if (!meta || typeof meta !== "object") return false;
+  const pt = String(meta.product_type ?? meta.productType ?? meta.product ?? "").trim().toLowerCase();
+  return pt === "store_kitchen_live";
+}
+
 function storeAffiliateCodeFromMeta(meta: Record<string, unknown> | null | undefined): string {
   if (!meta || typeof meta !== "object") return "";
   const value = String(meta.store_affiliate_code ?? meta.storeAffiliateCode ?? "")
@@ -274,6 +281,10 @@ function matchStoreAffiliateCommission(
   if (tag === "store_cafe_live") {
     if (amount === 119900) return { lineId: "cafe_6", commissionHalalas: 19900 };
     if (amount === 209900) return { lineId: "cafe_12", commissionHalalas: 49900 };
+  }
+  if (tag === "store_kitchen_live") {
+    if (amount === 30000) return { lineId: "kitchen_6", commissionHalalas: 10000 };
+    if (amount === 60000) return { lineId: "kitchen_12", commissionHalalas: 20000 };
   }
   return null;
 }
@@ -1118,6 +1129,42 @@ Deno.serve(async (req) => {
         paymentId,
         eventId: eventId || null,
         skipped: "store_cafe_live",
+        activated,
+        credited,
+      },
+      200,
+    );
+  }
+
+  if (isKitchenLiveMeta(meta)) {
+    const token = String(meta.store_kitchen_token ?? meta.storeKitchenToken ?? "").trim();
+    const days = amount === 60000 ? 360 : amount === 30000 ? 180 : 0;
+    let activated = false;
+    if (successStatus && token && days) {
+      const expiresAt = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString();
+      const { error: kitchenErr } = await supabase
+        .from("store_kitchen_live_orders")
+        .update({
+          status: "live",
+          moyasar_payment_id: paymentId,
+          expires_at: expiresAt,
+          price_halalas: amount,
+          last_public_change_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        })
+        .eq("shop_token", token)
+        .in("status", ["pending_payment", "pending_renewal", "expired"]);
+      activated = !kitchenErr;
+    }
+    const credited = successStatus && days
+      ? await creditStoreAffiliateLedger(supabase, "store_kitchen_live", amount, paymentId, meta)
+      : false;
+    return jsonResponse(
+      {
+        ok: true,
+        paymentId,
+        eventId: eventId || null,
+        skipped: "store_kitchen_live",
         activated,
         credited,
       },

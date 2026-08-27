@@ -131,6 +131,14 @@ const STORE_CAFE_MENU_PATH =
   (ROUTE_PATHS as { STORE_CAFE_MENU?: string }).STORE_CAFE_MENU || "/c/:token/menu";
 const STORE_CAFE_PAY_PATH =
   (ROUTE_PATHS as { STORE_CAFE_PAY?: string }).STORE_CAFE_PAY || "/pay/cafe/:token";
+const STORE_KITCHEN_PATH =
+  (ROUTE_PATHS as { STORE_KITCHEN?: string }).STORE_KITCHEN || "/store/kitchen";
+const STORE_KITCHEN_VIEW_PATH =
+  (ROUTE_PATHS as { STORE_KITCHEN_VIEW?: string }).STORE_KITCHEN_VIEW || "/k/:token";
+const STORE_KITCHEN_DESK_PATH =
+  (ROUTE_PATHS as { STORE_KITCHEN_DESK?: string }).STORE_KITCHEN_DESK || "/k/:token/desk";
+const STORE_KITCHEN_PAY_PATH =
+  (ROUTE_PATHS as { STORE_KITCHEN_PAY?: string }).STORE_KITCHEN_PAY || "/pay/kitchen/:token";
 const STORE_AFFILIATES_PATH =
   (ROUTE_PATHS as { STORE_AFFILIATES?: string }).STORE_AFFILIATES || "/store/affiliates";
 const STORE_AFFILIATES_ENTER_PATH =
@@ -262,6 +270,9 @@ const StoreRestaurantPayPage = lazy(() => import("@/pages/store/StoreRestaurantP
 const StoreCafeLandingPage = lazy(() => import("@/pages/store/StoreCafeLandingPage"));
 const StoreCafeShopPage = lazy(() => import("@/pages/store/StoreCafeShopPage"));
 const StoreCafePayPage = lazy(() => import("@/pages/store/StoreCafePayPage"));
+const StoreKitchenLandingPage = lazy(() => import("@/pages/store/StoreKitchenLandingPage"));
+const StoreKitchenShopPage = lazy(() => import("@/pages/store/StoreKitchenShopPage"));
+const StoreKitchenPayPage = lazy(() => import("@/pages/store/StoreKitchenPayPage"));
 const StoreAffiliatesHomePage = lazy(() => import("@/pages/store/StoreAffiliatesHomePage"));
 const StoreAffiliatesEnterPage = lazy(() => import("@/pages/store/StoreAffiliatesEnterPage"));
 const StoreAffiliatesDeskPage = lazy(() => import("@/pages/store/StoreAffiliatesDeskPage"));
@@ -800,6 +811,10 @@ export function App() {
           <Route path={STORE_CAFE_QUIET_PATH} element={<LazyRoute><StoreCafeShopPage /></LazyRoute>} />
           <Route path={STORE_CAFE_MENU_PATH} element={<LazyRoute><StoreCafeShopPage /></LazyRoute>} />
           <Route path={STORE_CAFE_VIEW_PATH} element={<LazyRoute><StoreCafeShopPage /></LazyRoute>} />
+          <Route path={STORE_KITCHEN_PAY_PATH} element={<LazyRoute><StoreKitchenPayPage /></LazyRoute>} />
+          <Route path={STORE_KITCHEN_PATH} element={<LazyRoute><StoreKitchenLandingPage /></LazyRoute>} />
+          <Route path={STORE_KITCHEN_DESK_PATH} element={<LazyRoute><StoreKitchenShopPage /></LazyRoute>} />
+          <Route path={STORE_KITCHEN_VIEW_PATH} element={<LazyRoute><StoreKitchenShopPage /></LazyRoute>} />
           <Route path={STORE_AFFILIATES_ENTER_PATH} element={<LazyRoute><StoreAffiliatesEnterPage /></LazyRoute>} />
           <Route path={STORE_AFFILIATES_DESK_PATH} element={<LazyRoute><StoreAffiliatesDeskPage /></LazyRoute>} />
           <Route path={STORE_AFFILIATES_RULES_PATH} element={<LazyRoute><StoreAffiliatesRulesPage /></LazyRoute>} />

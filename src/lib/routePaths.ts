@@ -99,6 +99,11 @@ export const ROUTE_PATHS = {
   STORE_CAFE_QUIET: '/c/:token/quiet',
   STORE_CAFE_MENU: '/c/:token/menu',
   STORE_CAFE_PAY: '/pay/cafe/:token',
+  /** طبختنا1 — صفحة الأسرة المنتجة ولوحة نشاط. الاشتراك مغلق حتى اعتماد الأسعار. */
+  STORE_KITCHEN: '/store/kitchen',
+  STORE_KITCHEN_VIEW: '/k/:token',
+  STORE_KITCHEN_DESK: '/k/:token/desk',
+  STORE_KITCHEN_PAY: '/pay/kitchen/:token',
   /** بوابة مسوّقي منتجات المتجر — مستقلة عن سفراء حلاق ماب وكوافير ماب */
   STORE_AFFILIATES: '/store/affiliates',
   STORE_AFFILIATES_ENTER: '/store/affiliates/enter',

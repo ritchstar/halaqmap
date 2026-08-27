@@ -37,7 +37,9 @@ function isStoreSurfacePath(path: string): boolean {
     path === '/r' ||
     path.startsWith('/r/') ||
     path === '/c' ||
-    path.startsWith('/c/')
+    path.startsWith('/c/') ||
+    path === '/k' ||
+    path.startsWith('/k/')
   );
 }
 
@@ -71,7 +73,8 @@ export function isStoreHostPaymentPath(path: string): boolean {
     normalized.startsWith('/pay/lounge/') ||
     normalized.startsWith('/pay/grocers/') ||
     normalized.startsWith('/pay/restaurant/') ||
-    normalized.startsWith('/pay/cafe/')
+    normalized.startsWith('/pay/cafe/') ||
+    normalized.startsWith('/pay/kitchen/')
   );
 }
 
@@ -176,6 +179,24 @@ export function cafeLivePayHref(token: string): string {
 
 export function cafeLiveViewHref(token: string): string {
   const hashPath = `/c/${encodeURIComponent(token)}`;
+  if (typeof window === 'undefined') return `/#${hashPath}`;
+  if (isHalaqmapMensHost(window.location.hostname)) {
+    return `https://store.halaqmap.com/#${hashPath}`;
+  }
+  return `/#${hashPath}`;
+}
+
+export function kitchenLivePayHref(token: string): string {
+  const hashPath = `/pay/kitchen/${encodeURIComponent(token)}`;
+  if (typeof window === 'undefined') return `/#${hashPath}`;
+  if (isHalaqmapStoreHost(window.location.hostname)) {
+    return `https://www.halaqmap.com/#${hashPath}`;
+  }
+  return `/#${hashPath}`;
+}
+
+export function kitchenLiveViewHref(token: string): string {
+  const hashPath = `/k/${encodeURIComponent(token)}`;
   if (typeof window === 'undefined') return `/#${hashPath}`;
   if (isHalaqmapMensHost(window.location.hostname)) {
     return `https://store.halaqmap.com/#${hashPath}`;

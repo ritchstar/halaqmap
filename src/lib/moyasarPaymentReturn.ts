@@ -454,6 +454,13 @@ function cafeLiveReturnPath(params: URLSearchParams): string | null {
   return `/pay/cafe/${encodeURIComponent(token)}`;
 }
 
+function kitchenLiveReturnPath(params: URLSearchParams): string | null {
+  const purpose = (params.get('purpose') || '').trim();
+  const token = (params.get('store_kitchen_token') || params.get('token') || '').trim();
+  if (purpose !== 'store_kitchen_live' || !token) return null;
+  return `/pay/kitchen/${encodeURIComponent(token)}`;
+}
+
 function storePayReturnPath(params: URLSearchParams | null): string | null {
   if (!params) return null;
   return (
@@ -463,7 +470,8 @@ function storePayReturnPath(params: URLSearchParams | null): string | null {
     loungeLiveReturnPath(params) ||
     grocersLiveReturnPath(params) ||
     restaurantLiveReturnPath(params) ||
-    cafeLiveReturnPath(params)
+    cafeLiveReturnPath(params) ||
+    kitchenLiveReturnPath(params)
   );
 }
 
@@ -526,6 +534,9 @@ export function captureMoyasarReturnInHashRoute(): boolean {
   if (hashPath.startsWith('/pay/event/')) return false;
   if (hashPath.startsWith('/pay/lounge/')) return false;
   if (hashPath.startsWith('/pay/grocers/')) return false;
+  if (hashPath.startsWith('/pay/restaurant/')) return false;
+  if (hashPath.startsWith('/pay/cafe/')) return false;
+  if (hashPath.startsWith('/pay/kitchen/')) return false;
   if (hashPath === ROUTE_PATHS.PAYMENT || hashPath === `${ROUTE_PATHS.PAYMENT}/`) return false;
 
   const target = `${window.location.origin}/#${ROUTE_PATHS.PAYMENT}${search}`;

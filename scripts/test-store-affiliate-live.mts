@@ -14,6 +14,7 @@ import {
   STORE_AFFILIATE_LINES,
   affiliateNetSar,
   grocersAffiliateCommissionSar,
+  kitchenAffiliateCommissionSar,
   restaurantAffiliateCommissionSar,
   parseAffiliateLane,
 } from '../src/config/storeAffiliateLive.ts';
@@ -21,6 +22,7 @@ import { STORE_EVENT_LIVE_PRICE_SAR } from '../src/config/storeEventLive.ts';
 import { STORE_GROCERS_CHAT_ADDON_12_SAR, STORE_GROCERS_CHAT_ADDON_6_SAR, STORE_GROCERS_LIVE_PRICE_12_SAR, STORE_GROCERS_LIVE_PRICE_6_SAR } from '../src/config/storeGrocersLive.ts';
 import { STORE_LOUNGE_LIVE_PRICE_SAR } from '../src/config/storeLoungeLive.ts';
 import { STORE_RESTAURANT_LIVE_PRICE_12_SAR, STORE_RESTAURANT_LIVE_PRICE_6_SAR } from '../src/config/storeRestaurantLive.ts';
+import { STORE_KITCHEN_LIVE_PRICE_12_SAR, STORE_KITCHEN_LIVE_PRICE_6_SAR } from '../src/config/storeKitchenLive.ts';
 import { STORE_WEDDING_LIVE_PRICE_SAR } from '../src/config/storeWeddingLive.ts';
 import { parseStoreAffiliateCode, withStoreAffiliateCode } from '../api/_lib/storeAffiliateCode.ts';
 import { matchStoreAffiliateCommission } from '../api/_lib/storeAffiliateLive.ts';
@@ -68,6 +70,10 @@ assert.equal(byId.restaurant_6.priceSar, STORE_RESTAURANT_LIVE_PRICE_6_SAR);
 assert.equal(byId.restaurant_6.commissionSar, 99);
 assert.equal(byId.restaurant_12.priceSar, STORE_RESTAURANT_LIVE_PRICE_12_SAR);
 assert.equal(byId.restaurant_12.commissionSar, 199);
+assert.equal(byId.kitchen_6.priceSar, STORE_KITCHEN_LIVE_PRICE_6_SAR);
+assert.equal(byId.kitchen_6.commissionSar, 100);
+assert.equal(byId.kitchen_12.priceSar, STORE_KITCHEN_LIVE_PRICE_12_SAR);
+assert.equal(byId.kitchen_12.commissionSar, 200);
 
 assert.equal(affiliateNetSar(899, 99), 800);
 assert.equal(affiliateNetSar(600, 100), 500);
@@ -83,6 +89,10 @@ assert.equal(affiliateNetSar(699, 99), 600);
 assert.equal(affiliateNetSar(999, 199), 800);
 assert.equal(restaurantAffiliateCommissionSar('m6'), 99);
 assert.equal(restaurantAffiliateCommissionSar('m12'), 199);
+assert.equal(kitchenAffiliateCommissionSar('m6'), 100);
+assert.equal(kitchenAffiliateCommissionSar('m12'), 200);
+assert.equal(affiliateNetSar(300, 100), 200);
+assert.equal(affiliateNetSar(600, 200), 400);
 
 assert.doesNotMatch(linesBlob, /store_occasion_card/);
 assert.ok(STORE_AFFILIATE_LINES.every((line) => ![12, 29, 59].includes(line.priceSar)));
@@ -103,6 +113,8 @@ assert.deepEqual(matchStoreAffiliateCommission('store_grocers_live', 89800), { l
 assert.deepEqual(matchStoreAffiliateCommission('store_grocers_live', 139800), { lineId: 'grocers_chat_12', commissionHalalas: 39800 });
 assert.deepEqual(matchStoreAffiliateCommission('store_restaurant_live', 69900), { lineId: 'restaurant_6', commissionHalalas: 9900 });
 assert.deepEqual(matchStoreAffiliateCommission('store_restaurant_live', 99900), { lineId: 'restaurant_12', commissionHalalas: 19900 });
+assert.deepEqual(matchStoreAffiliateCommission('store_kitchen_live', 30000), { lineId: 'kitchen_6', commissionHalalas: 10000 });
+assert.deepEqual(matchStoreAffiliateCommission('store_kitchen_live', 60000), { lineId: 'kitchen_12', commissionHalalas: 20000 });
 assert.equal(matchStoreAffiliateCommission('store_occasion_card', 5900), null);
 assert.equal(matchStoreAffiliateCommission('store_occasion_card', 1200), null);
 assert.equal(matchStoreAffiliateCommission('store_wedding_live', 5900), null);
@@ -175,12 +187,15 @@ assert.match(loungeForm, /affiliateCode/);
 assert.match(grocersForm, /affiliateCode/);
 assert.match(restaurantForm, /affiliateCode/);
 assert.match(lane, /restaurant/);
+assert.match(lane, /kitchen/);
 assert.match(api, /storeAffiliateCheckoutLinks/);
 assert.match(magicLib, /productLinks/);
 assert.match(readFileSync(join(root, 'api/_lib/storeAffiliateCode.ts'), 'utf8'), /store\/restaurant\$\{q\}/);
+assert.match(readFileSync(join(root, 'api/_lib/storeAffiliateCode.ts'), 'utf8'), /store\/kitchen\$\{q\}/);
 assert.match(lane, /StoreProductLinkIconGrid/);
 assert.doesNotMatch(STORE_AFFILIATE_COPY.storeLeadAr, /مطعمنا1 حتى/);
 assert.match(STORE_AFFILIATE_COPY.storeOngoingAr, /مطعمنا1/);
+assert.match(STORE_AFFILIATE_COPY.storeOngoingAr, /طبختنا1/);
 assert.match(chrome, /rememberStoreAffiliateRef/);
 assert.match(readFileSync(join(root, 'src/lib/storeAffiliateRef.ts'), 'utf8'), /localStorage/);
 

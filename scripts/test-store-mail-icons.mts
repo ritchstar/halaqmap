@@ -10,6 +10,7 @@ import {
   buildEventLiveLinksHtml,
   buildGrocersLiveLinksHtml,
   buildLoungeLiveLinksHtml,
+  buildKitchenLiveLinksHtml,
   buildRestaurantLiveLinksHtml,
   buildStoreAffiliateMagicHtml,
   buildWeddingLiveLinksHtml,
@@ -40,9 +41,10 @@ const lounge = buildLoungeLiveLinksHtml({
 });
 const grocers = buildGrocersLiveLinksHtml({ shopUrl: shop, deskUrl: desk, expiresLabel: '2026-12-01' });
 const restaurant = buildRestaurantLiveLinksHtml({ shopUrl: shop, deskUrl: desk, expiresLabel: '2026-12-01' });
+const kitchen = buildKitchenLiveLinksHtml({ shopUrl: shop, deskUrl: desk, expiresLabel: '2026-12-01' });
 const affiliate = buildStoreAffiliateMagicHtml({ loginUrl: login, productLinks: products });
 
-for (const html of [wedding, event, lounge, grocers, restaurant, affiliate]) {
+for (const html of [wedding, event, lounge, grocers, restaurant, kitchen, affiliate]) {
   assert.match(html, /align="center"/);
   assert.match(html, /text-align:center/);
   assert.ok(html.includes(STORE_MAIL_ENGINE_LINE_AR));
@@ -60,10 +62,16 @@ assert.match(lounge, /لاونجا1/);
 assert.ok(lounge.includes(guest));
 assert.match(grocers, /تمويناتا1/);
 assert.match(restaurant, /مطعمنا1/);
+assert.match(kitchen, /طبختنا1/);
+assert.match(kitchen, /صفحة الزبون/);
+assert.match(kitchen, /لوحة النشاط/);
+assert.doesNotMatch(kitchen, /أكلنا1/);
 assert.match(affiliate, /المجموعة التسويقية للمتجر الإلكتروني/);
 assert.match(affiliate, /لوحة المسوّق/);
 assert.ok(affiliate.includes(products.wedding));
 assert.ok(affiliate.includes(products.restaurant));
+assert.ok(affiliate.includes(products.kitchen));
+assert.match(affiliate, /طبختنا1/);
 assert.ok(affiliate.includes(login));
 
 assert.equal(storeMailTheme('wedding').accent, STORE_MAIL_PRODUCT_ICONS[0].accent);
@@ -71,6 +79,7 @@ assert.equal(storeMailTheme('event').accent, STORE_MAIL_PRODUCT_ICONS[1].accent)
 assert.equal(storeMailTheme('lounge').accent, STORE_MAIL_PRODUCT_ICONS[2].accent);
 assert.equal(storeMailTheme('grocers').accent, STORE_MAIL_PRODUCT_ICONS[3].accent);
 assert.equal(storeMailTheme('restaurant').accent, STORE_MAIL_PRODUCT_ICONS[4].accent);
+assert.equal(storeMailTheme('kitchen').accent, STORE_MAIL_PRODUCT_ICONS[6].accent);
 assert.equal(storeMailTheme('affiliate').accent, STORE_MAIL_AFFILIATE_ICON.accent);
 assert.equal(products.wedding, 'https://www.halaqmap.com/#/store/wedding?ref=abcdef12');
 

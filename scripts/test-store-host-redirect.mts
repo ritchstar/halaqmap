@@ -157,6 +157,24 @@ assert.equal(
   'https://store.halaqmap.com/#/r/restaurant-lab/desk',
 );
 
+assert.equal(isStoreHostPaymentPath('/pay/kitchen/abc'), true);
+
+assert.equal(
+  resolveMensHostStoreRedirect({
+    host: 'www.halaqmap.com',
+    hashPath: ROUTE_PATHS.STORE_KITCHEN,
+  }),
+  'https://store.halaqmap.com/#/store/kitchen',
+);
+
+assert.equal(
+  resolveMensHostStoreRedirect({
+    host: 'www.halaqmap.com',
+    hashPath: '/k/kitchen-lab/desk',
+  }),
+  'https://store.halaqmap.com/#/k/kitchen-lab/desk',
+);
+
 assert.equal(
   resolveMensHostStoreRedirect({
     host: 'store.halaqmap.com',

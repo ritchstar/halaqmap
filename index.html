@@ -578,6 +578,7 @@
             var earlyGrocers = (earlyParams.get('store_grocers_token') || '').trim();
             var earlyRestaurant = (earlyParams.get('store_restaurant_token') || '').trim();
             var earlyCafe = (earlyParams.get('store_cafe_token') || '').trim();
+            var earlyKitchen = (earlyParams.get('store_kitchen_token') || '').trim();
             var earlyPath =
               earlyPurpose === 'store_occasion_card' && earlyToken
                 ? '/pay/occasion-card/' + encodeURIComponent(earlyToken)
@@ -593,6 +594,8 @@
                         ? '/pay/restaurant/' + encodeURIComponent(earlyRestaurant || earlyToken)
                       : earlyPurpose === 'store_cafe_live' && (earlyCafe || earlyToken)
                         ? '/pay/cafe/' + encodeURIComponent(earlyCafe || earlyToken)
+                      : earlyPurpose === 'store_kitchen_live' && (earlyKitchen || earlyToken)
+                        ? '/pay/kitchen/' + encodeURIComponent(earlyKitchen || earlyToken)
                       : paymentPath;
             var paymentTarget = window.location.origin + '/#' + earlyPath + search;
             if (window.location.href !== paymentTarget) {
@@ -655,6 +658,13 @@
             window.location.replace(window.location.origin + '/#' + cafePath + search);
             return;
           }
+          var kitchenToken = (params.get('store_kitchen_token') || '').trim();
+          if (purpose === 'store_kitchen_live' && kitchenToken) {
+            var kitchenPath = '/pay/kitchen/' + encodeURIComponent(kitchenToken);
+            if (hashPath === kitchenPath) return;
+            window.location.replace(window.location.origin + '/#' + kitchenPath + search);
+            return;
+          }
           var hasMoyasarReturn =
             params.get('id') || params.get('status') === 'failed' || params.get('message');
           if (!hasMoyasarReturn) return;
@@ -665,6 +675,7 @@
           if (hashPath.indexOf('/pay/grocers/') === 0) return;
           if (hashPath.indexOf('/pay/restaurant/') === 0) return;
           if (hashPath.indexOf('/pay/cafe/') === 0) return;
+          if (hashPath.indexOf('/pay/kitchen/') === 0) return;
           if (hashPath === paymentPath) return;
           window.location.replace(window.location.origin + '/#' + paymentPath + search);
         } catch (e) {}

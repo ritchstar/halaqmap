@@ -37,6 +37,7 @@ import { STORE_LOUNGE_LIVE_PUBLIC_ENABLED } from '@/config/storeLoungeLive';
 import { STORE_GROCERS_LIVE, STORE_GROCERS_LIVE_PUBLIC_ENABLED } from '@/config/storeGrocersLive';
 import { STORE_RESTAURANT_LIVE, STORE_RESTAURANT_LIVE_PUBLIC_ENABLED } from '@/config/storeRestaurantLive';
 import { STORE_CAFE_LIVE, STORE_CAFE_LIVE_PUBLIC_ENABLED } from '@/config/storeCafeLive';
+import { STORE_KITCHEN_LIVE, STORE_KITCHEN_LIVE_PUBLIC_ENABLED } from '@/config/storeKitchenLive';
 import { storeLiveProductReel, storeSoftwareShotReel } from '@/config/storeMarketingReels';
 
 export default function StoreLanding() {
@@ -242,6 +243,25 @@ export default function StoreLanding() {
               <p className="mt-2 max-w-3xl text-sm leading-7 text-white/70">{STORE_LANDING_COPY.cafeLiveLeadAr}</p>
               <Link to={ROUTE_PATHS.STORE_CAFE} className="mt-4 inline-flex text-sm font-bold text-[#c48a4a]">
                 {STORE_LANDING_COPY.cafeLiveCtaAr}
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+      ) : null}
+
+      {STORE_KITCHEN_LIVE_PUBLIC_ENABLED ? (
+      <section className="px-4 pb-8">
+        <div className="mx-auto max-w-5xl">
+          <div className="overflow-hidden rounded-2xl border border-[#b45a3c]/30 bg-[#1a0c08]/70">
+            <div className="flex aspect-[16/7] items-center justify-center bg-gradient-to-br from-[#b45a3c]/40 to-[#061018] px-6 text-center">
+              <p className="text-3xl font-black">{STORE_KITCHEN_LIVE.titleAr}</p>
+            </div>
+            <div className="p-5 md:p-6">
+              <h2 className="text-xl font-extrabold">{STORE_LANDING_COPY.kitchenLiveTitleAr}</h2>
+              <p className="mt-2 max-w-3xl text-sm leading-7 text-white/70">{STORE_LANDING_COPY.kitchenLiveLeadAr}</p>
+              <Link to={ROUTE_PATHS.STORE_KITCHEN} className="mt-4 inline-flex text-sm font-bold text-[#b45a3c]">
+                {STORE_LANDING_COPY.kitchenLiveCtaAr}
               </Link>
             </div>
           </div>

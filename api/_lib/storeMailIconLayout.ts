@@ -7,7 +7,7 @@
 import { resolveResendFromAddress } from './resendFrom.js';
 import { storeAffiliateCheckoutLinks, type StoreAffiliateCheckoutLinks } from './storeAffiliateCode.js';
 
-export type StoreMailThemeId = 'wedding' | 'event' | 'lounge' | 'grocers' | 'restaurant' | 'cafe' | 'affiliate';
+export type StoreMailThemeId = 'wedding' | 'event' | 'lounge' | 'grocers' | 'restaurant' | 'cafe' | 'kitchen' | 'affiliate';
 
 export type StoreMailTheme = {
   id: StoreMailThemeId;
@@ -81,6 +81,15 @@ const THEMES: Record<StoreMailThemeId, StoreMailTheme> = {
     ink: '#1a1008',
     canvas: '#1a120c',
     ring: '#e0b27a',
+  },
+  kitchen: {
+    id: 'kitchen',
+    markAr: 'ط',
+    titleAr: 'طبختنا1',
+    accent: '#b45a3c',
+    ink: '#1a0c08',
+    canvas: '#1a0c08',
+    ring: '#d48a6a',
   },
   affiliate: {
     id: 'affiliate',
@@ -401,6 +410,44 @@ export function buildRestaurantLiveLinksHtml(input: {
   });
 }
 
+export function buildKitchenLiveLinksHtml(input: {
+  shopUrl: string;
+  deskUrl: string;
+  expiresLabel: string;
+  renewed?: boolean;
+}): string {
+  const theme = THEMES.kitchen;
+  return buildStoreMailHtml({
+    theme: 'kitchen',
+    kickerAr: theme.titleAr,
+    titleAr: input.renewed ? 'تمديد صفحة النشاط' : 'روابط التشغيل جاهزة',
+    leadAr: input.renewed
+      ? 'الروابط نفسها لم تتغير. اضغط الأيقونة لفتح المسار.'
+      : 'اضغط الأيقونة لفتح صفحة الزبون أو لوحة النشاط.',
+    iconRows: [
+      [
+        {
+          href: input.shopUrl,
+          markAr: theme.markAr,
+          titleAr: theme.titleAr,
+          captionAr: 'صفحة الزبون',
+          theme: 'kitchen',
+        },
+        {
+          href: input.deskUrl,
+          markAr: 'ط',
+          titleAr: theme.titleAr,
+          captionAr: 'لوحة النشاط',
+          theme: 'kitchen',
+        },
+      ],
+    ],
+    notesAr: [
+      `تنتهي المدة في ${input.expiresLabel}. بعد انتهائها تبقى الروابط وتحيلكم لإعادة الشراء على نفس الصفحة.`,
+    ],
+  });
+}
+
 export function buildCafeLiveLinksHtml(input: {
   shopUrl: string;
   deskUrl: string;
@@ -530,6 +577,13 @@ export function buildStoreAffiliateMagicHtml(input: {
       titleAr: THEMES.cafe.titleAr,
       captionAr: 'رابط الشراء',
       theme: 'cafe',
+    },
+    {
+      href: input.productLinks.kitchen,
+      markAr: THEMES.kitchen.markAr,
+      titleAr: THEMES.kitchen.titleAr,
+      captionAr: 'رابط الشراء',
+      theme: 'kitchen',
     },
   ];
   return buildStoreMailHtml({
