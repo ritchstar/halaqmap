@@ -9,6 +9,7 @@ import { ChevronDown } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { StoreVisitorFooter, StoreVisitorHeader, StoreVisitorShell } from '@/components/store/StoreChrome';
 import { StoreEnterpriseDirectMail } from '@/components/store/StoreEnterpriseDirectMail';
+import { StoreProductBenefitsLink } from '@/components/store/StoreProductBenefitsLink';
 import { StoreRestaurantOrderForm } from '@/components/store/StoreRestaurantOrderForm';
 import { StoreShot } from '@/components/store/StoreShot';
 import { StoreRestaurantStudio } from '@/components/store/StoreRestaurantStudio';
@@ -119,6 +120,7 @@ export default function StoreRestaurantLandingPage() {
               >
                 {STORE_RESTAURANT_LIVE.orderCtaAr}
               </a>
+              <StoreProductBenefitsLink />
             </div>
             <Collapsible open={termsOpen} onOpenChange={setTermsOpen} className="mt-6">
               <CollapsibleTrigger type="button" className="flex w-full items-center justify-between gap-3 rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-right text-sm font-semibold">

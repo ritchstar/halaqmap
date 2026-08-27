@@ -10,6 +10,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { StoreVisitorFooter, StoreVisitorHeader, StoreVisitorShell } from '@/components/store/StoreChrome';
 import { StoreEnterpriseDirectMail } from '@/components/store/StoreEnterpriseDirectMail';
 import { StoreGrocersOrderForm } from '@/components/store/StoreGrocersOrderForm';
+import { StoreProductBenefitsLink } from '@/components/store/StoreProductBenefitsLink';
 import { StoreShot } from '@/components/store/StoreShot';
 import { StoreGrocersStudio } from '@/components/store/StoreGrocersStudio';
 import {
@@ -101,6 +102,7 @@ export default function StoreGrocersLandingPage() {
               >
                 {STORE_GROCERS_LIVE.orderCtaAr}
               </a>
+              <StoreProductBenefitsLink />
             </div>
             <StoreEnterpriseDirectMail
               className="mt-5 max-w-xl"

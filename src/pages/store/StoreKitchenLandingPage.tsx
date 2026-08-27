@@ -10,6 +10,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { StoreVisitorFooter, StoreVisitorHeader, StoreVisitorShell } from '@/components/store/StoreChrome';
 import { StoreEnterpriseDirectMail } from '@/components/store/StoreEnterpriseDirectMail';
 import { StoreKitchenOrderForm } from '@/components/store/StoreKitchenOrderForm';
+import { StoreProductBenefitsLink } from '@/components/store/StoreProductBenefitsLink';
 import { StoreKitchenStudio } from '@/components/store/StoreKitchenStudio';
 import { StoreShot } from '@/components/store/StoreShot';
 import {
@@ -115,6 +116,7 @@ export default function StoreKitchenLandingPage() {
               >
                 {STORE_KITCHEN_LIVE.tryCtaAr}
               </a>
+              <StoreProductBenefitsLink />
             </div>
             <Collapsible open={termsOpen} onOpenChange={setTermsOpen} className="mt-6">
               <CollapsibleTrigger type="button" className="flex w-full items-center justify-between gap-3 rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-right text-sm font-semibold">

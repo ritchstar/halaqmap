@@ -12,6 +12,7 @@ import {
   StoreVisitorHeader,
   StoreVisitorShell,
 } from '@/components/store/StoreChrome';
+import { StoreProductBenefitsLink } from '@/components/store/StoreProductBenefitsLink';
 import { StoreShot } from '@/components/store/StoreShot';
 import {
   STORE_PAID_INVITE_CHECKOUT_ENABLED,
@@ -112,6 +113,7 @@ export default function StorePaidInviteStudioPage() {
           <p className="text-sm font-bold text-[#e8c547]">{STORE_PAID_INVITE_COPY.kicker}</p>
           <h1 className="mt-2 text-3xl font-extrabold">{STORE_PAID_INVITE_COPY.titleAr}</h1>
           <p className="mt-3 text-sm leading-7 text-white/75">{STORE_PAID_INVITE_COPY.leadAr}</p>
+          <StoreProductBenefitsLink className="mt-4 inline-flex" />
           <p className="mt-2 text-xs text-white/50">
             سريعة {STORE_PAID_INVITE_PRICES_SAR.quick} · مميزة {STORE_PAID_INVITE_PRICES_SAR.featured} · فاخرة{' '}
             {STORE_PAID_INVITE_PRICES_SAR.luxury} ر.س. {STORE_PAID_INVITE_COPY.noPackAr}

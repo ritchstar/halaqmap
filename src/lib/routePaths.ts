@@ -44,6 +44,8 @@ export const ROUTE_PATHS = {
   STORE_MEET_QR: '/store/qr',
   /** تعريف المتجر والأنشطة والمنتجات البرمجية */
   STORE_ABOUT: '/store/about',
+  /** مزايا المنتجات المستضافة — إحالة من صفحات العرض */
+  STORE_PRODUCT_BENEFITS: '/store/benefits',
   /** تصنيفات وفحوص مستقلة قابلة للتحقق */
   STORE_TRUST: '/store/trust',
   /** شروط وأحكام وخصوصية منتجات المتجر الرقمية */

@@ -10,6 +10,7 @@ import {
   StoreVisitorShell,
 } from '@/components/store/StoreChrome';
 import { StoreLaterServicesSection } from '@/components/store/StoreLaterServicesSection';
+import { StoreProductBenefitsLink } from '@/components/store/StoreProductBenefitsLink';
 import { StoreShot } from '@/components/store/StoreShot';
 import { LICENSED_COMMERCIAL_ACTIVITIES } from '@/config/licensedCommercialActivities';
 import {
@@ -18,6 +19,8 @@ import {
   STORE_LIVE_PRODUCTS,
   STORE_PUBLIC_NAME_AR,
 } from '@/config/storeFront';
+import { STORE_CLOUD_SECTION_ID } from '@/config/storeCloudServicesCopy';
+import { STORE_PRODUCT_BENEFITS_COPY } from '@/config/storeProductBenefitsCopy';
 import { storeLiveProductReel } from '@/config/storeMarketingReels';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { ROUTE_PATHS } from '@/lib/routePaths';
@@ -86,6 +89,22 @@ export default function StoreAboutPage() {
             >
               {STORE_ABOUT_COPY.natureCta}
             </Link>
+          </section>
+
+          <section
+            id={STORE_CLOUD_SECTION_ID}
+            className="mt-8 scroll-mt-24 rounded-2xl border border-[#e8c547]/30 bg-[#0b1a24]/80 p-5 md:p-7"
+          >
+            <p className="text-sm font-bold tracking-wide text-[#e8c547]">
+              {STORE_PRODUCT_BENEFITS_COPY.aboutTeaserKickerAr}
+            </p>
+            <h2 className="mt-2 text-2xl font-extrabold text-[#f4efe4] md:text-3xl">
+              {STORE_PRODUCT_BENEFITS_COPY.aboutTeaserTitleAr}
+            </h2>
+            <p className="mt-4 text-sm leading-7 text-white/78 md:text-base md:leading-8">
+              {STORE_PRODUCT_BENEFITS_COPY.aboutTeaserBodyAr}
+            </p>
+            <StoreProductBenefitsLink className="mt-5 inline-flex" />
           </section>
 
           <section className="mt-8 rounded-2xl border border-[#e8c547]/25 bg-[#0b1a24]/70 p-5 md:p-6">
@@ -181,35 +200,22 @@ export default function StoreAboutPage() {
           </section>
 
           <section className="mt-10 grid gap-8 lg:grid-cols-2">
-            <div className="rounded-2xl border border-white/12 bg-[#0b1a24]/80 p-5 md:p-6">
-              <h2 className="text-2xl font-extrabold text-[#f4efe4]">{STORE_ABOUT_COPY.cloudTitle}</h2>
-              <p className="mt-3 text-sm leading-7 text-white/75 md:text-base md:leading-8">
-                {STORE_ABOUT_COPY.cloudLead}
-              </p>
-              <ul className="mt-4 space-y-2">
-                {STORE_ABOUT_COPY.cloudPoints.map((point) => (
-                  <li key={point} className="text-sm leading-7 text-white/72 md:text-base">
-                    {point}
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div className="overflow-hidden rounded-2xl border border-white/12 bg-white/[0.04]">
+            <div className="overflow-hidden rounded-2xl border border-white/12 bg-white/[0.04] lg:col-span-2">
               <StoreShot
                 reel="halaq"
                 alt="رادار استعلام برمجي لمنتج حلاق ماب ضمن أعمال المتجر"
-                className="aspect-[16/9]"
+                className="aspect-[16/9] max-h-72 w-full object-cover"
               />
               <div className="p-5 md:p-6">
                 <h2 className="text-2xl font-extrabold text-[#f4efe4]">{STORE_ABOUT_COPY.detailsTitle}</h2>
-                <ul className="mt-4 space-y-2">
+                <ul className="mt-4 grid gap-2 md:grid-cols-2">
                   {STORE_ABOUT_COPY.detailsIn.map((item) => (
                     <li key={item} className="text-sm leading-7 text-white/72">
                       {item}
                     </li>
                   ))}
                 </ul>
-                <ul className="mt-4 space-y-2 border-t border-white/10 pt-4">
+                <ul className="mt-4 grid gap-2 border-t border-white/10 pt-4 md:grid-cols-2">
                   {STORE_ABOUT_COPY.detailsOut.map((item) => (
                     <li key={item} className="text-sm leading-7 text-white/55">
                       {item}

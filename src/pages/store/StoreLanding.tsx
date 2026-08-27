@@ -15,6 +15,7 @@ import {
 import { StoreDeskChatCard } from '@/components/store/StoreDeskChatCard';
 import { StoreLaterServicesSection } from '@/components/store/StoreLaterServicesSection';
 import { StoreLiveOpsBanner } from '@/components/store/StoreLiveOpsBanner';
+import { StoreProductBenefitsLink } from '@/components/store/StoreProductBenefitsLink';
 import { StoreShot } from '@/components/store/StoreShot';
 import {
   STORE_GREETING_OCCASIONS,
@@ -93,13 +94,16 @@ export default function StoreLanding() {
               </Link>
               {STORE_LANDING_COPY.heroInviteAfter}
             </p>
-            <Link
-              to={ROUTE_PATHS.STORE_REQUEST}
-              className="mt-6 inline-flex rounded-full bg-[#e8c547] px-5 py-2.5 text-sm font-extrabold text-[#061018] shadow-[0_12px_30px_-12px_rgba(232,197,71,0.8)] hover:bg-[#f0d36a]"
-              onClick={openRequestForm}
-            >
-              {STORE_LANDING_COPY.heroCta}
-            </Link>
+            <div className="mt-6 flex flex-wrap gap-3">
+              <Link
+                to={ROUTE_PATHS.STORE_REQUEST}
+                className="inline-flex rounded-full bg-[#e8c547] px-5 py-2.5 text-sm font-extrabold text-[#061018] shadow-[0_12px_30px_-12px_rgba(232,197,71,0.8)] hover:bg-[#f0d36a]"
+                onClick={openRequestForm}
+              >
+                {STORE_LANDING_COPY.heroCta}
+              </Link>
+              <StoreProductBenefitsLink />
+            </div>
           </div>
           <figure className="overflow-hidden rounded-2xl border border-[#e8c547]/30 shadow-[0_24px_60px_-28px_rgba(232,197,71,0.45)]">
             <StoreShot

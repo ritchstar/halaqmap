@@ -9,6 +9,7 @@ import {
   StoreVisitorHeader,
   StoreVisitorShell,
 } from '@/components/store/StoreChrome';
+import { StoreProductBenefitsLink } from '@/components/store/StoreProductBenefitsLink';
 import { StoreShot } from '@/components/store/StoreShot';
 import { STORE_EVENT_LIVE, STORE_EVENT_LIVE_PUBLIC_ENABLED } from '@/config/storeEventLive';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
@@ -30,6 +31,9 @@ export default function StoreEventHubPage() {
           <h1 className="mt-2 text-4xl font-extrabold leading-tight text-[#f4efe4]">{STORE_EVENT_LIVE.hubTitleAr}</h1>
           <p className="mx-auto mt-4 max-w-2xl text-base leading-8 text-white/75">{STORE_EVENT_LIVE.hubLeadAr}</p>
           <p className="mt-4 text-2xl font-black text-[#e8c547]">{STORE_EVENT_LIVE.priceLineAr}</p>
+          <div className="mt-6 flex justify-center">
+            <StoreProductBenefitsLink />
+          </div>
         </div>
         <div className="mx-auto mt-10 grid max-w-4xl gap-5 md:grid-cols-2">
           <Link

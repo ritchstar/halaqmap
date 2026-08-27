@@ -14,6 +14,7 @@ import {
 } from '@/components/store/StoreChrome';
 import { StoreEnterpriseDirectMail } from '@/components/store/StoreEnterpriseDirectMail';
 import { StoreEventInviteCard } from '@/components/store/StoreEventInviteCard';
+import { StoreProductBenefitsLink } from '@/components/store/StoreProductBenefitsLink';
 import { StoreShot } from '@/components/store/StoreShot';
 import { StoreEventLiveStudio } from '@/components/store/StoreEventLiveStudio';
 import { StoreEventOrderForm } from '@/components/store/StoreEventOrderForm';
@@ -99,6 +100,7 @@ export default function StoreEventLandingPage() {
               <Link to={ROUTE_PATHS.STORE_EVENT} className="rounded-full border border-white/15 px-5 py-2.5 text-sm font-bold text-white/55">
                 غيّر التصنيف
               </Link>
+              <StoreProductBenefitsLink />
             </div>
             <StoreEnterpriseDirectMail
               className="mt-5 max-w-xl"

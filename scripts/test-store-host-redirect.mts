@@ -42,6 +42,14 @@ assert.equal(
 assert.equal(
   resolveMensHostStoreRedirect({
     host: 'www.halaqmap.com',
+    hashPath: ROUTE_PATHS.STORE_PRODUCT_BENEFITS,
+  }),
+  'https://store.halaqmap.com/#/store/benefits',
+);
+
+assert.equal(
+  resolveMensHostStoreRedirect({
+    host: 'www.halaqmap.com',
     hashPath: ROUTE_PATHS.STORE_TRUST,
   }),
   'https://store.halaqmap.com/#/store/trust',

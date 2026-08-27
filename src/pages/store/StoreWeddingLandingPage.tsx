@@ -13,6 +13,7 @@ import {
   StoreVisitorShell,
 } from '@/components/store/StoreChrome';
 import { StoreEnterpriseDirectMail } from '@/components/store/StoreEnterpriseDirectMail';
+import { StoreProductBenefitsLink } from '@/components/store/StoreProductBenefitsLink';
 import { StoreShot } from '@/components/store/StoreShot';
 import { StoreWeddingInviteCard } from '@/components/store/StoreWeddingInviteCard';
 import { StoreWeddingLiveStudio } from '@/components/store/StoreWeddingLiveStudio';
@@ -112,6 +113,7 @@ export default function StoreWeddingLandingPage() {
               <Link to={sisterHref} className="rounded-full border border-white/15 px-5 py-2.5 text-sm font-bold text-white/55">
                 {sisterLabel}
               </Link>
+              <StoreProductBenefitsLink />
             </div>
             <StoreEnterpriseDirectMail
               className="mt-5 max-w-xl"

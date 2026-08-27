@@ -8,8 +8,9 @@ import { Link, Navigate } from 'react-router-dom';
 import { ChevronDown } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { StoreVisitorFooter, StoreVisitorHeader, StoreVisitorShell } from '@/components/store/StoreChrome';
-import { StoreEnterpriseDirectMail } from '@/components/store/StoreEnterpriseDirectMail';
 import { StoreCafeOrderForm } from '@/components/store/StoreCafeOrderForm';
+import { StoreEnterpriseDirectMail } from '@/components/store/StoreEnterpriseDirectMail';
+import { StoreProductBenefitsLink } from '@/components/store/StoreProductBenefitsLink';
 import { StoreShot } from '@/components/store/StoreShot';
 import { StoreCafeStudio } from '@/components/store/StoreCafeStudio';
 import {
@@ -119,6 +120,7 @@ export default function StoreCafeLandingPage() {
               >
                 {STORE_CAFE_LIVE.orderCtaAr}
               </a>
+              <StoreProductBenefitsLink />
             </div>
             <Collapsible open={termsOpen} onOpenChange={setTermsOpen} className="mt-6">
               <CollapsibleTrigger type="button" className="flex w-full items-center justify-between gap-3 rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-right text-sm font-semibold">

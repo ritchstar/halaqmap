@@ -2,7 +2,7 @@
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
 import { motion } from "framer-motion";
-import { MapPin, Target, Eye, Zap, Shield, Award } from "lucide-react";
+import { Award, Cloud, Eye, MapPin, Shield, Target, Zap } from "lucide-react";
 import { IMAGES } from "@/assets/images";
 import { LegalObserverChat } from '@/components/LegalObserverChat';
 import { PlatformStoryHighlights } from '@/components/about/PlatformStoryHighlights';
@@ -18,6 +18,7 @@ import { Link } from "react-router-dom";
 import { ROUTE_PATHS } from '@/lib/index';
 import { LICENSED_COMMERCIAL_ACTIVITIES } from '@/config/licensedCommercialActivities';
 import { LEGAL_ENTITY_ABOUT_FOOTER_LINE_AR } from '@/config/partnerLegal';
+import { PLATFORM_ABOUT_CLOUD_COPY } from '@/config/storeCloudServicesCopy';
 import { PUBLIC_PULSE_EXPERIENCE_ENABLED } from '@/config/publicPulseExperience';
 import { PULSE_MAP_LINK_LABEL_AR } from '@/config/pulseMapConfig';
 
@@ -211,6 +212,37 @@ export default function About() {
                 </div>
               ))}
             </div>
+          </motion.div>
+        </div>
+      </section>
+
+      <section className="border-y border-primary/15 bg-primary/5 py-16">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="mx-auto max-w-3xl text-center"
+          >
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-2 text-xs font-bold text-primary">
+              <Cloud className="h-4 w-4" />
+              <span>{PLATFORM_ABOUT_CLOUD_COPY.kickerAr}</span>
+            </div>
+            <h2 className="text-3xl font-bold text-foreground">{PLATFORM_ABOUT_CLOUD_COPY.titleAr}</h2>
+            <p className="mt-4 text-base leading-8 text-muted-foreground md:text-lg">
+              {PLATFORM_ABOUT_CLOUD_COPY.bodyBeforeMarkAr}
+              <code dir="ltr" className="mx-1 inline-block rounded bg-primary/10 px-1.5 py-0.5 text-[0.9em] font-bold text-primary">
+                {PLATFORM_ABOUT_CLOUD_COPY.latinMark}
+              </code>
+              {PLATFORM_ABOUT_CLOUD_COPY.bodyAfterMarkAr}
+            </p>
+            <Link
+              to={ROUTE_PATHS.STORE_PRODUCT_BENEFITS}
+              className="mt-6 inline-flex rounded-full bg-primary px-5 py-2.5 text-sm font-extrabold text-primary-foreground"
+            >
+              {PLATFORM_ABOUT_CLOUD_COPY.ctaAr}
+            </Link>
           </motion.div>
         </div>
       </section>
