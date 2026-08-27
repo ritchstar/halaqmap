@@ -53,12 +53,19 @@ function timingSafeEq(a: string, b: string): boolean {
   return diff === 0;
 }
 
-const RESEND_SENDER_DISPLAY_NAME_AR = "حلاق ماب";
+const RESEND_SENDER_DISPLAY_NAME_AR = "halaqmap خريطة الحل";
+const LEGACY_SENDER_NAMES = new Set(["حلاق ماب", "Halaq Map", "HalaqMap", "HALAQ MAP"]);
 
 function extractResendEmailAddress(raw: string): string {
   const trimmed = raw.trim();
   const m = trimmed.match(/^[^<]*<([^>]+)>$/);
   return (m?.[1] ?? trimmed).trim();
+}
+
+function resolveResendSenderDisplayName(): string {
+  const raw = (Deno.env.get("RESEND_FROM_NAME") ?? Deno.env.get("RESEND_SENDER_NAME") ?? "").trim();
+  if (!raw || LEGACY_SENDER_NAMES.has(raw)) return RESEND_SENDER_DISPLAY_NAME_AR;
+  return raw;
 }
 
 /** حقل `from` بصيغة Resend — يمنع ظهور ADMIN من local-part مثل admin@… */
@@ -67,10 +74,7 @@ function resolveResendFromAddress(rawFrom?: string): string {
   if (!raw) return "";
   const email = extractResendEmailAddress(raw);
   if (!email.includes("@")) return raw;
-  const name =
-    (Deno.env.get("RESEND_FROM_NAME") ?? Deno.env.get("RESEND_SENDER_NAME") ?? RESEND_SENDER_DISPLAY_NAME_AR).trim() ||
-    RESEND_SENDER_DISPLAY_NAME_AR;
-  return `${name} <${email}>`;
+  return `${resolveResendSenderDisplayName()} <${email}>`;
 }
 
 function resolveWebhookSecret(): string {
@@ -553,6 +557,8 @@ async function sendResendConfirmation(input: {
       : `<p>تم <strong>تفعيل حسابك عبر نظام الرصد الذكي</strong> ويمكنك البدء باستقبال الطلبات من لوحة التحكم.</p>`
     : `<p>تم استلام المبلغ بنجاح. إذا لم يظهر صالونك عبر نظام الرصد الذكي بعد، تأكد من إكمال التسجيل وربط معرّف الحلاق في عملية الدفع أو تواصل مع الدعم.</p>`;
   const html = `<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8"></head><body style="font-family:Tahoma,Arial,sans-serif;line-height:1.85;padding:24px;background:#f8fafc">
+<p style="margin:0 0 4px;font-size:13px;font-weight:800;color:#0f766e">halaqmap خريطة الحل</p>
+<p style="margin:0 0 16px;font-size:12px;color:#64748b">نوع الرسالة: ${input.accountActivated ? "تأكيد سداد وتفعيل رخصة النفاذ" : "تأكيد استلام سداد رخصة النفاذ"}</p>
 <p>أهلًا <strong>${escapeHtml(input.barberName)}</strong>،</p>
 <p>شكرًا لك، تم استلام قيمة <strong>حزمة الرخصة لخدمات الإدراج</strong> (Halaqmap Software Package) بنجاح عبر <strong>بوابة الدفع</strong>.</p>
 ${activationBlock}
@@ -563,7 +569,7 @@ ${activationBlock}
 <p>مرجع الفاتورة/الإيصال: <a href="${escapeHtml(input.invoiceHref)}">عرض الرابط</a>
 <span style="font-size:12px;color:#64748b">(إن وُجد <code>invoice_url</code> في بيانات الدفع يُستبدل هذا الرابط تلقائياً)</span></p>
 <p>لأي استفسار ردّ على هذا البريد أو من صفحة التواصل في الموقع.</p>
-<p style="font-size:13px;color:#64748b">— فريق حلاق ماب</p>
+<p style="font-size:13px;color:#64748b">— متجر خريطة الحل</p>
 </body></html>`;
 
   const resp = await fetch("https://api.resend.com/emails", {
@@ -603,12 +609,14 @@ async function sendResendPaymentFailure(input: {
 }): Promise<{ ok: true } | { ok: false; error: string }> {
   const subject = "حلاق ماب | لم يكتمل شراء حزمة الرخصة";
   const html = `<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8"></head><body style="font-family:Tahoma,Arial,sans-serif;line-height:1.85;padding:24px;background:#fef2f2">
+<p style="margin:0 0 4px;font-size:13px;font-weight:800;color:#0f766e">halaqmap خريطة الحل</p>
+<p style="margin:0 0 16px;font-size:12px;color:#64748b">نوع الرسالة: تعذّر إتمام سداد رخصة النفاذ</p>
 <p>أهلًا <strong>${escapeHtml(input.barberName)}</strong>،</p>
 <p>لم نتمكن من إتمام عملية الدفع عبر بوابة الدفع.</p>
 <p><strong>التفاصيل:</strong> ${escapeHtml(input.reason || "غير محدد")}</p>
 <p style="font-size:13px;color:#64748b" dir="ltr">مرجع الدفع: ${escapeHtml(input.paymentId)}</p>
 <p>يرجى المحاولة مرة أخرى أو استخدام بطاقة دفع بديلة من صفحة الدفع في حلاق ماب.</p>
-<p style="font-size:13px;color:#64748b">— فريق حلاق ماب</p>
+<p style="font-size:13px;color:#64748b">— متجر خريطة الحل</p>
 </body></html>`;
 
   const resp = await fetch("https://api.resend.com/emails", {

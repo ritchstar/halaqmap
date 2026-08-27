@@ -6,6 +6,7 @@
  */
 import { resolveResendFromAddress } from './resendFrom.js';
 import { storeAffiliateCheckoutLinks, type StoreAffiliateCheckoutLinks } from './storeAffiliateCode.js';
+import { STORE_LIVE_INVITE_MARK } from './storeLiveInviteShare.js';
 
 export type StoreMailThemeId = 'wedding' | 'event' | 'lounge' | 'grocers' | 'restaurant' | 'cafe' | 'kitchen' | 'affiliate';
 
@@ -105,6 +106,12 @@ const THEMES: Record<StoreMailThemeId, StoreMailTheme> = {
 export const STORE_MAIL_ENGINE_LINE_AR =
   'المتجر يصدر المسارات أيقونات تشغيل جاهزة، بلا لصق عناوين طويلة.';
 
+export const STORE_MAIL_BRAND_LATIN = 'halaqmap';
+export const STORE_MAIL_BRAND_AR = 'خريطة الحل';
+export const STORE_MAIL_KIND_LABEL_AR = 'نوع الرسالة';
+export const STORE_MAIL_FOOTER_AR =
+  'رسالة من متجر خريطة الحل، المرجع الإداري للمنتجات البرمجية بما فيها منصة حلاق ماب.';
+
 export function storeMailTheme(id: StoreMailThemeId): StoreMailTheme {
   return THEMES[id];
 }
@@ -159,9 +166,14 @@ export function buildStoreMailHtml(input: {
   notesAr: string[];
 }): string {
   const theme = THEMES[input.theme];
-  const kicker = escapeStoreMailHtml(input.kickerAr);
+  const kind = escapeStoreMailHtml(input.kickerAr);
   const title = escapeStoreMailHtml(input.titleAr);
   const lead = escapeStoreMailHtml(input.leadAr);
+  const brandLatin = escapeStoreMailHtml(STORE_MAIL_BRAND_LATIN);
+  const brandAr = escapeStoreMailHtml(STORE_MAIL_BRAND_AR);
+  const kindLabel = escapeStoreMailHtml(STORE_MAIL_KIND_LABEL_AR);
+  const footer = escapeStoreMailHtml(STORE_MAIL_FOOTER_AR);
+  const logo = escapeStoreMailHtml(STORE_LIVE_INVITE_MARK);
   const notes = input.notesAr
     .map(
       (note) =>
@@ -177,12 +189,17 @@ export function buildStoreMailHtml(input: {
 <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="width:100%;max-width:560px;background:${theme.canvas};border:1px solid ${theme.accent};border-radius:18px">
 <tr>
 <td align="center" style="padding:28px 20px 22px">
-<p style="margin:0;font-size:12px;font-weight:800;letter-spacing:0.04em;color:${theme.accent};text-align:center">${kicker}</p>
-<p style="margin:10px 0 0;font-size:20px;font-weight:800;line-height:1.6;color:#f4efe4;text-align:center">${title}</p>
+<img src="${logo}" width="56" height="56" alt="${brandLatin} ${brandAr}" style="display:block;margin:0 auto;border-radius:14px;border:1px solid ${theme.accent}" />
+<p style="margin:10px 0 0;font-size:18px;font-weight:800;color:#f4efe4;text-align:center;unicode-bidi:isolate;direction:ltr">${brandLatin}</p>
+<p style="margin:2px 0 0;font-size:15px;font-weight:800;color:${theme.accent};text-align:center">${brandAr}</p>
+<p style="margin:16px 0 0;font-size:11px;font-weight:800;letter-spacing:0.04em;color:#94a3b8;text-align:center">${kindLabel}</p>
+<p style="margin:4px 0 0;font-size:16px;font-weight:800;color:${theme.accent};text-align:center">${kind}</p>
+<p style="margin:12px 0 0;font-size:20px;font-weight:800;line-height:1.6;color:#f4efe4;text-align:center">${title}</p>
 <p style="margin:12px 0 0;font-size:14px;line-height:1.85;color:#d7d1c6;text-align:center">${lead}</p>
 <div style="padding:22px 0 8px">${rows}</div>
 ${notes}
 <p style="margin:18px 0 0;font-size:12px;line-height:1.8;color:${theme.accent};text-align:center">${engine}</p>
+<p style="margin:12px 0 0;font-size:11px;line-height:1.8;color:#94a3b8;text-align:center">${footer}</p>
 </td>
 </tr>
 </table>
@@ -224,7 +241,7 @@ export function buildWeddingLiveLinksHtml(input: {
   const theme = THEMES.wedding;
   return buildStoreMailHtml({
     theme: 'wedding',
-    kickerAr: theme.titleAr,
+    kickerAr: `روابط تشغيل — ${theme.titleAr}`,
     titleAr: 'روابط التشغيل جاهزة',
     leadAr: 'اضغط الأيقونة لفتح المسار على جهازك. رابط الضيف يصدر من لوحة المضيف لكل مدعو.',
     iconRows: [
@@ -260,7 +277,7 @@ export function buildEventLiveLinksHtml(input: {
   const theme = THEMES.event;
   return buildStoreMailHtml({
     theme: 'event',
-    kickerAr: theme.titleAr,
+    kickerAr: `روابط تشغيل — ${theme.titleAr}`,
     titleAr: 'روابط التشغيل جاهزة',
     leadAr: 'اضغط الأيقونة لفتح المسار على جهازك. رابط الضيف يصدر من لوحة المضيف لكل مدعو.',
     iconRows: [
@@ -298,7 +315,7 @@ export function buildLoungeLiveLinksHtml(input: {
   const theme = THEMES.lounge;
   return buildStoreMailHtml({
     theme: 'lounge',
-    kickerAr: theme.titleAr,
+    kickerAr: input.renewed ? `تمديد تشغيل — ${theme.titleAr}` : `روابط تشغيل — ${theme.titleAr}`,
     titleAr: input.renewed ? 'تمديد التشغيل ثلاثة أشهر' : 'روابط التشغيل جاهزة',
     leadAr: input.renewed
       ? 'الروابط نفسها لم تتغير. اضغط الأيقونة لفتح المسار.'
@@ -343,7 +360,7 @@ export function buildGrocersLiveLinksHtml(input: {
   const theme = THEMES.grocers;
   return buildStoreMailHtml({
     theme: 'grocers',
-    kickerAr: theme.titleAr,
+    kickerAr: input.renewed ? `تمديد تشغيل — ${theme.titleAr}` : `روابط تشغيل — ${theme.titleAr}`,
     titleAr: input.renewed ? 'تمديد تموينات الحي' : 'روابط التشغيل جاهزة',
     leadAr: input.renewed
       ? 'الروابط نفسها لم تتغير. اضغط الأيقونة لفتح المسار.'
@@ -381,7 +398,7 @@ export function buildRestaurantLiveLinksHtml(input: {
   const theme = THEMES.restaurant;
   return buildStoreMailHtml({
     theme: 'restaurant',
-    kickerAr: theme.titleAr,
+    kickerAr: input.renewed ? `تمديد تشغيل — ${theme.titleAr}` : `روابط تشغيل — ${theme.titleAr}`,
     titleAr: input.renewed ? 'تمديد صفحة المطعم' : 'روابط التشغيل جاهزة',
     leadAr: input.renewed
       ? 'الروابط نفسها لم تتغير. اضغط الأيقونة لفتح المسار.'
@@ -419,7 +436,7 @@ export function buildKitchenLiveLinksHtml(input: {
   const theme = THEMES.kitchen;
   return buildStoreMailHtml({
     theme: 'kitchen',
-    kickerAr: theme.titleAr,
+    kickerAr: input.renewed ? `تمديد تشغيل — ${theme.titleAr}` : `روابط تشغيل — ${theme.titleAr}`,
     titleAr: input.renewed ? 'تمديد صفحة النشاط' : 'روابط التشغيل جاهزة',
     leadAr: input.renewed
       ? 'الروابط نفسها لم تتغير. اضغط الأيقونة لفتح المسار.'
@@ -462,7 +479,7 @@ export function buildCafeLiveLinksHtml(input: {
   const theme = THEMES.cafe;
   return buildStoreMailHtml({
     theme: 'cafe',
-    kickerAr: theme.titleAr,
+    kickerAr: input.renewed ? `تمديد تشغيل — ${theme.titleAr}` : `روابط تشغيل — ${theme.titleAr}`,
     titleAr: input.renewed ? 'تمديد صفحة المقهى' : 'روابط التشغيل جاهزة',
     leadAr: input.renewed
       ? 'الروابط نفسها لم تتغير. اضغط الأيقونة لفتح المسار.'
@@ -588,7 +605,7 @@ export function buildStoreAffiliateMagicHtml(input: {
   ];
   return buildStoreMailHtml({
     theme: 'affiliate',
-    kickerAr: group.titleAr,
+    kickerAr: 'دخول المسوّق وروابط المنتجات',
     titleAr: 'دخول اللوحة وروابط المنتجات',
     leadAr: 'الأيقونة الذهبية تفتح اللوحة من جهازك. أيقونات المنتجات روابط الشراء باسمك.',
     iconRows: [
