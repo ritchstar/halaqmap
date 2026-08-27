@@ -1,6 +1,8 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
+import { siteRelativePath } from '../lib/siteRelativePath';
+
 /** مطابق لـ ROUTE_PATHS.PAYMENT — يُعرَّف هنا لتفادي استيراد حلاق ماب/index من طبقة الإعدادات. */
 const PARTNER_PAYMENT_PATH = '/partners/payment';
 /** مطابق لـ ROUTE_PATHS.GROWTH_PITCH_DECK */
@@ -38,7 +40,7 @@ export function getSiteOrigin(): string {
 /** رابط HashRouter مطلق — للمشاركة والروابط بين النطاقات. */
 export function buildAbsoluteHashRoute(path: string): string {
   const base = getSiteOrigin().replace(/\/+$/, '');
-  const normalized = path.startsWith('/') ? path : `/${path}`;
+  const normalized = siteRelativePath(path);
   return `${base}/#${normalized}`;
 }
 
@@ -49,7 +51,7 @@ export function buildAbsoluteHashRoute(path: string): string {
  */
 export function buildAdsLandingUrl(path: string): string {
   const base = getSiteOrigin().replace(/\/+$/, '');
-  const normalized = path.startsWith('/') ? path : `/${path}`;
+  const normalized = siteRelativePath(path).split('#')[0] || '/';
   return `${base}${normalized}`;
 }
 

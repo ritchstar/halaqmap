@@ -479,6 +479,15 @@
           var path = (window.location.pathname || '').replace(/\/+$/, '') || '/';
           var hash = window.location.hash || '';
           var search = window.location.search || '';
+          if (/^\/https?:/i.test(path)) {
+            var healed = path.replace(/^\/https:\/*/i, 'https://');
+            if (/^https:\/\/([a-z0-9-]+\.)*halaqmap\.com(\/|$)/i.test(healed)) {
+              window.location.replace(healed + search + hash);
+            } else {
+              window.location.replace('/' + search);
+            }
+            return;
+          }
           var oc = path.match(/^\/oc\/([^/]+)$/);
           if (oc) {
             var token = decodeURIComponent(oc[1] || '');

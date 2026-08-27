@@ -2,6 +2,163 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "redirects": [
     {
+      "source": "/:protocol(https):/www.halaqmap.com/:path*",
+      "destination": "https://www.halaqmap.com/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/:protocol(https)://www.halaqmap.com/:path*",
+      "destination": "https://www.halaqmap.com/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/:protocol(https):/www.halaqmap.com",
+      "destination": "https://www.halaqmap.com/",
+      "permanent": true
+    },
+    {
+      "source": "/:protocol(https)://www.halaqmap.com",
+      "destination": "https://www.halaqmap.com/",
+      "permanent": true
+    },
+    {
+      "source": "/:protocol(https):/halaqmap.com/:path*",
+      "destination": "https://www.halaqmap.com/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/:protocol(https)://halaqmap.com/:path*",
+      "destination": "https://www.halaqmap.com/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/:protocol(https):/store.halaqmap.com/:path*",
+      "destination": "https://store.halaqmap.com/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/:protocol(https)://store.halaqmap.com/:path*",
+      "destination": "https://store.halaqmap.com/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/pay/wedding",
+      "destination": "https://store.halaqmap.com/store/wedding",
+      "permanent": true
+    },
+    {
+      "source": "/pay/wedding/",
+      "destination": "https://store.halaqmap.com/store/wedding",
+      "permanent": true
+    },
+    {
+      "source": "/pay/event",
+      "destination": "https://store.halaqmap.com/store/event",
+      "permanent": true
+    },
+    {
+      "source": "/pay/event/",
+      "destination": "https://store.halaqmap.com/store/event",
+      "permanent": true
+    },
+    {
+      "source": "/pay/lounge",
+      "destination": "https://store.halaqmap.com/store/lounge",
+      "permanent": true
+    },
+    {
+      "source": "/pay/lounge/",
+      "destination": "https://store.halaqmap.com/store/lounge",
+      "permanent": true
+    },
+    {
+      "source": "/pay/occasion-card",
+      "destination": "https://store.halaqmap.com/store/invites",
+      "permanent": true
+    },
+    {
+      "source": "/pay/occasion-card/",
+      "destination": "https://store.halaqmap.com/store/invites",
+      "permanent": true
+    },
+    {
+      "source": "/pay/grocers",
+      "destination": "https://store.halaqmap.com/store/grocers",
+      "permanent": true
+    },
+    {
+      "source": "/pay/grocers/",
+      "destination": "https://store.halaqmap.com/store/grocers",
+      "permanent": true
+    },
+    {
+      "source": "/pay/restaurant",
+      "destination": "https://store.halaqmap.com/store/restaurant",
+      "permanent": true
+    },
+    {
+      "source": "/pay/restaurant/",
+      "destination": "https://store.halaqmap.com/store/restaurant",
+      "permanent": true
+    },
+    {
+      "source": "/pay/cafe",
+      "destination": "https://store.halaqmap.com/store/cafe",
+      "permanent": true
+    },
+    {
+      "source": "/pay/cafe/",
+      "destination": "https://store.halaqmap.com/store/cafe",
+      "permanent": true
+    },
+    {
+      "source": "/pay/kitchen",
+      "destination": "https://store.halaqmap.com/store/kitchen",
+      "permanent": true
+    },
+    {
+      "source": "/pay/kitchen/",
+      "destination": "https://store.halaqmap.com/store/kitchen",
+      "permanent": true
+    },
+    {
+      "source": "/c",
+      "has": [{ "type": "host", "value": "www.halaqmap.com" }],
+      "destination": "https://coiffeur.halaqmap.com/coiffeur",
+      "permanent": true
+    },
+    {
+      "source": "/c",
+      "has": [{ "type": "host", "value": "store.halaqmap.com" }],
+      "destination": "https://store.halaqmap.com/store/cafe",
+      "permanent": true
+    },
+    {
+      "source": "/oc",
+      "destination": "https://store.halaqmap.com/store/invites",
+      "permanent": true
+    },
+    {
+      "source": "/rate",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/barber",
+      "destination": "/partners",
+      "permanent": true
+    },
+    {
+      "source": "/api",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/assets",
+      "destination": "/",
+      "permanent": true
+    },
+    {
       "source": "/summi",
       "has": [{ "type": "host", "value": "halaqmap.com" }],
       "destination": "https://coiffeur.halaqmap.com/summi",
@@ -166,6 +323,10 @@
     {
       "source": "/e/:token/guest/",
       "destination": "/api/public-store-live-invite-share?kind=event&token=:token"
+    },
+    {
+      "source": "/pay/:path*",
+      "destination": "/index.html"
     },
     {
       "source": "/rate/:path*",

@@ -9,6 +9,7 @@ import {
   isPartnerAppShell,
   openInExternalBrowser,
 } from '@/lib/partnerAppShell';
+import { siteRelativePath } from '@/lib/siteRelativePath';
 
 export const BARBER_DASHBOARD_OUTBOUND_TARGET = {
   target: '_blank',
@@ -16,7 +17,7 @@ export const BARBER_DASHBOARD_OUTBOUND_TARGET = {
 } as const;
 
 function hashRoutePathFromTo(to: To): string {
-  if (typeof to === 'string') return to.startsWith('/') ? to : `/${to}`;
+  if (typeof to === 'string') return siteRelativePath(to);
   const pathname = to.pathname ?? '';
   const search = typeof to.search === 'string' ? to.search : '';
   const hash = typeof to.hash === 'string' ? to.hash : '';
@@ -54,7 +55,10 @@ export function extractHashAppPath(href: string): string | null {
   } catch {
     /* ignore */
   }
-  if (trimmed.startsWith('/') && !trimmed.startsWith('//')) return trimmed;
+  if (trimmed.startsWith('/') && !trimmed.startsWith('//')) {
+    if (/^\/https?:/i.test(trimmed)) return null;
+    return trimmed;
+  }
   return null;
 }
 
