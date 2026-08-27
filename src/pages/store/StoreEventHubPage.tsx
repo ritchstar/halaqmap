@@ -9,6 +9,7 @@ import {
   StoreVisitorHeader,
   StoreVisitorShell,
 } from '@/components/store/StoreChrome';
+import { StoreGiftPromoBanner } from '@/components/store/StoreGiftPromoBanner';
 import { StoreProductBenefitsLink } from '@/components/store/StoreProductBenefitsLink';
 import { StoreShot } from '@/components/store/StoreShot';
 import { STORE_EVENT_LIVE, STORE_EVENT_LIVE_PUBLIC_ENABLED } from '@/config/storeEventLive';
@@ -25,6 +26,7 @@ export default function StoreEventHubPage() {
   return (
     <StoreVisitorShell>
       <StoreVisitorHeader />
+      <StoreGiftPromoBanner compact />
       <section className="px-4 py-12 md:py-16">
         <div className="mx-auto max-w-4xl text-center">
           <p className="text-sm font-bold tracking-wide text-[#e8c547]">{STORE_EVENT_LIVE.hubKickerAr}</p>

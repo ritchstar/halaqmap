@@ -162,7 +162,13 @@ export function publicTrialHrefs(
   ];
 }
 
-function trialPayload(key: StoreProductTrialKey, email: string): Record<string, unknown> {
+function trialPayload(
+  key: StoreProductTrialKey,
+  email: string,
+  opts?: { voice?: 'men' | 'women'; hostName?: string },
+): Record<string, unknown> {
+  const voice = opts?.voice === 'women' ? 'women' : 'men';
+  const hostName = String(opts?.hostName || '').trim();
   if (key === 'cafe') {
     return {
       packId: 'm6',
@@ -238,9 +244,9 @@ function trialPayload(key: StoreProductTrialKey, email: string): Record<string, 
   }
   if (key === 'event') {
     return {
-      voice: 'men',
+      voice,
       hostRole: 'self',
-      hostName: 'تجربة اجواء1',
+      hostName: hostName || 'تجربة اجواء1',
       occasionTitle: 'مناسبة تجريبية',
       eventDate: '',
       eventTime: '',
@@ -258,9 +264,9 @@ function trialPayload(key: StoreProductTrialKey, email: string): Record<string, 
   }
   void email;
   return {
-    voice: 'men',
-    hostRole: 'self',
-    hostName: 'تجربة افراحي1',
+    voice,
+    hostRole: voice === 'women' ? 'groom_mother' : 'self',
+    hostName: hostName || 'تجربة افراحي1',
     offspringKind: 'son',
     groomName: 'العريس',
     brideName: 'العروس',
@@ -369,9 +375,10 @@ async function insertLiveOrder(
   key: StoreProductTrialKey,
   email: string,
   trialId: string,
+  opts?: { voice?: 'men' | 'women'; hostName?: string },
 ): Promise<{ orderId: string; tokens: Record<string, string> } | { error: string }> {
   const table = ORDER_TABLE[key];
-  const payload = trialPayload(key, email);
+  const payload = trialPayload(key, email, opts);
   const now = new Date().toISOString();
   if (key === 'cafe') {
     const shop = newCafeToken();
@@ -532,6 +539,8 @@ export async function issueStoreProductTrial(
     issuedByLabel: string;
     reviewer?: string;
     existingTrialId?: string;
+    voice?: 'men' | 'women';
+    hostName?: string;
   },
 ): Promise<{ ok: true; trialId: string } | { ok: false; error: string }> {
   const email = normalizeTrialEmail(input.email);
@@ -567,7 +576,10 @@ export async function issueStoreProductTrial(
     trialId = String(data.id);
   }
 
-  const created = await insertLiveOrder(db, input.productKey, email, trialId);
+  const created = await insertLiveOrder(db, input.productKey, email, trialId, {
+    voice: input.voice,
+    hostName: input.hostName,
+  });
   if ('error' in created) return { ok: false, error: created.error };
 
   const now = new Date().toISOString();

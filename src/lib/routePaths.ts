@@ -46,6 +46,10 @@ export const ROUTE_PATHS = {
   STORE_ABOUT: '/store/about',
   /** مزايا المنتجات المستضافة — إحالة من صفحات العرض */
   STORE_PRODUCT_BENEFITS: '/store/benefits',
+  /** هدية خريطة الحل — خمسة نماذج مناسبات بالسحب التقني */
+  STORE_GIFT: '/store/gift',
+  STORE_GIFT_TERMS: '/store/gift/terms',
+  STORE_GIFT_CONFIRM: '/store/gift/confirm',
   /** تصنيفات وفحوص مستقلة قابلة للتحقق */
   STORE_TRUST: '/store/trust',
   /** شروط وأحكام وخصوصية منتجات المتجر الرقمية */

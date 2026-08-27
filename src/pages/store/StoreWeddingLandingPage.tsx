@@ -13,6 +13,7 @@ import {
   StoreVisitorShell,
 } from '@/components/store/StoreChrome';
 import { StoreEnterpriseDirectMail } from '@/components/store/StoreEnterpriseDirectMail';
+import { StoreGiftPromoBanner } from '@/components/store/StoreGiftPromoBanner';
 import { StoreProductBenefitsLink } from '@/components/store/StoreProductBenefitsLink';
 import { StoreShot } from '@/components/store/StoreShot';
 import { StoreWeddingInviteCard } from '@/components/store/StoreWeddingInviteCard';
@@ -75,6 +76,7 @@ export default function StoreWeddingLandingPage() {
   return (
     <StoreVisitorShell>
       <StoreVisitorHeader />
+      <StoreGiftPromoBanner compact />
       <section className="px-4 py-10 md:py-14" data-voice={voice}>
         <div className="mx-auto grid max-w-5xl items-start gap-8 lg:grid-cols-[1.05fr_0.95fr]">
           <div>

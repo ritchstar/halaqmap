@@ -14,6 +14,7 @@ import {
 } from '@/components/store/StoreChrome';
 import { StoreDeskChatCard } from '@/components/store/StoreDeskChatCard';
 import { StoreLaterServicesSection } from '@/components/store/StoreLaterServicesSection';
+import { StoreGiftPromoBanner } from '@/components/store/StoreGiftPromoBanner';
 import { StoreLiveOpsBanner } from '@/components/store/StoreLiveOpsBanner';
 import { StoreProductBenefitsLink } from '@/components/store/StoreProductBenefitsLink';
 import { StoreShot } from '@/components/store/StoreShot';
@@ -118,6 +119,8 @@ export default function StoreLanding() {
           </figure>
         </div>
       </section>
+
+      <StoreGiftPromoBanner />
 
       <StoreLiveOpsBanner />
 

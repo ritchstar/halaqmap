@@ -51,6 +51,12 @@ const STORE_ABOUT_PATH =
   (ROUTE_PATHS as { STORE_ABOUT?: string }).STORE_ABOUT || "/store/about";
 const STORE_PRODUCT_BENEFITS_PATH =
   (ROUTE_PATHS as { STORE_PRODUCT_BENEFITS?: string }).STORE_PRODUCT_BENEFITS || "/store/benefits";
+const STORE_GIFT_PATH =
+  (ROUTE_PATHS as { STORE_GIFT?: string }).STORE_GIFT || "/store/gift";
+const STORE_GIFT_TERMS_PATH =
+  (ROUTE_PATHS as { STORE_GIFT_TERMS?: string }).STORE_GIFT_TERMS || "/store/gift/terms";
+const STORE_GIFT_CONFIRM_PATH =
+  (ROUTE_PATHS as { STORE_GIFT_CONFIRM?: string }).STORE_GIFT_CONFIRM || "/store/gift/confirm";
 const STORE_TRUST_PATH =
   (ROUTE_PATHS as { STORE_TRUST?: string }).STORE_TRUST || "/store/trust";
 const STORE_ISSUED_CARDS_LEGAL_PATH =
@@ -247,6 +253,9 @@ const StoreIntroCardViewPage = lazy(() => import("@/pages/store/StoreIntroCardVi
 const StoreMeetQrPage = lazy(() => import("@/pages/store/StoreMeetQrPage"));
 const StoreAboutPage = lazy(() => import("@/pages/store/StoreAboutPage"));
 const StoreProductBenefitsPage = lazy(() => import("@/pages/store/StoreProductBenefitsPage"));
+const StoreGiftLandingPage = lazy(() => import("@/pages/store/StoreGiftLandingPage"));
+const StoreGiftTermsPage = lazy(() => import("@/pages/store/StoreGiftTermsPage"));
+const StoreGiftConfirmPage = lazy(() => import("@/pages/store/StoreGiftConfirmPage"));
 const StoreTrustPage = lazy(() => import("@/pages/store/StoreTrustPage"));
 const StoreIssuedCardsLegalHub = lazy(() => import("@/pages/store/StoreIssuedCardsLegalHub"));
 const StorePaidInviteStudioPage = lazy(() => import("@/pages/store/StorePaidInviteStudioPage"));
@@ -776,6 +785,9 @@ export function App() {
           <Route path={STORE_MEET_QR_PATH} element={<LazyRoute><StoreMeetQrPage /></LazyRoute>} />
           <Route path={STORE_ABOUT_PATH} element={<LazyRoute><StoreAboutPage /></LazyRoute>} />
           <Route path={STORE_PRODUCT_BENEFITS_PATH} element={<LazyRoute><StoreProductBenefitsPage /></LazyRoute>} />
+          <Route path={STORE_GIFT_CONFIRM_PATH} element={<LazyRoute><StoreGiftConfirmPage /></LazyRoute>} />
+          <Route path={STORE_GIFT_TERMS_PATH} element={<LazyRoute><StoreGiftTermsPage /></LazyRoute>} />
+          <Route path={STORE_GIFT_PATH} element={<LazyRoute><StoreGiftLandingPage /></LazyRoute>} />
           <Route path={STORE_TRUST_PATH} element={<LazyRoute><StoreTrustPage /></LazyRoute>} />
           <Route path={STORE_ISSUED_CARDS_LEGAL_PATH} element={<LazyRoute><StoreIssuedCardsLegalHub /></LazyRoute>} />
           <Route path={STORE_INVITES_PATH} element={<LazyRoute><StorePaidInviteStudioPage /></LazyRoute>} />

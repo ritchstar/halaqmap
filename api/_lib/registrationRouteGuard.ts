@@ -184,6 +184,9 @@ function rateLimitMaxForRoute(routeId: string): number {
   if (routeId === 'public-store-affiliate') {
     return envInt('STORE_AFFILIATE_RATE_LIMIT_MAX', 8);
   }
+  if (routeId === 'public-store-gift') {
+    return envInt('STORE_GIFT_RATE_LIMIT_MAX', 6);
+  }
   if (routeId.startsWith('barber-portal')) {
     const barberOnly = envInt('BARBER_PORTAL_RATE_LIMIT_MAX', -1);
     if (barberOnly >= 0) return barberOnly;

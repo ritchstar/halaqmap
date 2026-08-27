@@ -1,10 +1,11 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { lockPartnerDarkCanvas } from '@/lib/partnerDarkCanvas';
 import { STORE_PRODUCT_BENEFITS_COPY } from '@/config/storeProductBenefitsCopy';
+import { STORE_GIFT_CAMPAIGN_PUBLIC_ENABLED, STORE_GIFT_COPY } from '@/config/storeGiftCampaign';
 import { STORE_ABOUT_COPY, STORE_BRAND_LATIN, STORE_CONTACT_EMAIL, STORE_CONTACT_PHONE_DISPLAY, STORE_CONTACT_PHONE_E164, STORE_CONTACT_WHATSAPP_URL, STORE_CONTACT_X_HANDLE, STORE_CONTACT_X_URL, STORE_FOOTER_CONTACT, STORE_LANDING_COPY, STORE_ORIGIN, STORE_VISUALS } from '@/config/storeFront';
 import { KSACityClocksBar } from '@/components/KSACityClocksBar';
 import { EcommerceVerifiedFooterBadge } from '@/components/EcommerceVerifiedFooterBadge';
@@ -27,6 +28,9 @@ export function StoreVisitorShell({ children }: { children: ReactNode }) {
 
 export function StoreVisitorHeader() {
   const isMobile = useIsMobile();
+  const location = useLocation();
+  const onGiftPage = location.pathname.startsWith(ROUTE_PATHS.STORE_GIFT);
+  const showGiftCta = STORE_GIFT_CAMPAIGN_PUBLIC_ENABLED && !onGiftPage;
   return (
     <div className="border-b border-white/10 bg-[#061018]/90">
       {!isMobile ? <KSACityClocksBar /> : null}
@@ -46,6 +50,15 @@ export function StoreVisitorHeader() {
             </span>
           </Link>
           <nav className="flex shrink-0 items-center gap-2 text-sm font-bold">
+            {showGiftCta ? (
+            <Link
+              to={ROUTE_PATHS.STORE_GIFT}
+              className="inline-flex rounded-full bg-[#e8c547] px-3 py-1.5 text-[#061018] shadow-[0_10px_24px_-12px_rgba(232,197,71,0.95)] hover:bg-[#f0d36a]"
+            >
+              <span className="sm:hidden">{STORE_GIFT_COPY.headerShortAr}</span>
+              <span className="hidden sm:inline">{STORE_GIFT_COPY.kickerAr}</span>
+            </Link>
+            ) : null}
             <Link
               to={ROUTE_PATHS.STORE_PRODUCT_BENEFITS}
               className="hidden rounded-full px-3 py-1.5 text-white/80 hover:text-[#e8c547] sm:inline-flex"
@@ -60,13 +73,13 @@ export function StoreVisitorHeader() {
             </Link>
             <Link
               to={ROUTE_PATHS.STORE_REQUEST}
-              className="rounded-full border border-[#e8c547]/40 px-3 py-1.5 text-[#e8c547]"
+              className="hidden rounded-full border border-[#e8c547]/40 px-3 py-1.5 text-[#e8c547] sm:inline-flex"
             >
               طلب خدمة
             </Link>
             <Link
               to={ROUTE_PATHS.STORE_CARDS}
-              className="rounded-full bg-[#e8c547] px-3 py-1.5 text-[#061018]"
+              className="rounded-full border border-[#e8c547]/40 px-3 py-1.5 text-[#e8c547]"
             >
               بطاقة مجانية
             </Link>
@@ -83,6 +96,11 @@ export function StoreVisitorFooter() {
     <footer className="border-t border-white/10 px-4 py-8">
       <div className="mx-auto flex max-w-5xl flex-col gap-4">
         <nav className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm font-bold">
+          {STORE_GIFT_CAMPAIGN_PUBLIC_ENABLED ? (
+          <Link to={ROUTE_PATHS.STORE_GIFT} className="text-[#e8c547]">
+            {STORE_GIFT_COPY.kickerAr}
+          </Link>
+          ) : null}
           <Link to={ROUTE_PATHS.STORE_ABOUT} className="text-[#e8c547]">
             {STORE_LANDING_COPY.aboutNavAr}
           </Link>
