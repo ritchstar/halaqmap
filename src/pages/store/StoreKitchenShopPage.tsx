@@ -26,6 +26,7 @@ import {
   type KitchenLabState,
 } from '@/lib/storeKitchenLiveLab';
 import { addKitchenLiveOrder, fetchKitchenLivePublic, saveKitchenLiveHost } from '@/lib/storeKitchenLiveRemote';
+import { parseStoreShopHours } from '@/lib/storeShopHours';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 
 type Gate = 'loading' | 'ok' | 'expired' | 'missing';
@@ -48,6 +49,7 @@ function payloadToState(payload: Record<string, unknown>, fallback: KitchenLabSt
     qrStamp: String(payload.qrStamp || fallback.host.qrStamp),
     qrActive: payload.qrActive !== false,
     nextTicket: Number(payload.nextTicket) > 0 ? Number(payload.nextTicket) : fallback.host.nextTicket,
+    ...parseStoreShopHours(payload, fallback.host),
   };
   return {
     host,

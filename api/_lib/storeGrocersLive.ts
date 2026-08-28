@@ -5,6 +5,7 @@
  */
 import { randomBytes } from 'node:crypto';
 import { withStoreAffiliateCode } from './storeAffiliateCode.js';
+import { DEFAULT_STORE_SHOP_HOURS, parseStoreShopHours, type StoreShopHoursState } from './storeShopHours.js';
 
 export const STORE_GROCERS_LIVE_TABLE = 'store_grocers_live_orders' as const;
 export const STORE_GROCERS_LIVE_PRODUCT = 'store_grocers_live' as const;
@@ -153,7 +154,7 @@ export type GrocersLiveOrderPayload = {
   orders: unknown[];
   chatAddon: boolean;
   chats: unknown[];
-};
+} & StoreShopHoursState;
 
 export function parseGrocersLiveOrderBody(body: Record<string, unknown>):
   | { ok: true; email: string; buyerName: string; packId: 'm6' | 'm12'; chatAddon: boolean; payload: GrocersLiveOrderPayload }
@@ -182,6 +183,7 @@ export function parseGrocersLiveOrderBody(body: Record<string, unknown>):
       orders: [],
       chatAddon,
       chats: [],
+      ...DEFAULT_STORE_SHOP_HOURS,
     },
   };
 }
@@ -218,5 +220,6 @@ export function publicGrocersPayload(payload: GrocersLiveOrderPayload) {
     orders: Array.isArray(payload.orders) ? payload.orders : [],
     chatAddon: payload.chatAddon === true,
     chats: parseGrocersChats(payload.chats),
+    ...parseStoreShopHours(payload),
   };
 }

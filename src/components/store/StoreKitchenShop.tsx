@@ -3,6 +3,8 @@
  */
 import { useMemo, useState } from 'react';
 import { STORE_KITCHEN_LIVE } from '@/config/storeKitchenLive';
+import { STORE_SHOP_HOURS_COPY } from '@/config/storeShopHours';
+import { StoreShopHoursBanner } from '@/components/store/StoreShopHoursBanner';
 import {
   addKitchenOrder,
   compressImageFile,
@@ -15,6 +17,7 @@ import {
   type KitchenPayMethod,
   type KitchenService,
 } from '@/lib/storeKitchenLiveLab';
+import { isShopClosedNow } from '@/lib/storeShopHours';
 import { cn } from '@/lib/utils';
 
 export function StoreKitchenShop({
@@ -111,6 +114,7 @@ export function StoreKitchenShop({
           ))}
         </ul>
       </header>
+      <StoreShopHoursBanner hours={state.host} accent="#b45a3c" />
 
       {today ? (
         <section className="overflow-hidden rounded-2xl border border-[#b45a3c]/40 bg-[#1a0c08]">
@@ -193,7 +197,9 @@ export function StoreKitchenShop({
             submit();
           }}
         >
-          <h3 className="text-lg font-extrabold">{STORE_KITCHEN_LIVE.checkoutTitleAr}</h3>
+          <h3 className="text-lg font-extrabold">
+            {isShopClosedNow(state.host) ? STORE_SHOP_HOURS_COPY.preorderTitleAr : STORE_KITCHEN_LIVE.checkoutTitleAr}
+          </h3>
           <p className="mt-1 text-sm text-[#b45a3c]">الإجمالي الآن: {total} ر.س</p>
           <label className="mt-3 block text-sm">
             {STORE_KITCHEN_LIVE.buyerNameLabelAr}

@@ -5,6 +5,7 @@
  */
 import { randomBytes } from 'node:crypto';
 import { withStoreAffiliateCode } from './storeAffiliateCode.js';
+import { DEFAULT_STORE_SHOP_HOURS, parseStoreShopHours, type StoreShopHoursState } from './storeShopHours.js';
 
 export const STORE_RESTAURANT_LIVE_TABLE = 'store_restaurant_live_orders' as const;
 export const STORE_RESTAURANT_LIVE_PRODUCT = 'store_restaurant_live' as const;
@@ -127,7 +128,7 @@ export type RestaurantLiveOrderPayload = {
   chatIncluded: true;
   chats: unknown[];
   nextTicket: number;
-};
+} & StoreShopHoursState;
 
 export function parseRestaurantLiveOrderBody(body: Record<string, unknown>):
   | { ok: true; email: string; buyerName: string; packId: 'm6' | 'm12'; payload: RestaurantLiveOrderPayload }
@@ -155,6 +156,7 @@ export function parseRestaurantLiveOrderBody(body: Record<string, unknown>):
       chatIncluded: true,
       chats: [],
       nextTicket: 1,
+      ...DEFAULT_STORE_SHOP_HOURS,
     },
   };
 }
@@ -192,5 +194,6 @@ export function publicRestaurantPayload(payload: RestaurantLiveOrderPayload) {
     chatIncluded: true,
     chats: parseRestaurantChats(payload.chats),
     nextTicket: Number(payload.nextTicket) > 0 ? Number(payload.nextTicket) : 1,
+    ...parseStoreShopHours(payload),
   };
 }

@@ -14,6 +14,8 @@ import { StoreCafeMenuBoard } from '@/components/store/StoreCafeMenuBoard';
 import { StoreCafeDeskChat } from '@/components/store/StoreCafeChat';
 import { StoreShopPresenceCount } from '@/components/store/StoreShopPresenceCount';
 import { StoreTrialOpsNote } from '@/components/store/StoreTrialOpsNote';
+import { StoreProductPassDeskButton } from '@/components/store/StoreProductPassDeskButton';
+import { StoreShopHoursDesk } from '@/components/store/StoreShopHoursDesk';
 import { cn } from '@/lib/utils';
 
 export function StoreCafeDesk({
@@ -156,6 +158,12 @@ export function StoreCafeDesk({
         ))}
       </div>
 
+      <StoreShopHoursDesk
+        value={state.host}
+        onChange={(nextHours) => onChange({ ...state, host: { ...state.host, ...nextHours } })}
+        accent="#c48a4a"
+      />
+
       <label className="block text-sm">
         {STORE_CAFE_LIVE.flashLabelAr}
         <input
@@ -197,6 +205,7 @@ export function StoreCafeDesk({
         <button type="button" onClick={printQr} className="mt-3 w-full rounded-full bg-[#c48a4a] py-2 text-sm font-bold text-[#061018]">
           {STORE_CAFE_LIVE.qrPrintAr}
         </button>
+        <StoreProductPassDeskButton kind="cafe" token={token} shopName={state.host.shopName} />
       </div>
     </div>
   );

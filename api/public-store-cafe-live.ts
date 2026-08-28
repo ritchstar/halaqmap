@@ -38,6 +38,7 @@ import {
   STORE_CAFE_LIVE_TABLE,
   type CafeLiveOrderPayload,
 } from './_lib/storeCafeLive.js';
+import { parseStoreShopHours } from './_lib/storeShopHours.js';
 import { sendCafeLiveLinksEmail } from './_lib/storeCafeLiveMail.js';
 import { applyStoreTrialClock, markStoreTrialConverted } from './_lib/storeProductTrial.js';
 import { storeAffiliateCodeFromMeta } from './_lib/storeAffiliateCode.js';
@@ -675,6 +676,7 @@ async function saveHost(db: Db, body: Record<string, unknown>, headers: Record<s
     activeEventId: String(body.activeEventId ?? current.activeEventId ?? 'welcome').slice(0, 24),
     customEventTitle: String(body.customEventTitle ?? current.customEventTitle ?? '').slice(0, 80),
     blessings: Array.isArray(body.blessings) ? (body.blessings as CafeLiveOrderPayload['blessings']) : current.blessings || [],
+    ...parseStoreShopHours(body, parseStoreShopHours(current)),
   };
   await db
     .from(STORE_CAFE_LIVE_TABLE)

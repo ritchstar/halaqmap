@@ -14,6 +14,8 @@ import { StoreRestaurantMenuBoard } from '@/components/store/StoreRestaurantMenu
 import { StoreRestaurantDeskChat } from '@/components/store/StoreRestaurantChat';
 import { StoreShopPresenceCount } from '@/components/store/StoreShopPresenceCount';
 import { StoreTrialOpsNote } from '@/components/store/StoreTrialOpsNote';
+import { StoreProductPassDeskButton } from '@/components/store/StoreProductPassDeskButton';
+import { StoreShopHoursDesk } from '@/components/store/StoreShopHoursDesk';
 import { cn } from '@/lib/utils';
 
 export function StoreRestaurantDesk({
@@ -154,6 +156,12 @@ export function StoreRestaurantDesk({
         ))}
       </div>
 
+      <StoreShopHoursDesk
+        value={state.host}
+        onChange={(nextHours) => onChange({ ...state, host: { ...state.host, ...nextHours } })}
+        accent="#e08a3c"
+      />
+
       <label className="block text-sm">
         {STORE_RESTAURANT_LIVE.flashLabelAr}
         <input
@@ -195,6 +203,7 @@ export function StoreRestaurantDesk({
         <button type="button" onClick={printQr} className="mt-3 w-full rounded-full bg-[#e08a3c] py-2 text-sm font-bold text-[#061018]">
           {STORE_RESTAURANT_LIVE.qrPrintAr}
         </button>
+        <StoreProductPassDeskButton kind="restaurant" token={token} shopName={state.host.shopName} />
       </div>
     </div>
   );

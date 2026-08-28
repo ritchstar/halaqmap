@@ -23,6 +23,7 @@ import {
   type GrocersLabState,
 } from '@/lib/storeGrocersLiveLab';
 import { addGrocersLiveChat, addGrocersLiveOrder, fetchGrocersLivePublic, saveGrocersLiveHost } from '@/lib/storeGrocersLiveRemote';
+import { parseStoreShopHours } from '@/lib/storeShopHours';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 
 type Gate = 'loading' | 'ok' | 'expired' | 'missing';
@@ -38,6 +39,7 @@ function payloadToState(payload: Record<string, unknown>, fallback: GrocersLabSt
       : fallback.host.customFields,
     flashAr: String(payload.flashAr ?? fallback.host.flashAr),
     packId: payload.packId === 'm12' ? 'm12' : 'm6',
+    ...parseStoreShopHours(payload, fallback.host),
   };
   return {
     host,

@@ -39,6 +39,7 @@ import {
   STORE_GROCERS_LIVE_TABLE,
   type GrocersLiveOrderPayload,
 } from './_lib/storeGrocersLive.js';
+import { parseStoreShopHours } from './_lib/storeShopHours.js';
 import { sendGrocersLiveLinksEmail } from './_lib/storeGrocersLiveMail.js';
 import { applyStoreTrialClock, markStoreTrialConverted } from './_lib/storeProductTrial.js';
 
@@ -621,6 +622,7 @@ async function saveHost(db: Db, body: Record<string, unknown>, headers: Record<s
     chats: current.chatAddon === true
       ? (Array.isArray(body.chats) ? parseGrocersChats(body.chats) : parseGrocersChats(current.chats))
       : [],
+    ...parseStoreShopHours(body, parseStoreShopHours(current)),
   };
   await db
     .from(STORE_GROCERS_LIVE_TABLE)

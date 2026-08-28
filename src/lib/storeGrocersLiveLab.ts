@@ -7,6 +7,7 @@ import { STORE_GROCERS_CATALOG, grocersCatalogById, parseGrocersListText } from 
 
 export { parseGrocersListText };
 import { STORE_GROCERS_LIVE_DEMO, type StoreGrocersLivePackId } from '@/config/storeGrocersLive';
+import { DEFAULT_STORE_SHOP_HOURS, type StoreShopHoursState } from '@/config/storeShopHours';
 import { compressImageFile } from '@/lib/storeWeddingLiveLab';
 
 export { compressImageFile };
@@ -49,7 +50,7 @@ export type GrocersHostState = {
   customFields: string[];
   flashAr: string;
   packId: StoreGrocersLivePackId;
-};
+} & StoreShopHoursState;
 
 export type GrocersChatMsg = {
   id: string;
@@ -110,6 +111,7 @@ export function defaultGrocersLabState(): GrocersLabState {
       customFields: [...STORE_GROCERS_LIVE_DEMO.customFields],
       flashAr: STORE_GROCERS_LIVE_DEMO.flashAr,
       packId: 'm6',
+      ...DEFAULT_STORE_SHOP_HOURS,
     },
     shelf,
     orders: [],

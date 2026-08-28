@@ -155,6 +155,8 @@ const STORE_KITCHEN_DESK_PATH =
   (ROUTE_PATHS as { STORE_KITCHEN_DESK?: string }).STORE_KITCHEN_DESK || "/k/:token/desk";
 const STORE_KITCHEN_PAY_PATH =
   (ROUTE_PATHS as { STORE_KITCHEN_PAY?: string }).STORE_KITCHEN_PAY || "/pay/kitchen/:token";
+const STORE_PRODUCT_PASS_PATH =
+  (ROUTE_PATHS as { STORE_PRODUCT_PASS?: string }).STORE_PRODUCT_PASS || "/store/pass/:kind/:token";
 const STORE_AFFILIATES_PATH =
   (ROUTE_PATHS as { STORE_AFFILIATES?: string }).STORE_AFFILIATES || "/store/affiliates";
 const STORE_AFFILIATES_ENTER_PATH =
@@ -267,6 +269,7 @@ const StoreGiftLandingPage = lazy(() => import("@/pages/store/StoreGiftLandingPa
 const StoreGiftTermsPage = lazy(() => import("@/pages/store/StoreGiftTermsPage"));
 const StoreGiftConfirmPage = lazy(() => import("@/pages/store/StoreGiftConfirmPage"));
 const StoreReviewsPage = lazy(() => import("@/pages/store/StoreReviewsPage"));
+const StoreProductPassPage = lazy(() => import("@/pages/store/StoreProductPassPage"));
 const StoreTrustPage = lazy(() => import("@/pages/store/StoreTrustPage"));
 const StoreIssuedCardsLegalHub = lazy(() => import("@/pages/store/StoreIssuedCardsLegalHub"));
 const StorePaidInviteStudioPage = lazy(() => import("@/pages/store/StorePaidInviteStudioPage"));
@@ -803,6 +806,7 @@ export function App() {
           <Route path={STORE_GIFT_TERMS_PATH} element={<LazyRoute><StoreGiftTermsPage /></LazyRoute>} />
           <Route path={STORE_GIFT_PATH} element={<LazyRoute><StoreGiftLandingPage /></LazyRoute>} />
           <Route path={STORE_REVIEWS_PATH} element={<LazyRoute><StoreReviewsPage /></LazyRoute>} />
+          <Route path={STORE_PRODUCT_PASS_PATH} element={<LazyRoute><StoreProductPassPage /></LazyRoute>} />
           <Route path={STORE_TRUST_PATH} element={<LazyRoute><StoreTrustPage /></LazyRoute>} />
           <Route path={STORE_ISSUED_CARDS_LEGAL_PATH} element={<LazyRoute><StoreIssuedCardsLegalHub /></LazyRoute>} />
           <Route path={STORE_INVITES_PATH} element={<LazyRoute><StorePaidInviteStudioPage /></LazyRoute>} />

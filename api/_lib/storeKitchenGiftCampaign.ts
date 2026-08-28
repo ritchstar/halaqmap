@@ -15,6 +15,7 @@ import {
   STORE_KITCHEN_LIVE_TABLE,
   type KitchenLiveOrderPayload,
 } from './storeKitchenLive.js';
+import { DEFAULT_STORE_SHOP_HOURS } from './storeShopHours.js';
 import { sendKitchenLiveLinksEmail } from './storeKitchenLiveMail.js';
 
 export const STORE_KITCHEN_GIFT_CYCLE_CAP = 50 as const;
@@ -179,6 +180,7 @@ export function kitchenGiftPayload(input: { shopName: string; hostName: string }
     shelf: [],
     orders: [],
     nextTicket: 1,
+    ...DEFAULT_STORE_SHOP_HOURS,
     gift: true,
     giftLabelAr: STORE_KITCHEN_GIFT_LABEL_AR,
     issuedByLabel: STORE_KITCHEN_GIFT_ISSUED_BY,

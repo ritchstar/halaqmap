@@ -13,6 +13,9 @@ import {
   type CafeService,
 } from '@/lib/storeCafeLiveLab';
 import { StoreCafeBuyerChat } from '@/components/store/StoreCafeChat';
+import { StoreShopHoursBanner } from '@/components/store/StoreShopHoursBanner';
+import { STORE_SHOP_HOURS_COPY } from '@/config/storeShopHours';
+import { isShopClosedNow } from '@/lib/storeShopHours';
 import { cn } from '@/lib/utils';
 
 export function StoreCafeShop({
@@ -100,6 +103,7 @@ export function StoreCafeShop({
           ))}
         </ul>
       </header>
+      <StoreShopHoursBanner hours={state.host} accent="#c48a4a" />
 
       {today ? (
         <section className="overflow-hidden rounded-2xl border border-[#c48a4a]/40 bg-[#1a1008]">
@@ -166,7 +170,9 @@ export function StoreCafeShop({
           submit();
         }}
       >
-        <h3 className="text-lg font-extrabold">{STORE_CAFE_LIVE.checkoutTitleAr}</h3>
+        <h3 className="text-lg font-extrabold">
+          {isShopClosedNow(state.host) ? STORE_SHOP_HOURS_COPY.preorderTitleAr : STORE_CAFE_LIVE.checkoutTitleAr}
+        </h3>
         <p className="mt-1 text-sm text-[#c48a4a]">الإجمالي الآن: {total} ر.س</p>
         <label className="mt-3 block text-sm">
           {STORE_CAFE_LIVE.buyerNameLabelAr}

@@ -34,6 +34,7 @@ import {
   saveCafeLiveHost,
   type CafeLiveRole,
 } from '@/lib/storeCafeLiveRemote';
+import { parseStoreShopHours } from '@/lib/storeShopHours';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 
 type Gate = 'loading' | 'ok' | 'expired' | 'missing';
@@ -64,6 +65,7 @@ function payloadToState(payload: Record<string, unknown>, fallback: CafeLabState
         ? payload.activeEventId
         : 'welcome',
     customEventTitle: String(payload.customEventTitle ?? fallback.host.customEventTitle),
+    ...parseStoreShopHours(payload, fallback.host),
   };
   return {
     host,

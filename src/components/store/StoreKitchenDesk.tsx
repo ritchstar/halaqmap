@@ -15,6 +15,8 @@ import {
 } from '@/lib/storeKitchenLiveLab';
 import { StoreKitchenMenuBoard } from '@/components/store/StoreKitchenMenuBoard';
 import { StoreShopPresenceCount } from '@/components/store/StoreShopPresenceCount';
+import { StoreProductPassDeskButton } from '@/components/store/StoreProductPassDeskButton';
+import { StoreShopHoursDesk } from '@/components/store/StoreShopHoursDesk';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { cn } from '@/lib/utils';
 
@@ -196,6 +198,12 @@ export function StoreKitchenDesk({
         ))}
       </div>
 
+      <StoreShopHoursDesk
+        value={state.host}
+        onChange={(nextHours) => onChange({ ...state, host: { ...state.host, ...nextHours } })}
+        accent="#b45a3c"
+      />
+
       <label className="block text-sm">
         {STORE_KITCHEN_LIVE.flashLabelAr}
         <input
@@ -288,6 +296,12 @@ export function StoreKitchenDesk({
             {STORE_KITCHEN_LIVE.qrRenewAr}
           </button>
         </div>
+        <StoreProductPassDeskButton
+          kind="kitchen"
+          token={token}
+          shopName={state.host.shopName}
+          qrStamp={state.host.qrActive ? state.host.qrStamp : ''}
+        />
       </div>
     </div>
   );

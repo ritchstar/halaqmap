@@ -5,6 +5,7 @@
  */
 import { randomBytes } from 'node:crypto';
 import { withStoreAffiliateCode } from './storeAffiliateCode.js';
+import { DEFAULT_STORE_SHOP_HOURS, parseStoreShopHours, type StoreShopHoursState } from './storeShopHours.js';
 
 export const STORE_KITCHEN_LIVE_TABLE = 'store_kitchen_live_orders' as const;
 export const STORE_KITCHEN_LIVE_PRODUCT = 'store_kitchen_live' as const;
@@ -142,7 +143,7 @@ export type KitchenLiveOrderPayload = {
   giftClockFromFirstVisit?: boolean;
   giftStartedAt?: string;
   giftConvertedAt?: string;
-};
+} & StoreShopHoursState;
 
 export function isKitchenGiftPayload(payload: Record<string, unknown> | KitchenLiveOrderPayload | null | undefined): boolean {
   if (!payload) return false;
@@ -181,6 +182,7 @@ export function parseKitchenLiveOrderBody(body: Record<string, unknown>):
       shelf: [],
       orders: [],
       nextTicket: 1,
+      ...DEFAULT_STORE_SHOP_HOURS,
     },
   };
 }
@@ -219,5 +221,6 @@ export function publicKitchenPayload(payload: KitchenLiveOrderPayload) {
     issuedByLabel: String(payload.issuedByLabel || ''),
     giftClockFromFirstVisit: payload.giftClockFromFirstVisit === true,
     giftStartedAt: String(payload.giftStartedAt || ''),
+    ...parseStoreShopHours(payload),
   };
 }

@@ -5,6 +5,7 @@
  */
 import { randomBytes } from 'node:crypto';
 import { withStoreAffiliateCode } from './storeAffiliateCode.js';
+import { DEFAULT_STORE_SHOP_HOURS, parseStoreShopHours, type StoreShopHoursState } from './storeShopHours.js';
 
 export const STORE_CAFE_LIVE_TABLE = 'store_cafe_live_orders' as const;
 export const STORE_CAFE_LIVE_PRODUCT = 'store_cafe_live' as const;
@@ -149,7 +150,7 @@ export type CafeLiveOrderPayload = {
   activeEventId: string;
   customEventTitle: string;
   blessings: CafeLiveBlessing[];
-};
+} & StoreShopHoursState;
 
 export function parseCafeLiveOrderBody(body: Record<string, unknown>):
   | { ok: true; email: string; buyerName: string; packId: 'm6' | 'm12'; payload: CafeLiveOrderPayload }
@@ -188,6 +189,7 @@ export function parseCafeLiveOrderBody(body: Record<string, unknown>):
       activeEventId: 'welcome',
       customEventTitle: '',
       blessings: [],
+      ...DEFAULT_STORE_SHOP_HOURS,
     },
   };
 }
@@ -257,5 +259,6 @@ export function publicCafePayload(payload: CafeLiveOrderPayload) {
     activeEventId: payload.activeEventId || 'welcome',
     customEventTitle: payload.customEventTitle || '',
     blessings: Array.isArray(payload.blessings) ? payload.blessings.slice(-80) : [],
+    ...parseStoreShopHours(payload),
   };
 }

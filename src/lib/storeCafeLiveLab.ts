@@ -10,6 +10,7 @@ import {
   type StoreCafeLiveEventId,
   type StoreCafeLivePackId,
 } from '@/config/storeCafeLive';
+import { DEFAULT_STORE_SHOP_HOURS, type StoreShopHoursState } from '@/config/storeShopHours';
 import { compressImageFile, youtubeEmbedSrc } from '@/lib/storeWeddingLiveLab';
 
 export { parseCafeListText, compressImageFile, youtubeEmbedSrc };
@@ -78,7 +79,7 @@ export type CafeHostState = {
   reviewBeforeShow: boolean;
   activeEventId: StoreCafeLiveEventId;
   customEventTitle: string;
-};
+} & StoreShopHoursState;
 
 export type CafeChatMsg = {
   id: string;
@@ -157,6 +158,7 @@ export function defaultCafeLabState(): CafeLabState {
       reviewBeforeShow: STORE_CAFE_LIVE_DEMO.reviewBeforeShow,
       activeEventId: STORE_CAFE_LIVE_DEMO.activeEventId,
       customEventTitle: STORE_CAFE_LIVE_DEMO.customEventTitle,
+      ...DEFAULT_STORE_SHOP_HOURS,
     },
     shelf,
     orders: [],

@@ -5,6 +5,7 @@
  */
 import { STORE_RESTAURANT_MENU, restaurantMenuById, parseRestaurantListText } from '@/config/storeRestaurantMenu';
 import { STORE_RESTAURANT_LIVE_DEMO, type StoreRestaurantLivePackId } from '@/config/storeRestaurantLive';
+import { DEFAULT_STORE_SHOP_HOURS, type StoreShopHoursState } from '@/config/storeShopHours';
 import { compressImageFile } from '@/lib/storeWeddingLiveLab';
 
 export { parseRestaurantListText, compressImageFile };
@@ -52,7 +53,7 @@ export type RestaurantHostState = {
   flashAr: string;
   packId: StoreRestaurantLivePackId;
   nextTicket: number;
-};
+} & StoreShopHoursState;
 
 export type RestaurantChatMsg = {
   id: string;
@@ -111,6 +112,7 @@ export function defaultRestaurantLabState(): RestaurantLabState {
       flashAr: STORE_RESTAURANT_LIVE_DEMO.flashAr,
       packId: 'm6',
       nextTicket: 1,
+      ...DEFAULT_STORE_SHOP_HOURS,
     },
     shelf,
     orders: [],

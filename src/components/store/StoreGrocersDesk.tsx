@@ -12,6 +12,8 @@ import {
 } from '@/lib/storeGrocersLiveLab';
 import { StoreGrocersIngest } from '@/components/store/StoreGrocersIngest';
 import { StoreGrocersDeskChat } from '@/components/store/StoreGrocersChat';
+import { StoreProductPassDeskButton } from '@/components/store/StoreProductPassDeskButton';
+import { StoreShopHoursDesk } from '@/components/store/StoreShopHoursDesk';
 import { StoreShopPresenceCount } from '@/components/store/StoreShopPresenceCount';
 import { StoreTrialOpsNote } from '@/components/store/StoreTrialOpsNote';
 import { cn } from '@/lib/utils';
@@ -149,6 +151,12 @@ export function StoreGrocersDesk({
         ))}
       </div>
 
+      <StoreShopHoursDesk
+        value={state.host}
+        onChange={(nextHours) => onChange({ ...state, host: { ...state.host, ...nextHours } })}
+        accent="#8fbf7a"
+      />
+
       <label className="block text-sm">
         {STORE_GROCERS_LIVE.flashLabelAr}
         <input
@@ -190,6 +198,7 @@ export function StoreGrocersDesk({
         <button type="button" onClick={printQr} className="mt-3 w-full rounded-full bg-[#8fbf7a] py-2 text-sm font-bold text-[#061018]">
           {STORE_GROCERS_LIVE.qrPrintAr}
         </button>
+        <StoreProductPassDeskButton kind="grocers" token={token} shopName={state.host.shopName} />
       </div>
     </div>
   );

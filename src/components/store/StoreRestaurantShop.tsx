@@ -13,6 +13,9 @@ import {
   type RestaurantService,
 } from '@/lib/storeRestaurantLiveLab';
 import { StoreRestaurantBuyerChat } from '@/components/store/StoreRestaurantChat';
+import { StoreShopHoursBanner } from '@/components/store/StoreShopHoursBanner';
+import { STORE_SHOP_HOURS_COPY } from '@/config/storeShopHours';
+import { isShopClosedNow } from '@/lib/storeShopHours';
 import { cn } from '@/lib/utils';
 
 export function StoreRestaurantShop({
@@ -100,6 +103,7 @@ export function StoreRestaurantShop({
           ))}
         </ul>
       </header>
+      <StoreShopHoursBanner hours={state.host} accent="#e08a3c" />
 
       {today ? (
         <section className="overflow-hidden rounded-2xl border border-[#e08a3c]/40 bg-[#1a1008]">
@@ -166,7 +170,9 @@ export function StoreRestaurantShop({
           submit();
         }}
       >
-        <h3 className="text-lg font-extrabold">{STORE_RESTAURANT_LIVE.checkoutTitleAr}</h3>
+        <h3 className="text-lg font-extrabold">
+          {isShopClosedNow(state.host) ? STORE_SHOP_HOURS_COPY.preorderTitleAr : STORE_RESTAURANT_LIVE.checkoutTitleAr}
+        </h3>
         <p className="mt-1 text-sm text-[#e08a3c]">الإجمالي الآن: {total} ر.س</p>
         <label className="mt-3 block text-sm">
           {STORE_RESTAURANT_LIVE.buyerNameLabelAr}

@@ -13,6 +13,9 @@ import {
   type GrocersPayMethod,
 } from '@/lib/storeGrocersLiveLab';
 import { StoreGrocersBuyerChat } from '@/components/store/StoreGrocersChat';
+import { StoreShopHoursBanner } from '@/components/store/StoreShopHoursBanner';
+import { STORE_SHOP_HOURS_COPY } from '@/config/storeShopHours';
+import { isShopClosedNow } from '@/lib/storeShopHours';
 import { cn } from '@/lib/utils';
 
 export function StoreGrocersShop({
@@ -98,6 +101,7 @@ export function StoreGrocersShop({
           ))}
         </ul>
       </header>
+      <StoreShopHoursBanner hours={state.host} accent="#8fbf7a" />
 
       <section>
         <h3 className="text-lg font-extrabold">{STORE_GROCERS_LIVE.featuredTitleAr}</h3>
@@ -139,7 +143,9 @@ export function StoreGrocersShop({
           submit();
         }}
       >
-        <h3 className="text-lg font-extrabold">{STORE_GROCERS_LIVE.checkoutTitleAr}</h3>
+        <h3 className="text-lg font-extrabold">
+          {isShopClosedNow(state.host) ? STORE_SHOP_HOURS_COPY.preorderTitleAr : STORE_GROCERS_LIVE.checkoutTitleAr}
+        </h3>
         <p className="mt-1 text-sm text-[#8fbf7a]">الإجمالي الآن: {total} ر.س</p>
         <label className="mt-3 block text-sm">
           {STORE_GROCERS_LIVE.buyerNameLabelAr}

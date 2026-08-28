@@ -36,6 +36,7 @@ import {
   STORE_RESTAURANT_LIVE_TABLE,
   type RestaurantLiveOrderPayload,
 } from './_lib/storeRestaurantLive.js';
+import { parseStoreShopHours } from './_lib/storeShopHours.js';
 import { sendRestaurantLiveLinksEmail } from './_lib/storeRestaurantLiveMail.js';
 import { applyStoreTrialClock, markStoreTrialConverted } from './_lib/storeProductTrial.js';
 import { storeAffiliateCodeFromMeta } from './_lib/storeAffiliateCode.js';
@@ -619,6 +620,7 @@ async function saveHost(db: Db, body: Record<string, unknown>, headers: Record<s
     chatIncluded: true,
     chats: Array.isArray(body.chats) ? parseRestaurantChats(body.chats) : parseRestaurantChats(current.chats),
     nextTicket: Number.isFinite(nextTicket) && nextTicket > 0 ? nextTicket : current.nextTicket || 1,
+    ...parseStoreShopHours(body, parseStoreShopHours(current)),
   };
   await db
     .from(STORE_RESTAURANT_LIVE_TABLE)

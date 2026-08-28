@@ -15,6 +15,7 @@ import {
 } from '@/lib/storeLoungeLiveLab';
 import { cn } from '@/lib/utils';
 import { StoreTrialOpsNote } from '@/components/store/StoreTrialOpsNote';
+import { StoreProductPassDeskButton } from '@/components/store/StoreProductPassDeskButton';
 
 const fieldClass = 'mt-1 h-12 w-full rounded-md border border-white/15 bg-[#061018] px-3 text-[#f4efe4]';
 
@@ -25,6 +26,7 @@ export function StoreLoungeHostPanel({
   displayUrl,
   expiresAt,
   showTrialNote = false,
+  token,
 }: {
   state: LoungeLiveLabState;
   onChange: (next: LoungeLiveLabState) => void;
@@ -32,6 +34,7 @@ export function StoreLoungeHostPanel({
   displayUrl?: string;
   expiresAt?: string;
   showTrialNote?: boolean;
+  token: string;
 }) {
   const [uploadError, setUploadError] = useState('');
   const [customTitle, setCustomTitle] = useState(state.host.customEventTitle);
@@ -117,6 +120,9 @@ export function StoreLoungeHostPanel({
             ) : null}
           </div>
         </div>
+      ) : null}
+      {token ? (
+        <StoreProductPassDeskButton kind="lounge" token={token} shopName={host.loungeName} />
       ) : null}
       <label className="mt-3 flex items-center gap-2 text-sm">
         <input

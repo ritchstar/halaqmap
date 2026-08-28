@@ -173,6 +173,7 @@ export default function StoreLoungeHallPage() {
                 displayUrl={displayUrl}
                 expiresAt={expiresAt}
                 showTrialNote={isTrial}
+                token={safeToken}
               />
             </div>
           ) : null}

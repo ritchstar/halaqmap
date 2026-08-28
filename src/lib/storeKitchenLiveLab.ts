@@ -8,6 +8,7 @@ import {
   STORE_KITCHEN_LIVE_DEMO,
   STORE_KITCHEN_LIVE_LAB_ITEM_CAP,
 } from '@/config/storeKitchenLive';
+import { DEFAULT_STORE_SHOP_HOURS, type StoreShopHoursState } from '@/config/storeShopHours';
 import { compressImageFile } from '@/lib/storeWeddingLiveLab';
 
 export { parseKitchenListText, compressImageFile };
@@ -65,7 +66,7 @@ export type KitchenHostState = {
   qrStamp: string;
   qrActive: boolean;
   nextTicket: number;
-};
+} & StoreShopHoursState;
 
 export type KitchenLabState = {
   host: KitchenHostState;
@@ -128,6 +129,7 @@ export function defaultKitchenLabState(): KitchenLabState {
       qrStamp: newKitchenQrStamp(),
       qrActive: true,
       nextTicket: 1,
+      ...DEFAULT_STORE_SHOP_HOURS,
     },
     shelf,
     orders: [],

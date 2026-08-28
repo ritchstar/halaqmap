@@ -37,6 +37,7 @@ import {
   STORE_KITCHEN_LIVE_TABLE,
   type KitchenLiveOrderPayload,
 } from './_lib/storeKitchenLive.js';
+import { parseStoreShopHours } from './_lib/storeShopHours.js';
 import { sendKitchenLiveLinksEmail } from './_lib/storeKitchenLiveMail.js';
 import { storeAffiliateCodeFromMeta } from './_lib/storeAffiliateCode.js';
 import { creditStoreAffiliateLedger } from './_lib/storeAffiliateLedger.js';
@@ -640,6 +641,7 @@ async function saveHost(db: Db, body: Record<string, unknown>, headers: Record<s
     shelf: Array.isArray(body.shelf) ? body.shelf : current.shelf,
     orders: Array.isArray(body.orders) ? body.orders : current.orders,
     nextTicket: Number.isFinite(nextTicket) && nextTicket > 0 ? nextTicket : current.nextTicket || 1,
+    ...parseStoreShopHours(body, parseStoreShopHours(current)),
   };
   await db
     .from(STORE_KITCHEN_LIVE_TABLE)
