@@ -275,6 +275,8 @@ export const ROUTE_PATHS = {
   ADMIN_STORE_SALES: '/store-sales',
   /** إصدار التجارب والمسدد المفعَّل — داخل لوحة التحكم */
   ADMIN_STORE_OPS: '/store-ops',
+  /** قائمة مشاركات هدايا المتجر — داخل لوحة التحكم */
+  ADMIN_STORE_GIFTS: '/store-gifts',
   /** مركز موافقات إبراز فزعة على الصفحات العامة */
   ADMIN_FAZAA_LISTING: '/fazaa-listing',
   /** شرح مفصّل للمناوب الرقمي الذكي */

@@ -10,12 +10,14 @@ import { issueStoreProductTrial } from './storeProductTrial.js';
 export const STORE_GIFT_CYCLE_CAP = 50 as const;
 export const STORE_GIFT_SLOT_COUNT = 5 as const;
 export const STORE_GIFT_TERMS_VERSION = 'gift-1' as const;
+export const STORE_GIFT_CONFIRM_HOURS = 48 as const;
+export const STORE_GIFT_RESEND_COOLDOWN_MS = 10 * 60 * 1000;
 
 type StoreGiftProductChoice = 'wedding_men' | 'wedding_women' | 'event';
 type StoreGiftSource = 'google' | 'youtube' | 'x' | 'snapchat' | 'friend';
 type StoreGiftVoice = 'men' | 'women';
 
-function giftProductLabelAr(choice: StoreGiftProductChoice, eventVoice?: StoreGiftVoice | null): string {
+export function giftProductLabelAr(choice: StoreGiftProductChoice, eventVoice?: StoreGiftVoice | null): string {
   if (choice === 'wedding_men') return 'افراحي1 رجالي';
   if (choice === 'wedding_women') return 'افراحي1 نسائي';
   if (eventVoice === 'women') return 'اجواء1 نسائي';
@@ -353,6 +355,31 @@ export async function enterGiftCampaign(
   const minted = mintGiftConfirmToken({ entryId: String(data.id), email });
   if (!minted.ok) return minted;
   return { ok: true, entryId: String(data.id), confirmToken: minted.token };
+}
+
+export async function prepareGiftConfirmResend(
+  db: Db,
+  entryId: string,
+): Promise<{ ok: true; email: string; confirmToken: string } | { ok: false; error: string }> {
+  const id = String(entryId || '').trim();
+  if (!id) return { ok: false, error: 'المشاركة غير موجودة.' };
+  const { data: entry } = await db
+    .from(STORE_GIFT_ENTRIES_TABLE)
+    .select('id, email, email_verified_at, updated_at')
+    .eq('id', id)
+    .maybeSingle();
+  if (!entry) return { ok: false, error: 'المشاركة غير موجودة.' };
+  if (entry.email_verified_at) return { ok: false, error: 'هذا البريد مفعَّل.' };
+  const last = Date.parse(String(entry.updated_at || ''));
+  if (Number.isFinite(last) && Date.now() - last < STORE_GIFT_RESEND_COOLDOWN_MS) {
+    return { ok: false, error: 'أُرسل تذكير قبل قليل. انتظر عشر دقائق ثم أعد المحاولة.' };
+  }
+  const email = String(entry.email || '').trim().toLowerCase();
+  const minted = mintGiftConfirmToken({ entryId: String(entry.id), email });
+  if (!minted.ok) return minted;
+  const now = new Date().toISOString();
+  await db.from(STORE_GIFT_ENTRIES_TABLE).update({ updated_at: now }).eq('id', entry.id);
+  return { ok: true, email, confirmToken: minted.token };
 }
 
 export async function confirmGiftEntry(

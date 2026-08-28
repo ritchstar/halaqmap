@@ -20,6 +20,8 @@ import { sendKitchenLiveLinksEmail } from './storeKitchenLiveMail.js';
 export const STORE_KITCHEN_GIFT_CYCLE_CAP = 50 as const;
 export const STORE_KITCHEN_GIFT_SLOT_COUNT = 5 as const;
 export const STORE_KITCHEN_GIFT_TERMS_VERSION = 'kitchen-gift-1' as const;
+export const STORE_KITCHEN_GIFT_CONFIRM_HOURS = 48 as const;
+export const STORE_KITCHEN_GIFT_RESEND_COOLDOWN_MS = 10 * 60 * 1000;
 export const STORE_KITCHEN_GIFT_PRODUCT_LABEL_AR = 'طبختنا1' as const;
 export const STORE_KITCHEN_GIFT_ISSUED_BY = 'هدية طبختنا1' as const;
 export const STORE_KITCHEN_GIFT_LABEL_AR = 'هدية من متجر خريطة الحل' as const;
@@ -382,6 +384,31 @@ export async function enterKitchenGiftCampaign(
   const minted = mintKitchenGiftConfirmToken({ entryId: String(data.id), email });
   if (!minted.ok) return minted;
   return { ok: true, entryId: String(data.id), confirmToken: minted.token };
+}
+
+export async function prepareKitchenGiftConfirmResend(
+  db: Db,
+  entryId: string,
+): Promise<{ ok: true; email: string; confirmToken: string } | { ok: false; error: string }> {
+  const id = String(entryId || '').trim();
+  if (!id) return { ok: false, error: 'المشاركة غير موجودة.' };
+  const { data: entry } = await db
+    .from(STORE_KITCHEN_GIFT_ENTRIES_TABLE)
+    .select('id, email, email_verified_at, updated_at')
+    .eq('id', id)
+    .maybeSingle();
+  if (!entry) return { ok: false, error: 'المشاركة غير موجودة.' };
+  if (entry.email_verified_at) return { ok: false, error: 'هذا البريد مفعَّل.' };
+  const last = Date.parse(String(entry.updated_at || ''));
+  if (Number.isFinite(last) && Date.now() - last < STORE_KITCHEN_GIFT_RESEND_COOLDOWN_MS) {
+    return { ok: false, error: 'أُرسل تذكير قبل قليل. انتظر عشر دقائق ثم أعد المحاولة.' };
+  }
+  const email = String(entry.email || '').trim().toLowerCase();
+  const minted = mintKitchenGiftConfirmToken({ entryId: String(entry.id), email });
+  if (!minted.ok) return minted;
+  const now = new Date().toISOString();
+  await db.from(STORE_KITCHEN_GIFT_ENTRIES_TABLE).update({ updated_at: now }).eq('id', entry.id);
+  return { ok: true, email, confirmToken: minted.token };
 }
 
 export async function confirmKitchenGiftEntry(

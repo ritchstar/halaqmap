@@ -203,6 +203,7 @@ const CoiffeurHubPage = lazy(() => import("@/app/admin/coiffeur-hub/page"));
 const StoreDeskPage = lazy(() => import("@/app/admin/store-desk/page"));
 const StoreSalesHubPage = lazy(() => import("@/app/admin/store-sales/page"));
 const StoreSalesLedgerPage = lazy(() => import("@/app/admin/store-sales/[product]/page"));
+const StoreGiftRosterPage = lazy(() => import("@/app/admin/store-gifts/page"));
 const FazaaListingAdminPage = lazy(() => import("@/app/admin/fazaa-listing/page"));
 const FazaaListingConsentLanding = lazy(() => import("@/pages/FazaaListingConsentLanding"));
 const AdminDashboard = lazyPage(() => import("@/pages/AdminDashboard"), "AdminDashboard");
@@ -993,6 +994,7 @@ export function App() {
               <Route path={`${adminBase}/store-desk`} element={<LazyRoute><StoreDeskPage /></LazyRoute>} />
               <Route path={`${adminBase}/store-sales`} element={<LazyRoute><StoreSalesHubPage /></LazyRoute>} />
               <Route path={`${adminBase}/store-sales/:product`} element={<LazyRoute><StoreSalesLedgerPage /></LazyRoute>} />
+              <Route path={`${adminBase}/store-gifts`} element={<LazyRoute><StoreGiftRosterPage /></LazyRoute>} />
               <Route path={`${adminBase}${ADMIN_STORE_OPS_PATH}`} element={<LazyRoute><StoreOpsDeskPage /></LazyRoute>} />
               <Route path={`${adminBase}/fazaa-listing`} element={<LazyRoute><FazaaListingAdminPage /></LazyRoute>} />
             </Fragment>
@@ -1008,6 +1010,7 @@ export function App() {
           <Route path="/admin/store-desk" element={<LegacyAdminRedirect suffix="/store-desk" />} />
           <Route path="/admin/store-sales" element={<LegacyAdminRedirect suffix="/store-sales" />} />
           <Route path="/admin/store-sales/:product" element={<LegacyAdminStoreSalesLedgerRedirect />} />
+          <Route path="/admin/store-gifts" element={<LegacyAdminRedirect suffix="/store-gifts" />} />
           <Route path="/admin/store-ops" element={<LegacyAdminRedirect suffix={ADMIN_STORE_OPS_PATH} />} />
           <Route path="/admin/fazaa-listing" element={<LegacyAdminRedirect suffix="/fazaa-listing" />} />
           <Route path="/admin" element={<LegacyAdminRedirect suffix="/in" />} />
