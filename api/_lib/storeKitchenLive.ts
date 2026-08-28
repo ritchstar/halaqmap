@@ -112,12 +112,19 @@ export function kitchenLivePaymentMatches(input: {
   return isKitchenPriceHalalas(input.amount);
 }
 
-export const DEFAULT_KITCHEN_PICKUP = {
+export type KitchenPickupPlace = {
+  pickupLat: number;
+  pickupLng: number;
+  pickupMapsUrl: string;
+  pickupPlaceVisible: boolean;
+};
+
+export const DEFAULT_KITCHEN_PICKUP: KitchenPickupPlace = {
   pickupLat: 0,
   pickupLng: 0,
   pickupMapsUrl: '',
   pickupPlaceVisible: false,
-} as const;
+};
 
 function clipKitchenMapsUrl(raw: unknown): string {
   const value = String(raw ?? '').trim().slice(0, 240);
@@ -135,8 +142,8 @@ function clipKitchenMapsUrl(raw: unknown): string {
 
 export function parseKitchenPickupPlace(
   raw: Record<string, unknown> | KitchenLiveOrderPayload | null | undefined,
-  fallback = DEFAULT_KITCHEN_PICKUP,
-) {
+  fallback: KitchenPickupPlace = DEFAULT_KITCHEN_PICKUP,
+): KitchenPickupPlace {
   const row = raw && typeof raw === 'object' ? (raw as Record<string, unknown>) : {};
   const lat = Number(row.pickupLat);
   const lng = Number(row.pickupLng);

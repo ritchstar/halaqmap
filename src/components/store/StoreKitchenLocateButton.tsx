@@ -20,7 +20,7 @@ export function StoreKitchenLocateButton({
     setHint('');
     const result = await requestKitchenGeo();
     setBusy(false);
-    if (!result.ok) {
+    if (result.ok === false) {
       setHint(result.denied ? STORE_KITCHEN_LIVE.locateDeniedAr : STORE_KITCHEN_LIVE.locateFailAr);
       return;
     }
