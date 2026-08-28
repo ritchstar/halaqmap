@@ -92,9 +92,6 @@ export const STORE_MAIL_AFFILIATE_ICON: StoreMailIconTheme = {
   ring: '#14b8a6',
 };
 
-export const STORE_MAIL_ENGINE_LINE_AR =
-  'المتجر يصدر المسارات أيقونات تشغيل جاهزة، بلا لصق عناوين طويلة.';
-
 export function storeMailProductIcon(id: StoreMailProductId): StoreMailIconTheme {
   const found = STORE_MAIL_PRODUCT_ICONS.find((item) => item.id === id);
   if (!found) return STORE_MAIL_PRODUCT_ICONS[0];

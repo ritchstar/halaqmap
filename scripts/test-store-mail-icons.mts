@@ -14,7 +14,6 @@ import {
   buildRestaurantLiveLinksHtml,
   buildStoreAffiliateMagicHtml,
   buildWeddingLiveLinksHtml,
-  STORE_MAIL_ENGINE_LINE_AR,
   storeMailTheme,
 } from '../api/_lib/storeMailIconLayout.ts';
 import { storeAffiliateCheckoutLinks } from '../api/_lib/storeAffiliateCode.ts';
@@ -47,7 +46,8 @@ const affiliate = buildStoreAffiliateMagicHtml({ loginUrl: login, productLinks: 
 for (const html of [wedding, event, lounge, grocers, restaurant, kitchen, affiliate]) {
   assert.match(html, /align="center"/);
   assert.match(html, /text-align:center/);
-  assert.ok(html.includes(STORE_MAIL_ENGINE_LINE_AR));
+  assert.doesNotMatch(html, /المتجر يصدر المسارات/);
+  assert.doesNotMatch(html, /بلا لصق عناوين/);
   assert.doesNotMatch(html, />https:\/\//);
   assert.doesNotMatch(html, /كاردي8/);
   assert.doesNotMatch(html, /store_occasion_card/);
@@ -66,7 +66,6 @@ assert.match(kitchen, /طبختنا1/);
 assert.match(kitchen, /صفحة الزبون/);
 assert.match(kitchen, /لوحة النشاط/);
 assert.doesNotMatch(kitchen, /أكلنا1/);
-assert.match(affiliate, /المجموعة التسويقية للمتجر الإلكتروني/);
 assert.match(affiliate, /لوحة المسوّق/);
 assert.ok(affiliate.includes(products.wedding));
 assert.ok(affiliate.includes(products.restaurant));

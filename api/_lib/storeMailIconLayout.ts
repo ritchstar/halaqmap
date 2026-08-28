@@ -103,9 +103,6 @@ const THEMES: Record<StoreMailThemeId, StoreMailTheme> = {
   },
 };
 
-export const STORE_MAIL_ENGINE_LINE_AR =
-  'المتجر يصدر المسارات أيقونات تشغيل جاهزة، بلا لصق عناوين طويلة.';
-
 export const STORE_MAIL_BRAND_LATIN = 'halaqmap';
 export const STORE_MAIL_BRAND_AR = 'خريطة الحل';
 export const STORE_MAIL_KIND_LABEL_AR = 'نوع الرسالة';
@@ -181,7 +178,6 @@ export function buildStoreMailHtml(input: {
     )
     .join('');
   const rows = input.iconRows.map(renderStoreMailIconRow).join('\n');
-  const engine = escapeStoreMailHtml(STORE_MAIL_ENGINE_LINE_AR);
   return `<div dir="rtl" style="margin:0;padding:0;background:#061018">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#061018;font-family:Tajawal,Arial,sans-serif">
 <tr>
@@ -198,7 +194,6 @@ export function buildStoreMailHtml(input: {
 <p style="margin:12px 0 0;font-size:14px;line-height:1.85;color:#d7d1c6;text-align:center">${lead}</p>
 <div style="padding:22px 0 8px">${rows}</div>
 ${notes}
-<p style="margin:18px 0 0;font-size:12px;line-height:1.8;color:${theme.accent};text-align:center">${engine}</p>
 <p style="margin:12px 0 0;font-size:11px;line-height:1.8;color:#94a3b8;text-align:center">${footer}</p>
 </td>
 </tr>
