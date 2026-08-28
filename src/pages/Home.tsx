@@ -1,5 +1,6 @@
 /**
- * Copyright © 2026 HalaqMap. All Rights Reserved.
+ * Copyright © 2026 BINSARRA AHMED ABDULLAH A. All Rights Reserved.
+ * Product: HalaqMap / منصة حلاق ماب — SAIP 26-12-81959218
  */
 import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';

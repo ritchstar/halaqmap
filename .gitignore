@@ -145,3 +145,10 @@ ios/App/App/capacitor.config.json
 # --- Fazaa consented partners (generated at build from accepted consents) ---
 scripts/data/fazaaFeaturedPartners.consented.json
 
+# --- SAIP source archives (local upload binaries) ---
+fkrih/saip-*/**/*.zip
+fkrih/saip-*/**/*.pdf
+*.zip
+!public/**/*.zip
+
+

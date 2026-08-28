@@ -2,6 +2,7 @@
   "name": "halaqmap",
   "private": true,
   "version": "0.0.0",
+  "author": "BINSARRA AHMED ABDULLAH A",
   "type": "module",
   "scripts": {
     "dev": "cross-env VITE_ENABLE_ROUTE_MESSAGING=true vite",
