@@ -10,6 +10,7 @@ import { StoreHallNoticePlaque } from '@/components/store/StoreHallNoticePlaque'
 import { StoreHallVideoWell } from '@/components/store/StoreHallVideoWell';
 import { StoreLivePanoramaCycle } from '@/components/store/StoreLivePanoramaCycle';
 import { StoreLoungeNightSky } from '@/components/store/StoreLoungeNightSky';
+import { StoreShopPlacePin } from '@/components/store/StoreShopPlacePin';
 import { StoreShot } from '@/components/store/StoreShot';
 import type { LoungeLiveLabState } from '@/lib/storeLoungeLiveLab';
 import { loungeBlessingOnScreen, loungeScreenTitle, youtubeEmbedSrc } from '@/lib/storeLoungeLiveLab';
@@ -62,8 +63,14 @@ export function StoreLoungeHallStage({
             {STORE_LOUNGE_LIVE.hallKickerAr}
           </div>
           <div className="hall-ornament-rule" style={{ ['--hall-ornament' as string]: accent }} aria-hidden />
-          <div className="hall-masthead-host" data-bidi="off">
-            {state.host.loungeName}
+          <div className="hall-masthead-host flex items-center justify-center gap-2" data-bidi="off">
+            <span>{state.host.loungeName}</span>
+            <StoreShopPlacePin
+              mapsUrl={state.host.pickupMapsUrl}
+              visible={state.host.pickupPlaceVisible}
+              accent={accent}
+              labelAr={STORE_LOUNGE_LIVE.pickupPinAriaAr}
+            />
           </div>
           <div className="hall-masthead-names" data-bidi="off">
             {loungeScreenTitle(state.host)}

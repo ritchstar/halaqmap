@@ -16,6 +16,7 @@ import { StoreShopPresenceCount } from '@/components/store/StoreShopPresenceCoun
 import { StoreTrialOpsNote } from '@/components/store/StoreTrialOpsNote';
 import { StoreProductPassDeskButton } from '@/components/store/StoreProductPassDeskButton';
 import { StoreShopHoursDesk } from '@/components/store/StoreShopHoursDesk';
+import { StoreShopPlaceDesk } from '@/components/store/StoreShopPlaceDesk';
 import { cn } from '@/lib/utils';
 
 export function StoreCafeDesk({
@@ -157,6 +158,13 @@ export function StoreCafeDesk({
           </label>
         ))}
       </div>
+
+      <StoreShopPlaceDesk
+        value={state.host}
+        onChange={(place) => onChange({ ...state, host: { ...state.host, ...place } })}
+        copy={STORE_CAFE_LIVE}
+        accent="#c48a4a"
+      />
 
       <StoreShopHoursDesk
         value={state.host}

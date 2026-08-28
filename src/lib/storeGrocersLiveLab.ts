@@ -8,6 +8,7 @@ import { STORE_GROCERS_CATALOG, grocersCatalogById, parseGrocersListText } from 
 export { parseGrocersListText };
 import { STORE_GROCERS_LIVE_DEMO, type StoreGrocersLivePackId } from '@/config/storeGrocersLive';
 import { DEFAULT_STORE_SHOP_HOURS, type StoreShopHoursState } from '@/config/storeShopHours';
+import { DEFAULT_SHOP_PICKUP, type ShopPickupPlace } from '@/lib/storeShopPlace';
 import { compressImageFile } from '@/lib/storeWeddingLiveLab';
 
 export { compressImageFile };
@@ -50,7 +51,7 @@ export type GrocersHostState = {
   customFields: string[];
   flashAr: string;
   packId: StoreGrocersLivePackId;
-} & StoreShopHoursState;
+} & StoreShopHoursState & ShopPickupPlace;
 
 export type GrocersChatMsg = {
   id: string;
@@ -111,6 +112,7 @@ export function defaultGrocersLabState(): GrocersLabState {
       customFields: [...STORE_GROCERS_LIVE_DEMO.customFields],
       flashAr: STORE_GROCERS_LIVE_DEMO.flashAr,
       packId: 'm6',
+      ...DEFAULT_SHOP_PICKUP,
       ...DEFAULT_STORE_SHOP_HOURS,
     },
     shelf,
@@ -132,6 +134,10 @@ export function readGrocersLabState(token: string): GrocersLabState {
         ...fallback.host,
         ...(parsed.host || {}),
         customFields: Array.from({ length: 5 }, (_, i) => parsed.host?.customFields?.[i] || fallback.host.customFields[i] || ''),
+        pickupLat: Number.isFinite(Number(parsed.host?.pickupLat)) ? Number(parsed.host?.pickupLat) : fallback.host.pickupLat,
+        pickupLng: Number.isFinite(Number(parsed.host?.pickupLng)) ? Number(parsed.host?.pickupLng) : fallback.host.pickupLng,
+        pickupMapsUrl: String(parsed.host?.pickupMapsUrl || fallback.host.pickupMapsUrl).slice(0, 240),
+        pickupPlaceVisible: parsed.host?.pickupPlaceVisible === true,
       },
       shelf: Array.isArray(parsed.shelf) && parsed.shelf.length ? parsed.shelf : fallback.shelf,
       orders: Array.isArray(parsed.orders) ? parsed.orders : [],

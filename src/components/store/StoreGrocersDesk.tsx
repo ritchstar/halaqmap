@@ -14,6 +14,7 @@ import { StoreGrocersIngest } from '@/components/store/StoreGrocersIngest';
 import { StoreGrocersDeskChat } from '@/components/store/StoreGrocersChat';
 import { StoreProductPassDeskButton } from '@/components/store/StoreProductPassDeskButton';
 import { StoreShopHoursDesk } from '@/components/store/StoreShopHoursDesk';
+import { StoreShopPlaceDesk } from '@/components/store/StoreShopPlaceDesk';
 import { StoreShopPresenceCount } from '@/components/store/StoreShopPresenceCount';
 import { StoreTrialOpsNote } from '@/components/store/StoreTrialOpsNote';
 import { cn } from '@/lib/utils';
@@ -150,6 +151,13 @@ export function StoreGrocersDesk({
           </label>
         ))}
       </div>
+
+      <StoreShopPlaceDesk
+        value={state.host}
+        onChange={(place) => onChange({ ...state, host: { ...state.host, ...place } })}
+        copy={STORE_GROCERS_LIVE}
+        accent="#8fbf7a"
+      />
 
       <StoreShopHoursDesk
         value={state.host}

@@ -40,6 +40,7 @@ import {
   type LoungeLiveOrderPayload,
   type LoungeLivePackId,
 } from './_lib/storeLoungeLive.js';
+import { parseShopPickupPlace } from './_lib/storeShopPlace.js';
 import { sendLoungeLiveLinksEmail } from './_lib/storeLoungeLiveMail.js';
 import { applyStoreTrialClock, markStoreTrialConverted } from './_lib/storeProductTrial.js';
 
@@ -644,6 +645,7 @@ async function saveHost(db: Db, body: Record<string, unknown>, headers: Record<s
     guestPaused: body.guestPaused == null ? current.guestPaused === true : Boolean(body.guestPaused),
     reviewBeforeShow: body.reviewBeforeShow == null ? current.reviewBeforeShow === true : Boolean(body.reviewBeforeShow),
     blessings: Array.isArray(body.blessings) ? (body.blessings as LoungeLiveOrderPayload['blessings']) : current.blessings,
+    ...parseShopPickupPlace(body, parseShopPickupPlace(current)),
   };
   await db
     .from(STORE_LOUNGE_LIVE_TABLE)

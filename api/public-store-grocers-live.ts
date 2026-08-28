@@ -40,6 +40,7 @@ import {
   type GrocersLiveOrderPayload,
 } from './_lib/storeGrocersLive.js';
 import { parseStoreShopHours } from './_lib/storeShopHours.js';
+import { parseShopPickupPlace } from './_lib/storeShopPlace.js';
 import { sendGrocersLiveLinksEmail } from './_lib/storeGrocersLiveMail.js';
 import { applyStoreTrialClock, markStoreTrialConverted } from './_lib/storeProductTrial.js';
 
@@ -228,7 +229,7 @@ async function readRow(db: Db, row: GrocersRow, role: string, headers: Record<st
       ok: true,
       status: row.status,
       role,
-      payload: publicGrocersPayload(payload),
+      payload: publicGrocersPayload(payload, role),
       expiresAt: clock.expiresAt,
       isTrial: clock.isTrial,
       shopUrl: shopUrl(row.shop_token),
@@ -623,6 +624,7 @@ async function saveHost(db: Db, body: Record<string, unknown>, headers: Record<s
       ? (Array.isArray(body.chats) ? parseGrocersChats(body.chats) : parseGrocersChats(current.chats))
       : [],
     ...parseStoreShopHours(body, parseStoreShopHours(current)),
+    ...parseShopPickupPlace(body, parseShopPickupPlace(current)),
   };
   await db
     .from(STORE_GROCERS_LIVE_TABLE)

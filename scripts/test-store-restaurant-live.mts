@@ -30,6 +30,7 @@ import {
   STORE_RESTAURANT_LIVE_PRODUCT as apiProduct,
   isRestaurantPriceHalalas,
   parseRestaurantLiveOrderBody,
+  publicRestaurantPayload,
   restaurantChargeHalalas,
   restaurantLiveInvoiceDescription,
   restaurantLiveIsExpired,
@@ -173,6 +174,20 @@ assert.equal(parsed.ok, true);
 if (parsed.ok) {
   assert.equal(parsed.payload.chatIncluded, true);
   assert.equal(parsed.payload.nextTicket, 1);
+  assert.equal(parsed.payload.pickupPlaceVisible, false);
+  const withPlace = {
+    ...parsed.payload,
+    pickupLat: 24.7136,
+    pickupLng: 46.6753,
+    pickupMapsUrl: 'https://maps.google.com/?q=24.713600,46.675300',
+    pickupPlaceVisible: false,
+  };
+  const shopView = publicRestaurantPayload(withPlace, 'shop');
+  assert.equal(shopView.pickupLat, 0);
+  assert.equal(shopView.pickupMapsUrl, '');
+  const deskView = publicRestaurantPayload(withPlace, 'desk');
+  assert.equal(deskView.pickupLat, 24.7136);
+  assert.match(deskView.pickupMapsUrl, /maps\.google\.com/);
 }
 
 assert.ok(STORE_RESTAURANT_MENU.length >= 10);
@@ -207,5 +222,12 @@ const rows = parseRestaurantListText('كبسة دجاج 28\nشاورما عرب�
 assert.equal(rows.length, 2);
 assert.equal(rows[0].price, 28);
 assert.equal(rows[1].nameAr, 'شاورما عربي');
+
+assert.match(STORE_RESTAURANT_LIVE.locateMeAr, /حدد موقعي/);
+assert.match(STORE_RESTAURANT_LIVE.pickupShowAr, /إبراز الموقع/);
+assert.doesNotMatch(STORE_RESTAURANT_LIVE.deskPickupLeadAr, /تمويناتا1|كافينا1|لاونجا1|طبختنا1/);
+assert.match(readFileSync(join(root, 'src/components/store/StoreRestaurantDesk.tsx'), 'utf8'), /StoreShopPlaceDesk/);
+assert.match(readFileSync(join(root, 'src/components/store/StoreRestaurantShop.tsx'), 'utf8'), /StoreShopPlacePin/);
+assert.match(readFileSync(join(root, 'api/public-store-restaurant-live.ts'), 'utf8'), /parseShopPickupPlace/);
 
 console.log('store-restaurant-live ok', STORE_RESTAURANT_MENU.length);

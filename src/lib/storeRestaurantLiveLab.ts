@@ -6,6 +6,7 @@
 import { STORE_RESTAURANT_MENU, restaurantMenuById, parseRestaurantListText } from '@/config/storeRestaurantMenu';
 import { STORE_RESTAURANT_LIVE_DEMO, type StoreRestaurantLivePackId } from '@/config/storeRestaurantLive';
 import { DEFAULT_STORE_SHOP_HOURS, type StoreShopHoursState } from '@/config/storeShopHours';
+import { DEFAULT_SHOP_PICKUP, type ShopPickupPlace } from '@/lib/storeShopPlace';
 import { compressImageFile } from '@/lib/storeWeddingLiveLab';
 
 export { parseRestaurantListText, compressImageFile };
@@ -53,7 +54,7 @@ export type RestaurantHostState = {
   flashAr: string;
   packId: StoreRestaurantLivePackId;
   nextTicket: number;
-} & StoreShopHoursState;
+} & StoreShopHoursState & ShopPickupPlace;
 
 export type RestaurantChatMsg = {
   id: string;
@@ -112,6 +113,7 @@ export function defaultRestaurantLabState(): RestaurantLabState {
       flashAr: STORE_RESTAURANT_LIVE_DEMO.flashAr,
       packId: 'm6',
       nextTicket: 1,
+      ...DEFAULT_SHOP_PICKUP,
       ...DEFAULT_STORE_SHOP_HOURS,
     },
     shelf,
@@ -133,6 +135,10 @@ export function readRestaurantLabState(token: string): RestaurantLabState {
         ...(parsed.host || {}),
         customFields: Array.from({ length: 5 }, (_, i) => parsed.host?.customFields?.[i] || fallback.host.customFields[i] || ''),
         nextTicket: Number(parsed.host?.nextTicket) > 0 ? Number(parsed.host?.nextTicket) : 1,
+        pickupLat: Number.isFinite(Number(parsed.host?.pickupLat)) ? Number(parsed.host?.pickupLat) : fallback.host.pickupLat,
+        pickupLng: Number.isFinite(Number(parsed.host?.pickupLng)) ? Number(parsed.host?.pickupLng) : fallback.host.pickupLng,
+        pickupMapsUrl: String(parsed.host?.pickupMapsUrl || fallback.host.pickupMapsUrl).slice(0, 240),
+        pickupPlaceVisible: parsed.host?.pickupPlaceVisible === true,
       },
       shelf: Array.isArray(parsed.shelf) && parsed.shelf.length
         ? parsed.shelf.map((item) => ({ ...item, photoSrc: item.photoSrc || '' }))

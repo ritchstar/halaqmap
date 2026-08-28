@@ -37,6 +37,7 @@ import {
   type RestaurantLiveOrderPayload,
 } from './_lib/storeRestaurantLive.js';
 import { parseStoreShopHours } from './_lib/storeShopHours.js';
+import { parseShopPickupPlace } from './_lib/storeShopPlace.js';
 import { sendRestaurantLiveLinksEmail } from './_lib/storeRestaurantLiveMail.js';
 import { applyStoreTrialClock, markStoreTrialConverted } from './_lib/storeProductTrial.js';
 import { storeAffiliateCodeFromMeta } from './_lib/storeAffiliateCode.js';
@@ -227,7 +228,7 @@ async function readRow(db: Db, row: RestaurantRow, role: string, headers: Record
       ok: true,
       status: row.status,
       role,
-      payload: publicRestaurantPayload(payload),
+      payload: publicRestaurantPayload(payload, role),
       expiresAt: clock.expiresAt,
       isTrial: clock.isTrial,
       shopUrl: shopUrl(row.shop_token),
@@ -621,6 +622,7 @@ async function saveHost(db: Db, body: Record<string, unknown>, headers: Record<s
     chats: Array.isArray(body.chats) ? parseRestaurantChats(body.chats) : parseRestaurantChats(current.chats),
     nextTicket: Number.isFinite(nextTicket) && nextTicket > 0 ? nextTicket : current.nextTicket || 1,
     ...parseStoreShopHours(body, parseStoreShopHours(current)),
+    ...parseShopPickupPlace(body, parseShopPickupPlace(current)),
   };
   await db
     .from(STORE_RESTAURANT_LIVE_TABLE)

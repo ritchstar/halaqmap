@@ -16,6 +16,7 @@ import {
 import { cn } from '@/lib/utils';
 import { StoreTrialOpsNote } from '@/components/store/StoreTrialOpsNote';
 import { StoreProductPassDeskButton } from '@/components/store/StoreProductPassDeskButton';
+import { StoreShopPlaceDesk } from '@/components/store/StoreShopPlaceDesk';
 
 const fieldClass = 'mt-1 h-12 w-full rounded-md border border-white/15 bg-[#061018] px-3 text-[#f4efe4]';
 
@@ -151,6 +152,14 @@ export function StoreLoungeHostPanel({
           {STORE_LOUNGE_LIVE.hostNameLabelAr}
           <input className={fieldClass} value={host.hostName} onChange={(e) => patchHost({ hostName: e.target.value })} />
         </label>
+      </div>
+      <div className="mt-4">
+        <StoreShopPlaceDesk
+          value={host}
+          onChange={(place) => patchHost(place)}
+          copy={STORE_LOUNGE_LIVE}
+          accent="#d4a574"
+        />
       </div>
       <p className="mt-4 text-sm font-bold text-[#d4a574]">{STORE_LOUNGE_LIVE.eventPackTitleAr}</p>
       <div className="mt-2 flex flex-wrap gap-2">

@@ -6,6 +6,7 @@
 import { randomBytes } from 'node:crypto';
 import { withStoreAffiliateCode } from './storeAffiliateCode.js';
 import { DEFAULT_STORE_SHOP_HOURS, parseStoreShopHours, type StoreShopHoursState } from './storeShopHours.js';
+import { DEFAULT_SHOP_PICKUP, parseShopPickupPlace, publicShopPlaceFields, type ShopPickupPlace } from './storeShopPlace.js';
 
 export const STORE_GROCERS_LIVE_TABLE = 'store_grocers_live_orders' as const;
 export const STORE_GROCERS_LIVE_PRODUCT = 'store_grocers_live' as const;
@@ -154,7 +155,7 @@ export type GrocersLiveOrderPayload = {
   orders: unknown[];
   chatAddon: boolean;
   chats: unknown[];
-} & StoreShopHoursState;
+} & StoreShopHoursState & ShopPickupPlace;
 
 export function parseGrocersLiveOrderBody(body: Record<string, unknown>):
   | { ok: true; email: string; buyerName: string; packId: 'm6' | 'm12'; chatAddon: boolean; payload: GrocersLiveOrderPayload }
@@ -183,6 +184,7 @@ export function parseGrocersLiveOrderBody(body: Record<string, unknown>):
       orders: [],
       chatAddon,
       chats: [],
+      ...DEFAULT_SHOP_PICKUP,
       ...DEFAULT_STORE_SHOP_HOURS,
     },
   };
@@ -208,7 +210,7 @@ export function parseGrocersChats(raw: unknown): unknown[] {
   return raw.map((item) => parseGrocersChat(item)).filter(Boolean).slice(0, 200);
 }
 
-export function publicGrocersPayload(payload: GrocersLiveOrderPayload) {
+export function publicGrocersPayload(payload: GrocersLiveOrderPayload, role = 'shop') {
   return {
     packId: parseGrocersPackId(payload.packId),
     shopName: payload.shopName,
@@ -221,5 +223,6 @@ export function publicGrocersPayload(payload: GrocersLiveOrderPayload) {
     chatAddon: payload.chatAddon === true,
     chats: parseGrocersChats(payload.chats),
     ...parseStoreShopHours(payload),
+    ...publicShopPlaceFields(role, parseShopPickupPlace(payload)),
   };
 }

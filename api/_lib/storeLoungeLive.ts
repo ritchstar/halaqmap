@@ -5,6 +5,7 @@
  */
 import { randomBytes } from 'node:crypto';
 import { withStoreAffiliateCode } from './storeAffiliateCode.js';
+import { DEFAULT_SHOP_PICKUP, parseShopPickupPlace, publicShopPlaceFields, type ShopPickupPlace } from './storeShopPlace.js';
 
 export const STORE_LOUNGE_LIVE_TABLE = 'store_lounge_live_orders' as const;
 export const STORE_LOUNGE_LIVE_PRODUCT = 'store_lounge_live' as const;
@@ -159,7 +160,7 @@ export type LoungeLiveOrderPayload = {
   guestPaused: boolean;
   reviewBeforeShow: boolean;
   blessings: LoungeLiveBlessing[];
-};
+} & ShopPickupPlace;
 
 const ABUSE_RE = /قحب|شرمو|نيك|كس ام|كسم /i;
 
@@ -214,6 +215,7 @@ export function parseLoungeLiveOrderBody(body: Record<string, unknown>):
       guestPaused: false,
       reviewBeforeShow: false,
       blessings: [],
+      ...DEFAULT_SHOP_PICKUP,
     },
   };
 }
@@ -237,5 +239,6 @@ export function publicLoungePayload(
     guestPaused: payload.guestPaused === true,
     reviewBeforeShow: payload.reviewBeforeShow === true,
     blessings: role === 'host' ? blessings.slice(-80) : blessings.filter(loungeBlessingOnScreen),
+    ...publicShopPlaceFields(role, parseShopPickupPlace(payload)),
   };
 }

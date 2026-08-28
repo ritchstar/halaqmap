@@ -39,6 +39,7 @@ import {
   type CafeLiveOrderPayload,
 } from './_lib/storeCafeLive.js';
 import { parseStoreShopHours } from './_lib/storeShopHours.js';
+import { parseShopPickupPlace } from './_lib/storeShopPlace.js';
 import { sendCafeLiveLinksEmail } from './_lib/storeCafeLiveMail.js';
 import { applyStoreTrialClock, markStoreTrialConverted } from './_lib/storeProductTrial.js';
 import { storeAffiliateCodeFromMeta } from './_lib/storeAffiliateCode.js';
@@ -254,7 +255,7 @@ async function readRow(db: Db, row: CafeRow, role: string, headers: Record<strin
       ok: true,
       status: row.status,
       role,
-      payload: publicCafePayload(payload),
+      payload: publicCafePayload(payload, role),
       expiresAt: clock.expiresAt,
       isTrial: clock.isTrial,
       shopUrl: shopUrl(row.shop_token),
@@ -677,6 +678,7 @@ async function saveHost(db: Db, body: Record<string, unknown>, headers: Record<s
     customEventTitle: String(body.customEventTitle ?? current.customEventTitle ?? '').slice(0, 80),
     blessings: Array.isArray(body.blessings) ? (body.blessings as CafeLiveOrderPayload['blessings']) : current.blessings || [],
     ...parseStoreShopHours(body, parseStoreShopHours(current)),
+    ...parseShopPickupPlace(body, parseShopPickupPlace(current)),
   };
   await db
     .from(STORE_CAFE_LIVE_TABLE)

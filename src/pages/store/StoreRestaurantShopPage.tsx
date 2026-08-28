@@ -29,6 +29,7 @@ import {
   saveRestaurantLiveHost,
 } from '@/lib/storeRestaurantLiveRemote';
 import { parseStoreShopHours } from '@/lib/storeShopHours';
+import { parseShopPickupPlace } from '@/lib/storeShopPlace';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 
 type Gate = 'loading' | 'ok' | 'expired' | 'missing';
@@ -46,6 +47,7 @@ function payloadToState(payload: Record<string, unknown>, fallback: RestaurantLa
     packId: payload.packId === 'm12' ? 'm12' : 'm6',
     nextTicket: Number(payload.nextTicket) > 0 ? Number(payload.nextTicket) : fallback.host.nextTicket,
     ...parseStoreShopHours(payload, fallback.host),
+    ...parseShopPickupPlace(payload, fallback.host),
   };
   return {
     host,

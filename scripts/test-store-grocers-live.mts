@@ -37,6 +37,7 @@ import {
   grocersLivePaymentMatches,
   grocersLiveTermEndIso,
   parseGrocersLiveOrderBody,
+  publicGrocersPayload,
 } from '../api/_lib/storeGrocersLive.ts';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -164,6 +165,20 @@ assert.equal(parsed.ok, true);
 if (parsed.ok) {
   assert.equal(parsed.chatAddon, false);
   assert.equal(parsed.payload.chatAddon, false);
+  assert.equal(parsed.payload.pickupPlaceVisible, false);
+  const withPlace = {
+    ...parsed.payload,
+    pickupLat: 24.7136,
+    pickupLng: 46.6753,
+    pickupMapsUrl: 'https://maps.google.com/?q=24.713600,46.675300',
+    pickupPlaceVisible: false,
+  };
+  const shopView = publicGrocersPayload(withPlace, 'shop');
+  assert.equal(shopView.pickupLat, 0);
+  assert.equal(shopView.pickupMapsUrl, '');
+  const deskView = publicGrocersPayload(withPlace, 'desk');
+  assert.equal(deskView.pickupLat, 24.7136);
+  assert.match(deskView.pickupMapsUrl, /maps\.google\.com/);
 }
 
 const parsedChat = parseGrocersLiveOrderBody({
@@ -210,5 +225,12 @@ const rows = parseGrocersListText('حليب نادك طازج 2 لتر 11\nكر�
 assert.equal(rows.length, 2);
 assert.equal(rows[0].price, 11);
 assert.equal(rows[1].nameAr, 'كرتون مياه نوفا');
+
+assert.match(STORE_GROCERS_LIVE.locateMeAr, /حدد موقعي/);
+assert.match(STORE_GROCERS_LIVE.pickupShowAr, /إبراز الموقع/);
+assert.doesNotMatch(STORE_GROCERS_LIVE.deskPickupLeadAr, /مطعمنا1|كافينا1|لاونجا1|طبختنا1/);
+assert.match(readFileSync(join(root, 'src/components/store/StoreGrocersDesk.tsx'), 'utf8'), /StoreShopPlaceDesk/);
+assert.match(readFileSync(join(root, 'src/components/store/StoreGrocersShop.tsx'), 'utf8'), /StoreShopPlacePin/);
+assert.match(readFileSync(join(root, 'api/public-store-grocers-live.ts'), 'utf8'), /parseShopPickupPlace/);
 
 console.log('store-grocers-live ok', STORE_GROCERS_CATALOG.length);

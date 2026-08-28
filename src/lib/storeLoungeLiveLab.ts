@@ -10,6 +10,7 @@ import {
   loungeLiveEventById,
   type StoreLoungeLiveEventId,
 } from '@/config/storeLoungeLive';
+import { DEFAULT_SHOP_PICKUP, type ShopPickupPlace } from '@/lib/storeShopPlace';
 import {
   compressImageFile,
   parseYoutubeVideoId,
@@ -44,7 +45,7 @@ export type LoungeLiveHostState = {
   panoramaSrc: string;
   guestPaused: boolean;
   reviewBeforeShow: boolean;
-};
+} & ShopPickupPlace;
 
 export type LoungeLiveLabState = {
   host: LoungeLiveHostState;
@@ -81,7 +82,7 @@ export function loungeBlessingDuplicate(
 
 export function defaultLoungeLiveLabState(): LoungeLiveLabState {
   return {
-    host: { ...STORE_LOUNGE_LIVE_DEMO, guestPaused: false, reviewBeforeShow: false },
+    host: { ...STORE_LOUNGE_LIVE_DEMO, guestPaused: false, reviewBeforeShow: false, ...DEFAULT_SHOP_PICKUP },
     blessings: [],
   };
 }
@@ -115,6 +116,10 @@ export function readLoungeLiveLabState(token: string): LoungeLiveLabState {
         ...(parsed.host || {}),
         guestPaused: parsed.host?.guestPaused === true,
         reviewBeforeShow: parsed.host?.reviewBeforeShow === true,
+        pickupLat: Number.isFinite(Number(parsed.host?.pickupLat)) ? Number(parsed.host?.pickupLat) : fallback.host.pickupLat,
+        pickupLng: Number.isFinite(Number(parsed.host?.pickupLng)) ? Number(parsed.host?.pickupLng) : fallback.host.pickupLng,
+        pickupMapsUrl: String(parsed.host?.pickupMapsUrl || fallback.host.pickupMapsUrl).slice(0, 240),
+        pickupPlaceVisible: parsed.host?.pickupPlaceVisible === true,
       },
       blessings: Array.isArray(parsed.blessings) ? parsed.blessings : [],
     };

@@ -11,6 +11,7 @@ import {
   type StoreCafeLivePackId,
 } from '@/config/storeCafeLive';
 import { DEFAULT_STORE_SHOP_HOURS, type StoreShopHoursState } from '@/config/storeShopHours';
+import { DEFAULT_SHOP_PICKUP, type ShopPickupPlace } from '@/lib/storeShopPlace';
 import { compressImageFile, youtubeEmbedSrc } from '@/lib/storeWeddingLiveLab';
 
 export { parseCafeListText, compressImageFile, youtubeEmbedSrc };
@@ -79,7 +80,7 @@ export type CafeHostState = {
   reviewBeforeShow: boolean;
   activeEventId: StoreCafeLiveEventId;
   customEventTitle: string;
-} & StoreShopHoursState;
+} & StoreShopHoursState & ShopPickupPlace;
 
 export type CafeChatMsg = {
   id: string;
@@ -158,6 +159,7 @@ export function defaultCafeLabState(): CafeLabState {
       reviewBeforeShow: STORE_CAFE_LIVE_DEMO.reviewBeforeShow,
       activeEventId: STORE_CAFE_LIVE_DEMO.activeEventId,
       customEventTitle: STORE_CAFE_LIVE_DEMO.customEventTitle,
+      ...DEFAULT_SHOP_PICKUP,
       ...DEFAULT_STORE_SHOP_HOURS,
     },
     shelf,
@@ -183,6 +185,10 @@ export function readCafeLabState(token: string): CafeLabState {
         guestPaused: parsed.host?.guestPaused === true,
         reviewBeforeShow: parsed.host?.reviewBeforeShow === true,
         youtubeHidden: parsed.host?.youtubeHidden !== false,
+        pickupLat: Number.isFinite(Number(parsed.host?.pickupLat)) ? Number(parsed.host?.pickupLat) : fallback.host.pickupLat,
+        pickupLng: Number.isFinite(Number(parsed.host?.pickupLng)) ? Number(parsed.host?.pickupLng) : fallback.host.pickupLng,
+        pickupMapsUrl: String(parsed.host?.pickupMapsUrl || fallback.host.pickupMapsUrl).slice(0, 240),
+        pickupPlaceVisible: parsed.host?.pickupPlaceVisible === true,
       },
       shelf: Array.isArray(parsed.shelf) && parsed.shelf.length
         ? parsed.shelf.map((item) => ({ ...item, photoSrc: item.photoSrc || '' }))

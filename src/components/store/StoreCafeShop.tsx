@@ -14,6 +14,7 @@ import {
 } from '@/lib/storeCafeLiveLab';
 import { StoreCafeBuyerChat } from '@/components/store/StoreCafeChat';
 import { StoreShopHoursBanner } from '@/components/store/StoreShopHoursBanner';
+import { StoreShopPlacePin } from '@/components/store/StoreShopPlacePin';
 import { STORE_SHOP_HOURS_COPY } from '@/config/storeShopHours';
 import { isShopClosedNow } from '@/lib/storeShopHours';
 import { cn } from '@/lib/utils';
@@ -95,7 +96,15 @@ export function StoreCafeShop({
       ) : null}
       <header>
         <p className="text-xs tracking-[0.3em] text-[#c48a4a]">{STORE_CAFE_LIVE.shopKickerAr}</p>
-        <h2 className="mt-1 text-3xl font-black">{state.host.shopName}</h2>
+        <h2 className="mt-1 flex items-center gap-2 text-3xl font-black">
+          <span>{state.host.shopName}</span>
+          <StoreShopPlacePin
+            mapsUrl={state.host.pickupMapsUrl}
+            visible={state.host.pickupPlaceVisible}
+            accent="#c48a4a"
+            labelAr={STORE_CAFE_LIVE.pickupPinAriaAr}
+          />
+        </h2>
         <p className="mt-2 text-sm leading-7 text-white/75">{state.host.blurbAr}</p>
         <ul className="mt-3 space-y-1 text-sm leading-7 text-white/70">
           {state.host.customFields.filter((line) => line.trim()).slice(0, 5).map((line) => (

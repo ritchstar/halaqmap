@@ -19,6 +19,7 @@ import {
   type LoungeLiveLabState,
 } from '@/lib/storeLoungeLiveLab';
 import { addLoungeLiveBlessing, fetchLoungeLivePublic, saveLoungeLiveHost } from '@/lib/storeLoungeLiveRemote';
+import { parseShopPickupPlace } from '@/lib/storeShopPlace';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 
 type HallMode = 'display' | 'guest' | 'host';
@@ -30,6 +31,7 @@ function payloadToState(payload: Record<string, unknown>, fallback: LoungeLiveLa
     ...(payload as Partial<LoungeLiveHostState>),
     guestPaused: payload.guestPaused === true,
     reviewBeforeShow: payload.reviewBeforeShow === true,
+    ...parseShopPickupPlace(payload, fallback.host),
   };
   const blessings = Array.isArray(payload.blessings) ? payload.blessings : fallback.blessings;
   return { host, blessings: blessings as LoungeLiveLabState['blessings'] };

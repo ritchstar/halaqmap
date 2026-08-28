@@ -114,6 +114,20 @@ assert.equal(parsed.ok, true);
 if (parsed.ok) {
   assert.equal(parsed.payload.guestPaused, false);
   assert.equal(parsed.payload.reviewBeforeShow, false);
+  assert.equal(parsed.payload.pickupPlaceVisible, false);
+  const withPlace = {
+    ...parsed.payload,
+    pickupLat: 24.7136,
+    pickupLng: 46.6753,
+    pickupMapsUrl: 'https://maps.google.com/?q=24.713600,46.675300',
+    pickupPlaceVisible: false,
+  };
+  const displayPlace = publicLoungePayload(withPlace, 'display');
+  assert.equal(displayPlace.pickupLat, 0);
+  assert.equal(displayPlace.pickupMapsUrl, '');
+  const hostPlace = publicLoungePayload(withPlace, 'host');
+  assert.equal(hostPlace.pickupLat, 24.7136);
+  assert.match(hostPlace.pickupMapsUrl, /maps\.google\.com/);
   const pending = publicLoungePayload(
     {
       ...parsed.payload,
@@ -211,5 +225,11 @@ assert.match(trialOps, /howToAr/);
 assert.match(trialOps, /firstVisitAr/);
 assert.match(affiliateLane, /firstVisitAr/);
 assert.match(affiliateLane, /howToAr/);
+assert.match(STORE_LOUNGE_LIVE.locateMeAr, /حدد موقعي/);
+assert.match(STORE_LOUNGE_LIVE.pickupShowAr, /إبراز الموقع/);
+assert.doesNotMatch(STORE_LOUNGE_LIVE.deskPickupLeadAr, /تمويناتا1|مطعمنا1|كافينا1|طبختنا1/);
+assert.match(loungeHost, /StoreShopPlaceDesk/);
+assert.match(readFileSync(join(root, 'src/components/store/StoreLoungeHallStage.tsx'), 'utf8'), /StoreShopPlacePin/);
+assert.match(readFileSync(join(root, 'api/public-store-lounge-live.ts'), 'utf8'), /parseShopPickupPlace/);
 
 console.log('store-lounge-live: ok');
