@@ -2,43 +2,28 @@
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
  * أيقونتا تقييم المتجر ومشاركته — أسفل يسار واجهة المتجر.
+ * التقييم يفتح صفحة النجوم والتعليق. المشاركة تبقى هنا.
  */
 import { useCallback, useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { Share2, Star, X, Check, Copy } from 'lucide-react';
 import { STORE_ENGAGE_COPY, STORE_ORIGIN, STORE_PUBLIC_NAME_AR } from '@/config/storeFront';
+import { STORE_REVIEWS_COPY } from '@/config/storeReviews';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { cn } from '@/lib/utils';
 
 const SHARE_URL = `${STORE_ORIGIN}/#${ROUTE_PATHS.STORE_LANDING}`;
-const RATE_KEY = 'hm_store_ratings';
-
-const STAR_LABELS = ['', 'سيئ', 'مقبول', 'جيد', 'جيد جداً', 'ممتاز'] as const;
 
 export function StoreVisitorEngage() {
-  const [panel, setPanel] = useState<'rate' | 'share' | null>(null);
-  const [stars, setStars] = useState(0);
-  const [hover, setHover] = useState(0);
-  const [thanks, setThanks] = useState(false);
+  const location = useLocation();
+  const [panel, setPanel] = useState<'share' | null>(null);
   const [copied, setCopied] = useState(false);
+  const onReviewsPage = location.pathname === ROUTE_PATHS.STORE_REVIEWS;
 
   const close = useCallback(() => {
     setPanel(null);
-    setThanks(false);
     setCopied(false);
   }, []);
-
-  const sendRate = () => {
-    if (stars === 0) return;
-    try {
-      const existing = JSON.parse(localStorage.getItem(RATE_KEY) ?? '[]') as number[];
-      existing.push(stars);
-      localStorage.setItem(RATE_KEY, JSON.stringify(existing));
-    } catch {
-      /* silent */
-    }
-    setThanks(true);
-    window.setTimeout(close, 1400);
-  };
 
   const copyLink = async () => {
     try {
@@ -69,61 +54,6 @@ export function StoreVisitorEngage() {
 
   return (
     <div className="fixed bottom-4 left-4 z-40 flex flex-col items-start gap-2 pb-[env(safe-area-inset-bottom,0px)] sm:bottom-6 sm:left-6">
-      {panel === 'rate' ? (
-        <div
-          className="mb-1 w-[min(18rem,calc(100vw-2rem))] rounded-2xl border border-[#e8c547]/35 bg-[#061018]/95 p-4 shadow-2xl backdrop-blur-md"
-          role="dialog"
-          aria-labelledby="store-rate-title"
-        >
-          <div className="mb-2 flex items-center justify-between gap-2">
-            <h3 id="store-rate-title" className="text-sm font-extrabold text-[#f4efe4]">
-              {STORE_ENGAGE_COPY.rateTitleAr}
-            </h3>
-            <button type="button" onClick={close} aria-label="إغلاق" className="rounded-full p-1 text-white/50 hover:text-white">
-              <X className="h-4 w-4" />
-            </button>
-          </div>
-          {thanks ? (
-            <p className="py-3 text-center text-sm font-bold text-[#e8c547]">{STORE_ENGAGE_COPY.rateThanksAr}</p>
-          ) : (
-            <>
-              <p className="text-xs leading-6 text-white/65">{STORE_ENGAGE_COPY.rateLeadAr}</p>
-              <div className="mt-3 flex items-center justify-center gap-1.5">
-                {[1, 2, 3, 4, 5].map((value) => (
-                  <button
-                    key={value}
-                    type="button"
-                    aria-label={`${value} من 5`}
-                    onMouseEnter={() => setHover(value)}
-                    onMouseLeave={() => setHover(0)}
-                    onClick={() => setStars(value)}
-                    className="p-0.5"
-                  >
-                    <Star
-                      className={cn(
-                        'h-7 w-7',
-                        value <= (hover || stars) ? 'fill-[#e8c547] text-[#e8c547]' : 'text-white/25',
-                      )}
-                    />
-                  </button>
-                ))}
-              </div>
-              {(hover || stars) > 0 ? (
-                <p className="mt-2 text-center text-xs font-bold text-[#e8c547]">{STAR_LABELS[hover || stars]}</p>
-              ) : null}
-              <button
-                type="button"
-                disabled={stars === 0}
-                onClick={sendRate}
-                className="mt-3 w-full rounded-full bg-[#e8c547] py-2 text-sm font-extrabold text-[#061018] disabled:opacity-40"
-              >
-                {STORE_ENGAGE_COPY.rateSendAr}
-              </button>
-            </>
-          )}
-        </div>
-      ) : null}
-
       {panel === 'share' ? (
         <div
           className="mb-1 w-[min(18rem,calc(100vw-2rem))] rounded-2xl border border-[#e8c547]/35 bg-[#061018]/95 p-4 shadow-2xl backdrop-blur-md"
@@ -170,15 +100,29 @@ export function StoreVisitorEngage() {
       ) : null}
 
       <div className="flex flex-col gap-2">
-        <button
-          type="button"
-          onClick={() => setPanel((current) => (current === 'rate' ? null : 'rate'))}
-          aria-label={STORE_ENGAGE_COPY.rateAr}
-          className="inline-flex items-center gap-2 rounded-full border border-[#e8c547]/40 bg-[#061018]/90 px-3 py-2 text-sm font-extrabold text-[#e8c547] shadow-lg backdrop-blur-md hover:bg-[#0b1a24]"
-        >
-          <Star className="h-4 w-4 fill-[#e8c547]" />
-          {STORE_ENGAGE_COPY.rateAr}
-        </button>
+        {onReviewsPage ? null : (
+          <Link
+            to={`${ROUTE_PATHS.STORE_REVIEWS}?write=1`}
+            aria-label={STORE_ENGAGE_COPY.rateAr}
+            className="inline-flex items-center gap-2 rounded-full border border-[#e8c547]/40 bg-[#061018]/90 px-3 py-2 text-sm font-extrabold text-[#e8c547] shadow-lg backdrop-blur-md hover:bg-[#0b1a24]"
+          >
+            <Star className="h-4 w-4 fill-[#e8c547]" />
+            {STORE_ENGAGE_COPY.rateAr}
+          </Link>
+        )}
+        {onReviewsPage ? (
+          <button
+            type="button"
+            onClick={() => {
+              document.getElementById('store-review-write')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }}
+            aria-label={STORE_REVIEWS_COPY.formTitleAr}
+            className="inline-flex items-center gap-2 rounded-full border border-[#e8c547]/40 bg-[#061018]/90 px-3 py-2 text-sm font-extrabold text-[#e8c547] shadow-lg backdrop-blur-md hover:bg-[#0b1a24]"
+          >
+            <Star className="h-4 w-4 fill-[#e8c547]" />
+            {STORE_ENGAGE_COPY.rateAr}
+          </button>
+        ) : null}
         <button
           type="button"
           onClick={() => {
@@ -189,7 +133,9 @@ export function StoreVisitorEngage() {
             void nativeShare();
           }}
           aria-label={STORE_ENGAGE_COPY.shareAr}
-          className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-[#061018]/90 px-3 py-2 text-sm font-extrabold text-[#f4efe4] shadow-lg backdrop-blur-md hover:border-[#e8c547]/40 hover:text-[#e8c547]"
+          className={cn(
+            'inline-flex items-center gap-2 rounded-full border border-white/20 bg-[#061018]/90 px-3 py-2 text-sm font-extrabold text-[#f4efe4] shadow-lg backdrop-blur-md hover:border-[#e8c547]/40 hover:text-[#e8c547]',
+          )}
         >
           <Share2 className="h-4 w-4" />
           {STORE_ENGAGE_COPY.shareAr}

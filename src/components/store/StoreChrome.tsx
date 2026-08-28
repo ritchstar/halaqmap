@@ -6,6 +6,7 @@ import { ROUTE_PATHS } from '@/lib/routePaths';
 import { lockPartnerDarkCanvas } from '@/lib/partnerDarkCanvas';
 import { STORE_PRODUCT_BENEFITS_COPY } from '@/config/storeProductBenefitsCopy';
 import { STORE_GIFT_CAMPAIGN_PUBLIC_ENABLED, STORE_GIFT_COPY } from '@/config/storeGiftCampaign';
+import { STORE_REVIEWS_COPY, STORE_REVIEWS_PUBLIC_ENABLED } from '@/config/storeReviews';
 import { STORE_ABOUT_COPY, STORE_BRAND_LATIN, STORE_CONTACT_EMAIL, STORE_CONTACT_PHONE_DISPLAY, STORE_CONTACT_PHONE_E164, STORE_CONTACT_WHATSAPP_URL, STORE_CONTACT_X_HANDLE, STORE_CONTACT_X_URL, STORE_FOOTER_CONTACT, STORE_LANDING_COPY, STORE_ORIGIN, STORE_VISUALS } from '@/config/storeFront';
 import { KSACityClocksBar } from '@/components/KSACityClocksBar';
 import { EcommerceVerifiedFooterBadge } from '@/components/EcommerceVerifiedFooterBadge';
@@ -71,6 +72,14 @@ export function StoreVisitorHeader() {
             >
               {STORE_ABOUT_COPY.trustNavAr}
             </Link>
+            {STORE_REVIEWS_PUBLIC_ENABLED ? (
+            <Link
+              to={ROUTE_PATHS.STORE_REVIEWS}
+              className="hidden rounded-full px-3 py-1.5 text-white/80 hover:text-[#e8c547] sm:inline-flex"
+            >
+              {STORE_REVIEWS_COPY.navAr}
+            </Link>
+            ) : null}
             <Link
               to={ROUTE_PATHS.STORE_REQUEST}
               className="hidden rounded-full border border-[#e8c547]/40 px-3 py-1.5 text-[#e8c547] sm:inline-flex"
@@ -113,6 +122,11 @@ export function StoreVisitorFooter() {
           <Link to={ROUTE_PATHS.STORE_REQUEST} className="text-white/80">
             طلب خدمة
           </Link>
+          {STORE_REVIEWS_PUBLIC_ENABLED ? (
+          <Link to={ROUTE_PATHS.STORE_REVIEWS} className="text-[#e8c547]">
+            {STORE_REVIEWS_COPY.navAr}
+          </Link>
+          ) : null}
           <Link to={ROUTE_PATHS.STORE_LANDING} className="text-white/80">
             واجهة المتجر
           </Link>

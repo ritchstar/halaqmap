@@ -50,6 +50,7 @@ import {
   Store,
   Wallet,
   Gift,
+  Star,
 } from 'lucide-react';
 import { CoiffeurBrandMark } from '@/components/coiffeur/CoiffeurBrandMark';
 import { Button } from '@/components/ui/button';
@@ -206,6 +207,7 @@ import {
 } from '@/components/admin/staff';
 import { AdminFinancialArchivePanel } from '@/components/admin/AdminFinancialArchivePanel';
 import { fetchAdminBookingSecurityLogRemote, type BookingSecurityLogRow } from '@/lib/adminBookingSecurityLogRemote';
+import { fetchAdminStoreReviews } from '@/lib/adminStoreReviewsRemote';
 import { runSimulateBookingOverlapRemote } from '@/lib/simulateBookingOverlapRemote';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -369,6 +371,7 @@ export default function AdminDashboard() {
   const [remotePayments, setRemotePayments] = useState<Payment[]>([]);
   const [moyasarSubRows, setMoyasarSubRows] = useState<BarberSubscriptionAdminRow[]>([]);
   const [dataRefreshNonce, setDataRefreshNonce] = useState(0);
+  const [storeReviewCounts, setStoreReviewCounts] = useState({ total: 0, unseen: 0 });
   const [engineeringWingOpsEnabled, setEngineeringWingOpsEnabled] = useState(false);
   const [founderLightingEnabled, setFounderLightingEnabled] = useState(false);
   const [forensicGateState, setForensicGateState] = useState<Record<ForensicGateId, boolean>>(
@@ -470,6 +473,26 @@ export default function AdminDashboard() {
     let cancelled = false;
     void fetchBarberSubscriptionsForAdmin().then((list) => {
       if (!cancelled) setMoyasarSubRows(list);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [adminData, dataRefreshNonce]);
+
+  useEffect(() => {
+    if (!adminData) return;
+    if (
+      !adminData.bootstrap &&
+      !adminData.permissions.view_overview &&
+      !adminData.permissions.view_payments &&
+      !adminData.permissions.manage_partner_marketing
+    ) {
+      return;
+    }
+    let cancelled = false;
+    void fetchAdminStoreReviews(true).then((payload) => {
+      if (cancelled || payload.ok === false) return;
+      setStoreReviewCounts(payload.counts);
     });
     return () => {
       cancelled = true;
@@ -823,6 +846,25 @@ export default function AdminDashboard() {
                 <span className="hidden md:inline">هدايا المتجر</span>
               </Button>
             ) : null}
+            {can('view_overview') || can('view_payments') || can('manage_partner_marketing') ? (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="relative h-9 shrink-0 gap-1.5 border border-[#e8c547]/35 bg-[#1a1508] px-2.5 text-[#e8c547] hover:bg-[#2a2010] hover:text-[#f4e4a4]"
+                title="تقييمات المتجر"
+                aria-label="تقييمات المتجر"
+                onClick={() => navigate(`${getAdminPortalBasePath()}${ROUTE_PATHS.ADMIN_STORE_REVIEWS}`)}
+              >
+                <Star className="h-4 w-4 fill-[#e8c547]" />
+                <span className="hidden md:inline">تقييمات المتجر</span>
+                {storeReviewCounts.unseen > 0 ? (
+                  <span className="absolute -top-1.5 -left-1.5 min-w-5 rounded-full bg-[#e8c547] px-1 text-center text-[0.62rem] font-black text-[#061018]">
+                    {storeReviewCounts.unseen}
+                  </span>
+                ) : null}
+              </Button>
+            ) : null}
             {can('view_overview') ? (
               <Button
                 type="button"
@@ -1121,6 +1163,30 @@ export default function AdminDashboard() {
               </button>
             </div>
 
+            <div className="flex items-center justify-between rounded-xl border border-[#e8c547]/25 bg-[#1a1508] px-4 py-3">
+              <div className="flex items-center gap-2.5">
+                <div className="relative flex h-8 w-8 items-center justify-center rounded-lg border border-[#e8c547]/30 bg-[#e8c547]/15">
+                  <Star className="h-4 w-4 fill-[#e8c547] text-[#e8c547]" />
+                  {storeReviewCounts.unseen > 0 ? (
+                    <span className="absolute -top-1.5 -left-1.5 min-w-5 rounded-full bg-[#e8c547] px-1 text-center text-[0.62rem] font-black text-[#061018]">
+                      {storeReviewCounts.unseen}
+                    </span>
+                  ) : null}
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-white">تقييمات المتجر</p>
+                  <p className="text-[0.62rem] text-[#e8c547]/75">نجوم وتعليق الزوار · مؤشر للتقييمات الجديدة</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => navigate(`${getAdminPortalBasePath()}${ROUTE_PATHS.ADMIN_STORE_REVIEWS}`)}
+                className="flex items-center gap-1.5 rounded-xl border border-[#e8c547]/35 bg-[#2a2010] px-4 py-2 text-xs font-bold text-[#e8c547] hover:bg-[#3a2c14] transition-all"
+              >
+                فتح التقييمات
+              </button>
+            </div>
+
             <div className="flex items-center justify-between rounded-xl border border-[#f4d4c0]/25 bg-[#2a1218] px-4 py-3">
               <div className="flex items-center gap-2.5">
                 <CoiffeurBrandMark className="h-10 w-10" sizes="40px" showWordmark={false} />
@@ -1252,6 +1318,14 @@ export default function AdminDashboard() {
                   className="block w-full rounded-xl border border-[#e8c547]/30 bg-[#1a1508] px-4 py-3 text-right text-sm font-bold text-[#e8c547] hover:bg-[#2a2010]"
                 >
                   قائمة هدايا المتجر: المشاركون وتأكيد البريد
+                </button>
+                <button
+                  type="button"
+                  onClick={() => navigate(`${getAdminPortalBasePath()}${ROUTE_PATHS.ADMIN_STORE_REVIEWS}`)}
+                  className="block w-full rounded-xl border border-[#e8c547]/30 bg-[#1a1508] px-4 py-3 text-right text-sm font-bold text-[#e8c547] hover:bg-[#2a2010]"
+                >
+                  تقييمات المتجر: النجوم والتعليق
+                  {storeReviewCounts.unseen > 0 ? ` · غير مقروء ${storeReviewCounts.unseen}` : ''}
                 </button>
                 <EnterpriseAnchorCohortPanel accessToken={adminAccessToken} />
                 <BronzeTrialApplicationsPanel accessToken={adminAccessToken} />

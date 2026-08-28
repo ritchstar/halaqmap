@@ -26,6 +26,11 @@
     <priority>0.5</priority>
   </url>
   <url>
+    <loc>https://store.halaqmap.com/store/reviews</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://store.halaqmap.com/store/kitchen/gift</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>

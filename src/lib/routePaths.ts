@@ -50,6 +50,8 @@ export const ROUTE_PATHS = {
   STORE_GIFT: '/store/gift',
   STORE_GIFT_TERMS: '/store/gift/terms',
   STORE_GIFT_CONFIRM: '/store/gift/confirm',
+  /** تقييمات متجر خريطة الحل — نجوم وتعليق. مستقلة عن /reviews */
+  STORE_REVIEWS: '/store/reviews',
   /** تصنيفات وفحوص مستقلة قابلة للتحقق */
   STORE_TRUST: '/store/trust',
   /** شروط وأحكام وخصوصية منتجات المتجر الرقمية */
@@ -277,6 +279,8 @@ export const ROUTE_PATHS = {
   ADMIN_STORE_OPS: '/store-ops',
   /** قائمة مشاركات هدايا المتجر — داخل لوحة التحكم */
   ADMIN_STORE_GIFTS: '/store-gifts',
+  /** قائمة تقييمات المتجر — داخل لوحة التحكم */
+  ADMIN_STORE_REVIEWS: '/store-reviews',
   /** مركز موافقات إبراز فزعة على الصفحات العامة */
   ADMIN_FAZAA_LISTING: '/fazaa-listing',
   /** شرح مفصّل للمناوب الرقمي الذكي */
