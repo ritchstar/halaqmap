@@ -33,6 +33,34 @@ if (headOpen >= 0 && dvPos >= 0 && buildPos >= 0 && dvPos > buildPos) {
 if (!/\/assets\/[^"']+\.(js|css)\?v=/.test(html)) {
   errors.push('missing ?v= on /assets/*.js or *.css');
 }
+if (!html.includes('og:site_name" content="حلاق ماب | HALAQ MAP"')) {
+  errors.push('www index.html missing Halaq Map og:site_name');
+}
+
+const coiffeurShare = join(dist, 'coiffeur-index.html');
+if (!existsSync(coiffeurShare)) {
+  errors.push('missing coiffeur-index.html');
+} else {
+  const coiffeurHtml = readFileSync(coiffeurShare, 'utf8');
+  if (!coiffeurHtml.includes('og:site_name" content="كوافير ماب"')) {
+    errors.push('coiffeur-index.html missing og:site_name كوافير ماب');
+  }
+  if (!coiffeurHtml.includes('"@type":"WebSite"')) {
+    errors.push('coiffeur-index.html missing WebSite json-ld');
+  }
+  if (!coiffeurHtml.includes('"name":"كوافير ماب"') && !coiffeurHtml.includes('"name": "كوافير ماب"')) {
+    errors.push('coiffeur-index.html missing WebSite name كوافير ماب');
+  }
+  if (!coiffeurHtml.includes('"url":"https://coiffeur.halaqmap.com"') && !coiffeurHtml.includes('"url": "https://coiffeur.halaqmap.com"')) {
+    errors.push('coiffeur-index.html missing WebSite url coiffeur.halaqmap.com');
+  }
+  if (/og:site_name" content="حلاق ماب/.test(coiffeurHtml)) {
+    errors.push('coiffeur-index.html must not keep Halaq Map site_name');
+  }
+  if (!/\/assets\/[^"']+\.(js|css)\?v=/.test(coiffeurHtml)) {
+    errors.push('coiffeur-index.html missing ?v= on /assets/*.js or *.css');
+  }
+}
 
 for (const name of ['sitemap.xml', 'sitemap-pages.xml', 'sitemap-geo.xml', 'sitemap-en.xml', 'sitemap-summi.xml', 'sitemap-store.xml']) {
   const path = join(dist, name);
@@ -106,6 +134,18 @@ for (const rel of ['summi/index.html', 'summi/near-me/index.html', 'summi/beauty
   }
   if (/أقرب حلاق|barber near me/i.test(body)) {
     errors.push(`${rel} must stay isolated from mens Fazaa keywords`);
+  }
+  if (!body.includes('og:site_name" content="كوافير ماب"')) {
+    errors.push(`${rel} missing og:site_name كوافير ماب`);
+  }
+  if (!body.includes('"@type":"WebSite"')) {
+    errors.push(`${rel} missing WebSite json-ld`);
+  }
+  if (!body.includes('"name":"كوافير ماب"') && !body.includes('"name": "كوافير ماب"')) {
+    errors.push(`${rel} missing WebSite name كوافير ماب`);
+  }
+  if (!body.includes('https://coiffeur.halaqmap.com')) {
+    errors.push(`${rel} missing coiffeur origin in json-ld`);
   }
 }
 

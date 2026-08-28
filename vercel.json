@@ -245,6 +245,16 @@
   ],
   "rewrites": [
     {
+      "source": "/",
+      "has": [{ "type": "host", "value": "coiffeur.halaqmap.com" }],
+      "destination": "/coiffeur-index.html"
+    },
+    {
+      "source": "/index.html",
+      "has": [{ "type": "host", "value": "coiffeur.halaqmap.com" }],
+      "destination": "/coiffeur-index.html"
+    },
+    {
       "source": "/c/:token/og.jpg",
       "destination": "/api/public-coiffeur-card-og?c=:token"
     },
@@ -579,6 +589,15 @@
     },
     {
       "source": "/index.html",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/coiffeur-index.html",
       "headers": [
         {
           "key": "Cache-Control",

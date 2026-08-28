@@ -10,8 +10,10 @@ import { PLATFORM_REWORK_NOTICE_AR, RootErrorBoundary } from '@/components/RootE
 import { initPlatformBuildSync } from '@/lib/platformBuildSync'
 import { assertRuntimeEnvSafety } from '@/config/runtimeEnvGuard'
 import { applyPlatformDocumentLocale } from '@/lib/platformLocale'
+import { applyCoiffeurHeadSiteIdentity } from '@/lib/coiffeurSiteIdentity'
 
 applyPlatformDocumentLocale()
+applyCoiffeurHeadSiteIdentity()
 
 // build-sync يُجدول بعد mount — يكتشف حزمة JS قديمة بعد النشر ويُحدّث PWA بأمان
 import { PARTNER_ASSISTANT_UI_VERSION } from './lib/partnerAssistantUiVersion'

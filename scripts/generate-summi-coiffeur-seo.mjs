@@ -21,6 +21,7 @@ import {
   SUMMI_ORIGIN,
   SUMMI_PROGRAM_AR,
   summiInquireHref,
+  summiWebsiteJsonLd,
 } from './lib/summiCoiffeurPages.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -186,13 +187,14 @@ function renderHub() {
   const jsonLd = {
     '@context': 'https://schema.org',
     '@graph': [
+      summiWebsiteJsonLd(),
       {
         '@type': 'CollectionPage',
         name: SUMMI_HUB.title,
         url: canonical,
         inLanguage: 'ar-SA',
         description: SUMMI_HUB.description,
-        isPartOf: { '@type': 'WebApplication', name: SUMMI_BRAND_AR, url: `${SUMMI_ORIGIN}/#/coiffeur` },
+        isPartOf: { '@id': `${SUMMI_ORIGIN}/#website` },
       },
       {
         '@type': 'ItemList',
@@ -226,6 +228,7 @@ function renderPage(page) {
   const jsonLd = {
     '@context': 'https://schema.org',
     '@graph': [
+      summiWebsiteJsonLd(),
       {
         '@type': 'WebPage',
         name: page.title,
@@ -233,7 +236,7 @@ function renderPage(page) {
         inLanguage: 'ar-SA',
         description: page.description,
         about: page.aliases,
-        isPartOf: { '@type': 'WebApplication', name: SUMMI_BRAND_AR, url: `${SUMMI_ORIGIN}/#/coiffeur` },
+        isPartOf: { '@id': `${SUMMI_ORIGIN}/#website` },
       },
       {
         '@type': 'BreadcrumbList',

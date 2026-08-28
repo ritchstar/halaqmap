@@ -36,6 +36,16 @@ export function summiPath(slug) {
   return key ? `${SUMMI_HUB_PATH}/${key}` : SUMMI_HUB_PATH;
 }
 
+export function summiWebsiteJsonLd() {
+  return {
+    '@type': 'WebSite',
+    '@id': `${SUMMI_ORIGIN}/#website`,
+    name: SUMMI_BRAND_AR,
+    url: SUMMI_ORIGIN,
+    inLanguage: 'ar-SA',
+  };
+}
+
 export function summiInquireHref(intentId) {
   const id = String(intentId || '').trim();
   const base = `${SUMMI_ORIGIN}${SUMMI_INQUIRE_HASH}`;

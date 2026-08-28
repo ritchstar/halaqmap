@@ -12,6 +12,7 @@ import {
   normalizeSummiPath,
   summiInquireHref,
   summiIntentBySlug,
+  summiWebsiteJsonLd,
 } from './summiCoiffeurPages.mjs';
 
 const EXPECTED_INTENTS = [
@@ -56,4 +57,13 @@ test('سمي: زر الاستعلام على نطاق كوافير ماب', () =
   assert.equal(summiIntentBySlug('near-me'), 'near_open');
   assert.equal(normalizeSummiPath(`${SUMMI_ORIGIN}/summi/nails/`), '/summi/nails');
   assert.equal(SUMMI_HUB_PATH, '/summi');
+});
+
+test('سمي: WebSite باسم كوافير ماب على نطاقها', () => {
+  const site = summiWebsiteJsonLd();
+  assert.equal(site['@type'], 'WebSite');
+  assert.equal(site.name, 'كوافير ماب');
+  assert.equal(site.url, 'https://coiffeur.halaqmap.com');
+  assert.equal(site['@id'], 'https://coiffeur.halaqmap.com/#website');
+  assert.equal(site.name.includes('حلاق'), false);
 });
