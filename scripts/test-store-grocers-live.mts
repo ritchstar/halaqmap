@@ -14,6 +14,7 @@ import {
   STORE_GROCERS_CHAT_ADDON_6_SAR,
   STORE_GROCERS_LIVE,
   STORE_GROCERS_LIVE_CHECKOUT_ENABLED,
+  STORE_GROCERS_LIVE_FEATURES,
   STORE_GROCERS_LIVE_DAYS_12,
   STORE_GROCERS_LIVE_DAYS_6,
   STORE_GROCERS_LIVE_PACKS,
@@ -28,6 +29,7 @@ import { STORE_EVENT_LIVE_PRODUCT } from '../src/config/storeEventLive.ts';
 import { STORE_LOUNGE_LIVE_PRODUCT } from '../src/config/storeLoungeLive.ts';
 import { STORE_WEDDING_LIVE_PRODUCT } from '../src/config/storeWeddingLive.ts';
 import { STORE_LANDING_COPY } from '../src/config/storeFront.ts';
+import { STORE_SHOP_PRESENCE_LABEL_AR } from '../src/config/storeShopPresence.ts';
 import {
   STORE_GROCERS_LIVE_PRODUCT as apiProduct,
   grocersChargeHalalas,
@@ -48,6 +50,37 @@ const indexHtml = readFileSync(join(root, 'index.html'), 'utf8');
 const remote = readFileSync(join(root, 'src/lib/storeGrocersLiveRemote.ts'), 'utf8');
 const sql = readFileSync(join(root, 'supabase/migrations/171_store_grocers_live.sql'), 'utf8');
 const sqlChat = readFileSync(join(root, 'supabase/migrations/173_store_grocers_chat_prices.sql'), 'utf8');
+const grocersLanding = readFileSync(join(root, 'src/pages/store/StoreGrocersLandingPage.tsx'), 'utf8');
+
+const copyBlob = [
+  STORE_GROCERS_LIVE.kickerAr,
+  STORE_GROCERS_LIVE.leadAr,
+  STORE_GROCERS_LIVE.problemTitleAr,
+  STORE_GROCERS_LIVE.problemBodyAr,
+  STORE_GROCERS_LIVE.solutionTitleAr,
+  STORE_GROCERS_LIVE.howTitleAr,
+  STORE_GROCERS_LIVE.howLeadAr,
+  STORE_GROCERS_LIVE.howSteps.join('\n'),
+  STORE_GROCERS_LIVE.ingestLineAr,
+  STORE_GROCERS_LIVE.hoursLineAr,
+  STORE_GROCERS_LIVE.presenceLineAr,
+  STORE_GROCERS_LIVE.payTitleAr,
+  STORE_GROCERS_LIVE.payIndependenceAr,
+  STORE_GROCERS_LIVE.chatAddonTitleAr,
+  STORE_GROCERS_LIVE.chatAddonLeadAr,
+  STORE_GROCERS_LIVE.chatAddonPriceAr,
+  STORE_GROCERS_LIVE.legalTitleAr,
+  STORE_GROCERS_LIVE.legalLeadBeforeAr,
+  STORE_GROCERS_LIVE.legalLeadAfterAr,
+  STORE_GROCERS_LIVE.startTitleAr,
+  STORE_GROCERS_LIVE.closeAr,
+  STORE_GROCERS_LIVE.priceLineAr,
+  STORE_GROCERS_LIVE.durationLineAr,
+  STORE_GROCERS_LIVE.termsFoldBodyAr,
+  STORE_GROCERS_LIVE.labLeadAr,
+  STORE_LANDING_COPY.grocersLiveLeadAr,
+  STORE_GROCERS_LIVE_FEATURES.map((item) => `${item.titleAr}\n${item.bodyAr}`).join('\n'),
+].join('\n');
 
 assert.equal(STORE_GROCERS_LIVE_PUBLIC_ENABLED, true);
 assert.equal(STORE_GROCERS_LIVE_CHECKOUT_ENABLED, true);
@@ -85,14 +118,31 @@ assert.notEqual(STORE_GROCERS_LIVE_PRICE_6_SAR, 600);
 assert.notEqual(STORE_GROCERS_LIVE_PRICE_6_SAR, 12);
 
 assert.ok(STORE_GROCERS_CATALOG.length >= 200);
-assert.match(STORE_GROCERS_LIVE.leadAr, /599/);
+assert.match(STORE_GROCERS_LIVE.priceLineAr, /599/);
 assert.match(STORE_GROCERS_LIVE.priceLineAr, /899/);
-assert.doesNotMatch(STORE_GROCERS_LIVE.leadAr, /12 و29 و59/);
-assert.doesNotMatch(STORE_GROCERS_LIVE.leadAr, /تجربة ستون|المسوّق/);
-assert.doesNotMatch(STORE_GROCERS_LIVE.durationLineAr, /تجربة ستون|المسوّق/);
+assert.match(STORE_GROCERS_LIVE.problemTitleAr, /دفتر الأسعار/);
+assert.match(STORE_GROCERS_LIVE.solutionTitleAr, /لوحة كاشير/);
+assert.equal(STORE_GROCERS_LIVE.howSteps.length, 5);
+assert.match(STORE_GROCERS_LIVE.howSteps[0], /QR/);
+assert.match(STORE_GROCERS_LIVE.ingestLineAr, /مراجعة الصفوف قبل الحفظ/);
+assert.doesNotMatch(STORE_GROCERS_LIVE.ingestLineAr, /يقرأها النظام مباشرة/);
+assert.match(STORE_GROCERS_LIVE.presenceLineAr, new RegExp(STORE_SHOP_PRESENCE_LABEL_AR));
+assert.match(STORE_GROCERS_LIVE.legalLeadAfterAr, /7054117093/);
+assert.match(STORE_GROCERS_LIVE.legalLeadAfterAr, /0000291761/);
+assert.match(STORE_GROCERS_LIVE.closeAr, /اختر باقتك الآن/);
+assert.doesNotMatch(STORE_GROCERS_LIVE.closeAr, /تجربة/);
+assert.doesNotMatch(copyBlob, /12 و29 و59/);
+assert.doesNotMatch(copyBlob, /مطعمنا1|كافينا1|طبختنا1|افراحي1|اجواء1|لاونجا1|كاردي8|أكلنا1/);
+assert.doesNotMatch(copyBlob, /تجربة ستون|المسوّق/);
 assert.doesNotMatch(STORE_GROCERS_LIVE.termsFoldBodyAr, /store_lounge_live/);
 assert.match(STORE_LANDING_COPY.grocersLiveTitleAr, /تمويناتا1/);
 assert.match(STORE_LANDING_COPY.grocersLiveLeadAr, /599/);
+assert.match(grocersLanding, /problemTitleAr/);
+assert.match(grocersLanding, /howSteps/);
+assert.match(grocersLanding, /chatAddonPriceAr/);
+assert.match(grocersLanding, /legalLeadBeforeAr/);
+assert.match(grocersLanding, /STORE_BRAND_LATIN/);
+assert.match(grocersLanding, /list-decimal/);
 
 const end6 = Date.parse(grocersLiveTermEndIso(180, Date.parse('2026-01-01T00:00:00.000Z')));
 assert.equal(end6 - Date.parse('2026-01-01T00:00:00.000Z'), 180 * 24 * 60 * 60 * 1000);

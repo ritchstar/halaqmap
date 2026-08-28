@@ -13,6 +13,7 @@ import { StoreGrocersOrderForm } from '@/components/store/StoreGrocersOrderForm'
 import { StoreProductBenefitsLink } from '@/components/store/StoreProductBenefitsLink';
 import { StoreShot } from '@/components/store/StoreShot';
 import { StoreGrocersStudio } from '@/components/store/StoreGrocersStudio';
+import { STORE_BRAND_LATIN } from '@/config/storeFront';
 import {
   STORE_GROCERS_LIVE,
   STORE_GROCERS_LIVE_FEATURES,
@@ -42,9 +43,38 @@ export default function StoreGrocersLandingPage() {
           <div>
             <p className="text-sm font-bold leading-7 tracking-wide text-[#8fbf7a]">{STORE_GROCERS_LIVE.kickerAr}</p>
             <h1 className="mt-2 text-4xl font-extrabold leading-tight">{STORE_GROCERS_LIVE.titleAr}</h1>
-            <p className="mt-4 max-w-xl text-base leading-8 text-white/78">{STORE_GROCERS_LIVE.leadAr}</p>
-            <p className="mt-4 text-2xl font-black text-[#8fbf7a]">{STORE_GROCERS_LIVE.priceLineAr}</p>
+            <p className="mt-6 text-base font-extrabold text-[#f4efe4]">{STORE_GROCERS_LIVE.problemTitleAr}</p>
+            <p className="mt-2 max-w-xl text-base leading-8 text-white/78">{STORE_GROCERS_LIVE.problemBodyAr}</p>
+            <p className="mt-6 text-base font-extrabold text-[#f4efe4]">{STORE_GROCERS_LIVE.solutionTitleAr}</p>
+            <p className="mt-2 max-w-xl text-base leading-8 text-white/78">{STORE_GROCERS_LIVE.leadAr}</p>
+            <p className="mt-6 text-base font-extrabold text-[#f4efe4]">{STORE_GROCERS_LIVE.howTitleAr}</p>
+            <p className="mt-2 max-w-xl text-sm leading-7 text-white/75">{STORE_GROCERS_LIVE.howLeadAr}</p>
+            <ol className="mt-3 max-w-xl list-decimal space-y-2 pr-5 text-sm leading-7 text-white/75">
+              {STORE_GROCERS_LIVE.howSteps.map((step) => (
+                <li key={step}>{step}</li>
+              ))}
+            </ol>
+            <p className="mt-3 max-w-xl text-sm leading-7 text-white/75">{STORE_GROCERS_LIVE.ingestLineAr}</p>
+            <p className="mt-3 max-w-xl text-sm leading-7 text-white/75">{STORE_GROCERS_LIVE.hoursLineAr}</p>
+            <p className="mt-3 max-w-xl text-sm leading-7 text-white/75">{STORE_GROCERS_LIVE.presenceLineAr}</p>
+            <p className="mt-6 text-base font-extrabold text-[#f4efe4]">{STORE_GROCERS_LIVE.payTitleAr}</p>
+            <p className="mt-2 max-w-xl text-sm leading-7 text-white/75">{STORE_GROCERS_LIVE.payIndependenceAr}</p>
+            <p className="mt-6 text-base font-extrabold text-[#f4efe4]">{STORE_GROCERS_LIVE.chatAddonTitleAr}</p>
+            <p className="mt-2 max-w-xl text-sm leading-7 text-white/75">{STORE_GROCERS_LIVE.chatAddonLeadAr}</p>
+            <p className="mt-2 max-w-xl text-sm leading-7 text-[#8fbf7a]">{STORE_GROCERS_LIVE.chatAddonPriceAr}</p>
+            <p className="mt-6 text-base font-extrabold text-[#f4efe4]">{STORE_GROCERS_LIVE.legalTitleAr}</p>
+            <p className="mt-2 max-w-xl text-sm leading-7 text-white/75">
+              {STORE_GROCERS_LIVE.legalLeadBeforeAr}
+              <code dir="ltr" className="inline-block rounded bg-white/10 px-1.5 py-0.5 text-[0.85em] font-bold text-[#8fbf7a]">
+                {STORE_BRAND_LATIN}
+              </code>
+              {STORE_GROCERS_LIVE.legalLeadAfterAr}
+            </p>
+            <p className="mt-6 text-base font-extrabold text-[#f4efe4]">{STORE_GROCERS_LIVE.priceTitleAr}</p>
+            <p className="mt-2 text-2xl font-black text-[#8fbf7a]">{STORE_GROCERS_LIVE.priceLineAr}</p>
             <p className="mt-2 max-w-xl text-sm leading-7 text-white/65">{STORE_GROCERS_LIVE.durationLineAr}</p>
+            <p className="mt-6 text-base font-extrabold text-[#f4efe4]">{STORE_GROCERS_LIVE.startTitleAr}</p>
+            <p className="mt-2 max-w-xl text-sm font-extrabold leading-7 text-[#f4efe4]">{STORE_GROCERS_LIVE.closeAr}</p>
             {renewToken ? (
               <p className="mt-4 rounded-xl border border-[#8fbf7a]/35 bg-[#8fbf7a]/10 px-4 py-3 text-sm leading-7">
                 انتهت المدة. الرابط ما زال لديكم. أتمّوا الشراء مرة أخرى لتمديد نفس المتجر.
