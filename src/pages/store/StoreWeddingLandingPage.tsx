@@ -19,6 +19,7 @@ import { StoreShot } from '@/components/store/StoreShot';
 import { StoreWeddingInviteCard } from '@/components/store/StoreWeddingInviteCard';
 import { StoreWeddingLiveStudio } from '@/components/store/StoreWeddingLiveStudio';
 import { StoreWeddingOrderForm } from '@/components/store/StoreWeddingOrderForm';
+import { STORE_BRAND_LATIN } from '@/config/storeFront';
 import {
   STORE_WEDDING_LIVE_LAB_TOKEN,
   STORE_WEDDING_LIVE_LAB_TOKEN_WOMEN,
@@ -33,18 +34,6 @@ import { ProductEvents } from '@/lib/analytics/productAnalytics';
 import { defaultWeddingLiveLabState, weddingLiveDefaultStyle } from '@/lib/storeWeddingLiveLab';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { cn } from '@/lib/utils';
-
-const FEATURES_MEN = [
-  'أرسل تهنئة لتظهر على شاشة القاعة أمامك الآن.',
-  'عدّل الأسماء والتاريخ والتنويه من لوحة المضيف.',
-  'بعد الشراء تصلك روابط سرية، وكل رابط مدعو يُربط بجهازه.',
-] as const;
-
-const FEATURES_WOMEN = [
-  'أرسلي تهنئة لتظهر على شاشة القاعة أمامك الآن.',
-  'عدّلي الأسماء والتاريخ والتنويه من لوحة المضيفة.',
-  'بعد الشراء تصلك روابط سرية، وكل رابط مدعوة يُربط بجهازها.',
-] as const;
 
 export default function StoreWeddingLandingPage() {
   const location = useLocation();
@@ -62,7 +51,6 @@ export default function StoreWeddingLandingPage() {
     return <Navigate to={ROUTE_PATHS.STORE_LANDING} replace />;
   }
 
-  const features = voice === 'women' ? FEATURES_WOMEN : FEATURES_MEN;
   const fill = weddingLiveFillClass(voice);
   const text = weddingLiveTextClass(voice);
   const labToken = voice === 'women' ? STORE_WEDDING_LIVE_LAB_TOKEN_WOMEN : STORE_WEDDING_LIVE_LAB_TOKEN;
@@ -82,13 +70,32 @@ export default function StoreWeddingLandingPage() {
           <div>
             <p className={cn('text-sm font-bold tracking-wide', text)}>{copy.kickerAr}</p>
             <h1 className="mt-2 text-4xl font-extrabold leading-tight text-[#f4efe4]">{copy.titleAr}</h1>
-            <p className="mt-4 max-w-xl text-base leading-8 text-white/78">{copy.leadAr}</p>
-            <p className={cn('mt-4 text-2xl font-black', text)}>{copy.priceLineAr}</p>
-            <ul className="mt-6 space-y-2 text-sm leading-7 text-white/75">
-              {features.map((item) => (
-                <li key={item}>{item}</li>
+            <p className="mt-6 text-base font-extrabold text-[#f4efe4]">{copy.problemTitleAr}</p>
+            <p className="mt-2 max-w-xl text-base leading-8 text-white/78">{copy.problemBodyAr}</p>
+            <p className="mt-6 text-base font-extrabold text-[#f4efe4]">{copy.solutionTitleAr}</p>
+            <p className="mt-2 max-w-xl text-base leading-8 text-white/78">{copy.leadAr}</p>
+            <p className="mt-6 text-base font-extrabold text-[#f4efe4]">{copy.howTitleAr}</p>
+            <p className="mt-2 max-w-xl text-sm leading-7 text-white/75">{copy.howLeadAr}</p>
+            <ol className="mt-3 max-w-xl list-decimal space-y-2 pr-5 text-sm leading-7 text-white/75">
+              {copy.howSteps.map((step) => (
+                <li key={step}>{step}</li>
               ))}
-            </ul>
+            </ol>
+            <p className="mt-6 text-base font-extrabold text-[#f4efe4]">{copy.privacyTitleAr}</p>
+            <p className="mt-2 max-w-xl text-sm leading-7 text-white/75">{copy.privacyBodyAr}</p>
+            <p className="mt-6 text-base font-extrabold text-[#f4efe4]">{copy.legalTitleAr}</p>
+            <p className="mt-2 max-w-xl text-sm leading-7 text-white/75">
+              {copy.legalLeadBeforeAr}
+              <code dir="ltr" className={cn('inline-block rounded bg-white/10 px-1.5 py-0.5 text-[0.85em] font-bold', text)}>
+                {STORE_BRAND_LATIN}
+              </code>
+              {copy.legalLeadAfterAr}
+            </p>
+            <p className="mt-6 text-base font-extrabold text-[#f4efe4]">{copy.priceTitleAr}</p>
+            <p className={cn('mt-2 text-2xl font-black', text)}>{copy.priceLineAr}</p>
+            <p className="mt-2 max-w-xl text-sm leading-7 text-white/75">{copy.priceBodyAr}</p>
+            <p className="mt-6 text-base font-extrabold text-[#f4efe4]">{copy.startTitleAr}</p>
+            <p className="mt-2 max-w-xl text-sm font-extrabold leading-7 text-[#f4efe4]">{copy.closeAr}</p>
             <div className="mt-6 flex flex-wrap gap-3">
               <a
                 href="#live-preview"

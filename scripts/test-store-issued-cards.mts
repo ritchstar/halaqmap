@@ -63,6 +63,7 @@ import {
   STORE_WEDDING_LIVE_PRICE_SAR,
   STORE_WEDDING_LIVE_PRODUCT,
   STORE_WEDDING_LIVE_PUBLIC_ENABLED,
+  STORE_WEDDING_LIVE_WOMEN,
   weddingLiveCopy,
 } from '../src/config/storeWeddingLive.ts';
 import {
@@ -439,6 +440,24 @@ assert.doesNotMatch(STORE_WEDDING_LIVE.leadAr, /12 و29 و59/);
 assert.doesNotMatch(STORE_WEDDING_LIVE.leadAr, /store_occasion_card/);
 assert.doesNotMatch(STORE_WEDDING_LIVE.kickerAr, /بلا دفع/);
 assert.doesNotMatch(STORE_WEDDING_LIVE.leadAr, /لاحقاً/);
+assert.match(STORE_WEDDING_LIVE.kickerAr, /قاعة الأفراح/);
+assert.match(STORE_WEDDING_LIVE.problemTitleAr, /بطاقة تُطبع/);
+assert.match(STORE_WEDDING_LIVE.privacyBodyAr, /دفتر حضور/);
+assert.match(STORE_WEDDING_LIVE.legalLeadAfterAr, /7054117093/);
+assert.match(STORE_WEDDING_LIVE.legalLeadAfterAr, /0000291761/);
+assert.match(STORE_WEDDING_LIVE.closeAr, /استوديو التجربة الحية/);
+assert.doesNotMatch(
+  [
+    STORE_WEDDING_LIVE.problemBodyAr,
+    STORE_WEDDING_LIVE.leadAr,
+    STORE_WEDDING_LIVE.howSteps.join('\n'),
+    STORE_WEDDING_LIVE.privacyBodyAr,
+    STORE_WEDDING_LIVE.closeAr,
+    STORE_WEDDING_LIVE_WOMEN.leadAr,
+    STORE_WEDDING_LIVE_WOMEN.problemBodyAr,
+  ].join('\n'),
+  /كاردي8|اجواء1|مطعمنا1|RSVP|أكلنا1/,
+);
 assert.match(STORE_WEDDING_LIVE.termsFoldTriggerAr, /شروط/);
 assert.match(STORE_WEDDING_LIVE.priceLineAr, /899/);
 assert.match(landing, /weddingLiveTitleAr/);
@@ -446,6 +465,9 @@ const weddingLanding = readFileSync(join(root, 'src/pages/store/StoreWeddingLand
 assert.match(weddingLanding, /live-preview/);
 assert.match(weddingLanding, /StoreWeddingLiveStudio/);
 assert.match(weddingLanding, /termsFoldTriggerAr/);
+assert.match(weddingLanding, /problemTitleAr/);
+assert.match(weddingLanding, /howSteps/);
+assert.match(weddingLanding, /privacyBodyAr/);
 assert.doesNotMatch(app, /from ['"]@\/config\/storeWeddingLive['"]/);
 assert.doesNotMatch(app, /from ['"]@\/config\/storeWeddingWelcomeSets['"]/);
 assert.match(app, /StoreWeddingLandingPage/);
