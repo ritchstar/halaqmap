@@ -28,6 +28,7 @@ import { STORE_RESTAURANT_LIVE_PRODUCT } from '../src/config/storeRestaurantLive
 import { STORE_WEDDING_LIVE_PRODUCT } from '../src/config/storeWeddingLive.ts';
 import { STORE_LANDING_COPY } from '../src/config/storeFront.ts';
 import { cafeAffiliateCommissionSar } from '../src/config/storeAffiliateLive.ts';
+import { STORE_SHOP_PRESENCE_LABEL_AR } from '../src/config/storeShopPresence.ts';
 import { STORE_PRODUCT_TRIAL_KEYS, STORE_PRODUCT_TRIAL_PRODUCTS } from '../src/config/storeProductTrial.ts';
 import {
   STORE_CAFE_LIVE_PRODUCT as apiProduct,
@@ -58,14 +59,35 @@ const desk = readFileSync(join(root, 'src/components/store/StoreCafeDesk.tsx'), 
 const studio = readFileSync(join(root, 'src/components/store/StoreCafeStudio.tsx'), 'utf8');
 const shopPage = readFileSync(join(root, 'src/pages/store/StoreCafeShopPage.tsx'), 'utf8');
 const copyBlob = [
+  STORE_CAFE_LIVE.kickerAr,
   STORE_CAFE_LIVE.leadAr,
+  STORE_CAFE_LIVE.problemTitleAr,
+  STORE_CAFE_LIVE.problemBodyAr,
+  STORE_CAFE_LIVE.solutionTitleAr,
   STORE_CAFE_LIVE.howLeadAr,
+  STORE_CAFE_LIVE.howSteps.join('\n'),
+  STORE_CAFE_LIVE.drinksTitleAr,
+  STORE_CAFE_LIVE.drinksLineAr,
+  STORE_CAFE_LIVE.hoursTitleAr,
+  STORE_CAFE_LIVE.hoursLineAr,
+  STORE_CAFE_LIVE.presenceTitleAr,
+  STORE_CAFE_LIVE.presenceLineAr,
+  STORE_CAFE_LIVE.screensTitleAr,
+  STORE_CAFE_LIVE.screensLineAr,
+  STORE_CAFE_LIVE.chatTitleAr,
+  STORE_CAFE_LIVE.chatLineAr,
   STORE_CAFE_LIVE.whatsappLineAr,
+  STORE_CAFE_LIVE.payTitleAr,
   STORE_CAFE_LIVE.payIndependenceAr,
+  STORE_CAFE_LIVE.renewTitleAr,
+  STORE_CAFE_LIVE.renewLineAr,
   STORE_CAFE_LIVE.opsBodyAr,
   STORE_CAFE_LIVE.privacyAr,
+  STORE_CAFE_LIVE.legalTitleAr,
+  STORE_CAFE_LIVE.legalLeadBeforeAr,
+  STORE_CAFE_LIVE.legalLeadAfterAr,
+  STORE_CAFE_LIVE.startTitleAr,
   STORE_CAFE_LIVE.closeAr,
-  STORE_CAFE_LIVE.kickerAr,
   STORE_CAFE_LIVE.termsFoldBodyAr,
   STORE_CAFE_LIVE.priceLineAr,
   STORE_CAFE_LIVE.durationLineAr,
@@ -103,22 +125,36 @@ assert.equal(cafeAffiliateCommissionSar('m6'), 199);
 assert.equal(cafeAffiliateCommissionSar('m12'), 499);
 assert.match(cafeLiveInvoiceDescription('m6'), /كافينا1/);
 assert.match(STORE_CAFE_LIVE.titleAr, /كافينا1/);
-assert.match(STORE_CAFE_LIVE.leadAr, /1199/);
-assert.match(STORE_CAFE_LIVE.leadAr, /بنقرة واحدة/);
-assert.match(STORE_CAFE_LIVE.howLeadAr, /خلال ثوانٍ/);
-assert.match(STORE_CAFE_LIVE.howLeadAr, /توصيلاً في الحي/);
+assert.match(STORE_CAFE_LIVE.problemTitleAr, /الشاشة المطفأة/);
+assert.match(STORE_CAFE_LIVE.howLeadAr, /التوصيل في الحي/);
+assert.match(STORE_CAFE_LIVE.howSteps.join('\n'), /خلال ثوانٍ/);
+assert.match(STORE_CAFE_LIVE.howSteps.join('\n'), /بنقرة واحدة/);
+assert.match(STORE_CAFE_LIVE.drinksLineAr, /مراجعة الصفوف قبل الحفظ/);
+assert.doesNotMatch(STORE_CAFE_LIVE.drinksLineAr, /يقرأها النظام|ليقارنها النظام/);
+assert.doesNotMatch(STORE_CAFE_LIVE.howSteps.join('\n'), /واجهة موقع الاستلام|واجهة السكن/);
+assert.doesNotMatch(STORE_CAFE_LIVE.chatLineAr, /ساعة واحدة|تختفي تلقائياً/);
+assert.match(STORE_CAFE_LIVE.presenceLineAr, new RegExp(STORE_SHOP_PRESENCE_LABEL_AR));
+assert.match(STORE_CAFE_LIVE.legalLeadAfterAr, /7054117093/);
+assert.match(STORE_CAFE_LIVE.legalLeadAfterAr, /0000291761/);
+assert.match(STORE_CAFE_LIVE.closeAr, /اختر باقتك الآن/);
+assert.doesNotMatch(STORE_CAFE_LIVE.closeAr, /تجربة|جرّب/);
 assert.match(STORE_CAFE_LIVE.opsBodyAr, /جهاز تشغيل واحد/);
 assert.match(STORE_CAFE_LIVE.privacyAr, /دفتر زبائن/);
 assert.match(STORE_CAFE_LIVE.servicePickupAr, /استلام من المحل/);
 assert.match(STORE_CAFE_LIVE.serviceDeliveryAr, /توصيل في الحي/);
 assert.doesNotMatch(copyBlob, /لحظة بلحظة|لوكيشن|واجهة المنزل|صفر عمولات|آلياً/);
-assert.doesNotMatch(copyBlob, /تمويناتا1|افراحي1|اجواء1|لاونجا1|كاردي8|مطعمنا1/);
+assert.doesNotMatch(copyBlob, /تمويناتا1|افراحي1|اجواء1|لاونجا1|كاردي8|مطعمنا1|طبختنا1|أكلنا1/);
 assert.doesNotMatch(copyBlob, /تجربة ستون|المسوّق/);
 assert.match(STORE_CAFE_LIVE.durationLineAr, /صندوق المحادثة مدرج/);
 assert.doesNotMatch(copyBlob, /599|600|698|699|898|899|999|1398/);
 assert.match(cafeLanding, /howTitleAr/);
-assert.match(cafeLanding, /ticketItems/);
+assert.match(cafeLanding, /howSteps/);
+assert.match(cafeLanding, /problemTitleAr/);
+assert.match(cafeLanding, /legalLeadBeforeAr/);
+assert.match(cafeLanding, /STORE_BRAND_LATIN/);
+assert.match(cafeLanding, /list-decimal/);
 assert.match(cafeLanding, /StoreEnterpriseDirectMail/);
+assert.match(STORE_CAFE_LIVE.priceLineAr, /1199/);
 assert.match(STORE_CAFE_LIVE.priceLineAr, /2099/);
 assert.match(STORE_LANDING_COPY.cafeLiveTitleAr, /كافينا1/);
 assert.match(STORE_LANDING_COPY.cafeLiveLeadAr, /1199/);

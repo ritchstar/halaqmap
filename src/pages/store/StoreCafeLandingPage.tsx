@@ -13,6 +13,7 @@ import { StoreEnterpriseDirectMail } from '@/components/store/StoreEnterpriseDir
 import { StoreProductBenefitsLink } from '@/components/store/StoreProductBenefitsLink';
 import { StoreShot } from '@/components/store/StoreShot';
 import { StoreCafeStudio } from '@/components/store/StoreCafeStudio';
+import { STORE_BRAND_LATIN } from '@/config/storeFront';
 import {
   STORE_CAFE_LIVE,
   STORE_CAFE_LIVE_FEATURES,
@@ -42,25 +43,50 @@ export default function StoreCafeLandingPage() {
           <div>
             <p className="text-sm font-bold leading-7 tracking-wide text-[#c48a4a]">{STORE_CAFE_LIVE.kickerAr}</p>
             <h1 className="mt-2 text-4xl font-extrabold leading-tight">{STORE_CAFE_LIVE.titleAr}</h1>
-            <p className="mt-4 max-w-xl text-base leading-8 text-white/78">{STORE_CAFE_LIVE.leadAr}</p>
-            <p className="mt-4 text-2xl font-black text-[#c48a4a]">{STORE_CAFE_LIVE.priceLineAr}</p>
+            <p className="mt-6 text-base font-extrabold text-[#f4efe4]">{STORE_CAFE_LIVE.problemTitleAr}</p>
+            <p className="mt-2 max-w-xl text-base leading-8 text-white/78">{STORE_CAFE_LIVE.problemBodyAr}</p>
+            <p className="mt-6 text-base font-extrabold text-[#f4efe4]">{STORE_CAFE_LIVE.solutionTitleAr}</p>
+            <p className="mt-2 max-w-xl text-base leading-8 text-white/78">{STORE_CAFE_LIVE.leadAr}</p>
+            <p className="mt-6 text-base font-extrabold text-[#f4efe4]">{STORE_CAFE_LIVE.howTitleAr}</p>
+            <p className="mt-2 max-w-xl text-sm leading-7 text-white/75">{STORE_CAFE_LIVE.howLeadAr}</p>
+            <ol className="mt-3 max-w-xl list-decimal space-y-2 pr-5 text-sm leading-7 text-white/75">
+              {STORE_CAFE_LIVE.howSteps.map((step) => (
+                <li key={step}>{step}</li>
+              ))}
+            </ol>
+            <p className="mt-6 text-base font-extrabold text-[#f4efe4]">{STORE_CAFE_LIVE.drinksTitleAr}</p>
+            <p className="mt-2 max-w-xl text-sm leading-7 text-white/75">{STORE_CAFE_LIVE.drinksLineAr}</p>
+            <p className="mt-6 text-base font-extrabold text-[#f4efe4]">{STORE_CAFE_LIVE.hoursTitleAr}</p>
+            <p className="mt-2 max-w-xl text-sm leading-7 text-white/75">{STORE_CAFE_LIVE.hoursLineAr}</p>
+            <p className="mt-6 text-base font-extrabold text-[#f4efe4]">{STORE_CAFE_LIVE.presenceTitleAr}</p>
+            <p className="mt-2 max-w-xl text-sm leading-7 text-white/75">{STORE_CAFE_LIVE.presenceLineAr}</p>
+            <p className="mt-6 text-base font-extrabold text-[#f4efe4]">{STORE_CAFE_LIVE.screensTitleAr}</p>
+            <p className="mt-2 max-w-xl text-sm leading-7 text-white/75">{STORE_CAFE_LIVE.screensLineAr}</p>
+            <p className="mt-6 text-base font-extrabold text-[#f4efe4]">{STORE_CAFE_LIVE.chatTitleAr}</p>
+            <p className="mt-2 max-w-xl text-sm leading-7 text-white/75">{STORE_CAFE_LIVE.chatLineAr}</p>
+            <p className="mt-6 text-base font-extrabold text-[#f4efe4]">{STORE_CAFE_LIVE.payTitleAr}</p>
+            <p className="mt-2 max-w-xl text-sm leading-7 text-white/75">{STORE_CAFE_LIVE.payIndependenceAr}</p>
+            <p className="mt-6 text-base font-extrabold text-[#f4efe4]">{STORE_CAFE_LIVE.renewTitleAr}</p>
+            <p className="mt-2 max-w-xl text-sm leading-7 text-white/75">{STORE_CAFE_LIVE.renewLineAr}</p>
+            <p className="mt-6 text-base font-extrabold text-[#f4efe4]">{STORE_CAFE_LIVE.legalTitleAr}</p>
+            <p className="mt-2 max-w-xl text-sm leading-7 text-white/75">
+              {STORE_CAFE_LIVE.legalLeadBeforeAr}
+              <code dir="ltr" className="inline-block rounded bg-white/10 px-1.5 py-0.5 text-[0.85em] font-bold text-[#c48a4a]">
+                {STORE_BRAND_LATIN}
+              </code>
+              {STORE_CAFE_LIVE.legalLeadAfterAr}
+            </p>
+            <p className="mt-3 max-w-xl text-sm leading-7 text-white/75">{STORE_CAFE_LIVE.privacyAr}</p>
+            <p className="mt-6 text-base font-extrabold text-[#f4efe4]">{STORE_CAFE_LIVE.priceTitleAr}</p>
+            <p className="mt-2 text-2xl font-black text-[#c48a4a]">{STORE_CAFE_LIVE.priceLineAr}</p>
             <p className="mt-2 max-w-xl text-sm leading-7 text-white/65">{STORE_CAFE_LIVE.durationLineAr}</p>
+            <p className="mt-6 text-base font-extrabold text-[#f4efe4]">{STORE_CAFE_LIVE.startTitleAr}</p>
+            <p className="mt-2 max-w-xl text-sm font-extrabold leading-7 text-[#f4efe4]">{STORE_CAFE_LIVE.closeAr}</p>
             {renewToken ? (
               <p className="mt-4 rounded-xl border border-[#c48a4a]/35 bg-[#c48a4a]/10 px-4 py-3 text-sm leading-7">
                 انتهت المدة. الرابط ما زال لديكم. أتمّوا الشراء مرة أخرى لتمديد نفس الصفحة.
               </p>
             ) : null}
-            <p className="mt-6 text-base font-extrabold text-[#f4efe4]">{STORE_CAFE_LIVE.howTitleAr}</p>
-            <p className="mt-2 max-w-xl text-sm leading-7 text-white/75">{STORE_CAFE_LIVE.howLeadAr}</p>
-            <ul className="mt-3 max-w-xl list-disc space-y-1 pr-5 text-sm leading-7 text-white/75">
-              {STORE_CAFE_LIVE.ticketItems.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
-            <p className="mt-3 max-w-xl text-sm leading-7 text-white/75">{STORE_CAFE_LIVE.whatsappLineAr}</p>
-            <p className="mt-3 max-w-xl text-sm leading-7 text-white/75">{STORE_CAFE_LIVE.payIndependenceAr}</p>
-            <p className="mt-6 text-base font-extrabold text-[#f4efe4]">{STORE_CAFE_LIVE.opsTitleAr}</p>
-            <p className="mt-2 max-w-xl text-sm leading-7 text-white/75">{STORE_CAFE_LIVE.opsBodyAr}</p>
             <p className="mt-6 text-base font-extrabold text-[#f4efe4]">{STORE_CAFE_LIVE.featuresTitleAr}</p>
             <ul className="mt-3 space-y-3">
               {STORE_CAFE_LIVE_FEATURES.map((item) => (
@@ -85,8 +111,6 @@ export default function StoreCafeLandingPage() {
                 </li>
               ))}
             </ul>
-            <p className="mt-6 max-w-xl text-sm leading-7 text-white/75">{STORE_CAFE_LIVE.privacyAr}</p>
-            <p className="mt-3 max-w-xl text-sm font-extrabold leading-7 text-[#f4efe4]">{STORE_CAFE_LIVE.closeAr}</p>
             <StoreEnterpriseDirectMail
               className="mt-4 max-w-xl"
               linkClassName="text-[#c48a4a]"
