@@ -14,6 +14,7 @@ import { StoreKitchenOrderForm } from '@/components/store/StoreKitchenOrderForm'
 import { StoreProductBenefitsLink } from '@/components/store/StoreProductBenefitsLink';
 import { StoreKitchenStudio } from '@/components/store/StoreKitchenStudio';
 import { StoreShot } from '@/components/store/StoreShot';
+import { STORE_BRAND_LATIN } from '@/config/storeFront';
 import {
   STORE_KITCHEN_LIVE,
   STORE_KITCHEN_LIVE_FEATURES,
@@ -44,21 +45,43 @@ export default function StoreKitchenLandingPage() {
           <div>
             <p className="text-sm font-bold leading-7 tracking-wide text-[#b45a3c]">{STORE_KITCHEN_LIVE.kickerAr}</p>
             <h1 className="mt-2 text-4xl font-extrabold leading-tight">{STORE_KITCHEN_LIVE.titleAr}</h1>
-            <p className="mt-4 max-w-xl text-base leading-8 text-white/78">{STORE_KITCHEN_LIVE.leadAr}</p>
-            <p className="mt-4 text-2xl font-black text-[#b45a3c]">{STORE_KITCHEN_LIVE.priceLineAr}</p>
-            <p className="mt-2 max-w-xl text-sm leading-7 text-white/65">{STORE_KITCHEN_LIVE.supportLineAr}</p>
-            <p className="mt-2 max-w-xl text-sm leading-7 text-white/65">{STORE_KITCHEN_LIVE.durationLineAr}</p>
+            <p className="mt-6 text-base font-extrabold text-[#f4efe4]">{STORE_KITCHEN_LIVE.problemTitleAr}</p>
+            <p className="mt-2 max-w-xl text-base leading-8 text-white/78">{STORE_KITCHEN_LIVE.problemBodyAr}</p>
+            <p className="mt-6 text-base font-extrabold text-[#f4efe4]">{STORE_KITCHEN_LIVE.solutionTitleAr}</p>
+            <p className="mt-2 max-w-xl text-base leading-8 text-white/78">{STORE_KITCHEN_LIVE.leadAr}</p>
             <p className="mt-6 text-base font-extrabold text-[#f4efe4]">{STORE_KITCHEN_LIVE.howTitleAr}</p>
             <p className="mt-2 max-w-xl text-sm leading-7 text-white/75">{STORE_KITCHEN_LIVE.howLeadAr}</p>
-            <ul className="mt-3 max-w-xl list-disc space-y-1 pr-5 text-sm leading-7 text-white/75">
-              {STORE_KITCHEN_LIVE.ticketItems.map((item) => (
-                <li key={item}>{item}</li>
+            <ol className="mt-3 max-w-xl list-decimal space-y-2 pr-5 text-sm leading-7 text-white/75">
+              {STORE_KITCHEN_LIVE.howSteps.map((step) => (
+                <li key={step}>{step}</li>
               ))}
-            </ul>
-            <p className="mt-3 max-w-xl text-sm leading-7 text-white/75">{STORE_KITCHEN_LIVE.whatsappLineAr}</p>
-            <p className="mt-3 max-w-xl text-sm leading-7 text-white/75">{STORE_KITCHEN_LIVE.payIndependenceAr}</p>
-            <p className="mt-6 text-base font-extrabold text-[#f4efe4]">{STORE_KITCHEN_LIVE.opsTitleAr}</p>
-            <p className="mt-2 max-w-xl text-sm leading-7 text-white/75">{STORE_KITCHEN_LIVE.opsBodyAr}</p>
+              <li>
+                {STORE_KITCHEN_LIVE.howTicketLeadAr}
+                <ul className="mt-2 list-disc space-y-1 pr-5">
+                  {STORE_KITCHEN_LIVE.ticketItems.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </li>
+              <li>{STORE_KITCHEN_LIVE.whatsappLineAr}</li>
+            </ol>
+            <p className="mt-3 max-w-xl text-sm leading-7 text-white/75">{STORE_KITCHEN_LIVE.webLineAr}</p>
+            <p className="mt-6 text-base font-extrabold text-[#f4efe4]">{STORE_KITCHEN_LIVE.payTitleAr}</p>
+            <p className="mt-2 max-w-xl text-sm leading-7 text-white/75">{STORE_KITCHEN_LIVE.payIndependenceAr}</p>
+            <p className="mt-6 text-base font-extrabold text-[#f4efe4]">{STORE_KITCHEN_LIVE.priceTitleAr}</p>
+            <p className="mt-2 text-2xl font-black text-[#b45a3c]">{STORE_KITCHEN_LIVE.priceLineAr}</p>
+            <p className="mt-2 max-w-xl text-sm leading-7 text-white/65">{STORE_KITCHEN_LIVE.supportLineAr}</p>
+            <p className="mt-6 text-base font-extrabold text-[#f4efe4]">{STORE_KITCHEN_LIVE.legalTitleAr}</p>
+            <p className="mt-2 max-w-xl text-sm leading-7 text-white/75">
+              {STORE_KITCHEN_LIVE.legalLeadBeforeAr}
+              <code dir="ltr" className="inline-block rounded bg-white/10 px-1.5 py-0.5 text-[0.85em] font-bold text-[#b45a3c]">
+                {STORE_BRAND_LATIN}
+              </code>
+              {STORE_KITCHEN_LIVE.legalLeadAfterAr}
+            </p>
+            <p className="mt-3 max-w-xl text-sm leading-7 text-white/75">{STORE_KITCHEN_LIVE.privacyAr}</p>
+            <p className="mt-6 text-base font-extrabold text-[#f4efe4]">{STORE_KITCHEN_LIVE.startTitleAr}</p>
+            <p className="mt-2 max-w-xl text-sm font-extrabold leading-7 text-[#f4efe4]">{STORE_KITCHEN_LIVE.closeAr}</p>
             <p className="mt-6 text-base font-extrabold text-[#f4efe4]">{STORE_KITCHEN_LIVE.featuresTitleAr}</p>
             <ul className="mt-3 space-y-3">
               {STORE_KITCHEN_LIVE_FEATURES.map((item) => (
@@ -83,8 +106,6 @@ export default function StoreKitchenLandingPage() {
                 </li>
               ))}
             </ul>
-            <p className="mt-6 max-w-xl text-sm leading-7 text-white/75">{STORE_KITCHEN_LIVE.privacyAr}</p>
-            <p className="mt-3 max-w-xl text-sm font-extrabold leading-7 text-[#f4efe4]">{STORE_KITCHEN_LIVE.closeAr}</p>
             <StoreEnterpriseDirectMail
               className="mt-4 max-w-xl"
               linkClassName="text-[#b45a3c]"

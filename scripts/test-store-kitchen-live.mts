@@ -58,11 +58,22 @@ const migrations = readdirSync(join(root, 'supabase/migrations'));
 
 const copyBlob = [
   STORE_KITCHEN_LIVE.leadAr,
+  STORE_KITCHEN_LIVE.problemTitleAr,
+  STORE_KITCHEN_LIVE.problemBodyAr,
+  STORE_KITCHEN_LIVE.solutionTitleAr,
   STORE_KITCHEN_LIVE.howLeadAr,
+  STORE_KITCHEN_LIVE.howSteps.join('\n'),
+  STORE_KITCHEN_LIVE.howTicketLeadAr,
   STORE_KITCHEN_LIVE.whatsappLineAr,
+  STORE_KITCHEN_LIVE.webLineAr,
+  STORE_KITCHEN_LIVE.payTitleAr,
   STORE_KITCHEN_LIVE.payIndependenceAr,
   STORE_KITCHEN_LIVE.opsBodyAr,
   STORE_KITCHEN_LIVE.privacyAr,
+  STORE_KITCHEN_LIVE.legalTitleAr,
+  STORE_KITCHEN_LIVE.legalLeadBeforeAr,
+  STORE_KITCHEN_LIVE.legalLeadAfterAr,
+  STORE_KITCHEN_LIVE.startTitleAr,
   STORE_KITCHEN_LIVE.closeAr,
   STORE_KITCHEN_LIVE.kickerAr,
   STORE_KITCHEN_LIVE.termsFoldBodyAr,
@@ -96,12 +107,14 @@ assert.notEqual(STORE_KITCHEN_LIVE_PRODUCT, 'store_occasion_card');
 assert.equal(STORE_KITCHEN_LIVE.titleAr, 'طبختنا1');
 assert.match(STORE_LANDING_COPY.kitchenLiveTitleAr, /طبختنا1/);
 assert.match(STORE_KITCHEN_LIVE.leadAr, /للأسر المنتجة/);
+assert.match(STORE_KITCHEN_LIVE.problemTitleAr, /فوضى واتساب/);
 assert.match(STORE_KITCHEN_LIVE.privacyAr, /دفتر زبائن/);
-assert.match(STORE_KITCHEN_LIVE.closeAr, /التسليم/);
-assert.match(STORE_KITCHEN_LIVE.leadAr, /300/);
-assert.match(STORE_KITCHEN_LIVE.leadAr, /600/);
+assert.match(STORE_KITCHEN_LIVE.closeAr, /بلا فوضى/);
+assert.match(STORE_KITCHEN_LIVE.legalLeadAfterAr, /7054117093/);
+assert.match(STORE_KITCHEN_LIVE.legalLeadAfterAr, /0000291761/);
 assert.match(STORE_KITCHEN_LIVE.supportLineAr, /أسعار مخصصة للأسر المنتجة/);
 assert.match(STORE_KITCHEN_LIVE.priceLineAr, /300/);
+assert.match(STORE_KITCHEN_LIVE.priceLineAr, /600/);
 assert.match(STORE_LANDING_COPY.kitchenLiveLeadAr, /300/);
 assert.doesNotMatch(copyBlob, /أكلنا1/);
 assert.doesNotMatch(copyBlob, /مطعمنا1|كافينا1|تمويناتا1|افراحي1|اجواء1|لاونجا1|كاردي8/);
@@ -109,7 +122,10 @@ assert.doesNotMatch(copyBlob, /تجربة ستون|المسوّق/);
 assert.doesNotMatch(copyBlob, /399|699|599|898|899|999|1199|2099|1398/);
 assert.doesNotMatch(JSON.stringify(STORE_KITCHEN_LIVE), /399|699/);
 assert.match(kitchenLanding, /howTitleAr/);
+assert.match(kitchenLanding, /howSteps/);
 assert.match(kitchenLanding, /ticketItems/);
+assert.match(kitchenLanding, /problemTitleAr/);
+assert.match(kitchenLanding, /legalTitleAr/);
 assert.match(kitchenLanding, /StoreEnterpriseDirectMail/);
 assert.match(kitchenLanding, /StoreKitchenOrderForm/);
 assert.match(kitchenLanding, /reel="kitchen"/);
