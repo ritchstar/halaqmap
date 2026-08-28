@@ -13,6 +13,7 @@ import {
   STORE_KITCHEN_LIVE_POLICY,
   STORE_KITCHEN_LIVE_PRICE_6_HALALAS,
   STORE_KITCHEN_LIVE_TABLE,
+  DEFAULT_KITCHEN_PICKUP,
   type KitchenLiveOrderPayload,
 } from './storeKitchenLive.js';
 import { DEFAULT_STORE_SHOP_HOURS } from './storeShopHours.js';
@@ -180,6 +181,7 @@ export function kitchenGiftPayload(input: { shopName: string; hostName: string }
     shelf: [],
     orders: [],
     nextTicket: 1,
+    ...DEFAULT_KITCHEN_PICKUP,
     ...DEFAULT_STORE_SHOP_HOURS,
     gift: true,
     giftLabelAr: STORE_KITCHEN_GIFT_LABEL_AR,

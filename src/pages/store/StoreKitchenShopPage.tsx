@@ -49,6 +49,10 @@ function payloadToState(payload: Record<string, unknown>, fallback: KitchenLabSt
     qrStamp: String(payload.qrStamp || fallback.host.qrStamp),
     qrActive: payload.qrActive !== false,
     nextTicket: Number(payload.nextTicket) > 0 ? Number(payload.nextTicket) : fallback.host.nextTicket,
+    pickupLat: Number.isFinite(Number(payload.pickupLat)) ? Number(payload.pickupLat) : fallback.host.pickupLat,
+    pickupLng: Number.isFinite(Number(payload.pickupLng)) ? Number(payload.pickupLng) : fallback.host.pickupLng,
+    pickupMapsUrl: String(payload.pickupMapsUrl || fallback.host.pickupMapsUrl).slice(0, 240),
+    pickupPlaceVisible: payload.pickupPlaceVisible === true,
     ...parseStoreShopHours(payload, fallback.host),
   };
   return {

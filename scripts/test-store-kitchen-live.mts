@@ -33,10 +33,14 @@ import {
   addKitchenOrder,
   defaultKitchenLabState,
   kitchenCartTotal,
+  kitchenMapsSearchUrl,
   kitchenOrderExists,
   kitchenQrMatches,
+  kitchenReadyWhatsAppText,
   kitchenShopHashPath,
   kitchenWhatsAppText,
+  isKitchenMapsUrl,
+  markKitchenOrderReady,
   type KitchenOrder,
 } from '../src/lib/storeKitchenLiveLab.ts';
 import { ROUTE_PATHS } from '../src/lib/routePaths.ts';
@@ -210,6 +214,26 @@ assert.match(kitchenShopHashPath('kitchen-lab', 'abc'), /\/k\/kitchen-lab\?qr=ab
 const wa = kitchenWhatsAppText(sample, 'مطبخ الدار');
 assert.match(wa, /الزبون/);
 assert.doesNotMatch(wa, /أكلنا1|مطعمنا1|كافينا1/);
+
+assert.equal(kitchenMapsSearchUrl(24.7136, 46.6753), 'https://maps.google.com/?q=24.713600,46.675300');
+assert.equal(isKitchenMapsUrl('https://maps.google.com/?q=24.7,46.6'), true);
+assert.equal(isKitchenMapsUrl('https://example.com/?q=24,46'), false);
+assert.match(STORE_KITCHEN_LIVE.locateMeAr, /حدد موقعي/);
+assert.match(STORE_KITCHEN_LIVE.markReadyAr, /طلبك جاهز/);
+assert.match(STORE_KITCHEN_LIVE.deskPickupLeadAr, /أبرزه/);
+assert.match(STORE_KITCHEN_LIVE.pickupShowAr, /إبراز الموقع/);
+const readyText = kitchenReadyWhatsAppText({ ...sample, service: 'pickup' }, 'مطبخ الدار', 'https://maps.google.com/?q=24.7,46.6');
+assert.match(readyText, /طلبك جاهز/);
+assert.match(readyText, /maps\.google\.com/);
+assert.doesNotMatch(readyText, /مطعمنا1|كافينا1|شات|دردشة/);
+const marked = markKitchenOrderReady(once, sample.id, 'https://maps.google.com/?q=24.7,46.6');
+assert.ok(marked.orders[0].readyAt);
+assert.match(String(marked.orders[0].readyMapsUrl), /maps\.google\.com/);
+assert.equal(defaultKitchenLabState().host.pickupPlaceVisible, false);
+assert.match(readFileSync(join(root, 'src/components/store/StoreKitchenShop.tsx'), 'utf8'), /StoreKitchenLocateButton/);
+assert.match(readFileSync(join(root, 'src/components/store/StoreKitchenDesk.tsx'), 'utf8'), /markReady/);
+assert.match(readFileSync(join(root, 'api/_lib/storeKitchenLive.ts'), 'utf8'), /pickupPlaceVisible/);
+assert.match(readFileSync(join(root, 'api/public-store-kitchen-live.ts'), 'utf8'), /parseKitchenPickupPlace/);
 
 assert.ok(STORE_KITCHEN_MENU.length >= 10);
 assert.ok(STORE_KITCHEN_MENU.length <= STORE_KITCHEN_LIVE_LAB_ITEM_CAP);

@@ -17,6 +17,7 @@ import {
   type KitchenPayMethod,
   type KitchenService,
 } from '@/lib/storeKitchenLiveLab';
+import { StoreKitchenLocateButton } from '@/components/store/StoreKitchenLocateButton';
 import { isShopClosedNow } from '@/lib/storeShopHours';
 import { cn } from '@/lib/utils';
 
@@ -39,6 +40,7 @@ export function StoreKitchenShop({
   const [service, setService] = useState<KitchenService>('delivery');
   const [saveBuyer, setSaveBuyer] = useState(Boolean(saved));
   const [sent, setSent] = useState('');
+  const [lastKey, setLastKey] = useState('');
   const [idempotencyKey, setIdempotencyKey] = useState(newKitchenIdempotencyKey);
 
   const orderable = state.shelf.filter((item) => item.inStock);
@@ -75,7 +77,7 @@ export function StoreKitchenShop({
       idempotencyKey,
       name: name.trim().slice(0, 40),
       phone: phone.trim().slice(0, 20),
-      place: service === 'delivery' ? place.trim().slice(0, 160) : '',
+      place: service === 'delivery' ? place.trim().slice(0, 240) : '',
       note: note.trim().slice(0, 160),
       service,
       pay,
@@ -93,9 +95,13 @@ export function StoreKitchenShop({
     setNote('');
     setScheduledAt('');
     setDeliveryPhotoSrc('');
+    setLastKey(idempotencyKey);
     setIdempotencyKey(newKitchenIdempotencyKey());
     setSent(`وصلت تذكرة النشاط رقم ${ticketNo}.`);
   }
+
+  const myTicket = lastKey ? state.orders.find((item) => item.idempotencyKey === lastKey) : undefined;
+  const pickupMaps = state.host.pickupPlaceVisible ? state.host.pickupMapsUrl : '';
 
   return (
     <div className="space-y-6">
@@ -221,8 +227,17 @@ export function StoreKitchenShop({
             <>
               <label className="mt-3 block text-sm">
                 {STORE_KITCHEN_LIVE.buyerPlaceLabelAr}
-                <input required value={place} onChange={(e) => setPlace(e.target.value)} className="restaurant-field" maxLength={160} />
+                <input required value={place} onChange={(e) => setPlace(e.target.value)} className="restaurant-field" maxLength={240} />
               </label>
+              <p className="mt-1 text-xs leading-6 text-white/60">{STORE_KITCHEN_LIVE.buyerPlaceHintAr}</p>
+              <StoreKitchenLocateButton
+                onLocated={({ mapsUrl }) => {
+                  setPlace(mapsUrl);
+                  if (saveBuyer && name.trim() && phone.trim()) {
+                    writeSavedKitchenBuyer({ name: name.trim().slice(0, 40), phone: phone.trim().slice(0, 20), place: mapsUrl });
+                  }
+                }}
+              />
               <label className="mt-3 block text-sm">
                 {STORE_KITCHEN_LIVE.buyerPhotoLabelAr}
                 <input
@@ -240,7 +255,25 @@ export function StoreKitchenShop({
                 />
               </label>
             </>
-          ) : null}
+          ) : (
+            <aside className="mt-3 rounded-xl border border-[#b45a3c]/30 bg-[#b45a3c]/10 px-3 py-3 text-sm leading-7">
+              <p className="font-extrabold">{STORE_KITCHEN_LIVE.pickupPlaceTitleAr}</p>
+              {pickupMaps ? (
+                <a
+                  className="mt-2 inline-flex rounded-full bg-[#b45a3c] px-3 py-1.5 text-xs font-bold text-[#061018]"
+                  href={pickupMaps}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {STORE_KITCHEN_LIVE.pickupPlaceOpenAr}
+                </a>
+              ) : (
+                <p className="mt-1 text-white/70">
+                  {state.host.pickupPlaceVisible ? STORE_KITCHEN_LIVE.pickupPlacePendingAr : STORE_KITCHEN_LIVE.pickupPlaceHiddenAr}
+                </p>
+              )}
+            </aside>
+          )}
           {state.host.scheduleEnabled ? (
             <label className="mt-3 block text-sm">
               {STORE_KITCHEN_LIVE.buyerScheduleLabelAr}
@@ -272,6 +305,21 @@ export function StoreKitchenShop({
             {STORE_KITCHEN_LIVE.submitOrderAr}
           </button>
           {sent ? <p className="mt-3 text-sm text-[#b45a3c]">{sent}</p> : null}
+          {myTicket?.readyAt ? (
+            <aside className="mt-3 rounded-xl border border-[#b45a3c]/40 bg-[#b45a3c]/15 px-3 py-3 text-sm leading-7">
+              <p className="font-extrabold">{STORE_KITCHEN_LIVE.orderReadyBannerAr}</p>
+              {myTicket.readyMapsUrl ? (
+                <a
+                  className="mt-2 inline-flex rounded-full bg-[#b45a3c] px-3 py-1.5 text-xs font-bold text-[#061018]"
+                  href={myTicket.readyMapsUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {STORE_KITCHEN_LIVE.pickupPlaceOpenAr}
+                </a>
+              ) : null}
+            </aside>
+          ) : null}
         </form>
       )}
     </div>

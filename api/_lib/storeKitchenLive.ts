@@ -112,6 +112,42 @@ export function kitchenLivePaymentMatches(input: {
   return isKitchenPriceHalalas(input.amount);
 }
 
+export const DEFAULT_KITCHEN_PICKUP = {
+  pickupLat: 0,
+  pickupLng: 0,
+  pickupMapsUrl: '',
+  pickupPlaceVisible: false,
+} as const;
+
+function clipKitchenMapsUrl(raw: unknown): string {
+  const value = String(raw ?? '').trim().slice(0, 240);
+  if (!value) return '';
+  try {
+    const parsed = new URL(value);
+    const host = parsed.hostname.replace(/^www\./, '').toLowerCase();
+    if (host === 'maps.google.com' || host === 'maps.app.goo.gl') return value;
+    if (host === 'google.com' && parsed.pathname.startsWith('/maps')) return value;
+  } catch {
+    return '';
+  }
+  return '';
+}
+
+export function parseKitchenPickupPlace(
+  raw: Record<string, unknown> | KitchenLiveOrderPayload | null | undefined,
+  fallback = DEFAULT_KITCHEN_PICKUP,
+) {
+  const row = raw && typeof raw === 'object' ? (raw as Record<string, unknown>) : {};
+  const lat = Number(row.pickupLat);
+  const lng = Number(row.pickupLng);
+  return {
+    pickupLat: Number.isFinite(lat) && lat >= -90 && lat <= 90 ? lat : fallback.pickupLat,
+    pickupLng: Number.isFinite(lng) && lng >= -180 && lng <= 180 ? lng : fallback.pickupLng,
+    pickupMapsUrl: clipKitchenMapsUrl(row.pickupMapsUrl) || fallback.pickupMapsUrl,
+    pickupPlaceVisible: row.pickupPlaceVisible === true,
+  };
+}
+
 function clip(raw: unknown, max: number): string {
   return String(raw ?? '').replace(/\s+/g, ' ').trim().slice(0, max);
 }
@@ -137,6 +173,10 @@ export type KitchenLiveOrderPayload = {
   shelf: unknown[];
   orders: unknown[];
   nextTicket: number;
+  pickupLat: number;
+  pickupLng: number;
+  pickupMapsUrl: string;
+  pickupPlaceVisible: boolean;
   gift?: boolean;
   giftLabelAr?: string;
   issuedByLabel?: string;
@@ -182,6 +222,7 @@ export function parseKitchenLiveOrderBody(body: Record<string, unknown>):
       shelf: [],
       orders: [],
       nextTicket: 1,
+      ...DEFAULT_KITCHEN_PICKUP,
       ...DEFAULT_STORE_SHOP_HOURS,
     },
   };
@@ -198,7 +239,9 @@ export function kitchenOrderAlreadyStored(orders: unknown[], incoming: unknown):
   return orders.some((item) => orderIdempotencyKey(item) === key);
 }
 
-export function publicKitchenPayload(payload: KitchenLiveOrderPayload) {
+export function publicKitchenPayload(payload: KitchenLiveOrderPayload, role = 'shop') {
+  const pickup = parseKitchenPickupPlace(payload);
+  const showPickup = role === 'desk' || role === 'host' || pickup.pickupPlaceVisible;
   return {
     packId: parseKitchenPackId(payload.packId),
     shopName: payload.shopName,
@@ -221,6 +264,10 @@ export function publicKitchenPayload(payload: KitchenLiveOrderPayload) {
     issuedByLabel: String(payload.issuedByLabel || ''),
     giftClockFromFirstVisit: payload.giftClockFromFirstVisit === true,
     giftStartedAt: String(payload.giftStartedAt || ''),
+    pickupLat: showPickup ? pickup.pickupLat : 0,
+    pickupLng: showPickup ? pickup.pickupLng : 0,
+    pickupMapsUrl: showPickup ? pickup.pickupMapsUrl : '',
+    pickupPlaceVisible: pickup.pickupPlaceVisible,
     ...parseStoreShopHours(payload),
   };
 }

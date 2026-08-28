@@ -8,11 +8,15 @@ import { STORE_KITCHEN_GIFT_COPY } from '@/config/storeKitchenGiftCampaign';
 import { STORE_KITCHEN_LIVE } from '@/config/storeKitchenLive';
 import {
   kitchenArchiveJson,
+  kitchenBuyerWhatsAppHref,
   kitchenWhatsAppHref,
+  isKitchenMapsUrl,
+  markKitchenOrderReady,
   newKitchenQrStamp,
   playKitchenBeep,
   type KitchenLabState,
 } from '@/lib/storeKitchenLiveLab';
+import { StoreKitchenLocateButton } from '@/components/store/StoreKitchenLocateButton';
 import { StoreKitchenMenuBoard } from '@/components/store/StoreKitchenMenuBoard';
 import { StoreShopPresenceCount } from '@/components/store/StoreShopPresenceCount';
 import { StoreProductPassDeskButton } from '@/components/store/StoreProductPassDeskButton';
@@ -45,6 +49,15 @@ export function StoreKitchenDesk({
     }
     seenCount.current = state.orders.length;
   }, [state.orders.length]);
+
+  function markReady(id: string) {
+    const mapsUrl = state.host.pickupMapsUrl;
+    const next = markKitchenOrderReady(state, id, mapsUrl);
+    onChange(next);
+    const order = next.orders.find((item) => item.id === id);
+    if (!order) return;
+    window.open(kitchenBuyerWhatsAppHref(order, state.host.shopName, mapsUrl), '_blank', 'noopener,noreferrer');
+  }
 
   function markSeen(id: string) {
     onChange({
@@ -122,8 +135,14 @@ export function StoreKitchenDesk({
               </p>
               <p className="mt-1 text-white/70">
                 {order.service === 'pickup' ? STORE_KITCHEN_LIVE.servicePickupAr : STORE_KITCHEN_LIVE.serviceDeliveryAr}
-                {order.place ? ` · ${order.place}` : ''}
+                {order.place && !isKitchenMapsUrl(order.place) ? ` · ${order.place}` : ''}
               </p>
+              {order.place && isKitchenMapsUrl(order.place) ? (
+                <a className="mt-1 inline-block text-xs text-[#b45a3c]" href={order.place} target="_blank" rel="noreferrer">
+                  {STORE_KITCHEN_LIVE.pickupPlaceOpenAr}
+                </a>
+              ) : null}
+              {order.readyAt ? <p className="mt-1 text-[#b45a3c]">{STORE_KITCHEN_LIVE.readyMarkedAr}</p> : null}
               {order.scheduledAt ? <p className="mt-1 text-white/60">الموعد: {order.scheduledAt}</p> : null}
               {order.note ? <p className="mt-1 text-white/60">{order.note}</p> : null}
               {order.deliveryPhotoSrc ? (
@@ -145,6 +164,15 @@ export function StoreKitchenDesk({
                 {!order.seen ? (
                   <button type="button" className="text-xs text-white/50" onClick={() => markSeen(order.id)}>
                     علّم مقروءاً
+                  </button>
+                ) : null}
+                {order.service === 'pickup' && !order.readyAt ? (
+                  <button
+                    type="button"
+                    className="rounded-full border border-[#b45a3c]/50 px-3 py-1.5 text-xs font-bold text-[#b45a3c]"
+                    onClick={() => markReady(order.id)}
+                  >
+                    {STORE_KITCHEN_LIVE.markReadyAr}
                   </button>
                 ) : null}
               </div>
@@ -197,6 +225,45 @@ export function StoreKitchenDesk({
           </label>
         ))}
       </div>
+
+      <section className="rounded-2xl border border-white/12 p-4">
+        <h3 className="font-extrabold">{STORE_KITCHEN_LIVE.deskPickupTitleAr}</h3>
+        <p className="mt-2 text-sm leading-7 text-white/65">{STORE_KITCHEN_LIVE.deskPickupLeadAr}</p>
+        {state.host.pickupMapsUrl ? (
+          <a
+            className="mt-3 inline-flex rounded-full border border-[#b45a3c]/40 px-3 py-1.5 text-xs text-[#b45a3c]"
+            href={state.host.pickupMapsUrl}
+            target="_blank"
+            rel="noreferrer"
+          >
+            {STORE_KITCHEN_LIVE.pickupPlaceOpenAr}
+          </a>
+        ) : null}
+        <StoreKitchenLocateButton
+          onLocated={({ lat, lng, mapsUrl }) =>
+            onChange({
+              ...state,
+              host: { ...state.host, pickupLat: lat, pickupLng: lng, pickupMapsUrl: mapsUrl },
+            })
+          }
+        />
+        <div className="mt-3 flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={() => onChange({ ...state, host: { ...state.host, pickupPlaceVisible: true } })}
+            className={cn('rounded-full px-4 py-2 text-sm font-bold', state.host.pickupPlaceVisible ? 'bg-[#b45a3c] text-[#061018]' : 'border border-white/20')}
+          >
+            {STORE_KITCHEN_LIVE.pickupShowAr}
+          </button>
+          <button
+            type="button"
+            onClick={() => onChange({ ...state, host: { ...state.host, pickupPlaceVisible: false } })}
+            className={cn('rounded-full px-4 py-2 text-sm font-bold', !state.host.pickupPlaceVisible ? 'bg-[#b45a3c] text-[#061018]' : 'border border-white/20')}
+          >
+            {STORE_KITCHEN_LIVE.pickupHideAr}
+          </button>
+        </div>
+      </section>
 
       <StoreShopHoursDesk
         value={state.host}

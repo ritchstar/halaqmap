@@ -30,6 +30,7 @@ import {
   newKitchenToken,
   parseKitchenLiveOrderBody,
   parseKitchenPackId,
+  parseKitchenPickupPlace,
   publicKitchenPayload,
   STORE_KITCHEN_LIVE_DAYS_6,
   STORE_KITCHEN_LIVE_POLICY,
@@ -259,7 +260,7 @@ async function readRow(row: KitchenRow, role: string, headers: Record<string, st
       ok: true,
       status: row.status,
       role,
-      payload: publicKitchenPayload(payload),
+      payload: publicKitchenPayload(payload, role),
       expiresAt: row.expires_at,
       shopUrl: shopUrlFromPayload(row.shop_token, payload),
       deskUrl: deskUrl(row.desk_token),
@@ -641,6 +642,7 @@ async function saveHost(db: Db, body: Record<string, unknown>, headers: Record<s
     shelf: Array.isArray(body.shelf) ? body.shelf : current.shelf,
     orders: Array.isArray(body.orders) ? body.orders : current.orders,
     nextTicket: Number.isFinite(nextTicket) && nextTicket > 0 ? nextTicket : current.nextTicket || 1,
+    ...parseKitchenPickupPlace(body, parseKitchenPickupPlace(current)),
     ...parseStoreShopHours(body, parseStoreShopHours(current)),
   };
   await db

@@ -50,6 +50,8 @@ export type KitchenOrder = {
   scheduledAt: string;
   deliveryPhotoSrc: string;
   seen: boolean;
+  readyAt?: string;
+  readyMapsUrl?: string;
 };
 
 export type KitchenHostState = {
@@ -66,7 +68,18 @@ export type KitchenHostState = {
   qrStamp: string;
   qrActive: boolean;
   nextTicket: number;
+  pickupLat: number;
+  pickupLng: number;
+  pickupMapsUrl: string;
+  pickupPlaceVisible: boolean;
 } & StoreShopHoursState;
+
+export const DEFAULT_KITCHEN_PICKUP = {
+  pickupLat: 0,
+  pickupLng: 0,
+  pickupMapsUrl: '',
+  pickupPlaceVisible: false,
+} as const;
 
 export type KitchenLabState = {
   host: KitchenHostState;
@@ -129,6 +142,7 @@ export function defaultKitchenLabState(): KitchenLabState {
       qrStamp: newKitchenQrStamp(),
       qrActive: true,
       nextTicket: 1,
+      ...DEFAULT_KITCHEN_PICKUP,
       ...DEFAULT_STORE_SHOP_HOURS,
     },
     shelf,
@@ -160,6 +174,10 @@ export function readKitchenLabState(token: string): KitchenLabState {
         qrActive: parsed.host?.qrActive !== false,
         qrStamp,
         opsPhone: String(parsed.host?.opsPhone || '').slice(0, 20),
+        pickupLat: Number.isFinite(Number(parsed.host?.pickupLat)) ? Number(parsed.host?.pickupLat) : fallback.host.pickupLat,
+        pickupLng: Number.isFinite(Number(parsed.host?.pickupLng)) ? Number(parsed.host?.pickupLng) : fallback.host.pickupLng,
+        pickupMapsUrl: String(parsed.host?.pickupMapsUrl || fallback.host.pickupMapsUrl).slice(0, 240),
+        pickupPlaceVisible: parsed.host?.pickupPlaceVisible === true,
       },
       shelf: Array.isArray(parsed.shelf) && parsed.shelf.length
         ? parsed.shelf.slice(0, STORE_KITCHEN_LIVE_LAB_ITEM_CAP).map((item) => ({
@@ -335,6 +353,73 @@ export function kitchenWhatsAppHref(order: KitchenOrder, shopName: string, opsPh
     return `https://wa.me/${intl}?text=${text}`;
   }
   return `https://wa.me/?text=${text}`;
+}
+
+export function kitchenMapsSearchUrl(lat: number, lng: number): string {
+  return `https://maps.google.com/?q=${lat.toFixed(6)},${lng.toFixed(6)}`;
+}
+
+export function isKitchenMapsUrl(raw: string): boolean {
+  try {
+    const parsed = new URL(raw.trim());
+    const host = parsed.hostname.replace(/^www\./, '').toLowerCase();
+    if (host === 'maps.google.com' || host === 'maps.app.goo.gl') return true;
+    return host === 'google.com' && parsed.pathname.startsWith('/maps');
+  } catch {
+    return false;
+  }
+}
+
+export function kitchenReadyWhatsAppText(order: KitchenOrder, shopName: string, mapsUrl: string): string {
+  return [
+    `طلبك جاهز — ${shopName}`,
+    `تذكرة ${order.ticketNo}`,
+    'الاستلام من باب النشاط.',
+    mapsUrl ? `موقع الاستلام: ${mapsUrl}` : '',
+    `الإجمالي: ${order.total} ر.س`,
+  ]
+    .filter(Boolean)
+    .join('\n');
+}
+
+export function kitchenBuyerWhatsAppHref(order: KitchenOrder, shopName: string, mapsUrl: string): string {
+  const text = encodeURIComponent(kitchenReadyWhatsAppText(order, shopName, mapsUrl));
+  const digits = order.phone.replace(/\D/g, '');
+  if (digits.length >= 9) {
+    const intl = digits.startsWith('0') ? `966${digits.slice(1)}` : digits;
+    return `https://wa.me/${intl}?text=${text}`;
+  }
+  return `https://wa.me/?text=${text}`;
+}
+
+export function markKitchenOrderReady(state: KitchenLabState, orderId: string, mapsUrl: string): KitchenLabState {
+  const readyAt = new Date().toISOString();
+  return {
+    ...state,
+    orders: state.orders.map((item) =>
+      item.id === orderId
+        ? { ...item, seen: true, readyAt, readyMapsUrl: mapsUrl.slice(0, 240) }
+        : item,
+    ),
+  };
+}
+
+export function requestKitchenGeo(): Promise<{ ok: true; lat: number; lng: number } | { ok: false; denied: boolean }> {
+  return new Promise((resolve) => {
+    if (typeof navigator === 'undefined' || !navigator.geolocation) {
+      resolve({ ok: false, denied: false });
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        resolve({ ok: true, lat: pos.coords.latitude, lng: pos.coords.longitude });
+      },
+      (err) => {
+        resolve({ ok: false, denied: err.code === 1 });
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 },
+    );
+  });
 }
 
 export function kitchenArchiveJson(state: KitchenLabState): string {
