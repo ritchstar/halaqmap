@@ -9,10 +9,15 @@ export async function sendKitchenLiveLinksEmail(input: {
   deskUrl: string;
   expiresLabel: string;
   renewed?: boolean;
+  gift?: boolean;
 }): Promise<boolean> {
   return sendStoreResendEmail({
     to: input.to,
-    subject: input.renewed ? 'تمديد طبختنا1 — خريطة الحل' : 'روابط طبختنا1 — خريطة الحل',
+    subject: input.gift
+      ? 'هدية طبختنا1 — روابط التشغيل'
+      : input.renewed
+        ? 'تمديد طبختنا1 — خريطة الحل'
+        : 'روابط طبختنا1 — خريطة الحل',
     html: buildKitchenLiveLinksHtml(input),
   });
 }

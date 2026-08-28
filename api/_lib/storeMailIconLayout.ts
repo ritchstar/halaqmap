@@ -440,15 +440,22 @@ export function buildKitchenLiveLinksHtml(input: {
   deskUrl: string;
   expiresLabel: string;
   renewed?: boolean;
+  gift?: boolean;
 }): string {
   const theme = THEMES.kitchen;
   return buildStoreMailHtml({
     theme: 'kitchen',
-    kickerAr: input.renewed ? `تمديد تشغيل — ${theme.titleAr}` : `روابط تشغيل — ${theme.titleAr}`,
-    titleAr: input.renewed ? 'تمديد صفحة النشاط' : 'روابط التشغيل جاهزة',
-    leadAr: input.renewed
-      ? 'الروابط نفسها لم تتغير. اضغط الأيقونة لفتح المسار.'
-      : 'اضغط الأيقونة لفتح صفحة الزبون أو لوحة النشاط.',
+    kickerAr: input.gift
+      ? `هدية من متجر خريطة الحل — ${theme.titleAr}`
+      : input.renewed
+        ? `تمديد تشغيل — ${theme.titleAr}`
+        : `روابط تشغيل — ${theme.titleAr}`,
+    titleAr: input.gift ? 'روابط هدية طبختنا1' : input.renewed ? 'تمديد صفحة النشاط' : 'روابط التشغيل جاهزة',
+    leadAr: input.gift
+      ? 'هذه هدية من متجر خريطة الحل. اضغط الأيقونة لفتح صفحة الزبون أو لوحة النشاط.'
+      : input.renewed
+        ? 'الروابط نفسها لم تتغير. اضغط الأيقونة لفتح المسار.'
+        : 'اضغط الأيقونة لفتح صفحة الزبون أو لوحة النشاط.',
     iconRows: [
       [
         {
@@ -468,7 +475,9 @@ export function buildKitchenLiveLinksHtml(input: {
       ],
     ],
     notesAr: [
-      `تنتهي المدة في ${input.expiresLabel}. بعد انتهائها تبقى الروابط وتحيلكم لإعادة الشراء على نفس الصفحة.`,
+      input.gift
+        ? `ساعة التشغيل مئة وثمانون يوماً من أول دخول إلى الرابط (${input.expiresLabel}). اللوحة تبيّن أن النشاط هدية. بعد انتهائها أعد الشراء من صفحة طبختنا1 فتبقى الصفحة واللوحة.`
+        : `تنتهي المدة في ${input.expiresLabel}. بعد انتهائها تبقى الروابط وتحيلكم لإعادة الشراء على نفس الصفحة.`,
     ],
   });
 }

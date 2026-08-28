@@ -107,6 +107,9 @@ export const ROUTE_PATHS = {
   STORE_CAFE_PAY: '/pay/cafe/:token',
   /** طبختنا1 — صفحة الأسرة المنتجة ولوحة نشاط. الاشتراك مغلق حتى اعتماد الأسعار. */
   STORE_KITCHEN: '/store/kitchen',
+  STORE_KITCHEN_GIFT: '/store/kitchen/gift',
+  STORE_KITCHEN_GIFT_TERMS: '/store/kitchen/gift/terms',
+  STORE_KITCHEN_GIFT_CONFIRM: '/store/kitchen/gift/confirm',
   STORE_KITCHEN_VIEW: '/k/:token',
   STORE_KITCHEN_DESK: '/k/:token/desk',
   STORE_KITCHEN_PAY: '/pay/kitchen/:token',

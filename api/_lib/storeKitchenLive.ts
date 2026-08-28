@@ -136,7 +136,19 @@ export type KitchenLiveOrderPayload = {
   shelf: unknown[];
   orders: unknown[];
   nextTicket: number;
+  gift?: boolean;
+  giftLabelAr?: string;
+  issuedByLabel?: string;
+  giftClockFromFirstVisit?: boolean;
+  giftStartedAt?: string;
+  giftConvertedAt?: string;
 };
+
+export function isKitchenGiftPayload(payload: Record<string, unknown> | KitchenLiveOrderPayload | null | undefined): boolean {
+  if (!payload) return false;
+  const raw = payload as Record<string, unknown>;
+  return raw.gift === true || String(raw.issuedByLabel || '').trim() === 'هدية طبختنا1';
+}
 
 export function parseKitchenLiveOrderBody(body: Record<string, unknown>):
   | { ok: true; email: string; buyerName: string; packId: 'm6' | 'm12'; payload: KitchenLiveOrderPayload }
@@ -202,5 +214,10 @@ export function publicKitchenPayload(payload: KitchenLiveOrderPayload) {
     shelf: Array.isArray(payload.shelf) ? payload.shelf : [],
     orders: Array.isArray(payload.orders) ? payload.orders : [],
     nextTicket: Number(payload.nextTicket) > 0 ? Number(payload.nextTicket) : 1,
+    gift: payload.gift === true,
+    giftLabelAr: String(payload.giftLabelAr || ''),
+    issuedByLabel: String(payload.issuedByLabel || ''),
+    giftClockFromFirstVisit: payload.giftClockFromFirstVisit === true,
+    giftStartedAt: String(payload.giftStartedAt || ''),
   };
 }

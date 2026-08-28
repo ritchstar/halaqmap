@@ -69,6 +69,7 @@ export default function StoreKitchenShopPage() {
   );
   const [gate, setGate] = useState<Gate>(isLab ? 'ok' : 'loading');
   const [renewToken, setRenewToken] = useState('');
+  const [giftNotice, setGiftNotice] = useState<{ expiresAt: string; shopToken: string } | null>(null);
   const [shopUrl, setShopUrl] = useState(
     typeof window === 'undefined'
       ? `/#/k/${encodeURIComponent(safeToken)}`
@@ -108,8 +109,17 @@ export default function StoreKitchenShopPage() {
           setGate('missing');
           return;
         }
-        setState(payloadToState(result.payload as Record<string, unknown>, defaultKitchenLabState()));
+        const payload = result.payload as Record<string, unknown>;
+        setState(payloadToState(payload, defaultKitchenLabState()));
         if (typeof result.shopUrl === 'string' && result.shopUrl) setShopUrl(result.shopUrl);
+        if (payload.gift === true) {
+          setGiftNotice({
+            expiresAt: String(result.expiresAt || ''),
+            shopToken: String(result.shopToken || ''),
+          });
+        } else {
+          setGiftNotice(null);
+        }
         setGate('ok');
       });
     };
@@ -161,7 +171,13 @@ export default function StoreKitchenShopPage() {
           !qrOk ? (
             <p className="pt-[30svh] text-center text-sm text-white/70">{STORE_KITCHEN_LIVE.qrRevokedAr}</p>
           ) : desk ? (
-            <StoreKitchenDesk state={state} onChange={commit} shopUrl={liveShopUrl} token={safeToken} />
+            <StoreKitchenDesk
+              state={state}
+              onChange={commit}
+              shopUrl={liveShopUrl}
+              token={safeToken}
+              gift={giftNotice}
+            />
           ) : (
             <StoreKitchenShop state={state} onChange={commit} />
           )

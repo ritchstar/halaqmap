@@ -2,7 +2,9 @@
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
 import { useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import QRCode from 'react-qr-code';
+import { STORE_KITCHEN_GIFT_COPY } from '@/config/storeKitchenGiftCampaign';
 import { STORE_KITCHEN_LIVE } from '@/config/storeKitchenLive';
 import {
   kitchenArchiveJson,
@@ -13,6 +15,7 @@ import {
 } from '@/lib/storeKitchenLiveLab';
 import { StoreKitchenMenuBoard } from '@/components/store/StoreKitchenMenuBoard';
 import { StoreShopPresenceCount } from '@/components/store/StoreShopPresenceCount';
+import { ROUTE_PATHS } from '@/lib/routePaths';
 import { cn } from '@/lib/utils';
 
 export function StoreKitchenDesk({
@@ -20,11 +23,13 @@ export function StoreKitchenDesk({
   onChange,
   shopUrl,
   token,
+  gift,
 }: {
   state: KitchenLabState;
   onChange: (next: KitchenLabState) => void;
   shopUrl: string;
   token: string;
+  gift?: { expiresAt: string; shopToken: string } | null;
 }) {
   const seenCount = useRef(state.orders.length);
   const [flashOn, setFlashOn] = useState(false);
@@ -74,8 +79,35 @@ export function StoreKitchenDesk({
     win.print();
   }
 
+  const giftCopy = STORE_KITCHEN_GIFT_COPY;
+  const renewHref = gift?.shopToken
+    ? `${ROUTE_PATHS.STORE_KITCHEN}?renew=${encodeURIComponent(gift.shopToken)}`
+    : '';
+  const giftEnds = gift?.expiresAt ? gift.expiresAt.slice(0, 10) : '';
+
   return (
     <div className="space-y-6">
+      {gift ? (
+        <section className="rounded-2xl border border-[#b45a3c] bg-[#1a0c08] p-4" aria-label={giftCopy.deskBadgeAr}>
+          <p className="inline-flex rounded-full border border-[#b45a3c]/50 bg-[#b45a3c]/20 px-2.5 py-0.5 text-[0.7rem] font-extrabold text-[#b45a3c]">
+            {giftCopy.deskBadgeAr}
+          </p>
+          <p className="mt-3 text-sm leading-7 text-white/80">
+            {giftEnds ? `${giftCopy.deskClockStartedAr} ${giftEnds}` : giftCopy.deskClockPendingAr}
+          </p>
+          {renewHref ? (
+            <>
+              <p className="mt-2 text-sm leading-7 text-white/70">{giftCopy.deskRenewHintAr}</p>
+              <Link
+                to={renewHref}
+                className="mt-3 inline-flex rounded-full bg-[#b45a3c] px-4 py-2 text-sm font-extrabold text-[#061018]"
+              >
+                {giftCopy.deskRenewCtaAr}
+              </Link>
+            </>
+          ) : null}
+        </section>
+      ) : null}
       <div className={cn('rounded-2xl border p-4', flashOn || unread.length ? 'restaurant-alert border-[#b45a3c]' : 'border-white/12')}>
         <h2 className="text-lg font-extrabold">{STORE_KITCHEN_LIVE.liveOrdersAr}</h2>
         <p className="mt-1 text-sm text-white/60">{unread.length ? `${unread.length} تذكرة جديدة` : 'لا تذاكر جديدة الآن.'}</p>

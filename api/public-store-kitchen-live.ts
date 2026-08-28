@@ -21,6 +21,7 @@ import {
   kitchenChargeHalalas,
   kitchenLiveInvoiceDescription,
   kitchenLiveInvoiceMetadata,
+  isKitchenGiftPayload,
   kitchenLiveIsExpired,
   kitchenLivePaymentMatches,
   kitchenLiveTermEndIso,
@@ -30,6 +31,7 @@ import {
   parseKitchenLiveOrderBody,
   parseKitchenPackId,
   publicKitchenPayload,
+  STORE_KITCHEN_LIVE_DAYS_6,
   STORE_KITCHEN_LIVE_POLICY,
   STORE_KITCHEN_LIVE_PRODUCT,
   STORE_KITCHEN_LIVE_TABLE,
@@ -199,10 +201,37 @@ async function readByRole(db: Db, token: string, role: string, headers: Record<s
   if (!data && role !== 'pay') {
     const again = await findByAnyToken(db, token);
     if (!again) return json({ error: 'الرابط غير موجود' }, 404, headers);
-    return readRow(again, role, headers);
+    return readRow(await startKitchenGiftClockIfNeeded(db, again), role, headers);
   }
   if (!data) return json({ error: 'الرابط غير موجود' }, 404, headers);
-  return readRow(data as KitchenRow, role, headers);
+  const liveRow = role === 'pay' ? (data as KitchenRow) : await startKitchenGiftClockIfNeeded(db, data as KitchenRow);
+  return readRow(liveRow, role, headers);
+}
+
+async function startKitchenGiftClockIfNeeded(db: Db, row: KitchenRow): Promise<KitchenRow> {
+  if (row.status !== 'live' || row.expires_at) return row;
+  if (!isKitchenGiftPayload(row.payload)) return row;
+  const now = new Date().toISOString();
+  const expiresAt = kitchenLiveTermEndIso(STORE_KITCHEN_LIVE_DAYS_6);
+  const payload: KitchenLiveOrderPayload & Record<string, unknown> = {
+    ...(row.payload || {}),
+    giftStartedAt: now,
+  };
+  const { data: updated } = await db
+    .from(STORE_KITCHEN_LIVE_TABLE)
+    .update({
+      expires_at: expiresAt,
+      payload,
+      updated_at: now,
+    })
+    .eq('id', row.id)
+    .eq('status', 'live')
+    .is('expires_at', null)
+    .select('*')
+    .maybeSingle();
+  if (updated) return updated as KitchenRow;
+  const { data: again } = await db.from(STORE_KITCHEN_LIVE_TABLE).select('*').eq('id', row.id).maybeSingle();
+  return (again as KitchenRow) || row;
 }
 
 async function readRow(row: KitchenRow, role: string, headers: Record<string, string>) {
@@ -422,6 +451,10 @@ async function markLive(db: Db, id: string, paymentId: string, amount: number): 
     ...((current.payload || {}) as Record<string, unknown>),
     packId: pack.id,
   };
+  if (isKitchenGiftPayload(payload)) {
+    payload.gift = false;
+    payload.giftConvertedAt = new Date().toISOString();
+  }
   const history = Array.isArray(payload.paymentHistory) ? payload.paymentHistory : [];
   history.push({ id: paymentId, at: new Date().toISOString(), kind: wasRenewal ? 'renewal' : 'purchase' });
   payload.paymentHistory = history.slice(-12);
