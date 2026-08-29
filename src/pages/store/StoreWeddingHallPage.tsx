@@ -27,6 +27,7 @@ import {
   type WeddingLiveHostState,
   type WeddingLiveLabState,
 } from '@/lib/storeWeddingLiveLab';
+import { liveHostText, useStoreLiveDeskSync } from '@/lib/storeLiveDeskSync';
 import { addWeddingLiveBlessing, fetchWeddingLivePublic, saveWeddingLiveHost } from '@/lib/storeWeddingLiveRemote';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { StoreGuestDeviceBlocked } from '@/components/store/StoreGuestDeviceBlocked';
@@ -48,9 +49,19 @@ function payloadToState(payload: Record<string, unknown>, fallback: WeddingLiveL
     hostRole: normalizeWeddingHostRole((payload as Partial<WeddingLiveHostState>).hostRole, voice),
     offspringKind: normalizeOffspringKind((payload as Partial<WeddingLiveHostState>).offspringKind),
     venueKind: normalizeVenueKind((payload as Partial<WeddingLiveHostState>).venueKind),
-    eventDateEn: String((payload as Partial<WeddingLiveHostState>).eventDateEn ?? fallback.host.eventDateEn),
-    invitationAr: String((payload as Partial<WeddingLiveHostState>).invitationAr ?? ''),
-    kickerAr: String((payload as Partial<WeddingLiveHostState>).kickerAr ?? ''),
+    hostName: liveHostText(payload.hostName, fallback.host.hostName),
+    brideName: liveHostText(payload.brideName, fallback.host.brideName),
+    groomName: liveHostText(payload.groomName, fallback.host.groomName),
+    venueName: liveHostText(payload.venueName, fallback.host.venueName),
+    eventDate: liveHostText(payload.eventDate, fallback.host.eventDate),
+    eventTime: liveHostText(payload.eventTime, fallback.host.eventTime),
+    eventDateEn: liveHostText(payload.eventDateEn, fallback.host.eventDateEn),
+    invitationAr: liveHostText(payload.invitationAr, fallback.host.invitationAr),
+    kickerAr: liveHostText(payload.kickerAr, fallback.host.kickerAr),
+    announcement: liveHostText(payload.announcement, fallback.host.announcement),
+    welcomeAr: liveHostText(payload.welcomeAr, fallback.host.welcomeAr),
+    youtubeUrl: liveHostText(payload.youtubeUrl, fallback.host.youtubeUrl),
+    venueMapsUrl: liveHostText(payload.venueMapsUrl, fallback.host.venueMapsUrl),
     welcomeLinesAr: normalizeWeddingWelcomeLinesAr((payload as Partial<WeddingLiveHostState>).welcomeLinesAr),
   };
   const blessings = Array.isArray(payload.blessings) ? payload.blessings : fallback.blessings;
@@ -60,21 +71,38 @@ function payloadToState(payload: Record<string, unknown>, fallback: WeddingLiveL
 function useWeddingLabState(token: string, mode: HallMode, seat?: { seatId: string; deviceHash: string }) {
   const [state, setState] = useState<WeddingLiveLabState>(() => readWeddingLiveLabState(token));
   const isLab = isWeddingLabToken(token);
+  const deskSync = useStoreLiveDeskSync(mode === 'host' && !isLab);
 
   useEffect(() => {
     setState(readWeddingLiveLabState(token));
     const refresh = () => setState(readWeddingLiveLabState(token));
-    const timer = window.setInterval(refresh, isLab ? 1500 : 4000);
-    window.addEventListener('storage', refresh);
-    if (!isLab) {
-      void fetchWeddingLivePublic(token, mode).then((result) => {
-        if (!result.ok || !result.payload || typeof result.payload !== 'object') return;
-        setState(payloadToState(result.payload as Record<string, unknown>, readWeddingLiveLabState(token)));
-      });
+    if (mode !== 'host') {
+      const timer = window.setInterval(refresh, isLab ? 1500 : 4000);
+      window.addEventListener('storage', refresh);
+      if (!isLab) {
+        void fetchWeddingLivePublic(token, mode).then((result) => {
+          if (!result.ok || !result.payload || typeof result.payload !== 'object') return;
+          setState((current) => deskSync.applyPoll(current, payloadToState(result.payload as Record<string, unknown>, current)));
+        });
+      }
+      return () => {
+        window.clearInterval(timer);
+        window.removeEventListener('storage', refresh);
+      };
     }
+    if (isLab) return undefined;
+    let cancelled = false;
+    const load = () => {
+      void fetchWeddingLivePublic(token, mode).then((result) => {
+        if (cancelled || !result.ok || !result.payload || typeof result.payload !== 'object') return;
+        setState((current) => deskSync.applyPoll(current, payloadToState(result.payload as Record<string, unknown>, current)));
+      });
+    };
+    load();
+    const timer = window.setInterval(load, 4000);
     return () => {
+      cancelled = true;
       window.clearInterval(timer);
-      window.removeEventListener('storage', refresh);
     };
   }, [token, mode, isLab]);
 
@@ -83,7 +111,9 @@ function useWeddingLabState(token: string, mode: HallMode, seat?: { seatId: stri
     setState(next);
     if (isLab) return;
     if (mode === 'host') {
-      void saveWeddingLiveHost({ token, ...next.host, blessings: next.blessings });
+      deskSync.scheduleSave(next, (latest) =>
+        saveWeddingLiveHost({ token, ...latest.host, blessings: latest.blessings }),
+      );
     }
     if (mode === 'guest') {
       const last = next.blessings[next.blessings.length - 1];

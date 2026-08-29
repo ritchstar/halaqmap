@@ -25,6 +25,7 @@ import {
   type EventLiveHostState,
   type EventLiveLabState,
 } from '@/lib/storeEventLiveLab';
+import { liveHostText, useStoreLiveDeskSync } from '@/lib/storeLiveDeskSync';
 import { addEventLiveBlessing, fetchEventLivePublic, saveEventLiveHost } from '@/lib/storeEventLiveRemote';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { StoreGuestDeviceBlocked } from '@/components/store/StoreGuestDeviceBlocked';
@@ -45,6 +46,15 @@ function payloadToState(payload: Record<string, unknown>, fallback: EventLiveLab
     voice,
     hostRole: normalizeEventHostRole((payload as Partial<EventLiveHostState>).hostRole, voice),
     venueKind: normalizeEventVenueKind((payload as Partial<EventLiveHostState>).venueKind),
+    hostName: liveHostText(payload.hostName, fallback.host.hostName),
+    occasionTitle: liveHostText(payload.occasionTitle, fallback.host.occasionTitle),
+    venueName: liveHostText(payload.venueName, fallback.host.venueName),
+    eventDate: liveHostText(payload.eventDate, fallback.host.eventDate),
+    eventTime: liveHostText(payload.eventTime, fallback.host.eventTime),
+    announcement: liveHostText(payload.announcement, fallback.host.announcement),
+    welcomeAr: liveHostText(payload.welcomeAr, fallback.host.welcomeAr),
+    youtubeUrl: liveHostText(payload.youtubeUrl, fallback.host.youtubeUrl),
+    venueMapsUrl: liveHostText(payload.venueMapsUrl, fallback.host.venueMapsUrl),
   };
   const blessings = Array.isArray(payload.blessings) ? payload.blessings : fallback.blessings;
   return { host, blessings: blessings as EventLiveLabState['blessings'] };
@@ -53,21 +63,38 @@ function payloadToState(payload: Record<string, unknown>, fallback: EventLiveLab
 function useEventLabState(token: string, mode: HallMode, seat?: { seatId: string; deviceHash: string }) {
   const [state, setState] = useState<EventLiveLabState>(() => readEventLiveLabState(token));
   const isLab = isEventLabToken(token);
+  const deskSync = useStoreLiveDeskSync(mode === 'host' && !isLab);
 
   useEffect(() => {
     setState(readEventLiveLabState(token));
     const refresh = () => setState(readEventLiveLabState(token));
-    const timer = window.setInterval(refresh, isLab ? 1500 : 4000);
-    window.addEventListener('storage', refresh);
-    if (!isLab) {
-      void fetchEventLivePublic(token, mode).then((result) => {
-        if (!result.ok || !result.payload || typeof result.payload !== 'object') return;
-        setState(payloadToState(result.payload as Record<string, unknown>, readEventLiveLabState(token)));
-      });
+    if (mode !== 'host') {
+      const timer = window.setInterval(refresh, isLab ? 1500 : 4000);
+      window.addEventListener('storage', refresh);
+      if (!isLab) {
+        void fetchEventLivePublic(token, mode).then((result) => {
+          if (!result.ok || !result.payload || typeof result.payload !== 'object') return;
+          setState((current) => deskSync.applyPoll(current, payloadToState(result.payload as Record<string, unknown>, current)));
+        });
+      }
+      return () => {
+        window.clearInterval(timer);
+        window.removeEventListener('storage', refresh);
+      };
     }
+    if (isLab) return undefined;
+    let cancelled = false;
+    const load = () => {
+      void fetchEventLivePublic(token, mode).then((result) => {
+        if (cancelled || !result.ok || !result.payload || typeof result.payload !== 'object') return;
+        setState((current) => deskSync.applyPoll(current, payloadToState(result.payload as Record<string, unknown>, current)));
+      });
+    };
+    load();
+    const timer = window.setInterval(load, 4000);
     return () => {
+      cancelled = true;
       window.clearInterval(timer);
-      window.removeEventListener('storage', refresh);
     };
   }, [token, mode, isLab]);
 
@@ -76,7 +103,9 @@ function useEventLabState(token: string, mode: HallMode, seat?: { seatId: string
     setState(next);
     if (isLab) return;
     if (mode === 'host') {
-      void saveEventLiveHost({ token, ...next.host, blessings: next.blessings });
+      deskSync.scheduleSave(next, (latest) =>
+        saveEventLiveHost({ token, ...latest.host, blessings: latest.blessings }),
+      );
     }
     if (mode === 'guest') {
       const last = next.blessings[next.blessings.length - 1];

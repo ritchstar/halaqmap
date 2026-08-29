@@ -177,7 +177,7 @@ export async function POST(request: Request): Promise<Response> {
   const action = String(body.action || '').trim();
   const secGuard = await runSecurityGuard(request, {
     sensitiveRoute: true,
-    rateLimit: action === 'get_public' ? 45 : 8,
+    rateLimit: action === 'get_public' ? 45 : action === 'save_host' ? 40 : 8,
   });
   if (!secGuard.allowed) return secGuard.response;
   if (action === 'create_pending') return createPending(db, body, headers, request);

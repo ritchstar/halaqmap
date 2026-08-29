@@ -39,6 +39,12 @@ import {
 } from '../api/_lib/storeRestaurantLive.ts';
 import { grocersLivePaymentMatches } from '../api/_lib/storeGrocersLive.ts';
 import { matchStoreAffiliateCommission } from '../api/_lib/storeAffiliateLive.ts';
+import {
+  pickStoreLiveShelf,
+  shouldHoldStoreLiveDeskEdits,
+  storeLiveInStock,
+} from '../src/lib/storeLivePublicRead.ts';
+import { liveHostText } from '../src/lib/storeLiveDeskSync.ts';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const app = readFileSync(join(root, 'src/App.tsx'), 'utf8');
@@ -209,6 +215,26 @@ assert.doesNotMatch(app, /from ['"]@\/config\/storeRestaurantLive['"]/);
 assert.doesNotMatch(app, /from ['"]@\/lib\/storeRestaurantLiveRemote['"]/);
 assert.match(readFileSync(join(root, 'src/components/store/StoreRestaurantDesk.tsx'), 'utf8'), /StoreShopPresenceCount/);
 assert.match(readFileSync(join(root, 'src/pages/store/StoreRestaurantShopPage.tsx'), 'utf8'), /useStoreShopPresence/);
+assert.match(readFileSync(join(root, 'src/pages/store/StoreRestaurantShopPage.tsx'), 'utf8'), /pickStoreLiveShelf/);
+assert.match(readFileSync(join(root, 'src/pages/store/StoreRestaurantShopPage.tsx'), 'utf8'), /useStoreLiveDeskSync/);
+assert.match(readFileSync(join(root, 'src/pages/store/StoreRestaurantShopPage.tsx'), 'utf8'), /scheduleSave/);
+assert.match(readFileSync(join(root, 'src/pages/store/StoreRestaurantShopPage.tsx'), 'utf8'), /liveHostText/);
+assert.match(restaurantApi, /save_host' \? 40/);
+assert.equal(storeLiveInStock(false), false);
+assert.equal(storeLiveInStock(true), true);
+assert.equal(storeLiveInStock(undefined), true);
+assert.deepEqual(
+  pickStoreLiveShelf([{ catalogId: 'a', inStock: false }], [{ catalogId: 'b', inStock: true }]),
+  [{ catalogId: 'a', inStock: false }],
+);
+assert.deepEqual(
+  pickStoreLiveShelf([], [{ catalogId: 'b', inStock: true }]),
+  [{ catalogId: 'b', inStock: true }],
+);
+assert.equal(shouldHoldStoreLiveDeskEdits(Date.now() - 1000), true);
+assert.equal(shouldHoldStoreLiveDeskEdits(Date.now() - 20_000), false);
+assert.equal(liveHostText('', 'مطعم السدرة'), '');
+assert.equal(liveHostText(undefined, 'مطعم السدرة'), 'مطعم السدرة');
 assert.match(landing, /restaurantLiveTitleAr/);
 assert.match(landing, /STORE_RESTAURANT/);
 assert.match(webhook, /skipped: "store_restaurant_live"/);

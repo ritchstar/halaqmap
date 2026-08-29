@@ -26,7 +26,8 @@ import {
   writeCafeLabState,
   type CafeLabState,
 } from '@/lib/storeCafeLiveLab';
-import { nextStoreLivePublicGate } from '@/lib/storeLivePublicRead';
+import { liveHostText, useStoreLiveDeskSync } from '@/lib/storeLiveDeskSync';
+import { nextStoreLivePublicGate, pickStoreLiveShelf } from '@/lib/storeLivePublicRead';
 import {
   addCafeLiveBlessing,
   addCafeLiveChat,
@@ -45,19 +46,19 @@ type CafePageMode = 'shop' | 'desk' | 'host' | 'guest' | CafeScreenMode;
 function payloadToState(payload: Record<string, unknown>, fallback: CafeLabState): CafeLabState {
   const host = {
     ...fallback.host,
-    shopName: String(payload.shopName || fallback.host.shopName),
-    hostName: String(payload.hostName || fallback.host.hostName),
-    blurbAr: String(payload.blurbAr || fallback.host.blurbAr),
+    shopName: liveHostText(payload.shopName, fallback.host.shopName),
+    hostName: liveHostText(payload.hostName, fallback.host.hostName),
+    blurbAr: liveHostText(payload.blurbAr, fallback.host.blurbAr),
     customFields: Array.isArray(payload.customFields)
       ? (payload.customFields as string[]).slice(0, 5)
       : fallback.host.customFields,
-    flashAr: String(payload.flashAr ?? fallback.host.flashAr),
+    flashAr: liveHostText(payload.flashAr, fallback.host.flashAr),
     packId: payload.packId === 'm12' ? 'm12' : 'm6',
     nextTicket: Number(payload.nextTicket) > 0 ? Number(payload.nextTicket) : fallback.host.nextTicket,
-    welcomeAr: String(payload.welcomeAr ?? fallback.host.welcomeAr),
-    youtubeUrl: String(payload.youtubeUrl ?? fallback.host.youtubeUrl),
+    welcomeAr: liveHostText(payload.welcomeAr, fallback.host.welcomeAr),
+    youtubeUrl: liveHostText(payload.youtubeUrl, fallback.host.youtubeUrl),
     youtubeHidden: payload.youtubeHidden !== false,
-    announcement: String(payload.announcement ?? fallback.host.announcement),
+    announcement: liveHostText(payload.announcement, fallback.host.announcement),
     photoSrc: String(payload.photoSrc ?? fallback.host.photoSrc),
     panoramaSrc: String(payload.panoramaSrc ?? fallback.host.panoramaSrc),
     guestPaused: payload.guestPaused === true,
@@ -66,15 +67,13 @@ function payloadToState(payload: Record<string, unknown>, fallback: CafeLabState
       payload.activeEventId === 'evening' || payload.activeEventId === 'offer' || payload.activeEventId === 'custom'
         ? payload.activeEventId
         : 'welcome',
-    customEventTitle: String(payload.customEventTitle ?? fallback.host.customEventTitle),
+    customEventTitle: liveHostText(payload.customEventTitle, fallback.host.customEventTitle),
     ...parseStoreShopHours(payload, fallback.host),
     ...parseShopPickupPlace(payload, fallback.host),
   };
   return {
     host,
-    shelf: Array.isArray(payload.shelf) && payload.shelf.length
-      ? (payload.shelf as CafeLabState['shelf'])
-      : fallback.shelf,
+    shelf: pickStoreLiveShelf(payload.shelf, fallback.shelf),
     orders: Array.isArray(payload.orders) ? (payload.orders as CafeLabState['orders']) : [],
     chats: Array.isArray(payload.chats) ? (payload.chats as CafeLabState['chats']) : [],
     blessings: Array.isArray(payload.blessings) ? (payload.blessings as CafeLabState['blessings']) : [],
@@ -123,6 +122,7 @@ export default function StoreCafeShopPage() {
   const [screenLive, setScreenLive] = useState(true);
   const [asDisplay, setAsDisplay] = useState(false);
   const [isTrial, setIsTrial] = useState(false);
+  const deskSync = useStoreLiveDeskSync((mode === 'desk' || mode === 'host') && !isLab);
   const neighborhoodShop = mode === 'shop' && !displayMode && !asDisplay;
   useDocumentTitle(STORE_CAFE_LIVE.documentTitle);
   useStoreShopPresence({
@@ -145,6 +145,7 @@ export default function StoreCafeShopPage() {
       setScreenLive(true);
       setAsDisplay(false);
       setIsTrial(false);
+      if (mode === 'desk' || mode === 'host') return undefined;
       const refresh = () => {
         const next = cafeLabRaw(safeToken);
         if (next === raw) return;
@@ -172,7 +173,9 @@ export default function StoreCafeShopPage() {
           setGate((current) => nextStoreLivePublicGate(current, result).gate);
           return;
         }
-        setState(payloadToState(result.payload as Record<string, unknown>, defaultCafeLabState()));
+        setState((current) =>
+          deskSync.applyPoll(current, payloadToState(result.payload as Record<string, unknown>, current)),
+        );
         if (typeof result.shopUrl === 'string' && result.shopUrl) setShopUrl(result.shopUrl);
         if (typeof result.guestUrl === 'string') setGuestUrl(result.guestUrl);
         if (typeof result.displayUrl === 'string') setDisplayUrl(result.displayUrl);
@@ -205,14 +208,16 @@ export default function StoreCafeShopPage() {
     setState(next);
     if (isLab) return;
     if (mode === 'desk' || mode === 'host') {
-      void saveCafeLiveHost({
-        token: safeToken,
-        ...next.host,
-        shelf: next.shelf,
-        orders: next.orders,
-        chats: next.chats,
-        blessings: next.blessings,
-      });
+      deskSync.scheduleSave(next, (saved) =>
+        saveCafeLiveHost({
+          token: safeToken,
+          ...saved.host,
+          shelf: saved.shelf,
+          orders: saved.orders,
+          chats: saved.chats,
+          blessings: saved.blessings,
+        }),
+      );
       return;
     }
     if (mode === 'guest') {

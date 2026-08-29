@@ -18,6 +18,7 @@ import {
   type LoungeLiveHostState,
   type LoungeLiveLabState,
 } from '@/lib/storeLoungeLiveLab';
+import { liveHostText, useStoreLiveDeskSync } from '@/lib/storeLiveDeskSync';
 import { nextStoreLivePublicGate } from '@/lib/storeLivePublicRead';
 import { addLoungeLiveBlessing, fetchLoungeLivePublic, saveLoungeLiveHost } from '@/lib/storeLoungeLiveRemote';
 import { parseShopPickupPlace } from '@/lib/storeShopPlace';
@@ -30,6 +31,12 @@ function payloadToState(payload: Record<string, unknown>, fallback: LoungeLiveLa
   const host = {
     ...fallback.host,
     ...(payload as Partial<LoungeLiveHostState>),
+    loungeName: liveHostText(payload.loungeName, fallback.host.loungeName),
+    hostName: liveHostText(payload.hostName, fallback.host.hostName),
+    welcomeAr: liveHostText(payload.welcomeAr, fallback.host.welcomeAr),
+    announcement: liveHostText(payload.announcement, fallback.host.announcement),
+    youtubeUrl: liveHostText(payload.youtubeUrl, fallback.host.youtubeUrl),
+    customEventTitle: liveHostText(payload.customEventTitle, fallback.host.customEventTitle),
     guestPaused: payload.guestPaused === true,
     reviewBeforeShow: payload.reviewBeforeShow === true,
     ...parseShopPickupPlace(payload, fallback.host),
@@ -59,6 +66,7 @@ export default function StoreLoungeHallPage() {
   const [screenLive, setScreenLive] = useState(true);
   const [isTrial, setIsTrial] = useState(false);
   useDocumentTitle(STORE_LOUNGE_LIVE.documentTitle);
+  const deskSync = useStoreLiveDeskSync(mode === 'host' && !isLab);
 
   useEffect(() => {
     if (isLab) {
@@ -67,6 +75,7 @@ export default function StoreLoungeHallPage() {
       setDisplayUrl(`${window.location.origin}/#/l/${encodeURIComponent(safeToken)}`);
       setScreenLive(true);
       setIsTrial(false);
+      if (mode === 'host') return undefined;
       const refresh = () => setState(readLoungeLiveLabState(safeToken));
       const timer = window.setInterval(refresh, 1500);
       window.addEventListener('storage', refresh);
@@ -88,7 +97,7 @@ export default function StoreLoungeHallPage() {
           setGate((current) => nextStoreLivePublicGate(current, result).gate);
           return;
         }
-        setState(payloadToState(result.payload as Record<string, unknown>, defaultLoungeLiveLabState()));
+        setState((current) => deskSync.applyPoll(current, payloadToState(result.payload as Record<string, unknown>, current)));
         setGuestUrl(typeof result.guestUrl === 'string' ? result.guestUrl : '');
         setDisplayUrl(typeof result.displayUrl === 'string' ? result.displayUrl : '');
         setExpiresAt(typeof result.expiresAt === 'string' ? result.expiresAt : '');
@@ -134,7 +143,9 @@ export default function StoreLoungeHallPage() {
     setState(next);
     if (isLab) return;
     if (mode === 'host') {
-      void saveLoungeLiveHost({ token: safeToken, ...next.host, blessings: next.blessings });
+      deskSync.scheduleSave(next, (latest) =>
+        saveLoungeLiveHost({ token: safeToken, ...latest.host, blessings: latest.blessings }),
+      );
     }
     if (mode === 'guest') {
       const last = next.blessings[next.blessings.length - 1];

@@ -26,7 +26,8 @@ import {
   type KitchenLabState,
 } from '@/lib/storeKitchenLiveLab';
 import { addKitchenLiveOrder, fetchKitchenLivePublic, saveKitchenLiveHost } from '@/lib/storeKitchenLiveRemote';
-import { nextStoreLivePublicGate } from '@/lib/storeLivePublicRead';
+import { liveHostText, useStoreLiveDeskSync } from '@/lib/storeLiveDeskSync';
+import { nextStoreLivePublicGate, pickStoreLiveShelf } from '@/lib/storeLivePublicRead';
 import { parseStoreShopHours } from '@/lib/storeShopHours';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 
@@ -35,14 +36,14 @@ type Gate = 'loading' | 'ok' | 'expired' | 'missing';
 function payloadToState(payload: Record<string, unknown>, fallback: KitchenLabState): KitchenLabState {
   const host = {
     ...fallback.host,
-    shopName: String(payload.shopName || fallback.host.shopName),
-    hostName: String(payload.hostName || fallback.host.hostName),
-    blurbAr: String(payload.blurbAr || fallback.host.blurbAr),
+    shopName: liveHostText(payload.shopName, fallback.host.shopName),
+    hostName: liveHostText(payload.hostName, fallback.host.hostName),
+    blurbAr: liveHostText(payload.blurbAr, fallback.host.blurbAr),
     customFields: Array.isArray(payload.customFields)
       ? (payload.customFields as string[]).slice(0, 5)
       : fallback.host.customFields,
-    flashAr: String(payload.flashAr ?? fallback.host.flashAr),
-    opsPhone: String(payload.opsPhone ?? fallback.host.opsPhone),
+    flashAr: liveHostText(payload.flashAr, fallback.host.flashAr),
+    opsPhone: liveHostText(payload.opsPhone, fallback.host.opsPhone),
     acceptingOrders: payload.acceptingOrders !== false,
     scheduleEnabled: payload.scheduleEnabled === true,
     deliveryFee: Number(payload.deliveryFee) >= 0 ? Number(payload.deliveryFee) : fallback.host.deliveryFee,
@@ -52,15 +53,13 @@ function payloadToState(payload: Record<string, unknown>, fallback: KitchenLabSt
     nextTicket: Number(payload.nextTicket) > 0 ? Number(payload.nextTicket) : fallback.host.nextTicket,
     pickupLat: Number.isFinite(Number(payload.pickupLat)) ? Number(payload.pickupLat) : fallback.host.pickupLat,
     pickupLng: Number.isFinite(Number(payload.pickupLng)) ? Number(payload.pickupLng) : fallback.host.pickupLng,
-    pickupMapsUrl: String(payload.pickupMapsUrl || fallback.host.pickupMapsUrl).slice(0, 240),
+    pickupMapsUrl: liveHostText(payload.pickupMapsUrl, fallback.host.pickupMapsUrl).slice(0, 240),
     pickupPlaceVisible: payload.pickupPlaceVisible === true,
     ...parseStoreShopHours(payload, fallback.host),
   };
   return {
     host,
-    shelf: Array.isArray(payload.shelf) && payload.shelf.length
-      ? (payload.shelf as KitchenLabState['shelf'])
-      : fallback.shelf,
+    shelf: pickStoreLiveShelf(payload.shelf, fallback.shelf),
     orders: Array.isArray(payload.orders) ? (payload.orders as KitchenLabState['orders']) : [],
   };
 }
@@ -75,6 +74,7 @@ export default function StoreKitchenShopPage() {
     isLab ? readKitchenLabState(safeToken) : defaultKitchenLabState(),
   );
   const [gate, setGate] = useState<Gate>(isLab ? 'ok' : 'loading');
+  const deskSync = useStoreLiveDeskSync(desk && !isLab);
   const [renewToken, setRenewToken] = useState('');
   const [giftNotice, setGiftNotice] = useState<{ expiresAt: string; shopToken: string } | null>(null);
   const [shopUrl, setShopUrl] = useState(
@@ -95,6 +95,7 @@ export default function StoreKitchenShopPage() {
   useEffect(() => {
     if (isLab) {
       setState(readKitchenLabState(safeToken));
+      if (desk) return undefined;
       const refresh = () => setState(readKitchenLabState(safeToken));
       const timer = window.setInterval(refresh, 1500);
       window.addEventListener('storage', refresh);
@@ -117,7 +118,7 @@ export default function StoreKitchenShopPage() {
           return;
         }
         const payload = result.payload as Record<string, unknown>;
-        setState(payloadToState(payload, defaultKitchenLabState()));
+        setState((current) => deskSync.applyPoll(current, payloadToState(payload, current)));
         if (typeof result.shopUrl === 'string' && result.shopUrl) setShopUrl(result.shopUrl);
         if (payload.gift === true) {
           setGiftNotice({
@@ -154,12 +155,14 @@ export default function StoreKitchenShopPage() {
     setState(next);
     if (isLab) return;
     if (desk) {
-      void saveKitchenLiveHost({
-        token: safeToken,
-        ...next.host,
-        shelf: next.shelf,
-        orders: next.orders,
-      });
+      deskSync.scheduleSave(next, (saved) =>
+        saveKitchenLiveHost({
+          token: safeToken,
+          ...saved.host,
+          shelf: saved.shelf,
+          orders: saved.orders,
+        }),
+      );
     } else {
       const last = next.orders[0];
       const prevIds = new Set(state.orders.map((item) => item.id));

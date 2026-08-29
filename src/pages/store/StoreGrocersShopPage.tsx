@@ -23,7 +23,8 @@ import {
   type GrocersLabState,
 } from '@/lib/storeGrocersLiveLab';
 import { addGrocersLiveChat, addGrocersLiveOrder, fetchGrocersLivePublic, saveGrocersLiveHost } from '@/lib/storeGrocersLiveRemote';
-import { nextStoreLivePublicGate } from '@/lib/storeLivePublicRead';
+import { liveHostText, useStoreLiveDeskSync } from '@/lib/storeLiveDeskSync';
+import { nextStoreLivePublicGate, pickStoreLiveShelf } from '@/lib/storeLivePublicRead';
 import { parseStoreShopHours } from '@/lib/storeShopHours';
 import { parseShopPickupPlace } from '@/lib/storeShopPlace';
 import { ROUTE_PATHS } from '@/lib/routePaths';
@@ -33,20 +34,20 @@ type Gate = 'loading' | 'ok' | 'expired' | 'missing';
 function payloadToState(payload: Record<string, unknown>, fallback: GrocersLabState): GrocersLabState {
   const host = {
     ...fallback.host,
-    shopName: String(payload.shopName || fallback.host.shopName),
-    hostName: String(payload.hostName || fallback.host.hostName),
-    blurbAr: String(payload.blurbAr || fallback.host.blurbAr),
+    shopName: liveHostText(payload.shopName, fallback.host.shopName),
+    hostName: liveHostText(payload.hostName, fallback.host.hostName),
+    blurbAr: liveHostText(payload.blurbAr, fallback.host.blurbAr),
     customFields: Array.isArray(payload.customFields)
       ? (payload.customFields as string[]).slice(0, 5)
       : fallback.host.customFields,
-    flashAr: String(payload.flashAr ?? fallback.host.flashAr),
+    flashAr: liveHostText(payload.flashAr, fallback.host.flashAr),
     packId: payload.packId === 'm12' ? 'm12' : 'm6',
     ...parseStoreShopHours(payload, fallback.host),
     ...parseShopPickupPlace(payload, fallback.host),
   };
   return {
     host,
-    shelf: Array.isArray(payload.shelf) && payload.shelf.length ? (payload.shelf as GrocersLabState['shelf']) : fallback.shelf,
+    shelf: pickStoreLiveShelf(payload.shelf, fallback.shelf),
     orders: Array.isArray(payload.orders) ? (payload.orders as GrocersLabState['orders']) : [],
     chatAddon: payload.chatAddon === true,
     chats: Array.isArray(payload.chats) ? (payload.chats as GrocersLabState['chats']) : [],
@@ -63,6 +64,7 @@ export default function StoreGrocersShopPage() {
     isLab ? readGrocersLabState(safeToken) : defaultGrocersLabState(),
   );
   const [gate, setGate] = useState<Gate>(isLab ? 'ok' : 'loading');
+  const deskSync = useStoreLiveDeskSync(desk && !isLab);
   const [renewToken, setRenewToken] = useState('');
   const [shopUrl, setShopUrl] = useState(
     typeof window === 'undefined' ? `/#/g/${encodeURIComponent(safeToken)}` : `${window.location.origin}/#/g/${encodeURIComponent(safeToken)}`,
@@ -78,6 +80,7 @@ export default function StoreGrocersShopPage() {
   useEffect(() => {
     if (isLab) {
       setState(readGrocersLabState(safeToken));
+      if (desk) return undefined;
       const refresh = () => setState(readGrocersLabState(safeToken));
       const timer = window.setInterval(refresh, 1500);
       window.addEventListener('storage', refresh);
@@ -96,7 +99,9 @@ export default function StoreGrocersShopPage() {
           return;
         }
         if (result.ok && result.payload && typeof result.payload === 'object') {
-          setState(payloadToState(result.payload as Record<string, unknown>, defaultGrocersLabState()));
+          setState((current) =>
+            deskSync.applyPoll(current, payloadToState(result.payload as Record<string, unknown>, current)),
+          );
           if (typeof result.shopUrl === 'string' && result.shopUrl) setShopUrl(result.shopUrl);
           setGate('ok');
           return;
@@ -124,13 +129,15 @@ export default function StoreGrocersShopPage() {
     setState(next);
     if (isLab) return;
     if (desk) {
-      void saveGrocersLiveHost({
-        token: safeToken,
-        ...next.host,
-        shelf: next.shelf,
-        orders: next.orders,
-        chats: next.chats,
-      });
+      deskSync.scheduleSave(next, (state) =>
+        saveGrocersLiveHost({
+          token: safeToken,
+          ...state.host,
+          shelf: state.shelf,
+          orders: state.orders,
+          chats: state.chats,
+        }),
+      );
     } else {
       const last = next.orders[0];
       const prevIds = new Set(state.orders.map((item) => item.id));

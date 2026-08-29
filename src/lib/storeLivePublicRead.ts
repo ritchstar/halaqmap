@@ -16,6 +16,26 @@ export function nextStoreLivePublicGate(
   return { gate: 'missing', applyPayload: false };
 }
 
+export const STORE_LIVE_DESK_HOLD_MS = 12_000;
+
+export function storeLiveInStock(raw: unknown): boolean {
+  if (raw === false || raw === 0 || raw === '0' || raw === 'false') return false;
+  return true;
+}
+
+export function pickStoreLiveShelf<T extends { inStock?: unknown }>(remote: unknown, fallback: T[]): T[] {
+  if (!Array.isArray(remote) || remote.length === 0) return fallback;
+  return remote.map((item) => {
+    if (!item || typeof item !== 'object') return item as T;
+    const row = item as T;
+    return { ...row, inStock: storeLiveInStock(row.inStock) };
+  });
+}
+
+export function shouldHoldStoreLiveDeskEdits(editedAt: number, now = Date.now()): boolean {
+  return editedAt > 0 && now - editedAt < STORE_LIVE_DESK_HOLD_MS;
+}
+
 export async function fetchStoreLivePublicGet(
   endpoint: string,
   token: string,
