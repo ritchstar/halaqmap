@@ -33,6 +33,12 @@ export const ROUTE_PATHS = {
    * هبوط الطلبات والخدمات البرمجية. الدفع يبقى على www.halaqmap.com.
    */
   STORE_LANDING: '/store',
+  /** مشاهدة مقاطع خريطة الحل داخل الصفحة */
+  YOUTUBE_STORE: '/store/videos',
+  /** مشاهدة مقاطع حلاق ماب داخل الصفحة */
+  YOUTUBE_HALAQ: '/videos',
+  /** لوحة صناديق اليوتيوب — داخل لوحة التحكم */
+  ADMIN_YOUTUBE_GALLERY: '/youtube-gallery',
   /** نموذج طلب خدمات المتجر */
   STORE_REQUEST: '/store/request',
   /** بطاقات تهنئة مجانية يصدرها العميل لنفسه */

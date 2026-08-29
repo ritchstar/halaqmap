@@ -38,3 +38,14 @@ export function parseYoutubeVideoId(raw: string): string | null {
 export function youtubeEmbedUrl(videoId: string): string {
   return `https://www.youtube-nocookie.com/embed/${videoId}`;
 }
+
+/** تشغيل داخل الصفحة: بلا قوائم مقترحة وبلا مغادرة. */
+export function youtubeInPageEmbedUrl(videoId: string): string {
+  const url = new URL(`https://www.youtube-nocookie.com/embed/${videoId}`);
+  url.searchParams.set('rel', '0');
+  url.searchParams.set('modestbranding', '1');
+  url.searchParams.set('iv_load_policy', '3');
+  url.searchParams.set('playsinline', '1');
+  url.searchParams.set('fs', '1');
+  return url.toString();
+}

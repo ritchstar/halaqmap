@@ -37,6 +37,10 @@ const GEO_NEAR_HUB_PATH =
   (ROUTE_PATHS as { GEO_NEAR_HUB?: string }).GEO_NEAR_HUB || "/near";
 const STORE_LANDING_PATH =
   (ROUTE_PATHS as { STORE_LANDING?: string }).STORE_LANDING || "/store";
+const YOUTUBE_HALAQ_PATH =
+  (ROUTE_PATHS as { YOUTUBE_HALAQ?: string }).YOUTUBE_HALAQ || "/videos";
+const YOUTUBE_STORE_PATH =
+  (ROUTE_PATHS as { YOUTUBE_STORE?: string }).YOUTUBE_STORE || "/store/videos";
 const STORE_REQUEST_PATH =
   (ROUTE_PATHS as { STORE_REQUEST?: string }).STORE_REQUEST || "/store/request";
 const STORE_CARDS_PATH =
@@ -217,6 +221,8 @@ const StoreSalesHubPage = lazy(() => import("@/app/admin/store-sales/page"));
 const StoreSalesLedgerPage = lazy(() => import("@/app/admin/store-sales/[product]/page"));
 const StoreGiftRosterPage = lazy(() => import("@/app/admin/store-gifts/page"));
 const StoreReviewsAdminPage = lazy(() => import("@/app/admin/store-reviews/page"));
+const AdminYoutubeGalleryPage = lazy(() => import("@/app/admin/youtube-gallery/page"));
+const YoutubeGalleryPage = lazy(() => import("@/pages/YoutubeGalleryPage"));
 const FazaaListingAdminPage = lazy(() => import("@/app/admin/fazaa-listing/page"));
 const FazaaListingConsentLanding = lazy(() => import("@/pages/FazaaListingConsentLanding"));
 const AdminDashboard = lazyPage(() => import("@/pages/AdminDashboard"), "AdminDashboard");
@@ -675,6 +681,8 @@ export function App() {
           {/* ?????? ?????????? ?????????????? ???????????? ????????????????????????????????????????????????????????????????????????????????? */}
           <Route path={ROUTE_PATHS.HOME} element={<LazyRoute><LandingPreview /></LazyRoute>} />
           <Route path={ROUTE_PATHS.PLATFORM_REVIEWS} element={<LazyRoute><PlatformReviews /></LazyRoute>} />
+          <Route path={YOUTUBE_HALAQ_PATH} element={<LazyRoute><YoutubeGalleryPage /></LazyRoute>} />
+          <Route path={YOUTUBE_STORE_PATH} element={<LazyRoute><YoutubeGalleryPage /></LazyRoute>} />
           <Route path={ROUTE_PATHS.COSMIC_SHOWCASE} element={<LazyRoute><CosmicShowcase /></LazyRoute>} />
           <Route path={ROUTE_PATHS.SAUDI_AGENT} element={<LazyRoute><SaudiAgentLanding /></LazyRoute>} />
           <Route
@@ -1022,6 +1030,7 @@ export function App() {
               <Route path={`${adminBase}/store-reviews`} element={<LazyRoute><StoreReviewsAdminPage /></LazyRoute>} />
               <Route path={`${adminBase}${ADMIN_STORE_OPS_PATH}`} element={<LazyRoute><StoreOpsDeskPage /></LazyRoute>} />
               <Route path={`${adminBase}/fazaa-listing`} element={<LazyRoute><FazaaListingAdminPage /></LazyRoute>} />
+              <Route path={`${adminBase}/youtube-gallery`} element={<LazyRoute><AdminYoutubeGalleryPage /></LazyRoute>} />
             </Fragment>
           ))}
           {/* Safety net for legacy invitation links built before VITE_ADMIN_PORTAL_BASE alignment. */}
@@ -1039,6 +1048,7 @@ export function App() {
           <Route path="/admin/store-reviews" element={<LegacyAdminRedirect suffix="/store-reviews" />} />
           <Route path="/admin/store-ops" element={<LegacyAdminRedirect suffix={ADMIN_STORE_OPS_PATH} />} />
           <Route path="/admin/fazaa-listing" element={<LegacyAdminRedirect suffix="/fazaa-listing" />} />
+          <Route path="/admin/youtube-gallery" element={<LegacyAdminRedirect suffix="/youtube-gallery" />} />
           <Route path="/admin" element={<LegacyAdminRedirect suffix="/in" />} />
           <Route path={ROUTE_PATHS.RATE_BARBER} element={<LazyRoute><RateBarber /></LazyRoute>} />
           <Route path={ROUTE_PATHS.BOOK_BARBER} element={<LazyRoute><BookBarber /></LazyRoute>} />

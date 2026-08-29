@@ -51,6 +51,7 @@ import {
   Wallet,
   Gift,
   Star,
+  Youtube,
 } from 'lucide-react';
 import { CoiffeurBrandMark } from '@/components/coiffeur/CoiffeurBrandMark';
 import { Button } from '@/components/ui/button';
@@ -1157,6 +1158,14 @@ export default function AdminDashboard() {
                   onClick={() => navigate(`${getAdminPortalBasePath()}${ROUTE_PATHS.ADMIN_STAFF_HUB}`)}
                 >
                   <Users className="h-4 w-4" />
+                </FounderShortcutTile>
+                <FounderShortcutTile
+                  title="صناديق مشاهدة اليوتيوب"
+                  hint="مسودة · استعراض داخل الصندوق · نشر بلا سقف"
+                  tone="teal"
+                  onClick={() => navigate(`${getAdminPortalBasePath()}${ROUTE_PATHS.ADMIN_YOUTUBE_GALLERY}`)}
+                >
+                  <Youtube className="h-4 w-4" />
                 </FounderShortcutTile>
               </div>
             </section>
