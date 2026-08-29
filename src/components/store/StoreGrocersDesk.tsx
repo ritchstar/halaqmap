@@ -17,6 +17,7 @@ import { StoreShopHoursDesk } from '@/components/store/StoreShopHoursDesk';
 import { StoreShopPlaceDesk } from '@/components/store/StoreShopPlaceDesk';
 import { StoreShopPresenceCount } from '@/components/store/StoreShopPresenceCount';
 import { StoreTrialOpsNote } from '@/components/store/StoreTrialOpsNote';
+import { StoreDeskHelpSupport } from '@/components/store/StoreDeskHelpSupport';
 import { cn } from '@/lib/utils';
 
 export function StoreGrocersDesk({
@@ -208,6 +209,8 @@ export function StoreGrocersDesk({
         </button>
         <StoreProductPassDeskButton kind="grocers" token={token} shopName={state.host.shopName} />
       </div>
+
+      <StoreDeskHelpSupport product="grocers" />
     </div>
   );
 }

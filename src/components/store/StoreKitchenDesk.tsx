@@ -21,6 +21,7 @@ import { StoreKitchenMenuBoard } from '@/components/store/StoreKitchenMenuBoard'
 import { StoreShopPresenceCount } from '@/components/store/StoreShopPresenceCount';
 import { StoreProductPassDeskButton } from '@/components/store/StoreProductPassDeskButton';
 import { StoreShopHoursDesk } from '@/components/store/StoreShopHoursDesk';
+import { StoreDeskHelpSupport } from '@/components/store/StoreDeskHelpSupport';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { cn } from '@/lib/utils';
 
@@ -370,6 +371,8 @@ export function StoreKitchenDesk({
           qrStamp={state.host.qrActive ? state.host.qrStamp : ''}
         />
       </div>
+
+      <StoreDeskHelpSupport product="kitchen" />
     </div>
   );
 }

@@ -17,6 +17,7 @@ import { StoreTrialOpsNote } from '@/components/store/StoreTrialOpsNote';
 import { StoreProductPassDeskButton } from '@/components/store/StoreProductPassDeskButton';
 import { StoreShopHoursDesk } from '@/components/store/StoreShopHoursDesk';
 import { StoreShopPlaceDesk } from '@/components/store/StoreShopPlaceDesk';
+import { StoreDeskHelpSupport } from '@/components/store/StoreDeskHelpSupport';
 import { cn } from '@/lib/utils';
 
 export function StoreRestaurantDesk({
@@ -213,6 +214,8 @@ export function StoreRestaurantDesk({
         </button>
         <StoreProductPassDeskButton kind="restaurant" token={token} shopName={state.host.shopName} />
       </div>
+
+      <StoreDeskHelpSupport product="restaurant" />
     </div>
   );
 }
