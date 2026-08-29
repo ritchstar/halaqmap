@@ -91,7 +91,7 @@ export function isTrialEmail(raw: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(raw) && raw.length <= 180;
 }
 
-export function trialEndsAtIso(fromMs = Date.now(), days = STORE_PRODUCT_TRIAL_DAYS): string {
+export function trialEndsAtIso(fromMs = Date.now(), days: number = STORE_PRODUCT_TRIAL_DAYS): string {
   return new Date(fromMs + days * 24 * 60 * 60 * 1000).toISOString();
 }
 
