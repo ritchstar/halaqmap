@@ -115,6 +115,11 @@ export const ROUTE_PATHS = {
   STORE_KITCHEN_VIEW: '/k/:token',
   STORE_KITCHEN_DESK: '/k/:token/desk',
   STORE_KITCHEN_PAY: '/pay/kitchen/:token',
+  /** خضارنا1 — صفحة صندوق الخضار ولوحة الصندوق */
+  STORE_PRODUCE: '/store/produce',
+  STORE_PRODUCE_VIEW: '/v/:token',
+  STORE_PRODUCE_DESK: '/v/:token/desk',
+  STORE_PRODUCE_PAY: '/pay/produce/:token',
   /** بطاقة كيو آر للجوال: اسم ومنصب داخل المنتج لإبراز رمز الصفحة */
   STORE_PRODUCT_PASS: '/store/pass/:kind/:token',
   /** بوابة مسوّقي منتجات المتجر — مستقلة عن سفراء حلاق ماب وكوافير ماب */

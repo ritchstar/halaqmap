@@ -8,7 +8,7 @@ import { resolveResendFromAddress } from './resendFrom.js';
 import { storeAffiliateCheckoutLinks, type StoreAffiliateCheckoutLinks } from './storeAffiliateCode.js';
 import { STORE_LIVE_INVITE_MARK } from './storeLiveInviteShare.js';
 
-export type StoreMailThemeId = 'wedding' | 'event' | 'lounge' | 'grocers' | 'restaurant' | 'cafe' | 'kitchen' | 'affiliate';
+export type StoreMailThemeId = 'wedding' | 'event' | 'lounge' | 'grocers' | 'restaurant' | 'cafe' | 'kitchen' | 'produce' | 'affiliate';
 
 export type StoreMailTheme = {
   id: StoreMailThemeId;
@@ -91,6 +91,15 @@ const THEMES: Record<StoreMailThemeId, StoreMailTheme> = {
     ink: '#1a0c08',
     canvas: '#1a0c08',
     ring: '#d48a6a',
+  },
+  produce: {
+    id: 'produce',
+    markAr: 'خ',
+    titleAr: 'خضارنا1',
+    accent: '#3d8b4a',
+    ink: '#061018',
+    canvas: '#0b1a10',
+    ring: '#7ec98a',
   },
   affiliate: {
     id: 'affiliate',
@@ -477,6 +486,44 @@ export function buildKitchenLiveLinksHtml(input: {
   });
 }
 
+export function buildProduceLiveLinksHtml(input: {
+  shopUrl: string;
+  deskUrl: string;
+  expiresLabel: string;
+  renewed?: boolean;
+}): string {
+  const theme = THEMES.produce;
+  return buildStoreMailHtml({
+    theme: 'produce',
+    kickerAr: input.renewed ? `تمديد تشغيل — ${theme.titleAr}` : `روابط تشغيل — ${theme.titleAr}`,
+    titleAr: input.renewed ? 'تمديد صفحة الصندوق' : 'روابط التشغيل جاهزة',
+    leadAr: input.renewed
+      ? 'الروابط نفسها لم تتغير. اضغط الأيقونة لفتح المسار.'
+      : 'اضغط الأيقونة لفتح صفحة جار الحي أو لوحة الصندوق.',
+    iconRows: [
+      [
+        {
+          href: input.shopUrl,
+          markAr: theme.markAr,
+          titleAr: theme.titleAr,
+          captionAr: 'جار الحي',
+          theme: 'produce',
+        },
+        {
+          href: input.deskUrl,
+          markAr: 'ص',
+          titleAr: theme.titleAr,
+          captionAr: 'لوحة الصندوق',
+          theme: 'produce',
+        },
+      ],
+    ],
+    notesAr: [
+      `تنتهي المدة في ${input.expiresLabel}. بعد انتهائها تبقى الروابط وتحيلكم لإعادة الشراء على نفس الصفحة.`,
+    ],
+  });
+}
+
 export function buildCafeLiveLinksHtml(input: {
   shopUrl: string;
   deskUrl: string;
@@ -613,6 +660,13 @@ export function buildStoreAffiliateMagicHtml(input: {
       titleAr: THEMES.kitchen.titleAr,
       captionAr: 'رابط الشراء',
       theme: 'kitchen',
+    },
+    {
+      href: input.productLinks.produce,
+      markAr: THEMES.produce.markAr,
+      titleAr: THEMES.produce.titleAr,
+      captionAr: 'رابط الشراء',
+      theme: 'produce',
     },
   ];
   return buildStoreMailHtml({

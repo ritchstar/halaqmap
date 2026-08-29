@@ -55,6 +55,7 @@ export function AffiliateStoreLane({ hideCatalog = false }: { hideCatalog?: bool
     grocers: '',
     restaurant: '',
     cafe: '',
+    produce: '',
   });
 
   async function loadTrials() {
@@ -176,6 +177,7 @@ export function AffiliateStoreLane({ hideCatalog = false }: { hideCatalog?: bool
               restaurant: marketer.links.restaurant,
               cafe: marketer.links.cafe,
               kitchen: marketer.links.kitchen || '',
+              produce: marketer.links.produce || '',
             }}
             onPick={(href) => void copyLink(href)}
           />

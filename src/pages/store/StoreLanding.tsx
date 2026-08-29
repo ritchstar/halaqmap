@@ -40,6 +40,7 @@ import { STORE_GROCERS_LIVE, STORE_GROCERS_LIVE_PUBLIC_ENABLED } from '@/config/
 import { STORE_RESTAURANT_LIVE, STORE_RESTAURANT_LIVE_PUBLIC_ENABLED } from '@/config/storeRestaurantLive';
 import { STORE_CAFE_LIVE, STORE_CAFE_LIVE_PUBLIC_ENABLED } from '@/config/storeCafeLive';
 import { STORE_KITCHEN_LIVE, STORE_KITCHEN_LIVE_PUBLIC_ENABLED } from '@/config/storeKitchenLive';
+import { STORE_PRODUCE_LIVE, STORE_PRODUCE_LIVE_PUBLIC_ENABLED } from '@/config/storeProduceLive';
 import { storeLiveProductReel, storeSoftwareShotReel } from '@/config/storeMarketingReels';
 
 export default function StoreLanding() {
@@ -271,6 +272,27 @@ export default function StoreLanding() {
               <p className="mt-2 max-w-3xl text-sm leading-7 text-white/70">{STORE_LANDING_COPY.kitchenLiveLeadAr}</p>
               <Link to={ROUTE_PATHS.STORE_KITCHEN} className="mt-4 inline-flex text-sm font-bold text-[#b45a3c]">
                 {STORE_LANDING_COPY.kitchenLiveCtaAr}
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+      ) : null}
+
+      {STORE_PRODUCE_LIVE_PUBLIC_ENABLED ? (
+      <section className="px-4 pb-8">
+        <div className="mx-auto max-w-5xl">
+          <div className="overflow-hidden rounded-2xl border border-[#3d8b4a]/30 bg-[#0b1a10]/70">
+            <StoreShot
+              reel="grocers"
+              alt={STORE_PRODUCE_LIVE.heroAltAr}
+              className="aspect-[16/7] w-full"
+            />
+            <div className="p-5 md:p-6">
+              <h2 className="text-xl font-extrabold">{STORE_LANDING_COPY.produceLiveTitleAr}</h2>
+              <p className="mt-2 max-w-3xl text-sm leading-7 text-white/70">{STORE_LANDING_COPY.produceLiveLeadAr}</p>
+              <Link to={ROUTE_PATHS.STORE_PRODUCE} className="mt-4 inline-flex text-sm font-bold text-[#3d8b4a]">
+                {STORE_LANDING_COPY.produceLiveCtaAr}
               </Link>
             </div>
           </div>

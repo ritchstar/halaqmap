@@ -14,14 +14,17 @@ import { newRestaurantToken } from './storeRestaurantLive.js';
 import { sendRestaurantLiveLinksEmail } from './storeRestaurantLiveMail.js';
 import { newCafeToken } from './storeCafeLive.js';
 import { sendCafeLiveLinksEmail } from './storeCafeLiveMail.js';
+import { newProduceToken } from './storeProduceLive.js';
+import { sendProduceLiveLinksEmail } from './storeProduceLiveMail.js';
 import { newWeddingToken } from './storeWeddingLive.js';
 import { sendWeddingLiveLinksEmail } from './storeWeddingLiveMail.js';
 
 export const STORE_PRODUCT_TRIAL_TABLE = 'store_product_trials' as const;
 export const STORE_PRODUCT_TRIAL_DAYS = 60 as const;
 export const STORE_PRODUCT_TRIAL_QUOTA = 5 as const;
+export const STORE_PRODUCE_TRIAL_DAYS = 180 as const;
 
-export type StoreProductTrialKey = 'wedding' | 'event' | 'lounge' | 'grocers' | 'restaurant' | 'cafe';
+export type StoreProductTrialKey = 'wedding' | 'event' | 'lounge' | 'grocers' | 'restaurant' | 'cafe' | 'produce';
 
 export type StoreProductTrialRow = {
   id: string;
@@ -50,6 +53,7 @@ const PRODUCT_TAG: Record<StoreProductTrialKey, string> = {
   grocers: 'store_grocers_live',
   restaurant: 'store_restaurant_live',
   cafe: 'store_cafe_live',
+  produce: 'store_produce_live',
 };
 
 const ORDER_TABLE: Record<StoreProductTrialKey, string> = {
@@ -59,12 +63,17 @@ const ORDER_TABLE: Record<StoreProductTrialKey, string> = {
   grocers: 'store_grocers_live_orders',
   restaurant: 'store_restaurant_live_orders',
   cafe: 'store_cafe_live_orders',
+  produce: 'store_produce_live_orders',
 };
 
 const GIFT_KEYS = new Set<StoreProductTrialKey>(['wedding', 'event']);
 
 export function isStoreProductTrialKey(raw: unknown): raw is StoreProductTrialKey {
-  return raw === 'wedding' || raw === 'event' || raw === 'lounge' || raw === 'grocers' || raw === 'restaurant' || raw === 'cafe';
+  return raw === 'wedding' || raw === 'event' || raw === 'lounge' || raw === 'grocers' || raw === 'restaurant' || raw === 'cafe' || raw === 'produce';
+}
+
+export function trialDaysFor(key: StoreProductTrialKey): number {
+  return key === 'produce' ? STORE_PRODUCE_TRIAL_DAYS : STORE_PRODUCT_TRIAL_DAYS;
 }
 
 export function isGiftTrialProduct(key: StoreProductTrialKey): boolean {
@@ -82,8 +91,8 @@ export function isTrialEmail(raw: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(raw) && raw.length <= 180;
 }
 
-export function trialEndsAtIso(fromMs = Date.now()): string {
-  return new Date(fromMs + STORE_PRODUCT_TRIAL_DAYS * 24 * 60 * 60 * 1000).toISOString();
+export function trialEndsAtIso(fromMs = Date.now(), days = STORE_PRODUCT_TRIAL_DAYS): string {
+  return new Date(fromMs + days * 24 * 60 * 60 * 1000).toISOString();
 }
 
 function storeOrigin(): string {
@@ -108,6 +117,12 @@ function productLinks(key: StoreProductTrialKey, tokens: Record<string, string>)
     return {
       a: `${storeOrigin()}/#/r/${encodeURIComponent(tokens.shop)}`,
       b: `${storeOrigin()}/#/r/${encodeURIComponent(tokens.desk)}/desk`,
+    };
+  }
+  if (key === 'produce') {
+    return {
+      a: `${storeOrigin()}/#/v/${encodeURIComponent(tokens.shop)}`,
+      b: `${storeOrigin()}/#/v/${encodeURIComponent(tokens.desk)}/desk`,
     };
   }
   if (key === 'event') {
@@ -153,6 +168,12 @@ export function publicTrialHrefs(
     return [
       { titleAr: 'ضيف الحي', href: links.a },
       { titleAr: 'المطبخ', href: links.b },
+    ];
+  }
+  if (key === 'produce') {
+    return [
+      { titleAr: 'جار الحي', href: links.a },
+      { titleAr: 'الصندوق', href: links.b },
     ];
   }
   return [
@@ -222,6 +243,20 @@ function trialPayload(
       chatIncluded: true,
       chats: [],
       nextTicket: 1,
+    };
+  }
+  if (key === 'produce') {
+    return {
+      packId: 'm6',
+      shopName: 'تجربة خضارنا1',
+      hostName: 'الصندوق',
+      blurbAr: 'نموذج تجريبي لصندوق الخضار في الحي.',
+      customFields: ['', '', '', '', ''],
+      flashAr: '',
+      shelf: [],
+      orders: [],
+      chatIncluded: true,
+      chats: [],
     };
   }
   if (key === 'lounge') {
@@ -318,7 +353,7 @@ export async function findBlockingTrial(
 
 async function sendIssuedMail(key: StoreProductTrialKey, email: string, tokens: Record<string, string>): Promise<void> {
   const links = productLinks(key, tokens);
-  const expiresLabel = 'ستون يوماً من أول دخول للرابط';
+  const expiresLabel = key === 'produce' ? 'مئة وثمانون يوماً من أول دخول للرابط' : 'ستون يوماً من أول دخول للرابط';
   if (key === 'cafe') {
     await sendCafeLiveLinksEmail({
       to: email,
@@ -339,6 +374,10 @@ async function sendIssuedMail(key: StoreProductTrialKey, email: string, tokens: 
   }
   if (key === 'restaurant') {
     await sendRestaurantLiveLinksEmail({ to: email, shopUrl: links.a, deskUrl: links.b, expiresLabel });
+    return;
+  }
+  if (key === 'produce') {
+    await sendProduceLiveLinksEmail({ to: email, shopUrl: links.a, deskUrl: links.b, expiresLabel });
     return;
   }
   if (key === 'event') {
@@ -457,6 +496,31 @@ async function insertLiveOrder(
       .select('id')
       .maybeSingle();
     if (error || !data) return { error: 'تعذر إنشاء صفحة المطعم التجريبية.' };
+    return { orderId: String(data.id), tokens: { shop, desk } };
+  }
+  if (key === 'produce') {
+    const shop = newProduceToken();
+    const desk = newProduceToken();
+    const { data, error } = await db
+      .from(table)
+      .insert({
+        status: 'live',
+        shop_token: shop,
+        desk_token: desk,
+        buyer_email: email,
+        buyer_name: 'تجربة خضارنا1',
+        price_halalas: 0,
+        payload,
+        policy_version: 'trial-180',
+        is_trial: true,
+        trial_id: trialId,
+        expires_at: null,
+        created_at: now,
+        updated_at: now,
+      })
+      .select('id')
+      .maybeSingle();
+    if (error || !data) return { error: 'تعذر إنشاء صفحة الصندوق التجريبية.' };
     return { orderId: String(data.id), tokens: { shop, desk } };
   }
   const display = key === 'event' ? newEventToken() : key === 'lounge' ? newLoungeToken() : newWeddingToken();
@@ -626,7 +690,7 @@ export async function applyStoreTrialClock(
   const gift = isStoreProductTrialKey(productKey) && isGiftTrialProduct(productKey);
 
   if (trial && !trial.first_opened_at && trial.status === 'issued') {
-    const ends = trialEndsAtIso(now);
+    const ends = trialEndsAtIso(now, isStoreProductTrialKey(productKey) ? trialDaysFor(productKey) : STORE_PRODUCT_TRIAL_DAYS);
     const stamp = new Date(now).toISOString();
     await db
       .from(STORE_PRODUCT_TRIAL_TABLE)

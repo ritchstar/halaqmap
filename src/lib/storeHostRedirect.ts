@@ -204,6 +204,24 @@ export function kitchenLiveViewHref(token: string): string {
   return `/#${hashPath}`;
 }
 
+export function produceLivePayHref(token: string): string {
+  const hashPath = `/pay/produce/${encodeURIComponent(token)}`;
+  if (typeof window === 'undefined') return `/#${hashPath}`;
+  if (isHalaqmapStoreHost(window.location.hostname)) {
+    return `https://www.halaqmap.com/#${hashPath}`;
+  }
+  return `/#${hashPath}`;
+}
+
+export function produceLiveViewHref(token: string): string {
+  const hashPath = `/v/${encodeURIComponent(token)}`;
+  if (typeof window === 'undefined') return `/#${hashPath}`;
+  if (isHalaqmapMensHost(window.location.hostname)) {
+    return `https://store.halaqmap.com/#${hashPath}`;
+  }
+  return `/#${hashPath}`;
+}
+
 export function occasionCardPayHref(token: string): string {
   const hashPath = `/pay/occasion-card/${encodeURIComponent(token)}`;
   if (typeof window === 'undefined') return `/#${hashPath}`;

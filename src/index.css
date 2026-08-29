@@ -3701,6 +3701,54 @@ html.platform-radar-fullscreen #root {
   }
 }
 
+.produce-field {
+  margin-top: 0.25rem;
+  height: 3rem;
+  width: 100%;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(61, 139, 74, 0.32);
+  background: rgba(0, 0, 0, 0.4);
+  padding: 0 0.75rem;
+  color: #f4efe4;
+}
+
+.produce-flash {
+  animation: produce-flash-slide 18s linear infinite;
+}
+
+.produce-alert {
+  box-shadow: 0 0 28px rgba(61, 139, 74, 0.35);
+}
+
+.produce-feature-pulse {
+  animation: produce-flash-slide 6s ease-in-out infinite;
+}
+
+.produce-feature-pulse__text {
+  font-weight: 800;
+  color: #d8f0cc;
+}
+
+@keyframes produce-flash-slide {
+  0% {
+    box-shadow: 0 0 0 rgba(61, 139, 74, 0.15);
+  }
+  50% {
+    box-shadow: 0 0 18px rgba(61, 139, 74, 0.35);
+  }
+  100% {
+    box-shadow: 0 0 0 rgba(61, 139, 74, 0.15);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .produce-flash,
+  .produce-alert,
+  .produce-feature-pulse {
+    animation: none;
+  }
+}
+
 .store-mobile-mark {
   display: inline-flex;
   align-items: center;

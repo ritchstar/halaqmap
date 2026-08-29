@@ -252,6 +252,12 @@ function isKitchenLiveMeta(meta: Record<string, unknown> | null | undefined): bo
   return pt === "store_kitchen_live";
 }
 
+function isProduceLiveMeta(meta: Record<string, unknown> | null | undefined): boolean {
+  if (!meta || typeof meta !== "object") return false;
+  const pt = String(meta.product_type ?? meta.productType ?? meta.product ?? "").trim().toLowerCase();
+  return pt === "store_produce_live";
+}
+
 function storeAffiliateCodeFromMeta(meta: Record<string, unknown> | null | undefined): string {
   if (!meta || typeof meta !== "object") return "";
   const value = String(meta.store_affiliate_code ?? meta.storeAffiliateCode ?? "")
@@ -295,6 +301,10 @@ function matchStoreAffiliateCommission(
   if (tag === "store_kitchen_live") {
     if (amount === 30000) return { lineId: "kitchen_6", commissionHalalas: 10000 };
     if (amount === 60000) return { lineId: "kitchen_12", commissionHalalas: 20000 };
+  }
+  if (tag === "store_produce_live") {
+    if (amount === 135000) return { lineId: "produce_6", commissionHalalas: 35000 };
+    if (amount === 250000) return { lineId: "produce_12", commissionHalalas: 50000 };
   }
   return null;
 }
@@ -1179,6 +1189,52 @@ Deno.serve(async (req) => {
         paymentId,
         eventId: eventId || null,
         skipped: "store_kitchen_live",
+        activated,
+        credited,
+      },
+      200,
+    );
+  }
+
+  if (isProduceLiveMeta(meta)) {
+    const token = String(meta.store_produce_token ?? meta.storeProduceToken ?? "").trim();
+    const days = amount === 250000 ? 360 : amount === 135000 ? 180 : 0;
+    let activated = false;
+    if (successStatus && token && days) {
+      const expiresAt = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString();
+      const { data: produceRow, error: produceErr } = await supabase
+        .from("store_produce_live_orders")
+        .update({
+          status: "live",
+          moyasar_payment_id: paymentId,
+          expires_at: expiresAt,
+          price_halalas: amount,
+          is_trial: false,
+          last_public_change_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        })
+        .eq("shop_token", token)
+        .in("status", ["pending_payment", "pending_renewal", "expired"])
+        .select("id")
+        .maybeSingle();
+      activated = !produceErr;
+      if (produceRow?.id) {
+        await supabase
+          .from("store_product_trials")
+          .update({ status: "converted", updated_at: new Date().toISOString() })
+          .eq("order_id", produceRow.id)
+          .in("status", ["issued", "activated", "expired"]);
+      }
+    }
+    const credited = successStatus && days
+      ? await creditStoreAffiliateLedger(supabase, "store_produce_live", amount, paymentId, meta)
+      : false;
+    return jsonResponse(
+      {
+        ok: true,
+        paymentId,
+        eventId: eventId || null,
+        skipped: "store_produce_live",
         activated,
         credited,
       },

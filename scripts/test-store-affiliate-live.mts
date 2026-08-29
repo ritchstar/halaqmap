@@ -78,6 +78,10 @@ assert.equal(byId.kitchen_6.priceSar, STORE_KITCHEN_LIVE_PRICE_6_SAR);
 assert.equal(byId.kitchen_6.commissionSar, 100);
 assert.equal(byId.kitchen_12.priceSar, STORE_KITCHEN_LIVE_PRICE_12_SAR);
 assert.equal(byId.kitchen_12.commissionSar, 200);
+assert.equal(byId.produce_6.priceSar, 1350);
+assert.equal(byId.produce_6.commissionSar, 350);
+assert.equal(byId.produce_12.priceSar, 2500);
+assert.equal(byId.produce_12.commissionSar, 500);
 
 assert.equal(affiliateNetSar(899, 99), 800);
 assert.equal(affiliateNetSar(600, 100), 500);
@@ -122,6 +126,8 @@ assert.deepEqual(matchStoreAffiliateCommission('store_restaurant_live', 125000),
 assert.deepEqual(matchStoreAffiliateCommission('store_cafe_live', 79900), { lineId: 'cafe_mobile_6', commissionHalalas: 9900 });
 assert.deepEqual(matchStoreAffiliateCommission('store_kitchen_live', 30000), { lineId: 'kitchen_6', commissionHalalas: 10000 });
 assert.deepEqual(matchStoreAffiliateCommission('store_kitchen_live', 60000), { lineId: 'kitchen_12', commissionHalalas: 20000 });
+assert.deepEqual(matchStoreAffiliateCommission('store_produce_live', 135000), { lineId: 'produce_6', commissionHalalas: 35000 });
+assert.deepEqual(matchStoreAffiliateCommission('store_produce_live', 250000), { lineId: 'produce_12', commissionHalalas: 50000 });
 assert.equal(matchStoreAffiliateCommission('store_occasion_card', 5900), null);
 assert.equal(matchStoreAffiliateCommission('store_occasion_card', 1200), null);
 assert.equal(matchStoreAffiliateCommission('store_wedding_live', 5900), null);
