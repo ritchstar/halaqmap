@@ -56,6 +56,14 @@ import { CoiffeurBrandMark } from '@/components/coiffeur/CoiffeurBrandMark';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -790,80 +798,82 @@ export default function AdminDashboard() {
                 />
               </div>
             ) : null}
-            {can('view_overview') ? (
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="h-9 shrink-0 gap-1.5 border border-[#e8c547]/35 bg-[#1a1508] px-2.5 text-[#e8c547] hover:bg-[#2a2010] hover:text-[#f4e4a4]"
-                title="مكتب طلبات المتجر"
-                aria-label="مكتب طلبات المتجر"
-                onClick={() => navigate(`${getAdminPortalBasePath()}${ROUTE_PATHS.ADMIN_STORE_DESK}`)}
-              >
-                <Store className="h-4 w-4" />
-                <span className="hidden md:inline">المتجر</span>
-              </Button>
-            ) : null}
-            {can('view_overview') || can('view_payments') ? (
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="h-9 shrink-0 gap-1.5 border border-[#e8c547]/35 bg-[#1a1508] px-2.5 text-[#e8c547] hover:bg-[#2a2010] hover:text-[#f4e4a4]"
-                title="إصدار تجارب المتجر"
-                aria-label="إصدار تجارب المتجر"
-                onClick={() => navigate(`${getAdminPortalBasePath()}${ROUTE_PATHS.ADMIN_STORE_DESK}`)}
-              >
-                <FlaskConical className="h-4 w-4" />
-                <span className="hidden md:inline">تجارب المتجر</span>
-              </Button>
-            ) : null}
-            {can('view_overview') || can('view_payments') ? (
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="h-9 shrink-0 gap-1.5 border border-[#e8c547]/35 bg-[#1a1508] px-2.5 text-[#e8c547] hover:bg-[#2a2010] hover:text-[#f4e4a4]"
-                title="قيد مبيعات المتجر"
-                aria-label="قيد مبيعات المتجر"
-                onClick={() => navigate(`${getAdminPortalBasePath()}${ROUTE_PATHS.ADMIN_STORE_SALES}`)}
-              >
-                <Wallet className="h-4 w-4" />
-                <span className="hidden md:inline">مبيعات المتجر</span>
-              </Button>
-            ) : null}
             {can('view_overview') || can('view_payments') || can('manage_partner_marketing') ? (
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="h-9 shrink-0 gap-1.5 border border-[#e8c547]/35 bg-[#1a1508] px-2.5 text-[#e8c547] hover:bg-[#2a2010] hover:text-[#f4e4a4]"
-                title="قائمة مشاركات هدايا المتجر"
-                aria-label="قائمة مشاركات هدايا المتجر"
-                onClick={() => navigate(`${getAdminPortalBasePath()}${ROUTE_PATHS.ADMIN_STORE_GIFTS}`)}
-              >
-                <Gift className="h-4 w-4" />
-                <span className="hidden md:inline">هدايا المتجر</span>
-              </Button>
-            ) : null}
-            {can('view_overview') || can('view_payments') || can('manage_partner_marketing') ? (
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="relative h-9 shrink-0 gap-1.5 border border-[#e8c547]/35 bg-[#1a1508] px-2.5 text-[#e8c547] hover:bg-[#2a2010] hover:text-[#f4e4a4]"
-                title="تقييمات المتجر"
-                aria-label="تقييمات المتجر"
-                onClick={() => navigate(`${getAdminPortalBasePath()}${ROUTE_PATHS.ADMIN_STORE_REVIEWS}`)}
-              >
-                <Star className="h-4 w-4 fill-[#e8c547]" />
-                <span className="hidden md:inline">تقييمات المتجر</span>
-                {storeReviewCounts.unseen > 0 ? (
-                  <span className="absolute -top-1.5 -left-1.5 min-w-5 rounded-full bg-[#e8c547] px-1 text-center text-[0.62rem] font-black text-[#061018]">
-                    {storeReviewCounts.unseen}
-                  </span>
-                ) : null}
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="relative h-9 shrink-0 gap-1.5 border border-[#e8c547]/35 bg-[#1a1508] px-2.5 text-[#e8c547] hover:bg-[#2a2010] hover:text-[#f4e4a4]"
+                    title="مكاتب المتجر"
+                    aria-label="مكاتب المتجر"
+                  >
+                    <Store className="h-4 w-4" />
+                    <span className="hidden md:inline">المتجر</span>
+                    <ChevronDown className="hidden h-3.5 w-3.5 md:inline" />
+                    {storeReviewCounts.unseen > 0 ? (
+                      <span className="absolute -top-1.5 -left-1.5 min-w-5 rounded-full bg-[#e8c547] px-1 text-center text-[0.62rem] font-black text-[#061018]">
+                        {storeReviewCounts.unseen}
+                      </span>
+                    ) : null}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="min-w-56 border-[#e8c547]/25 bg-[#14100a] text-slate-100">
+                  <DropdownMenuLabel className="text-[#e8c547]">مكاتب المتجر</DropdownMenuLabel>
+                  <DropdownMenuSeparator className="bg-[#e8c547]/20" />
+                  {can('view_overview') ? (
+                    <DropdownMenuItem
+                      className="cursor-pointer gap-2 focus:bg-[#2a2010] focus:text-[#f4e4a4]"
+                      onSelect={() => navigate(`${getAdminPortalBasePath()}${ROUTE_PATHS.ADMIN_STORE_DESK}`)}
+                    >
+                      <Store className="h-4 w-4 text-[#e8c547]" />
+                      مكتب طلبات المتجر
+                    </DropdownMenuItem>
+                  ) : null}
+                  {can('view_overview') || can('view_payments') ? (
+                    <DropdownMenuItem
+                      className="cursor-pointer gap-2 focus:bg-[#2a2010] focus:text-[#f4e4a4]"
+                      onSelect={() => navigate(`${getAdminPortalBasePath()}${ROUTE_PATHS.ADMIN_STORE_DESK}`)}
+                    >
+                      <FlaskConical className="h-4 w-4 text-[#e8c547]" />
+                      إصدار تجارب المتجر
+                    </DropdownMenuItem>
+                  ) : null}
+                  {can('view_overview') || can('view_payments') ? (
+                    <DropdownMenuItem
+                      className="cursor-pointer gap-2 focus:bg-[#2a2010] focus:text-[#f4e4a4]"
+                      onSelect={() => navigate(`${getAdminPortalBasePath()}${ROUTE_PATHS.ADMIN_STORE_SALES}`)}
+                    >
+                      <Wallet className="h-4 w-4 text-[#e8c547]" />
+                      قيد مبيعات المتجر
+                    </DropdownMenuItem>
+                  ) : null}
+                  {can('view_overview') || can('view_payments') || can('manage_partner_marketing') ? (
+                    <DropdownMenuItem
+                      className="cursor-pointer gap-2 focus:bg-[#2a2010] focus:text-[#f4e4a4]"
+                      onSelect={() => navigate(`${getAdminPortalBasePath()}${ROUTE_PATHS.ADMIN_STORE_GIFTS}`)}
+                    >
+                      <Gift className="h-4 w-4 text-[#e8c547]" />
+                      قائمة هدايا المتجر
+                    </DropdownMenuItem>
+                  ) : null}
+                  {can('view_overview') || can('view_payments') || can('manage_partner_marketing') ? (
+                    <DropdownMenuItem
+                      className="cursor-pointer gap-2 focus:bg-[#2a2010] focus:text-[#f4e4a4]"
+                      onSelect={() => navigate(`${getAdminPortalBasePath()}${ROUTE_PATHS.ADMIN_STORE_REVIEWS}`)}
+                    >
+                      <Star className="h-4 w-4 fill-[#e8c547] text-[#e8c547]" />
+                      تقييمات المتجر
+                      {storeReviewCounts.unseen > 0 ? (
+                        <span className="mr-auto min-w-5 rounded-full bg-[#e8c547] px-1 text-center text-[0.62rem] font-black text-[#061018]">
+                          {storeReviewCounts.unseen}
+                        </span>
+                      ) : null}
+                    </DropdownMenuItem>
+                  ) : null}
+                </DropdownMenuContent>
+              </DropdownMenu>
             ) : null}
             {can('view_overview') ? (
               <Button
@@ -1066,182 +1076,90 @@ export default function AdminDashboard() {
 
           {/* Overview Tab */}
           {can('view_overview') && <TabsContent value="overview" className="space-y-6">
-            <button
-              type="button"
-              onClick={() => setActiveTab('google-ads')}
-              className="flex w-full items-center justify-between rounded-xl border border-amber-400/25 bg-amber-500/10 px-4 py-3 text-right transition hover:bg-amber-500/15"
-            >
-              <div className="flex items-center gap-2.5">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-amber-400/30 bg-amber-500/15">
-                  <Megaphone className="h-4 w-4 text-amber-300" />
-                </div>
-                <div>
-                  <p className="text-sm font-bold text-white">حملات الإعلانات</p>
-                  <p className="text-[0.62rem] text-amber-200/70">
-                    Google Ads · بكسل تيك توك · حالة التتبع
-                  </p>
-                </div>
+            <section className="space-y-3">
+              <h2 className="text-sm font-extrabold text-white/90">مكاتب المتجر</h2>
+              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                <FounderShortcutTile
+                  title="مكتب طلبات المتجر"
+                  hint="اجتماع وكلاء · عروض فاخرة · رد واتساب وبريد"
+                  tone="gold"
+                  onClick={() => navigate(`${getAdminPortalBasePath()}${ROUTE_PATHS.ADMIN_STORE_DESK}`)}
+                >
+                  <Store className="h-4 w-4" />
+                </FounderShortcutTile>
+                <FounderShortcutTile
+                  title="إصدار تجارب المتجر"
+                  hint="إتمام الطلب · المصدر تجريبياً · المسدد المفعَّل"
+                  tone="gold"
+                  onClick={() => navigate(`${getAdminPortalBasePath()}${ROUTE_PATHS.ADMIN_STORE_DESK}`)}
+                >
+                  <FlaskConical className="h-4 w-4" />
+                </FounderShortcutTile>
+                <FounderShortcutTile
+                  title="قيد مبيعات المتجر"
+                  hint="قيود السداد حسب وسم المنتج"
+                  tone="gold"
+                  onClick={() => navigate(`${getAdminPortalBasePath()}${ROUTE_PATHS.ADMIN_STORE_SALES}`)}
+                >
+                  <Wallet className="h-4 w-4" />
+                </FounderShortcutTile>
+                <FounderShortcutTile
+                  title="قائمة هدايا المتجر"
+                  hint="مشاركون · تأكيد البريد · إعادة إرسال"
+                  tone="gold"
+                  onClick={() => navigate(`${getAdminPortalBasePath()}${ROUTE_PATHS.ADMIN_STORE_GIFTS}`)}
+                >
+                  <Gift className="h-4 w-4" />
+                </FounderShortcutTile>
+                <FounderShortcutTile
+                  title="تقييمات المتجر"
+                  hint="نجوم وتعليق الزوار · مؤشر للتقييمات الجديدة"
+                  tone="gold"
+                  badge={storeReviewCounts.unseen}
+                  onClick={() => navigate(`${getAdminPortalBasePath()}${ROUTE_PATHS.ADMIN_STORE_REVIEWS}`)}
+                >
+                  <Star className="h-4 w-4 fill-current" />
+                </FounderShortcutTile>
               </div>
-              <Badge variant="secondary" className="gap-1">
-                فتح الشاشة
-              </Badge>
-            </button>
+            </section>
 
-            <div className="flex items-center justify-between rounded-xl border border-[#e8c547]/25 bg-[#1a1508] px-4 py-3">
-              <div className="flex items-center gap-2.5">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#e8c547]/30 bg-[#e8c547]/15">
-                  <Store className="h-4 w-4 text-[#e8c547]" />
-                </div>
-                <div>
-                  <p className="text-sm font-bold text-white">مكتب طلبات المتجر</p>
-                  <p className="text-[0.62rem] text-[#e8c547]/75">داخلي · اجتماع وكلاء · عروض فاخرة · رد واتساب وبريد</p>
-                </div>
+            <section className="space-y-3">
+              <h2 className="text-sm font-extrabold text-white/90">تشغيل المنصة</h2>
+              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                <FounderShortcutTile
+                  title="حملات الإعلانات"
+                  hint="Google Ads · بكسل تيك توك · حالة التتبع"
+                  tone="amber"
+                  onClick={() => setActiveTab('google-ads')}
+                >
+                  <Megaphone className="h-4 w-4" />
+                </FounderShortcutTile>
+                <FounderShortcutTile
+                  title="مكتب تشغيل كوافير ماب"
+                  hint="طلبات · إدراجات · تجربة مشغل نسائي"
+                  tone="rose"
+                  onClick={() => navigate(`${getAdminPortalBasePath()}${ROUTE_PATHS.ADMIN_COIFFEUR_HUB}`)}
+                >
+                  <CoiffeurBrandMark className="h-8 w-8" sizes="32px" showWordmark={false} />
+                </FounderShortcutTile>
+                <FounderShortcutTile
+                  title="موافقات إبراز فزعة"
+                  hint="دعوة بريد رسمي قبل النشر على جوجل"
+                  tone="teal"
+                  onClick={() => navigate(`${getAdminPortalBasePath()}${ROUTE_PATHS.ADMIN_FAZAA_LISTING}`)}
+                >
+                  <MapPin className="h-4 w-4" />
+                </FounderShortcutTile>
+                <FounderShortcutTile
+                  title="مركز الوكلاء"
+                  hint="الدفاع السيبراني · الأسطول · التمويل · الهندسة"
+                  tone="teal"
+                  onClick={() => navigate(`${getAdminPortalBasePath()}${ROUTE_PATHS.ADMIN_STAFF_HUB}`)}
+                >
+                  <Users className="h-4 w-4" />
+                </FounderShortcutTile>
               </div>
-              <button
-                type="button"
-                onClick={() => navigate(`${getAdminPortalBasePath()}${ROUTE_PATHS.ADMIN_STORE_DESK}`)}
-                className="flex items-center gap-1.5 rounded-xl border border-[#e8c547]/35 bg-[#2a2010] px-4 py-2 text-xs font-bold text-[#e8c547] hover:bg-[#3a2c14] transition-all"
-              >
-                فتح المكتب
-              </button>
-            </div>
-
-            <div className="flex items-center justify-between rounded-xl border border-[#e8c547]/25 bg-[#1a1508] px-4 py-3">
-              <div className="flex items-center gap-2.5">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#e8c547]/30 bg-[#e8c547]/15">
-                  <FlaskConical className="h-4 w-4 text-[#e8c547]" />
-                </div>
-                <div>
-                  <p className="text-sm font-bold text-white">إصدار تجارب المتجر</p>
-                  <p className="text-[0.62rem] text-[#e8c547]/75">إتمام الطلب · المصدر تجريبياً · المسدد المفعَّل</p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => navigate(`${getAdminPortalBasePath()}${ROUTE_PATHS.ADMIN_STORE_DESK}`)}
-                className="flex items-center gap-1.5 rounded-xl border border-[#e8c547]/35 bg-[#2a2010] px-4 py-2 text-xs font-bold text-[#e8c547] hover:bg-[#3a2c14] transition-all"
-              >
-                فتح الإصدار
-              </button>
-            </div>
-
-            <div className="flex items-center justify-between rounded-xl border border-[#e8c547]/25 bg-[#1a1508] px-4 py-3">
-              <div className="flex items-center gap-2.5">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#e8c547]/30 bg-[#e8c547]/15">
-                  <Wallet className="h-4 w-4 text-[#e8c547]" />
-                </div>
-                <div>
-                  <p className="text-sm font-bold text-white">قيد مبيعات المتجر</p>
-                  <p className="text-[0.62rem] text-[#e8c547]/75">افراحي1 · اجواء1 · تمويناتا1 · مطعمنا1 · كافينا1 · لاونجا1</p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => navigate(`${getAdminPortalBasePath()}${ROUTE_PATHS.ADMIN_STORE_SALES}`)}
-                className="flex items-center gap-1.5 rounded-xl border border-[#e8c547]/35 bg-[#2a2010] px-4 py-2 text-xs font-bold text-[#e8c547] hover:bg-[#3a2c14] transition-all"
-              >
-                فتح القيد
-              </button>
-            </div>
-
-            <div className="flex items-center justify-between rounded-xl border border-[#e8c547]/25 bg-[#1a1508] px-4 py-3">
-              <div className="flex items-center gap-2.5">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#e8c547]/30 bg-[#e8c547]/15">
-                  <Gift className="h-4 w-4 text-[#e8c547]" />
-                </div>
-                <div>
-                  <p className="text-sm font-bold text-white">قائمة هدايا المتجر</p>
-                  <p className="text-[0.62rem] text-[#e8c547]/75">مشاركون · تأكيد البريد · إعادة إرسال · بريد مفعَّل للنشرات</p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => navigate(`${getAdminPortalBasePath()}${ROUTE_PATHS.ADMIN_STORE_GIFTS}`)}
-                className="flex items-center gap-1.5 rounded-xl border border-[#e8c547]/35 bg-[#2a2010] px-4 py-2 text-xs font-bold text-[#e8c547] hover:bg-[#3a2c14] transition-all"
-              >
-                فتح القائمة
-              </button>
-            </div>
-
-            <div className="flex items-center justify-between rounded-xl border border-[#e8c547]/25 bg-[#1a1508] px-4 py-3">
-              <div className="flex items-center gap-2.5">
-                <div className="relative flex h-8 w-8 items-center justify-center rounded-lg border border-[#e8c547]/30 bg-[#e8c547]/15">
-                  <Star className="h-4 w-4 fill-[#e8c547] text-[#e8c547]" />
-                  {storeReviewCounts.unseen > 0 ? (
-                    <span className="absolute -top-1.5 -left-1.5 min-w-5 rounded-full bg-[#e8c547] px-1 text-center text-[0.62rem] font-black text-[#061018]">
-                      {storeReviewCounts.unseen}
-                    </span>
-                  ) : null}
-                </div>
-                <div>
-                  <p className="text-sm font-bold text-white">تقييمات المتجر</p>
-                  <p className="text-[0.62rem] text-[#e8c547]/75">نجوم وتعليق الزوار · مؤشر للتقييمات الجديدة</p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => navigate(`${getAdminPortalBasePath()}${ROUTE_PATHS.ADMIN_STORE_REVIEWS}`)}
-                className="flex items-center gap-1.5 rounded-xl border border-[#e8c547]/35 bg-[#2a2010] px-4 py-2 text-xs font-bold text-[#e8c547] hover:bg-[#3a2c14] transition-all"
-              >
-                فتح التقييمات
-              </button>
-            </div>
-
-            <div className="flex items-center justify-between rounded-xl border border-[#f4d4c0]/25 bg-[#2a1218] px-4 py-3">
-              <div className="flex items-center gap-2.5">
-                <CoiffeurBrandMark className="h-10 w-10" sizes="40px" showWordmark={false} />
-                <div>
-                  <p className="text-sm font-bold text-white">مكتب تشغيل كوافير ماب</p>
-                  <p className="text-[0.62rem] text-[#f4d4c0]/75">داخلي · طلبات · إدراجات · تجربة مشغل نسائي</p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => navigate(`${getAdminPortalBasePath()}${ROUTE_PATHS.ADMIN_COIFFEUR_HUB}`)}
-                className="flex items-center gap-1.5 rounded-xl border border-[#f4d4c0]/35 bg-[#3a1820] px-4 py-2 text-xs font-bold text-[#f4d4c0] hover:bg-[#4a2030] transition-all"
-              >
-                فتح المكتب
-              </button>
-            </div>
-
-            <div className="flex items-center justify-between rounded-xl border border-teal-400/25 bg-teal-500/8 px-4 py-3">
-              <div className="flex items-center gap-2.5">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-teal-400/30 bg-teal-500/15">
-                  <MapPin className="h-4 w-4 text-teal-300" />
-                </div>
-                <div>
-                  <p className="text-sm font-bold text-white">موافقات إبراز فزعة</p>
-                  <p className="text-[0.62rem] text-teal-200/70">دعوة بريد رسمي · موافقة صريحة قبل النشر على جوجل</p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => navigate(`${getAdminPortalBasePath()}${ROUTE_PATHS.ADMIN_FAZAA_LISTING}`)}
-                className="flex items-center gap-1.5 rounded-xl border border-teal-400/35 bg-teal-500/15 px-4 py-2 text-xs font-bold text-teal-100 hover:bg-teal-500/25 transition-all"
-              >
-                فتح المركز
-              </button>
-            </div>
-
-            {/* رابط مركز الوكلاء */}
-            <div className="flex items-center justify-between rounded-xl border border-teal-400/20 bg-teal-500/8 px-4 py-3">
-              <div className="flex items-center gap-2.5">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-teal-400/25 bg-teal-500/12">
-                  <span className="text-sm">👥</span>
-                </div>
-                <div>
-                  <p className="text-sm font-bold text-white">مركز الوكلاء</p>
-                  <p className="text-[0.62rem] text-teal-400/60">القائد الأعلى للدفاع السيبراني · قيادة الأسطول · التمويل · ZATCA · الهندسة · التسويق · الإعلام · القانون</p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => navigate(`${getAdminPortalBasePath()}${ROUTE_PATHS.ADMIN_STAFF_HUB}`)}
-                className="flex items-center gap-1.5 rounded-xl border border-teal-400/30 bg-teal-500/10 px-4 py-2 text-xs font-bold text-teal-200 hover:bg-teal-500/20 transition-all"
-              >
-                فتح المركز ←
-              </button>
-            </div>
+            </section>
 
             <OverviewSection
               stats={stats}
@@ -1766,6 +1684,52 @@ function SecurityOpsLogSection({ isActive, bumpNonce }: { isActive: boolean; bum
 }
 
 // Overview Section
+function FounderShortcutTile({
+  title,
+  hint,
+  onClick,
+  badge = 0,
+  tone = 'gold',
+  children,
+}: {
+  title: string;
+  hint: string;
+  onClick: () => void;
+  badge?: number;
+  tone?: 'gold' | 'rose' | 'teal' | 'amber';
+  children: JSX.Element;
+}) {
+  const tones = {
+    gold: 'border-[#e8c547]/25 bg-[#1a1508] text-[#e8c547] hover:bg-[#241c0c]',
+    rose: 'border-[#f4d4c0]/25 bg-[#2a1218] text-[#f4d4c0] hover:bg-[#3a1820]',
+    teal: 'border-teal-400/25 bg-teal-500/8 text-teal-200 hover:bg-teal-500/15',
+    amber: 'border-amber-400/25 bg-amber-500/10 text-amber-200 hover:bg-amber-500/15',
+  } as const;
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`flex min-h-[6.25rem] flex-col items-stretch justify-between rounded-xl border px-4 py-3 text-right transition ${tones[tone]}`}
+    >
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/20 bg-black/20">
+          {children}
+        </div>
+        {badge > 0 ? (
+          <span className="min-w-5 rounded-full bg-[#e8c547] px-1 text-center text-[0.62rem] font-black text-[#061018]">
+            {badge}
+          </span>
+        ) : null}
+      </div>
+      <div>
+        <p className="text-sm font-bold text-white">{title}</p>
+        <p className="mt-0.5 text-[0.62rem] leading-5 opacity-75">{hint}</p>
+      </div>
+    </button>
+  );
+}
+
 function OverviewSection({
   stats,
   isFounderView,
