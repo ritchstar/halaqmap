@@ -126,6 +126,8 @@ assert.match(landing, /reel="event"/);
 assert.match(loungeLanding, /reel="lounge"/);
 assert.match(produceLanding, /reel="produce"/);
 assert.doesNotMatch(produceLanding, /reel="grocers"/);
+assert.match(readFileSync(join(root, 'src/pages/store/StoreGrocersShopPage.tsx'), 'utf8'), /sky="grocers"/);
+assert.match(readFileSync(join(root, 'src/pages/store/StoreProduceShopPage.tsx'), 'utf8'), /sky="produce"/);
 
 const weddingHall = readFileSync(join(root, 'src/components/store/StoreWeddingHallStage.tsx'), 'utf8');
 const eventHall = readFileSync(join(root, 'src/components/store/StoreEventHallStage.tsx'), 'utf8');

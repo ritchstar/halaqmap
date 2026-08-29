@@ -3536,6 +3536,16 @@ html.platform-radar-fullscreen #root {
   overflow-x: clip;
 }
 
+.store-shop-sky__shot {
+  transition: opacity 1.2s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .store-shop-sky__shot {
+    transition: none;
+  }
+}
+
 .invite-luminous {
   text-shadow:
     0 0 10px rgba(255, 224, 170, 0.55),

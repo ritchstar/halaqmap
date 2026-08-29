@@ -146,7 +146,7 @@ export default function StoreGrocersShopPage() {
   };
 
   return (
-    <StorePurchasedShell>
+    <StorePurchasedShell sky="grocers" skySurface={desk ? 'desk' : 'shop'}>
       <div className="mx-auto max-w-3xl px-3 py-5">
         {gate === 'loading' ? <p className="pt-[30svh] text-center text-sm text-white/60">جاري فتح المتجر…</p> : null}
         {gate === 'missing' ? <p className="pt-[30svh] text-center text-sm text-white/70">الرابط غير صالح.</p> : null}

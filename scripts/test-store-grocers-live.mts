@@ -287,6 +287,8 @@ assert.equal(nextStoreLivePublicGate('loading', { ok: false }).gate, 'missing');
 assert.equal(nextStoreLivePublicGate('ok', { ok: true, payload: { shopName: 'تموينات' } }).gate, 'ok');
 assert.equal(nextStoreLivePublicGate('ok', { expired: true }).gate, 'expired');
 assert.match(readFileSync(join(root, 'src/pages/store/StoreGrocersShopPage.tsx'), 'utf8'), /nextStoreLivePublicGate/);
+assert.match(readFileSync(join(root, 'src/pages/store/StoreGrocersShopPage.tsx'), 'utf8'), /sky="grocers"/);
+assert.doesNotMatch(app, /from ['"]@\/config\/storeShopSky['"]/);
 assert.doesNotMatch(app, /from ['"]@\/lib\/storeLivePublicRead['"]/);
 assert.match(sql, /price_halalas IN \(59900, 89900\)/);
 assert.match(sql, /pending_renewal/);
