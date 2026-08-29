@@ -63,8 +63,12 @@ assert.match(youtubeInPageEmbedUrl('dQw4w9WgXcQ'), /youtube-nocookie\.com\/embed
 assert.match(youtubeInPageEmbedUrl('dQw4w9WgXcQ'), /rel=0/);
 
 assert.match(publicPage, /YoutubeGalleryGrid/);
+assert.match(publicPage, /GalleryExitBar/);
+assert.match(publicPage, /STORE_LANDING/);
 assert.doesNotMatch(publicPage, /youtube\.com\/watch/);
 assert.doesNotMatch(publicPage, /إعلان|اعلان/);
+assert.match(PLATFORM_YOUTUBE_GALLERY_COPY.backAr, /رجوع/);
+assert.match(PLATFORM_YOUTUBE_GALLERY_COPY.backStoreAr, /المتجر/);
 assert.match(desk, /publishAdminYoutubeGallery/);
 assert.match(desk, /emptyYoutubeBox/);
 assert.match(player, /youtubeInPageEmbedUrl/);
