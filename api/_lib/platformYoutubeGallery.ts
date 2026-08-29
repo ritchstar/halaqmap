@@ -27,7 +27,7 @@ function newId(): string {
 }
 
 function cleanTitle(raw: string): string {
-  return raw.replace(/\s+/g, ' ').trim().slice(0, 80);
+  return raw.replace(/\s+/g, ' ').trim().slice(0, 160);
 }
 
 export function parseYoutubeDraftBox(raw: unknown): PlatformYoutubeBox | null {

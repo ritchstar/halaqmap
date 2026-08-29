@@ -26,6 +26,7 @@ const player = readFileSync(join(root, 'src/components/youtube/YoutubeGalleryPla
 const publicApi = readFileSync(join(root, 'api/public-youtube-gallery.ts'), 'utf8');
 const adminApi = readFileSync(join(root, 'api/admin-youtube-gallery.ts'), 'utf8');
 const sql = readFileSync(join(root, 'supabase/migrations/188_platform_youtube_gallery.sql'), 'utf8');
+const grants = readFileSync(join(root, 'supabase/migrations/189_platform_youtube_gallery_grants.sql'), 'utf8');
 
 assert.doesNotMatch(app, /from ['"]@\/config\/platformYoutubeGallery['"]/);
 assert.doesNotMatch(app, /from ['"]@\/lib\/platformYoutubeGallery['"]/);
@@ -71,8 +72,11 @@ assert.doesNotMatch(player, /youtube\.com\/watch/);
 assert.match(publicApi, /published_boxes/);
 assert.doesNotMatch(publicApi, /draft_boxes/);
 assert.match(adminApi, /verifyPlatformAdminFromRequestAny/);
+assert.match(adminApi, /onConflict: 'page_id'/);
 assert.match(sql, /platform_youtube_galleries/);
 assert.match(sql, /REVOKE ALL/);
+assert.match(grants, /GRANT SELECT, INSERT, UPDATE, DELETE/);
+assert.match(grants, /TO service_role/);
 assert.match(PLATFORM_YOUTUBE_GALLERY_COPY.halaq.leadAr, /دون مغادرة الصفحة/);
 assert.doesNotMatch(readFileSync(join(root, 'src/pages/AdminDashboard.tsx'), 'utf8'), /from ['"]@\/config\/platformYoutubeGallery['"]/);
 assert.match(readFileSync(join(root, 'src/pages/AdminDashboard.tsx'), 'utf8'), /ADMIN_YOUTUBE_GALLERY/);

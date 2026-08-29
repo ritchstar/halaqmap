@@ -30,6 +30,13 @@ function json(body: unknown, status: number, headers: Record<string, string>): R
   return Response.json(body, { status, headers });
 }
 
+function persistError(error: { message?: string; code?: string } | null, fallback: string): string {
+  const msg = String(error?.message || error?.code || '');
+  if (/does not exist|schema cache|PGRST205|42P01/i.test(msg)) return 'جدول الصناديق غير مُعد بعد.';
+  if (/permission denied|42501|row-level security|RLS/i.test(msg)) return 'صلاحية الحفظ غير مكتملة.';
+  return fallback;
+}
+
 function serviceClient() {
   const url = (process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '').trim();
   const serviceRole = (process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();
@@ -101,28 +108,34 @@ export async function POST(request: Request): Promise<Response> {
     const draftBoxes = parseYoutubeDraftBoxes(body.boxes);
     const { error } = await gate.db
       .from(PLATFORM_YOUTUBE_GALLERY_TABLE)
-      .upsert({
-        page_id: page,
-        draft_boxes: draftBoxes,
-        updated_at: new Date().toISOString(),
-        updated_by: gate.email.slice(0, 120),
-      });
-    if (error) return json({ ok: false, error: 'تعذر الحفظ.' }, 500, headers);
+      .upsert(
+        {
+          page_id: page,
+          draft_boxes: draftBoxes,
+          updated_at: new Date().toISOString(),
+          updated_by: gate.email.slice(0, 120),
+        },
+        { onConflict: 'page_id' },
+      );
+    if (error) return json({ ok: false, error: persistError(error, 'تعذر الحفظ.') }, 500, headers);
   } else if (action === 'publish') {
     const current = await readGallery(gate.db, page);
     if (!current) return json({ ok: false, error: 'تعذر القراءة.' }, 500, headers);
     const publishedBoxes = parseYoutubeBoxes(current.draftBoxes);
     const { error } = await gate.db
       .from(PLATFORM_YOUTUBE_GALLERY_TABLE)
-      .upsert({
-        page_id: page,
-        draft_boxes: current.draftBoxes,
-        published_boxes: publishedBoxes,
-        published_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        updated_by: gate.email.slice(0, 120),
-      });
-    if (error) return json({ ok: false, error: 'تعذر النشر.' }, 500, headers);
+      .upsert(
+        {
+          page_id: page,
+          draft_boxes: current.draftBoxes,
+          published_boxes: publishedBoxes,
+          published_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          updated_by: gate.email.slice(0, 120),
+        },
+        { onConflict: 'page_id' },
+      );
+    if (error) return json({ ok: false, error: persistError(error, 'تعذر النشر.') }, 500, headers);
   } else {
     return json({ ok: false, error: 'إجراء غير معروف.' }, 400, headers);
   }

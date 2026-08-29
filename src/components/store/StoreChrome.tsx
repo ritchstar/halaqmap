@@ -8,11 +8,13 @@ import { STORE_PRODUCT_BENEFITS_COPY } from '@/config/storeProductBenefitsCopy';
 import { STORE_GIFT_CAMPAIGN_PUBLIC_ENABLED, STORE_GIFT_COPY } from '@/config/storeGiftCampaign';
 import { STORE_REVIEWS_COPY, STORE_REVIEWS_PUBLIC_ENABLED } from '@/config/storeReviews';
 import { STORE_ABOUT_COPY, STORE_BRAND_LATIN, STORE_CONTACT_EMAIL, STORE_CONTACT_PHONE_DISPLAY, STORE_CONTACT_PHONE_E164, STORE_CONTACT_WHATSAPP_URL, STORE_CONTACT_X_HANDLE, STORE_CONTACT_X_URL, STORE_FOOTER_CONTACT, STORE_LANDING_COPY, STORE_ORIGIN, STORE_VISUALS } from '@/config/storeFront';
+import { STORE_HMTUBE } from '@/config/storeHmTube';
 import { KSACityClocksBar } from '@/components/KSACityClocksBar';
 import { EcommerceVerifiedFooterBadge } from '@/components/EcommerceVerifiedFooterBadge';
 import { StoreVisitorEngage } from '@/components/store/StoreVisitorEngage';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { rememberStoreAffiliateRef } from '@/lib/storeAffiliateRef';
+import { isStoreProductLandingPath, showStoreHmTubeMark } from '@/lib/storeHmTube';
 import { useEffect, type ReactNode } from 'react';
 
 export function StoreVisitorShell({ children }: { children: ReactNode }) {
@@ -27,17 +29,50 @@ export function StoreVisitorShell({ children }: { children: ReactNode }) {
   );
 }
 
+function StoreHmTubeLink({ pathname }: { pathname: string }) {
+  const product = isStoreProductLandingPath(pathname);
+  return (
+    <Link
+      to={ROUTE_PATHS.YOUTUBE_STORE}
+      dir="ltr"
+      aria-label={STORE_HMTUBE.brand}
+      className="flex shrink-0 items-center gap-2 rounded-2xl border border-[#e8c547]/25 bg-black/25 px-1.5 py-1 hover:border-[#e8c547]/55"
+    >
+      <img
+        src={STORE_HMTUBE.markSrc}
+        alt=""
+        width={40}
+        height={40}
+        className="h-10 w-10 shrink-0 rounded-xl object-cover"
+      />
+      {product ? (
+        <span dir="rtl" className="min-w-0 max-w-[9.5rem] text-start sm:max-w-[13.5rem]">
+          <span className="block text-[0.62rem] font-extrabold text-[#e8c547]">{STORE_HMTUBE.supportAr}</span>
+          <span className="block text-[0.68rem] leading-4 text-white/88">
+            {STORE_HMTUBE.watchAr}
+            {' '}
+            <span dir="ltr" className="font-extrabold text-[#e8c547]">{STORE_HMTUBE.brand}</span>
+          </span>
+        </span>
+      ) : (
+        <span className="sr-only">{STORE_HMTUBE.brand}</span>
+      )}
+    </Link>
+  );
+}
+
 export function StoreVisitorHeader() {
   const isMobile = useIsMobile();
   const location = useLocation();
   const onGiftPage = location.pathname.startsWith(ROUTE_PATHS.STORE_GIFT);
   const showGiftCta = STORE_GIFT_CAMPAIGN_PUBLIC_ENABLED && !onGiftPage;
+  const showHmTube = showStoreHmTubeMark(location.pathname);
   return (
     <div className="border-b border-white/10 bg-[#061018]/90">
       {!isMobile ? <KSACityClocksBar /> : null}
       <header className="backdrop-blur">
-        <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3">
-          <Link to={ROUTE_PATHS.STORE_LANDING} className="flex min-w-0 items-center gap-3">
+        <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-3 px-4 py-3">
+          <Link to={ROUTE_PATHS.STORE_LANDING} className="flex min-w-0 items-center gap-3 me-auto">
             <img
               src={STORE_VISUALS.logo}
               alt=""
@@ -93,6 +128,11 @@ export function StoreVisitorHeader() {
               بطاقة مجانية
             </Link>
           </nav>
+          {showHmTube ? (
+            <span className="ms-auto">
+              <StoreHmTubeLink pathname={location.pathname} />
+            </span>
+          ) : null}
         </div>
       </header>
       <StoreVisitorEngage />
