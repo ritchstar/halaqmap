@@ -14,7 +14,8 @@ import { EcommerceVerifiedFooterBadge } from '@/components/EcommerceVerifiedFoot
 import { StoreVisitorEngage } from '@/components/store/StoreVisitorEngage';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { rememberStoreAffiliateRef } from '@/lib/storeAffiliateRef';
-import { isStoreProductLandingPath, showStoreHmTubeMark } from '@/lib/storeHmTube';
+import { isStoreProductLandingPath } from '@/lib/storeHmTube';
+import { cn } from '@/lib/utils';
 import { useEffect, type ReactNode } from 'react';
 
 export function StoreVisitorShell({ children }: { children: ReactNode }) {
@@ -29,36 +30,58 @@ export function StoreVisitorShell({ children }: { children: ReactNode }) {
   );
 }
 
-function StoreHmTubeLink({ pathname }: { pathname: string }) {
-  const product = isStoreProductLandingPath(pathname);
+function StoreHmTubeMark({ featured = false }: { featured?: boolean }) {
   return (
-    <Link
-      to={ROUTE_PATHS.YOUTUBE_STORE}
-      dir="ltr"
-      aria-label={STORE_HMTUBE.brand}
-      className="flex shrink-0 items-center gap-2 rounded-2xl border border-[#e8c547]/25 bg-black/25 px-1.5 py-1 hover:border-[#e8c547]/55"
+    <span
+      className={cn(
+        'store-hmtube-live inline-flex shrink-0 overflow-hidden rounded-xl',
+        featured && 'store-hmtube-live--hero',
+      )}
     >
       <img
         src={STORE_HMTUBE.markSrc}
         alt=""
-        width={40}
-        height={40}
-        className="h-10 w-10 shrink-0 rounded-xl object-cover"
+        width={featured ? 72 : 40}
+        height={featured ? 72 : 40}
+        className={cn('shrink-0 rounded-xl object-cover', featured ? 'h-[4.5rem] w-[4.5rem]' : 'h-10 w-10')}
       />
-      {product ? (
-        <span dir="rtl" className="min-w-0 max-w-[9.5rem] text-start sm:max-w-[13.5rem]">
-          <span className="block text-[0.62rem] font-extrabold text-[#e8c547]">{STORE_HMTUBE.supportAr}</span>
-          <span className="block text-[0.68rem] leading-4 text-white/88">
-            {STORE_HMTUBE.watchAr}
-            {' '}
-            <span dir="ltr" className="font-extrabold text-[#e8c547]">{STORE_HMTUBE.brand}</span>
-          </span>
-        </span>
-      ) : (
-        <span className="sr-only">{STORE_HMTUBE.brand}</span>
+    </span>
+  );
+}
+
+function StoreHmTubeCopy({ featured = false }: { featured?: boolean }) {
+  return (
+    <span className={cn('min-w-0 text-start', featured ? 'max-w-[14rem]' : 'max-w-[9.5rem] sm:max-w-[12rem]')}>
+      <span dir="ltr" className={cn('block font-black tracking-wide text-[#e8c547]', featured ? 'text-lg' : 'text-sm')}>
+        {STORE_HMTUBE.brand}
+      </span>
+      <span className={cn('block leading-4 text-white/88', featured ? 'mt-0.5 text-sm' : 'text-[0.68rem]')}>
+        {STORE_HMTUBE.labelAr}
+      </span>
+    </span>
+  );
+}
+
+function StoreHmTubeLink({ featured = false }: { featured?: boolean }) {
+  return (
+    <Link
+      to={ROUTE_PATHS.YOUTUBE_STORE}
+      aria-label={`${STORE_HMTUBE.labelAr} ${STORE_HMTUBE.brand}`}
+      className={cn(
+        'flex shrink-0 items-center gap-2 border border-[#e8c547]/35 bg-black/35 hover:border-[#e8c547]/70',
+        featured
+          ? 'rounded-3xl px-3 py-2 shadow-[0_16px_36px_-18px_rgba(45,212,191,0.65)]'
+          : 'rounded-2xl px-1.5 py-1',
       )}
+    >
+      <StoreHmTubeMark featured={featured} />
+      <StoreHmTubeCopy featured={featured} />
     </Link>
   );
+}
+
+export function StoreHmTubeHero() {
+  return <StoreHmTubeLink featured />;
 }
 
 export function StoreVisitorHeader() {
@@ -66,7 +89,7 @@ export function StoreVisitorHeader() {
   const location = useLocation();
   const onGiftPage = location.pathname.startsWith(ROUTE_PATHS.STORE_GIFT);
   const showGiftCta = STORE_GIFT_CAMPAIGN_PUBLIC_ENABLED && !onGiftPage;
-  const showHmTube = showStoreHmTubeMark(location.pathname);
+  const showHmTube = isStoreProductLandingPath(location.pathname);
   return (
     <div className="border-b border-white/10 bg-[#061018]/90">
       {!isMobile ? <KSACityClocksBar /> : null}
@@ -130,7 +153,7 @@ export function StoreVisitorHeader() {
           </nav>
           {showHmTube ? (
             <span className="ms-auto">
-              <StoreHmTubeLink pathname={location.pathname} />
+              <StoreHmTubeLink />
             </span>
           ) : null}
         </div>

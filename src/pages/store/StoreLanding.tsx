@@ -8,6 +8,7 @@ import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { StoreServiceRequestForm } from '@/components/store/StoreServiceRequestForm';
 import {
+  StoreHmTubeHero,
   StoreVisitorFooter,
   StoreVisitorHeader,
   StoreVisitorShell,
@@ -107,7 +108,10 @@ export default function StoreLanding() {
               <StoreProductBenefitsLink />
             </div>
           </div>
-          <figure className="overflow-hidden rounded-2xl border border-[#e8c547]/30 shadow-[0_24px_60px_-28px_rgba(232,197,71,0.45)]">
+          <figure className="relative overflow-hidden rounded-2xl border border-[#e8c547]/30 shadow-[0_24px_60px_-28px_rgba(232,197,71,0.45)]">
+            <div className="absolute top-3 start-3 z-10">
+              <StoreHmTubeHero />
+            </div>
             <StoreShot
               reel="landing"
               alt={STORE_LANDING_COPY.heroShotAlt}

@@ -6,6 +6,5 @@
 export const STORE_HMTUBE = {
   brand: 'HMTube',
   markSrc: '/images/store/hmtube-mark.png',
-  supportAr: 'دعم تسويقي للمنتجات',
-  watchAr: 'شاهد الإعلانات والشروحات على',
+  labelAr: 'مقاطع منتجات المتجر',
 } as const;
