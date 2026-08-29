@@ -23,6 +23,7 @@ import {
   type GrocersLabState,
 } from '@/lib/storeGrocersLiveLab';
 import { addGrocersLiveChat, addGrocersLiveOrder, fetchGrocersLivePublic, saveGrocersLiveHost } from '@/lib/storeGrocersLiveRemote';
+import { nextStoreLivePublicGate } from '@/lib/storeLivePublicRead';
 import { parseStoreShopHours } from '@/lib/storeShopHours';
 import { parseShopPickupPlace } from '@/lib/storeShopPlace';
 import { ROUTE_PATHS } from '@/lib/routePaths';
@@ -94,13 +95,13 @@ export default function StoreGrocersShopPage() {
           setGate('expired');
           return;
         }
-        if (!result.ok || !result.payload || typeof result.payload !== 'object') {
-          setGate('missing');
+        if (result.ok && result.payload && typeof result.payload === 'object') {
+          setState(payloadToState(result.payload as Record<string, unknown>, defaultGrocersLabState()));
+          if (typeof result.shopUrl === 'string' && result.shopUrl) setShopUrl(result.shopUrl);
+          setGate('ok');
           return;
         }
-        setState(payloadToState(result.payload as Record<string, unknown>, defaultGrocersLabState()));
-        if (typeof result.shopUrl === 'string' && result.shopUrl) setShopUrl(result.shopUrl);
-        setGate('ok');
+        setGate((current) => nextStoreLivePublicGate(current, result).gate);
       });
     };
     load();

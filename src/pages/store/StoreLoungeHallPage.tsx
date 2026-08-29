@@ -18,6 +18,7 @@ import {
   type LoungeLiveHostState,
   type LoungeLiveLabState,
 } from '@/lib/storeLoungeLiveLab';
+import { nextStoreLivePublicGate } from '@/lib/storeLivePublicRead';
 import { addLoungeLiveBlessing, fetchLoungeLivePublic, saveLoungeLiveHost } from '@/lib/storeLoungeLiveRemote';
 import { parseShopPickupPlace } from '@/lib/storeShopPlace';
 import { ROUTE_PATHS } from '@/lib/routePaths';
@@ -84,8 +85,7 @@ export default function StoreLoungeHallPage() {
           return;
         }
         if (!result.ok || !result.payload || typeof result.payload !== 'object') {
-          setGate('missing');
-          setScreenLive(false);
+          setGate((current) => nextStoreLivePublicGate(current, result).gate);
           return;
         }
         setState(payloadToState(result.payload as Record<string, unknown>, defaultLoungeLiveLabState()));

@@ -1,6 +1,8 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
+import { fetchStoreLivePublicGet } from '@/lib/storeLivePublicRead';
+
 const CAFE_LIVE_API_PATH = '/api/public-store-cafe-live';
 const LIVE_API_HOSTS = new Set(['www.halaqmap.com', 'halaqmap.com', 'store.halaqmap.com']);
 
@@ -64,7 +66,7 @@ export async function fetchCafeLivePay(token: string) {
 export type CafeLiveRole = 'shop' | 'desk' | 'display' | 'guest' | 'host';
 
 export async function fetchCafeLivePublic(token: string, role: CafeLiveRole) {
-  return postAction({ action: 'get_public', token, role });
+  return fetchStoreLivePublicGet(storeCafeLiveEndpoint(), token, role);
 }
 
 export async function addCafeLiveOrder(token: string, order: Record<string, unknown>) {

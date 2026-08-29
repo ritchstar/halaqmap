@@ -30,6 +30,7 @@ import { STORE_LOUNGE_LIVE_PRODUCT } from '../src/config/storeLoungeLive.ts';
 import { STORE_WEDDING_LIVE_PRODUCT } from '../src/config/storeWeddingLive.ts';
 import { STORE_LANDING_COPY } from '../src/config/storeFront.ts';
 import { STORE_SHOP_PRESENCE_LABEL_AR } from '../src/config/storeShopPresence.ts';
+import { nextStoreLivePublicGate } from '../src/lib/storeLivePublicRead.ts';
 import {
   STORE_GROCERS_LIVE_PRODUCT as apiProduct,
   grocersChargeHalalas,
@@ -279,7 +280,14 @@ assert.match(webhook, /139800/);
 assert.match(indexHtml, /store_grocers_live/);
 assert.match(indexHtml, /\/pay\/grocers\//);
 assert.match(remote, /public-store-grocers-live/);
+assert.match(remote, /fetchStoreLivePublicGet/);
 assert.doesNotMatch(remote, /public-store-lounge-live/);
+assert.equal(nextStoreLivePublicGate('ok', { ok: false }).gate, 'ok');
+assert.equal(nextStoreLivePublicGate('loading', { ok: false }).gate, 'missing');
+assert.equal(nextStoreLivePublicGate('ok', { ok: true, payload: { shopName: 'تموينات' } }).gate, 'ok');
+assert.equal(nextStoreLivePublicGate('ok', { expired: true }).gate, 'expired');
+assert.match(readFileSync(join(root, 'src/pages/store/StoreGrocersShopPage.tsx'), 'utf8'), /nextStoreLivePublicGate/);
+assert.doesNotMatch(app, /from ['"]@\/lib\/storeLivePublicRead['"]/);
 assert.match(sql, /price_halalas IN \(59900, 89900\)/);
 assert.match(sql, /pending_renewal/);
 assert.match(sql, /desk_token/);

@@ -1,6 +1,8 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
+import { fetchStoreLivePublicGet } from '@/lib/storeLivePublicRead';
+
 const PRODUCE_LIVE_API_PATH = '/api/public-store-produce-live';
 const LIVE_API_HOSTS = new Set(['www.halaqmap.com', 'halaqmap.com', 'store.halaqmap.com']);
 
@@ -62,7 +64,7 @@ export async function fetchProduceLivePay(token: string) {
 }
 
 export async function fetchProduceLivePublic(token: string, role: 'shop' | 'desk') {
-  return postAction({ action: 'get_public', token, role });
+  return fetchStoreLivePublicGet(storeProduceLiveEndpoint(), token, role);
 }
 
 export async function addProduceLiveOrder(token: string, order: Record<string, unknown>) {

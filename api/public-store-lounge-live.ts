@@ -164,8 +164,6 @@ export async function POST(request: Request): Promise<Response> {
   const headers = corsHeaders(request);
   const guard = runRegistrationRouteGuards(request, 'public-store-lounge-live');
   if (guard.ok === false) return json(guard.json, guard.status, headers);
-  const secGuard = await runSecurityGuard(request, { sensitiveRoute: true, rateLimit: 8 });
-  if (!secGuard.allowed) return secGuard.response;
   const db = serviceClient();
   if (!db) return json({ error: 'Server not configured' }, 503, headers);
   let body: Record<string, unknown>;
@@ -175,6 +173,11 @@ export async function POST(request: Request): Promise<Response> {
     return json({ error: 'Invalid JSON body' }, 400, headers);
   }
   const action = String(body.action || '').trim();
+  const secGuard = await runSecurityGuard(request, {
+    sensitiveRoute: true,
+    rateLimit: action === 'get_public' ? 45 : 8,
+  });
+  if (!secGuard.allowed) return secGuard.response;
   if (action === 'create_pending') return createPending(db, body, headers, request);
   if (action === 'activate_paid') return activatePaid(db, body, headers);
   if (action === 'sync_paid') return syncPaid(db, body, headers);

@@ -1,6 +1,8 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
+import { fetchStoreLivePublicGet } from '@/lib/storeLivePublicRead';
+
 const GROCERS_LIVE_API_PATH = '/api/public-store-grocers-live';
 const LIVE_API_HOSTS = new Set(['www.halaqmap.com', 'halaqmap.com', 'store.halaqmap.com']);
 
@@ -62,7 +64,7 @@ export async function fetchGrocersLivePay(token: string) {
 }
 
 export async function fetchGrocersLivePublic(token: string, role: 'shop' | 'desk') {
-  return postAction({ action: 'get_public', token, role });
+  return fetchStoreLivePublicGet(storeGrocersLiveEndpoint(), token, role);
 }
 
 export async function addGrocersLiveOrder(token: string, order: Record<string, unknown>) {

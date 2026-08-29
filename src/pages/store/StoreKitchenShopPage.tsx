@@ -26,6 +26,7 @@ import {
   type KitchenLabState,
 } from '@/lib/storeKitchenLiveLab';
 import { addKitchenLiveOrder, fetchKitchenLivePublic, saveKitchenLiveHost } from '@/lib/storeKitchenLiveRemote';
+import { nextStoreLivePublicGate } from '@/lib/storeLivePublicRead';
 import { parseStoreShopHours } from '@/lib/storeShopHours';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 
@@ -112,7 +113,7 @@ export default function StoreKitchenShopPage() {
           return;
         }
         if (!result.ok || !result.payload || typeof result.payload !== 'object') {
-          setGate('missing');
+          setGate((current) => nextStoreLivePublicGate(current, result).gate);
           return;
         }
         const payload = result.payload as Record<string, unknown>;

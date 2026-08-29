@@ -23,6 +23,7 @@ import {
   type ProduceLabState,
 } from '@/lib/storeProduceLiveLab';
 import { addProduceLiveChat, addProduceLiveOrder, fetchProduceLivePublic, saveProduceLiveHost } from '@/lib/storeProduceLiveRemote';
+import { nextStoreLivePublicGate } from '@/lib/storeLivePublicRead';
 import { parseStoreShopHours } from '@/lib/storeShopHours';
 import { parseShopPickupPlace } from '@/lib/storeShopPlace';
 import { ROUTE_PATHS } from '@/lib/routePaths';
@@ -95,7 +96,7 @@ export default function StoreProduceShopPage() {
           return;
         }
         if (!result.ok || !result.payload || typeof result.payload !== 'object') {
-          setGate('missing');
+          setGate((current) => nextStoreLivePublicGate(current, result).gate);
           return;
         }
         setState(payloadToState(result.payload as Record<string, unknown>, defaultProduceLabState()));

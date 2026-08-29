@@ -26,6 +26,7 @@ import {
   writeCafeLabState,
   type CafeLabState,
 } from '@/lib/storeCafeLiveLab';
+import { nextStoreLivePublicGate } from '@/lib/storeLivePublicRead';
 import {
   addCafeLiveBlessing,
   addCafeLiveChat,
@@ -168,8 +169,7 @@ export default function StoreCafeShopPage() {
           return;
         }
         if (!result.ok || !result.payload || typeof result.payload !== 'object') {
-          setGate('missing');
-          setScreenLive(false);
+          setGate((current) => nextStoreLivePublicGate(current, result).gate);
           return;
         }
         setState(payloadToState(result.payload as Record<string, unknown>, defaultCafeLabState()));

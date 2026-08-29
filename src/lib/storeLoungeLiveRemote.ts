@@ -3,6 +3,8 @@
  *
  * التحصيل على نطاقات halaqmap الحيّة فقط. لا يُستخدم أصل vercel.app الميّت.
  */
+import { fetchStoreLivePublicGet } from '@/lib/storeLivePublicRead';
+
 const LOUNGE_LIVE_API_PATH = '/api/public-store-lounge-live';
 const LIVE_API_HOSTS = new Set(['www.halaqmap.com', 'halaqmap.com', 'store.halaqmap.com']);
 
@@ -66,7 +68,7 @@ export async function fetchLoungeLivePay(token: string) {
 }
 
 export async function fetchLoungeLivePublic(token: string, role: 'display' | 'guest' | 'host') {
-  return postAction({ action: 'get_public', token, role });
+  return fetchStoreLivePublicGet(storeLoungeLiveEndpoint(), token, role);
 }
 
 export async function addLoungeLiveBlessing(input: Record<string, unknown>) {

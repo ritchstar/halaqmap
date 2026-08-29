@@ -22,6 +22,7 @@ import {
   writeRestaurantLabState,
   type RestaurantLabState,
 } from '@/lib/storeRestaurantLiveLab';
+import { nextStoreLivePublicGate } from '@/lib/storeLivePublicRead';
 import {
   addRestaurantLiveChat,
   addRestaurantLiveOrder,
@@ -104,7 +105,7 @@ export default function StoreRestaurantShopPage() {
           return;
         }
         if (!result.ok || !result.payload || typeof result.payload !== 'object') {
-          setGate('missing');
+          setGate((current) => nextStoreLivePublicGate(current, result).gate);
           return;
         }
         setState(payloadToState(result.payload as Record<string, unknown>, defaultRestaurantLabState()));

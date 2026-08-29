@@ -77,6 +77,7 @@ assert.ok(landing.includes('STORE_PRODUCE'));
 assert.ok(landing.includes('reel="produce"'));
 assert.ok(produceLanding.includes('STORE_PRODUCE_LIVE.priceLineAr'));
 assert.ok(produceLanding.includes('reel="produce"'));
+assert.match(readFileSync(join(root, 'src/pages/store/StoreProduceShopPage.tsx'), 'utf8'), /nextStoreLivePublicGate/);
 assert.ok(!produceLanding.includes('reel="grocers"'));
 assert.equal(STORE_PRODUCE_LIVE.heroImage, '/images/store/produce-hero-marketing.jpg');
 assert.ok(producePay.includes('2500'));
