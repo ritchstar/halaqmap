@@ -8,22 +8,35 @@ import { useEffect, useState } from 'react';
 import { usePlatformAmbientOptional } from '@/context/PlatformAmbientContext';
 import { resolveAmbientPhaseFromRiyadhTime } from '@/lib/riyadhAmbientPhase';
 import {
+  resolveShopSkyWeatherPoint,
   shopSkyFrameIsHallPanorama,
   storeShopSkyImageOpacity,
   storeShopSkyIntervalMs,
   storeShopSkySources,
+  storeShopSkyTempChipLabel,
+  storeShopSkyTempWash,
   storeShopSkyVeilOpacity,
   storeShopSkyWash,
 } from '@/lib/storeShopSky';
+import { fetchTemperatureCelsius } from '@/lib/userRegionWeather';
 import { cn } from '@/lib/utils';
-import type { StoreShopSkyProduct, StoreShopSkySurface } from '@/config/storeShopSky';
+import {
+  STORE_SHOP_SKY_TEMP_CHIP_ARIA_AR,
+  STORE_SHOP_SKY_TEMP_REFRESH_MS,
+  type StoreShopSkyProduct,
+  type StoreShopSkySurface,
+} from '@/config/storeShopSky';
 
 export function StoreShopSky({
   product,
   surface = 'shop',
+  lat,
+  lng,
 }: {
   product: StoreShopSkyProduct;
   surface?: StoreShopSkySurface;
+  lat?: number;
+  lng?: number;
 }) {
   const ambient = usePlatformAmbientOptional();
   const [clockPhase, setClockPhase] = useState(() => resolveAmbientPhaseFromRiyadhTime());
@@ -37,6 +50,8 @@ export function StoreShopSky({
   const veil = storeShopSkyVeilOpacity(surface, phase);
   const wash = storeShopSkyWash(phase);
   const intervalMs = storeShopSkyIntervalMs(surface);
+  const weatherPoint = resolveShopSkyWeatherPoint(lat, lng);
+  const [tempC, setTempC] = useState<number | null>(null);
 
   useEffect(() => {
     if (ambient) return undefined;
@@ -66,12 +81,29 @@ export function StoreShopSky({
     return () => window.clearInterval(timer);
   }, [frames.length, intervalMs]);
 
+  useEffect(() => {
+    let cancelled = false;
+    const load = () => {
+      void fetchTemperatureCelsius(weatherPoint.lat, weatherPoint.lng).then((next) => {
+        if (!cancelled) setTempC(next);
+      });
+    };
+    load();
+    const timer = window.setInterval(load, STORE_SHOP_SKY_TEMP_REFRESH_MS);
+    return () => {
+      cancelled = true;
+      window.clearInterval(timer);
+    };
+  }, [weatherPoint.lat, weatherPoint.lng]);
+
   return (
+    <>
     <div
       className="store-shop-sky pointer-events-none fixed inset-0 z-0 overflow-hidden"
       data-store-shop-sky={product}
       data-store-shop-sky-surface={surface}
       data-ambient-phase={phase}
+      data-shop-sky-from-pin={weatherPoint.fromPin ? '1' : '0'}
       aria-hidden
     >
       {shown.map((src) => (
@@ -89,10 +121,21 @@ export function StoreShopSky({
         />
       ))}
       <div className="absolute inset-0" style={{ background: wash }} />
+      {tempC != null ? <div className="absolute inset-0" style={{ background: storeShopSkyTempWash(tempC) }} /> : null}
       <div
         className="store-shop-sky__veil absolute inset-0"
         style={{ background: `rgba(5, 3, 8, ${veil})` }}
       />
     </div>
+    {tempC != null ? (
+      <p
+        className="store-shop-sky-chip pointer-events-none fixed left-3 top-3 z-20"
+        data-store-shop-sky-chip="1"
+        aria-label={STORE_SHOP_SKY_TEMP_CHIP_ARIA_AR}
+      >
+        <span dir="ltr">{storeShopSkyTempChipLabel(tempC)}</span>
+      </p>
+    ) : null}
+    </>
   );
 }

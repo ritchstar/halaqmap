@@ -7,12 +7,17 @@ import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { STORE_GROCERS_MARKETING_FRAMES, STORE_PRODUCE_MARKETING_FRAMES } from '../src/config/storeMarketingReels.ts';
-import { storeShopSkyBank, storeShopSkyFrames } from '../src/config/storeShopSky.ts';
+import { STORE_SHOP_SKY_RIYADH, storeShopSkyBank, storeShopSkyFrames } from '../src/config/storeShopSky.ts';
 import {
+  resolveShopSkyWeatherPoint,
   shopSkyFrameIsHallPanorama,
+  shopSkyHasPin,
   storeShopSkyImageOpacity,
   storeShopSkyIntervalMs,
   storeShopSkySources,
+  storeShopSkyTempBand,
+  storeShopSkyTempChipLabel,
+  storeShopSkyTempWash,
   storeShopSkyVeilOpacity,
 } from '../src/lib/storeShopSky.ts';
 
@@ -45,8 +50,16 @@ assert.doesNotMatch(eventPage, /sky=/);
 
 assert.match(sky, /prefers-reduced-motion/);
 assert.match(sky, /pointer-events-none/);
+assert.match(sky, /fetchTemperatureCelsius/);
+assert.match(sky, /store-shop-sky-chip/);
 assert.doesNotMatch(sky, /STORE_LIVE_PANORAMAS/);
-assert.doesNotMatch(sky, /geolocation|getCurrentPosition|fetchTemperatureCelsius/);
+assert.doesNotMatch(sky, /geolocation|getCurrentPosition|readStoredUserCoords|requestShopGeo/);
+assert.match(grocersPage, /skyLat=\{state\.host\.pickupLat\}/);
+assert.match(producePage, /skyLat=\{state\.host\.pickupLat\}/);
+assert.doesNotMatch(readFileSync(join(root, 'src/components/store/StoreGrocersShop.tsx'), 'utf8'), /store-shop-sky-chip|fetchTemperatureCelsius/);
+assert.doesNotMatch(readFileSync(join(root, 'src/components/store/StoreProduceShop.tsx'), 'utf8'), /store-shop-sky-chip|fetchTemperatureCelsius/);
+assert.doesNotMatch(readFileSync(join(root, 'src/components/store/StoreGrocersDesk.tsx'), 'utf8'), /store-shop-sky-chip/);
+assert.doesNotMatch(readFileSync(join(root, 'src/components/store/StoreProduceDesk.tsx'), 'utf8'), /store-shop-sky-chip/);
 
 const grocersFajr = storeShopSkyFrames('grocers', 'fajr');
 const produceFajr = storeShopSkyFrames('produce', 'fajr');
@@ -76,5 +89,24 @@ for (const phase of ['fajr', 'dhuhr', 'ghuroob', 'layl'] as const) {
 assert.ok(storeShopSkyImageOpacity('shop') > storeShopSkyImageOpacity('desk'));
 assert.ok(storeShopSkyIntervalMs('desk') > storeShopSkyIntervalMs('shop'));
 assert.equal(shopSkyFrameIsHallPanorama('/images/store/live/pano-01-gold.jpg'), true);
+
+assert.equal(shopSkyHasPin(0, 0), false);
+assert.equal(shopSkyHasPin(undefined, undefined), false);
+assert.equal(shopSkyHasPin(24.7136, 46.6753), true);
+assert.deepEqual(resolveShopSkyWeatherPoint(0, 0), {
+  lat: STORE_SHOP_SKY_RIYADH.lat,
+  lng: STORE_SHOP_SKY_RIYADH.lng,
+  fromPin: false,
+});
+assert.deepEqual(resolveShopSkyWeatherPoint(21.4858, 39.1925), {
+  lat: 21.4858,
+  lng: 39.1925,
+  fromPin: true,
+});
+assert.equal(storeShopSkyTempBand(18), 'cool');
+assert.equal(storeShopSkyTempBand(34), 'hot');
+assert.equal(storeShopSkyTempChipLabel(29.4), '29°');
+assert.match(storeShopSkyTempWash(18), /125, 211, 252/);
+assert.notEqual(storeShopSkyTempWash(18), storeShopSkyTempWash(40));
 
 console.log('store-shop-sky: ok');

@@ -38,6 +38,24 @@ export const STORE_SHOP_SKY_IMAGE_OPACITY: Record<StoreShopSkySurface, number> =
   desk: 0.16,
 };
 
+/** الرياض إن لم يُبرز دبوس المحل. بلا موقع جار الحي. */
+export const STORE_SHOP_SKY_RIYADH = {
+  lat: 24.7136,
+  lng: 46.6753,
+} as const;
+
+export const STORE_SHOP_SKY_TEMP_REFRESH_MS = 15 * 60_000;
+
+export const STORE_SHOP_SKY_TEMP_CHIP_ARIA_AR = 'درجة حرارة الجو';
+
+export const STORE_SHOP_SKY_TEMP_WASH: Record<'cool' | 'mild' | 'warm' | 'hot' | 'harsh', string> = {
+  cool: 'rgba(125, 211, 252, 0.16)',
+  mild: 'rgba(110, 231, 183, 0.10)',
+  warm: 'rgba(253, 230, 138, 0.08)',
+  hot: 'rgba(251, 146, 60, 0.14)',
+  harsh: 'rgba(248, 113, 113, 0.14)',
+};
+
 export const STORE_SHOP_SKY_VEIL: Record<StoreShopSkySurface, Record<AmbientPhaseId, number>> = {
   shop: {
     fajr: 0.78,

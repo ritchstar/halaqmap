@@ -3540,6 +3540,18 @@ html.platform-radar-fullscreen #root {
   transition: opacity 1.2s ease;
 }
 
+.store-shop-sky-chip {
+  margin: 0;
+  padding: 0.2rem 0.45rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(5, 3, 8, 0.55);
+  color: rgba(247, 237, 216, 0.62);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  line-height: 1;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .store-shop-sky__shot {
     transition: none;
