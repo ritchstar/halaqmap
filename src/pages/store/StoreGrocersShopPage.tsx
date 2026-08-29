@@ -151,6 +151,7 @@ export default function StoreGrocersShopPage() {
       skySurface={desk ? 'desk' : 'shop'}
       skyLat={state.host.pickupLat}
       skyLng={state.host.pickupLng}
+      life
     >
       <div className="mx-auto max-w-3xl px-3 py-5">
         {gate === 'loading' ? <p className="pt-[30svh] text-center text-sm text-white/60">جاري فتح المتجر…</p> : null}

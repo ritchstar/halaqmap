@@ -32,11 +32,13 @@ export function StoreShopSky({
   surface = 'shop',
   lat,
   lng,
+  hideChip = false,
 }: {
   product: StoreShopSkyProduct;
   surface?: StoreShopSkySurface;
   lat?: number;
   lng?: number;
+  hideChip?: boolean;
 }) {
   const ambient = usePlatformAmbientOptional();
   const [clockPhase, setClockPhase] = useState(() => resolveAmbientPhaseFromRiyadhTime());
@@ -127,7 +129,7 @@ export function StoreShopSky({
         style={{ background: `rgba(5, 3, 8, ${veil})` }}
       />
     </div>
-    {tempC != null ? (
+    {tempC != null && !hideChip ? (
       <p
         className="store-shop-sky-chip pointer-events-none fixed left-3 top-3 z-20"
         data-store-shop-sky-chip="1"

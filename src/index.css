@@ -3552,9 +3552,27 @@ html.platform-radar-fullscreen #root {
   line-height: 1;
 }
 
+.store-shop-light-wash {
+  animation: store-shop-light-breathe 7s ease-in-out infinite;
+}
+
+@keyframes store-shop-light-breathe {
+  0%,
+  100% {
+    opacity: 0.72;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .store-shop-sky__shot {
     transition: none;
+  }
+
+  .store-shop-light-wash {
+    animation: none;
   }
 }
 
