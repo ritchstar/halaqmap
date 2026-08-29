@@ -104,6 +104,8 @@ assert.equal(matchStoreAffiliateCommission('store_grocers_live', 135000), null);
 assert.equal(STORE_LANDING_COPY.produceLiveTitleAr, 'خضارنا1');
 assert.ok(!STORE_PRODUCE_LIVE.leadAr.includes('تمويناتا1'));
 assert.ok(!STORE_PRODUCE_LIVE.leadAr.includes('طبختنا1'));
+assert.ok(!STORE_PRODUCE_LIVE.problemBodyAr.includes('رمّان'));
+assert.ok(!STORE_PRODUCE_LIVE.problemBodyAr.includes('رقان'));
 assert.equal(STORE_PRODUCE_LIVE_LAB_TOKEN, 'produce-lab');
 
 console.log('store-produce-live: ok');
