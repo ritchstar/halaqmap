@@ -3,12 +3,14 @@
  */
 import { useState } from 'react';
 import { StoreEnterpriseDirectMail } from '@/components/store/StoreEnterpriseDirectMail';
+import { StoreVendorPathPicker } from '@/components/store/StoreVendorPathPicker';
 import {
   STORE_RESTAURANT_LIVE,
   STORE_RESTAURANT_LIVE_CHECKOUT_ENABLED,
   STORE_RESTAURANT_LIVE_PACKS,
   type StoreRestaurantLivePackId,
 } from '@/config/storeRestaurantLive';
+import { STORE_MOBILE_VENDOR_PACKS, type StoreVendorMode } from '@/config/storeMobileVendor';
 import { rememberStoreAffiliateRef } from '@/lib/storeAffiliateRef';
 import { createRestaurantLivePending } from '@/lib/storeRestaurantLiveRemote';
 import { restaurantLivePayHref } from '@/lib/storeHostRedirect';
@@ -16,13 +18,15 @@ import { cn } from '@/lib/utils';
 
 export function StoreRestaurantOrderForm({ renewToken = '' }: { renewToken?: string }) {
   const renewing = Boolean(renewToken);
+  const [vendorMode, setVendorMode] = useState<StoreVendorMode>('fixed');
   const [packId, setPackId] = useState<StoreRestaurantLivePackId>('m6');
   const [email, setEmail] = useState('');
   const [shopName, setShopName] = useState('مطعم السدرة');
   const [consent, setConsent] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
-  const pack = STORE_RESTAURANT_LIVE_PACKS.find((item) => item.id === packId) || STORE_RESTAURANT_LIVE_PACKS[0];
+  const packs = vendorMode === 'mobile' ? STORE_MOBILE_VENDOR_PACKS : STORE_RESTAURANT_LIVE_PACKS;
+  const pack = packs.find((item) => item.id === packId) || packs[0];
 
   async function submit() {
     if (!STORE_RESTAURANT_LIVE_CHECKOUT_ENABLED || busy) return;
@@ -35,8 +39,8 @@ export function StoreRestaurantOrderForm({ renewToken = '' }: { renewToken?: str
     const affiliateCode = rememberStoreAffiliateRef();
     const result = await createRestaurantLivePending(
       renewing
-        ? { email, renewToken, packId, affiliateCode }
-        : { email, buyerName: shopName, shopName, packId, affiliateCode },
+        ? { email, renewToken, packId, vendorMode, affiliateCode }
+        : { email, buyerName: shopName, shopName, packId, vendorMode, affiliateCode },
     );
     if (!result.ok || typeof result.token !== 'string') {
       setBusy(false);
@@ -65,23 +69,24 @@ export function StoreRestaurantOrderForm({ renewToken = '' }: { renewToken?: str
           ? 'نفس روابط الصفحة ولوحة المطبخ تُمدَّد بعد السداد.'
           : 'بعد السداد يصلك رابط ضيف الحي ورابط لوحة المطبخ وملصق QR. صندوق المحادثة مدرج.'}
       </p>
+      <StoreVendorPathPicker value={vendorMode} onChange={setVendorMode} accent="#e08a3c" />
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
-          {STORE_RESTAURANT_LIVE_PACKS.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() => setPackId(item.id)}
-              className={cn(
-                'rounded-2xl border px-4 py-3 text-right',
-                packId === item.id ? 'border-[#e08a3c] bg-[#e08a3c]/15' : 'border-white/15',
-              )}
-            >
-              <p className="font-extrabold">{item.titleAr}</p>
-              <p className="mt-1 text-lg font-black text-[#e08a3c]">{item.priceLineAr}</p>
-              <p className="mt-1 text-xs leading-6 text-white/65">{item.lineAr}</p>
-            </button>
-          ))}
-        </div>
+        {packs.map((item) => (
+          <button
+            key={item.id}
+            type="button"
+            onClick={() => setPackId(item.id)}
+            className={cn(
+              'rounded-2xl border px-4 py-3 text-right',
+              packId === item.id ? 'border-[#e08a3c] bg-[#e08a3c]/15' : 'border-white/15',
+            )}
+          >
+            <p className="font-extrabold">{item.titleAr}</p>
+            <p className="mt-1 text-lg font-black text-[#e08a3c]">{item.priceLineAr}</p>
+            <p className="mt-1 text-xs leading-6 text-white/65">{item.lineAr}</p>
+          </button>
+        ))}
+      </div>
       <label className="mt-4 block text-sm">
         البريد لاستلام روابط الصفحة ولوحة المطبخ وملصق QR
         <input className="restaurant-field" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />

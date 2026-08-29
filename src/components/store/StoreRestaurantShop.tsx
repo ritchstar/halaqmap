@@ -12,10 +12,14 @@ import {
   type RestaurantPayMethod,
   type RestaurantService,
 } from '@/lib/storeRestaurantLiveLab';
+import { StoreMobileVendorBanner } from '@/components/store/StoreMobileVendorBanner';
+import { StoreMobileVendorMark } from '@/components/store/StoreMobileVendorMark';
 import { StoreRestaurantBuyerChat } from '@/components/store/StoreRestaurantChat';
 import { StoreShopHoursBanner } from '@/components/store/StoreShopHoursBanner';
 import { StoreShopPlacePin } from '@/components/store/StoreShopPlacePin';
+import { STORE_MOBILE_VENDOR } from '@/config/storeMobileVendor';
 import { STORE_SHOP_HOURS_COPY } from '@/config/storeShopHours';
+import { neighborVendorState } from '@/lib/storeMobileVendor';
 import { isShopClosedNow } from '@/lib/storeShopHours';
 import { cn } from '@/lib/utils';
 
@@ -37,6 +41,11 @@ export function StoreRestaurantShop({
   const [saveBuyer, setSaveBuyer] = useState(Boolean(saved));
   const [sent, setSent] = useState('');
 
+  const mobile = state.host.vendorMode === 'mobile';
+  const closed = isShopClosedNow(state.host);
+  const neighbor = neighborVendorState({ ...state.host, closed });
+  const preorder = closed || (mobile && neighbor !== 'at_pin');
+  const serviceKind = mobile ? 'pickup' : service;
   const visible = state.shelf.filter((item) => item.inStock);
   const featured = visible.filter((item) => item.featured).slice(0, 8);
   const rest = visible.filter((item) => !featured.some((row) => row.catalogId === item.catalogId));
@@ -60,7 +69,7 @@ export function StoreRestaurantShop({
 
   function submit() {
     if (name.trim().length < 2 || phone.trim().length < 9 || !lines.length) return;
-    if (service === 'delivery' && place.trim().length < 3) return;
+    if (serviceKind === 'delivery' && place.trim().length < 3) return;
     const ticketNo = state.host.nextTicket || 1;
     const order = {
       id: `${Date.now()}`,
@@ -69,7 +78,7 @@ export function StoreRestaurantShop({
       phone: phone.trim().slice(0, 20),
       place: place.trim().slice(0, 160),
       note: note.trim().slice(0, 160),
-      service,
+      service: serviceKind,
       pay,
       lines,
       total,
@@ -98,9 +107,10 @@ export function StoreRestaurantShop({
         <p className="text-xs tracking-[0.3em] text-[#e08a3c]">{STORE_RESTAURANT_LIVE.shopKickerAr}</p>
         <h2 className="mt-1 flex items-center gap-2 text-3xl font-black">
           <span>{state.host.shopName}</span>
+          {mobile ? <StoreMobileVendorMark accent="#e08a3c" /> : null}
           <StoreShopPlacePin
             mapsUrl={state.host.pickupMapsUrl}
-            visible={state.host.pickupPlaceVisible}
+            visible={mobile ? neighbor === 'at_pin' : state.host.pickupPlaceVisible}
             accent="#e08a3c"
             labelAr={STORE_RESTAURANT_LIVE.pickupPinAriaAr}
           />
@@ -113,6 +123,7 @@ export function StoreRestaurantShop({
         </ul>
       </header>
       <StoreShopHoursBanner hours={state.host} accent="#e08a3c" />
+      <StoreMobileVendorBanner place={state.host} closed={closed} accent="#e08a3c" />
 
       {today ? (
         <section className="overflow-hidden rounded-2xl border border-[#e08a3c]/40 bg-[#1a1008]">
@@ -180,7 +191,7 @@ export function StoreRestaurantShop({
         }}
       >
         <h3 className="text-lg font-extrabold">
-          {isShopClosedNow(state.host) ? STORE_SHOP_HOURS_COPY.preorderTitleAr : STORE_RESTAURANT_LIVE.checkoutTitleAr}
+          {preorder ? STORE_SHOP_HOURS_COPY.preorderTitleAr : STORE_RESTAURANT_LIVE.checkoutTitleAr}
         </h3>
         <p className="mt-1 text-sm text-[#e08a3c]">الإجمالي الآن: {total} ر.س</p>
         <label className="mt-3 block text-sm">
@@ -191,15 +202,19 @@ export function StoreRestaurantShop({
           {STORE_RESTAURANT_LIVE.buyerPhoneLabelAr}
           <input required value={phone} onChange={(e) => setPhone(e.target.value)} className="restaurant-field" inputMode="tel" maxLength={20} />
         </label>
-        <div className="mt-3 flex flex-wrap gap-2">
-          <button type="button" onClick={() => setService('delivery')} className={cn('rounded-full px-3 py-1.5 text-xs', service === 'delivery' ? 'bg-[#e08a3c] font-bold text-[#061018]' : 'border border-white/20')}>
-            {STORE_RESTAURANT_LIVE.serviceDeliveryAr}
-          </button>
-          <button type="button" onClick={() => setService('pickup')} className={cn('rounded-full px-3 py-1.5 text-xs', service === 'pickup' ? 'bg-[#e08a3c] font-bold text-[#061018]' : 'border border-white/20')}>
-            {STORE_RESTAURANT_LIVE.servicePickupAr}
-          </button>
-        </div>
-        {service === 'delivery' ? (
+        {mobile ? (
+          <p className="mt-3 text-sm font-bold text-[#e08a3c]">{STORE_MOBILE_VENDOR.pickupFromCartAr}</p>
+        ) : (
+          <div className="mt-3 flex flex-wrap gap-2">
+            <button type="button" onClick={() => setService('delivery')} className={cn('rounded-full px-3 py-1.5 text-xs', service === 'delivery' ? 'bg-[#e08a3c] font-bold text-[#061018]' : 'border border-white/20')}>
+              {STORE_RESTAURANT_LIVE.serviceDeliveryAr}
+            </button>
+            <button type="button" onClick={() => setService('pickup')} className={cn('rounded-full px-3 py-1.5 text-xs', service === 'pickup' ? 'bg-[#e08a3c] font-bold text-[#061018]' : 'border border-white/20')}>
+              {STORE_RESTAURANT_LIVE.servicePickupAr}
+            </button>
+          </div>
+        )}
+        {serviceKind === 'delivery' ? (
           <label className="mt-3 block text-sm">
             {STORE_RESTAURANT_LIVE.buyerPlaceLabelAr}
             <input required value={place} onChange={(e) => setPlace(e.target.value)} className="restaurant-field" maxLength={160} />

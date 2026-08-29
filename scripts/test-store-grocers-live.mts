@@ -169,6 +169,22 @@ assert.equal(
   grocersLivePaymentMatches({
     meta: { product: 'store_grocers_live', store_grocers_token: 'tok_g' },
     token: 'tok_g',
+    amount: 79900,
+  }),
+  true,
+);
+assert.equal(
+  grocersLivePaymentMatches({
+    meta: { product: 'store_grocers_live', store_grocers_token: 'tok_g' },
+    token: 'tok_g',
+    amount: 125000,
+  }),
+  true,
+);
+assert.equal(
+  grocersLivePaymentMatches({
+    meta: { product: 'store_grocers_live', store_grocers_token: 'tok_g' },
+    token: 'tok_g',
     amount: 89800,
   }),
   true,

@@ -29,16 +29,22 @@ export function matchStoreAffiliateCommission(
     if (amount === 240000) return { lineId: 'lounge_12', commissionHalalas: 40000 };
   }
   if (tag === 'store_grocers_live') {
+    if (amount === 79900) return { lineId: 'grocers_mobile_6', commissionHalalas: 9900 };
+    if (amount === 125000) return { lineId: 'grocers_mobile_12', commissionHalalas: 25000 };
     if (amount === 59900) return { lineId: 'grocers_6', commissionHalalas: 9900 };
     if (amount === 89900) return { lineId: 'grocers_12', commissionHalalas: 19900 };
     if (amount === 89800) return { lineId: 'grocers_chat_6', commissionHalalas: 19700 };
     if (amount === 139800) return { lineId: 'grocers_chat_12', commissionHalalas: 39800 };
   }
   if (tag === 'store_restaurant_live') {
+    if (amount === 79900) return { lineId: 'restaurant_mobile_6', commissionHalalas: 9900 };
+    if (amount === 125000) return { lineId: 'restaurant_mobile_12', commissionHalalas: 25000 };
     if (amount === 69900) return { lineId: 'restaurant_6', commissionHalalas: 9900 };
     if (amount === 99900) return { lineId: 'restaurant_12', commissionHalalas: 19900 };
   }
   if (tag === 'store_cafe_live') {
+    if (amount === 79900) return { lineId: 'cafe_mobile_6', commissionHalalas: 9900 };
+    if (amount === 125000) return { lineId: 'cafe_mobile_12', commissionHalalas: 25000 };
     if (amount === 119900) return { lineId: 'cafe_6', commissionHalalas: 19900 };
     if (amount === 209900) return { lineId: 'cafe_12', commissionHalalas: 49900 };
   }

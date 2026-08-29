@@ -3,11 +3,25 @@
  *
  * تحديد موقع النشاط في صفحات الحي والشاشات بعد موافقة المتصفح.
  */
+import {
+  parsePickupHistory,
+  parseVendorMode,
+  parseWeekPlan,
+  type StorePickupHistoryRow,
+  type StoreVendorMode,
+} from '@/lib/storeMobileVendor';
+import { isMobileVendorStale } from '@/lib/storeMobileVendor';
+
 export type ShopPickupPlace = {
   pickupLat: number;
   pickupLng: number;
   pickupMapsUrl: string;
   pickupPlaceVisible: boolean;
+  vendorMode: StoreVendorMode;
+  vendorTransit: boolean;
+  pickupUpdatedAt: string;
+  pickupHistory: StorePickupHistoryRow[];
+  weekPlan: string[];
 };
 
 export const DEFAULT_SHOP_PICKUP: ShopPickupPlace = {
@@ -15,6 +29,11 @@ export const DEFAULT_SHOP_PICKUP: ShopPickupPlace = {
   pickupLng: 0,
   pickupMapsUrl: '',
   pickupPlaceVisible: false,
+  vendorMode: 'fixed',
+  vendorTransit: false,
+  pickupUpdatedAt: '',
+  pickupHistory: [],
+  weekPlan: ['', '', '', '', '', '', ''],
 };
 
 export function shopMapsSearchUrl(lat: number, lng: number): string {
@@ -45,6 +64,13 @@ export function parseShopPickupPlace(
     pickupLng: Number.isFinite(lng) && lng >= -180 && lng <= 180 ? lng : fallback.pickupLng,
     pickupMapsUrl: mapsUrl && isShopMapsUrl(mapsUrl) ? mapsUrl : fallback.pickupMapsUrl,
     pickupPlaceVisible: row.pickupPlaceVisible === true,
+    vendorMode: parseVendorMode(row.vendorMode ?? fallback.vendorMode),
+    vendorTransit: row.vendorTransit === true,
+    pickupUpdatedAt: String(row.pickupUpdatedAt || fallback.pickupUpdatedAt || '').slice(0, 40),
+    pickupHistory: parsePickupHistory(row.pickupHistory).length
+      ? parsePickupHistory(row.pickupHistory)
+      : fallback.pickupHistory,
+    weekPlan: parseWeekPlan(row.weekPlan ?? fallback.weekPlan),
   };
 }
 
@@ -64,4 +90,24 @@ export function requestShopGeo(): Promise<{ ok: true; lat: number; lng: number }
       { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 },
     );
   });
+}
+
+export function shopPlaceRoleSeesCoords(role: string): boolean {
+  return role === 'desk' || role === 'host';
+}
+
+export function publicShopPlaceFields(role: string, place: ShopPickupPlace): ShopPickupPlace {
+  const desk = shopPlaceRoleSeesCoords(role);
+  const stale = place.vendorMode === 'mobile' && isMobileVendorStale(place.pickupUpdatedAt);
+  const showFixed = place.vendorMode !== 'mobile' && place.pickupPlaceVisible;
+  const showMobile =
+    place.vendorMode === 'mobile' && place.pickupPlaceVisible && !place.vendorTransit && !stale;
+  const show = desk || showFixed || showMobile;
+  return {
+    ...place,
+    pickupLat: show ? place.pickupLat : 0,
+    pickupLng: show ? place.pickupLng : 0,
+    pickupMapsUrl: show ? place.pickupMapsUrl : '',
+    pickupHistory: desk ? place.pickupHistory : [],
+  };
 }

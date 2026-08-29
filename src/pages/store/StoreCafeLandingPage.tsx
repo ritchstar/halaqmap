@@ -14,6 +14,7 @@ import { StoreProductBenefitsLink } from '@/components/store/StoreProductBenefit
 import { StoreShot } from '@/components/store/StoreShot';
 import { StoreCafeStudio } from '@/components/store/StoreCafeStudio';
 import { STORE_BRAND_LATIN } from '@/config/storeFront';
+import { STORE_MOBILE_VENDOR } from '@/config/storeMobileVendor';
 import {
   STORE_CAFE_LIVE,
   STORE_CAFE_LIVE_FEATURES,
@@ -79,6 +80,7 @@ export default function StoreCafeLandingPage() {
             <p className="mt-3 max-w-xl text-sm leading-7 text-white/75">{STORE_CAFE_LIVE.privacyAr}</p>
             <p className="mt-6 text-base font-extrabold text-[#f4efe4]">{STORE_CAFE_LIVE.priceTitleAr}</p>
             <p className="mt-2 text-2xl font-black text-[#c48a4a]">{STORE_CAFE_LIVE.priceLineAr}</p>
+            <p className="mt-2 text-sm font-bold leading-7 text-[#c48a4a]">{STORE_MOBILE_VENDOR.priceLineAr}</p>
             <p className="mt-2 max-w-xl text-sm leading-7 text-white/65">{STORE_CAFE_LIVE.durationLineAr}</p>
             <p className="mt-6 text-base font-extrabold text-[#f4efe4]">{STORE_CAFE_LIVE.startTitleAr}</p>
             <p className="mt-2 max-w-xl text-sm font-extrabold leading-7 text-[#f4efe4]">{STORE_CAFE_LIVE.closeAr}</p>

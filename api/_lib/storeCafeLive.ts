@@ -6,6 +6,7 @@
 import { randomBytes } from 'node:crypto';
 import { withStoreAffiliateCode } from './storeAffiliateCode.js';
 import { DEFAULT_STORE_SHOP_HOURS, parseStoreShopHours, type StoreShopHoursState } from './storeShopHours.js';
+import { isMobileVendorPriceHalalas, mobileVendorChargeHalalas, mobileVendorPackFromHalalas, parseVendorMode, type StoreVendorMode } from './storeMobileVendor.js';
 import { DEFAULT_SHOP_PICKUP, parseShopPickupPlace, publicShopPlaceFields, type ShopPickupPlace } from './storeShopPlace.js';
 
 export const STORE_CAFE_LIVE_TABLE = 'store_cafe_live_orders' as const;
@@ -43,17 +44,22 @@ export function cafePackFromId(id: 'm6' | 'm12') {
     : { id, days: STORE_CAFE_LIVE_DAYS_6, priceSar: STORE_CAFE_LIVE_PRICE_6_SAR, priceHalalas: STORE_CAFE_LIVE_PRICE_6_HALALAS };
 }
 
-export function cafeChargeHalalas(packId: 'm6' | 'm12'): number {
-  return cafePackFromId(packId).priceHalalas;
+export function cafeChargeHalalas(packId: 'm6' | 'm12', vendorMode: StoreVendorMode = 'fixed'): number {
+  return vendorMode === 'mobile' ? mobileVendorChargeHalalas(packId) : cafePackFromId(packId).priceHalalas;
 }
 
 export function cafePackFromHalalas(amount: number) {
+  if (isMobileVendorPriceHalalas(amount)) return cafePackFromId(mobileVendorPackFromHalalas(amount));
   if (amount === STORE_CAFE_LIVE_PRICE_12_HALALAS) return cafePackFromId('m12');
   return cafePackFromId('m6');
 }
 
 export function isCafePriceHalalas(amount: number): boolean {
-  return amount === STORE_CAFE_LIVE_PRICE_6_HALALAS || amount === STORE_CAFE_LIVE_PRICE_12_HALALAS;
+  return (
+    isMobileVendorPriceHalalas(amount)
+    || amount === STORE_CAFE_LIVE_PRICE_6_HALALAS
+    || amount === STORE_CAFE_LIVE_PRICE_12_HALALAS
+  );
 }
 
 export function cafeLiveTermEndIso(days: number, fromMs = Date.now()): string {
@@ -66,7 +72,10 @@ export function cafeLiveIsExpired(expiresAt: string | null | undefined, nowMs = 
   return Number.isFinite(t) && t <= nowMs;
 }
 
-export function cafeLiveInvoiceDescription(packId: 'm6' | 'm12'): string {
+export function cafeLiveInvoiceDescription(packId: 'm6' | 'm12', vendorMode: StoreVendorMode = 'fixed'): string {
+  if (vendorMode === 'mobile') {
+    return packId === 'm12' ? 'halaqmap — كافينا1 متحرك 12 شهراً' : 'halaqmap — كافينا1 متحرك 6 أشهر';
+  }
   return packId === 'm12' ? 'halaqmap — كافينا1 12 شهراً' : 'halaqmap — كافينا1 6 أشهر';
 }
 
@@ -75,6 +84,7 @@ export function cafeLiveInvoiceMetadata(
   packId: 'm6' | 'm12',
   kind: 'purchase' | 'renewal' = 'purchase',
   affiliateCode?: unknown,
+  vendorMode: StoreVendorMode = 'fixed',
 ): Record<string, string> {
   return withStoreAffiliateCode(
     {
@@ -83,6 +93,7 @@ export function cafeLiveInvoiceMetadata(
       store_cafe_token: token,
       store_cafe_pack: packId,
       store_cafe_kind: kind,
+      store_cafe_vendor: vendorMode,
     },
     affiliateCode,
   );
@@ -154,7 +165,7 @@ export type CafeLiveOrderPayload = {
 } & StoreShopHoursState & ShopPickupPlace;
 
 export function parseCafeLiveOrderBody(body: Record<string, unknown>):
-  | { ok: true; email: string; buyerName: string; packId: 'm6' | 'm12'; payload: CafeLiveOrderPayload }
+  | { ok: true; email: string; buyerName: string; packId: 'm6' | 'm12'; vendorMode: StoreVendorMode; payload: CafeLiveOrderPayload }
   | { ok: false; error: string } {
   const email = clip(body.email, 180).toLowerCase();
   if (!isEmail(email)) return { ok: false, error: 'البريد مطلوب لإرسال روابط الصفحة والشاشات ولوحة الكاشير.' };
@@ -162,11 +173,13 @@ export function parseCafeLiveOrderBody(body: Record<string, unknown>):
   const hostName = clip(body.hostName, 80) || 'الإدارة';
   if (shopName.length < 2) return { ok: false, error: 'اسم المقهى مطلوب.' };
   const packId = parseCafePackId(body.packId);
+  const vendorMode = parseVendorMode(body.vendorMode);
   return {
     ok: true,
     email,
     buyerName: clip(body.buyerName, 80) || shopName,
     packId,
+    vendorMode,
     payload: {
       packId,
       shopName,
@@ -191,6 +204,7 @@ export function parseCafeLiveOrderBody(body: Record<string, unknown>):
       customEventTitle: '',
       blessings: [],
       ...DEFAULT_SHOP_PICKUP,
+      vendorMode,
       ...DEFAULT_STORE_SHOP_HOURS,
     },
   };

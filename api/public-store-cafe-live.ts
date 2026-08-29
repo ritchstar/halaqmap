@@ -39,6 +39,7 @@ import {
   type CafeLiveOrderPayload,
 } from './_lib/storeCafeLive.js';
 import { parseStoreShopHours } from './_lib/storeShopHours.js';
+import { lockPaidVendorMode, parseVendorMode } from './_lib/storeMobileVendor.js';
 import { parseShopPickupPlace } from './_lib/storeShopPlace.js';
 import { sendCafeLiveLinksEmail } from './_lib/storeCafeLiveMail.js';
 import { applyStoreTrialClock, markStoreTrialConverted } from './_lib/storeProductTrial.js';
@@ -286,15 +287,16 @@ async function attachInvoice(
   let invoiceUrl = '';
   const secret = resolveOccasionCardMoyasarSecretKey();
   if (!secret) return invoiceUrl;
+  const vendorMode = parseVendorMode(payload.vendorMode);
   const created = await createMoyasarInvoice(secret, {
-    amount: cafeChargeHalalas(packId),
+    amount: cafeChargeHalalas(packId, vendorMode),
     currency: 'SAR',
-    description: cafeLiveInvoiceDescription(packId),
+    description: cafeLiveInvoiceDescription(packId, vendorMode),
     success_url: successUrl(shopToken, request),
     back_url: `${storeOrigin()}/#/store/cafe`,
     callback_url: `${payOrigin(request)}/api/public-store-cafe-live`,
     expired_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-    metadata: cafeLiveInvoiceMetadata(shopToken, packId, kind, affiliateCode),
+    metadata: cafeLiveInvoiceMetadata(shopToken, packId, kind, affiliateCode, vendorMode),
   });
   if (created.status >= 400) return invoiceUrl;
   try {
@@ -326,7 +328,7 @@ async function createPending(db: Db, body: Record<string, unknown>, headers: Rec
   if (renewToken) return createRenewal(db, body, headers, request);
   const parsed = parseCafeLiveOrderBody(body);
   if (!parsed.ok) return json({ error: parsed.error }, 400, headers);
-  const charge = cafeChargeHalalas(parsed.packId);
+  const charge = cafeChargeHalalas(parsed.packId, parsed.vendorMode);
   const shopToken = newCafeToken();
   const deskToken = newCafeToken();
   const displayToken = newCafeToken();
@@ -381,7 +383,8 @@ async function createRenewal(
 ) {
   const renewToken = String(body.renewToken || '').trim();
   const packId = parseCafePackId(body.packId);
-  const charge = cafeChargeHalalas(packId);
+  const vendorMode = parseVendorMode(body.vendorMode);
+  const charge = cafeChargeHalalas(packId, vendorMode);
   const row = await findByAnyToken(db, renewToken);
   if (!row) return json({ error: 'الرابط غير موجود' }, 404, headers);
   if (row.status === 'revoked') return json({ error: 'هذا التشغيل ملغى' }, 403, headers);
@@ -404,7 +407,7 @@ async function createRenewal(
   if (row.status === 'live' && !cafeLiveIsExpired(row.expires_at)) {
     return json({ error: 'التشغيل ما زال سارياً. إعادة الشراء بعد انتهاء المدة.' }, 409, headers);
   }
-  const payload = { ...(row.payload || {}), packId, chatIncluded: true };
+  const payload = { ...(row.payload || {}), packId, chatIncluded: true, vendorMode };
   await db
     .from(STORE_CAFE_LIVE_TABLE)
     .update({
@@ -678,7 +681,7 @@ async function saveHost(db: Db, body: Record<string, unknown>, headers: Record<s
     customEventTitle: String(body.customEventTitle ?? current.customEventTitle ?? '').slice(0, 80),
     blessings: Array.isArray(body.blessings) ? (body.blessings as CafeLiveOrderPayload['blessings']) : current.blessings || [],
     ...parseStoreShopHours(body, parseStoreShopHours(current)),
-    ...parseShopPickupPlace(body, parseShopPickupPlace(current)),
+    ...lockPaidVendorMode(parseShopPickupPlace(body, parseShopPickupPlace(current)), parseShopPickupPlace(current)),
   };
   await db
     .from(STORE_CAFE_LIVE_TABLE)

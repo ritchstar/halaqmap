@@ -78,13 +78,17 @@ function voiceOf(payload: Record<string, unknown>): string {
 }
 
 function grocersPackAr(payload: Record<string, unknown>, amountSar: number): string {
-  const pack = clip(payload.packId, 8) === 'm12' || amountSar >= 899 ? 'اثنا عشر شهراً' : 'ستة أشهر';
-  const chat = payload.chatAddon === true || amountSar === 898 || amountSar === 1398;
-  return chat ? `${pack} + صندوق محادثة` : pack;
+  const mobile = clip(payload.vendorMode, 12) === 'mobile' || amountSar === 799 || amountSar === 1250;
+  const pack = clip(payload.packId, 8) === 'm12' || amountSar >= 899 || amountSar === 1250 ? 'اثنا عشر شهراً' : 'ستة أشهر';
+  const chat = !mobile && (payload.chatAddon === true || amountSar === 898 || amountSar === 1398);
+  const base = mobile ? `${pack} · متحرك` : pack;
+  return chat ? `${base} + صندوق محادثة` : base;
 }
 
 function shopTermPackAr(payload: Record<string, unknown>, amountSar: number, twelveSar: number): string {
-  return clip(payload.packId, 8) === 'm12' || amountSar >= twelveSar ? 'اثنا عشر شهراً' : 'ستة أشهر';
+  const mobile = clip(payload.vendorMode, 12) === 'mobile' || amountSar === 799 || amountSar === 1250;
+  const pack = clip(payload.packId, 8) === 'm12' || amountSar >= twelveSar || amountSar === 1250 ? 'اثنا عشر شهراً' : 'ستة أشهر';
+  return mobile ? `${pack} · متحرك` : pack;
 }
 
 export function mapStoreSalesRow(

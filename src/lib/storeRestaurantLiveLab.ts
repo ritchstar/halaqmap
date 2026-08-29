@@ -6,7 +6,7 @@
 import { STORE_RESTAURANT_MENU, restaurantMenuById, parseRestaurantListText } from '@/config/storeRestaurantMenu';
 import { STORE_RESTAURANT_LIVE_DEMO, type StoreRestaurantLivePackId } from '@/config/storeRestaurantLive';
 import { DEFAULT_STORE_SHOP_HOURS, type StoreShopHoursState } from '@/config/storeShopHours';
-import { DEFAULT_SHOP_PICKUP, type ShopPickupPlace } from '@/lib/storeShopPlace';
+import { DEFAULT_SHOP_PICKUP, parseShopPickupPlace, type ShopPickupPlace } from '@/lib/storeShopPlace';
 import { compressImageFile } from '@/lib/storeWeddingLiveLab';
 
 export { parseRestaurantListText, compressImageFile };
@@ -135,10 +135,7 @@ export function readRestaurantLabState(token: string): RestaurantLabState {
         ...(parsed.host || {}),
         customFields: Array.from({ length: 5 }, (_, i) => parsed.host?.customFields?.[i] || fallback.host.customFields[i] || ''),
         nextTicket: Number(parsed.host?.nextTicket) > 0 ? Number(parsed.host?.nextTicket) : 1,
-        pickupLat: Number.isFinite(Number(parsed.host?.pickupLat)) ? Number(parsed.host?.pickupLat) : fallback.host.pickupLat,
-        pickupLng: Number.isFinite(Number(parsed.host?.pickupLng)) ? Number(parsed.host?.pickupLng) : fallback.host.pickupLng,
-        pickupMapsUrl: String(parsed.host?.pickupMapsUrl || fallback.host.pickupMapsUrl).slice(0, 240),
-        pickupPlaceVisible: parsed.host?.pickupPlaceVisible === true,
+        ...parseShopPickupPlace(parsed.host, fallback.host),
       },
       shelf: Array.isArray(parsed.shelf) && parsed.shelf.length
         ? parsed.shelf.map((item) => ({ ...item, photoSrc: item.photoSrc || '' }))
@@ -205,7 +202,7 @@ export function activateRestaurantDish(
   };
 }
 
-export function restaurantWhatsAppText(order: RestaurantOrder, shopName: string): string {
+export function restaurantWhatsAppText(order: RestaurantOrder, shopName: string, mapsUrl = ''): string {
   const pay = order.pay === 'card' ? 'شبكة عند التسليم' : 'نقداً عند الاستلام';
   const service = order.service === 'pickup' ? 'استلام من المطعم' : 'توصيل للبيت';
   const lines = order.lines.map((line) => `${line.nameAr} × ${line.qty} = ${line.price * line.qty} ر.س`).join('\n');
@@ -215,6 +212,7 @@ export function restaurantWhatsAppText(order: RestaurantOrder, shopName: string)
     `الجوال: ${order.phone}`,
     `الخدمة: ${service}`,
     `الموقع: ${order.place || '—'}`,
+    mapsUrl ? `موقع العربة: ${mapsUrl}` : '',
     order.note ? `ملاحظة: ${order.note}` : '',
     `الدفع: ${pay}`,
     lines,

@@ -40,6 +40,7 @@ import {
   type GrocersLiveOrderPayload,
 } from './_lib/storeGrocersLive.js';
 import { parseStoreShopHours } from './_lib/storeShopHours.js';
+import { lockPaidVendorMode, parseVendorMode } from './_lib/storeMobileVendor.js';
 import { parseShopPickupPlace } from './_lib/storeShopPlace.js';
 import { sendGrocersLiveLinksEmail } from './_lib/storeGrocersLiveMail.js';
 import { applyStoreTrialClock, markStoreTrialConverted } from './_lib/storeProductTrial.js';
@@ -256,15 +257,17 @@ async function attachInvoice(
   let invoiceUrl = '';
   const secret = resolveOccasionCardMoyasarSecretKey();
   if (!secret) return invoiceUrl;
+  const vendorMode = parseVendorMode(payload.vendorMode);
+  const chargedChat = vendorMode === 'mobile' ? false : chatAddon;
   const created = await createMoyasarInvoice(secret, {
-    amount: grocersChargeHalalas(packId, chatAddon),
+    amount: grocersChargeHalalas(packId, chargedChat, vendorMode),
     currency: 'SAR',
-    description: grocersLiveInvoiceDescription(packId, chatAddon),
+    description: grocersLiveInvoiceDescription(packId, chargedChat, vendorMode),
     success_url: successUrl(shopToken, request),
     back_url: `${storeOrigin()}/#/store/grocers`,
     callback_url: `${payOrigin(request)}/api/public-store-grocers-live`,
     expired_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-    metadata: grocersLiveInvoiceMetadata(shopToken, packId, kind, chatAddon, affiliateCode),
+    metadata: grocersLiveInvoiceMetadata(shopToken, packId, kind, chargedChat, affiliateCode, vendorMode),
   });
   if (created.status >= 400) return invoiceUrl;
   try {
@@ -296,7 +299,7 @@ async function createPending(db: Db, body: Record<string, unknown>, headers: Rec
   if (renewToken) return createRenewal(db, body, headers, request);
   const parsed = parseGrocersLiveOrderBody(body);
   if (!parsed.ok) return json({ error: parsed.error }, 400, headers);
-  const charge = grocersChargeHalalas(parsed.packId, parsed.chatAddon);
+  const charge = grocersChargeHalalas(parsed.packId, parsed.chatAddon, parsed.vendorMode);
   const shopToken = newGrocersToken();
   const deskToken = newGrocersToken();
   const { error } = await db.from(STORE_GROCERS_LIVE_TABLE).insert({
@@ -344,8 +347,9 @@ async function createRenewal(
 ) {
   const renewToken = String(body.renewToken || '').trim();
   const packId = parseGrocersPackId(body.packId);
-  const chatAddon = body.chatAddon === true;
-  const charge = grocersChargeHalalas(packId, chatAddon);
+  const vendorMode = parseVendorMode(body.vendorMode);
+  const chatAddon = vendorMode === 'mobile' ? false : body.chatAddon === true;
+  const charge = grocersChargeHalalas(packId, chatAddon, vendorMode);
   const row = await findByAnyToken(db, renewToken);
   if (!row) return json({ error: 'الرابط غير موجود' }, 404, headers);
   if (row.status === 'revoked') return json({ error: 'هذا التشغيل ملغى' }, 403, headers);
@@ -368,7 +372,7 @@ async function createRenewal(
   if (row.status === 'live' && !grocersLiveIsExpired(row.expires_at)) {
     return json({ error: 'التشغيل ما زال سارياً. إعادة الشراء بعد انتهاء المدة.' }, 409, headers);
   }
-  const payload = { ...(row.payload || {}), packId, chatAddon };
+  const payload = { ...(row.payload || {}), packId, chatAddon, vendorMode };
   await db
     .from(STORE_GROCERS_LIVE_TABLE)
     .update({
@@ -624,7 +628,7 @@ async function saveHost(db: Db, body: Record<string, unknown>, headers: Record<s
       ? (Array.isArray(body.chats) ? parseGrocersChats(body.chats) : parseGrocersChats(current.chats))
       : [],
     ...parseStoreShopHours(body, parseStoreShopHours(current)),
-    ...parseShopPickupPlace(body, parseShopPickupPlace(current)),
+    ...lockPaidVendorMode(parseShopPickupPlace(body, parseShopPickupPlace(current)), parseShopPickupPlace(current)),
   };
   await db
     .from(STORE_GROCERS_LIVE_TABLE)

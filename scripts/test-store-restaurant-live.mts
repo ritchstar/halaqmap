@@ -134,6 +134,14 @@ assert.equal(
 );
 assert.equal(
   restaurantLivePaymentMatches({
+    meta: { product: 'store_restaurant_live', store_restaurant_token: 'tok_r' },
+    token: 'tok_r',
+    amount: 79900,
+  }),
+  true,
+);
+assert.equal(
+  restaurantLivePaymentMatches({
     meta: { product: 'store_grocers_live', store_restaurant_token: 'tok_r' },
     token: 'tok_r',
     amount: 69900,

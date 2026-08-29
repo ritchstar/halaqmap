@@ -3,12 +3,14 @@
  */
 import { useState } from 'react';
 import { StoreEnterpriseDirectMail } from '@/components/store/StoreEnterpriseDirectMail';
+import { StoreVendorPathPicker } from '@/components/store/StoreVendorPathPicker';
 import {
   STORE_CAFE_LIVE,
   STORE_CAFE_LIVE_CHECKOUT_ENABLED,
   STORE_CAFE_LIVE_PACKS,
   type StoreCafeLivePackId,
 } from '@/config/storeCafeLive';
+import { STORE_MOBILE_VENDOR_PACKS, type StoreVendorMode } from '@/config/storeMobileVendor';
 import { rememberStoreAffiliateRef } from '@/lib/storeAffiliateRef';
 import { createCafeLivePending } from '@/lib/storeCafeLiveRemote';
 import { cafeLivePayHref } from '@/lib/storeHostRedirect';
@@ -16,13 +18,15 @@ import { cn } from '@/lib/utils';
 
 export function StoreCafeOrderForm({ renewToken = '' }: { renewToken?: string }) {
   const renewing = Boolean(renewToken);
+  const [vendorMode, setVendorMode] = useState<StoreVendorMode>('fixed');
   const [packId, setPackId] = useState<StoreCafeLivePackId>('m6');
   const [email, setEmail] = useState('');
   const [shopName, setShopName] = useState('مقهى السدرة');
   const [consent, setConsent] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
-  const pack = STORE_CAFE_LIVE_PACKS.find((item) => item.id === packId) || STORE_CAFE_LIVE_PACKS[0];
+  const packs = vendorMode === 'mobile' ? STORE_MOBILE_VENDOR_PACKS : STORE_CAFE_LIVE_PACKS;
+  const pack = packs.find((item) => item.id === packId) || packs[0];
 
   async function submit() {
     if (!STORE_CAFE_LIVE_CHECKOUT_ENABLED || busy) return;
@@ -35,8 +39,8 @@ export function StoreCafeOrderForm({ renewToken = '' }: { renewToken?: string })
     const affiliateCode = rememberStoreAffiliateRef();
     const result = await createCafeLivePending(
       renewing
-        ? { email, renewToken, packId, affiliateCode }
-        : { email, buyerName: shopName, shopName, packId, affiliateCode },
+        ? { email, renewToken, packId, vendorMode, affiliateCode }
+        : { email, buyerName: shopName, shopName, packId, vendorMode, affiliateCode },
     );
     if (!result.ok || typeof result.token !== 'string') {
       setBusy(false);
@@ -65,23 +69,24 @@ export function StoreCafeOrderForm({ renewToken = '' }: { renewToken?: string })
           ? 'نفس روابط الصفحة ولوحة الكاشير تُمدَّد بعد السداد.'
           : 'بعد السداد يصلك رابط جار الحي وروابط الشاشات ورابط لوحة الكاشير وملصق QR. صندوق المحادثة مدرج.'}
       </p>
+      <StoreVendorPathPicker value={vendorMode} onChange={setVendorMode} accent="#c48a4a" />
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
-          {STORE_CAFE_LIVE_PACKS.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() => setPackId(item.id)}
-              className={cn(
-                'rounded-2xl border px-4 py-3 text-right',
-                packId === item.id ? 'border-[#c48a4a] bg-[#c48a4a]/15' : 'border-white/15',
-              )}
-            >
-              <p className="font-extrabold">{item.titleAr}</p>
-              <p className="mt-1 text-lg font-black text-[#c48a4a]">{item.priceLineAr}</p>
-              <p className="mt-1 text-xs leading-6 text-white/65">{item.lineAr}</p>
-            </button>
-          ))}
-        </div>
+        {packs.map((item) => (
+          <button
+            key={item.id}
+            type="button"
+            onClick={() => setPackId(item.id)}
+            className={cn(
+              'rounded-2xl border px-4 py-3 text-right',
+              packId === item.id ? 'border-[#c48a4a] bg-[#c48a4a]/15' : 'border-white/15',
+            )}
+          >
+            <p className="font-extrabold">{item.titleAr}</p>
+            <p className="mt-1 text-lg font-black text-[#c48a4a]">{item.priceLineAr}</p>
+            <p className="mt-1 text-xs leading-6 text-white/65">{item.lineAr}</p>
+          </button>
+        ))}
+      </div>
       <label className="mt-4 block text-sm">
         البريد لاستلام روابط الصفحة والشاشات ولوحة الكاشير
         <input className="cafe-field" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />

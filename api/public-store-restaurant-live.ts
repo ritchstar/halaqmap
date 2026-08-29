@@ -37,6 +37,7 @@ import {
   type RestaurantLiveOrderPayload,
 } from './_lib/storeRestaurantLive.js';
 import { parseStoreShopHours } from './_lib/storeShopHours.js';
+import { lockPaidVendorMode, parseVendorMode } from './_lib/storeMobileVendor.js';
 import { parseShopPickupPlace } from './_lib/storeShopPlace.js';
 import { sendRestaurantLiveLinksEmail } from './_lib/storeRestaurantLiveMail.js';
 import { applyStoreTrialClock, markStoreTrialConverted } from './_lib/storeProductTrial.js';
@@ -254,15 +255,16 @@ async function attachInvoice(
   let invoiceUrl = '';
   const secret = resolveOccasionCardMoyasarSecretKey();
   if (!secret) return invoiceUrl;
+  const vendorMode = parseVendorMode(payload.vendorMode);
   const created = await createMoyasarInvoice(secret, {
-    amount: restaurantChargeHalalas(packId),
+    amount: restaurantChargeHalalas(packId, vendorMode),
     currency: 'SAR',
-    description: restaurantLiveInvoiceDescription(packId),
+    description: restaurantLiveInvoiceDescription(packId, vendorMode),
     success_url: successUrl(shopToken, request),
     back_url: `${storeOrigin()}/#/store/restaurant`,
     callback_url: `${payOrigin(request)}/api/public-store-restaurant-live`,
     expired_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-    metadata: restaurantLiveInvoiceMetadata(shopToken, packId, kind, affiliateCode),
+    metadata: restaurantLiveInvoiceMetadata(shopToken, packId, kind, affiliateCode, vendorMode),
   });
   if (created.status >= 400) return invoiceUrl;
   try {
@@ -294,7 +296,7 @@ async function createPending(db: Db, body: Record<string, unknown>, headers: Rec
   if (renewToken) return createRenewal(db, body, headers, request);
   const parsed = parseRestaurantLiveOrderBody(body);
   if (!parsed.ok) return json({ error: parsed.error }, 400, headers);
-  const charge = restaurantChargeHalalas(parsed.packId);
+  const charge = restaurantChargeHalalas(parsed.packId, parsed.vendorMode);
   const shopToken = newRestaurantToken();
   const deskToken = newRestaurantToken();
   const { error } = await db.from(STORE_RESTAURANT_LIVE_TABLE).insert({
@@ -341,7 +343,8 @@ async function createRenewal(
 ) {
   const renewToken = String(body.renewToken || '').trim();
   const packId = parseRestaurantPackId(body.packId);
-  const charge = restaurantChargeHalalas(packId);
+  const vendorMode = parseVendorMode(body.vendorMode);
+  const charge = restaurantChargeHalalas(packId, vendorMode);
   const row = await findByAnyToken(db, renewToken);
   if (!row) return json({ error: 'الرابط غير موجود' }, 404, headers);
   if (row.status === 'revoked') return json({ error: 'هذا التشغيل ملغى' }, 403, headers);
@@ -364,7 +367,7 @@ async function createRenewal(
   if (row.status === 'live' && !restaurantLiveIsExpired(row.expires_at)) {
     return json({ error: 'التشغيل ما زال سارياً. إعادة الشراء بعد انتهاء المدة.' }, 409, headers);
   }
-  const payload = { ...(row.payload || {}), packId, chatIncluded: true };
+  const payload = { ...(row.payload || {}), packId, chatIncluded: true, vendorMode };
   await db
     .from(STORE_RESTAURANT_LIVE_TABLE)
     .update({
@@ -622,7 +625,7 @@ async function saveHost(db: Db, body: Record<string, unknown>, headers: Record<s
     chats: Array.isArray(body.chats) ? parseRestaurantChats(body.chats) : parseRestaurantChats(current.chats),
     nextTicket: Number.isFinite(nextTicket) && nextTicket > 0 ? nextTicket : current.nextTicket || 1,
     ...parseStoreShopHours(body, parseStoreShopHours(current)),
-    ...parseShopPickupPlace(body, parseShopPickupPlace(current)),
+    ...lockPaidVendorMode(parseShopPickupPlace(body, parseShopPickupPlace(current)), parseShopPickupPlace(current)),
   };
   await db
     .from(STORE_RESTAURANT_LIVE_TABLE)

@@ -3,6 +3,7 @@
  */
 import { useState } from 'react';
 import { StoreEnterpriseDirectMail } from '@/components/store/StoreEnterpriseDirectMail';
+import { StoreVendorPathPicker } from '@/components/store/StoreVendorPathPicker';
 import {
   STORE_GROCERS_LIVE,
   STORE_GROCERS_LIVE_CHECKOUT_ENABLED,
@@ -10,6 +11,7 @@ import {
   STORE_GROCERS_LIVE_PACKS,
   type StoreGrocersLivePackId,
 } from '@/config/storeGrocersLive';
+import { STORE_MOBILE_VENDOR, STORE_MOBILE_VENDOR_PACKS, type StoreVendorMode } from '@/config/storeMobileVendor';
 import { rememberStoreAffiliateRef } from '@/lib/storeAffiliateRef';
 import { createGrocersLivePending } from '@/lib/storeGrocersLiveRemote';
 import { grocersLivePayHref } from '@/lib/storeHostRedirect';
@@ -17,6 +19,7 @@ import { cn } from '@/lib/utils';
 
 export function StoreGrocersOrderForm({ renewToken = '' }: { renewToken?: string }) {
   const renewing = Boolean(renewToken);
+  const [vendorMode, setVendorMode] = useState<StoreVendorMode>('fixed');
   const [packId, setPackId] = useState<StoreGrocersLivePackId>('m6');
   const [email, setEmail] = useState('');
   const [shopName, setShopName] = useState('تموينات النخيل');
@@ -24,7 +27,10 @@ export function StoreGrocersOrderForm({ renewToken = '' }: { renewToken?: string
   const [consent, setConsent] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
-  const pack = STORE_GROCERS_LIVE_PACKS.find((item) => item.id === packId) || STORE_GROCERS_LIVE_PACKS[0];
+  const packs = vendorMode === 'mobile' ? STORE_MOBILE_VENDOR_PACKS : STORE_GROCERS_LIVE_PACKS;
+  const pack = packs.find((item) => item.id === packId) || packs[0];
+  const chatOn = vendorMode === 'fixed' && chatAddon;
+  const totalSar = pack.priceSar + (chatOn ? grocersChatAddonSar(pack.id) : 0);
 
   async function submit() {
     if (!STORE_GROCERS_LIVE_CHECKOUT_ENABLED || busy) return;
@@ -37,8 +43,8 @@ export function StoreGrocersOrderForm({ renewToken = '' }: { renewToken?: string
     const affiliateCode = rememberStoreAffiliateRef();
     const result = await createGrocersLivePending(
       renewing
-        ? { email, renewToken, packId, chatAddon, affiliateCode }
-        : { email, buyerName: shopName, shopName, packId, chatAddon, affiliateCode },
+        ? { email, renewToken, packId, chatAddon: chatOn, vendorMode, affiliateCode }
+        : { email, buyerName: shopName, shopName, packId, chatAddon: chatOn, vendorMode, affiliateCode },
     );
     if (!result.ok || typeof result.token !== 'string') {
       setBusy(false);
@@ -67,23 +73,31 @@ export function StoreGrocersOrderForm({ renewToken = '' }: { renewToken?: string
           ? 'نفس روابط المتجر والكاشير تُمدَّد بعد السداد.'
           : 'بعد السداد يصلك رابط المتجر ورابط لوحة الكاشير وملصق QR.'}
       </p>
+      <StoreVendorPathPicker
+        value={vendorMode}
+        onChange={(mode) => {
+          setVendorMode(mode);
+          if (mode === 'mobile') setChatAddon(false);
+        }}
+        accent="#8fbf7a"
+      />
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
-          {STORE_GROCERS_LIVE_PACKS.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() => setPackId(item.id)}
-              className={cn(
-                'rounded-2xl border px-4 py-3 text-right',
-                packId === item.id ? 'border-[#8fbf7a] bg-[#8fbf7a]/15' : 'border-white/15',
-              )}
-            >
-              <p className="font-extrabold">{item.titleAr}</p>
-              <p className="mt-1 text-lg font-black text-[#8fbf7a]">{item.priceLineAr}</p>
-              <p className="mt-1 text-xs leading-6 text-white/65">{item.lineAr}</p>
-            </button>
-          ))}
-        </div>
+        {packs.map((item) => (
+          <button
+            key={item.id}
+            type="button"
+            onClick={() => setPackId(item.id)}
+            className={cn(
+              'rounded-2xl border px-4 py-3 text-right',
+              packId === item.id ? 'border-[#8fbf7a] bg-[#8fbf7a]/15' : 'border-white/15',
+            )}
+          >
+            <p className="font-extrabold">{item.titleAr}</p>
+            <p className="mt-1 text-lg font-black text-[#8fbf7a]">{item.priceLineAr}</p>
+            <p className="mt-1 text-xs leading-6 text-white/65">{item.lineAr}</p>
+          </button>
+        ))}
+      </div>
       <label className="mt-4 block text-sm">
         البريد لاستلام روابط المتجر والكاشير وملصق QR
         <input className="grocers-field" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
@@ -94,12 +108,16 @@ export function StoreGrocersOrderForm({ renewToken = '' }: { renewToken?: string
           <input className="grocers-field" required value={shopName} onChange={(e) => setShopName(e.target.value)} />
         </label>
       )}
-      <label className="mt-4 flex items-start gap-2 text-sm leading-7">
-        <input type="checkbox" checked={chatAddon} onChange={(e) => setChatAddon(e.target.checked)} className="mt-1" />
-        <span>
-          {STORE_GROCERS_LIVE.chatAddonTitleAr} · {STORE_GROCERS_LIVE.chatAddonPriceAr}. {STORE_GROCERS_LIVE.chatAddonLeadAr}
-        </span>
-      </label>
+      {vendorMode === 'fixed' ? (
+        <label className="mt-4 flex items-start gap-2 text-sm leading-7">
+          <input type="checkbox" checked={chatAddon} onChange={(e) => setChatAddon(e.target.checked)} className="mt-1" />
+          <span>
+            {STORE_GROCERS_LIVE.chatAddonTitleAr} · {STORE_GROCERS_LIVE.chatAddonPriceAr}. {STORE_GROCERS_LIVE.chatAddonLeadAr}
+          </span>
+        </label>
+      ) : (
+        <p className="mt-4 text-sm leading-7 text-white/65">{STORE_MOBILE_VENDOR.chatFixedOnlyAr}</p>
+      )}
       <label className="mt-4 flex items-start gap-2 text-sm leading-7">
         <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} className="mt-1" />
         <span>{STORE_GROCERS_LIVE.orderConsentAr}</span>
@@ -112,7 +130,7 @@ export function StoreGrocersOrderForm({ renewToken = '' }: { renewToken?: string
       >
         {busy
           ? 'جاري تجهيز بوابة الدفع…'
-          : `${STORE_GROCERS_LIVE.orderSubmitAr} · ${pack.priceSar + (chatAddon ? grocersChatAddonSar(pack.id) : 0)} ر.س`}
+          : `${STORE_GROCERS_LIVE.orderSubmitAr} · ${totalSar} ر.س`}
       </button>
       <p className="mt-2 text-xs leading-6 text-white/50">لا يُخلط هذا الاشتراك بفاتورة الرخصة أو قاعات المناسبة.</p>
       <StoreEnterpriseDirectMail

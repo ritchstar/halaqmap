@@ -75,10 +75,16 @@ export const STORE_AFFILIATE_COPY = {
     grocers_12: 'تمويناتا1 اثنا عشر شهراً',
     grocers_chat_6: 'تمويناتا1 ستة أشهر مع صندوق المحادثة',
     grocers_chat_12: 'تمويناتا1 اثنا عشر شهراً مع صندوق المحادثة',
+    grocers_mobile_6: 'تمويناتا1 متحرك مئة وثمانون يوماً',
+    grocers_mobile_12: 'تمويناتا1 متحرك ثلاثمئة وخمسة وستون يوماً',
     restaurant_6: 'مطعمنا1 ستة أشهر',
     restaurant_12: 'مطعمنا1 اثنا عشر شهراً',
+    restaurant_mobile_6: 'مطعمنا1 متحرك مئة وثمانون يوماً',
+    restaurant_mobile_12: 'مطعمنا1 متحرك ثلاثمئة وخمسة وستون يوماً',
     cafe_6: 'كافينا1 ستة أشهر',
     cafe_12: 'كافينا1 اثنا عشر شهراً',
+    cafe_mobile_6: 'كافينا1 متحرك مئة وثمانون يوماً',
+    cafe_mobile_12: 'كافينا1 متحرك ثلاثمئة وخمسة وستون يوماً',
     kitchen_6: 'طبختنا1 مئة وثمانون يوماً',
     kitchen_12: 'طبختنا1 ثلاثمئة وستون يوماً',
   },
@@ -106,10 +112,16 @@ export type StoreAffiliateLineId =
   | 'grocers_12'
   | 'grocers_chat_6'
   | 'grocers_chat_12'
+  | 'grocers_mobile_6'
+  | 'grocers_mobile_12'
   | 'restaurant_6'
   | 'restaurant_12'
+  | 'restaurant_mobile_6'
+  | 'restaurant_mobile_12'
   | 'cafe_6'
   | 'cafe_12'
+  | 'cafe_mobile_6'
+  | 'cafe_mobile_12'
   | 'kitchen_6'
   | 'kitchen_12';
 
@@ -196,6 +208,22 @@ export const STORE_AFFILIATE_LINES: readonly StoreAffiliateLine[] = [
     commissionSar: 199,
   },
   {
+    id: 'grocers_mobile_6',
+    productTag: 'store_grocers_live',
+    titleAr: 'تمويناتا1',
+    packAr: 'متحرك، مئة وثمانون يوماً',
+    priceSar: 799,
+    commissionSar: 99,
+  },
+  {
+    id: 'grocers_mobile_12',
+    productTag: 'store_grocers_live',
+    titleAr: 'تمويناتا1',
+    packAr: 'متحرك، ثلاثمئة وخمسة وستون يوماً',
+    priceSar: 1250,
+    commissionSar: 250,
+  },
+  {
     id: 'restaurant_6',
     productTag: 'store_restaurant_live',
     titleAr: 'مطعمنا1',
@@ -212,6 +240,22 @@ export const STORE_AFFILIATE_LINES: readonly StoreAffiliateLine[] = [
     commissionSar: 199,
   },
   {
+    id: 'restaurant_mobile_6',
+    productTag: 'store_restaurant_live',
+    titleAr: 'مطعمنا1',
+    packAr: 'متحرك، مئة وثمانون يوماً، صندوق المحادثة مدرج',
+    priceSar: 799,
+    commissionSar: 99,
+  },
+  {
+    id: 'restaurant_mobile_12',
+    productTag: 'store_restaurant_live',
+    titleAr: 'مطعمنا1',
+    packAr: 'متحرك، ثلاثمئة وخمسة وستون يوماً، صندوق المحادثة مدرج',
+    priceSar: 1250,
+    commissionSar: 250,
+  },
+  {
     id: 'cafe_6',
     productTag: 'store_cafe_live',
     titleAr: 'كافينا1',
@@ -226,6 +270,22 @@ export const STORE_AFFILIATE_LINES: readonly StoreAffiliateLine[] = [
     packAr: 'اثنا عشر شهراً، صندوق المحادثة مدرج',
     priceSar: 2099,
     commissionSar: 499,
+  },
+  {
+    id: 'cafe_mobile_6',
+    productTag: 'store_cafe_live',
+    titleAr: 'كافينا1',
+    packAr: 'متحرك، مئة وثمانون يوماً، صندوق المحادثة مدرج',
+    priceSar: 799,
+    commissionSar: 99,
+  },
+  {
+    id: 'cafe_mobile_12',
+    productTag: 'store_cafe_live',
+    titleAr: 'كافينا1',
+    packAr: 'متحرك، ثلاثمئة وخمسة وستون يوماً، صندوق المحادثة مدرج',
+    priceSar: 1250,
+    commissionSar: 250,
   },
   {
     id: 'kitchen_6',
@@ -249,17 +309,30 @@ export function affiliateNetSar(priceSar: number, commissionSar: number): number
   return Math.max(0, priceSar - commissionSar);
 }
 
-export function grocersAffiliateCommissionSar(packId: 'm6' | 'm12', chatAddon: boolean): number {
+export function grocersAffiliateCommissionSar(
+  packId: 'm6' | 'm12',
+  chatAddon: boolean,
+  vendorMode: 'fixed' | 'mobile' = 'fixed',
+): number {
+  if (vendorMode === 'mobile') return packId === 'm12' ? 250 : 99;
   const pack = packId === 'm12' ? 199 : 99;
   const chat = chatAddon ? (packId === 'm12' ? 199 : 98) : 0;
   return pack + chat;
 }
 
-export function restaurantAffiliateCommissionSar(packId: 'm6' | 'm12'): number {
+export function restaurantAffiliateCommissionSar(
+  packId: 'm6' | 'm12',
+  vendorMode: 'fixed' | 'mobile' = 'fixed',
+): number {
+  if (vendorMode === 'mobile') return packId === 'm12' ? 250 : 99;
   return packId === 'm12' ? 199 : 99;
 }
 
-export function cafeAffiliateCommissionSar(packId: 'm6' | 'm12'): number {
+export function cafeAffiliateCommissionSar(
+  packId: 'm6' | 'm12',
+  vendorMode: 'fixed' | 'mobile' = 'fixed',
+): number {
+  if (vendorMode === 'mobile') return packId === 'm12' ? 250 : 99;
   return packId === 'm12' ? 499 : 199;
 }
 

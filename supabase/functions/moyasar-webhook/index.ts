@@ -273,16 +273,22 @@ function matchStoreAffiliateCommission(
   if (tag === "store_lounge_live" && amount === 120000) return { lineId: "lounge_6", commissionHalalas: 20000 };
   if (tag === "store_lounge_live" && amount === 240000) return { lineId: "lounge_12", commissionHalalas: 40000 };
   if (tag === "store_grocers_live") {
+    if (amount === 79900) return { lineId: "grocers_mobile_6", commissionHalalas: 9900 };
+    if (amount === 125000) return { lineId: "grocers_mobile_12", commissionHalalas: 25000 };
     if (amount === 59900) return { lineId: "grocers_6", commissionHalalas: 9900 };
     if (amount === 89900) return { lineId: "grocers_12", commissionHalalas: 19900 };
     if (amount === 89800) return { lineId: "grocers_chat_6", commissionHalalas: 19700 };
     if (amount === 139800) return { lineId: "grocers_chat_12", commissionHalalas: 39800 };
   }
   if (tag === "store_restaurant_live") {
+    if (amount === 79900) return { lineId: "restaurant_mobile_6", commissionHalalas: 9900 };
+    if (amount === 125000) return { lineId: "restaurant_mobile_12", commissionHalalas: 25000 };
     if (amount === 69900) return { lineId: "restaurant_6", commissionHalalas: 9900 };
     if (amount === 99900) return { lineId: "restaurant_12", commissionHalalas: 19900 };
   }
   if (tag === "store_cafe_live") {
+    if (amount === 79900) return { lineId: "cafe_mobile_6", commissionHalalas: 9900 };
+    if (amount === 125000) return { lineId: "cafe_mobile_12", commissionHalalas: 25000 };
     if (amount === 119900) return { lineId: "cafe_6", commissionHalalas: 19900 };
     if (amount === 209900) return { lineId: "cafe_12", commissionHalalas: 49900 };
   }
@@ -1008,7 +1014,7 @@ Deno.serve(async (req) => {
 
   if (isGrocersLiveMeta(meta)) {
     const token = String(meta.store_grocers_token ?? meta.storeGrocersToken ?? "").trim();
-    const days = amount === 89900 || amount === 139800 ? 365 : amount === 59900 || amount === 89800 ? 180 : 0;
+    const days = amount === 89900 || amount === 139800 || amount === 125000 ? 365 : amount === 59900 || amount === 89800 || amount === 79900 ? 180 : 0;
     let activated = false;
     if (successStatus && token && days) {
       const expiresAt = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString();
@@ -1054,7 +1060,7 @@ Deno.serve(async (req) => {
 
   if (isRestaurantLiveMeta(meta)) {
     const token = String(meta.store_restaurant_token ?? meta.storeRestaurantToken ?? "").trim();
-    const days = amount === 99900 ? 365 : amount === 69900 ? 180 : 0;
+    const days = amount === 99900 || amount === 125000 ? 365 : amount === 69900 || amount === 79900 ? 180 : 0;
     let activated = false;
     if (successStatus && token && days) {
       const expiresAt = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString();
@@ -1100,7 +1106,7 @@ Deno.serve(async (req) => {
 
   if (isCafeLiveMeta(meta)) {
     const token = String(meta.store_cafe_token ?? meta.storeCafeToken ?? "").trim();
-    const days = amount === 209900 ? 365 : amount === 119900 ? 180 : 0;
+    const days = amount === 209900 || amount === 125000 ? 365 : amount === 119900 || amount === 79900 ? 180 : 0;
     let activated = false;
     if (successStatus && token && days) {
       const expiresAt = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString();

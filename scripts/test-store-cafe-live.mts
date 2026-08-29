@@ -190,6 +190,14 @@ assert.equal(
 );
 assert.equal(
   cafeLivePaymentMatches({
+    meta: { product: 'store_cafe_live', store_cafe_token: 'tok_c' },
+    token: 'tok_c',
+    amount: 125000,
+  }),
+  true,
+);
+assert.equal(
+  cafeLivePaymentMatches({
     meta: { product: 'store_restaurant_live', store_cafe_token: 'tok_c' },
     token: 'tok_c',
     amount: 119900,

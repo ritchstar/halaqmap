@@ -8,7 +8,7 @@ import { STORE_GROCERS_CATALOG, grocersCatalogById, parseGrocersListText } from 
 export { parseGrocersListText };
 import { STORE_GROCERS_LIVE_DEMO, type StoreGrocersLivePackId } from '@/config/storeGrocersLive';
 import { DEFAULT_STORE_SHOP_HOURS, type StoreShopHoursState } from '@/config/storeShopHours';
-import { DEFAULT_SHOP_PICKUP, type ShopPickupPlace } from '@/lib/storeShopPlace';
+import { DEFAULT_SHOP_PICKUP, parseShopPickupPlace, type ShopPickupPlace } from '@/lib/storeShopPlace';
 import { compressImageFile } from '@/lib/storeWeddingLiveLab';
 
 export { compressImageFile };
@@ -134,10 +134,7 @@ export function readGrocersLabState(token: string): GrocersLabState {
         ...fallback.host,
         ...(parsed.host || {}),
         customFields: Array.from({ length: 5 }, (_, i) => parsed.host?.customFields?.[i] || fallback.host.customFields[i] || ''),
-        pickupLat: Number.isFinite(Number(parsed.host?.pickupLat)) ? Number(parsed.host?.pickupLat) : fallback.host.pickupLat,
-        pickupLng: Number.isFinite(Number(parsed.host?.pickupLng)) ? Number(parsed.host?.pickupLng) : fallback.host.pickupLng,
-        pickupMapsUrl: String(parsed.host?.pickupMapsUrl || fallback.host.pickupMapsUrl).slice(0, 240),
-        pickupPlaceVisible: parsed.host?.pickupPlaceVisible === true,
+        ...parseShopPickupPlace(parsed.host, fallback.host),
       },
       shelf: Array.isArray(parsed.shelf) && parsed.shelf.length ? parsed.shelf : fallback.shelf,
       orders: Array.isArray(parsed.orders) ? parsed.orders : [],
@@ -204,7 +201,7 @@ export function activateCatalogItem(
   };
 }
 
-export function grocersWhatsAppText(order: GrocersOrder, shopName: string): string {
+export function grocersWhatsAppText(order: GrocersOrder, shopName: string, mapsUrl = ''): string {
   const pay = order.pay === 'card' ? 'شبكة مع التوصيل' : 'نقداً عند الاستلام';
   const lines = order.lines.map((line) => `${line.nameAr} × ${line.qty} = ${line.price * line.qty} ر.س`).join('\n');
   const facade = order.facadeSrc ? 'صورة واجهة السكن محفوظة في المذكرة.' : 'بلا صورة واجهة.';
@@ -214,10 +211,11 @@ export function grocersWhatsAppText(order: GrocersOrder, shopName: string): stri
     `الجوال: ${order.phone}`,
     `الموقع: ${order.place}`,
     facade,
+    mapsUrl ? `موقع العربة: ${mapsUrl}` : '',
     `الدفع: ${pay}`,
     lines,
     `الإجمالي: ${order.total} ر.س`,
-  ].join('\n');
+  ].filter(Boolean).join('\n');
 }
 
 export function grocersArchiveJson(state: GrocersLabState): string {

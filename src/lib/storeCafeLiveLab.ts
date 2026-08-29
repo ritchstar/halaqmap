@@ -11,7 +11,7 @@ import {
   type StoreCafeLivePackId,
 } from '@/config/storeCafeLive';
 import { DEFAULT_STORE_SHOP_HOURS, type StoreShopHoursState } from '@/config/storeShopHours';
-import { DEFAULT_SHOP_PICKUP, type ShopPickupPlace } from '@/lib/storeShopPlace';
+import { DEFAULT_SHOP_PICKUP, parseShopPickupPlace, type ShopPickupPlace } from '@/lib/storeShopPlace';
 import { compressImageFile, youtubeEmbedSrc } from '@/lib/storeWeddingLiveLab';
 
 export { parseCafeListText, compressImageFile, youtubeEmbedSrc };
@@ -185,10 +185,7 @@ export function readCafeLabState(token: string): CafeLabState {
         guestPaused: parsed.host?.guestPaused === true,
         reviewBeforeShow: parsed.host?.reviewBeforeShow === true,
         youtubeHidden: parsed.host?.youtubeHidden !== false,
-        pickupLat: Number.isFinite(Number(parsed.host?.pickupLat)) ? Number(parsed.host?.pickupLat) : fallback.host.pickupLat,
-        pickupLng: Number.isFinite(Number(parsed.host?.pickupLng)) ? Number(parsed.host?.pickupLng) : fallback.host.pickupLng,
-        pickupMapsUrl: String(parsed.host?.pickupMapsUrl || fallback.host.pickupMapsUrl).slice(0, 240),
-        pickupPlaceVisible: parsed.host?.pickupPlaceVisible === true,
+        ...parseShopPickupPlace(parsed.host, fallback.host),
       },
       shelf: Array.isArray(parsed.shelf) && parsed.shelf.length
         ? parsed.shelf.map((item) => ({ ...item, photoSrc: item.photoSrc || '' }))
@@ -257,7 +254,7 @@ export function activateCafeDrink(state: CafeLabState, catalogId: string, price?
   };
 }
 
-export function cafeWhatsAppText(order: CafeOrder, shopName: string): string {
+export function cafeWhatsAppText(order: CafeOrder, shopName: string, mapsUrl = ''): string {
   const pay = order.pay === 'card' ? 'شبكة عند التسليم' : 'نقداً عند الاستلام';
   const service = order.service === 'pickup' ? 'استلام من المحل' : 'توصيل في الحي';
   const lines = order.lines.map((line) => `${line.nameAr} × ${line.qty} = ${line.price * line.qty} ر.س`).join('\n');
@@ -267,6 +264,7 @@ export function cafeWhatsAppText(order: CafeOrder, shopName: string): string {
     `الجوال: ${order.phone}`,
     `الخدمة: ${service}`,
     `الموقع: ${order.place || '—'}`,
+    mapsUrl ? `موقع العربة: ${mapsUrl}` : '',
     order.note ? `ملاحظة: ${order.note}` : '',
     `الدفع: ${pay}`,
     lines,

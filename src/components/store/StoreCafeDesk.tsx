@@ -105,7 +105,7 @@ export function StoreCafeDesk({
               <div className="mt-2 flex flex-wrap gap-2">
                 <a
                   className="rounded-full bg-[#c48a4a] px-3 py-1.5 text-xs font-bold text-[#061018]"
-                  href={`https://wa.me/?text=${encodeURIComponent(cafeWhatsAppText(order, state.host.shopName))}`}
+                  href={`https://wa.me/?text=${encodeURIComponent(cafeWhatsAppText(order, state.host.shopName, state.host.vendorMode === 'mobile' ? state.host.pickupMapsUrl : ''))}`}
                   target="_blank"
                   rel="noreferrer"
                 >

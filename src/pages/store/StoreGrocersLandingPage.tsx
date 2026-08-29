@@ -14,6 +14,7 @@ import { StoreProductBenefitsLink } from '@/components/store/StoreProductBenefit
 import { StoreShot } from '@/components/store/StoreShot';
 import { StoreGrocersStudio } from '@/components/store/StoreGrocersStudio';
 import { STORE_BRAND_LATIN } from '@/config/storeFront';
+import { STORE_MOBILE_VENDOR } from '@/config/storeMobileVendor';
 import {
   STORE_GROCERS_LIVE,
   STORE_GROCERS_LIVE_FEATURES,
@@ -72,6 +73,7 @@ export default function StoreGrocersLandingPage() {
             </p>
             <p className="mt-6 text-base font-extrabold text-[#f4efe4]">{STORE_GROCERS_LIVE.priceTitleAr}</p>
             <p className="mt-2 text-2xl font-black text-[#8fbf7a]">{STORE_GROCERS_LIVE.priceLineAr}</p>
+            <p className="mt-2 text-sm font-bold leading-7 text-[#8fbf7a]">{STORE_MOBILE_VENDOR.priceLineAr}</p>
             <p className="mt-2 max-w-xl text-sm leading-7 text-white/65">{STORE_GROCERS_LIVE.durationLineAr}</p>
             <p className="mt-6 text-base font-extrabold text-[#f4efe4]">{STORE_GROCERS_LIVE.startTitleAr}</p>
             <p className="mt-2 max-w-xl text-sm font-extrabold leading-7 text-[#f4efe4]">{STORE_GROCERS_LIVE.closeAr}</p>

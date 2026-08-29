@@ -13,9 +13,13 @@ import {
   type GrocersPayMethod,
 } from '@/lib/storeGrocersLiveLab';
 import { StoreGrocersBuyerChat } from '@/components/store/StoreGrocersChat';
+import { StoreMobileVendorBanner } from '@/components/store/StoreMobileVendorBanner';
+import { StoreMobileVendorMark } from '@/components/store/StoreMobileVendorMark';
 import { StoreShopHoursBanner } from '@/components/store/StoreShopHoursBanner';
 import { StoreShopPlacePin } from '@/components/store/StoreShopPlacePin';
+import { STORE_MOBILE_VENDOR } from '@/config/storeMobileVendor';
 import { STORE_SHOP_HOURS_COPY } from '@/config/storeShopHours';
+import { neighborVendorState } from '@/lib/storeMobileVendor';
 import { isShopClosedNow } from '@/lib/storeShopHours';
 import { cn } from '@/lib/utils';
 
@@ -36,6 +40,10 @@ export function StoreGrocersShop({
   const [saveBuyer, setSaveBuyer] = useState(Boolean(saved));
   const [sent, setSent] = useState(false);
 
+  const mobile = state.host.vendorMode === 'mobile';
+  const closed = isShopClosedNow(state.host);
+  const neighbor = neighborVendorState({ ...state.host, closed });
+  const preorder = closed || (mobile && neighbor !== 'at_pin');
   const visible = state.shelf.filter((item) => item.inStock);
   const featured = visible.filter((item) => item.featured).slice(0, 10);
   const rest = visible.filter((item) => !featured.some((row) => row.catalogId === item.catalogId));
@@ -96,9 +104,10 @@ export function StoreGrocersShop({
         <p className="text-xs tracking-[0.3em] text-[#8fbf7a]">{STORE_GROCERS_LIVE.shopKickerAr}</p>
         <h2 className="mt-1 flex items-center gap-2 text-3xl font-black">
           <span>{state.host.shopName}</span>
+          {mobile ? <StoreMobileVendorMark accent="#8fbf7a" /> : null}
           <StoreShopPlacePin
             mapsUrl={state.host.pickupMapsUrl}
-            visible={state.host.pickupPlaceVisible}
+            visible={mobile ? neighbor === 'at_pin' : state.host.pickupPlaceVisible}
             accent="#8fbf7a"
             labelAr={STORE_GROCERS_LIVE.pickupPinAriaAr}
           />
@@ -111,6 +120,7 @@ export function StoreGrocersShop({
         </ul>
       </header>
       <StoreShopHoursBanner hours={state.host} accent="#8fbf7a" />
+      <StoreMobileVendorBanner place={state.host} closed={closed} accent="#8fbf7a" />
 
       <section>
         <h3 className="text-lg font-extrabold">{STORE_GROCERS_LIVE.featuredTitleAr}</h3>
@@ -153,7 +163,7 @@ export function StoreGrocersShop({
         }}
       >
         <h3 className="text-lg font-extrabold">
-          {isShopClosedNow(state.host) ? STORE_SHOP_HOURS_COPY.preorderTitleAr : STORE_GROCERS_LIVE.checkoutTitleAr}
+          {preorder ? STORE_SHOP_HOURS_COPY.preorderTitleAr : STORE_GROCERS_LIVE.checkoutTitleAr}
         </h3>
         <p className="mt-1 text-sm text-[#8fbf7a]">الإجمالي الآن: {total} ر.س</p>
         <label className="mt-3 block text-sm">
@@ -165,13 +175,15 @@ export function StoreGrocersShop({
           <input required value={phone} onChange={(e) => setPhone(e.target.value)} className="grocers-field" inputMode="tel" maxLength={20} />
         </label>
         <label className="mt-3 block text-sm">
-          {STORE_GROCERS_LIVE.buyerPlaceLabelAr}
+          {mobile ? STORE_MOBILE_VENDOR.placeHintAr : STORE_GROCERS_LIVE.buyerPlaceLabelAr}
           <input value={place} onChange={(e) => setPlace(e.target.value)} className="grocers-field" maxLength={160} />
         </label>
-        <label className="mt-3 block text-sm">
-          {STORE_GROCERS_LIVE.buyerFacadeLabelAr}
-          <input type="file" accept="image/*" className="mt-2 block w-full text-xs" onChange={(e) => void onFacade(e.target.files?.[0])} />
-        </label>
+        {mobile ? null : (
+          <label className="mt-3 block text-sm">
+            {STORE_GROCERS_LIVE.buyerFacadeLabelAr}
+            <input type="file" accept="image/*" className="mt-2 block w-full text-xs" onChange={(e) => void onFacade(e.target.files?.[0])} />
+          </label>
+        )}
         <div className="mt-3 flex flex-wrap gap-2">
           <button type="button" onClick={() => setPay('cash')} className={cn('rounded-full px-3 py-1.5 text-xs', pay === 'cash' ? 'bg-[#8fbf7a] font-bold text-[#061018]' : 'border border-white/20')}>
             {STORE_GROCERS_LIVE.payCashAr}

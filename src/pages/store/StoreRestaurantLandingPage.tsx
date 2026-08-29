@@ -13,6 +13,7 @@ import { StoreProductBenefitsLink } from '@/components/store/StoreProductBenefit
 import { StoreRestaurantOrderForm } from '@/components/store/StoreRestaurantOrderForm';
 import { StoreShot } from '@/components/store/StoreShot';
 import { StoreRestaurantStudio } from '@/components/store/StoreRestaurantStudio';
+import { STORE_MOBILE_VENDOR } from '@/config/storeMobileVendor';
 import {
   STORE_RESTAURANT_LIVE,
   STORE_RESTAURANT_LIVE_FEATURES,
@@ -44,6 +45,7 @@ export default function StoreRestaurantLandingPage() {
             <h1 className="mt-2 text-4xl font-extrabold leading-tight">{STORE_RESTAURANT_LIVE.titleAr}</h1>
             <p className="mt-4 max-w-xl text-base leading-8 text-white/78">{STORE_RESTAURANT_LIVE.leadAr}</p>
             <p className="mt-4 text-2xl font-black text-[#e08a3c]">{STORE_RESTAURANT_LIVE.priceLineAr}</p>
+            <p className="mt-2 text-sm font-bold leading-7 text-[#e08a3c]">{STORE_MOBILE_VENDOR.priceLineAr}</p>
             <p className="mt-2 max-w-xl text-sm leading-7 text-white/65">{STORE_RESTAURANT_LIVE.durationLineAr}</p>
             {renewToken ? (
               <p className="mt-4 rounded-xl border border-[#e08a3c]/35 bg-[#e08a3c]/10 px-4 py-3 text-sm leading-7">

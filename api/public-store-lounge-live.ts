@@ -646,6 +646,7 @@ async function saveHost(db: Db, body: Record<string, unknown>, headers: Record<s
     reviewBeforeShow: body.reviewBeforeShow == null ? current.reviewBeforeShow === true : Boolean(body.reviewBeforeShow),
     blessings: Array.isArray(body.blessings) ? (body.blessings as LoungeLiveOrderPayload['blessings']) : current.blessings,
     ...parseShopPickupPlace(body, parseShopPickupPlace(current)),
+    vendorMode: 'fixed' as const,
   };
   await db
     .from(STORE_LOUNGE_LIVE_TABLE)

@@ -6,6 +6,7 @@
 import { randomBytes } from 'node:crypto';
 import { withStoreAffiliateCode } from './storeAffiliateCode.js';
 import { DEFAULT_STORE_SHOP_HOURS, parseStoreShopHours, type StoreShopHoursState } from './storeShopHours.js';
+import { isMobileVendorPriceHalalas, mobileVendorChargeHalalas, mobileVendorPackFromHalalas, parseVendorMode, type StoreVendorMode } from './storeMobileVendor.js';
 import { DEFAULT_SHOP_PICKUP, parseShopPickupPlace, publicShopPlaceFields, type ShopPickupPlace } from './storeShopPlace.js';
 
 export const STORE_GROCERS_LIVE_TABLE = 'store_grocers_live_orders' as const;
@@ -56,11 +57,17 @@ export function grocersChatAddonFromHalalas(amount: number): boolean {
     || amount === STORE_GROCERS_LIVE_PRICE_12_HALALAS + STORE_GROCERS_CHAT_ADDON_12_HALALAS;
 }
 
-export function grocersChargeHalalas(packId: 'm6' | 'm12', chatAddon: boolean): number {
+export function grocersChargeHalalas(
+  packId: 'm6' | 'm12',
+  chatAddon: boolean,
+  vendorMode: StoreVendorMode = 'fixed',
+): number {
+  if (vendorMode === 'mobile') return mobileVendorChargeHalalas(packId);
   return grocersPackFromId(packId).priceHalalas + (chatAddon ? grocersChatAddonHalalas(packId) : 0);
 }
 
 export function grocersPackFromHalalas(amount: number) {
+  if (isMobileVendorPriceHalalas(amount)) return grocersPackFromId(mobileVendorPackFromHalalas(amount));
   if (amount === STORE_GROCERS_LIVE_PRICE_12_HALALAS || amount === STORE_GROCERS_LIVE_PRICE_12_HALALAS + STORE_GROCERS_CHAT_ADDON_12_HALALAS) {
     return grocersPackFromId('m12');
   }
@@ -69,7 +76,8 @@ export function grocersPackFromHalalas(amount: number) {
 
 export function isGrocersPriceHalalas(amount: number): boolean {
   return (
-    amount === STORE_GROCERS_LIVE_PRICE_6_HALALAS
+    isMobileVendorPriceHalalas(amount)
+    || amount === STORE_GROCERS_LIVE_PRICE_6_HALALAS
     || amount === STORE_GROCERS_LIVE_PRICE_12_HALALAS
     || amount === STORE_GROCERS_LIVE_PRICE_6_HALALAS + STORE_GROCERS_CHAT_ADDON_6_HALALAS
     || amount === STORE_GROCERS_LIVE_PRICE_12_HALALAS + STORE_GROCERS_CHAT_ADDON_12_HALALAS
@@ -86,7 +94,14 @@ export function grocersLiveIsExpired(expiresAt: string | null | undefined, nowMs
   return Number.isFinite(t) && t <= nowMs;
 }
 
-export function grocersLiveInvoiceDescription(packId: 'm6' | 'm12', chatAddon = false): string {
+export function grocersLiveInvoiceDescription(
+  packId: 'm6' | 'm12',
+  chatAddon = false,
+  vendorMode: StoreVendorMode = 'fixed',
+): string {
+  if (vendorMode === 'mobile') {
+    return packId === 'm12' ? 'halaqmap — تمويناتا1 متحرك 12 شهراً' : 'halaqmap — تمويناتا1 متحرك 6 أشهر';
+  }
   const base = packId === 'm12' ? 'halaqmap — تمويناتا1 12 شهراً' : 'halaqmap — تمويناتا1 6 أشهر';
   return chatAddon ? `${base} + صندوق محادثة` : base;
 }
@@ -97,6 +112,7 @@ export function grocersLiveInvoiceMetadata(
   kind: 'purchase' | 'renewal' = 'purchase',
   chatAddon = false,
   affiliateCode?: unknown,
+  vendorMode: StoreVendorMode = 'fixed',
 ): Record<string, string> {
   return withStoreAffiliateCode(
     {
@@ -105,7 +121,8 @@ export function grocersLiveInvoiceMetadata(
       store_grocers_token: token,
       store_grocers_pack: packId,
       store_grocers_kind: kind,
-      store_grocers_chat: chatAddon ? '1' : '0',
+      store_grocers_chat: vendorMode === 'mobile' ? '0' : chatAddon ? '1' : '0',
+      store_grocers_vendor: vendorMode,
     },
     affiliateCode,
   );
@@ -158,7 +175,7 @@ export type GrocersLiveOrderPayload = {
 } & StoreShopHoursState & ShopPickupPlace;
 
 export function parseGrocersLiveOrderBody(body: Record<string, unknown>):
-  | { ok: true; email: string; buyerName: string; packId: 'm6' | 'm12'; chatAddon: boolean; payload: GrocersLiveOrderPayload }
+  | { ok: true; email: string; buyerName: string; packId: 'm6' | 'm12'; chatAddon: boolean; vendorMode: StoreVendorMode; payload: GrocersLiveOrderPayload }
   | { ok: false; error: string } {
   const email = clip(body.email, 180).toLowerCase();
   if (!isEmail(email)) return { ok: false, error: 'البريد مطلوب لإرسال روابط المتجر والكاشير.' };
@@ -166,13 +183,15 @@ export function parseGrocersLiveOrderBody(body: Record<string, unknown>):
   const hostName = clip(body.hostName, 80) || 'الإدارة';
   if (shopName.length < 2) return { ok: false, error: 'اسم التموينات مطلوب.' };
   const packId = parseGrocersPackId(body.packId);
-  const chatAddon = body.chatAddon === true;
+  const vendorMode = parseVendorMode(body.vendorMode);
+  const chatAddon = vendorMode === 'mobile' ? false : body.chatAddon === true;
   return {
     ok: true,
     email,
     buyerName: clip(body.buyerName, 80) || shopName,
     packId,
     chatAddon,
+    vendorMode,
     payload: {
       packId,
       shopName,
@@ -185,6 +204,7 @@ export function parseGrocersLiveOrderBody(body: Record<string, unknown>):
       chatAddon,
       chats: [],
       ...DEFAULT_SHOP_PICKUP,
+      vendorMode,
       ...DEFAULT_STORE_SHOP_HOURS,
     },
   };
