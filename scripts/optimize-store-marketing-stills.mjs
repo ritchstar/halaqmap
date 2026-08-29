@@ -1,5 +1,5 @@
 /**
- * ضغط لقطات اللاونج والتموينات والمطعم للعرض على الجوال.
+ * ضغط لقطات اللاونج والتموينات والخضار والمطعم للعرض على الجوال.
  * تشغيل: node scripts/optimize-store-marketing-stills.mjs
  */
 import { readdir, writeFile } from 'node:fs/promises';
@@ -11,6 +11,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const dirs = [
   join(root, 'public/images/store/lounge'),
   join(root, 'public/images/store/grocers'),
+  join(root, 'public/images/store/produce'),
   join(root, 'public/images/store/restaurant'),
   join(root, 'public/images/store/kitchen'),
 ];
@@ -18,6 +19,7 @@ const ONLY_RESTAURANT = process.argv.includes('--restaurant');
 const singles = [
   join(root, 'public/images/store/restaurant-hero-marketing.jpg'),
   join(root, 'public/images/store/kitchen-hero-marketing.jpg'),
+  join(root, 'public/images/store/produce-hero-marketing.jpg'),
 ];
 const MAX_WIDTH = 1280;
 const QUALITY = 70;

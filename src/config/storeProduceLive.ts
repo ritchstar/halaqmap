@@ -168,6 +168,7 @@ export const STORE_PRODUCE_LIVE = {
   labKickerAr: 'معاينة حيّة داخل الصفحة',
   labTitleAr: 'هكذا يطلب جار الحي وتصل المذكرة للصندوق',
   labLeadAr: 'فعّل صنفاً، أرسل طلباً تجريبياً، وافتح مذكرة واتساب كما في ساعة السوق.',
+  heroImage: '/images/store/produce-hero-marketing.jpg',
   heroCaptionAr: 'من الصندوق إلى جار الحي',
   heroAltAr: 'صندوق خضار وفواكه جاهز للطلب من الجوال',
   checkoutClosedAr: 'بوابة الدفع غير مفتوحة لهذا المنتج بعد.',

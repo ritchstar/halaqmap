@@ -9,6 +9,7 @@ import { fileURLToPath } from 'node:url';
 import {
   STORE_GROCERS_MARKETING_FRAMES,
   STORE_KITCHEN_MARKETING_FRAMES,
+  STORE_PRODUCE_MARKETING_FRAMES,
   STORE_LANDING_MARKETING_FRAMES,
   STORE_LOUNGE_MARKETING_FRAMES,
   STORE_OCCASION_MARKETING_FRAMES,
@@ -26,6 +27,7 @@ const app = readFileSync(join(root, 'src/App.tsx'), 'utf8');
 const hall = readFileSync(join(root, 'src/components/store/StoreLoungeHallStage.tsx'), 'utf8');
 const landing = readFileSync(join(root, 'src/pages/store/StoreLanding.tsx'), 'utf8');
 const loungeLanding = readFileSync(join(root, 'src/pages/store/StoreLoungeLandingPage.tsx'), 'utf8');
+const produceLanding = readFileSync(join(root, 'src/pages/store/StoreProduceLandingPage.tsx'), 'utf8');
 
 assert.doesNotMatch(app, /from ['"]@\/config\/storeMarketingReels['"]/);
 assert.doesNotMatch(app, /from ['"]@\/config\/storeLoungeLive['"]/);
@@ -43,6 +45,7 @@ for (const src of STORE_LANDING_MARKETING_FRAMES) {
   assert.equal(src.includes('/images/store/grocers/grocers-'), false, src);
   assert.equal(src.includes('/images/store/restaurant/restaurant-'), false, src);
   assert.equal(src.includes('/images/store/kitchen/kitchen-'), false, src);
+  assert.equal(src.includes('/images/store/produce/produce-'), false, src);
   assert.equal(src.includes('/images/store/live/pano-'), false, src);
 }
 
@@ -70,10 +73,21 @@ for (const src of STORE_KITCHEN_MARKETING_FRAMES) {
   assert.equal(src.includes('/images/store/lounge'), false, src);
 }
 
+assert.ok(STORE_PRODUCE_MARKETING_FRAMES.length >= 8);
+assert.equal(new Set(STORE_PRODUCE_MARKETING_FRAMES).size, STORE_PRODUCE_MARKETING_FRAMES.length);
+for (const src of STORE_PRODUCE_MARKETING_FRAMES) {
+  assert.ok(existsSync(join(root, 'public', src.replace(/^\//, ''))), src);
+  assert.equal(src.includes('/images/store/grocers'), false, src);
+  assert.equal(src.includes('/images/store/kitchen'), false, src);
+  assert.equal(src.includes('/images/store/restaurant'), false, src);
+  assert.equal(src.includes('/images/store/lounge'), false, src);
+}
+
 const ids: StoreMarketingReelId[] = [
   'landing',
   'lounge',
   'grocers',
+  'produce',
   'kitchen',
   'wedding',
   'wedding-women',
@@ -94,6 +108,7 @@ assert.equal(storeLiveProductReel('occasion-card'), 'occasion');
 assert.equal(storeLiveProductReel('live-halls'), 'lounge');
 assert.equal(storeLiveProductReel('restaurant'), 'restaurant');
 assert.equal(storeLiveProductReel('kitchen'), 'kitchen');
+assert.equal(storeLiveProductReel('produce'), 'produce');
 assert.equal(storeSoftwareShotReel(0), 'halaq');
 assert.equal(storeSoftwareShotReel(2), 'lounge');
 
@@ -105,9 +120,12 @@ assert.match(landing, /reel="lounge"/);
 assert.match(landing, /reel="grocers"/);
 assert.match(landing, /reel="restaurant"/);
 assert.match(landing, /reel="kitchen"/);
+assert.match(landing, /reel="produce"/);
 assert.match(landing, /reel="wedding"/);
 assert.match(landing, /reel="event"/);
 assert.match(loungeLanding, /reel="lounge"/);
+assert.match(produceLanding, /reel="produce"/);
+assert.doesNotMatch(produceLanding, /reel="grocers"/);
 
 const weddingHall = readFileSync(join(root, 'src/components/store/StoreWeddingHallStage.tsx'), 'utf8');
 const eventHall = readFileSync(join(root, 'src/components/store/StoreEventHallStage.tsx'), 'utf8');

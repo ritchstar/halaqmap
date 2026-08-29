@@ -13,6 +13,7 @@ export type StoreMarketingReelId =
   | 'landing'
   | 'lounge'
   | 'grocers'
+  | 'produce'
   | 'restaurant'
   | 'kitchen'
   | 'wedding'
@@ -59,6 +60,22 @@ const GROCERS_GENERATED = [
 export const STORE_GROCERS_MARKETING_FRAMES = [
   '/images/store/grocers-hero-marketing.jpg',
   ...GROCERS_GENERATED,
+] as const;
+
+const PRODUCE_GENERATED = [
+  '/images/store/produce/produce-01.jpg',
+  '/images/store/produce/produce-02.jpg',
+  '/images/store/produce/produce-03.jpg',
+  '/images/store/produce/produce-04.jpg',
+  '/images/store/produce/produce-05.jpg',
+  '/images/store/produce/produce-06.jpg',
+  '/images/store/produce/produce-07.jpg',
+  '/images/store/produce/produce-08.jpg',
+] as const;
+
+export const STORE_PRODUCE_MARKETING_FRAMES = [
+  '/images/store/produce-hero-marketing.jpg',
+  ...PRODUCE_GENERATED,
 ] as const;
 
 export const STORE_RESTAURANT_MARKETING_FRAMES = [
@@ -200,6 +217,7 @@ export const STORE_LANDING_MARKETING_FRAMES = [
   '/images/halaqmap-hero.jpg.png',
   '/images/store/lounge-hero-marketing.jpg',
   '/images/store/grocers-hero-marketing.jpg',
+  '/images/store/produce-hero-marketing.jpg',
   '/images/store/kitchen-hero-marketing.jpg',
   '/images/store/lab/lab-luxury-gold.png',
   '/images/store/lab/lab-luxury-rosegold.png',
@@ -214,6 +232,7 @@ const REELS: Record<StoreMarketingReelId, readonly string[]> = {
   landing: STORE_LANDING_MARKETING_FRAMES,
   lounge: STORE_LOUNGE_MARKETING_FRAMES,
   grocers: STORE_GROCERS_MARKETING_FRAMES,
+  produce: STORE_PRODUCE_MARKETING_FRAMES,
   restaurant: STORE_RESTAURANT_MARKETING_FRAMES,
   kitchen: STORE_KITCHEN_MARKETING_FRAMES,
   wedding: STORE_WEDDING_MARKETING_FRAMES,
@@ -237,6 +256,7 @@ export function storeLiveProductReel(productId: string): StoreMarketingReelId {
   if (productId === 'live-halls') return 'lounge';
   if (productId === 'restaurant') return 'restaurant';
   if (productId === 'kitchen') return 'kitchen';
+  if (productId === 'produce') return 'produce';
   return 'landing';
 }
 

@@ -284,7 +284,7 @@ export default function StoreLanding() {
         <div className="mx-auto max-w-5xl">
           <div className="overflow-hidden rounded-2xl border border-[#3d8b4a]/30 bg-[#0b1a10]/70">
             <StoreShot
-              reel="grocers"
+              reel="produce"
               alt={STORE_PRODUCE_LIVE.heroAltAr}
               className="aspect-[16/7] w-full"
             />

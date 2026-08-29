@@ -154,7 +154,7 @@ export default function StoreProduceLandingPage() {
           </div>
           <figure className="overflow-hidden rounded-2xl border border-[#3d8b4a]/35 bg-[#0b1a10]">
             <StoreShot
-              reel="grocers"
+              reel="produce"
               alt={STORE_PRODUCE_LIVE.heroAltAr}
               className="aspect-[16/10] w-full"
               eager
