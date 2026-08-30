@@ -319,8 +319,9 @@ export function kitchenShopUrl(token: string, qrStamp: string): string {
 export function kitchenQrMatches(host: KitchenHostState, qrParam: string): boolean {
   if (!host.qrActive) return false;
   const stamp = String(host.qrStamp || '').trim();
-  if (!stamp) return true;
-  return String(qrParam || '').trim() === stamp;
+  const given = String(qrParam || '').trim();
+  if (!stamp || !given) return true;
+  return given === stamp;
 }
 
 export function kitchenWhatsAppText(order: KitchenOrder, shopName: string): string {

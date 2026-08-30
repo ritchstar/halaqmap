@@ -229,7 +229,9 @@ assert.equal(kitchenOrderExists(once.orders, 'k-same'), true);
 
 const host = defaultKitchenLabState().host;
 assert.equal(kitchenQrMatches({ ...host, qrActive: true, qrStamp: 'abc' }, 'abc'), true);
+assert.equal(kitchenQrMatches({ ...host, qrActive: true, qrStamp: 'abc' }, ''), true);
 assert.equal(kitchenQrMatches({ ...host, qrActive: true, qrStamp: 'abc' }, 'zzz'), false);
+assert.equal(kitchenQrMatches({ ...host, qrActive: false, qrStamp: 'abc' }, ''), false);
 assert.equal(kitchenQrMatches({ ...host, qrActive: false, qrStamp: 'abc' }, 'abc'), false);
 assert.match(kitchenShopHashPath('kitchen-lab', 'abc'), /\/k\/kitchen-lab\?qr=abc/);
 
@@ -292,6 +294,9 @@ assert.match(apiLib, /product_type: STORE_KITCHEN_LIVE_PRODUCT/);
 assert.doesNotMatch(apiRoute, /add_chat/);
 assert.match(apiRoute, /applyStoreTrialClock/);
 assert.match(apiRoute, /markStoreTrialConverted/);
+const trialApi = readFileSync(join(root, 'api/_lib/storeProductTrial.ts'), 'utf8');
+assert.match(trialApi, /tokens\.qr/);
+assert.match(trialApi, /\?qr=\$\{encodeURIComponent\(stamp\)\}/);
 assert.match(apiRoute, /kitchenOrderAlreadyStored/);
 assert.match(migration, /30000, 60000/);
 assert.doesNotMatch(migration, /is_trial/);

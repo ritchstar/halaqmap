@@ -153,8 +153,10 @@ function productLinks(key: StoreProductTrialKey, tokens: Record<string, string>)
     };
   }
   if (key === 'kitchen') {
+    const stamp = String(tokens.qr || '').trim();
+    const q = stamp ? `?qr=${encodeURIComponent(stamp)}` : '';
     return {
-      a: `${storeOrigin()}/#/k/${encodeURIComponent(tokens.shop)}`,
+      a: `${storeOrigin()}/#/k/${encodeURIComponent(tokens.shop)}${q}`,
       b: `${storeOrigin()}/#/k/${encodeURIComponent(tokens.desk)}/desk`,
     };
   }
@@ -614,7 +616,10 @@ async function insertLiveOrder(
       .select('id')
       .maybeSingle();
     if (error || !data) return { error: 'تعذر إنشاء صفحة النشاط التجريبية.' };
-    return { orderId: String(data.id), tokens: { shop, desk } };
+    return {
+      orderId: String(data.id),
+      tokens: { shop, desk, qr: String((payload as { qrStamp?: string }).qrStamp || '') },
+    };
   }
   const display = key === 'event' ? newEventToken() : key === 'lounge' ? newLoungeToken() : newWeddingToken();
   const guest = key === 'event' ? newEventToken() : key === 'lounge' ? newLoungeToken() : newWeddingToken();
