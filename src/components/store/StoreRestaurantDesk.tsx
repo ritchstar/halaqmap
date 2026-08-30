@@ -1,15 +1,10 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
-import { useEffect, useRef, useState } from 'react';
 import QRCode from 'react-qr-code';
 import { STORE_RESTAURANT_LIVE } from '@/config/storeRestaurantLive';
-import {
-  playRestaurantBeep,
-  restaurantArchiveJson,
-  restaurantWhatsAppText,
-  type RestaurantLabState,
-} from '@/lib/storeRestaurantLiveLab';
+import { restaurantArchiveJson, restaurantWhatsAppText, type RestaurantLabState } from '@/lib/storeRestaurantLiveLab';
+import { StoreDeskOrderAlert } from '@/components/store/StoreDeskOrderAlert';
 import { StoreRestaurantMenuBoard } from '@/components/store/StoreRestaurantMenuBoard';
 import { StoreRestaurantDeskChat } from '@/components/store/StoreRestaurantChat';
 import { StoreShopPresenceCount } from '@/components/store/StoreShopPresenceCount';
@@ -31,18 +26,7 @@ export function StoreRestaurantDesk({
   shopUrl: string;
   token: string;
 }) {
-  const seenCount = useRef(state.orders.length);
-  const [flashOn, setFlashOn] = useState(false);
   const unread = state.orders.filter((item) => !item.seen);
-
-  useEffect(() => {
-    if (state.orders.length > seenCount.current) {
-      playRestaurantBeep();
-      setFlashOn(true);
-      window.setTimeout(() => setFlashOn(false), 1400);
-    }
-    seenCount.current = state.orders.length;
-  }, [state.orders.length]);
 
   function markSeen(id: string) {
     onChange({
@@ -81,8 +65,15 @@ export function StoreRestaurantDesk({
 
   return (
     <div className="space-y-6">
+      <StoreDeskOrderAlert
+        product="restaurant"
+        token={token}
+        shopName={state.host.shopName}
+        orderIds={state.orders.map((item) => item.id)}
+        unreadCount={unread.length}
+      />
       <StoreTrialOpsNote productKey="restaurant" />
-      <div className={cn('rounded-2xl border p-4', flashOn || unread.length ? 'restaurant-alert border-[#e08a3c]' : 'border-white/12')}>
+      <div className={cn('rounded-2xl border p-4', unread.length ? 'restaurant-alert border-[#e08a3c]' : 'border-white/12')}>
         <h2 className="text-lg font-extrabold">{STORE_RESTAURANT_LIVE.liveOrdersAr}</h2>
         <p className="mt-1 text-sm text-white/60">{unread.length ? `${unread.length} تذكرة جديدة` : 'لا تذاكر جديدة الآن.'}</p>
         <StoreShopPresenceCount productTag="store_restaurant_live" token={token} />

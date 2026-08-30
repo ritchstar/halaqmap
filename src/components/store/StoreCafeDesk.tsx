@@ -1,15 +1,10 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
-import { useEffect, useRef, useState } from 'react';
 import QRCode from 'react-qr-code';
 import { STORE_CAFE_LIVE } from '@/config/storeCafeLive';
-import {
-  playCafeBeep,
-  cafeArchiveJson,
-  cafeWhatsAppText,
-  type CafeLabState,
-} from '@/lib/storeCafeLiveLab';
+import { cafeArchiveJson, cafeWhatsAppText, type CafeLabState } from '@/lib/storeCafeLiveLab';
+import { StoreDeskOrderAlert } from '@/components/store/StoreDeskOrderAlert';
 import { StoreCafeMenuBoard } from '@/components/store/StoreCafeMenuBoard';
 import { StoreCafeDeskChat } from '@/components/store/StoreCafeChat';
 import { StoreShopPresenceCount } from '@/components/store/StoreShopPresenceCount';
@@ -33,18 +28,7 @@ export function StoreCafeDesk({
   showTrialNote?: boolean;
   token: string;
 }) {
-  const seenCount = useRef(state.orders.length);
-  const [flashOn, setFlashOn] = useState(false);
   const unread = state.orders.filter((item) => !item.seen);
-
-  useEffect(() => {
-    if (state.orders.length > seenCount.current) {
-      playCafeBeep();
-      setFlashOn(true);
-      window.setTimeout(() => setFlashOn(false), 1400);
-    }
-    seenCount.current = state.orders.length;
-  }, [state.orders.length]);
 
   function markSeen(id: string) {
     onChange({
@@ -83,8 +67,15 @@ export function StoreCafeDesk({
 
   return (
     <div className="space-y-6">
+      <StoreDeskOrderAlert
+        product="cafe"
+        token={token}
+        shopName={state.host.shopName}
+        orderIds={state.orders.map((item) => item.id)}
+        unreadCount={unread.length}
+      />
       {showTrialNote ? <StoreTrialOpsNote productKey="cafe" /> : null}
-      <div className={cn('rounded-2xl border p-4', flashOn || unread.length ? 'restaurant-alert border-[#c48a4a]' : 'border-white/12')}>
+      <div className={cn('rounded-2xl border p-4', unread.length ? 'restaurant-alert border-[#c48a4a]' : 'border-white/12')}>
         <h2 className="text-lg font-extrabold">{STORE_CAFE_LIVE.liveOrdersAr}</h2>
         <p className="mt-1 text-sm text-white/60">{unread.length ? `${unread.length} تذكرة جديدة` : 'لا تذاكر جديدة الآن.'}</p>
         <StoreShopPresenceCount productTag="store_cafe_live" token={token} />

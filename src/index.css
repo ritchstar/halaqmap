@@ -3833,6 +3833,33 @@ html.platform-radar-fullscreen #root {
   }
 }
 
+.store-desk-order-alert-light.is-on {
+  animation: store-desk-order-alert-pulse 1.1s ease-in-out infinite;
+}
+
+.store-desk-order-alert-glow {
+  box-shadow: 0 0 28px color-mix(in srgb, var(--desk-alert, #e08a3c) 42%, transparent);
+}
+
+@keyframes store-desk-order-alert-pulse {
+  0%,
+  100% {
+    opacity: 0.45;
+    filter: brightness(0.85);
+  }
+  50% {
+    opacity: 1;
+    filter: brightness(1.35);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .store-desk-order-alert-light.is-on {
+    animation: none;
+    opacity: 1;
+  }
+}
+
 .store-mobile-mark {
   display: inline-flex;
   align-items: center;

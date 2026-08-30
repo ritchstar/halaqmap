@@ -1,15 +1,10 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
-import { useEffect, useRef, useState } from 'react';
 import QRCode from 'react-qr-code';
 import { STORE_PRODUCE_LIVE } from '@/config/storeProduceLive';
-import {
-  produceArchiveJson,
-  produceWhatsAppText,
-  playProduceBeep,
-  type ProduceLabState,
-} from '@/lib/storeProduceLiveLab';
+import { produceArchiveJson, produceWhatsAppText, type ProduceLabState } from '@/lib/storeProduceLiveLab';
+import { StoreDeskOrderAlert } from '@/components/store/StoreDeskOrderAlert';
 import { StoreProduceIngest } from '@/components/store/StoreProduceIngest';
 import { StoreProduceDeskChat } from '@/components/store/StoreProduceChat';
 import { StoreProductPassDeskButton } from '@/components/store/StoreProductPassDeskButton';
@@ -31,18 +26,7 @@ export function StoreProduceDesk({
   shopUrl: string;
   token: string;
 }) {
-  const seenCount = useRef(state.orders.length);
-  const [flashOn, setFlashOn] = useState(false);
   const unread = state.orders.filter((item) => !item.seen);
-
-  useEffect(() => {
-    if (state.orders.length > seenCount.current) {
-      playProduceBeep();
-      setFlashOn(true);
-      window.setTimeout(() => setFlashOn(false), 1400);
-    }
-    seenCount.current = state.orders.length;
-  }, [state.orders.length]);
 
   function markSeen(id: string) {
     onChange({
@@ -88,8 +72,15 @@ export function StoreProduceDesk({
 
   return (
     <div className="space-y-6">
+      <StoreDeskOrderAlert
+        product="produce"
+        token={token}
+        shopName={state.host.shopName}
+        orderIds={state.orders.map((item) => item.id)}
+        unreadCount={unread.length}
+      />
       <StoreTrialOpsNote productKey="produce" />
-      <div className={cn('rounded-2xl border p-4', flashOn || unread.length ? 'produce-alert border-[#3d8b4a]' : 'border-white/12')}>
+      <div className={cn('rounded-2xl border p-4', unread.length ? 'produce-alert border-[#3d8b4a]' : 'border-white/12')}>
         <h2 className="text-lg font-extrabold">{STORE_PRODUCE_LIVE.liveOrdersAr}</h2>
         <p className="mt-1 text-sm text-white/60">{unread.length ? `${unread.length} طلب جديد` : 'لا طلبات جديدة الآن.'}</p>
         <StoreShopPresenceCount productTag="store_produce_live" token={token} />
