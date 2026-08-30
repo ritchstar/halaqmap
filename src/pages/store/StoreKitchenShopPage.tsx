@@ -77,6 +77,7 @@ export default function StoreKitchenShopPage() {
   const deskSync = useStoreLiveDeskSync(desk && !isLab);
   const [renewToken, setRenewToken] = useState('');
   const [giftNotice, setGiftNotice] = useState<{ expiresAt: string; shopToken: string } | null>(null);
+  const [isTrial, setIsTrial] = useState(false);
   const [shopUrl, setShopUrl] = useState(
     typeof window === 'undefined'
       ? `/#/k/${encodeURIComponent(safeToken)}`
@@ -120,6 +121,7 @@ export default function StoreKitchenShopPage() {
         const payload = result.payload as Record<string, unknown>;
         setState((current) => deskSync.applyPoll(current, payloadToState(payload, current)));
         if (typeof result.shopUrl === 'string' && result.shopUrl) setShopUrl(result.shopUrl);
+        setIsTrial(result.isTrial === true);
         if (payload.gift === true) {
           setGiftNotice({
             expiresAt: String(result.expiresAt || ''),
@@ -187,6 +189,7 @@ export default function StoreKitchenShopPage() {
               shopUrl={liveShopUrl}
               token={safeToken}
               gift={giftNotice}
+              showTrialNote={isTrial}
             />
           ) : (
             <StoreKitchenShop state={state} onChange={commit} />

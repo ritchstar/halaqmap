@@ -16,6 +16,13 @@ import { newCafeToken } from './storeCafeLive.js';
 import { sendCafeLiveLinksEmail } from './storeCafeLiveMail.js';
 import { newProduceToken } from './storeProduceLive.js';
 import { sendProduceLiveLinksEmail } from './storeProduceLiveMail.js';
+import {
+  DEFAULT_KITCHEN_PICKUP,
+  newKitchenQrStamp,
+  newKitchenToken,
+} from './storeKitchenLive.js';
+import { DEFAULT_STORE_SHOP_HOURS } from './storeShopHours.js';
+import { sendKitchenLiveLinksEmail } from './storeKitchenLiveMail.js';
 import { newWeddingToken } from './storeWeddingLive.js';
 import { sendWeddingLiveLinksEmail } from './storeWeddingLiveMail.js';
 
@@ -23,8 +30,17 @@ export const STORE_PRODUCT_TRIAL_TABLE = 'store_product_trials' as const;
 export const STORE_PRODUCT_TRIAL_DAYS = 60 as const;
 export const STORE_PRODUCT_TRIAL_QUOTA = 5 as const;
 export const STORE_PRODUCE_TRIAL_DAYS = 180 as const;
+export const STORE_KITCHEN_TRIAL_DAYS = 180 as const;
 
-export type StoreProductTrialKey = 'wedding' | 'event' | 'lounge' | 'grocers' | 'restaurant' | 'cafe' | 'produce';
+export type StoreProductTrialKey =
+  | 'wedding'
+  | 'event'
+  | 'lounge'
+  | 'grocers'
+  | 'restaurant'
+  | 'cafe'
+  | 'kitchen'
+  | 'produce';
 
 export type StoreProductTrialRow = {
   id: string;
@@ -53,6 +69,7 @@ const PRODUCT_TAG: Record<StoreProductTrialKey, string> = {
   grocers: 'store_grocers_live',
   restaurant: 'store_restaurant_live',
   cafe: 'store_cafe_live',
+  kitchen: 'store_kitchen_live',
   produce: 'store_produce_live',
 };
 
@@ -63,17 +80,27 @@ const ORDER_TABLE: Record<StoreProductTrialKey, string> = {
   grocers: 'store_grocers_live_orders',
   restaurant: 'store_restaurant_live_orders',
   cafe: 'store_cafe_live_orders',
+  kitchen: 'store_kitchen_live_orders',
   produce: 'store_produce_live_orders',
 };
 
 const GIFT_KEYS = new Set<StoreProductTrialKey>(['wedding', 'event']);
 
 export function isStoreProductTrialKey(raw: unknown): raw is StoreProductTrialKey {
-  return raw === 'wedding' || raw === 'event' || raw === 'lounge' || raw === 'grocers' || raw === 'restaurant' || raw === 'cafe' || raw === 'produce';
+  return (
+    raw === 'wedding' ||
+    raw === 'event' ||
+    raw === 'lounge' ||
+    raw === 'grocers' ||
+    raw === 'restaurant' ||
+    raw === 'cafe' ||
+    raw === 'kitchen' ||
+    raw === 'produce'
+  );
 }
 
 export function trialDaysFor(key: StoreProductTrialKey): number {
-  return key === 'produce' ? STORE_PRODUCE_TRIAL_DAYS : STORE_PRODUCT_TRIAL_DAYS;
+  return key === 'produce' || key === 'kitchen' ? STORE_PRODUCE_TRIAL_DAYS : STORE_PRODUCT_TRIAL_DAYS;
 }
 
 export function isGiftTrialProduct(key: StoreProductTrialKey): boolean {
@@ -125,6 +152,12 @@ function productLinks(key: StoreProductTrialKey, tokens: Record<string, string>)
       b: `${storeOrigin()}/#/v/${encodeURIComponent(tokens.desk)}/desk`,
     };
   }
+  if (key === 'kitchen') {
+    return {
+      a: `${storeOrigin()}/#/k/${encodeURIComponent(tokens.shop)}`,
+      b: `${storeOrigin()}/#/k/${encodeURIComponent(tokens.desk)}/desk`,
+    };
+  }
   if (key === 'event') {
     return {
       a: `${storeOrigin()}/#/e/${encodeURIComponent(tokens.display)}`,
@@ -174,6 +207,12 @@ export function publicTrialHrefs(
     return [
       { titleAr: 'جار الحي', href: links.a },
       { titleAr: 'الصندوق', href: links.b },
+    ];
+  }
+  if (key === 'kitchen') {
+    return [
+      { titleAr: 'الزبون', href: links.a },
+      { titleAr: 'النشاط', href: links.b },
     ];
   }
   return [
@@ -257,6 +296,28 @@ function trialPayload(
       orders: [],
       chatIncluded: true,
       chats: [],
+    };
+  }
+  if (key === 'kitchen') {
+    return {
+      packId: 'm6',
+      shopName: 'تجربة طبختنا1',
+      hostName: 'النشاط',
+      blurbAr: 'نموذج تجريبي لنشاط أسرة منتجة.',
+      customFields: ['', '', '', '', ''],
+      flashAr: '',
+      opsPhone: '',
+      acceptingOrders: true,
+      scheduleEnabled: false,
+      deliveryFee: 0,
+      showSoldOut: false,
+      qrStamp: newKitchenQrStamp(),
+      qrActive: true,
+      shelf: [],
+      orders: [],
+      nextTicket: 1,
+      ...DEFAULT_KITCHEN_PICKUP,
+      ...DEFAULT_STORE_SHOP_HOURS,
     };
   }
   if (key === 'lounge') {
@@ -353,7 +414,10 @@ export async function findBlockingTrial(
 
 async function sendIssuedMail(key: StoreProductTrialKey, email: string, tokens: Record<string, string>): Promise<void> {
   const links = productLinks(key, tokens);
-  const expiresLabel = key === 'produce' ? 'مئة وثمانون يوماً من أول دخول للرابط' : 'ستون يوماً من أول دخول للرابط';
+  const expiresLabel =
+    trialDaysFor(key) === STORE_PRODUCE_TRIAL_DAYS
+      ? 'مئة وثمانون يوماً من أول دخول للرابط'
+      : 'ستون يوماً من أول دخول للرابط';
   if (key === 'cafe') {
     await sendCafeLiveLinksEmail({
       to: email,
@@ -378,6 +442,10 @@ async function sendIssuedMail(key: StoreProductTrialKey, email: string, tokens: 
   }
   if (key === 'produce') {
     await sendProduceLiveLinksEmail({ to: email, shopUrl: links.a, deskUrl: links.b, expiresLabel });
+    return;
+  }
+  if (key === 'kitchen') {
+    await sendKitchenLiveLinksEmail({ to: email, shopUrl: links.a, deskUrl: links.b, expiresLabel });
     return;
   }
   if (key === 'event') {
@@ -521,6 +589,31 @@ async function insertLiveOrder(
       .select('id')
       .maybeSingle();
     if (error || !data) return { error: 'تعذر إنشاء صفحة الصندوق التجريبية.' };
+    return { orderId: String(data.id), tokens: { shop, desk } };
+  }
+  if (key === 'kitchen') {
+    const shop = newKitchenToken();
+    const desk = newKitchenToken();
+    const { data, error } = await db
+      .from(table)
+      .insert({
+        status: 'live',
+        shop_token: shop,
+        desk_token: desk,
+        buyer_email: email,
+        buyer_name: 'تجربة طبختنا1',
+        price_halalas: 0,
+        payload,
+        policy_version: 'trial-180',
+        is_trial: true,
+        trial_id: trialId,
+        expires_at: null,
+        created_at: now,
+        updated_at: now,
+      })
+      .select('id')
+      .maybeSingle();
+    if (error || !data) return { error: 'تعذر إنشاء صفحة النشاط التجريبية.' };
     return { orderId: String(data.id), tokens: { shop, desk } };
   }
   const display = key === 'event' ? newEventToken() : key === 'lounge' ? newLoungeToken() : newWeddingToken();

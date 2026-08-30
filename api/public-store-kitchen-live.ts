@@ -1,7 +1,8 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
- * تحصيل طبختنا1 — وسم store_kitchen_live، 300 أو 600 ر.س. بلا صندوق محادثة وبلا تجربة.
+ * تحصيل طبختنا1 — وسم store_kitchen_live، 300 أو 600 ر.س. بلا صندوق محادثة.
+ * التجربة من مكتب الطلبات فقط، لا في صفحة العرض، ولا تُخلط بالهدية.
  */
 import { createClient } from '@supabase/supabase-js';
 import { runRegistrationRouteGuards } from './_lib/registrationRouteGuard.js';
@@ -40,6 +41,7 @@ import {
 } from './_lib/storeKitchenLive.js';
 import { parseStoreShopHours } from './_lib/storeShopHours.js';
 import { sendKitchenLiveLinksEmail } from './_lib/storeKitchenLiveMail.js';
+import { applyStoreTrialClock, markStoreTrialConverted } from './_lib/storeProductTrial.js';
 import { storeAffiliateCodeFromMeta } from './_lib/storeAffiliateCode.js';
 import { creditStoreAffiliateLedger } from './_lib/storeAffiliateLedger.js';
 
@@ -121,6 +123,8 @@ type KitchenRow = {
   moyasar_invoice_id: string | null;
   payload: KitchenLiveOrderPayload & Record<string, unknown>;
   expires_at: string | null;
+  is_trial?: boolean | null;
+  trial_id?: string | null;
 };
 
 function expiredPayload(row: KitchenRow) {
@@ -206,11 +210,11 @@ async function readByRole(db: Db, token: string, role: string, headers: Record<s
   if (!data && role !== 'pay') {
     const again = await findByAnyToken(db, token);
     if (!again) return json({ error: 'الرابط غير موجود' }, 404, headers);
-    return readRow(await startKitchenGiftClockIfNeeded(db, again), role, headers);
+    return readRow(db, await startKitchenGiftClockIfNeeded(db, again), role, headers);
   }
   if (!data) return json({ error: 'الرابط غير موجود' }, 404, headers);
   const liveRow = role === 'pay' ? (data as KitchenRow) : await startKitchenGiftClockIfNeeded(db, data as KitchenRow);
-  return readRow(liveRow, role, headers);
+  return readRow(db, liveRow, role, headers);
 }
 
 async function startKitchenGiftClockIfNeeded(db: Db, row: KitchenRow): Promise<KitchenRow> {
@@ -239,7 +243,7 @@ async function startKitchenGiftClockIfNeeded(db: Db, row: KitchenRow): Promise<K
   return (again as KitchenRow) || row;
 }
 
-async function readRow(row: KitchenRow, role: string, headers: Record<string, string>) {
+async function readRow(db: Db, row: KitchenRow, role: string, headers: Record<string, string>) {
   const payload = (row.payload || {}) as KitchenLiveOrderPayload;
   if (role === 'pay') {
     return json(
@@ -256,7 +260,9 @@ async function readRow(row: KitchenRow, role: string, headers: Record<string, st
       headers,
     );
   }
-  if (isTermExpired(row)) return json(expiredPayload(row), 200, headers);
+  const clock = await applyStoreTrialClock(db, row, STORE_KITCHEN_LIVE_TABLE);
+  const timed = { ...row, expires_at: clock.expiresAt ?? row.expires_at };
+  if (clock.expired || isTermExpired(timed)) return json(expiredPayload(timed), 200, headers);
   if (row.status !== 'live') return json({ error: 'التشغيل لم يُفعَّل بعد' }, 403, headers);
   return json(
     {
@@ -264,7 +270,8 @@ async function readRow(row: KitchenRow, role: string, headers: Record<string, st
       status: row.status,
       role,
       payload: publicKitchenPayload(payload, role),
-      expiresAt: row.expires_at,
+      expiresAt: clock.expiresAt,
+      isTrial: clock.isTrial,
       shopUrl: shopUrlFromPayload(row.shop_token, payload),
       deskUrl: deskUrl(row.desk_token),
       ...(role === 'desk' || role === 'host'
@@ -472,6 +479,7 @@ async function markLive(db: Db, id: string, paymentId: string, amount: number): 
       price_halalas: amount,
       last_public_change_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
+      is_trial: false,
       payload,
     })
     .eq('id', id)
@@ -489,6 +497,7 @@ async function markLive(db: Db, id: string, paymentId: string, amount: number): 
       expiresLabel: exp,
       renewed: wasRenewal,
     });
+    void markStoreTrialConverted(db, String(updated.id));
     return true;
   }
   const { data: again } = await db.from(STORE_KITCHEN_LIVE_TABLE).select('status').eq('id', id).maybeSingle();

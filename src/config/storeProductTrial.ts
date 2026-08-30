@@ -2,14 +2,23 @@
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
  * تجارب تسويقية لمنتجات المتجر. لا يُستورد من App.
- * ستون يوماً من أول دخول لبقية المنتجات. خضارنا1: مئة وثمانون يوماً.
+ * ستون يوماً من أول دخول لبقية المنتجات. خضارنا1 وطبختنا1: مئة وثمانون يوماً.
  * خمسة نماذج لكل منتج لكل مسوّق معتمد.
  */
 export const STORE_PRODUCT_TRIAL_DAYS = 60 as const;
 export const STORE_PRODUCT_TRIAL_QUOTA = 5 as const;
 export const STORE_PRODUCE_TRIAL_DAYS = 180 as const;
+export const STORE_KITCHEN_TRIAL_DAYS = 180 as const;
 
-export type StoreProductTrialKey = 'wedding' | 'event' | 'lounge' | 'grocers' | 'restaurant' | 'cafe' | 'produce';
+export type StoreProductTrialKey =
+  | 'wedding'
+  | 'event'
+  | 'lounge'
+  | 'grocers'
+  | 'restaurant'
+  | 'cafe'
+  | 'kitchen'
+  | 'produce';
 
 export const STORE_PRODUCT_TRIAL_KEYS: readonly StoreProductTrialKey[] = [
   'wedding',
@@ -18,11 +27,12 @@ export const STORE_PRODUCT_TRIAL_KEYS: readonly StoreProductTrialKey[] = [
   'grocers',
   'restaurant',
   'cafe',
+  'kitchen',
   'produce',
 ] as const;
 
 export function trialDaysFor(key: StoreProductTrialKey): number {
-  return key === 'produce' ? STORE_PRODUCE_TRIAL_DAYS : STORE_PRODUCT_TRIAL_DAYS;
+  return key === 'produce' || key === 'kitchen' ? STORE_PRODUCE_TRIAL_DAYS : STORE_PRODUCT_TRIAL_DAYS;
 }
 
 export function isGiftTrialProduct(key: StoreProductTrialKey): boolean {
@@ -55,7 +65,7 @@ export const STORE_PRODUCT_TRIAL_COPY = {
   giftCourtesyAr:
     'إهداء من متجر خريطة الحل للعرسان: تجربة واحدة مجانية تنتهي تلقائياً بلا مطالبة بسداد.',
   firstVisitAr:
-    'ستون يوماً تبدأ عند أول دخول للمستفيد إلى رابطه، لا عند الإرسال. خضارنا1 وحدها مئة وثمانون يوماً من أول دخول.',
+    'ستون يوماً تبدأ عند أول دخول للمستفيد إلى رابطه، لا عند الإرسال. خضارنا1 وطبختنا1 مئة وثمانون يوماً من أول دخول.',
   sameEmailAr: 'بعد الانقطاع تبقى البيانات بمرجعية الإيميل. اطلب الدخول بالإيميل المسجَّل سابقاً.',
   statusAr: {
     pending_review: 'قيد التشاور',
@@ -89,6 +99,7 @@ export const STORE_PRODUCT_TRIAL_PRODUCTS: Record<
       | 'store_grocers_live'
       | 'store_restaurant_live'
       | 'store_cafe_live'
+      | 'store_kitchen_live'
       | 'store_produce_live';
     opsNoteAr: string;
     deskNoteAr: string;
@@ -154,6 +165,16 @@ export const STORE_PRODUCT_TRIAL_PRODUCTS: Record<
       'الأتمتة التقنية للكاشير والصفحة والشاشات مستوفية بالكامل. يتبقى الربط التقني والتفعيل لأدوات العمل فعلياً في المقهى.',
     howToAr:
       'ستون يوماً من أول دخول. بعدها تشتري ستة أشهر بـ 1199 أو اثني عشر بـ 2099 على نفس الصفحة. الصندوق مدرج. البيانات محفوظة بالإيميل.',
+  },
+  kitchen: {
+    titleAr: 'طبختنا1',
+    productTag: 'store_kitchen_live',
+    opsNoteAr:
+      'الأتمتة التقنية لصفحة الزبون ولوحة النشاط وملصق QR مستوفية. يتبقى ربط جهاز النشاط وواتساب التسليم وتفعيل العمل اليومي.',
+    deskNoteAr:
+      'الأتمتة التقنية للنشاط والصفحة مستوفية بالكامل. يتبقى الربط التقني والتفعيل لأدوات العمل فعلياً في النشاط.',
+    howToAr:
+      'مئة وثمانون يوماً من أول دخول. بعدها تشتري مئة وثمانين يوماً بـ 300 أو ثلاثمئة وستين بـ 600 على نفس الصفحة. البيانات محفوظة بالإيميل.',
   },
   produce: {
     titleAr: 'خضارنا1',

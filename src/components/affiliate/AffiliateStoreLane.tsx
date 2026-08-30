@@ -55,6 +55,7 @@ export function AffiliateStoreLane({ hideCatalog = false }: { hideCatalog?: bool
     grocers: '',
     restaurant: '',
     cafe: '',
+    kitchen: '',
     produce: '',
   });
 

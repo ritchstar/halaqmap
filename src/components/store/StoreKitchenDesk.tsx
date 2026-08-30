@@ -22,6 +22,7 @@ import { StoreShopPresenceCount } from '@/components/store/StoreShopPresenceCoun
 import { StoreProductPassDeskButton } from '@/components/store/StoreProductPassDeskButton';
 import { StoreShopHoursDesk } from '@/components/store/StoreShopHoursDesk';
 import { StoreDeskHelpSupport } from '@/components/store/StoreDeskHelpSupport';
+import { StoreTrialOpsNote } from '@/components/store/StoreTrialOpsNote';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { cn } from '@/lib/utils';
 
@@ -31,12 +32,14 @@ export function StoreKitchenDesk({
   shopUrl,
   token,
   gift,
+  showTrialNote = false,
 }: {
   state: KitchenLabState;
   onChange: (next: KitchenLabState) => void;
   shopUrl: string;
   token: string;
   gift?: { expiresAt: string; shopToken: string } | null;
+  showTrialNote?: boolean;
 }) {
   const seenCount = useRef(state.orders.length);
   const [flashOn, setFlashOn] = useState(false);
@@ -103,6 +106,7 @@ export function StoreKitchenDesk({
 
   return (
     <div className="space-y-6">
+      {showTrialNote && !gift ? <StoreTrialOpsNote productKey="kitchen" /> : null}
       {gift ? (
         <section className="rounded-2xl border border-[#b45a3c] bg-[#1a0c08] p-4" aria-label={giftCopy.deskBadgeAr}>
           <p className="inline-flex rounded-full border border-[#b45a3c]/50 bg-[#b45a3c]/20 px-2.5 py-0.5 text-[0.7rem] font-extrabold text-[#b45a3c]">

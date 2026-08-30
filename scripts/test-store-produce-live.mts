@@ -97,6 +97,7 @@ assert.ok(existsSync(join(root, 'fkrih/خضارنا1.md')));
 assert.ok(STORE_PRODUCT_TRIAL_KEYS.includes('produce'));
 assert.equal(STORE_PRODUCT_TRIAL_PRODUCTS.produce.productTag, 'store_produce_live');
 assert.equal(trialDaysFor('produce'), 180);
+assert.equal(trialDaysFor('kitchen'), 180);
 assert.equal(trialDaysFor('grocers'), 60);
 assert.equal(produceAffiliateCommissionSar('m6'), 350);
 assert.equal(produceAffiliateCommissionSar('m12'), 500);

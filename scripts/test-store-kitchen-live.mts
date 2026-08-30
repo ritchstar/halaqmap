@@ -28,6 +28,12 @@ import { STORE_CAFE_LIVE_PRODUCT } from '../src/config/storeCafeLive.ts';
 import { STORE_RESTAURANT_LIVE_PRODUCT } from '../src/config/storeRestaurantLive.ts';
 import { STORE_GROCERS_LIVE_PRODUCT } from '../src/config/storeGrocersLive.ts';
 import { STORE_LANDING_COPY } from '../src/config/storeFront.ts';
+import {
+  STORE_PRODUCT_TRIAL_COPY,
+  STORE_PRODUCT_TRIAL_KEYS,
+  STORE_PRODUCT_TRIAL_PRODUCTS,
+  trialDaysFor,
+} from '../src/config/storeProductTrial.ts';
 import { matchStoreAffiliateCommission } from '../api/_lib/storeAffiliateLive.ts';
 import {
   addKitchenOrder,
@@ -284,12 +290,25 @@ const apiRoute = readFileSync(join(root, 'api/public-store-kitchen-live.ts'), 'u
 const migration = readFileSync(join(root, 'supabase/migrations/182_store_kitchen_live.sql'), 'utf8');
 assert.match(apiLib, /product_type: STORE_KITCHEN_LIVE_PRODUCT/);
 assert.doesNotMatch(apiRoute, /add_chat/);
-assert.doesNotMatch(apiRoute, /is_trial/);
-assert.doesNotMatch(apiRoute, /markStoreTrialConverted|applyStoreTrialClock/);
+assert.match(apiRoute, /applyStoreTrialClock/);
+assert.match(apiRoute, /markStoreTrialConverted/);
 assert.match(apiRoute, /kitchenOrderAlreadyStored/);
 assert.match(migration, /30000, 60000/);
 assert.doesNotMatch(migration, /is_trial/);
 assert.doesNotMatch(migration, /store_product_trials/);
+const trialMigration = readFileSync(join(root, 'supabase/migrations/190_store_kitchen_product_trial.sql'), 'utf8');
+assert.match(trialMigration, /is_trial/);
+assert.match(trialMigration, /'kitchen'/);
+assert.match(trialMigration, /0, 30000, 60000/);
 assert.doesNotMatch(apiLib + apiRoute + migration, /أكلنا1/);
+assert.ok(STORE_PRODUCT_TRIAL_KEYS.includes('kitchen'));
+assert.equal(STORE_PRODUCT_TRIAL_PRODUCTS.kitchen.productTag, 'store_kitchen_live');
+assert.equal(STORE_PRODUCT_TRIAL_PRODUCTS.kitchen.titleAr, 'طبختنا1');
+assert.equal(trialDaysFor('kitchen'), 180);
+assert.equal(trialDaysFor('produce'), 180);
+assert.equal(trialDaysFor('grocers'), 60);
+assert.match(STORE_PRODUCT_TRIAL_COPY.firstVisitAr, /خضارنا1 وطبختنا1/);
+assert.doesNotMatch(kitchenLanding, /STORE_PRODUCT_TRIAL/);
+assert.doesNotMatch(readFileSync(join(root, 'src/config/storeKitchenLive.ts'), 'utf8'), /تجربة ستون|مكتب الطلبات/);
 
 console.log('store-kitchen-live ok', STORE_KITCHEN_MENU.length);
