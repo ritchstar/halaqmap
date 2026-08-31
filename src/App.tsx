@@ -384,10 +384,18 @@ function WithPartnerLayout({ children }: { children: ReactNode }) {
   );
 }
 
+function shouldSkipVercelInsights(): boolean {
+  if (typeof navigator === 'undefined') return true;
+  const ua = navigator.userAgent || '';
+  if (/bot|crawler|spider|slurp|facebookexternalhit|preview/i.test(ua)) return true;
+  return false;
+}
+
 /** رؤى Vercel بعد idle حتى لا تتنافس مع أول رسم للرئيسية */
 function DeferredVercelInsights() {
   const [ready, setReady] = useState(false);
   useEffect(() => {
+    if (shouldSkipVercelInsights()) return undefined;
     let cancelled = false;
     const enable = () => {
       if (!cancelled) setReady(true);
