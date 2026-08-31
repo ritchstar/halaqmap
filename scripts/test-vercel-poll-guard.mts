@@ -42,6 +42,7 @@ assert.equal(POLL_MS.ADMIN_HIVE, 60_000);
 assert.match(policy, /export function scheduleVisiblePoll/);
 assert.match(policy, /isPollingTabActive\(\)/);
 
+assert.match(sql, /CREATE OR REPLACE FUNCTION public\.run_private_chat_maintenance\(\)/);
 assert.match(sql, /GRANT EXECUTE ON FUNCTION public\.run_private_chat_maintenance\(\) TO service_role/);
 assert.match(cron, /run_private_chat_maintenance/);
 
