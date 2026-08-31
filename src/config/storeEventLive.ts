@@ -178,28 +178,28 @@ export const STORE_EVENT_LIVE_STYLES = [
     id: 'gold',
     voice: 'men',
     labelAr: 'ذهبي',
-    image: '/images/store/lab/lab-luxury-gold.png',
+    image: '/images/store/lab/lab-luxury-gold.jpg',
     accent: '#d4af67',
   },
   {
     id: 'ivory',
     voice: 'men',
     labelAr: 'عاجي',
-    image: '/images/store/lab/lab-luxury-ivory.png',
+    image: '/images/store/lab/lab-luxury-ivory.jpg',
     accent: '#e0c48a',
   },
   {
     id: 'rosegold',
     voice: 'women',
     labelAr: 'وردي ذهبي',
-    image: '/images/store/lab/lab-luxury-rosegold.png',
+    image: '/images/store/lab/lab-luxury-rosegold.jpg',
     accent: '#d4a07a',
   },
   {
     id: 'pearl',
     voice: 'women',
     labelAr: 'لؤلؤي',
-    image: '/images/store/lab/lab-luxury-pearl.png',
+    image: '/images/store/lab/lab-luxury-pearl.jpg',
     accent: '#e8c4c8',
   },
 ] as const;
@@ -231,8 +231,8 @@ export const STORE_EVENT_LIVE_DEMO = {
   youtubeUrl: 'https://www.youtube.com/watch?v=F-DNzLPph-k&list=RDF-DNzLPph-k&start_radio=1',
   youtubeHidden: false,
   announcement: 'حياكم الله على العشاء',
-  photoSrc: '/images/store/lab/lab-luxury-gold.png',
-  panoramaSrc: '/images/store/lab/lab-wedding-panorama.png',
+  photoSrc: '/images/store/lab/lab-luxury-gold.jpg',
+  panoramaSrc: '/images/store/lab/lab-wedding-panorama.jpg',
 } as const;
 
 export const STORE_EVENT_LIVE_DEMO_WOMEN = {
@@ -241,5 +241,5 @@ export const STORE_EVENT_LIVE_DEMO_WOMEN = {
   hostName: 'نورة',
   occasionTitle: 'أمسية نسائية',
   welcomeAr: 'يسعدنا دعوتكن لمشاركتنا هذه الأمسية، ومباركتكن تُزهر على الشاشة أمام الجميع.',
-  photoSrc: '/images/store/lab/lab-luxury-rosegold.png',
+  photoSrc: '/images/store/lab/lab-luxury-rosegold.jpg',
 } as const;

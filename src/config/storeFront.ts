@@ -42,7 +42,7 @@ export const COIFFEUR_PRODUCT_AR = 'كوافير ماب' as const;
 /** صور برمجية معتمدة من منتجات المتجر — لا صور مخزون عامة */
 export const STORE_VISUALS = {
   logo: '/images/halaqmap-store-mark-radar-square-1200x1200.png',
-  hero: '/images/halaqmap-hero.jpg.png',
+  hero: '/images/halaqmap-hero.jpg',
   radar: '/images/partners/feature_radar_2.webp',
   ops: '/images/platform-radar-night-map.jpg',
   dashboard: '/images/partners/feature_autonomy_2.webp',

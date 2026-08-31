@@ -66,9 +66,9 @@ export const IMAGES = {
   DASHBOARD_BG_7: "https://images.unsplash.com/photo-1763718528755-4bca23f82ac3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4Mzc5NTV8MHwxfHNlYXJjaHw0fHxiYXJiZXIlMjBkYXNoYm9hcmQlMjBtb2Rlcm4lMjBpbnRlcmZhY2V8ZW58MHwwfHx8MTc3NTYxNTc5NHww&ixlib=rb-4.1.0&q=80&w=1080",
   DASHBOARD_BG_8: "https://images.unsplash.com/photo-1742398863153-0b6bcd209e04?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4Mzc5NTV8MHwxfHNlYXJjaHw1fHxiYXJiZXIlMjBkYXNoYm9hcmQlMjBtb2Rlcm4lMjBpbnRlcmZhY2V8ZW58MHwwfHx8MTc3NTYxNTc5NHww&ixlib=rb-4.1.0&q=80&w=1080",
   DASHBOARD_BG_9: "https://images.unsplash.com/photo-1659355751291-0f8cb0c8c3cc?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4Mzc5NTV8MHwxfHNlYXJjaHw2fHxiYXJiZXIlMjBkYXNoYm9hcmQlMjBtb2Rlcm4lMjBpbnRlcmZhY2V8ZW58MHwwfHx8MTc3NTYxNTc5NHww&ixlib=rb-4.1.0&q=80&w=1080",
-  HALAQMAP_BARBER_BANNER_1_41: "/images/halaqmap_barber_banner_1.png",
-  HALAQMAP_BARBER_BANNER_1_45: "/images/halaqmap_barber_banner_1.png",
-  HALAQMAP_HERO_JPG_50: "/images/halaqmap-hero.jpg.png",
+  HALAQMAP_BARBER_BANNER_1_41: "/images/halaqmap_barber_banner_1.jpg",
+  HALAQMAP_BARBER_BANNER_1_45: "/images/halaqmap_barber_banner_1.jpg",
+  HALAQMAP_HERO_JPG_50: "/images/halaqmap-hero.jpg",
   /** الشعار الرسمي الحالي (refined) — الاسم التاريخي للمفتاح محفوظ للتوافق */
   /** شعار الواجهة المضغوط (~4KB) — الملف الكامل refined للمشاركة/OG فقط */
   HALAQMAP_LOGO_20260409_073322_83: "/images/halaqmap-logo-mark-128.webp",

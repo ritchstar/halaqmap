@@ -24,4 +24,8 @@ assert.match(app, /shouldSkipVercelInsights/);
 assert.match(app, /bot\|crawler\|spider/);
 assert.doesNotMatch(app, /from ['"]@\/config\/storeSalesLedger['"]/);
 
+const reels = readFileSync(join(root, 'src/config/storeMarketingReels.ts'), 'utf8');
+assert.doesNotMatch(reels, /\/images\/store\/lab\/[^'"\s]+\.png/);
+assert.match(reels, /\/images\/halaqmap-hero\.jpg'/);
+
 console.log('vercel-egress-guard: ok');

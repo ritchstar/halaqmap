@@ -9,9 +9,9 @@ export const STORE_LIVE_INVITE_SITE_NAME = 'halaqmap · خريطة الحل';
 export const STORE_LIVE_INVITE_MARK =
   `${STORE_LIVE_INVITE_ORIGIN}/images/halaqmap-store-mark-radar-square-1200x1200.png`;
 export const STORE_LIVE_INVITE_CARD_MEN =
-  `${STORE_LIVE_INVITE_ORIGIN}/images/store/lab/lab-luxury-gold.png`;
+  `${STORE_LIVE_INVITE_ORIGIN}/images/store/lab/lab-luxury-gold.jpg`;
 export const STORE_LIVE_INVITE_CARD_WOMEN =
-  `${STORE_LIVE_INVITE_ORIGIN}/images/store/lab/lab-luxury-rosegold.png`;
+  `${STORE_LIVE_INVITE_ORIGIN}/images/store/lab/lab-luxury-rosegold.jpg`;
 
 export type StoreLiveInviteKind = 'wedding' | 'event';
 

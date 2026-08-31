@@ -355,8 +355,8 @@ function trialPayload(
       youtubeUrl: '',
       youtubeHidden: true,
       announcement: '',
-      photoSrc: '/images/store/lab/lab-luxury-gold.png',
-      panoramaSrc: '/images/store/lab/lab-wedding-panorama.png',
+      photoSrc: '/images/store/lab/lab-luxury-gold.jpg',
+      panoramaSrc: '/images/store/lab/lab-wedding-panorama.jpg',
       blessings: [],
     };
   }
@@ -379,8 +379,8 @@ function trialPayload(
     youtubeUrl: '',
     youtubeHidden: true,
     announcement: '',
-    photoSrc: '/images/store/lab/lab-luxury-gold.png',
-    panoramaSrc: '/images/store/lab/lab-wedding-panorama.png',
+    photoSrc: '/images/store/lab/lab-luxury-gold.jpg',
+    panoramaSrc: '/images/store/lab/lab-wedding-panorama.jpg',
     blessings: [],
   };
 }
