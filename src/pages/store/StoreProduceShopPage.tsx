@@ -23,6 +23,7 @@ import {
   type ProduceLabState,
 } from '@/lib/storeProduceLiveLab';
 import { addProduceLiveChat, addProduceLiveOrder, fetchProduceLivePublic, saveProduceLiveHost } from '@/lib/storeProduceLiveRemote';
+import { hydrateDeskTickets } from '@/lib/storeDeskOrderTicket';
 import { liveHostText, useStoreLiveDeskSync } from '@/lib/storeLiveDeskSync';
 import { nextStoreLivePublicGate, pickStoreLiveShelf } from '@/lib/storeLivePublicRead';
 import { parseStoreShopHours } from '@/lib/storeShopHours';
@@ -48,7 +49,7 @@ function payloadToState(payload: Record<string, unknown>, fallback: ProduceLabSt
   return {
     host,
     shelf: pickStoreLiveShelf(payload.shelf, fallback.shelf),
-    orders: Array.isArray(payload.orders) ? (payload.orders as ProduceLabState['orders']) : [],
+    ...hydrateDeskTickets<ProduceLabState['orders'][number]>(payload.orders, payload.orderArchive),
     chatIncluded: payload.chatIncluded !== false,
     chats: Array.isArray(payload.chats) ? (payload.chats as ProduceLabState['chats']) : [],
   };
@@ -66,6 +67,7 @@ export default function StoreProduceShopPage() {
   const [gate, setGate] = useState<Gate>(isLab ? 'ok' : 'loading');
   const deskSync = useStoreLiveDeskSync(desk && !isLab);
   const [renewToken, setRenewToken] = useState('');
+  const [isTrial, setIsTrial] = useState(false);
   const [shopUrl, setShopUrl] = useState(
     typeof window === 'undefined' ? `/#/v/${encodeURIComponent(safeToken)}` : `${window.location.origin}/#/v/${encodeURIComponent(safeToken)}`,
   );
@@ -106,6 +108,7 @@ export default function StoreProduceShopPage() {
           deskSync.applyPoll(current, payloadToState(result.payload as Record<string, unknown>, current)),
         );
         if (typeof result.shopUrl === 'string' && result.shopUrl) setShopUrl(result.shopUrl);
+        setIsTrial(result.isTrial === true);
         setGate('ok');
       });
     };
@@ -135,6 +138,7 @@ export default function StoreProduceShopPage() {
           ...saved.host,
           shelf: saved.shelf,
           orders: saved.orders,
+          orderArchive: saved.orderArchive,
           chats: saved.chats,
         }),
       );
@@ -165,7 +169,13 @@ export default function StoreProduceShopPage() {
         {gate === 'missing' ? <p className="pt-[30svh] text-center text-sm text-white/70">الرابط غير صالح.</p> : null}
         {gate === 'ok' ? (
           desk ? (
-            <StoreProduceDesk state={state} onChange={commit} shopUrl={shopUrl} token={safeToken} />
+            <StoreProduceDesk
+              state={state}
+              onChange={commit}
+              shopUrl={shopUrl}
+              token={safeToken}
+              showTrialNote={isTrial}
+            />
           ) : (
             <StoreProduceShop state={state} onChange={commit} />
           )

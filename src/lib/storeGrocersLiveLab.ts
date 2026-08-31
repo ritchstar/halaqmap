@@ -9,6 +9,7 @@ export { parseGrocersListText };
 import { STORE_GROCERS_LIVE_DEMO, type StoreGrocersLivePackId } from '@/config/storeGrocersLive';
 import { DEFAULT_STORE_SHOP_HOURS, type StoreShopHoursState } from '@/config/storeShopHours';
 import { DEFAULT_SHOP_PICKUP, parseShopPickupPlace, type ShopPickupPlace } from '@/lib/storeShopPlace';
+import { hydrateDeskTickets } from '@/lib/storeDeskOrderTicket';
 import { compressImageFile } from '@/lib/storeWeddingLiveLab';
 
 export { compressImageFile };
@@ -42,6 +43,9 @@ export type GrocersOrder = {
   total: number;
   at: string;
   seen: boolean;
+  phase?: 'new' | 'received' | 'done';
+  receivedAt?: string;
+  doneAt?: string;
 };
 
 export type GrocersHostState = {
@@ -66,6 +70,7 @@ export type GrocersLabState = {
   host: GrocersHostState;
   shelf: GrocersShelfItem[];
   orders: GrocersOrder[];
+  orderArchive: GrocersOrder[];
   chatAddon: boolean;
   chats: GrocersChatMsg[];
 };
@@ -117,6 +122,7 @@ export function defaultGrocersLabState(): GrocersLabState {
     },
     shelf,
     orders: [],
+    orderArchive: [],
     chatAddon: true,
     chats: [],
   };
@@ -137,7 +143,7 @@ export function readGrocersLabState(token: string): GrocersLabState {
         ...parseShopPickupPlace(parsed.host, fallback.host),
       },
       shelf: Array.isArray(parsed.shelf) && parsed.shelf.length ? parsed.shelf : fallback.shelf,
-      orders: Array.isArray(parsed.orders) ? parsed.orders : [],
+      ...hydrateDeskTickets<GrocersOrder>(parsed.orders, parsed.orderArchive),
       chatAddon: parsed.chatAddon !== false,
       chats: Array.isArray(parsed.chats) ? parsed.chats : [],
     };

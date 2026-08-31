@@ -11,6 +11,7 @@ import {
   type StoreCafeLivePackId,
 } from '@/config/storeCafeLive';
 import { DEFAULT_STORE_SHOP_HOURS, type StoreShopHoursState } from '@/config/storeShopHours';
+import { hydrateDeskTickets } from '@/lib/storeDeskOrderTicket';
 import { DEFAULT_SHOP_PICKUP, parseShopPickupPlace, type ShopPickupPlace } from '@/lib/storeShopPlace';
 import { compressImageFile, youtubeEmbedSrc } from '@/lib/storeWeddingLiveLab';
 
@@ -49,6 +50,9 @@ export type CafeOrder = {
   total: number;
   at: string;
   seen: boolean;
+  phase?: 'new' | 'received' | 'done';
+  receivedAt?: string;
+  doneAt?: string;
 };
 
 export type CafeBlessing = {
@@ -95,6 +99,7 @@ export type CafeLabState = {
   host: CafeHostState;
   shelf: CafeShelfItem[];
   orders: CafeOrder[];
+  orderArchive: CafeOrder[];
   chats: CafeChatMsg[];
   blessings: CafeBlessing[];
 };
@@ -164,6 +169,7 @@ export function defaultCafeLabState(): CafeLabState {
     },
     shelf,
     orders: [],
+    orderArchive: [],
     chats: [],
     blessings: [],
   };
@@ -190,7 +196,7 @@ export function readCafeLabState(token: string): CafeLabState {
       shelf: Array.isArray(parsed.shelf) && parsed.shelf.length
         ? parsed.shelf.map((item) => ({ ...item, photoSrc: item.photoSrc || '' }))
         : fallback.shelf,
-      orders: Array.isArray(parsed.orders) ? parsed.orders : [],
+      ...hydrateDeskTickets<CafeOrder>(parsed.orders, parsed.orderArchive),
       chats: Array.isArray(parsed.chats) ? parsed.chats : [],
       blessings: Array.isArray(parsed.blessings) ? parsed.blessings : [],
     };

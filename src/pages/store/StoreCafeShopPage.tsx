@@ -26,6 +26,7 @@ import {
   writeCafeLabState,
   type CafeLabState,
 } from '@/lib/storeCafeLiveLab';
+import { hydrateDeskTickets } from '@/lib/storeDeskOrderTicket';
 import { liveHostText, useStoreLiveDeskSync } from '@/lib/storeLiveDeskSync';
 import { nextStoreLivePublicGate, pickStoreLiveShelf } from '@/lib/storeLivePublicRead';
 import {
@@ -74,7 +75,7 @@ function payloadToState(payload: Record<string, unknown>, fallback: CafeLabState
   return {
     host,
     shelf: pickStoreLiveShelf(payload.shelf, fallback.shelf),
-    orders: Array.isArray(payload.orders) ? (payload.orders as CafeLabState['orders']) : [],
+    ...hydrateDeskTickets<CafeLabState['orders'][number]>(payload.orders, payload.orderArchive),
     chats: Array.isArray(payload.chats) ? (payload.chats as CafeLabState['chats']) : [],
     blessings: Array.isArray(payload.blessings) ? (payload.blessings as CafeLabState['blessings']) : [],
   };
@@ -214,6 +215,7 @@ export default function StoreCafeShopPage() {
           ...saved.host,
           shelf: saved.shelf,
           orders: saved.orders,
+          orderArchive: saved.orderArchive,
           chats: saved.chats,
           blessings: saved.blessings,
         }),

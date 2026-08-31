@@ -19,9 +19,19 @@ export function mergeDeskPollState<T extends { host: unknown }>(
   dirty: boolean,
 ): T {
   if (!dirty) return incoming;
-  const held = { ...incoming, host: current.host };
+  const held = { ...incoming, host: current.host } as T;
   if ('shelf' in current) {
-    return { ...held, shelf: (current as T & { shelf: unknown }).shelf };
+    Object.assign(held, { shelf: (current as T & { shelf: unknown }).shelf });
+  }
+  const localOrders = (current as T & { orders?: { id: string }[] }).orders;
+  const remoteOrders = (incoming as T & { orders?: { id: string }[] }).orders;
+  if (Array.isArray(localOrders) && Array.isArray(remoteOrders)) {
+    const localIds = new Set(localOrders.map((item) => item.id).filter(Boolean));
+    const fresh = remoteOrders.filter((item) => item.id && !localIds.has(item.id));
+    Object.assign(held, { orders: [...fresh, ...localOrders] });
+  }
+  if ('orderArchive' in current && Array.isArray((current as { orderArchive?: unknown[] }).orderArchive)) {
+    Object.assign(held, { orderArchive: (current as { orderArchive: unknown[] }).orderArchive });
   }
   return held;
 }

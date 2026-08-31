@@ -22,6 +22,7 @@ import {
   writeRestaurantLabState,
   type RestaurantLabState,
 } from '@/lib/storeRestaurantLiveLab';
+import { hydrateDeskTickets } from '@/lib/storeDeskOrderTicket';
 import { liveHostText, useStoreLiveDeskSync } from '@/lib/storeLiveDeskSync';
 import { nextStoreLivePublicGate, pickStoreLiveShelf } from '@/lib/storeLivePublicRead';
 import {
@@ -54,7 +55,7 @@ function payloadToState(payload: Record<string, unknown>, fallback: RestaurantLa
   return {
     host,
     shelf: pickStoreLiveShelf(payload.shelf, fallback.shelf),
-    orders: Array.isArray(payload.orders) ? (payload.orders as RestaurantLabState['orders']) : [],
+    ...hydrateDeskTickets<RestaurantLabState['orders'][number]>(payload.orders, payload.orderArchive),
     chats: Array.isArray(payload.chats) ? (payload.chats as RestaurantLabState['chats']) : [],
   };
 }
@@ -71,6 +72,7 @@ export default function StoreRestaurantShopPage() {
   const [gate, setGate] = useState<Gate>(isLab ? 'ok' : 'loading');
   const deskSync = useStoreLiveDeskSync(desk && !isLab);
   const [renewToken, setRenewToken] = useState('');
+  const [isTrial, setIsTrial] = useState(false);
   const [shopUrl, setShopUrl] = useState(
     typeof window === 'undefined'
       ? `/#/r/${encodeURIComponent(safeToken)}`
@@ -113,6 +115,7 @@ export default function StoreRestaurantShopPage() {
           deskSync.applyPoll(current, payloadToState(result.payload as Record<string, unknown>, current)),
         );
         if (typeof result.shopUrl === 'string' && result.shopUrl) setShopUrl(result.shopUrl);
+        setIsTrial(result.isTrial === true);
         setGate('ok');
       });
     };
@@ -142,6 +145,7 @@ export default function StoreRestaurantShopPage() {
           ...state.host,
           shelf: state.shelf,
           orders: state.orders,
+          orderArchive: state.orderArchive,
           chats: state.chats,
         }),
       );
@@ -166,7 +170,13 @@ export default function StoreRestaurantShopPage() {
         {gate === 'missing' ? <p className="pt-[30svh] text-center text-sm text-white/70">الرابط غير صالح.</p> : null}
         {gate === 'ok' ? (
           desk ? (
-            <StoreRestaurantDesk state={state} onChange={commit} shopUrl={shopUrl} token={safeToken} />
+            <StoreRestaurantDesk
+              state={state}
+              onChange={commit}
+              shopUrl={shopUrl}
+              token={safeToken}
+              showTrialNote={isTrial}
+            />
           ) : (
             <StoreRestaurantShop state={state} onChange={commit} />
           )

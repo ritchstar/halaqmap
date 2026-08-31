@@ -61,5 +61,6 @@ for (const [product, file] of Object.entries(desks)) {
 
 const help = readFileSync(join(root, 'src/config/storeDeskHelp.ts'), 'utf8');
 assert.match(help, /فعّل تنبيه الطلبات أعلى اللوحة/);
+assert.match(help, /تم الاستلام ثم أرشفة وإنهاء/);
 
 console.log('store-desk-order-alert: ok');

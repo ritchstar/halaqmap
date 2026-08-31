@@ -148,6 +148,7 @@ export type CafeLiveOrderPayload = {
   flashAr: string;
   shelf: unknown[];
   orders: unknown[];
+  orderArchive?: unknown[];
   chatIncluded: true;
   chats: unknown[];
   nextTicket: number;
@@ -189,6 +190,7 @@ export function parseCafeLiveOrderBody(body: Record<string, unknown>):
       flashAr: '',
       shelf: [],
       orders: [],
+      orderArchive: [],
       chatIncluded: true,
       chats: [],
       nextTicket: 1,
@@ -261,6 +263,7 @@ export function publicCafePayload(payload: CafeLiveOrderPayload, role = 'shop') 
     flashAr: payload.flashAr,
     shelf: Array.isArray(payload.shelf) ? payload.shelf : [],
     orders: Array.isArray(payload.orders) ? payload.orders : [],
+    orderArchive: role === 'desk' && Array.isArray(payload.orderArchive) ? payload.orderArchive.slice(0, 1000) : [],
     chatIncluded: true,
     chats: parseCafeChats(payload.chats),
     nextTicket: Number(payload.nextTicket) > 0 ? Number(payload.nextTicket) : 1,

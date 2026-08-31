@@ -2,18 +2,24 @@
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
 import { StoreDeskOrderAlert } from '@/components/store/StoreDeskOrderAlert';
+import { StoreDeskControlTitle } from '@/components/store/StoreDeskControlTitle';
+import { StoreDeskArchiveDock } from '@/components/store/StoreDeskArchiveDock';
+import { StoreDeskTicketActions } from '@/components/store/StoreDeskTicketActions';
 import { Link } from 'react-router-dom';
 import QRCode from 'react-qr-code';
 import { STORE_KITCHEN_GIFT_COPY } from '@/config/storeKitchenGiftCampaign';
 import { STORE_KITCHEN_LIVE } from '@/config/storeKitchenLive';
+import { STORE_PRODUCT_TRIAL_PRODUCTS } from '@/config/storeProductTrial';
+import { STORE_DESK_ORDER_TICKET_COPY } from '@/config/storeDeskOrderTicket';
+import { applyDeskFinish, deskOrderPhase, isLiveDeskTicket, receiveDeskTicket } from '@/lib/storeDeskOrderTicket';
 import {
-  kitchenArchiveJson,
   kitchenBuyerWhatsAppHref,
   kitchenWhatsAppHref,
   isKitchenMapsUrl,
   markKitchenOrderReady,
   newKitchenQrStamp,
   type KitchenLabState,
+  type KitchenOrder,
 } from '@/lib/storeKitchenLiveLab';
 import { StoreKitchenLocateButton } from '@/components/store/StoreKitchenLocateButton';
 import { StoreKitchenMenuBoard } from '@/components/store/StoreKitchenMenuBoard';
@@ -21,7 +27,6 @@ import { StoreShopPresenceCount } from '@/components/store/StoreShopPresenceCoun
 import { StoreProductPassDeskButton } from '@/components/store/StoreProductPassDeskButton';
 import { StoreShopHoursDesk } from '@/components/store/StoreShopHoursDesk';
 import { StoreDeskHelpSupport } from '@/components/store/StoreDeskHelpSupport';
-import { StoreTrialOpsNote } from '@/components/store/StoreTrialOpsNote';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { cn } from '@/lib/utils';
 
@@ -40,7 +45,18 @@ export function StoreKitchenDesk({
   gift?: { expiresAt: string; shopToken: string } | null;
   showTrialNote?: boolean;
 }) {
-  const unread = state.orders.filter((item) => !item.seen);
+  const live = state.orders.filter(isLiveDeskTicket);
+  const fresh = live.filter((item) => deskOrderPhase(item) === 'new');
+  const working = live.filter((item) => deskOrderPhase(item) === 'received');
+
+  function receiveOrder(id: string) {
+    onChange({ ...state, orders: receiveDeskTicket(state.orders, id) });
+  }
+
+  function finishOrder(id: string) {
+    const next = applyDeskFinish(state.orders, state.orderArchive, id, 'kitchen');
+    onChange({ ...state, orders: next.orders, orderArchive: next.orderArchive });
+  }
 
   function markReady(id: string) {
     const mapsUrl = state.host.pickupMapsUrl;
@@ -51,13 +67,6 @@ export function StoreKitchenDesk({
     window.open(kitchenBuyerWhatsAppHref(order, state.host.shopName, mapsUrl), '_blank', 'noopener,noreferrer');
   }
 
-  function markSeen(id: string) {
-    onChange({
-      ...state,
-      orders: state.orders.map((item) => (item.id === id ? { ...item, seen: true } : item)),
-    });
-  }
-
   function toggleStock(catalogId: string) {
     onChange({
       ...state,
@@ -65,14 +74,53 @@ export function StoreKitchenDesk({
     });
   }
 
-  function downloadArchive() {
-    const blob = new Blob([kitchenArchiveJson(state)], { type: 'application/json;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'kitchen-archive.json';
-    a.click();
-    window.setTimeout(() => URL.revokeObjectURL(url), 1200);
+  function renderTicket(order: KitchenOrder) {
+    return (
+      <li key={order.id} className="rounded-xl border border-white/10 bg-black/30 p-3 text-sm">
+        <p className="font-extrabold text-[#b45a3c]">
+          تذكرة {order.ticketNo} · {order.name} · {order.phone}
+        </p>
+        <p className="mt-1 text-white/70">
+          {order.service === 'pickup' ? STORE_KITCHEN_LIVE.servicePickupAr : STORE_KITCHEN_LIVE.serviceDeliveryAr}
+          {order.place && !isKitchenMapsUrl(order.place) ? ` · ${order.place}` : ''}
+        </p>
+        {order.place && isKitchenMapsUrl(order.place) ? (
+          <a className="mt-1 inline-block text-xs text-[#b45a3c]" href={order.place} target="_blank" rel="noreferrer">
+            {STORE_KITCHEN_LIVE.pickupPlaceOpenAr}
+          </a>
+        ) : null}
+        {order.readyAt ? <p className="mt-1 text-[#b45a3c]">{STORE_KITCHEN_LIVE.readyMarkedAr}</p> : null}
+        {order.scheduledAt ? <p className="mt-1 text-white/60">الموعد: {order.scheduledAt}</p> : null}
+        {order.note ? <p className="mt-1 text-white/60">{order.note}</p> : null}
+        {order.deliveryPhotoSrc ? (
+          <img src={order.deliveryPhotoSrc} alt="" className="mt-2 max-h-32 rounded-lg object-cover" />
+        ) : null}
+        <p className="mt-1">{order.lines.map((line) => `${line.nameAr}×${line.qty}`).join(' · ')}</p>
+        <p className="mt-1 font-black">
+          {order.total} ر.س · {order.pay === 'card' ? STORE_KITCHEN_LIVE.payCardAr : STORE_KITCHEN_LIVE.payCashAr}
+        </p>
+        <div className="mt-2 flex flex-wrap gap-2">
+          <a
+            className="rounded-full bg-[#b45a3c] px-3 py-1.5 text-xs font-bold text-[#061018]"
+            href={kitchenWhatsAppHref(order, state.host.shopName, state.host.opsPhone)}
+            target="_blank"
+            rel="noreferrer"
+          >
+            {STORE_KITCHEN_LIVE.whatsappReceiptAr}
+          </a>
+          {order.service === 'pickup' && !order.readyAt ? (
+            <button
+              type="button"
+              className="rounded-full border border-[#b45a3c]/50 px-3 py-1.5 text-xs font-bold text-[#b45a3c]"
+              onClick={() => markReady(order.id)}
+            >
+              {STORE_KITCHEN_LIVE.markReadyAr}
+            </button>
+          ) : null}
+        </div>
+        <StoreDeskTicketActions order={order} accent="#b45a3c" onReceive={() => receiveOrder(order.id)} onFinish={() => finishOrder(order.id)} />
+      </li>
+    );
   }
 
   function printQr() {
@@ -98,10 +146,13 @@ export function StoreKitchenDesk({
         product="kitchen"
         token={token}
         shopName={state.host.shopName}
-        orderIds={state.orders.map((item) => item.id)}
-        unreadCount={unread.length}
+        orderIds={fresh.map((item) => item.id)}
+        unreadCount={fresh.length}
       />
-      {showTrialNote && !gift ? <StoreTrialOpsNote productKey="kitchen" /> : null}
+      <StoreDeskControlTitle
+        kitchen
+        trialNote={showTrialNote && !gift ? STORE_PRODUCT_TRIAL_PRODUCTS.kitchen.deskNoteAr : ''}
+      />
       {gift ? (
         <section className="rounded-2xl border border-[#b45a3c] bg-[#1a0c08] p-4" aria-label={giftCopy.deskBadgeAr}>
           <p className="inline-flex rounded-full border border-[#b45a3c]/50 bg-[#b45a3c]/20 px-2.5 py-0.5 text-[0.7rem] font-extrabold text-[#b45a3c]">
@@ -123,65 +174,22 @@ export function StoreKitchenDesk({
           ) : null}
         </section>
       ) : null}
-      <div className={cn('rounded-2xl border p-4', unread.length ? 'restaurant-alert border-[#b45a3c]' : 'border-white/12')}>
+      <div className={cn('rounded-2xl border p-4', fresh.length ? 'restaurant-alert border-[#b45a3c]' : 'border-white/12')}>
         <h2 className="text-lg font-extrabold">{STORE_KITCHEN_LIVE.liveOrdersAr}</h2>
-        <p className="mt-1 text-sm text-white/60">{unread.length ? `${unread.length} تذكرة جديدة` : 'لا تذاكر جديدة الآن.'}</p>
+        <p className="mt-1 text-sm text-white/60">{fresh.length ? `${fresh.length} تذكرة جديدة` : 'لا تذاكر جديدة الآن.'}</p>
         <StoreShopPresenceCount productTag="store_kitchen_live" token={token} />
-        <ul className="mt-3 space-y-3">
-          {state.orders.slice(0, 20).map((order) => (
-            <li key={order.id} className="rounded-xl border border-white/10 bg-black/30 p-3 text-sm">
-              <p className="font-extrabold text-[#b45a3c]">
-                تذكرة {order.ticketNo} · {order.name} · {order.phone}
-              </p>
-              <p className="mt-1 text-white/70">
-                {order.service === 'pickup' ? STORE_KITCHEN_LIVE.servicePickupAr : STORE_KITCHEN_LIVE.serviceDeliveryAr}
-                {order.place && !isKitchenMapsUrl(order.place) ? ` · ${order.place}` : ''}
-              </p>
-              {order.place && isKitchenMapsUrl(order.place) ? (
-                <a className="mt-1 inline-block text-xs text-[#b45a3c]" href={order.place} target="_blank" rel="noreferrer">
-                  {STORE_KITCHEN_LIVE.pickupPlaceOpenAr}
-                </a>
-              ) : null}
-              {order.readyAt ? <p className="mt-1 text-[#b45a3c]">{STORE_KITCHEN_LIVE.readyMarkedAr}</p> : null}
-              {order.scheduledAt ? <p className="mt-1 text-white/60">الموعد: {order.scheduledAt}</p> : null}
-              {order.note ? <p className="mt-1 text-white/60">{order.note}</p> : null}
-              {order.deliveryPhotoSrc ? (
-                <img src={order.deliveryPhotoSrc} alt="" className="mt-2 max-h-32 rounded-lg object-cover" />
-              ) : null}
-              <p className="mt-1">{order.lines.map((line) => `${line.nameAr}×${line.qty}`).join(' · ')}</p>
-              <p className="mt-1 font-black">
-                {order.total} ر.س · {order.pay === 'card' ? STORE_KITCHEN_LIVE.payCardAr : STORE_KITCHEN_LIVE.payCashAr}
-              </p>
-              <div className="mt-2 flex flex-wrap gap-2">
-                <a
-                  className="rounded-full bg-[#b45a3c] px-3 py-1.5 text-xs font-bold text-[#061018]"
-                  href={kitchenWhatsAppHref(order, state.host.shopName, state.host.opsPhone)}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  {STORE_KITCHEN_LIVE.whatsappReceiptAr}
-                </a>
-                {!order.seen ? (
-                  <button type="button" className="text-xs text-white/50" onClick={() => markSeen(order.id)}>
-                    علّم مقروءاً
-                  </button>
-                ) : null}
-                {order.service === 'pickup' && !order.readyAt ? (
-                  <button
-                    type="button"
-                    className="rounded-full border border-[#b45a3c]/50 px-3 py-1.5 text-xs font-bold text-[#b45a3c]"
-                    onClick={() => markReady(order.id)}
-                  >
-                    {STORE_KITCHEN_LIVE.markReadyAr}
-                  </button>
-                ) : null}
-              </div>
-            </li>
-          ))}
-        </ul>
-        <button type="button" onClick={downloadArchive} className="mt-4 rounded-full border border-[#b45a3c]/40 px-4 py-2 text-sm text-[#b45a3c]">
-          {STORE_KITCHEN_LIVE.archiveCtaAr}
-        </button>
+        {fresh.length ? (
+          <>
+            <p className="mt-3 text-xs font-extrabold text-[#b45a3c]">{STORE_DESK_ORDER_TICKET_COPY.newLaneAr}</p>
+            <ul className="mt-2 space-y-3">{fresh.map(renderTicket)}</ul>
+          </>
+        ) : null}
+        {working.length ? (
+          <>
+            <p className="mt-4 text-xs font-extrabold text-white/70">{STORE_DESK_ORDER_TICKET_COPY.receivedLaneAr}</p>
+            <ul className="mt-2 space-y-3">{working.map(renderTicket)}</ul>
+          </>
+        ) : null}
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2">
@@ -371,6 +379,7 @@ export function StoreKitchenDesk({
         />
       </div>
 
+      <StoreDeskArchiveDock tickets={state.orderArchive} accent="#b45a3c" filename="kitchen-archive.json" />
       <StoreDeskHelpSupport product="kitchen" />
     </div>
   );

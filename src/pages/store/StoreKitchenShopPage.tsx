@@ -26,6 +26,7 @@ import {
   type KitchenLabState,
 } from '@/lib/storeKitchenLiveLab';
 import { addKitchenLiveOrder, fetchKitchenLivePublic, saveKitchenLiveHost } from '@/lib/storeKitchenLiveRemote';
+import { hydrateDeskTickets } from '@/lib/storeDeskOrderTicket';
 import { liveHostText, useStoreLiveDeskSync } from '@/lib/storeLiveDeskSync';
 import { nextStoreLivePublicGate, pickStoreLiveShelf } from '@/lib/storeLivePublicRead';
 import { parseStoreShopHours } from '@/lib/storeShopHours';
@@ -60,7 +61,7 @@ function payloadToState(payload: Record<string, unknown>, fallback: KitchenLabSt
   return {
     host,
     shelf: pickStoreLiveShelf(payload.shelf, fallback.shelf),
-    orders: Array.isArray(payload.orders) ? (payload.orders as KitchenLabState['orders']) : [],
+    ...hydrateDeskTickets<KitchenLabState['orders'][number]>(payload.orders, payload.orderArchive),
   };
 }
 
@@ -163,6 +164,7 @@ export default function StoreKitchenShopPage() {
           ...saved.host,
           shelf: saved.shelf,
           orders: saved.orders,
+          orderArchive: saved.orderArchive,
         }),
       );
     } else {

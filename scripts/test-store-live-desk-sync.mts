@@ -45,16 +45,19 @@ const current = {
   host: { shopName: 'مطبخي' },
   shelf: [{ id: 'a', inStock: false }],
   orders: [{ id: 'old' }],
+  orderArchive: [{ id: 'done-1' }],
 };
 const incoming = {
   host: { shopName: 'مطعم السدرة' },
   shelf: [{ id: 'b', inStock: true }],
   orders: [{ id: 'new' }],
+  orderArchive: [],
 };
 const held = mergeDeskPollState(current, incoming, true);
 assert.deepEqual(held.host, current.host);
 assert.deepEqual(held.shelf, current.shelf);
-assert.deepEqual(held.orders, incoming.orders);
+assert.deepEqual(held.orders, [{ id: 'new' }, { id: 'old' }]);
+assert.deepEqual(held.orderArchive, current.orderArchive);
 assert.deepEqual(mergeDeskPollState(current, incoming, false), incoming);
 
 assert.equal(shouldHoldDeskPoll(true, 0, 10_000), true);

@@ -130,6 +130,7 @@ export type ProduceLiveOrderPayload = {
   flashAr: string;
   shelf: unknown[];
   orders: unknown[];
+  orderArchive?: unknown[];
   chatIncluded: boolean;
   chats: unknown[];
 } & StoreShopHoursState & ShopPickupPlace;
@@ -159,6 +160,7 @@ export function parseProduceLiveOrderBody(body: Record<string, unknown>):
       flashAr: '',
       shelf: [],
       orders: [],
+      orderArchive: [],
       chatIncluded: true,
       chats: [],
       ...DEFAULT_SHOP_PICKUP,
@@ -198,6 +200,7 @@ export function publicProducePayload(payload: ProduceLiveOrderPayload, role = 's
     flashAr: payload.flashAr,
     shelf: Array.isArray(payload.shelf) ? payload.shelf : [],
     orders: Array.isArray(payload.orders) ? payload.orders : [],
+    orderArchive: role === 'desk' && Array.isArray(payload.orderArchive) ? payload.orderArchive.slice(0, 1000) : [],
     chatIncluded: payload.chatIncluded !== false,
     chats: parseProduceChats(payload.chats),
     ...parseStoreShopHours(payload),

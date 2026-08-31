@@ -3,15 +3,20 @@
  */
 import QRCode from 'react-qr-code';
 import { STORE_PRODUCE_LIVE } from '@/config/storeProduceLive';
-import { produceArchiveJson, produceWhatsAppText, type ProduceLabState } from '@/lib/storeProduceLiveLab';
+import { produceWhatsAppText, type ProduceLabState } from '@/lib/storeProduceLiveLab';
 import { StoreDeskOrderAlert } from '@/components/store/StoreDeskOrderAlert';
+import { StoreDeskControlTitle } from '@/components/store/StoreDeskControlTitle';
+import { StoreDeskArchiveDock } from '@/components/store/StoreDeskArchiveDock';
+import { StoreDeskTicketActions } from '@/components/store/StoreDeskTicketActions';
+import { STORE_PRODUCT_TRIAL_PRODUCTS } from '@/config/storeProductTrial';
+import { STORE_DESK_ORDER_TICKET_COPY } from '@/config/storeDeskOrderTicket';
+import { applyDeskFinish, deskOrderPhase, isLiveDeskTicket, receiveDeskTicket } from '@/lib/storeDeskOrderTicket';
 import { StoreProduceIngest } from '@/components/store/StoreProduceIngest';
 import { StoreProduceDeskChat } from '@/components/store/StoreProduceChat';
 import { StoreProductPassDeskButton } from '@/components/store/StoreProductPassDeskButton';
 import { StoreShopHoursDesk } from '@/components/store/StoreShopHoursDesk';
 import { StoreShopPlaceDesk } from '@/components/store/StoreShopPlaceDesk';
 import { StoreShopPresenceCount } from '@/components/store/StoreShopPresenceCount';
-import { StoreTrialOpsNote } from '@/components/store/StoreTrialOpsNote';
 import { StoreDeskHelpSupport } from '@/components/store/StoreDeskHelpSupport';
 import { cn } from '@/lib/utils';
 
@@ -20,19 +25,25 @@ export function StoreProduceDesk({
   onChange,
   shopUrl,
   token,
+  showTrialNote = false,
 }: {
   state: ProduceLabState;
   onChange: (next: ProduceLabState) => void;
   shopUrl: string;
   token: string;
+  showTrialNote?: boolean;
 }) {
-  const unread = state.orders.filter((item) => !item.seen);
+  const live = state.orders.filter(isLiveDeskTicket);
+  const fresh = live.filter((item) => deskOrderPhase(item) === 'new');
+  const working = live.filter((item) => deskOrderPhase(item) === 'received');
 
-  function markSeen(id: string) {
-    onChange({
-      ...state,
-      orders: state.orders.map((item) => (item.id === id ? { ...item, seen: true } : item)),
-    });
+  function receiveOrder(id: string) {
+    onChange({ ...state, orders: receiveDeskTicket(state.orders, id) });
+  }
+
+  function finishOrder(id: string) {
+    const next = applyDeskFinish(state.orders, state.orderArchive, id, 'produce');
+    onChange({ ...state, orders: next.orders, orderArchive: next.orderArchive });
   }
 
   function toggleStock(catalogId: string) {
@@ -47,16 +58,6 @@ export function StoreProduceDesk({
       ...state,
       shelf: state.shelf.map((item) => (item.catalogId === catalogId ? { ...item, arrivedToday: !item.arrivedToday } : item)),
     });
-  }
-
-  function downloadArchive() {
-    const blob = new Blob([produceArchiveJson(state)], { type: 'application/json;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'produce-archive.json';
-    a.click();
-    window.setTimeout(() => URL.revokeObjectURL(url), 1200);
   }
 
   function printQr() {
@@ -76,47 +77,72 @@ export function StoreProduceDesk({
         product="produce"
         token={token}
         shopName={state.host.shopName}
-        orderIds={state.orders.map((item) => item.id)}
-        unreadCount={unread.length}
+        orderIds={fresh.map((item) => item.id)}
+        unreadCount={fresh.length}
       />
-      <StoreTrialOpsNote productKey="produce" />
-      <div className={cn('rounded-2xl border p-4', unread.length ? 'produce-alert border-[#3d8b4a]' : 'border-white/12')}>
+      <StoreDeskControlTitle trialNote={showTrialNote ? STORE_PRODUCT_TRIAL_PRODUCTS.produce.deskNoteAr : ''} />
+      <div className={cn('rounded-2xl border p-4', fresh.length ? 'produce-alert border-[#3d8b4a]' : 'border-white/12')}>
         <h2 className="text-lg font-extrabold">{STORE_PRODUCE_LIVE.liveOrdersAr}</h2>
-        <p className="mt-1 text-sm text-white/60">{unread.length ? `${unread.length} طلب جديد` : 'لا طلبات جديدة الآن.'}</p>
+        <p className="mt-1 text-sm text-white/60">{fresh.length ? `${fresh.length} طلب جديد` : 'لا طلبات جديدة الآن.'}</p>
         <StoreShopPresenceCount productTag="store_produce_live" token={token} />
-        <ul className="mt-3 space-y-3">
-          {state.orders.slice(0, 20).map((order) => (
-            <li key={order.id} className="rounded-xl border border-white/10 bg-black/30 p-3 text-sm">
-              <p className="font-extrabold text-[#3d8b4a]">
-                {order.name} · {order.phone}
-              </p>
-              <p className="mt-1 text-white/70">
-                {order.service === 'pickup' ? STORE_PRODUCE_LIVE.servicePickupAr : STORE_PRODUCE_LIVE.serviceDeliveryAr}
-                {order.place ? ` · ${order.place}` : ''}
-              </p>
-              <p className="mt-1">{order.lines.map((line) => `${line.nameAr}×${line.qty}`).join(' · ')}</p>
-              <p className="mt-1 font-black">{order.total} ر.س · {order.pay === 'card' ? STORE_PRODUCE_LIVE.payCardAr : STORE_PRODUCE_LIVE.payCashAr}</p>
-              <div className="mt-2 flex flex-wrap gap-2">
-                <a
-                  className="rounded-full bg-[#3d8b4a] px-3 py-1.5 text-xs font-bold text-[#061018]"
-                  href={`https://wa.me/?text=${encodeURIComponent(produceWhatsAppText(order, state.host.shopName, state.host.vendorMode === 'mobile' ? state.host.pickupMapsUrl : ''))}`}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  {STORE_PRODUCE_LIVE.whatsappReceiptAr}
-                </a>
-                {!order.seen ? (
-                  <button type="button" className="text-xs text-white/50" onClick={() => markSeen(order.id)}>
-                    علّم مقروءاً
-                  </button>
-                ) : null}
-              </div>
-            </li>
-          ))}
-        </ul>
-        <button type="button" onClick={downloadArchive} className="mt-4 rounded-full border border-[#3d8b4a]/40 px-4 py-2 text-sm text-[#3d8b4a]">
-          {STORE_PRODUCE_LIVE.archiveCtaAr}
-        </button>
+        {fresh.length ? (
+          <>
+            <p className="mt-3 text-xs font-extrabold text-[#3d8b4a]">{STORE_DESK_ORDER_TICKET_COPY.newLaneAr}</p>
+            <ul className="mt-2 space-y-3">
+              {fresh.map((order) => (
+                <li key={order.id} className="rounded-xl border border-white/10 bg-black/30 p-3 text-sm">
+                  <p className="font-extrabold text-[#3d8b4a]">
+                    {order.name} · {order.phone}
+                  </p>
+                  <p className="mt-1 text-white/70">
+                    {order.service === 'pickup' ? STORE_PRODUCE_LIVE.servicePickupAr : STORE_PRODUCE_LIVE.serviceDeliveryAr}
+                    {order.place ? ` · ${order.place}` : ''}
+                  </p>
+                  <p className="mt-1">{order.lines.map((line) => `${line.nameAr}×${line.qty}`).join(' · ')}</p>
+                  <p className="mt-1 font-black">{order.total} ر.س · {order.pay === 'card' ? STORE_PRODUCE_LIVE.payCardAr : STORE_PRODUCE_LIVE.payCashAr}</p>
+                  <a
+                    className="mt-2 inline-flex rounded-full bg-[#3d8b4a] px-3 py-1.5 text-xs font-bold text-[#061018]"
+                    href={`https://wa.me/?text=${encodeURIComponent(produceWhatsAppText(order, state.host.shopName, state.host.vendorMode === 'mobile' ? state.host.pickupMapsUrl : ''))}`}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    {STORE_PRODUCE_LIVE.whatsappReceiptAr}
+                  </a>
+                  <StoreDeskTicketActions order={order} accent="#3d8b4a" onReceive={() => receiveOrder(order.id)} onFinish={() => finishOrder(order.id)} />
+                </li>
+              ))}
+            </ul>
+          </>
+        ) : null}
+        {working.length ? (
+          <>
+            <p className="mt-4 text-xs font-extrabold text-white/70">{STORE_DESK_ORDER_TICKET_COPY.receivedLaneAr}</p>
+            <ul className="mt-2 space-y-3">
+              {working.map((order) => (
+                <li key={order.id} className="rounded-xl border border-white/10 bg-black/30 p-3 text-sm">
+                  <p className="font-extrabold text-[#3d8b4a]">
+                    {order.name} · {order.phone}
+                  </p>
+                  <p className="mt-1 text-white/70">
+                    {order.service === 'pickup' ? STORE_PRODUCE_LIVE.servicePickupAr : STORE_PRODUCE_LIVE.serviceDeliveryAr}
+                    {order.place ? ` · ${order.place}` : ''}
+                  </p>
+                  <p className="mt-1">{order.lines.map((line) => `${line.nameAr}×${line.qty}`).join(' · ')}</p>
+                  <p className="mt-1 font-black">{order.total} ر.س · {order.pay === 'card' ? STORE_PRODUCE_LIVE.payCardAr : STORE_PRODUCE_LIVE.payCashAr}</p>
+                  <a
+                    className="mt-2 inline-flex rounded-full bg-[#3d8b4a] px-3 py-1.5 text-xs font-bold text-[#061018]"
+                    href={`https://wa.me/?text=${encodeURIComponent(produceWhatsAppText(order, state.host.shopName, state.host.vendorMode === 'mobile' ? state.host.pickupMapsUrl : ''))}`}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    {STORE_PRODUCE_LIVE.whatsappReceiptAr}
+                  </a>
+                  <StoreDeskTicketActions order={order} accent="#3d8b4a" onReceive={() => receiveOrder(order.id)} onFinish={() => finishOrder(order.id)} />
+                </li>
+              ))}
+            </ul>
+          </>
+        ) : null}
       </div>
       <StoreProduceDeskChat state={state} onChange={onChange} />
 
@@ -219,6 +245,7 @@ export function StoreProduceDesk({
         <StoreProductPassDeskButton kind="produce" token={token} shopName={state.host.shopName} />
       </div>
 
+      <StoreDeskArchiveDock tickets={state.orderArchive} accent="#3d8b4a" filename="produce-archive.json" />
       <StoreDeskHelpSupport product="produce" />
     </div>
   );

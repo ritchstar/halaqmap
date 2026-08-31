@@ -23,6 +23,7 @@ import {
   type GrocersLabState,
 } from '@/lib/storeGrocersLiveLab';
 import { addGrocersLiveChat, addGrocersLiveOrder, fetchGrocersLivePublic, saveGrocersLiveHost } from '@/lib/storeGrocersLiveRemote';
+import { hydrateDeskTickets } from '@/lib/storeDeskOrderTicket';
 import { liveHostText, useStoreLiveDeskSync } from '@/lib/storeLiveDeskSync';
 import { nextStoreLivePublicGate, pickStoreLiveShelf } from '@/lib/storeLivePublicRead';
 import { parseStoreShopHours } from '@/lib/storeShopHours';
@@ -48,7 +49,7 @@ function payloadToState(payload: Record<string, unknown>, fallback: GrocersLabSt
   return {
     host,
     shelf: pickStoreLiveShelf(payload.shelf, fallback.shelf),
-    orders: Array.isArray(payload.orders) ? (payload.orders as GrocersLabState['orders']) : [],
+    ...hydrateDeskTickets<GrocersLabState['orders'][number]>(payload.orders, payload.orderArchive),
     chatAddon: payload.chatAddon === true,
     chats: Array.isArray(payload.chats) ? (payload.chats as GrocersLabState['chats']) : [],
   };
@@ -66,6 +67,7 @@ export default function StoreGrocersShopPage() {
   const [gate, setGate] = useState<Gate>(isLab ? 'ok' : 'loading');
   const deskSync = useStoreLiveDeskSync(desk && !isLab);
   const [renewToken, setRenewToken] = useState('');
+  const [isTrial, setIsTrial] = useState(false);
   const [shopUrl, setShopUrl] = useState(
     typeof window === 'undefined' ? `/#/g/${encodeURIComponent(safeToken)}` : `${window.location.origin}/#/g/${encodeURIComponent(safeToken)}`,
   );
@@ -103,6 +105,7 @@ export default function StoreGrocersShopPage() {
             deskSync.applyPoll(current, payloadToState(result.payload as Record<string, unknown>, current)),
           );
           if (typeof result.shopUrl === 'string' && result.shopUrl) setShopUrl(result.shopUrl);
+          setIsTrial(result.isTrial === true);
           setGate('ok');
           return;
         }
@@ -135,6 +138,7 @@ export default function StoreGrocersShopPage() {
           ...state.host,
           shelf: state.shelf,
           orders: state.orders,
+          orderArchive: state.orderArchive,
           chats: state.chats,
         }),
       );
@@ -165,7 +169,13 @@ export default function StoreGrocersShopPage() {
         {gate === 'missing' ? <p className="pt-[30svh] text-center text-sm text-white/70">الرابط غير صالح.</p> : null}
         {gate === 'ok' ? (
           desk ? (
-            <StoreGrocersDesk state={state} onChange={commit} shopUrl={shopUrl} token={safeToken} />
+            <StoreGrocersDesk
+              state={state}
+              onChange={commit}
+              shopUrl={shopUrl}
+              token={safeToken}
+              showTrialNote={isTrial}
+            />
           ) : (
             <StoreGrocersShop state={state} onChange={commit} />
           )

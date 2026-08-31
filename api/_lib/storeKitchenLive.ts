@@ -179,6 +179,7 @@ export type KitchenLiveOrderPayload = {
   qrActive: boolean;
   shelf: unknown[];
   orders: unknown[];
+  orderArchive?: unknown[];
   nextTicket: number;
   pickupLat: number;
   pickupLng: number;
@@ -228,6 +229,7 @@ export function parseKitchenLiveOrderBody(body: Record<string, unknown>):
       qrActive: true,
       shelf: [],
       orders: [],
+      orderArchive: [],
       nextTicket: 1,
       ...DEFAULT_KITCHEN_PICKUP,
       ...DEFAULT_STORE_SHOP_HOURS,
@@ -265,6 +267,7 @@ export function publicKitchenPayload(payload: KitchenLiveOrderPayload, role = 's
     qrActive: payload.qrActive !== false,
     shelf: Array.isArray(payload.shelf) ? payload.shelf : [],
     orders: Array.isArray(payload.orders) ? payload.orders : [],
+    orderArchive: role === 'desk' && Array.isArray(payload.orderArchive) ? payload.orderArchive.slice(0, 1000) : [],
     nextTicket: Number(payload.nextTicket) > 0 ? Number(payload.nextTicket) : 1,
     gift: payload.gift === true,
     giftLabelAr: String(payload.giftLabelAr || ''),

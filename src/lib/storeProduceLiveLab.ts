@@ -12,6 +12,7 @@ import {
 } from '@/config/storeProduceCatalog';
 import { STORE_PRODUCE_LIVE_DEMO, type StoreProduceLivePackId } from '@/config/storeProduceLive';
 import { DEFAULT_STORE_SHOP_HOURS, type StoreShopHoursState } from '@/config/storeShopHours';
+import { hydrateDeskTickets } from '@/lib/storeDeskOrderTicket';
 import { DEFAULT_SHOP_PICKUP, parseShopPickupPlace, type ShopPickupPlace } from '@/lib/storeShopPlace';
 import { compressImageFile } from '@/lib/storeWeddingLiveLab';
 
@@ -49,6 +50,9 @@ export type ProduceOrder = {
   total: number;
   at: string;
   seen: boolean;
+  phase?: 'new' | 'received' | 'done';
+  receivedAt?: string;
+  doneAt?: string;
 };
 
 export type ProduceHostState = {
@@ -73,6 +77,7 @@ export type ProduceLabState = {
   host: ProduceHostState;
   shelf: ProduceShelfItem[];
   orders: ProduceOrder[];
+  orderArchive: ProduceOrder[];
   chatIncluded: boolean;
   chats: ProduceChatMsg[];
 };
@@ -121,6 +126,7 @@ export function defaultProduceLabState(): ProduceLabState {
     },
     shelf,
     orders: [],
+    orderArchive: [],
     chatIncluded: true,
     chats: [],
   };
@@ -141,7 +147,7 @@ export function readProduceLabState(token: string): ProduceLabState {
         ...parseShopPickupPlace(parsed.host, fallback.host),
       },
       shelf: Array.isArray(parsed.shelf) && parsed.shelf.length ? parsed.shelf : fallback.shelf,
-      orders: Array.isArray(parsed.orders) ? parsed.orders : [],
+      ...hydrateDeskTickets<ProduceOrder>(parsed.orders, parsed.orderArchive),
       chatIncluded: parsed.chatIncluded !== false,
       chats: Array.isArray(parsed.chats) ? parsed.chats : [],
     };

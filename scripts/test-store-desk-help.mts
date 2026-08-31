@@ -37,6 +37,7 @@ for (const product of STORE_DESK_HELP_PRODUCTS) {
   assert.match(pack.whatsappPrefillAr, new RegExp(pack.productAr));
   assert.doesNotMatch(pack.stepsAr.join('\n'), foreign[product]);
   assert.doesNotMatch(pack.whatsappPrefillAr, foreign[product]);
+  assert.match(pack.stepsAr.join('\n'), /تم الاستلام ثم أرشفة وإنهاء/);
 }
 
 assert.match(help, /useState\(false\)/);

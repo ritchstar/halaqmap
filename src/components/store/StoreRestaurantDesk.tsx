@@ -3,16 +3,21 @@
  */
 import QRCode from 'react-qr-code';
 import { STORE_RESTAURANT_LIVE } from '@/config/storeRestaurantLive';
-import { restaurantArchiveJson, restaurantWhatsAppText, type RestaurantLabState } from '@/lib/storeRestaurantLiveLab';
+import { restaurantWhatsAppText, type RestaurantLabState } from '@/lib/storeRestaurantLiveLab';
 import { StoreDeskOrderAlert } from '@/components/store/StoreDeskOrderAlert';
+import { StoreDeskControlTitle } from '@/components/store/StoreDeskControlTitle';
+import { StoreDeskArchiveDock } from '@/components/store/StoreDeskArchiveDock';
+import { StoreDeskTicketActions } from '@/components/store/StoreDeskTicketActions';
 import { StoreRestaurantMenuBoard } from '@/components/store/StoreRestaurantMenuBoard';
 import { StoreRestaurantDeskChat } from '@/components/store/StoreRestaurantChat';
 import { StoreShopPresenceCount } from '@/components/store/StoreShopPresenceCount';
-import { StoreTrialOpsNote } from '@/components/store/StoreTrialOpsNote';
 import { StoreProductPassDeskButton } from '@/components/store/StoreProductPassDeskButton';
 import { StoreShopHoursDesk } from '@/components/store/StoreShopHoursDesk';
 import { StoreShopPlaceDesk } from '@/components/store/StoreShopPlaceDesk';
 import { StoreDeskHelpSupport } from '@/components/store/StoreDeskHelpSupport';
+import { STORE_PRODUCT_TRIAL_PRODUCTS } from '@/config/storeProductTrial';
+import { STORE_DESK_ORDER_TICKET_COPY } from '@/config/storeDeskOrderTicket';
+import { applyDeskFinish, deskOrderPhase, isLiveDeskTicket, receiveDeskTicket } from '@/lib/storeDeskOrderTicket';
 import { cn } from '@/lib/utils';
 
 export function StoreRestaurantDesk({
@@ -20,19 +25,25 @@ export function StoreRestaurantDesk({
   onChange,
   shopUrl,
   token,
+  showTrialNote = false,
 }: {
   state: RestaurantLabState;
   onChange: (next: RestaurantLabState) => void;
   shopUrl: string;
   token: string;
+  showTrialNote?: boolean;
 }) {
-  const unread = state.orders.filter((item) => !item.seen);
+  const live = state.orders.filter(isLiveDeskTicket);
+  const fresh = live.filter((item) => deskOrderPhase(item) === 'new');
+  const working = live.filter((item) => deskOrderPhase(item) === 'received');
 
-  function markSeen(id: string) {
-    onChange({
-      ...state,
-      orders: state.orders.map((item) => (item.id === id ? { ...item, seen: true } : item)),
-    });
+  function receiveOrder(id: string) {
+    onChange({ ...state, orders: receiveDeskTicket(state.orders, id) });
+  }
+
+  function finishOrder(id: string) {
+    const next = applyDeskFinish(state.orders, state.orderArchive, id, 'restaurant');
+    onChange({ ...state, orders: next.orders, orderArchive: next.orderArchive });
   }
 
   function toggleStock(catalogId: string) {
@@ -40,16 +51,6 @@ export function StoreRestaurantDesk({
       ...state,
       shelf: state.shelf.map((item) => (item.catalogId === catalogId ? { ...item, inStock: !item.inStock } : item)),
     });
-  }
-
-  function downloadArchive() {
-    const blob = new Blob([restaurantArchiveJson(state)], { type: 'application/json;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'restaurant-archive.json';
-    a.click();
-    window.setTimeout(() => URL.revokeObjectURL(url), 1200);
   }
 
   function printQr() {
@@ -69,50 +70,80 @@ export function StoreRestaurantDesk({
         product="restaurant"
         token={token}
         shopName={state.host.shopName}
-        orderIds={state.orders.map((item) => item.id)}
-        unreadCount={unread.length}
+        orderIds={fresh.map((item) => item.id)}
+        unreadCount={fresh.length}
       />
-      <StoreTrialOpsNote productKey="restaurant" />
-      <div className={cn('rounded-2xl border p-4', unread.length ? 'restaurant-alert border-[#e08a3c]' : 'border-white/12')}>
+      <StoreDeskControlTitle
+        trialNote={showTrialNote ? STORE_PRODUCT_TRIAL_PRODUCTS.restaurant.deskNoteAr : ''}
+      />
+      <div className={cn('rounded-2xl border p-4', fresh.length ? 'restaurant-alert border-[#e08a3c]' : 'border-white/12')}>
         <h2 className="text-lg font-extrabold">{STORE_RESTAURANT_LIVE.liveOrdersAr}</h2>
-        <p className="mt-1 text-sm text-white/60">{unread.length ? `${unread.length} تذكرة جديدة` : 'لا تذاكر جديدة الآن.'}</p>
+        <p className="mt-1 text-sm text-white/60">{fresh.length ? `${fresh.length} تذكرة جديدة` : 'لا تذاكر جديدة الآن.'}</p>
         <StoreShopPresenceCount productTag="store_restaurant_live" token={token} />
-        <ul className="mt-3 space-y-3">
-          {state.orders.slice(0, 20).map((order) => (
-            <li key={order.id} className="rounded-xl border border-white/10 bg-black/30 p-3 text-sm">
-              <p className="font-extrabold text-[#e08a3c]">
-                تذكرة {order.ticketNo} · {order.name} · {order.phone}
-              </p>
-              <p className="mt-1 text-white/70">
-                {order.service === 'pickup' ? STORE_RESTAURANT_LIVE.servicePickupAr : STORE_RESTAURANT_LIVE.serviceDeliveryAr}
-                {order.place ? ` · ${order.place}` : ''}
-              </p>
-              {order.note ? <p className="mt-1 text-white/60">{order.note}</p> : null}
-              <p className="mt-1">{order.lines.map((line) => `${line.nameAr}×${line.qty}`).join(' · ')}</p>
-              <p className="mt-1 font-black">
-                {order.total} ر.س · {order.pay === 'card' ? STORE_RESTAURANT_LIVE.payCardAr : STORE_RESTAURANT_LIVE.payCashAr}
-              </p>
-              <div className="mt-2 flex flex-wrap gap-2">
-                <a
-                  className="rounded-full bg-[#e08a3c] px-3 py-1.5 text-xs font-bold text-[#061018]"
-                  href={`https://wa.me/?text=${encodeURIComponent(restaurantWhatsAppText(order, state.host.shopName, state.host.vendorMode === 'mobile' ? state.host.pickupMapsUrl : ''))}`}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  {STORE_RESTAURANT_LIVE.whatsappReceiptAr}
-                </a>
-                {!order.seen ? (
-                  <button type="button" className="text-xs text-white/50" onClick={() => markSeen(order.id)}>
-                    علّم مقروءاً
-                  </button>
-                ) : null}
-              </div>
-            </li>
-          ))}
-        </ul>
-        <button type="button" onClick={downloadArchive} className="mt-4 rounded-full border border-[#e08a3c]/40 px-4 py-2 text-sm text-[#e08a3c]">
-          {STORE_RESTAURANT_LIVE.archiveCtaAr}
-        </button>
+        {fresh.length ? (
+          <>
+            <p className="mt-3 text-xs font-extrabold text-[#e08a3c]">{STORE_DESK_ORDER_TICKET_COPY.newLaneAr}</p>
+            <ul className="mt-2 space-y-3">
+              {fresh.map((order) => (
+                <li key={order.id} className="rounded-xl border border-white/10 bg-black/30 p-3 text-sm">
+                  <p className="font-extrabold text-[#e08a3c]">
+                    تذكرة {order.ticketNo} · {order.name} · {order.phone}
+                  </p>
+                  <p className="mt-1 text-white/70">
+                    {order.service === 'pickup' ? STORE_RESTAURANT_LIVE.servicePickupAr : STORE_RESTAURANT_LIVE.serviceDeliveryAr}
+                    {order.place ? ` · ${order.place}` : ''}
+                  </p>
+                  {order.note ? <p className="mt-1 text-white/60">{order.note}</p> : null}
+                  <p className="mt-1">{order.lines.map((line) => `${line.nameAr}×${line.qty}`).join(' · ')}</p>
+                  <p className="mt-1 font-black">
+                    {order.total} ر.س · {order.pay === 'card' ? STORE_RESTAURANT_LIVE.payCardAr : STORE_RESTAURANT_LIVE.payCashAr}
+                  </p>
+                  <a
+                    className="mt-2 inline-flex rounded-full bg-[#e08a3c] px-3 py-1.5 text-xs font-bold text-[#061018]"
+                    href={`https://wa.me/?text=${encodeURIComponent(restaurantWhatsAppText(order, state.host.shopName, state.host.vendorMode === 'mobile' ? state.host.pickupMapsUrl : ''))}`}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    {STORE_RESTAURANT_LIVE.whatsappReceiptAr}
+                  </a>
+                  <StoreDeskTicketActions order={order} accent="#e08a3c" onReceive={() => receiveOrder(order.id)} onFinish={() => finishOrder(order.id)} />
+                </li>
+              ))}
+            </ul>
+          </>
+        ) : null}
+        {working.length ? (
+          <>
+            <p className="mt-4 text-xs font-extrabold text-white/70">{STORE_DESK_ORDER_TICKET_COPY.receivedLaneAr}</p>
+            <ul className="mt-2 space-y-3">
+              {working.map((order) => (
+                <li key={order.id} className="rounded-xl border border-white/10 bg-black/30 p-3 text-sm">
+                  <p className="font-extrabold text-[#e08a3c]">
+                    تذكرة {order.ticketNo} · {order.name} · {order.phone}
+                  </p>
+                  <p className="mt-1 text-white/70">
+                    {order.service === 'pickup' ? STORE_RESTAURANT_LIVE.servicePickupAr : STORE_RESTAURANT_LIVE.serviceDeliveryAr}
+                    {order.place ? ` · ${order.place}` : ''}
+                  </p>
+                  {order.note ? <p className="mt-1 text-white/60">{order.note}</p> : null}
+                  <p className="mt-1">{order.lines.map((line) => `${line.nameAr}×${line.qty}`).join(' · ')}</p>
+                  <p className="mt-1 font-black">
+                    {order.total} ر.س · {order.pay === 'card' ? STORE_RESTAURANT_LIVE.payCardAr : STORE_RESTAURANT_LIVE.payCashAr}
+                  </p>
+                  <a
+                    className="mt-2 inline-flex rounded-full bg-[#e08a3c] px-3 py-1.5 text-xs font-bold text-[#061018]"
+                    href={`https://wa.me/?text=${encodeURIComponent(restaurantWhatsAppText(order, state.host.shopName, state.host.vendorMode === 'mobile' ? state.host.pickupMapsUrl : ''))}`}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    {STORE_RESTAURANT_LIVE.whatsappReceiptAr}
+                  </a>
+                  <StoreDeskTicketActions order={order} accent="#e08a3c" onReceive={() => receiveOrder(order.id)} onFinish={() => finishOrder(order.id)} />
+                </li>
+              ))}
+            </ul>
+          </>
+        ) : null}
       </div>
       <StoreRestaurantDeskChat state={state} onChange={onChange} />
 
@@ -206,6 +237,7 @@ export function StoreRestaurantDesk({
         <StoreProductPassDeskButton kind="restaurant" token={token} shopName={state.host.shopName} />
       </div>
 
+      <StoreDeskArchiveDock tickets={state.orderArchive} accent="#e08a3c" filename="restaurant-archive.json" />
       <StoreDeskHelpSupport product="restaurant" />
     </div>
   );

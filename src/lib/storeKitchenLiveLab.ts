@@ -9,6 +9,7 @@ import {
   STORE_KITCHEN_LIVE_LAB_ITEM_CAP,
 } from '@/config/storeKitchenLive';
 import { DEFAULT_STORE_SHOP_HOURS, type StoreShopHoursState } from '@/config/storeShopHours';
+import { hydrateDeskTickets } from '@/lib/storeDeskOrderTicket';
 import { compressImageFile } from '@/lib/storeWeddingLiveLab';
 
 export { parseKitchenListText, compressImageFile };
@@ -50,6 +51,9 @@ export type KitchenOrder = {
   scheduledAt: string;
   deliveryPhotoSrc: string;
   seen: boolean;
+  phase?: 'new' | 'received' | 'done';
+  receivedAt?: string;
+  doneAt?: string;
   readyAt?: string;
   readyMapsUrl?: string;
 };
@@ -85,6 +89,7 @@ export type KitchenLabState = {
   host: KitchenHostState;
   shelf: KitchenShelfItem[];
   orders: KitchenOrder[];
+  orderArchive: KitchenOrder[];
 };
 
 function storageKey(token: string): string {
@@ -147,6 +152,7 @@ export function defaultKitchenLabState(): KitchenLabState {
     },
     shelf,
     orders: [],
+    orderArchive: [],
   };
 }
 
@@ -185,7 +191,7 @@ export function readKitchenLabState(token: string): KitchenLabState {
             photoSrc: item.photoSrc || kitchenDemoPhotoSrc(item.catalogId),
           }))
         : fallback.shelf,
-      orders: Array.isArray(parsed.orders) ? parsed.orders : [],
+      ...hydrateDeskTickets<KitchenOrder>(parsed.orders, parsed.orderArchive),
     };
   } catch {
     return fallback;
@@ -399,7 +405,14 @@ export function markKitchenOrderReady(state: KitchenLabState, orderId: string, m
     ...state,
     orders: state.orders.map((item) =>
       item.id === orderId
-        ? { ...item, seen: true, readyAt, readyMapsUrl: mapsUrl.slice(0, 240) }
+        ? {
+            ...item,
+            seen: true,
+            phase: item.phase === 'done' ? 'done' : 'received',
+            receivedAt: item.receivedAt || readyAt,
+            readyAt,
+            readyMapsUrl: mapsUrl.slice(0, 240),
+          }
         : item,
     ),
   };

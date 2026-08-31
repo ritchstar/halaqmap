@@ -170,6 +170,7 @@ export type GrocersLiveOrderPayload = {
   flashAr: string;
   shelf: unknown[];
   orders: unknown[];
+  orderArchive?: unknown[];
   chatAddon: boolean;
   chats: unknown[];
 } & StoreShopHoursState & ShopPickupPlace;
@@ -201,6 +202,7 @@ export function parseGrocersLiveOrderBody(body: Record<string, unknown>):
       flashAr: '',
       shelf: [],
       orders: [],
+      orderArchive: [],
       chatAddon,
       chats: [],
       ...DEFAULT_SHOP_PICKUP,
@@ -240,6 +242,7 @@ export function publicGrocersPayload(payload: GrocersLiveOrderPayload, role = 's
     flashAr: payload.flashAr,
     shelf: Array.isArray(payload.shelf) ? payload.shelf : [],
     orders: Array.isArray(payload.orders) ? payload.orders : [],
+    orderArchive: role === 'desk' && Array.isArray(payload.orderArchive) ? payload.orderArchive.slice(0, 1000) : [],
     chatAddon: payload.chatAddon === true,
     chats: parseGrocersChats(payload.chats),
     ...parseStoreShopHours(payload),

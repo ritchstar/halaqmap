@@ -7,6 +7,7 @@ import { STORE_RESTAURANT_MENU, restaurantMenuById, parseRestaurantListText } fr
 import { STORE_RESTAURANT_LIVE_DEMO, type StoreRestaurantLivePackId } from '@/config/storeRestaurantLive';
 import { DEFAULT_STORE_SHOP_HOURS, type StoreShopHoursState } from '@/config/storeShopHours';
 import { DEFAULT_SHOP_PICKUP, parseShopPickupPlace, type ShopPickupPlace } from '@/lib/storeShopPlace';
+import { hydrateDeskTickets } from '@/lib/storeDeskOrderTicket';
 import { compressImageFile } from '@/lib/storeWeddingLiveLab';
 
 export { parseRestaurantListText, compressImageFile };
@@ -44,6 +45,9 @@ export type RestaurantOrder = {
   total: number;
   at: string;
   seen: boolean;
+  phase?: 'new' | 'received' | 'done';
+  receivedAt?: string;
+  doneAt?: string;
 };
 
 export type RestaurantHostState = {
@@ -69,6 +73,7 @@ export type RestaurantLabState = {
   host: RestaurantHostState;
   shelf: RestaurantShelfItem[];
   orders: RestaurantOrder[];
+  orderArchive: RestaurantOrder[];
   chats: RestaurantChatMsg[];
 };
 
@@ -118,6 +123,7 @@ export function defaultRestaurantLabState(): RestaurantLabState {
     },
     shelf,
     orders: [],
+    orderArchive: [],
     chats: [],
   };
 }
@@ -140,7 +146,7 @@ export function readRestaurantLabState(token: string): RestaurantLabState {
       shelf: Array.isArray(parsed.shelf) && parsed.shelf.length
         ? parsed.shelf.map((item) => ({ ...item, photoSrc: item.photoSrc || '' }))
         : fallback.shelf,
-      orders: Array.isArray(parsed.orders) ? parsed.orders : [],
+      ...hydrateDeskTickets<RestaurantOrder>(parsed.orders, parsed.orderArchive),
       chats: Array.isArray(parsed.chats) ? parsed.chats : [],
     };
   } catch {
@@ -229,6 +235,7 @@ export function restaurantArchiveJson(state: RestaurantLabState): string {
       brand: 'halaqmap',
       shopName: state.host.shopName,
       orders: state.orders,
+      orderArchive: state.orderArchive,
     },
     null,
     2,
