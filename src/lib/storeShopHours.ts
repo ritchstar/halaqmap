@@ -1,7 +1,8 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
- * حساب مفتوح/مغلق وفق توقيت المملكة، بلا خلط بمنتجات المناسبات.
+ * إشارة مفتوح/مغلق من زر اللوحة. الجدول للعرض وفق توقيت المملكة.
+ * بلا خلط بمنتجات المناسبات.
  */
 import {
   DEFAULT_STORE_SHOP_HOURS,
@@ -10,13 +11,20 @@ import {
   type StoreShopHoursState,
 } from '@/config/storeShopHours';
 
-const TIME = /^([01]?\d|2[0-3]):([0-5]\d)$/;
+const TIME = /^([01]?\d|2[0-3]):([0-5]\d)(?::[0-5]\d(?:\.\d+)?)?$/;
 
 export function parseHourClock(raw: unknown, fallback: string): string {
   const value = String(raw ?? '').trim();
-  if (!TIME.test(value)) return fallback;
-  const [h, m] = value.split(':');
-  return `${h.padStart(2, '0')}:${m}`;
+  const match = TIME.exec(value);
+  if (!match) return fallback;
+  return `${match[1].padStart(2, '0')}:${match[2]}`;
+}
+
+export function parseShopFlag(raw: unknown, fallback: boolean): boolean {
+  if (typeof raw === 'boolean') return raw;
+  if (raw === 1 || raw === '1' || raw === 'true' || raw === 'TRUE') return true;
+  if (raw === 0 || raw === '0' || raw === 'false' || raw === 'FALSE') return false;
+  return fallback;
 }
 
 export function parseStoreShopHours(
@@ -27,8 +35,8 @@ export function parseStoreShopHours(
   const mode: StoreShopHoursMode =
     row.hoursMode === 'split' ? 'split' : row.hoursMode === 'single' ? 'single' : fallback.hoursMode;
   return {
-    shopOpen: typeof row.shopOpen === 'boolean' ? row.shopOpen : fallback.shopOpen,
-    hoursEnabled: typeof row.hoursEnabled === 'boolean' ? row.hoursEnabled : fallback.hoursEnabled,
+    shopOpen: parseShopFlag(row.shopOpen, fallback.shopOpen),
+    hoursEnabled: parseShopFlag(row.hoursEnabled, fallback.hoursEnabled),
     hoursMode: mode,
     hoursOpen: parseHourClock(row.hoursOpen, fallback.hoursOpen),
     hoursClose: parseHourClock(row.hoursClose, fallback.hoursClose),
@@ -59,10 +67,14 @@ export function riyadhMinutesNow(at = new Date()): number {
     timeZone: 'Asia/Riyadh',
     hour: '2-digit',
     minute: '2-digit',
+    hour12: false,
     hourCycle: 'h23',
   }).formatToParts(at);
-  const hour = Number(parts.find((part) => part.type === 'hour')?.value || '0');
+  let hour = Number(parts.find((part) => part.type === 'hour')?.value || '0');
   const minute = Number(parts.find((part) => part.type === 'minute')?.value || '0');
+  if (hour === 24) hour = 0;
+  if (!Number.isFinite(hour) || hour < 0 || hour > 23) hour = 0;
+  if (!Number.isFinite(minute) || minute < 0 || minute > 59) return hour * 60;
   return hour * 60 + minute;
 }
 
@@ -78,9 +90,9 @@ export function isWithinShopHours(hours: StoreShopHoursState, at = new Date()): 
   return inWindow(now, hours.hoursOpen, hours.hoursClose);
 }
 
-export function isShopClosedNow(hours: StoreShopHoursState, at = new Date()): boolean {
-  if (hours.shopOpen === false) return true;
-  return !isWithinShopHours(hours, at);
+/** إشارة الزائر من زر اللوحة فقط. الجدول لا يقلبها. */
+export function isShopClosedNow(hours: StoreShopHoursState, _at = new Date()): boolean {
+  return hours.shopOpen === false;
 }
 
 export function shopHoursLinesAr(hours: StoreShopHoursState): string[] {

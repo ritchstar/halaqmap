@@ -1,7 +1,7 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
- * مفتوح/مغلق وأوقات العمل لتمويناتا1 ومطعمنا1 وكافينا1 وطبختنا1.
+ * مفتوح/مغلق وأوقات العمل لتمويناتا1 ومطعمنا1 وكافينا1 وطبختنا1 وخضارنا1.
  */
 export type StoreShopHoursMode = 'single' | 'split';
 
@@ -32,7 +32,8 @@ export const DEFAULT_STORE_SHOP_HOURS: StoreShopHoursState = {
 export const STORE_SHOP_HOURS_COPY = {
   deskTitleAr: 'مفتوح ومغلق وأوقات العمل',
   deskLeadAr:
-    'اضبط الحالة الآن بزر واحد. إن فعّلت الأوقات يُعرض للزائر الجدول، وخارجها يظهر مغلق مع بقاء التسوق مذكرة طلب مسبقة.',
+    'زر مفتوح الآن أو مغلق الآن هو إشارة الزائر في المنتجات الخمسة. الجدول للعلم إن فعّلته، ولا يقلب الإشارة ما دام الزر مفتوحاً.',
+  visitorSignalAr: 'إشارة الزائر',
   openNowAr: 'مفتوح الآن',
   closedToggleAr: 'مغلق الآن',
   hoursOnAr: 'تفعيل أوقات العمل',

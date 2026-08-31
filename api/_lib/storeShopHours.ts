@@ -29,13 +29,20 @@ export const DEFAULT_STORE_SHOP_HOURS: StoreShopHoursState = {
   hoursEveningClose: '23:00',
 };
 
-const TIME = /^([01]?\d|2[0-3]):([0-5]\d)$/;
+const TIME = /^([01]?\d|2[0-3]):([0-5]\d)(?::[0-5]\d(?:\.\d+)?)?$/;
 
 function parseHourClock(raw: unknown, fallback: string): string {
   const value = String(raw ?? '').trim();
-  if (!TIME.test(value)) return fallback;
-  const [h, m] = value.split(':');
-  return `${h.padStart(2, '0')}:${m}`;
+  const match = TIME.exec(value);
+  if (!match) return fallback;
+  return `${match[1].padStart(2, '0')}:${match[2]}`;
+}
+
+function parseShopFlag(raw: unknown, fallback: boolean): boolean {
+  if (typeof raw === 'boolean') return raw;
+  if (raw === 1 || raw === '1' || raw === 'true' || raw === 'TRUE') return true;
+  if (raw === 0 || raw === '0' || raw === 'false' || raw === 'FALSE') return false;
+  return fallback;
 }
 
 export function parseStoreShopHours(
@@ -46,8 +53,8 @@ export function parseStoreShopHours(
   const mode: StoreShopHoursMode =
     row.hoursMode === 'split' ? 'split' : row.hoursMode === 'single' ? 'single' : fallback.hoursMode;
   return {
-    shopOpen: typeof row.shopOpen === 'boolean' ? row.shopOpen : fallback.shopOpen,
-    hoursEnabled: typeof row.hoursEnabled === 'boolean' ? row.hoursEnabled : fallback.hoursEnabled,
+    shopOpen: parseShopFlag(row.shopOpen, fallback.shopOpen),
+    hoursEnabled: parseShopFlag(row.hoursEnabled, fallback.hoursEnabled),
     hoursMode: mode,
     hoursOpen: parseHourClock(row.hoursOpen, fallback.hoursOpen),
     hoursClose: parseHourClock(row.hoursClose, fallback.hoursClose),
