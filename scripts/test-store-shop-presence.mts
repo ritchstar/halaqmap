@@ -20,6 +20,7 @@ import {
   storeShopPresenceOrdersTable,
   storeShopRowIsLive,
   STORE_SHOP_PRESENCE_TABLE,
+  STORE_SHOP_PRESENCE_TTL_MS as API_PRESENCE_TTL_MS,
 } from '../api/_lib/storeShopPresence.ts';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -46,8 +47,10 @@ const cafeHost = readFileSync(join(root, 'src/components/store/StoreCafeHostPane
 const desks = grocersDesk + restaurantDesk + cafeDesk + kitchenDesk;
 
 assert.equal(STORE_SHOP_PRESENCE_LABEL_AR, 'عدد المتواجدون الان');
-assert.equal(STORE_SHOP_PRESENCE_TTL_MS, 45_000);
-assert.equal(STORE_SHOP_PRESENCE_PING_MS, 15_000);
+assert.equal(STORE_SHOP_PRESENCE_TTL_MS, 75_000);
+assert.equal(STORE_SHOP_PRESENCE_PING_MS, 30_000);
+assert.equal(API_PRESENCE_TTL_MS, STORE_SHOP_PRESENCE_TTL_MS);
+assert.ok(STORE_SHOP_PRESENCE_PING_MS < STORE_SHOP_PRESENCE_TTL_MS);
 assert.equal(STORE_SHOP_PRESENCE_TABLE, 'store_shop_presence');
 assert.equal(isStoreShopPresenceTag('store_grocers_live'), true);
 assert.equal(isStoreShopPresenceTag('store_wedding_live'), false);
@@ -79,7 +82,7 @@ function prunePresenceMap(map: Record<string, number>, nowMs: number, ttlMs = ST
   }
   return next;
 }
-assert.equal(Object.keys(prunePresenceMap({ abcdef0123456789: now, deadbeefdeadbeef: now - 46_000 }, now)).length, 1);
+assert.equal(Object.keys(prunePresenceMap({ abcdef0123456789: now, deadbeefdeadbeef: now - 76_000 }, now)).length, 1);
 assert.deepEqual(prunePresenceMap({ abcdef0123456789: now, skip: now }, now), { abcdef0123456789: now });
 
 assert.match(countUi, /STORE_SHOP_PRESENCE_LABEL_AR/);

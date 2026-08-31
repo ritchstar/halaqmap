@@ -24,6 +24,7 @@ import {
 } from '@/lib/storeGrocersLiveLab';
 import { addGrocersLiveChat, addGrocersLiveOrder, fetchGrocersLivePublic, saveGrocersLiveHost } from '@/lib/storeGrocersLiveRemote';
 import { hydrateDeskTickets } from '@/lib/storeDeskOrderTicket';
+import { POLL_MS, scheduleVisiblePoll } from '@/lib/pollingPolicy';
 import { liveHostText, useStoreLiveDeskSync } from '@/lib/storeLiveDeskSync';
 import { nextStoreLivePublicGate, pickStoreLiveShelf } from '@/lib/storeLivePublicRead';
 import { parseStoreShopHours } from '@/lib/storeShopHours';
@@ -84,10 +85,10 @@ export default function StoreGrocersShopPage() {
       setState(readGrocersLabState(safeToken));
       if (desk) return undefined;
       const refresh = () => setState(readGrocersLabState(safeToken));
-      const timer = window.setInterval(refresh, 1500);
+      const stop = scheduleVisiblePoll(refresh, POLL_MS.STORE_LIVE_LAB);
       window.addEventListener('storage', refresh);
       return () => {
-        window.clearInterval(timer);
+        stop();
         window.removeEventListener('storage', refresh);
       };
     }
@@ -113,10 +114,10 @@ export default function StoreGrocersShopPage() {
       });
     };
     load();
-    const timer = window.setInterval(load, 4000);
+    const stop = scheduleVisiblePoll(load, desk ? POLL_MS.STORE_LIVE_DESK : POLL_MS.STORE_LIVE_SHOP);
     return () => {
       cancelled = true;
-      window.clearInterval(timer);
+      stop();
     };
   }, [safeToken, desk, isLab]);
 

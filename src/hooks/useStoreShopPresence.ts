@@ -7,6 +7,7 @@ import {
   isStoreShopPresenceLabToken,
   type StoreShopPresenceTag,
 } from '@/config/storeShopPresence';
+import { scheduleVisiblePoll } from '@/lib/pollingPolicy';
 import {
   countStoreShopPresence,
   leaveStoreShopPresence,
@@ -56,10 +57,10 @@ export function useStoreShopPresence(opts: {
       void countStoreShopPresence(productTag, token).then((n) => setCount(n));
     };
     pull();
-    const timer = window.setInterval(pull, STORE_SHOP_PRESENCE_PING_MS);
+    const stop = scheduleVisiblePoll(pull, STORE_SHOP_PRESENCE_PING_MS);
     const unsub = isLab ? subscribeLabPresence(productTag, token, pull) : () => undefined;
     return () => {
-      window.clearInterval(timer);
+      stop();
       unsub();
     };
   }, [enabled, productTag, role, token]);

@@ -24,9 +24,35 @@ export const POLL_MS = {
   DIAMOND_APPOINTMENT_BOOKINGS: 10_000,
   /** مضاعف التباطؤ عند نجاح Supabase Realtime */
   REALTIME_CONNECTED_MULTIPLIER: 6,
+  /** صفحة جار الحي — رفّ الأصناف لا يحتاج أربع ثوانٍ */
+  STORE_LIVE_SHOP: 8_000,
+  /** لوحة الكاشير — تذاكر الطلب أسرع */
+  STORE_LIVE_DESK: 4_000,
+  /** المختبر المحلي عبر storage — بلا شبكة */
+  STORE_LIVE_LAB: 1_500,
+  /** تغذية الإدارة والرادار — دقيقة واحدة تكفي */
+  ADMIN_HIVE: 60_000,
 } as const;
 
 /** Skip background-tab polling (mirrors React Query refetchIntervalInBackground: false). */
 export function isPollingTabActive(): boolean {
   return typeof document === 'undefined' || document.visibilityState === 'visible';
+}
+
+/** Interval that pauses while the tab is hidden and catches up on return. */
+export function scheduleVisiblePoll(tick: () => void, ms: number): () => void {
+  if (typeof window === 'undefined') return () => undefined;
+  const run = () => {
+    if (!isPollingTabActive()) return;
+    tick();
+  };
+  const id = window.setInterval(run, ms);
+  const onVis = () => {
+    if (isPollingTabActive()) tick();
+  };
+  document.addEventListener('visibilitychange', onVis);
+  return () => {
+    window.clearInterval(id);
+    document.removeEventListener('visibilitychange', onVis);
+  };
 }

@@ -13,6 +13,7 @@ import {
   rejectEngineeringExecutionRemote,
 } from '@/lib/engineeringCouncilRemote';
 import type { EngineeringExecution } from '@/modules/ai-staff/types';
+import { POLL_MS, scheduleVisiblePoll } from '@/lib/pollingPolicy';
 import { toast } from '@/components/ui/sonner';
 
 export function EngineeringPendingApprovalsPanel() {
@@ -33,8 +34,8 @@ export function EngineeringPendingApprovalsPanel() {
 
   useEffect(() => {
     void refresh();
-    const id = window.setInterval(() => void refresh(), 30_000);
-    return () => window.clearInterval(id);
+    const stop = scheduleVisiblePoll(() => void refresh(), POLL_MS.ADMIN_HIVE);
+    return () => stop();
   }, [refresh]);
 
   const handleApprove = async (executionId: string) => {

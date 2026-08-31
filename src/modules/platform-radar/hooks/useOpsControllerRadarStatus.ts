@@ -3,6 +3,7 @@
  */
 import { useEffect, useState } from 'react';
 import { fetchEngineeringHandshakeStatus } from '@/lib/engineeringHandshakeRemote';
+import { POLL_MS, scheduleVisiblePoll } from '@/lib/pollingPolicy';
 import { fetchSuperIntelligenceFeed } from '@/lib/superIntelligenceFeedRemote';
 
 export type OpsRadarStatusLine = {
@@ -24,7 +25,7 @@ function line(
   return { id, labelAr, status };
 }
 
-export function useOpsControllerRadarStatus(pollMs = 45_000): OpsControllerRadarSnapshot {
+export function useOpsControllerRadarStatus(pollMs = POLL_MS.ADMIN_HIVE): OpsControllerRadarSnapshot {
   const [snapshot, setSnapshot] = useState<OpsControllerRadarSnapshot>({
     loading: true,
     lines: [
@@ -83,10 +84,10 @@ export function useOpsControllerRadarStatus(pollMs = 45_000): OpsControllerRadar
     };
 
     void refresh();
-    const timer = window.setInterval(() => void refresh(), pollMs);
+    const stop = scheduleVisiblePoll(() => void refresh(), pollMs);
     return () => {
       cancelled = true;
-      window.clearInterval(timer);
+      stop();
     };
   }, [pollMs]);
 

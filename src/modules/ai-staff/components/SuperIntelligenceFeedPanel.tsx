@@ -11,6 +11,7 @@ import {
   SUPER_INTELLIGENCE_PROTOCOL_LABELS_AR,
 } from '@/config/superIntelligenceFeed';
 import { fetchSuperIntelligenceFeed, type SuperIntelligenceFeedSnapshot } from '@/lib/superIntelligenceFeedRemote';
+import { POLL_MS, scheduleVisiblePoll } from '@/lib/pollingPolicy';
 import { toast } from '@/components/ui/sonner';
 
 export function SuperIntelligenceFeedPanel() {
@@ -30,8 +31,8 @@ export function SuperIntelligenceFeedPanel() {
 
   useEffect(() => {
     void refresh();
-    const id = window.setInterval(() => void refresh(), 45_000);
-    return () => window.clearInterval(id);
+    const stop = scheduleVisiblePoll(() => void refresh(), POLL_MS.ADMIN_HIVE);
+    return () => stop();
   }, [refresh]);
 
   return (

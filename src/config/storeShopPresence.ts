@@ -6,8 +6,8 @@
  */
 export const STORE_SHOP_PRESENCE_LABEL_AR = 'عدد المتواجدون الان';
 
-export const STORE_SHOP_PRESENCE_TTL_MS = 45_000 as const;
-export const STORE_SHOP_PRESENCE_PING_MS = 15_000 as const;
+export const STORE_SHOP_PRESENCE_TTL_MS = 75_000 as const;
+export const STORE_SHOP_PRESENCE_PING_MS = 30_000 as const;
 
 export const STORE_SHOP_PRESENCE_TAGS = [
   'store_grocers_live',

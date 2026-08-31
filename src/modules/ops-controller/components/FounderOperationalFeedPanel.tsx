@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { StaffProfessionalCard } from '@/components/admin/staff/StaffProfessionalCard';
 import { staffTheme } from '@/components/admin/staff/staffTheme';
 import { fetchOpsControllerFeed } from '@/lib/opsControllerRemote';
+import { POLL_MS, scheduleVisiblePoll } from '@/lib/pollingPolicy';
 import {
   opsReportCategoryLabelAr,
   opsReportSeverityLabelAr,
@@ -113,7 +114,7 @@ type Props = {
 
 export function FounderOperationalFeedPanel({
   isActive = true,
-  pollMs = 15_000,
+  pollMs = POLL_MS.ADMIN_HIVE,
   compact = false,
   titleAr = 'التغذية التشغيلية',
   subtitleAr = 'تقارير OPS_MANAGER — مُوسَمة بـ client_id والوقت.',
@@ -149,8 +150,8 @@ export function FounderOperationalFeedPanel({
 
   useEffect(() => {
     if (!isActive || pollMs <= 0) return;
-    const id = window.setInterval(() => void load(), pollMs);
-    return () => window.clearInterval(id);
+    const stop = scheduleVisiblePoll(() => void load(), pollMs);
+    return () => stop();
   }, [isActive, load, pollMs]);
 
   return (

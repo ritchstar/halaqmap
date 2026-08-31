@@ -10,7 +10,7 @@ import { produceLiveIsExpired, STORE_PRODUCE_LIVE_TABLE } from './storeProduceLi
 import { restaurantLiveIsExpired, STORE_RESTAURANT_LIVE_TABLE } from './storeRestaurantLive.js';
 
 export const STORE_SHOP_PRESENCE_TABLE = 'store_shop_presence' as const;
-export const STORE_SHOP_PRESENCE_TTL_MS = 45_000 as const;
+export const STORE_SHOP_PRESENCE_TTL_MS = 75_000 as const;
 
 export const STORE_SHOP_PRESENCE_TAGS = [
   'store_grocers_live',
