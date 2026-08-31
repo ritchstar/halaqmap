@@ -2,7 +2,7 @@
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
  * قيد مبيعات المتجر الإلكتروني — خريطة الحل.
- * لا يُستورد من App. لا كاردي8.
+ * لا يُستورد من App. لا كاردي8 ولا رخصة النفاذ.
  */
 export const STORE_SALES_LEDGER_PRODUCTS = [
   'wedding',
@@ -11,6 +11,8 @@ export const STORE_SALES_LEDGER_PRODUCTS = [
   'grocers',
   'restaurant',
   'cafe',
+  'kitchen',
+  'produce',
   'lounge',
 ] as const;
 
@@ -21,7 +23,7 @@ export const STORE_SALES_LEDGER_COPY = {
   kickerAr: 'إدارة مبيعات واجهة المتجر الإلكتروني',
   titleAr: 'قيد مبيعات المتجر',
   leadAr:
-    'سجل السداد لمنتجات المتجر المعروضة: افراحي1 رجالي ونسائي، اجواء1، تمويناتا1، مطعمنا1، كافينا1، ولاونجا1. لا تُخلط برخصة النفاذ ولا بعمولة القص.',
+    'سجل السداد لمنتجات المتجر المعروضة: افراحي1 رجالي ونسائي، اجواء1، تمويناتا1، مطعمنا1، كافينا1، طبختنا1، خضارنا1، ولاونجا1. لا تُخلط برخصة النفاذ ولا بعمولة القص ولا بكاردي8.',
   deniedAr: 'يلزم دخول الإدارة لفتح قيد المبيعات.',
   emptyAr: 'لا قيود في هذا الفرع بعد.',
   backAr: 'مركز المبيعات',
@@ -57,6 +59,8 @@ export const STORE_SALES_LEDGER_BRANCHES: readonly {
     | 'store_grocers_live'
     | 'store_restaurant_live'
     | 'store_cafe_live'
+    | 'store_kitchen_live'
+    | 'store_produce_live'
     | 'store_lounge_live';
 }[] = [
   { id: 'wedding', titleAr: 'افراحي1 رجالي', packAr: '899 ر.س مرة واحدة', tag: 'store_wedding_live' },
@@ -65,7 +69,9 @@ export const STORE_SALES_LEDGER_BRANCHES: readonly {
   { id: 'grocers', titleAr: 'تمويناتا1', packAr: '599 أو 899 ر.س، وصندوق محادثة اختياري', tag: 'store_grocers_live' },
   { id: 'restaurant', titleAr: 'مطعمنا1', packAr: '699 أو 999 ر.س، وصندوق المحادثة مدرج', tag: 'store_restaurant_live' },
   { id: 'cafe', titleAr: 'كافينا1', packAr: '1199 أو 2099 ر.س، وصندوق المحادثة مدرج', tag: 'store_cafe_live' },
-  { id: 'lounge', titleAr: 'لاونجا1', packAr: '600 ر.س لثلاثة أشهر', tag: 'store_lounge_live' },
+  { id: 'kitchen', titleAr: 'طبختنا1', packAr: '300 ر.س لمئة وثمانين يوماً أو 600 ر.س لثلاثمئة وستين يوماً', tag: 'store_kitchen_live' },
+  { id: 'produce', titleAr: 'خضارنا1', packAr: '1350 ر.س لمئة وثمانين يوماً أو 2500 ر.س لثلاثمئة وستين يوماً', tag: 'store_produce_live' },
+  { id: 'lounge', titleAr: 'لاونجا1', packAr: '600 أو 1200 أو 2400 ر.س', tag: 'store_lounge_live' },
 ];
 
 export function isStoreSalesLedgerProduct(raw: string): raw is StoreSalesLedgerProduct {

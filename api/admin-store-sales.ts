@@ -24,7 +24,7 @@ const CORS_OPTS = {
 } as const;
 
 const SELECT =
-  'id, status, buyer_email, buyer_name, price_halalas, moyasar_payment_id, payload, created_at';
+  'id, status, buyer_email, buyer_name, price_halalas, moyasar_payment_id, payload, created_at, is_trial';
 
 function corsHeaders(request: Request): Record<string, string> {
   return buildPublicApiCorsHeaders(request, CORS_OPTS).headers;

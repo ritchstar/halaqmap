@@ -10,6 +10,8 @@ export const STORE_SALES_LEDGER_PRODUCTS = [
   'grocers',
   'restaurant',
   'cafe',
+  'kitchen',
+  'produce',
   'lounge',
 ] as const;
 
@@ -22,6 +24,8 @@ const TITLES: Record<StoreSalesLedgerProduct, string> = {
   grocers: 'تمويناتا1',
   restaurant: 'مطعمنا1',
   cafe: 'كافينا1',
+  kitchen: 'طبختنا1',
+  produce: 'خضارنا1',
   lounge: 'لاونجا1',
 };
 
@@ -32,6 +36,8 @@ export const STORE_SALES_TABLE: Record<
   | 'store_grocers_live_orders'
   | 'store_restaurant_live_orders'
   | 'store_cafe_live_orders'
+  | 'store_kitchen_live_orders'
+  | 'store_produce_live_orders'
   | 'store_lounge_live_orders'
 > = {
   wedding: 'store_wedding_live_orders',
@@ -40,6 +46,8 @@ export const STORE_SALES_TABLE: Record<
   grocers: 'store_grocers_live_orders',
   restaurant: 'store_restaurant_live_orders',
   cafe: 'store_cafe_live_orders',
+  kitchen: 'store_kitchen_live_orders',
+  produce: 'store_produce_live_orders',
   lounge: 'store_lounge_live_orders',
 };
 
@@ -91,11 +99,23 @@ function shopTermPackAr(payload: Record<string, unknown>, amountSar: number, twe
   return mobile ? `${pack} · متحرك` : pack;
 }
 
+function dayPackAr(payload: Record<string, unknown>, amountSar: number, longSar: number): string {
+  return clip(payload.packId, 8) === 'm12' || amountSar >= longSar ? 'ثلاثمئة وستون يوماً' : 'مئة وثمانون يوماً';
+}
+
+function loungePackAr(payload: Record<string, unknown>, amountSar: number): string {
+  const pack = clip(payload.packId, 8);
+  if (pack === 'm12' || amountSar >= 2400) return 'اثنا عشر شهراً';
+  if (pack === 'm6' || amountSar >= 1200) return 'ستة أشهر';
+  return 'ثلاثة أشهر';
+}
+
 export function mapStoreSalesRow(
   product: StoreSalesLedgerProduct,
   row: Record<string, unknown>,
 ): StoreSalesLedgerRow | null {
   const payload = asRecord(row.payload);
+  if (row.is_trial === true || payload.is_trial === true) return null;
   const voice = voiceOf(payload);
   if (product === 'wedding' && voice === 'women') return null;
   if (product === 'wedding-women' && voice !== 'women') return null;
@@ -120,9 +140,15 @@ export function mapStoreSalesRow(
   } else if (product === 'cafe') {
     subjectAr = clip(payload.shopName, 80) || '—';
     packAr = shopTermPackAr(payload, amountSar, 2099);
+  } else if (product === 'kitchen') {
+    subjectAr = clip(payload.shopName, 80) || '—';
+    packAr = dayPackAr(payload, amountSar, 600);
+  } else if (product === 'produce') {
+    subjectAr = clip(payload.shopName, 80) || '—';
+    packAr = dayPackAr(payload, amountSar, 2500);
   } else {
     subjectAr = clip(payload.loungeName, 80) || '—';
-    packAr = 'ثلاثة أشهر';
+    packAr = loungePackAr(payload, amountSar);
   }
   return {
     id: clip(row.id, 80),

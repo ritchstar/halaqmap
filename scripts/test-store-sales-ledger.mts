@@ -28,16 +28,26 @@ assert.deepEqual([...STORE_SALES_LEDGER_PRODUCTS], [
   'wedding-women',
   'event',
   'grocers',
+  'restaurant',
+  'cafe',
+  'kitchen',
+  'produce',
   'lounge',
 ]);
-assert.equal(STORE_SALES_LEDGER_BRANCHES.length, 5);
+assert.equal(STORE_SALES_LEDGER_BRANCHES.length, 9);
 assert.ok(STORE_SALES_LEDGER_BRANCHES.every((item) => item.tag !== 'store_occasion_card'));
-assert.ok(!STORE_SALES_LEDGER_BRANCHES.some((item) => item.id.includes('restaurant')));
+assert.ok(STORE_SALES_LEDGER_BRANCHES.some((item) => item.id === 'kitchen'));
+assert.ok(STORE_SALES_LEDGER_BRANCHES.some((item) => item.id === 'produce'));
 assert.ok(STORE_SALES_LEDGER_COPY.leadAr.includes('افراحي1'));
 assert.ok(STORE_SALES_LEDGER_COPY.leadAr.includes('تمويناتا1'));
+assert.ok(STORE_SALES_LEDGER_COPY.leadAr.includes('طبختنا1'));
+assert.ok(STORE_SALES_LEDGER_COPY.leadAr.includes('خضارنا1'));
+assert.match(STORE_SALES_LEDGER_COPY.leadAr, /ولا بكاردي8/);
 assert.ok(STORE_SALES_LEDGER_COPY.paymentAr.includes('معرّف الدفع'));
 assert.ok(isStoreSalesLedgerProduct('wedding-women'));
-assert.equal(isStoreSalesLedgerProduct('restaurant'), false);
+assert.ok(isStoreSalesLedgerProduct('kitchen'));
+assert.ok(isStoreSalesLedgerProduct('produce'));
+assert.equal(isStoreSalesLedgerProduct('card'), false);
 
 const secret = 'guest-token-secret-xyz';
 const men = mapStoreSalesRow('wedding', {
@@ -137,6 +147,70 @@ assert.equal(event?.voice, 'men');
 assert.equal(lounge?.packAr, 'ثلاثة أشهر');
 assert.equal(lounge?.amountSar, 600);
 
+const loungeYear = mapStoreSalesRow('lounge', {
+  id: 'l2',
+  status: 'live',
+  buyer_name: 'لاونج المطار',
+  buyer_email: 'lounge@example.com',
+  price_halalas: 240000,
+  moyasar_payment_id: 'pay_l12',
+  created_at: '2026-08-05T11:00:00.000Z',
+  payload: { loungeName: 'قاعة الاستقبال', packId: 'm12' },
+});
+assert.equal(loungeYear?.packAr, 'اثنا عشر شهراً');
+
+const kitchen6 = mapStoreSalesRow('kitchen', {
+  id: 'k1',
+  status: 'live',
+  buyer_name: 'أم سعد',
+  buyer_email: 'kitchen@example.com',
+  price_halalas: 30000,
+  moyasar_payment_id: 'pay_k6',
+  created_at: '2026-08-06T10:00:00.000Z',
+  payload: { shopName: 'مطبخ الدار', packId: 'm6' },
+});
+const kitchen12 = mapStoreSalesRow('kitchen', {
+  id: 'k2',
+  status: 'live',
+  buyer_name: 'أم سعد',
+  buyer_email: 'kitchen@example.com',
+  price_halalas: 60000,
+  moyasar_payment_id: 'pay_k12',
+  created_at: '2026-08-06T11:00:00.000Z',
+  payload: { shopName: 'مطبخ الدار', packId: 'm12' },
+});
+const kitchenTrial = mapStoreSalesRow('kitchen', {
+  id: 'k3',
+  status: 'live',
+  is_trial: true,
+  buyer_name: 'تجربة',
+  buyer_email: 'trial@example.com',
+  price_halalas: 0,
+  created_at: '2026-08-06T12:00:00.000Z',
+  payload: { shopName: 'تجربة مطبخ', packId: 'm6', is_trial: true },
+});
+assert.equal(kitchen6?.titleAr, 'طبختنا1');
+assert.equal(kitchen6?.packAr, 'مئة وثمانون يوماً');
+assert.equal(kitchen6?.amountSar, 300);
+assert.equal(kitchen12?.packAr, 'ثلاثمئة وستون يوماً');
+assert.equal(kitchen12?.amountSar, 600);
+assert.equal(kitchenTrial, null);
+
+const produce6 = mapStoreSalesRow('produce', {
+  id: 'p1',
+  status: 'live',
+  buyer_name: 'صندوق الحي',
+  buyer_email: 'produce@example.com',
+  price_halalas: 135000,
+  moyasar_payment_id: 'pay_p6',
+  created_at: '2026-08-07T10:00:00.000Z',
+  payload: { shopName: 'خضار السدرة', packId: 'm6' },
+});
+assert.equal(produce6?.titleAr, 'خضارنا1');
+assert.equal(produce6?.packAr, 'مئة وثمانون يوماً');
+assert.equal(produce6?.amountSar, 1350);
+assert.equal(produce6?.subjectAr, 'خضار السدرة');
+
 const summary = summarizeStoreSales('wedding', [men!]);
 assert.equal(summary.liveCount, 1);
 assert.equal(summary.totalSar, 899);
@@ -145,6 +219,8 @@ assert.doesNotMatch(app, /from ['"]@\/config\/storeSalesLedger['"]/);
 assert.doesNotMatch(app, /from ['"]@\/config\/storeWeddingLive['"]/);
 assert.doesNotMatch(app, /from ['"]@\/config\/storeEventLive['"]/);
 assert.doesNotMatch(app, /from ['"]@\/config\/storeGrocersLive['"]/);
+assert.doesNotMatch(app, /from ['"]@\/config\/storeKitchenLive['"]/);
+assert.doesNotMatch(app, /from ['"]@\/config\/storeProduceLive['"]/);
 assert.doesNotMatch(app, /from ['"]@\/config\/storeLoungeLive['"]/);
 assert.match(app, /@\/app\/admin\/store-sales\/page/);
 assert.match(app, /@\/app\/admin\/store-sales\/\[product\]\/page/);
@@ -152,6 +228,9 @@ assert.match(dashboard, /ADMIN_STORE_SALES/);
 assert.match(dashboard, /قيد مبيعات المتجر/);
 assert.match(api, /view_overview/);
 assert.match(api, /view_payments/);
+assert.match(api, /is_trial/);
+assert.match(mapper, /store_kitchen_live_orders/);
+assert.match(mapper, /store_produce_live_orders/);
 assert.doesNotMatch(api, /guest_token|host_token|shop_token|desk_token/);
 
 console.log('store-sales-ledger: ok');
