@@ -16,6 +16,7 @@ import { StoreEnterpriseDirectMail } from '@/components/store/StoreEnterpriseDir
 import { StoreEventInviteCard } from '@/components/store/StoreEventInviteCard';
 import { StoreGiftPromoBanner } from '@/components/store/StoreGiftPromoBanner';
 import { StoreProductBenefitsLink } from '@/components/store/StoreProductBenefitsLink';
+import { StoreProductSupportLink } from '@/components/store/StoreProductSupportLink';
 import { StoreShot } from '@/components/store/StoreShot';
 import { StoreEventLiveStudio } from '@/components/store/StoreEventLiveStudio';
 import { StoreInViewMount } from '@/components/store/StoreInViewMount';
@@ -107,6 +108,7 @@ export default function StoreEventLandingPage() {
                 غيّر التصنيف
               </Link>
               <StoreProductBenefitsLink />
+              <StoreProductSupportLink to={ROUTE_PATHS.STORE_HALLS_SUPPORT} className="border-[#e8c547]/50 text-[#e8c547]" />
             </div>
             <StoreEnterpriseDirectMail
               className="mt-5 max-w-xl"

@@ -50,6 +50,7 @@ export type GrocersOrder = {
 
 export type GrocersHostState = {
   shopName: string;
+  logoSrc: string;
   hostName: string;
   blurbAr: string;
   customFields: string[];
@@ -112,6 +113,7 @@ export function defaultGrocersLabState(): GrocersLabState {
   return {
     host: {
       shopName: STORE_GROCERS_LIVE_DEMO.shopName,
+      logoSrc: '',
       hostName: STORE_GROCERS_LIVE_DEMO.hostName,
       blurbAr: STORE_GROCERS_LIVE_DEMO.blurbAr,
       customFields: [...STORE_GROCERS_LIVE_DEMO.customFields],

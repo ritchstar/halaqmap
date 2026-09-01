@@ -18,7 +18,11 @@ import { StoreProductPassDeskButton } from '@/components/store/StoreProductPassD
 import { StoreShopHoursDesk } from '@/components/store/StoreShopHoursDesk';
 import { StoreShopPlaceDesk } from '@/components/store/StoreShopPlaceDesk';
 import { StoreDeskHelpSupport } from '@/components/store/StoreDeskHelpSupport';
+import { StoreDeskGuideLink } from '@/components/store/StoreDeskGuideLink';
+import { StoreShopLogoDesk } from '@/components/store/StoreShopLogoDesk';
+import { STORE_CAFE_SUPPORT } from '@/config/storeProductSupport';
 import { StoreOpsSection } from '@/components/store/StoreOpsSection';
+import { ROUTE_PATHS } from '@/lib/routePaths';
 import { cn } from '@/lib/utils';
 
 export function StoreCafeDesk({
@@ -155,6 +159,11 @@ export function StoreCafeDesk({
             onChange={(e) => onChange({ ...state, host: { ...state.host, shopName: e.target.value } })}
           />
         </label>
+        <StoreShopLogoDesk
+          logoSrc={state.host.logoSrc}
+          onChange={(logoSrc) => onChange({ ...state, host: { ...state.host, logoSrc } })}
+          accent="#c48a4a"
+        />
         <label className="block text-sm sm:col-span-2">
           خانة تعريفية
           <input
@@ -241,6 +250,12 @@ export function StoreCafeDesk({
       </StoreOpsSection>
 
       <StoreDeskArchiveDock tickets={state.orderArchive} accent="#c48a4a" filename="cafe-archive.json" />
+      <StoreDeskGuideLink
+        to={ROUTE_PATHS.STORE_CAFE_SUPPORT}
+        leadAr={STORE_CAFE_SUPPORT.deskLeadAr}
+        ctaAr={STORE_CAFE_SUPPORT.deskCtaAr}
+        accent={STORE_CAFE_SUPPORT.accent}
+      />
       <StoreDeskHelpSupport product="cafe" />
     </div>
   );

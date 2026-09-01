@@ -105,6 +105,10 @@ const STORE_EVENT_PAY_PATH =
   (ROUTE_PATHS as { STORE_EVENT_PAY?: string }).STORE_EVENT_PAY || "/pay/event/:token";
 const STORE_LOUNGE_PATH =
   (ROUTE_PATHS as { STORE_LOUNGE?: string }).STORE_LOUNGE || "/store/lounge";
+const STORE_LOUNGE_SUPPORT_PATH =
+  (ROUTE_PATHS as { STORE_LOUNGE_SUPPORT?: string }).STORE_LOUNGE_SUPPORT || "/store/lounge/support";
+const STORE_HALLS_SUPPORT_PATH =
+  (ROUTE_PATHS as { STORE_HALLS_SUPPORT?: string }).STORE_HALLS_SUPPORT || "/store/halls/support";
 const STORE_LOUNGE_VIEW_PATH =
   (ROUTE_PATHS as { STORE_LOUNGE_VIEW?: string }).STORE_LOUNGE_VIEW || "/l/:token";
 const STORE_LOUNGE_GUEST_PATH =
@@ -115,6 +119,8 @@ const STORE_LOUNGE_PAY_PATH =
   (ROUTE_PATHS as { STORE_LOUNGE_PAY?: string }).STORE_LOUNGE_PAY || "/pay/lounge/:token";
 const STORE_GROCERS_PATH =
   (ROUTE_PATHS as { STORE_GROCERS?: string }).STORE_GROCERS || "/store/grocers";
+const STORE_GROCERS_SUPPORT_PATH =
+  (ROUTE_PATHS as { STORE_GROCERS_SUPPORT?: string }).STORE_GROCERS_SUPPORT || "/store/grocers/support";
 const STORE_GROCERS_VIEW_PATH =
   (ROUTE_PATHS as { STORE_GROCERS_VIEW?: string }).STORE_GROCERS_VIEW || "/g/:token";
 const STORE_GROCERS_DESK_PATH =
@@ -123,6 +129,8 @@ const STORE_GROCERS_PAY_PATH =
   (ROUTE_PATHS as { STORE_GROCERS_PAY?: string }).STORE_GROCERS_PAY || "/pay/grocers/:token";
 const STORE_RESTAURANT_PATH =
   (ROUTE_PATHS as { STORE_RESTAURANT?: string }).STORE_RESTAURANT || "/store/restaurant";
+const STORE_RESTAURANT_SUPPORT_PATH =
+  (ROUTE_PATHS as { STORE_RESTAURANT_SUPPORT?: string }).STORE_RESTAURANT_SUPPORT || "/store/restaurant/support";
 const STORE_RESTAURANT_VIEW_PATH =
   (ROUTE_PATHS as { STORE_RESTAURANT_VIEW?: string }).STORE_RESTAURANT_VIEW || "/r/:token";
 const STORE_RESTAURANT_DESK_PATH =
@@ -131,6 +139,8 @@ const STORE_RESTAURANT_PAY_PATH =
   (ROUTE_PATHS as { STORE_RESTAURANT_PAY?: string }).STORE_RESTAURANT_PAY || "/pay/restaurant/:token";
 const STORE_CAFE_PATH =
   (ROUTE_PATHS as { STORE_CAFE?: string }).STORE_CAFE || "/store/cafe";
+const STORE_CAFE_SUPPORT_PATH =
+  (ROUTE_PATHS as { STORE_CAFE_SUPPORT?: string }).STORE_CAFE_SUPPORT || "/store/cafe/support";
 const STORE_CAFE_VIEW_PATH =
   (ROUTE_PATHS as { STORE_CAFE_VIEW?: string }).STORE_CAFE_VIEW || "/c/:token";
 const STORE_CAFE_DESK_PATH =
@@ -147,6 +157,8 @@ const STORE_CAFE_PAY_PATH =
   (ROUTE_PATHS as { STORE_CAFE_PAY?: string }).STORE_CAFE_PAY || "/pay/cafe/:token";
 const STORE_KITCHEN_PATH =
   (ROUTE_PATHS as { STORE_KITCHEN?: string }).STORE_KITCHEN || "/store/kitchen";
+const STORE_KITCHEN_SUPPORT_PATH =
+  (ROUTE_PATHS as { STORE_KITCHEN_SUPPORT?: string }).STORE_KITCHEN_SUPPORT || "/store/kitchen/support";
 const STORE_KITCHEN_GIFT_PATH =
   (ROUTE_PATHS as { STORE_KITCHEN_GIFT?: string }).STORE_KITCHEN_GIFT || "/store/kitchen/gift";
 const STORE_KITCHEN_GIFT_TERMS_PATH =
@@ -161,6 +173,8 @@ const STORE_KITCHEN_PAY_PATH =
   (ROUTE_PATHS as { STORE_KITCHEN_PAY?: string }).STORE_KITCHEN_PAY || "/pay/kitchen/:token";
 const STORE_PRODUCE_PATH =
   (ROUTE_PATHS as { STORE_PRODUCE?: string }).STORE_PRODUCE || "/store/produce";
+const STORE_PRODUCE_SUPPORT_PATH =
+  (ROUTE_PATHS as { STORE_PRODUCE_SUPPORT?: string }).STORE_PRODUCE_SUPPORT || "/store/produce/support";
 const STORE_PRODUCE_VIEW_PATH =
   (ROUTE_PATHS as { STORE_PRODUCE_VIEW?: string }).STORE_PRODUCE_VIEW || "/v/:token";
 const STORE_PRODUCE_DESK_PATH =
@@ -311,6 +325,7 @@ const StoreCafeLandingPage = lazy(() => import("@/pages/store/StoreCafeLandingPa
 const StoreCafeShopPage = lazy(() => import("@/pages/store/StoreCafeShopPage"));
 const StoreCafePayPage = lazy(() => import("@/pages/store/StoreCafePayPage"));
 const StoreKitchenLandingPage = lazy(() => import("@/pages/store/StoreKitchenLandingPage"));
+const StoreProductSupportPage = lazy(() => import("@/pages/store/StoreProductSupportPage"));
 const StoreKitchenGiftLandingPage = lazy(() => import("@/pages/store/StoreKitchenGiftLandingPage"));
 const StoreKitchenGiftTermsPage = lazy(() => import("@/pages/store/StoreKitchenGiftTermsPage"));
 const StoreKitchenGiftConfirmPage = lazy(() => import("@/pages/store/StoreKitchenGiftConfirmPage"));
@@ -838,6 +853,7 @@ export function App() {
           <Route path={STORE_ISSUED_CARDS_LEGAL_PATH} element={<LazyRoute><StoreIssuedCardsLegalHub /></LazyRoute>} />
           <Route path={STORE_INVITES_PATH} element={<LazyRoute><StorePaidInviteStudioPage /></LazyRoute>} />
           <Route path={STORE_INVITES_LAB_PATH} element={<LazyRoute><StoreOccasionCardLabPage /></LazyRoute>} />
+          <Route path={STORE_HALLS_SUPPORT_PATH} element={<LazyRoute><StoreProductSupportPage /></LazyRoute>} />
           <Route path={STORE_WEDDING_LAB_PATH} element={<LazyRoute><StoreWeddingLabPage /></LazyRoute>} />
           <Route path={STORE_WEDDING_WOMEN_PATH} element={<LazyRoute><StoreWeddingLandingPage /></LazyRoute>} />
           <Route path={STORE_WEDDING_PATH} element={<LazyRoute><StoreWeddingLandingPage /></LazyRoute>} />
@@ -852,20 +868,24 @@ export function App() {
           <Route path={STORE_EVENT_HOST_PATH} element={<LazyRoute><StoreEventHallPage /></LazyRoute>} />
           <Route path={STORE_EVENT_VIEW_PATH} element={<LazyRoute><StoreEventHallPage /></LazyRoute>} />
           <Route path={STORE_EVENT_PAY_PATH} element={<LazyRoute><StoreEventPayPage /></LazyRoute>} />
+          <Route path={STORE_LOUNGE_SUPPORT_PATH} element={<LazyRoute><StoreProductSupportPage /></LazyRoute>} />
           <Route path={STORE_LOUNGE_PATH} element={<LazyRoute><StoreLoungeLandingPage /></LazyRoute>} />
           <Route path={STORE_LOUNGE_GUEST_PATH} element={<LazyRoute><StoreLoungeHallPage /></LazyRoute>} />
           <Route path={STORE_LOUNGE_HOST_PATH} element={<LazyRoute><StoreLoungeHallPage /></LazyRoute>} />
           <Route path={STORE_LOUNGE_VIEW_PATH} element={<LazyRoute><StoreLoungeHallPage /></LazyRoute>} />
           <Route path={STORE_LOUNGE_PAY_PATH} element={<LazyRoute><StoreLoungePayPage /></LazyRoute>} />
           <Route path={STORE_GROCERS_PAY_PATH} element={<LazyRoute><StoreGrocersPayPage /></LazyRoute>} />
+          <Route path={STORE_GROCERS_SUPPORT_PATH} element={<LazyRoute><StoreProductSupportPage /></LazyRoute>} />
           <Route path={STORE_GROCERS_PATH} element={<LazyRoute><StoreGrocersLandingPage /></LazyRoute>} />
           <Route path={STORE_GROCERS_DESK_PATH} element={<LazyRoute><StoreGrocersShopPage /></LazyRoute>} />
           <Route path={STORE_GROCERS_VIEW_PATH} element={<LazyRoute><StoreGrocersShopPage /></LazyRoute>} />
           <Route path={STORE_RESTAURANT_PAY_PATH} element={<LazyRoute><StoreRestaurantPayPage /></LazyRoute>} />
+          <Route path={STORE_RESTAURANT_SUPPORT_PATH} element={<LazyRoute><StoreProductSupportPage /></LazyRoute>} />
           <Route path={STORE_RESTAURANT_PATH} element={<LazyRoute><StoreRestaurantLandingPage /></LazyRoute>} />
           <Route path={STORE_RESTAURANT_DESK_PATH} element={<LazyRoute><StoreRestaurantShopPage /></LazyRoute>} />
           <Route path={STORE_RESTAURANT_VIEW_PATH} element={<LazyRoute><StoreRestaurantShopPage /></LazyRoute>} />
           <Route path={STORE_CAFE_PAY_PATH} element={<LazyRoute><StoreCafePayPage /></LazyRoute>} />
+          <Route path={STORE_CAFE_SUPPORT_PATH} element={<LazyRoute><StoreProductSupportPage /></LazyRoute>} />
           <Route path={STORE_CAFE_PATH} element={<LazyRoute><StoreCafeLandingPage /></LazyRoute>} />
           <Route path={STORE_CAFE_DESK_PATH} element={<LazyRoute><StoreCafeShopPage /></LazyRoute>} />
           <Route path={STORE_CAFE_HOST_PATH} element={<LazyRoute><StoreCafeShopPage /></LazyRoute>} />
@@ -877,10 +897,12 @@ export function App() {
           <Route path={STORE_KITCHEN_GIFT_CONFIRM_PATH} element={<LazyRoute><StoreKitchenGiftConfirmPage /></LazyRoute>} />
           <Route path={STORE_KITCHEN_GIFT_TERMS_PATH} element={<LazyRoute><StoreKitchenGiftTermsPage /></LazyRoute>} />
           <Route path={STORE_KITCHEN_GIFT_PATH} element={<LazyRoute><StoreKitchenGiftLandingPage /></LazyRoute>} />
+          <Route path={STORE_KITCHEN_SUPPORT_PATH} element={<LazyRoute><StoreProductSupportPage /></LazyRoute>} />
           <Route path={STORE_KITCHEN_PATH} element={<LazyRoute><StoreKitchenLandingPage /></LazyRoute>} />
           <Route path={STORE_KITCHEN_DESK_PATH} element={<LazyRoute><StoreKitchenShopPage /></LazyRoute>} />
           <Route path={STORE_KITCHEN_VIEW_PATH} element={<LazyRoute><StoreKitchenShopPage /></LazyRoute>} />
           <Route path={STORE_PRODUCE_PAY_PATH} element={<LazyRoute><StoreProducePayPage /></LazyRoute>} />
+          <Route path={STORE_PRODUCE_SUPPORT_PATH} element={<LazyRoute><StoreProductSupportPage /></LazyRoute>} />
           <Route path={STORE_PRODUCE_PATH} element={<LazyRoute><StoreProduceLandingPage /></LazyRoute>} />
           <Route path={STORE_PRODUCE_DESK_PATH} element={<LazyRoute><StoreProduceShopPage /></LazyRoute>} />
           <Route path={STORE_PRODUCE_VIEW_PATH} element={<LazyRoute><StoreProduceShopPage /></LazyRoute>} />

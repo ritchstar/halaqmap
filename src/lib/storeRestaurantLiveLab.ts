@@ -52,6 +52,7 @@ export type RestaurantOrder = {
 
 export type RestaurantHostState = {
   shopName: string;
+  logoSrc: string;
   hostName: string;
   blurbAr: string;
   customFields: string[];
@@ -112,6 +113,7 @@ export function defaultRestaurantLabState(): RestaurantLabState {
   return {
     host: {
       shopName: STORE_RESTAURANT_LIVE_DEMO.shopName,
+      logoSrc: '',
       hostName: STORE_RESTAURANT_LIVE_DEMO.hostName,
       blurbAr: STORE_RESTAURANT_LIVE_DEMO.blurbAr,
       customFields: [...STORE_RESTAURANT_LIVE_DEMO.customFields],

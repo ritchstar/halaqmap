@@ -11,6 +11,7 @@ import {
 } from '@/components/store/StoreChrome';
 import { StoreGiftPromoBanner } from '@/components/store/StoreGiftPromoBanner';
 import { StoreProductBenefitsLink } from '@/components/store/StoreProductBenefitsLink';
+import { StoreProductSupportLink } from '@/components/store/StoreProductSupportLink';
 import { StoreShot } from '@/components/store/StoreShot';
 import { STORE_EVENT_LIVE, STORE_EVENT_LIVE_PUBLIC_ENABLED } from '@/config/storeEventLive';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
@@ -35,6 +36,7 @@ export default function StoreEventHubPage() {
           <p className="mt-4 text-2xl font-black text-[#e8c547]">{STORE_EVENT_LIVE.priceLineAr}</p>
           <div className="mt-6 flex justify-center">
             <StoreProductBenefitsLink />
+            <StoreProductSupportLink to={ROUTE_PATHS.STORE_HALLS_SUPPORT} className="ms-3 border-[#e8c547]/50 text-[#e8c547]" />
           </div>
         </div>
         <div className="mx-auto mt-10 grid max-w-4xl gap-5 md:grid-cols-2">

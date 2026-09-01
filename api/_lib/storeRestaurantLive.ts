@@ -6,6 +6,7 @@
 import { randomBytes } from 'node:crypto';
 import { withStoreAffiliateCode } from './storeAffiliateCode.js';
 import { DEFAULT_STORE_SHOP_HOURS, parseStoreShopHours, type StoreShopHoursState } from './storeShopHours.js';
+import { parseShopLogoSrc } from './storeShopLogo.js';
 import { isMobileVendorPriceHalalas, mobileVendorChargeHalalas, mobileVendorPackFromHalalas, parseVendorMode, type StoreVendorMode } from './storeMobileVendor.js';
 import { DEFAULT_SHOP_PICKUP, parseShopPickupPlace, publicShopPlaceFields, type ShopPickupPlace } from './storeShopPlace.js';
 
@@ -131,6 +132,7 @@ function isEmail(raw: string): boolean {
 export type RestaurantLiveOrderPayload = {
   packId: 'm6' | 'm12';
   shopName: string;
+  logoSrc?: string;
   hostName: string;
   blurbAr: string;
   customFields: string[];
@@ -162,6 +164,7 @@ export function parseRestaurantLiveOrderBody(body: Record<string, unknown>):
     payload: {
       packId,
       shopName,
+      logoSrc: '',
       hostName,
       blurbAr: clip(body.blurbAr, 200) || 'مطعمنا1: اطلب من جوالك.',
       customFields: Array.from({ length: 5 }, () => ''),
@@ -203,6 +206,7 @@ export function publicRestaurantPayload(payload: RestaurantLiveOrderPayload, rol
   return {
     packId: parseRestaurantPackId(payload.packId),
     shopName: payload.shopName,
+    logoSrc: parseShopLogoSrc(payload.logoSrc),
     hostName: payload.hostName,
     blurbAr: payload.blurbAr,
     customFields: Array.isArray(payload.customFields) ? payload.customFields.slice(0, 5) : [],

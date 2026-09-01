@@ -15,6 +15,7 @@ import {
 import { StoreEnterpriseDirectMail } from '@/components/store/StoreEnterpriseDirectMail';
 import { StoreGiftPromoBanner } from '@/components/store/StoreGiftPromoBanner';
 import { StoreProductBenefitsLink } from '@/components/store/StoreProductBenefitsLink';
+import { StoreProductSupportLink } from '@/components/store/StoreProductSupportLink';
 import { StoreShot } from '@/components/store/StoreShot';
 import { StoreWeddingInviteCard } from '@/components/store/StoreWeddingInviteCard';
 import { StoreWeddingLiveStudio } from '@/components/store/StoreWeddingLiveStudio';
@@ -127,6 +128,7 @@ export default function StoreWeddingLandingPage() {
                 {sisterLabel}
               </Link>
               <StoreProductBenefitsLink />
+              <StoreProductSupportLink to={ROUTE_PATHS.STORE_HALLS_SUPPORT} className="border-[#e8c547]/50 text-[#e8c547]" />
             </div>
             <StoreEnterpriseDirectMail
               className="mt-5 max-w-xl"

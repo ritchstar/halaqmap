@@ -12,6 +12,7 @@ import { StoreKitchenGiftPromoBanner } from '@/components/store/StoreKitchenGift
 import { StoreEnterpriseDirectMail } from '@/components/store/StoreEnterpriseDirectMail';
 import { StoreKitchenOrderForm } from '@/components/store/StoreKitchenOrderForm';
 import { StoreProductBenefitsLink } from '@/components/store/StoreProductBenefitsLink';
+import { StoreProductSupportLink } from '@/components/store/StoreProductSupportLink';
 import { StoreKitchenStudio } from '@/components/store/StoreKitchenStudio';
 import { StoreInViewMount } from '@/components/store/StoreInViewMount';
 import { StoreLandingFold } from '@/components/store/StoreLandingFold';
@@ -146,6 +147,7 @@ export default function StoreKitchenLandingPage() {
                 {STORE_KITCHEN_LIVE.tryCtaAr}
               </a>
               <StoreProductBenefitsLink />
+              <StoreProductSupportLink to={ROUTE_PATHS.STORE_KITCHEN_SUPPORT} className="border-[#b45a3c]/50 text-[#b45a3c]" />
             </div>
             <Collapsible open={termsOpen} onOpenChange={setTermsOpen} className="mt-6">
               <CollapsibleTrigger type="button" className="flex w-full items-center justify-between gap-3 rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-right text-sm font-semibold">

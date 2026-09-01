@@ -18,6 +18,7 @@ import { StoreMobileVendorMark } from '@/components/store/StoreMobileVendorMark'
 import { StoreShopHoursBanner } from '@/components/store/StoreShopHoursBanner';
 import { StoreBuyerLocateButtons } from '@/components/store/StoreBuyerLocateButtons';
 import { StoreShopPlacePin } from '@/components/store/StoreShopPlacePin';
+import { StoreShopLogoMark } from '@/components/store/StoreShopLogoMark';
 import { STORE_MOBILE_VENDOR } from '@/config/storeMobileVendor';
 import { STORE_SHOP_HOURS_COPY } from '@/config/storeShopHours';
 import { neighborVendorState } from '@/lib/storeMobileVendor';
@@ -107,6 +108,7 @@ export function StoreCafeShop({
       <header>
         <p className="text-xs tracking-[0.3em] text-[#c48a4a]">{STORE_CAFE_LIVE.shopKickerAr}</p>
         <h2 className="mt-1 flex items-center gap-2 text-3xl font-black">
+          <StoreShopLogoMark src={state.host.logoSrc} />
           <span>{state.host.shopName}</span>
           {mobile ? <StoreMobileVendorMark accent="#c48a4a" /> : null}
           <StoreShopPlacePin

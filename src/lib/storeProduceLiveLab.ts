@@ -57,6 +57,7 @@ export type ProduceOrder = {
 
 export type ProduceHostState = {
   shopName: string;
+  logoSrc: string;
   hostName: string;
   blurbAr: string;
   customFields: string[];
@@ -116,6 +117,7 @@ export function defaultProduceLabState(): ProduceLabState {
   return {
     host: {
       shopName: STORE_PRODUCE_LIVE_DEMO.shopName,
+      logoSrc: '',
       hostName: STORE_PRODUCE_LIVE_DEMO.hostName,
       blurbAr: STORE_PRODUCE_LIVE_DEMO.blurbAr,
       customFields: [...STORE_PRODUCE_LIVE_DEMO.customFields],

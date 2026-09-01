@@ -90,22 +90,28 @@ export const ROUTE_PATHS = {
   STORE_EVENT_PAY: '/pay/event/:token',
   /** لاونجا1 — تشغيل شاشات اللاونج، 600 ر.س لثلاثة أشهر */
   STORE_LOUNGE: '/store/lounge',
+  STORE_LOUNGE_SUPPORT: '/store/lounge/support',
+  /** دليل تشغيل افراحي1 رجالي ونسائي واجواء1 — صفحة واحدة */
+  STORE_HALLS_SUPPORT: '/store/halls/support',
   STORE_LOUNGE_VIEW: '/l/:token',
   STORE_LOUNGE_GUEST: '/l/:token/guest',
   STORE_LOUNGE_HOST: '/l/:token/host',
   STORE_LOUNGE_PAY: '/pay/lounge/:token',
   /** تموينات الحي — متجر حي ولوحة كاشير، باقتا 6 و12 شهراً */
   STORE_GROCERS: '/store/grocers',
+  STORE_GROCERS_SUPPORT: '/store/grocers/support',
   STORE_GROCERS_VIEW: '/g/:token',
   STORE_GROCERS_DESK: '/g/:token/desk',
   STORE_GROCERS_PAY: '/pay/grocers/:token',
   /** مطعمنا1 — صفحة مطعم الحي ولوحة مطبخ، باقتا 6 و12 شهراً */
   STORE_RESTAURANT: '/store/restaurant',
+  STORE_RESTAURANT_SUPPORT: '/store/restaurant/support',
   STORE_RESTAURANT_VIEW: '/r/:token',
   STORE_RESTAURANT_DESK: '/r/:token/desk',
   STORE_RESTAURANT_PAY: '/pay/restaurant/:token',
   /** كافينا1 — شاشات المقهى وصفحة الحي، باقتا 6 و12 شهراً */
   STORE_CAFE: '/store/cafe',
+  STORE_CAFE_SUPPORT: '/store/cafe/support',
   STORE_CAFE_VIEW: '/c/:token',
   STORE_CAFE_DESK: '/c/:token/desk',
   STORE_CAFE_HOST: '/c/:token/host',
@@ -115,6 +121,7 @@ export const ROUTE_PATHS = {
   STORE_CAFE_PAY: '/pay/cafe/:token',
   /** طبختنا1 — صفحة الأسرة المنتجة ولوحة نشاط. الاشتراك مغلق حتى اعتماد الأسعار. */
   STORE_KITCHEN: '/store/kitchen',
+  STORE_KITCHEN_SUPPORT: '/store/kitchen/support',
   STORE_KITCHEN_GIFT: '/store/kitchen/gift',
   STORE_KITCHEN_GIFT_TERMS: '/store/kitchen/gift/terms',
   STORE_KITCHEN_GIFT_CONFIRM: '/store/kitchen/gift/confirm',
@@ -123,6 +130,7 @@ export const ROUTE_PATHS = {
   STORE_KITCHEN_PAY: '/pay/kitchen/:token',
   /** خضارنا1 — صفحة صندوق الخضار ولوحة الصندوق */
   STORE_PRODUCE: '/store/produce',
+  STORE_PRODUCE_SUPPORT: '/store/produce/support',
   STORE_PRODUCE_VIEW: '/v/:token',
   STORE_PRODUCE_DESK: '/v/:token/desk',
   STORE_PRODUCE_PAY: '/pay/produce/:token',

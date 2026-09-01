@@ -6,6 +6,7 @@
 import { randomBytes } from 'node:crypto';
 import { withStoreAffiliateCode } from './storeAffiliateCode.js';
 import { DEFAULT_STORE_SHOP_HOURS, parseStoreShopHours, type StoreShopHoursState } from './storeShopHours.js';
+import { parseShopLogoSrc } from './storeShopLogo.js';
 import { parseVendorMode, type StoreVendorMode } from './storeMobileVendor.js';
 import { DEFAULT_SHOP_PICKUP, parseShopPickupPlace, publicShopPlaceFields, type ShopPickupPlace } from './storeShopPlace.js';
 
@@ -124,6 +125,7 @@ function isEmail(raw: string): boolean {
 export type ProduceLiveOrderPayload = {
   packId: 'm6' | 'm12';
   shopName: string;
+  logoSrc?: string;
   hostName: string;
   blurbAr: string;
   customFields: string[];
@@ -154,6 +156,7 @@ export function parseProduceLiveOrderBody(body: Record<string, unknown>):
     payload: {
       packId,
       shopName,
+      logoSrc: '',
       hostName,
       blurbAr: clip(body.blurbAr, 200) || 'خضارنا1: اطلب صندوق اليوم من جوالك.',
       customFields: Array.from({ length: 5 }, () => ''),
@@ -194,6 +197,7 @@ export function publicProducePayload(payload: ProduceLiveOrderPayload, role = 's
   return {
     packId: parseProducePackId(payload.packId),
     shopName: payload.shopName,
+    logoSrc: parseShopLogoSrc(payload.logoSrc),
     hostName: payload.hostName,
     blurbAr: payload.blurbAr,
     customFields: Array.isArray(payload.customFields) ? payload.customFields.slice(0, 5) : [],

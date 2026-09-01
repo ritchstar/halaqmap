@@ -15,10 +15,14 @@ import { StoreProductPassDeskButton } from '@/components/store/StoreProductPassD
 import { StoreShopHoursDesk } from '@/components/store/StoreShopHoursDesk';
 import { StoreShopPlaceDesk } from '@/components/store/StoreShopPlaceDesk';
 import { StoreDeskHelpSupport } from '@/components/store/StoreDeskHelpSupport';
+import { StoreDeskGuideLink } from '@/components/store/StoreDeskGuideLink';
+import { StoreShopLogoDesk } from '@/components/store/StoreShopLogoDesk';
+import { STORE_RESTAURANT_SUPPORT } from '@/config/storeProductSupport';
 import { StoreOpsSection } from '@/components/store/StoreOpsSection';
 import { STORE_PRODUCT_TRIAL_PRODUCTS } from '@/config/storeProductTrial';
 import { STORE_DESK_ORDER_TICKET_COPY } from '@/config/storeDeskOrderTicket';
 import { applyDeskFinish, deskOrderPhase, isLiveDeskTicket, receiveDeskTicket } from '@/lib/storeDeskOrderTicket';
+import { ROUTE_PATHS } from '@/lib/routePaths';
 import { cn } from '@/lib/utils';
 
 export function StoreRestaurantDesk({
@@ -157,6 +161,11 @@ export function StoreRestaurantDesk({
             onChange={(e) => onChange({ ...state, host: { ...state.host, shopName: e.target.value } })}
           />
         </label>
+        <StoreShopLogoDesk
+          logoSrc={state.host.logoSrc}
+          onChange={(logoSrc) => onChange({ ...state, host: { ...state.host, logoSrc } })}
+          accent="#e08a3c"
+        />
         <label className="block text-sm sm:col-span-2">
           خانة تعريفية
           <input
@@ -243,6 +252,12 @@ export function StoreRestaurantDesk({
       </StoreOpsSection>
 
       <StoreDeskArchiveDock tickets={state.orderArchive} accent="#e08a3c" filename="restaurant-archive.json" />
+      <StoreDeskGuideLink
+        to={ROUTE_PATHS.STORE_RESTAURANT_SUPPORT}
+        leadAr={STORE_RESTAURANT_SUPPORT.deskLeadAr}
+        ctaAr={STORE_RESTAURANT_SUPPORT.deskCtaAr}
+        accent={STORE_RESTAURANT_SUPPORT.accent}
+      />
       <StoreDeskHelpSupport product="restaurant" />
     </div>
   );

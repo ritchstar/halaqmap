@@ -68,6 +68,7 @@ export type CafeBlessing = {
 
 export type CafeHostState = {
   shopName: string;
+  logoSrc: string;
   hostName: string;
   blurbAr: string;
   customFields: string[];
@@ -148,6 +149,7 @@ export function defaultCafeLabState(): CafeLabState {
   return {
     host: {
       shopName: STORE_CAFE_LIVE_DEMO.shopName,
+      logoSrc: '',
       hostName: STORE_CAFE_LIVE_DEMO.hostName,
       blurbAr: STORE_CAFE_LIVE_DEMO.blurbAr,
       customFields: [...STORE_CAFE_LIVE_DEMO.customFields],

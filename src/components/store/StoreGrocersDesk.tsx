@@ -18,7 +18,11 @@ import { StoreShopHoursDesk } from '@/components/store/StoreShopHoursDesk';
 import { StoreShopPlaceDesk } from '@/components/store/StoreShopPlaceDesk';
 import { StoreShopPresenceCount } from '@/components/store/StoreShopPresenceCount';
 import { StoreDeskHelpSupport } from '@/components/store/StoreDeskHelpSupport';
+import { StoreDeskGuideLink } from '@/components/store/StoreDeskGuideLink';
+import { StoreShopLogoDesk } from '@/components/store/StoreShopLogoDesk';
+import { STORE_GROCERS_SUPPORT } from '@/config/storeProductSupport';
 import { StoreOpsSection } from '@/components/store/StoreOpsSection';
+import { ROUTE_PATHS } from '@/lib/routePaths';
 import { cn } from '@/lib/utils';
 
 export function StoreGrocersDesk({
@@ -141,6 +145,11 @@ export function StoreGrocersDesk({
             onChange={(e) => onChange({ ...state, host: { ...state.host, shopName: e.target.value } })}
           />
         </label>
+        <StoreShopLogoDesk
+          logoSrc={state.host.logoSrc}
+          onChange={(logoSrc) => onChange({ ...state, host: { ...state.host, logoSrc } })}
+          accent="#8fbf7a"
+        />
         <label className="block text-sm sm:col-span-2">
           خانة تعريفية
           <input
@@ -229,6 +238,12 @@ export function StoreGrocersDesk({
       </StoreOpsSection>
 
       <StoreDeskArchiveDock tickets={state.orderArchive} accent="#8fbf7a" filename="grocers-archive.json" />
+      <StoreDeskGuideLink
+        to={ROUTE_PATHS.STORE_GROCERS_SUPPORT}
+        leadAr={STORE_GROCERS_SUPPORT.deskLeadAr}
+        ctaAr={STORE_GROCERS_SUPPORT.deskCtaAr}
+        accent={STORE_GROCERS_SUPPORT.accent}
+      />
       <StoreDeskHelpSupport product="grocers" />
     </div>
   );

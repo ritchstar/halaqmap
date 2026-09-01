@@ -28,6 +28,7 @@ import { POLL_MS, scheduleVisiblePoll } from '@/lib/pollingPolicy';
 import { liveHostText, useStoreLiveDeskSync } from '@/lib/storeLiveDeskSync';
 import { nextStoreLivePublicGate, pickStoreLiveShelf } from '@/lib/storeLivePublicRead';
 import { parseStoreShopHours } from '@/lib/storeShopHours';
+import { parseShopLogoSrc } from '@/lib/storeShopLogo';
 import { parseShopPickupPlace } from '@/lib/storeShopPlace';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 
@@ -37,6 +38,7 @@ function payloadToState(payload: Record<string, unknown>, fallback: ProduceLabSt
   const host = {
     ...fallback.host,
     shopName: liveHostText(payload.shopName, fallback.host.shopName),
+    logoSrc: parseShopLogoSrc(payload.logoSrc, fallback.host.logoSrc),
     hostName: liveHostText(payload.hostName, fallback.host.hostName),
     blurbAr: liveHostText(payload.blurbAr, fallback.host.blurbAr),
     customFields: Array.isArray(payload.customFields)

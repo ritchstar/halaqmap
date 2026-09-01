@@ -37,6 +37,7 @@ import {
   type RestaurantLiveOrderPayload,
 } from './_lib/storeRestaurantLive.js';
 import { parseStoreShopHours } from './_lib/storeShopHours.js';
+import { parseShopLogoSrc } from './_lib/storeShopLogo.js';
 import { lockPaidVendorMode, parseVendorMode } from './_lib/storeMobileVendor.js';
 import { parseShopPickupPlace } from './_lib/storeShopPlace.js';
 import { sendRestaurantLiveLinksEmail } from './_lib/storeRestaurantLiveMail.js';
@@ -618,6 +619,7 @@ async function saveHost(db: Db, body: Record<string, unknown>, headers: Record<s
   const next: RestaurantLiveOrderPayload = {
     ...current,
     shopName: String(body.shopName ?? current.shopName).slice(0, 80),
+    logoSrc: parseShopLogoSrc(body.logoSrc, parseShopLogoSrc(current.logoSrc)),
     hostName: String(body.hostName ?? current.hostName).slice(0, 80),
     blurbAr: String(body.blurbAr ?? current.blurbAr).slice(0, 200),
     customFields: Array.isArray(body.customFields) ? (body.customFields as string[]).slice(0, 5) : current.customFields,

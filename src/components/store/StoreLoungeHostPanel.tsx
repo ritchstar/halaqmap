@@ -17,6 +17,9 @@ import { cn } from '@/lib/utils';
 import { StoreTrialOpsNote } from '@/components/store/StoreTrialOpsNote';
 import { StoreProductPassDeskButton } from '@/components/store/StoreProductPassDeskButton';
 import { StoreShopPlaceDesk } from '@/components/store/StoreShopPlaceDesk';
+import { StoreDeskGuideLink } from '@/components/store/StoreDeskGuideLink';
+import { STORE_LOUNGE_SUPPORT } from '@/config/storeProductSupport';
+import { ROUTE_PATHS } from '@/lib/routePaths';
 
 const fieldClass = 'mt-1 h-12 w-full rounded-md border border-white/15 bg-[#061018] px-3 text-[#f4efe4]';
 
@@ -90,6 +93,14 @@ export function StoreLoungeHostPanel({
           <StoreTrialOpsNote productKey="lounge" />
         </div>
       ) : null}
+      <div className="mt-4">
+        <StoreDeskGuideLink
+          to={ROUTE_PATHS.STORE_LOUNGE_SUPPORT}
+          leadAr={STORE_LOUNGE_SUPPORT.deskLeadAr}
+          ctaAr={STORE_LOUNGE_SUPPORT.deskCtaAr}
+          accent={STORE_LOUNGE_SUPPORT.accent}
+        />
+      </div>
       {expiresAt ? (
         <p className="mt-2 text-xs text-white/55">تنتهي مدة التشغيل في {expiresAt.slice(0, 10)}.</p>
       ) : null}

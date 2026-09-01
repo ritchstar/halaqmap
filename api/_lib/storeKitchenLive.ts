@@ -6,6 +6,7 @@
 import { randomBytes } from 'node:crypto';
 import { withStoreAffiliateCode } from './storeAffiliateCode.js';
 import { DEFAULT_STORE_SHOP_HOURS, parseStoreShopHours, type StoreShopHoursState } from './storeShopHours.js';
+import { parseShopLogoSrc } from './storeShopLogo.js';
 
 export const STORE_KITCHEN_LIVE_TABLE = 'store_kitchen_live_orders' as const;
 export const STORE_KITCHEN_LIVE_PRODUCT = 'store_kitchen_live' as const;
@@ -166,6 +167,7 @@ function isEmail(raw: string): boolean {
 export type KitchenLiveOrderPayload = {
   packId: 'm6' | 'm12';
   shopName: string;
+  logoSrc?: string;
   hostName: string;
   blurbAr: string;
   customFields: string[];
@@ -216,6 +218,7 @@ export function parseKitchenLiveOrderBody(body: Record<string, unknown>):
     payload: {
       packId,
       shopName,
+      logoSrc: '',
       hostName,
       blurbAr: clip(body.blurbAr, 200) || 'طبختنا1: أصناف البيت من الجوال إلى النشاط.',
       customFields: Array.from({ length: 5 }, () => ''),
@@ -254,6 +257,7 @@ export function publicKitchenPayload(payload: KitchenLiveOrderPayload, role = 's
   return {
     packId: parseKitchenPackId(payload.packId),
     shopName: payload.shopName,
+    logoSrc: parseShopLogoSrc(payload.logoSrc),
     hostName: payload.hostName,
     blurbAr: payload.blurbAr,
     customFields: Array.isArray(payload.customFields) ? payload.customFields.slice(0, 5) : [],

@@ -33,6 +33,7 @@ import {
   saveRestaurantLiveHost,
 } from '@/lib/storeRestaurantLiveRemote';
 import { parseStoreShopHours } from '@/lib/storeShopHours';
+import { parseShopLogoSrc } from '@/lib/storeShopLogo';
 import { parseShopPickupPlace } from '@/lib/storeShopPlace';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 
@@ -42,6 +43,7 @@ function payloadToState(payload: Record<string, unknown>, fallback: RestaurantLa
   const host = {
     ...fallback.host,
     shopName: liveHostText(payload.shopName, fallback.host.shopName),
+    logoSrc: parseShopLogoSrc(payload.logoSrc, fallback.host.logoSrc),
     hostName: liveHostText(payload.hostName, fallback.host.hostName),
     blurbAr: liveHostText(payload.blurbAr, fallback.host.blurbAr),
     customFields: Array.isArray(payload.customFields)

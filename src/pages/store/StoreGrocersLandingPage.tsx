@@ -11,6 +11,7 @@ import { StoreVisitorFooter, StoreVisitorHeader, StoreVisitorShell } from '@/com
 import { StoreEnterpriseDirectMail } from '@/components/store/StoreEnterpriseDirectMail';
 import { StoreGrocersOrderForm } from '@/components/store/StoreGrocersOrderForm';
 import { StoreProductBenefitsLink } from '@/components/store/StoreProductBenefitsLink';
+import { StoreProductSupportLink } from '@/components/store/StoreProductSupportLink';
 import { StoreShot } from '@/components/store/StoreShot';
 import { StoreGrocersStudio } from '@/components/store/StoreGrocersStudio';
 import { StoreInViewMount } from '@/components/store/StoreInViewMount';
@@ -139,6 +140,7 @@ export default function StoreGrocersLandingPage() {
                 {STORE_GROCERS_LIVE.orderCtaAr}
               </a>
               <StoreProductBenefitsLink />
+              <StoreProductSupportLink to={ROUTE_PATHS.STORE_GROCERS_SUPPORT} className="border-[#8fbf7a]/50 text-[#8fbf7a]" />
             </div>
             <StoreEnterpriseDirectMail
               className="mt-5 max-w-xl"

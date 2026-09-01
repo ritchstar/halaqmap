@@ -14,6 +14,7 @@ import {
 } from '@/components/store/StoreChrome';
 import { StoreEnterpriseDirectMail } from '@/components/store/StoreEnterpriseDirectMail';
 import { StoreProductBenefitsLink } from '@/components/store/StoreProductBenefitsLink';
+import { StoreProductSupportLink } from '@/components/store/StoreProductSupportLink';
 import { StoreLoungeLiveStudio } from '@/components/store/StoreLoungeLiveStudio';
 import { StoreInViewMount } from '@/components/store/StoreInViewMount';
 import { StoreLandingFold } from '@/components/store/StoreLandingFold';
@@ -98,6 +99,7 @@ export default function StoreLoungeLandingPage() {
                 {renewToken ? STORE_LOUNGE_LIVE.renewCtaAr : STORE_LOUNGE_LIVE.orderCtaAr}
               </a>
               <StoreProductBenefitsLink />
+              <StoreProductSupportLink to={ROUTE_PATHS.STORE_LOUNGE_SUPPORT} className="border-[#d4a574]/50 text-[#d4a574]" />
             </div>
             <StoreEnterpriseDirectMail
               className="mt-5 max-w-xl"

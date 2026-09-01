@@ -5,6 +5,7 @@ import { useMemo, useState } from 'react';
 import { STORE_KITCHEN_LIVE } from '@/config/storeKitchenLive';
 import { STORE_SHOP_HOURS_COPY } from '@/config/storeShopHours';
 import { StoreShopHoursBanner } from '@/components/store/StoreShopHoursBanner';
+import { StoreShopLogoMark } from '@/components/store/StoreShopLogoMark';
 import {
   addKitchenOrder,
   compressImageFile,
@@ -112,7 +113,10 @@ export function StoreKitchenShop({
       ) : null}
       <header>
         <p className="text-xs tracking-[0.3em] text-[#b45a3c]">{STORE_KITCHEN_LIVE.shopKickerAr}</p>
-        <h2 className="mt-1 text-3xl font-black">{state.host.shopName}</h2>
+        <h2 className="mt-1 flex items-center gap-2 text-3xl font-black">
+          <StoreShopLogoMark src={state.host.logoSrc} />
+          <span>{state.host.shopName}</span>
+        </h2>
         <p className="mt-2 text-sm leading-7 text-white/75">{state.host.blurbAr}</p>
         <ul className="mt-3 space-y-1 text-sm leading-7 text-white/70">
           {state.host.customFields.filter((line) => line.trim()).slice(0, 5).map((line) => (

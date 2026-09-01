@@ -60,6 +60,7 @@ export type KitchenOrder = {
 
 export type KitchenHostState = {
   shopName: string;
+  logoSrc: string;
   hostName: string;
   blurbAr: string;
   customFields: string[];
@@ -135,6 +136,7 @@ export function defaultKitchenLabState(): KitchenLabState {
   return {
     host: {
       shopName: STORE_KITCHEN_LIVE_DEMO.shopName,
+      logoSrc: '',
       hostName: STORE_KITCHEN_LIVE_DEMO.hostName,
       blurbAr: STORE_KITCHEN_LIVE_DEMO.blurbAr,
       customFields: [...STORE_KITCHEN_LIVE_DEMO.customFields],

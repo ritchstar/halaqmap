@@ -11,6 +11,7 @@ import { StoreVisitorFooter, StoreVisitorHeader, StoreVisitorShell } from '@/com
 import { StoreCafeOrderForm } from '@/components/store/StoreCafeOrderForm';
 import { StoreEnterpriseDirectMail } from '@/components/store/StoreEnterpriseDirectMail';
 import { StoreProductBenefitsLink } from '@/components/store/StoreProductBenefitsLink';
+import { StoreProductSupportLink } from '@/components/store/StoreProductSupportLink';
 import { StoreShot } from '@/components/store/StoreShot';
 import { StoreCafeStudio } from '@/components/store/StoreCafeStudio';
 import { StoreInViewMount } from '@/components/store/StoreInViewMount';
@@ -151,6 +152,7 @@ export default function StoreCafeLandingPage() {
                 {STORE_CAFE_LIVE.orderCtaAr}
               </a>
               <StoreProductBenefitsLink />
+              <StoreProductSupportLink to={ROUTE_PATHS.STORE_CAFE_SUPPORT} className="border-[#c48a4a]/50 text-[#c48a4a]" />
             </div>
             <Collapsible open={termsOpen} onOpenChange={setTermsOpen} className="mt-6">
               <CollapsibleTrigger type="button" className="flex w-full items-center justify-between gap-3 rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-right text-sm font-semibold">
