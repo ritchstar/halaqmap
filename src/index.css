@@ -3577,6 +3577,9 @@ html.platform-radar-fullscreen #root {
 
 .store-purchased-shell {
   overscroll-behavior: none;
+}
+
+.store-purchased-shell__body {
   overflow-x: clip;
 }
 

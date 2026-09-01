@@ -113,5 +113,9 @@ assert.equal(STORE_PRODUCE_LIVE_LAB_TOKEN, 'produce-lab');
 assert.match(STORE_PRODUCE_LIVE.locateMeAr, /حدد موقعي/);
 assert.match(STORE_PRODUCE_LIVE.confirmPlaceAr, /تأكد من موقعي/);
 assert.match(readFileSync(join(root, 'src/components/store/StoreProduceShop.tsx'), 'utf8'), /StoreBuyerLocateButtons/);
+const produceDesk = readFileSync(join(root, 'src/components/store/StoreProduceDesk.tsx'), 'utf8');
+assert.match(produceDesk, /StoreOpsSection titleAr="حالات السلع"/);
+assert.match(produceDesk, /StoreOpsSection titleAr=\{STORE_PRODUCE_LIVE\.ingestTitleAr\}/);
+assert.match(produceDesk, /max-h-72/);
 
 console.log('store-produce-live: ok');

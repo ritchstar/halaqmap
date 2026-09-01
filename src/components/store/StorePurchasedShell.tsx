@@ -35,7 +35,7 @@ export function StorePurchasedShell({
     <div dir="rtl" className="store-purchased-shell relative min-h-[100svh] bg-[#050308] text-[#f7edd8]">
       {sky && showSky ? <StoreShopSky product={sky} surface={skySurface} lat={skyLat} lng={skyLng} hideChip={life} /> : null}
       {life ? <StoreShopLife /> : null}
-      {canvas ? <div className="relative z-10">{children}</div> : children}
+      {canvas ? <div className="store-purchased-shell__body relative z-10">{children}</div> : children}
       <p className="store-live-mark pointer-events-none fixed bottom-1 left-1/2 z-30 -translate-x-1/2">
         {STORE_LIVE_MARK_AR}
       </p>

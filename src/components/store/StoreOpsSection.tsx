@@ -35,7 +35,7 @@ export function StoreOpsSection({
           style={{ color: accent }}
         />
       </CollapsibleTrigger>
-      <CollapsibleContent className="mt-3 space-y-4">{children}</CollapsibleContent>
+      <CollapsibleContent className="mt-3 space-y-4 overflow-hidden">{children}</CollapsibleContent>
     </Collapsible>
   );
 }

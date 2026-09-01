@@ -214,9 +214,10 @@ export function StoreProduceDesk({
         />
       </label>
 
+      <StoreOpsSection titleAr="حالات السلع" accent="#3d8b4a">
       <div className="rounded-2xl border border-white/12 p-4">
         <h3 className="font-extrabold">حالات السلع</h3>
-        <ul className="mt-3 space-y-2">
+        <ul className="mt-3 max-h-72 space-y-2 overflow-auto">
           {state.shelf.map((item) => (
             <li key={item.catalogId} className="flex items-center justify-between gap-3 text-sm">
               <span className={item.inStock ? '' : 'text-white/35 line-through'}>{item.nameAr}</span>
@@ -240,8 +241,11 @@ export function StoreProduceDesk({
           ))}
         </ul>
       </div>
+      </StoreOpsSection>
 
-      <StoreProduceIngest state={state} onChange={onChange} />
+      <StoreOpsSection titleAr={STORE_PRODUCE_LIVE.ingestTitleAr} accent="#3d8b4a">
+        <StoreProduceIngest state={state} onChange={onChange} />
+      </StoreOpsSection>
 
       <StoreOpsSection titleAr="ملصق العرض" accent="#3d8b4a">
       <div className="rounded-2xl border border-[#3d8b4a]/30 p-4">
