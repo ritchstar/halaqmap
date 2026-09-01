@@ -5,6 +5,7 @@
  * يُحمَّل كسولاً مع صفحات المتجر، لا يُستورد من App.
  */
 import { ROUTE_PATHS } from '@/lib/routePaths';
+import { PARTNER_ANDROID_PLAY_STORE_URL } from '@/config/partnerAppShell';
 import {
   LEGAL_ECOMMERCE_AUTH_FOOTER_LINE_AR,
   LEGAL_ECOMMERCE_STORE_ENGLISH_LINE,
@@ -317,14 +318,14 @@ export const STORE_TRUST_COPY = {
     'الفحوص الخارجية تعكس حالة النطاق وقت الفحص. تأكد من التقرير الحي عبر الرابط، ولا تخلط هذا بالظهور في نتائج البحث.',
 } as const;
 
-/** بنر منتج حلاق ماب — أحد أعمال المتجر، تحت الهيرو فقط. */
+/** بنر منتج حلاق ماب — أحد أعمال المتجر، تحت الهيرو فقط. يوجّه إلى تطبيق الشركاء على متجر Play. */
 export const STORE_HALAQMAP_OPS_BANNER = {
   badgeAr: 'منتج',
   ariaAr: 'بنر منتج حلاق ماب ضمن أعمال المتجر',
   headingAr: 'لطلبات المنشآت والمراسلات وما يتصل بها',
-  titleAr: 'حلاق ماب منتج ضمن أعمال المتجر — رخصة النفاذ متاحة للاشتراك عبر بوابة الدفع.',
-  ctaAr: 'عرض حزم الرخصة',
-  packagesHref: 'https://www.halaqmap.com/#/partners',
+  titleAr: 'حلاق ماب منتج ضمن أعمال المتجر — حمل تطبيق حلاق ماب بارتنر.',
+  ctaAr: 'حمل تطبيق حلاق ماب بارتنر',
+  appHref: PARTNER_ANDROID_PLAY_STORE_URL,
 } as const;
 
 /** أبواب الخدمات البرمجية اللاحقة — بلا أسعار على واجهة المتجر. */

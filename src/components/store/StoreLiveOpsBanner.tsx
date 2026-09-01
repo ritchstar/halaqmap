@@ -26,7 +26,9 @@ export function StoreLiveOpsBanner() {
           </p>
         </div>
         <a
-          href={STORE_HALAQMAP_OPS_BANNER.packagesHref}
+          href={STORE_HALAQMAP_OPS_BANNER.appHref}
+          target="_blank"
+          rel="noopener noreferrer"
           className="inline-flex shrink-0 rounded-full bg-[#e8c547] px-5 py-2.5 text-sm font-extrabold text-[#061018] hover:bg-[#f0d36a]"
         >
           {STORE_HALAQMAP_OPS_BANNER.ctaAr}
