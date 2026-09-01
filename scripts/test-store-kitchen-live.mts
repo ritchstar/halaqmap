@@ -254,7 +254,8 @@ const marked = markKitchenOrderReady(once, sample.id, 'https://maps.google.com/?
 assert.ok(marked.orders[0].readyAt);
 assert.match(String(marked.orders[0].readyMapsUrl), /maps\.google\.com/);
 assert.equal(defaultKitchenLabState().host.pickupPlaceVisible, false);
-assert.match(readFileSync(join(root, 'src/components/store/StoreKitchenShop.tsx'), 'utf8'), /StoreKitchenLocateButton/);
+assert.match(readFileSync(join(root, 'src/components/store/StoreKitchenShop.tsx'), 'utf8'), /StoreBuyerLocateButtons/);
+assert.match(STORE_KITCHEN_LIVE.confirmPlaceAr, /تأكد من موقعي/);
 assert.match(readFileSync(join(root, 'src/components/store/StoreKitchenDesk.tsx'), 'utf8'), /markReady/);
 assert.match(readFileSync(join(root, 'api/_lib/storeKitchenLive.ts'), 'utf8'), /pickupPlaceVisible/);
 assert.match(readFileSync(join(root, 'api/public-store-kitchen-live.ts'), 'utf8'), /parseKitchenPickupPlace/);

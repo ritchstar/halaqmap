@@ -303,6 +303,8 @@ assert.equal(rows[0].price, 11);
 assert.equal(rows[1].nameAr, 'كرتون مياه نوفا');
 
 assert.match(STORE_GROCERS_LIVE.locateMeAr, /حدد موقعي/);
+assert.match(STORE_GROCERS_LIVE.confirmPlaceAr, /تأكد من موقعي/);
+assert.match(readFileSync(join(root, 'src/components/store/StoreGrocersShop.tsx'), 'utf8'), /StoreBuyerLocateButtons/);
 assert.match(STORE_GROCERS_LIVE.pickupShowAr, /إبراز الموقع/);
 assert.doesNotMatch(STORE_GROCERS_LIVE.deskPickupLeadAr, /مطعمنا1|كافينا1|لاونجا1|طبختنا1/);
 assert.match(readFileSync(join(root, 'src/components/store/StoreGrocersDesk.tsx'), 'utf8'), /StoreShopPlaceDesk/);

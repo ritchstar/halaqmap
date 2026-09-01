@@ -112,7 +112,8 @@ export const STORE_RESTAURANT_LIVE = {
   locatingAr: 'جاري تحديد الموقع…',
   locateFailAr: 'تعذّر تحديد الموقع. أعد المحاولة بعد موافقة المتصفح.',
   locateDeniedAr: 'رُفض إذن الموقع. فعّله من إعدادات المتصفح.',
-  locateSavedAr: 'حُفظ الموقع.',
+  locateSavedAr: 'حُفظ الموقع. اضغط «تأكد من موقعي» لرؤية الدبوس.',
+  confirmPlaceAr: 'تأكد من موقعي',
   deskPickupTitleAr: 'موقع المطعم',
   deskPickupLeadAr:
     'حدّد الموقع من الإعداد الأول بعد موافقة المتصفح، ثم أبرزه لضيف الحي أو أخفه. المخفي لا يظهر في صفحة الطلب.',

@@ -16,6 +16,7 @@ import { StoreGrocersBuyerChat } from '@/components/store/StoreGrocersChat';
 import { StoreMobileVendorBanner } from '@/components/store/StoreMobileVendorBanner';
 import { StoreMobileVendorMark } from '@/components/store/StoreMobileVendorMark';
 import { StoreShopHoursBanner } from '@/components/store/StoreShopHoursBanner';
+import { StoreBuyerLocateButtons } from '@/components/store/StoreBuyerLocateButtons';
 import { StoreShopPlacePin } from '@/components/store/StoreShopPlacePin';
 import { STORE_MOBILE_VENDOR } from '@/config/storeMobileVendor';
 import { STORE_SHOP_HOURS_COPY } from '@/config/storeShopHours';
@@ -178,6 +179,12 @@ export function StoreGrocersShop({
           {mobile ? STORE_MOBILE_VENDOR.placeHintAr : STORE_GROCERS_LIVE.buyerPlaceLabelAr}
           <input value={place} onChange={(e) => setPlace(e.target.value)} className="grocers-field" maxLength={160} />
         </label>
+        <StoreBuyerLocateButtons
+          value={place}
+          accent="#8fbf7a"
+          copy={STORE_GROCERS_LIVE}
+          onLocated={setPlace}
+        />
         {mobile ? null : (
           <label className="mt-3 block text-sm">
             {STORE_GROCERS_LIVE.buyerFacadeLabelAr}

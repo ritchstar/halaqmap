@@ -17,7 +17,7 @@ import {
   type KitchenPayMethod,
   type KitchenService,
 } from '@/lib/storeKitchenLiveLab';
-import { StoreKitchenLocateButton } from '@/components/store/StoreKitchenLocateButton';
+import { StoreBuyerLocateButtons } from '@/components/store/StoreBuyerLocateButtons';
 import { isShopClosedNow } from '@/lib/storeShopHours';
 import { cn } from '@/lib/utils';
 
@@ -230,8 +230,11 @@ export function StoreKitchenShop({
                 <input required value={place} onChange={(e) => setPlace(e.target.value)} className="restaurant-field" maxLength={240} />
               </label>
               <p className="mt-1 text-xs leading-6 text-white/60">{STORE_KITCHEN_LIVE.buyerPlaceHintAr}</p>
-              <StoreKitchenLocateButton
-                onLocated={({ mapsUrl }) => {
+              <StoreBuyerLocateButtons
+                value={place}
+                accent="#b45a3c"
+                copy={STORE_KITCHEN_LIVE}
+                onLocated={(mapsUrl) => {
                   setPlace(mapsUrl);
                   if (saveBuyer && name.trim() && phone.trim()) {
                     writeSavedKitchenBuyer({ name: name.trim().slice(0, 40), phone: phone.trim().slice(0, 20), place: mapsUrl });

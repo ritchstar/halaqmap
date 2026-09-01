@@ -16,6 +16,7 @@ import { StoreMobileVendorBanner } from '@/components/store/StoreMobileVendorBan
 import { StoreMobileVendorMark } from '@/components/store/StoreMobileVendorMark';
 import { StoreRestaurantBuyerChat } from '@/components/store/StoreRestaurantChat';
 import { StoreShopHoursBanner } from '@/components/store/StoreShopHoursBanner';
+import { StoreBuyerLocateButtons } from '@/components/store/StoreBuyerLocateButtons';
 import { StoreShopPlacePin } from '@/components/store/StoreShopPlacePin';
 import { STORE_MOBILE_VENDOR } from '@/config/storeMobileVendor';
 import { STORE_SHOP_HOURS_COPY } from '@/config/storeShopHours';
@@ -215,10 +216,18 @@ export function StoreRestaurantShop({
           </div>
         )}
         {serviceKind === 'delivery' ? (
-          <label className="mt-3 block text-sm">
-            {STORE_RESTAURANT_LIVE.buyerPlaceLabelAr}
-            <input required value={place} onChange={(e) => setPlace(e.target.value)} className="restaurant-field" maxLength={160} />
-          </label>
+          <>
+            <label className="mt-3 block text-sm">
+              {STORE_RESTAURANT_LIVE.buyerPlaceLabelAr}
+              <input required value={place} onChange={(e) => setPlace(e.target.value)} className="restaurant-field" maxLength={160} />
+            </label>
+            <StoreBuyerLocateButtons
+              value={place}
+              accent="#e08a3c"
+              copy={STORE_RESTAURANT_LIVE}
+              onLocated={setPlace}
+            />
+          </>
         ) : null}
         <label className="mt-3 block text-sm">
           {STORE_RESTAURANT_LIVE.buyerNoteLabelAr}

@@ -258,6 +258,8 @@ assert.equal(rows[0].price, 28);
 assert.equal(rows[1].nameAr, 'شاورما عربي');
 
 assert.match(STORE_RESTAURANT_LIVE.locateMeAr, /حدد موقعي/);
+assert.match(STORE_RESTAURANT_LIVE.confirmPlaceAr, /تأكد من موقعي/);
+assert.match(readFileSync(join(root, 'src/components/store/StoreRestaurantShop.tsx'), 'utf8'), /StoreBuyerLocateButtons/);
 assert.match(STORE_RESTAURANT_LIVE.pickupShowAr, /إبراز الموقع/);
 assert.doesNotMatch(STORE_RESTAURANT_LIVE.deskPickupLeadAr, /تمويناتا1|كافينا1|لاونجا1|طبختنا1/);
 assert.match(readFileSync(join(root, 'src/components/store/StoreRestaurantDesk.tsx'), 'utf8'), /StoreShopPlaceDesk/);

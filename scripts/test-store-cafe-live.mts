@@ -295,6 +295,8 @@ assert.equal(rows[0].price, 8);
 assert.equal(rows[1].nameAr, 'لاتيه');
 
 assert.match(STORE_CAFE_LIVE.locateMeAr, /حدد موقعي/);
+assert.match(STORE_CAFE_LIVE.confirmPlaceAr, /تأكد من موقعي/);
+assert.match(readFileSync(join(root, 'src/components/store/StoreCafeShop.tsx'), 'utf8'), /StoreBuyerLocateButtons/);
 assert.match(STORE_CAFE_LIVE.pickupShowAr, /إبراز الموقع/);
 assert.doesNotMatch(STORE_CAFE_LIVE.deskPickupLeadAr, /تمويناتا1|مطعمنا1|لاونجا1|طبختنا1/);
 assert.match(readFileSync(join(root, 'src/components/store/StoreCafeDesk.tsx'), 'utf8'), /StoreShopPlaceDesk/);

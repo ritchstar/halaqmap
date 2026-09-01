@@ -17,6 +17,7 @@ import { StoreProduceBuyerChat } from '@/components/store/StoreProduceChat';
 import { StoreMobileVendorBanner } from '@/components/store/StoreMobileVendorBanner';
 import { StoreMobileVendorMark } from '@/components/store/StoreMobileVendorMark';
 import { StoreShopHoursBanner } from '@/components/store/StoreShopHoursBanner';
+import { StoreBuyerLocateButtons } from '@/components/store/StoreBuyerLocateButtons';
 import { StoreShopPlacePin } from '@/components/store/StoreShopPlacePin';
 import { STORE_MOBILE_VENDOR } from '@/config/storeMobileVendor';
 import { STORE_SHOP_HOURS_COPY } from '@/config/storeShopHours';
@@ -196,10 +197,6 @@ export function StoreProduceShop({
           {STORE_PRODUCE_LIVE.buyerPhoneLabelAr}
           <input required value={phone} onChange={(e) => setPhone(e.target.value)} className="produce-field" inputMode="tel" maxLength={20} />
         </label>
-        <label className="mt-3 block text-sm">
-          {mobile ? STORE_MOBILE_VENDOR.placeHintAr : STORE_PRODUCE_LIVE.buyerPlaceLabelAr}
-          <input value={place} onChange={(e) => setPlace(e.target.value)} className="produce-field" maxLength={160} />
-        </label>
         <div className="mt-3 flex flex-wrap gap-2">
           <button type="button" onClick={() => setService('delivery')} className={cn('rounded-full px-3 py-1.5 text-xs', service === 'delivery' ? 'bg-[#3d8b4a] font-bold text-[#061018]' : 'border border-white/20')}>
             {STORE_PRODUCE_LIVE.serviceDeliveryAr}
@@ -208,6 +205,20 @@ export function StoreProduceShop({
             {STORE_PRODUCE_LIVE.servicePickupAr}
           </button>
         </div>
+        {service === 'delivery' ? (
+          <>
+            <label className="mt-3 block text-sm">
+              {mobile ? STORE_MOBILE_VENDOR.placeHintAr : STORE_PRODUCE_LIVE.buyerPlaceLabelAr}
+              <input value={place} onChange={(e) => setPlace(e.target.value)} className="produce-field" maxLength={160} />
+            </label>
+            <StoreBuyerLocateButtons
+              value={place}
+              accent="#3d8b4a"
+              copy={STORE_PRODUCE_LIVE}
+              onLocated={setPlace}
+            />
+          </>
+        ) : null}
         <div className="mt-3 flex flex-wrap gap-2">
           <button type="button" onClick={() => setPay('cash')} className={cn('rounded-full px-3 py-1.5 text-xs', pay === 'cash' ? 'bg-[#3d8b4a] font-bold text-[#061018]' : 'border border-white/20')}>
             {STORE_PRODUCE_LIVE.payCashAr}

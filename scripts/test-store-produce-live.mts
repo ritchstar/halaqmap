@@ -110,5 +110,8 @@ assert.ok(!STORE_PRODUCE_LIVE.leadAr.includes('طبختنا1'));
 assert.ok(!STORE_PRODUCE_LIVE.problemBodyAr.includes('رمّان'));
 assert.ok(!STORE_PRODUCE_LIVE.problemBodyAr.includes('رقان'));
 assert.equal(STORE_PRODUCE_LIVE_LAB_TOKEN, 'produce-lab');
+assert.match(STORE_PRODUCE_LIVE.locateMeAr, /حدد موقعي/);
+assert.match(STORE_PRODUCE_LIVE.confirmPlaceAr, /تأكد من موقعي/);
+assert.match(readFileSync(join(root, 'src/components/store/StoreProduceShop.tsx'), 'utf8'), /StoreBuyerLocateButtons/);
 
 console.log('store-produce-live: ok');

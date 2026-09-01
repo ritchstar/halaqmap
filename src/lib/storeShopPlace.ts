@@ -51,6 +51,30 @@ export function isShopMapsUrl(raw: string): boolean {
   }
 }
 
+/** رابط خرائط آمن لجار الحي كي يتأكد من دبوس التسليم. لا يُفتح رابط خارج خرائط غوغل. */
+export function buyerPlaceMapsUrl(raw: string): string | null {
+  const value = raw.trim().slice(0, 240);
+  if (!value) return null;
+  if (isShopMapsUrl(value)) return value;
+  if (/^https?:\/\//i.test(value) || /^javascript:/i.test(value)) return null;
+  const coord = value.match(/^(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)$/);
+  if (coord) {
+    const lat = Number(coord[1]);
+    const lng = Number(coord[2]);
+    if (
+      Number.isFinite(lat)
+      && Number.isFinite(lng)
+      && lat >= -90
+      && lat <= 90
+      && lng >= -180
+      && lng <= 180
+    ) {
+      return shopMapsSearchUrl(lat, lng);
+    }
+  }
+  return `https://maps.google.com/?q=${encodeURIComponent(value)}`;
+}
+
 export function parseShopPickupPlace(
   raw: Record<string, unknown> | null | undefined,
   fallback: ShopPickupPlace = DEFAULT_SHOP_PICKUP,
