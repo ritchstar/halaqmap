@@ -2,34 +2,13 @@
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
 import html2canvas from 'html2canvas';
+import { canvasToPngBlob, savePngBlob } from '@/lib/savePngBlob';
 
-function triggerBlobDownload(blob: Blob, fileName: string): void {
-  const url = URL.createObjectURL(blob);
-  try {
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = fileName.endsWith('.png') ? fileName : `${fileName}.png`;
-    a.rel = 'noopener';
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-  } finally {
-    window.setTimeout(() => URL.revokeObjectURL(url), 1500);
+async function finishPngDownload(blob: Blob, fileName: string): Promise<void> {
+  const result = await savePngBlob({ blob, fileName, preferShare: false });
+  if (!result.ok && result.error !== 'cancelled') {
+    throw new Error(result.error);
   }
-}
-
-async function canvasToPngBlob(canvas: HTMLCanvasElement): Promise<Blob> {
-  const blob = await new Promise<Blob | null>((resolve) => {
-    canvas.toBlob((b) => resolve(b), 'image/png');
-  });
-  if (blob) return blob;
-
-  // بعض المتصفحات تُرجع null من toBlob — نمرّ عبر dataURL
-  const dataUrl = canvas.toDataURL('image/png');
-  const res = await fetch(dataUrl);
-  const fromData = await res.blob();
-  if (!fromData.size) throw new Error('png_blob_failed');
-  return fromData;
 }
 
 async function waitForImages(root: HTMLElement): Promise<void> {
@@ -168,7 +147,7 @@ export async function downloadElementAsPngCard(
   fileName: string,
 ): Promise<void> {
   const blob = await captureElementAsPngBlob(element);
-  triggerBlobDownload(blob, fileName);
+  await finishPngDownload(blob, fileName);
 }
 
 export type ActivationCertificateCardPayload = {
@@ -271,7 +250,7 @@ export async function downloadActivationCertificateFallbackPng(
   ctx.fillText('مُصدَرة ومُسجَّلة على نظام حلاق ماب — نشطة', W / 2, H - 80);
 
   const blob = await canvasToPngBlob(canvas);
-  triggerBlobDownload(blob, fileName);
+  await finishPngDownload(blob, fileName);
 }
 
 function roundRect(

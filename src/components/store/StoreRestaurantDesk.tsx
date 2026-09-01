@@ -15,6 +15,7 @@ import { StoreProductPassDeskButton } from '@/components/store/StoreProductPassD
 import { StoreShopHoursDesk } from '@/components/store/StoreShopHoursDesk';
 import { StoreShopPlaceDesk } from '@/components/store/StoreShopPlaceDesk';
 import { StoreDeskHelpSupport } from '@/components/store/StoreDeskHelpSupport';
+import { StoreOpsSection } from '@/components/store/StoreOpsSection';
 import { STORE_PRODUCT_TRIAL_PRODUCTS } from '@/config/storeProductTrial';
 import { STORE_DESK_ORDER_TICKET_COPY } from '@/config/storeDeskOrderTicket';
 import { applyDeskFinish, deskOrderPhase, isLiveDeskTicket, receiveDeskTicket } from '@/lib/storeDeskOrderTicket';
@@ -180,6 +181,7 @@ export function StoreRestaurantDesk({
         ))}
       </div>
 
+      <StoreOpsSection titleAr="الموقع وساعات العمل" accent="#e08a3c">
       <StoreShopPlaceDesk
         value={state.host}
         onChange={(place) => onChange({ ...state, host: { ...state.host, ...place } })}
@@ -192,6 +194,7 @@ export function StoreRestaurantDesk({
         onChange={(nextHours) => onChange({ ...state, host: { ...state.host, ...nextHours } })}
         accent="#e08a3c"
       />
+      </StoreOpsSection>
 
       <label className="block text-sm">
         {STORE_RESTAURANT_LIVE.flashLabelAr}
@@ -223,6 +226,7 @@ export function StoreRestaurantDesk({
 
       <StoreRestaurantMenuBoard state={state} onChange={onChange} />
 
+      <StoreOpsSection titleAr="ملصق العرض" accent="#e08a3c">
       <div className="rounded-2xl border border-[#e08a3c]/30 p-4">
         <div id="restaurant-qr-print" className="mx-auto w-64 rounded-xl bg-white p-4 text-center text-[#061018]">
           <p className="text-sm font-black">{state.host.shopName}</p>
@@ -236,6 +240,7 @@ export function StoreRestaurantDesk({
         </button>
         <StoreProductPassDeskButton kind="restaurant" token={token} shopName={state.host.shopName} />
       </div>
+      </StoreOpsSection>
 
       <StoreDeskArchiveDock tickets={state.orderArchive} accent="#e08a3c" filename="restaurant-archive.json" />
       <StoreDeskHelpSupport product="restaurant" />

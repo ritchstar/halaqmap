@@ -18,6 +18,8 @@ import { StoreProductBenefitsLink } from '@/components/store/StoreProductBenefit
 import { StoreShot } from '@/components/store/StoreShot';
 import { StoreWeddingInviteCard } from '@/components/store/StoreWeddingInviteCard';
 import { StoreWeddingLiveStudio } from '@/components/store/StoreWeddingLiveStudio';
+import { StoreInViewMount } from '@/components/store/StoreInViewMount';
+import { StoreLandingFold } from '@/components/store/StoreLandingFold';
 import { StoreWeddingOrderForm } from '@/components/store/StoreWeddingOrderForm';
 import { STORE_BRAND_LATIN } from '@/config/storeFront';
 import {
@@ -69,7 +71,10 @@ export default function StoreWeddingLandingPage() {
         <div className="mx-auto grid max-w-5xl items-start gap-8 lg:grid-cols-[1.05fr_0.95fr]">
           <div>
             <p className={cn('text-sm font-bold tracking-wide', text)}>{copy.kickerAr}</p>
-            <h1 className="mt-2 text-4xl font-extrabold leading-tight text-[#f4efe4]">{copy.titleAr}</h1>
+            <h1 className="mt-2 text-3xl font-extrabold leading-tight text-[#f4efe4] md:text-4xl">{copy.titleAr}</h1>
+            <p className="mt-4 max-w-xl text-base leading-8 text-white/78">{copy.leadAr}</p>
+            <p className={cn('mt-4 text-2xl font-black', text)}>{copy.priceLineAr}</p>
+            <StoreLandingFold accentClass={text}>
             <p className="mt-6 text-base font-extrabold text-[#f4efe4]">{copy.problemTitleAr}</p>
             <p className="mt-2 max-w-xl text-base leading-8 text-white/78">{copy.problemBodyAr}</p>
             <p className="mt-6 text-base font-extrabold text-[#f4efe4]">{copy.solutionTitleAr}</p>
@@ -91,11 +96,10 @@ export default function StoreWeddingLandingPage() {
               </code>
               {copy.legalLeadAfterAr}
             </p>
-            <p className="mt-6 text-base font-extrabold text-[#f4efe4]">{copy.priceTitleAr}</p>
-            <p className={cn('mt-2 text-2xl font-black', text)}>{copy.priceLineAr}</p>
             <p className="mt-2 max-w-xl text-sm leading-7 text-white/75">{copy.priceBodyAr}</p>
             <p className="mt-6 text-base font-extrabold text-[#f4efe4]">{copy.startTitleAr}</p>
             <p className="mt-2 max-w-xl text-sm font-extrabold leading-7 text-[#f4efe4]">{copy.closeAr}</p>
+            </StoreLandingFold>
             <div className="mt-6 flex flex-wrap gap-3">
               <a
                 href="#live-preview"
@@ -152,7 +156,6 @@ export default function StoreWeddingLandingPage() {
                 reel={voice === 'women' ? 'wedding-women' : 'wedding'}
                 alt={copy.titleAr}
                 className="aspect-[16/9]"
-                eager
               />
             </figure>
             <StoreWeddingInviteCard host={demo.host} styleId={weddingLiveDefaultStyle(voice)} />
@@ -161,7 +164,9 @@ export default function StoreWeddingLandingPage() {
       </section>
       <section className="px-4 pb-28">
         <div className="mx-auto max-w-6xl">
-          <StoreWeddingLiveStudio token={labToken} />
+          <StoreInViewMount minHeightClass="min-h-[28rem]">
+            <StoreWeddingLiveStudio token={labToken} />
+          </StoreInViewMount>
           <div className="mt-10 max-w-2xl">
             <StoreWeddingOrderForm voice={voice} />
           </div>

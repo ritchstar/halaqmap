@@ -6,6 +6,7 @@
 import { useEffect, type ReactNode } from 'react';
 import { StoreShopLife } from '@/components/store/StoreShopLife';
 import { StoreShopSky } from '@/components/store/StoreShopSky';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { lockPartnerDarkCanvas } from '@/lib/partnerDarkCanvas';
 import { STORE_LIVE_MARK_AR } from '@/config/storeLiveAtmosphere';
 import type { StoreShopSkyProduct, StoreShopSkySurface } from '@/config/storeShopSky';
@@ -26,11 +27,13 @@ export function StorePurchasedShell({
   life?: boolean;
 }) {
   useEffect(() => lockPartnerDarkCanvas(), []);
-  const canvas = Boolean(sky) || life;
+  const isMobile = useIsMobile();
+  const showSky = Boolean(sky) && !(life && isMobile);
+  const canvas = showSky || life;
 
   return (
     <div dir="rtl" className="store-purchased-shell relative min-h-[100svh] bg-[#050308] text-[#f7edd8]">
-      {sky ? <StoreShopSky product={sky} surface={skySurface} lat={skyLat} lng={skyLng} hideChip={life} /> : null}
+      {sky && showSky ? <StoreShopSky product={sky} surface={skySurface} lat={skyLat} lng={skyLng} hideChip={life} /> : null}
       {life ? <StoreShopLife /> : null}
       {canvas ? <div className="relative z-10">{children}</div> : children}
       <p className="store-live-mark pointer-events-none fixed bottom-1 left-1/2 z-30 -translate-x-1/2">

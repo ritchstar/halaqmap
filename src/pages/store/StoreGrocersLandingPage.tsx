@@ -13,6 +13,8 @@ import { StoreGrocersOrderForm } from '@/components/store/StoreGrocersOrderForm'
 import { StoreProductBenefitsLink } from '@/components/store/StoreProductBenefitsLink';
 import { StoreShot } from '@/components/store/StoreShot';
 import { StoreGrocersStudio } from '@/components/store/StoreGrocersStudio';
+import { StoreInViewMount } from '@/components/store/StoreInViewMount';
+import { StoreLandingFold } from '@/components/store/StoreLandingFold';
 import { STORE_BRAND_LATIN } from '@/config/storeFront';
 import { STORE_MOBILE_VENDOR } from '@/config/storeMobileVendor';
 import {
@@ -43,7 +45,12 @@ export default function StoreGrocersLandingPage() {
         <div className="mx-auto grid max-w-5xl items-start gap-8 lg:grid-cols-[1.05fr_0.95fr]">
           <div>
             <p className="text-sm font-bold leading-7 tracking-wide text-[#8fbf7a]">{STORE_GROCERS_LIVE.kickerAr}</p>
-            <h1 className="mt-2 text-4xl font-extrabold leading-tight">{STORE_GROCERS_LIVE.titleAr}</h1>
+            <h1 className="mt-2 text-3xl font-extrabold leading-tight md:text-4xl">{STORE_GROCERS_LIVE.titleAr}</h1>
+            <p className="mt-4 max-w-xl text-base leading-8 text-white/78">{STORE_GROCERS_LIVE.leadAr}</p>
+            <p className="mt-4 text-2xl font-black text-[#8fbf7a]">{STORE_GROCERS_LIVE.priceLineAr}</p>
+            <p className="mt-2 text-sm font-bold leading-7 text-[#8fbf7a]">{STORE_MOBILE_VENDOR.priceLineAr}</p>
+            <p className="mt-2 max-w-xl text-sm leading-7 text-white/65">{STORE_GROCERS_LIVE.durationLineAr}</p>
+            <StoreLandingFold accentClass="text-[#8fbf7a]">
             <p className="mt-6 text-base font-extrabold text-[#f4efe4]">{STORE_GROCERS_LIVE.problemTitleAr}</p>
             <p className="mt-2 max-w-xl text-base leading-8 text-white/78">{STORE_GROCERS_LIVE.problemBodyAr}</p>
             <p className="mt-6 text-base font-extrabold text-[#f4efe4]">{STORE_GROCERS_LIVE.solutionTitleAr}</p>
@@ -71,10 +78,6 @@ export default function StoreGrocersLandingPage() {
               </code>
               {STORE_GROCERS_LIVE.legalLeadAfterAr}
             </p>
-            <p className="mt-6 text-base font-extrabold text-[#f4efe4]">{STORE_GROCERS_LIVE.priceTitleAr}</p>
-            <p className="mt-2 text-2xl font-black text-[#8fbf7a]">{STORE_GROCERS_LIVE.priceLineAr}</p>
-            <p className="mt-2 text-sm font-bold leading-7 text-[#8fbf7a]">{STORE_MOBILE_VENDOR.priceLineAr}</p>
-            <p className="mt-2 max-w-xl text-sm leading-7 text-white/65">{STORE_GROCERS_LIVE.durationLineAr}</p>
             <p className="mt-6 text-base font-extrabold text-[#f4efe4]">{STORE_GROCERS_LIVE.startTitleAr}</p>
             <p className="mt-2 max-w-xl text-sm font-extrabold leading-7 text-[#f4efe4]">{STORE_GROCERS_LIVE.closeAr}</p>
             {renewToken ? (
@@ -106,6 +109,7 @@ export default function StoreGrocersLandingPage() {
                 </li>
               ))}
             </ul>
+            </StoreLandingFold>
             <div className="mt-5 flex flex-wrap gap-2">
               {STORE_GROCERS_LIVE_PACKS.map((pack) => (
                 <span key={pack.id} className="rounded-full border border-[#8fbf7a]/35 px-3 py-1 text-xs text-[#8fbf7a]">
@@ -160,7 +164,6 @@ export default function StoreGrocersLandingPage() {
               reel="grocers"
               alt={STORE_GROCERS_LIVE.heroAltAr}
               className="aspect-[16/10] w-full"
-              eager
             />
             <figcaption className="border-t border-[#8fbf7a]/20 bg-[#07140e] px-5 py-4">
               <p className="text-xl font-black">{STORE_GROCERS_LIVE.heroCaptionAr}</p>
@@ -171,7 +174,9 @@ export default function StoreGrocersLandingPage() {
       </section>
       <section className="px-4 pb-14">
         <div className="mx-auto max-w-6xl">
-          <StoreGrocersStudio token={STORE_GROCERS_LIVE_LAB_TOKEN} />
+          <StoreInViewMount>
+            <StoreGrocersStudio token={STORE_GROCERS_LIVE_LAB_TOKEN} />
+          </StoreInViewMount>
           <div className="mt-10 max-w-2xl">
             <StoreGrocersOrderForm renewToken={renewToken} />
           </div>

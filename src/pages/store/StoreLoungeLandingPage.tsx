@@ -15,6 +15,8 @@ import {
 import { StoreEnterpriseDirectMail } from '@/components/store/StoreEnterpriseDirectMail';
 import { StoreProductBenefitsLink } from '@/components/store/StoreProductBenefitsLink';
 import { StoreLoungeLiveStudio } from '@/components/store/StoreLoungeLiveStudio';
+import { StoreInViewMount } from '@/components/store/StoreInViewMount';
+import { StoreLandingFold } from '@/components/store/StoreLandingFold';
 import { StoreLoungeNightSky } from '@/components/store/StoreLoungeNightSky';
 import { StoreLoungeOrderForm } from '@/components/store/StoreLoungeOrderForm';
 import { StoreShot } from '@/components/store/StoreShot';
@@ -47,7 +49,7 @@ export default function StoreLoungeLandingPage() {
         <div className="mx-auto grid max-w-5xl items-start gap-8 lg:grid-cols-[1.05fr_0.95fr]">
           <div>
             <p className="text-sm font-bold tracking-wide text-[#d4a574]">{STORE_LOUNGE_LIVE.kickerAr}</p>
-            <h1 className="mt-2 text-4xl font-extrabold leading-tight text-[#f4efe4]">{STORE_LOUNGE_LIVE.titleAr}</h1>
+            <h1 className="mt-2 text-3xl font-extrabold leading-tight text-[#f4efe4] md:text-4xl">{STORE_LOUNGE_LIVE.titleAr}</h1>
             <p className="mt-4 max-w-xl text-base leading-8 text-white/78">{STORE_LOUNGE_LIVE.leadAr}</p>
             <p className="mt-4 text-2xl font-black text-[#d4a574]">{STORE_LOUNGE_LIVE.priceLineAr}</p>
             <p className="mt-2 max-w-xl text-sm leading-7 text-white/65">{STORE_LOUNGE_LIVE.durationLineAr}</p>
@@ -56,6 +58,7 @@ export default function StoreLoungeLandingPage() {
                 {STORE_LOUNGE_LIVE.expiredLeadAr}
               </p>
             ) : null}
+            <StoreLandingFold accentClass="text-[#d4a574]">
             <ul className="mt-6 space-y-3 text-sm leading-7 text-white/75">
               {STORE_LOUNGE_LIVE.featurePoints.map((item) => (
                 <li key={item.titleAr}>
@@ -65,6 +68,7 @@ export default function StoreLoungeLandingPage() {
                 </li>
               ))}
             </ul>
+            </StoreLandingFold>
             <div className="mt-5 flex flex-wrap gap-2">
               {STORE_LOUNGE_LIVE_EVENTS.map((item) => (
                 <span key={item.id} className="rounded-full border border-[#d4a574]/30 px-3 py-1 text-xs text-[#d4a574]">
@@ -122,7 +126,6 @@ export default function StoreLoungeLandingPage() {
               reel="lounge"
               alt={STORE_LOUNGE_LIVE.heroAltAr}
               className="aspect-[16/10] w-full"
-              eager
             />
             <figcaption className="border-t border-[#d4a574]/20 bg-[#0b1a24] px-5 py-4">
               <p className="text-xs tracking-[0.3em] text-[#d4a574]">{STORE_LOUNGE_LIVE.hallKickerAr}</p>
@@ -143,7 +146,9 @@ export default function StoreLoungeLandingPage() {
       </section>
       <section className="px-4 pb-14">
         <div className="mx-auto max-w-6xl">
-          <StoreLoungeLiveStudio token={STORE_LOUNGE_LIVE_LAB_TOKEN} />
+          <StoreInViewMount>
+            <StoreLoungeLiveStudio token={STORE_LOUNGE_LIVE_LAB_TOKEN} />
+          </StoreInViewMount>
           <div className="mt-10 max-w-2xl">
             <StoreLoungeOrderForm renewToken={renewToken} />
           </div>

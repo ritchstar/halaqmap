@@ -77,8 +77,14 @@ export default function StorePaidInviteViewPage() {
     setBusy('png');
     try {
       const blob = await renderPaidInviteCardPng(cardPngInput());
-      await downloadPaidInviteCard(blob, card.hostName || 'card');
-      toast.success('تم تحميل البطاقة.');
+      const result = await downloadPaidInviteCard(blob, card.hostName || 'card');
+      if (!result.ok) {
+        if (result.error === 'cancelled') return;
+        throw new Error(result.error);
+      }
+      toast.success(
+        result.method === 'open' ? 'اضغط الصورة مطولاً ثم احفظها في الجهاز.' : 'تم تحميل البطاقة.',
+      );
     } catch {
       toast.error('تعذّر تحميل البطاقة. أعد المحاولة من المتصفح.');
     } finally {

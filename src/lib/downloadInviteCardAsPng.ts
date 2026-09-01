@@ -4,35 +4,9 @@
  * تنزيل كرت الدعوة كصورة من صورة الستايل والنص فقط.
  * الرسم على الكانفاس مباشرة حتى لا تُلتقط طبقات الصفحة أو كروت أخرى.
  */
+import { canvasToPngBlob, loadSameOriginImage, savePngBlob } from '@/lib/savePngBlob';
 
 const FONT = 'Tajawal, "Segoe UI", Tahoma, Arial, sans-serif';
-
-function triggerBlobDownload(blob: Blob, fileName: string): void {
-  const url = URL.createObjectURL(blob);
-  try {
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = fileName.endsWith('.png') ? fileName : `${fileName}.png`;
-    a.rel = 'noopener';
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-  } finally {
-    window.setTimeout(() => URL.revokeObjectURL(url), 1500);
-  }
-}
-
-async function canvasToPngBlob(canvas: HTMLCanvasElement): Promise<Blob> {
-  const blob = await new Promise<Blob | null>((resolve) => {
-    canvas.toBlob((b) => resolve(b), 'image/png');
-  });
-  if (blob) return blob;
-  const dataUrl = canvas.toDataURL('image/png');
-  const res = await fetch(dataUrl);
-  const fromData = await res.blob();
-  if (!fromData.size) throw new Error('png_blob_failed');
-  return fromData;
-}
 
 async function ensureInviteFont(): Promise<void> {
   if (typeof document === 'undefined' || !('fonts' in document)) return;
@@ -46,22 +20,8 @@ async function ensureInviteFont(): Promise<void> {
   }
 }
 
-function loadImageOnce(src: string, useCors: boolean): Promise<HTMLImageElement | null> {
-  return new Promise((resolve) => {
-    const img = new Image();
-    if (useCors) img.crossOrigin = 'anonymous';
-    img.onload = () => resolve(img);
-    img.onerror = () => resolve(null);
-    img.src = src;
-  });
-}
-
 async function loadImage(src: string): Promise<HTMLImageElement | null> {
-  const trimmed = src.trim();
-  if (!trimmed) return null;
-  const local = await loadImageOnce(trimmed, false);
-  if (local) return local;
-  return loadImageOnce(trimmed, true);
+  return loadSameOriginImage(src, 8000);
 }
 
 function roundRect(
@@ -195,25 +155,21 @@ export function inviteCardPhotoSrc(hostPhotoSrc: string | undefined, styleImage:
   return styleImage;
 }
 
-export async function downloadInviteCardAsPng(
-  fileName: string,
+function paintInviteCard(
+  canvas: HTMLCanvasElement,
   payload: InviteCardPngPayload,
-): Promise<void> {
-  await ensureInviteFont();
-  const W = 1080;
-  const H = 1440;
-  const canvas = document.createElement('canvas');
-  canvas.width = W;
-  canvas.height = H;
+  photo: HTMLImageElement | null,
+): void {
   const ctx = canvas.getContext('2d');
   if (!ctx) throw new Error('canvas_unavailable');
-
-  const radius = 48;
+  const W = canvas.width;
+  const H = canvas.height;
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.clearRect(0, 0, W, H);
   ctx.save();
-  roundRect(ctx, 0, 0, W, H, radius);
+  roundRect(ctx, 0, 0, W, H, 48);
   ctx.clip();
 
-  const photo = payload.photoSrc ? await loadImage(payload.photoSrc) : null;
   if (photo) {
     drawCoverPhoto(ctx, photo, W, H);
   } else {
@@ -330,7 +286,36 @@ export async function downloadInviteCardAsPng(
 
   ctx.restore();
   paintBalancedInviteFrame(canvas, accent);
+}
 
-  const blob = await canvasToPngBlob(canvas);
-  triggerBlobDownload(blob, fileName);
+export async function downloadInviteCardAsPng(
+  fileName: string,
+  payload: InviteCardPngPayload,
+): Promise<void> {
+  await ensureInviteFont();
+  const canvas = document.createElement('canvas');
+  canvas.width = 1080;
+  canvas.height = 1440;
+  if (!canvas.getContext('2d')) throw new Error('canvas_unavailable');
+
+  const photo = payload.photoSrc ? await loadImage(payload.photoSrc) : null;
+  let blob: Blob;
+  try {
+    paintInviteCard(canvas, payload, photo);
+    blob = await canvasToPngBlob(canvas);
+  } catch {
+    paintInviteCard(canvas, payload, null);
+    blob = await canvasToPngBlob(canvas);
+  }
+
+  const result = await savePngBlob({
+    blob,
+    fileName,
+    shareTitle: payload.titleAr || 'halaqmap',
+    preferShare: false,
+  });
+  if (!result.ok) {
+    if (result.error === 'cancelled') return;
+    throw new Error(result.error);
+  }
 }

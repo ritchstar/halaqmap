@@ -3,6 +3,7 @@
  *
  * توليد بطاقة واجهة المتجر للمشاركة — اسم وصفة + عبارات قصيرة.
  */
+import QRCode from 'qrcode';
 import { STORE_VISUALS } from '@/config/storeFront';
 import {
   STORE_BRAND_LATIN,
@@ -11,8 +12,14 @@ import {
   STORE_PUBLIC_NAME_AR,
   STORE_SATELLITE_HOST,
   storeIntroCardCta,
+  storeIntroCardLandingUrl,
   storeIntroCardPitch,
 } from '@/config/storeIntroCardCopy';
+import {
+  canvasToPngBlob,
+  loadSameOriginImage,
+  savePngBlob,
+} from '@/lib/savePngBlob';
 import {
   sanitizeStoreIntroCardName,
   sanitizeStoreIntroCardRole,
@@ -25,7 +32,7 @@ export {
 } from '@/lib/storeIntroCardShare';
 
 export type StoreIntroCardSaveResult =
-  | { ok: true; method: 'download' | 'share' | 'preview' }
+  | { ok: true; method: 'download' | 'share' | 'preview' | 'open' }
   | { ok: false; error: string };
 
 const FONT = "Tajawal, 'Segoe UI', Tahoma, Arial, sans-serif";
@@ -51,24 +58,18 @@ function isMobileUa(): boolean {
   return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
 }
 
-async function canvasToPngBlob(canvas: HTMLCanvasElement): Promise<Blob> {
+async function resolveIntroQrDataUrl(provided: string | null): Promise<string | null> {
+  if (provided && provided.startsWith('data:image/')) return provided;
   try {
-    const blob = await new Promise<Blob | null>((resolve, reject) => {
-      try {
-        canvas.toBlob((b) => resolve(b), 'image/png');
-      } catch (err) {
-        reject(err);
-      }
+    return await QRCode.toDataURL(storeIntroCardLandingUrl(), {
+      errorCorrectionLevel: 'M',
+      margin: 1,
+      width: 384,
+      color: { dark: '#061018', light: '#ffffff' },
     });
-    if (blob && blob.size > 0) return blob;
   } catch {
-    /* toBlob مرفوض */
+    return provided;
   }
-  const dataUrl = canvas.toDataURL('image/png');
-  const res = await fetch(dataUrl);
-  const fromData = await res.blob();
-  if (!fromData.size) throw new Error('png_blob_failed');
-  return fromData;
 }
 
 async function ensureBrandFont(): Promise<void> {
@@ -96,26 +97,7 @@ async function ensureBrandFont(): Promise<void> {
 }
 
 function loadImageSafe(src: string): Promise<HTMLImageElement | null> {
-  return new Promise((resolve) => {
-    if (!src) {
-      resolve(null);
-      return;
-    }
-    const img = new Image();
-    const isAbsoluteOtherOrigin =
-      /^https?:\/\//i.test(src) &&
-      typeof location !== 'undefined' &&
-      !src.startsWith(location.origin);
-    if (isAbsoluteOtherOrigin) img.crossOrigin = 'anonymous';
-    const done = (el: HTMLImageElement | null) => {
-      window.clearTimeout(timer);
-      resolve(el);
-    };
-    const timer = window.setTimeout(() => done(null), 4000);
-    img.onload = () => done(img);
-    img.onerror = () => done(null);
-    img.src = src;
-  });
+  return loadSameOriginImage(src, 10000);
 }
 
 function roundRect(
@@ -413,9 +395,10 @@ export async function renderStoreIntroCardPng(input: {
   qrDataUrl: string | null;
 }): Promise<Blob> {
   await ensureBrandFont();
+  const qrDataUrl = await resolveIntroQrDataUrl(input.qrDataUrl);
   const logo = await loadImageSafe(LOGO_PNG);
   const photo = await loadImageSafe(STORE_VISUALS.radar);
-  const qr = input.qrDataUrl ? await loadImageSafe(input.qrDataUrl) : null;
+  const qr = qrDataUrl ? await loadImageSafe(qrDataUrl) : null;
 
   const w = 1080;
   const h = 1350;
@@ -556,63 +539,19 @@ export async function renderStoreIntroCardPng(input: {
   return canvasToPngBlob(canvas);
 }
 
-function triggerAnchorDownload(blob: Blob, fileName: string): void {
-  const url = URL.createObjectURL(blob);
-  try {
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = fileName;
-    a.rel = 'noopener';
-    a.style.display = 'none';
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-  } finally {
-    window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
-  }
-}
-
-function canShareFile(file: File): boolean {
-  if (typeof navigator === 'undefined' || typeof navigator.share !== 'function') return false;
-  try {
-    if (typeof navigator.canShare === 'function') return navigator.canShare({ files: [file] });
-    return true;
-  } catch {
-    return false;
-  }
-}
-
 export async function saveStoreIntroCardPng(opts: {
   blob: Blob;
   shareTitle: string;
   shareText: string;
   preferShare: boolean;
 }): Promise<StoreIntroCardSaveResult> {
-  try {
-    const name = safePngName('halaqmap-store-card.png');
-    const file = new File([opts.blob], name, { type: 'image/png' });
-    if (opts.preferShare && canShareFile(file)) {
-      try {
-        const withFiles: ShareData = {
-          files: [file],
-          title: opts.shareTitle,
-          text: opts.shareText,
-        };
-        if (typeof navigator.canShare !== 'function' || navigator.canShare(withFiles)) {
-          await navigator.share(withFiles);
-          return { ok: true, method: 'share' };
-        }
-      } catch (err) {
-        if (err instanceof Error && err.name === 'AbortError') {
-          return { ok: false, error: 'cancelled' };
-        }
-      }
-    }
-    triggerAnchorDownload(opts.blob, name);
-    return { ok: true, method: 'download' };
-  } catch (err) {
-    return { ok: false, error: err instanceof Error ? err.message : 'save_failed' };
-  }
+  return savePngBlob({
+    blob: opts.blob,
+    fileName: safePngName('halaqmap-store-card.png'),
+    shareTitle: opts.shareTitle,
+    shareText: opts.shareText,
+    preferShare: opts.preferShare,
+  });
 }
 
 export function storeIntroCardFilename(): string {

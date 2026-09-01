@@ -19,6 +19,8 @@ export function StoreVisitorEngage() {
   const [panel, setPanel] = useState<'share' | null>(null);
   const [copied, setCopied] = useState(false);
   const onReviewsPage = location.pathname === ROUTE_PATHS.STORE_REVIEWS;
+  const hideForStickyBuy = location.pathname.includes('/store/wedding');
+  if (hideForStickyBuy) return null;
 
   const close = useCallback(() => {
     setPanel(null);

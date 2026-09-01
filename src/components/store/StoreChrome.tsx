@@ -24,7 +24,7 @@ export function StoreVisitorShell({ children }: { children: ReactNode }) {
     rememberStoreAffiliateRef();
   }, []);
   return (
-    <div dir="rtl" className="min-h-[100svh] bg-[#061018] text-[#f4efe4]">
+    <div dir="rtl" className="store-product-shell min-h-[100svh] bg-[#061018] text-[#f4efe4]">
       {children}
     </div>
   );
@@ -51,7 +51,7 @@ function StoreHmTubeMark({ featured = false }: { featured?: boolean }) {
 
 function StoreHmTubeCopy({ featured = false }: { featured?: boolean }) {
   return (
-    <span className={cn('min-w-0 text-start', featured ? 'max-w-[14rem]' : 'max-w-[9.5rem] sm:max-w-[12rem]')}>
+    <span className={cn('min-w-0 text-start', featured ? 'max-w-[14rem]' : 'hidden max-w-[9.5rem] sm:block sm:max-w-[12rem]')}>
       <span dir="ltr" className={cn('block font-black tracking-wide text-[#e8c547]', featured ? 'text-lg' : 'text-sm')}>
         {STORE_HMTUBE.brand}
       </span>
@@ -71,7 +71,7 @@ function StoreHmTubeLink({ featured = false }: { featured?: boolean }) {
         'flex shrink-0 items-center gap-2 border border-[#e8c547]/35 bg-black/35 hover:border-[#e8c547]/70',
         featured
           ? 'rounded-3xl px-3 py-2 shadow-[0_16px_36px_-18px_rgba(45,212,191,0.65)]'
-          : 'rounded-2xl px-1.5 py-1',
+          : 'store-ops-tool rounded-2xl px-1.5 py-1',
       )}
     >
       <StoreHmTubeMark featured={featured} />
@@ -94,21 +94,21 @@ export function StoreVisitorHeader() {
     <div className="border-b border-white/10 bg-[#061018]/90">
       {!isMobile ? <KSACityClocksBar /> : null}
       <header className="backdrop-blur">
-        <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-3 px-4 py-3">
-          <Link to={ROUTE_PATHS.STORE_LANDING} className="flex min-w-0 items-center gap-3 me-auto">
+        <div className="store-visitor-header__row mx-auto flex max-w-5xl items-center gap-2 px-3 py-2 md:flex-wrap md:gap-3 md:px-4 md:py-3">
+          <Link to={ROUTE_PATHS.STORE_LANDING} className="flex min-w-0 items-center gap-2 me-auto md:gap-3">
             <img
               src={STORE_VISUALS.logo}
               alt=""
               width={44}
               height={44}
-              className="h-11 w-11 shrink-0 rounded-xl border border-white/10 object-cover"
+              className="h-9 w-9 shrink-0 rounded-xl border border-white/10 object-cover md:h-11 md:w-11"
             />
             <span className="min-w-0">
-              <p className="text-[0.7rem] font-bold tracking-wide text-[#e8c547]">{STORE_BRAND_LATIN}</p>
-              <p className="truncate text-lg font-extrabold text-[#f4efe4]">{STORE_LANDING_COPY.shopNameAr}</p>
+              <p className="text-[0.65rem] font-bold tracking-wide text-[#e8c547] md:text-[0.7rem]">{STORE_BRAND_LATIN}</p>
+              <p className="truncate text-base font-extrabold text-[#f4efe4] md:text-lg">{STORE_LANDING_COPY.shopNameAr}</p>
             </span>
           </Link>
-          <nav className="flex shrink-0 items-center gap-2 text-sm font-bold">
+          <nav className="flex shrink-0 items-center gap-1.5 text-sm font-bold md:gap-2">
             {showGiftCta ? (
             <Link
               to={ROUTE_PATHS.STORE_GIFT}
@@ -146,13 +146,13 @@ export function StoreVisitorHeader() {
             </Link>
             <Link
               to={ROUTE_PATHS.STORE_CARDS}
-              className="rounded-full border border-[#e8c547]/40 px-3 py-1.5 text-[#e8c547]"
+              className="hidden rounded-full border border-[#e8c547]/40 px-3 py-1.5 text-[#e8c547] sm:inline-flex"
             >
               بطاقة مجانية
             </Link>
           </nav>
           {showHmTube ? (
-            <span className="ms-auto">
+            <span className="shrink-0">
               <StoreHmTubeLink />
             </span>
           ) : null}

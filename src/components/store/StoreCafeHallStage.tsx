@@ -58,7 +58,7 @@ export function StoreCafeHallStage({
       <StoreLivePanoramaCycle frames={STORE_LOUNGE_MARKETING_FRAMES} />
       <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/78" />
 
-      <div className="relative z-10 flex min-h-[36rem] flex-col gap-4 p-4 pt-5 sm:p-6 sm:pt-7 md:p-8">
+      <div className={cn('relative z-10 flex flex-col gap-4 p-4 pt-5 sm:p-6 sm:pt-7 md:p-8', immersive ? 'min-h-[100svh]' : 'min-h-[20rem] md:min-h-[36rem]')}>
         {state.host.announcement.trim() ? (
           <StoreHallNoticePlaque text={state.host.announcement.trim()} accent={accent} />
         ) : null}

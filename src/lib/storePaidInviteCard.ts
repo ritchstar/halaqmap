@@ -3,6 +3,8 @@
  *
  * إصدار PNG لبطاقة المناسبة المدفوعة في المتصفح — بلا تخزين إضافي.
  */
+import { savePngBlob, type SavePngBlobResult } from '@/lib/savePngBlob';
+
 const FONT = "Tajawal, 'Segoe UI', Tahoma, Arial, sans-serif";
 const CARD_W = 1080;
 const CARD_H = 1350;
@@ -170,14 +172,11 @@ export function paidInviteCardFilename(hostName: string): string {
   return `halaqmap-occasion-${slug || 'card'}.png`;
 }
 
-export async function downloadPaidInviteCard(blob: Blob, hostName: string): Promise<void> {
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = paidInviteCardFilename(hostName);
-  a.rel = 'noopener';
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  window.setTimeout(() => URL.revokeObjectURL(url), 1500);
+export async function downloadPaidInviteCard(blob: Blob, hostName: string): Promise<SavePngBlobResult> {
+  return savePngBlob({
+    blob,
+    fileName: paidInviteCardFilename(hostName),
+    shareTitle: hostName || 'halaqmap',
+    preferShare: false,
+  });
 }

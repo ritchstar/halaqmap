@@ -13,6 +13,8 @@ import { StoreProduceOrderForm } from '@/components/store/StoreProduceOrderForm'
 import { StoreProductBenefitsLink } from '@/components/store/StoreProductBenefitsLink';
 import { StoreShot } from '@/components/store/StoreShot';
 import { StoreProduceStudio } from '@/components/store/StoreProduceStudio';
+import { StoreInViewMount } from '@/components/store/StoreInViewMount';
+import { StoreLandingFold } from '@/components/store/StoreLandingFold';
 import { STORE_BRAND_LATIN } from '@/config/storeFront';
 import {
   STORE_PRODUCE_LIVE,
@@ -42,7 +44,10 @@ export default function StoreProduceLandingPage() {
         <div className="mx-auto grid max-w-5xl items-start gap-8 lg:grid-cols-[1.05fr_0.95fr]">
           <div>
             <p className="text-sm font-bold leading-7 tracking-wide text-[#3d8b4a]">{STORE_PRODUCE_LIVE.kickerAr}</p>
-            <h1 className="mt-2 text-4xl font-extrabold leading-tight">{STORE_PRODUCE_LIVE.titleAr}</h1>
+            <h1 className="mt-2 text-3xl font-extrabold leading-tight md:text-4xl">{STORE_PRODUCE_LIVE.titleAr}</h1>
+            <p className="mt-4 max-w-xl text-base leading-8 text-white/78">{STORE_PRODUCE_LIVE.leadAr}</p>
+            <p className="mt-4 text-2xl font-black text-[#3d8b4a]">{STORE_PRODUCE_LIVE.priceLineAr}</p>
+            <StoreLandingFold accentClass="text-[#3d8b4a]">
             <p className="mt-6 text-base font-extrabold text-[#f4efe4]">{STORE_PRODUCE_LIVE.problemTitleAr}</p>
             <p className="mt-2 max-w-xl text-base leading-8 text-white/78">{STORE_PRODUCE_LIVE.problemBodyAr}</p>
             <p className="mt-6 text-base font-extrabold text-[#f4efe4]">{STORE_PRODUCE_LIVE.solutionTitleAr}</p>
@@ -103,6 +108,7 @@ export default function StoreProduceLandingPage() {
                 </li>
               ))}
             </ul>
+            </StoreLandingFold>
             <div className="mt-5 flex flex-wrap gap-2">
               {STORE_PRODUCE_LIVE_PACKS.map((pack) => (
                 <span key={pack.id} className="rounded-full border border-[#3d8b4a]/35 px-3 py-1 text-xs text-[#3d8b4a]">
@@ -157,7 +163,6 @@ export default function StoreProduceLandingPage() {
               reel="produce"
               alt={STORE_PRODUCE_LIVE.heroAltAr}
               className="aspect-[16/10] w-full"
-              eager
             />
             <figcaption className="border-t border-[#3d8b4a]/20 bg-[#0b1a10] px-5 py-4">
               <p className="text-xl font-black">{STORE_PRODUCE_LIVE.heroCaptionAr}</p>
@@ -168,7 +173,9 @@ export default function StoreProduceLandingPage() {
       </section>
       <section className="px-4 pb-14">
         <div className="mx-auto max-w-6xl">
-          <StoreProduceStudio token={STORE_PRODUCE_LIVE_LAB_TOKEN} />
+          <StoreInViewMount>
+            <StoreProduceStudio token={STORE_PRODUCE_LIVE_LAB_TOKEN} />
+          </StoreInViewMount>
           <div className="mt-10 max-w-2xl">
             <StoreProduceOrderForm renewToken={renewToken} />
           </div>

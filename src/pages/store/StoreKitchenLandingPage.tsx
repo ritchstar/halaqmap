@@ -13,6 +13,8 @@ import { StoreEnterpriseDirectMail } from '@/components/store/StoreEnterpriseDir
 import { StoreKitchenOrderForm } from '@/components/store/StoreKitchenOrderForm';
 import { StoreProductBenefitsLink } from '@/components/store/StoreProductBenefitsLink';
 import { StoreKitchenStudio } from '@/components/store/StoreKitchenStudio';
+import { StoreInViewMount } from '@/components/store/StoreInViewMount';
+import { StoreLandingFold } from '@/components/store/StoreLandingFold';
 import { StoreShot } from '@/components/store/StoreShot';
 import { STORE_BRAND_LATIN } from '@/config/storeFront';
 import {
@@ -44,7 +46,10 @@ export default function StoreKitchenLandingPage() {
         <div className="mx-auto grid max-w-5xl items-start gap-8 lg:grid-cols-[1.05fr_0.95fr]">
           <div>
             <p className="text-sm font-bold leading-7 tracking-wide text-[#b45a3c]">{STORE_KITCHEN_LIVE.kickerAr}</p>
-            <h1 className="mt-2 text-4xl font-extrabold leading-tight">{STORE_KITCHEN_LIVE.titleAr}</h1>
+            <h1 className="mt-2 text-3xl font-extrabold leading-tight md:text-4xl">{STORE_KITCHEN_LIVE.titleAr}</h1>
+            <p className="mt-4 max-w-xl text-base leading-8 text-white/78">{STORE_KITCHEN_LIVE.leadAr}</p>
+            <p className="mt-4 text-2xl font-black text-[#b45a3c]">{STORE_KITCHEN_LIVE.priceLineAr}</p>
+            <StoreLandingFold accentClass="text-[#b45a3c]">
             <p className="mt-6 text-base font-extrabold text-[#f4efe4]">{STORE_KITCHEN_LIVE.problemTitleAr}</p>
             <p className="mt-2 max-w-xl text-base leading-8 text-white/78">{STORE_KITCHEN_LIVE.problemBodyAr}</p>
             <p className="mt-6 text-base font-extrabold text-[#f4efe4]">{STORE_KITCHEN_LIVE.solutionTitleAr}</p>
@@ -106,6 +111,7 @@ export default function StoreKitchenLandingPage() {
                 </li>
               ))}
             </ul>
+            </StoreLandingFold>
             <StoreEnterpriseDirectMail
               className="mt-4 max-w-xl"
               linkClassName="text-[#b45a3c]"
@@ -160,7 +166,6 @@ export default function StoreKitchenLandingPage() {
               reel="kitchen"
               alt={STORE_KITCHEN_LIVE.heroAltAr}
               className="aspect-[16/10] w-full"
-              eager
             />
             <figcaption className="border-t border-[#b45a3c]/20 bg-[#1a0c08] px-5 py-4">
               <p className="text-xl font-black">{STORE_KITCHEN_LIVE.heroCaptionAr}</p>
@@ -171,7 +176,9 @@ export default function StoreKitchenLandingPage() {
       </section>
       <section className="px-4 pb-14">
         <div className="mx-auto max-w-6xl">
-          <StoreKitchenStudio token={STORE_KITCHEN_LIVE_LAB_TOKEN} />
+          <StoreInViewMount>
+            <StoreKitchenStudio token={STORE_KITCHEN_LIVE_LAB_TOKEN} />
+          </StoreInViewMount>
           <div className="mt-10 max-w-2xl">
             <StoreKitchenOrderForm renewToken={renewToken} />
           </div>

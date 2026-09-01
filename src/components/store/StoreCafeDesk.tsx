@@ -18,6 +18,7 @@ import { StoreProductPassDeskButton } from '@/components/store/StoreProductPassD
 import { StoreShopHoursDesk } from '@/components/store/StoreShopHoursDesk';
 import { StoreShopPlaceDesk } from '@/components/store/StoreShopPlaceDesk';
 import { StoreDeskHelpSupport } from '@/components/store/StoreDeskHelpSupport';
+import { StoreOpsSection } from '@/components/store/StoreOpsSection';
 import { cn } from '@/lib/utils';
 
 export function StoreCafeDesk({
@@ -178,6 +179,7 @@ export function StoreCafeDesk({
         ))}
       </div>
 
+      <StoreOpsSection titleAr="الموقع وساعات العمل" accent="#c48a4a">
       <StoreShopPlaceDesk
         value={state.host}
         onChange={(place) => onChange({ ...state, host: { ...state.host, ...place } })}
@@ -190,6 +192,7 @@ export function StoreCafeDesk({
         onChange={(nextHours) => onChange({ ...state, host: { ...state.host, ...nextHours } })}
         accent="#c48a4a"
       />
+      </StoreOpsSection>
 
       <label className="block text-sm">
         {STORE_CAFE_LIVE.flashLabelAr}
@@ -221,6 +224,7 @@ export function StoreCafeDesk({
 
       <StoreCafeMenuBoard state={state} onChange={onChange} />
 
+      <StoreOpsSection titleAr="ملصق العرض" accent="#c48a4a">
       <div className="rounded-2xl border border-[#c48a4a]/30 p-4">
         <div id="cafe-qr-print" className="mx-auto w-64 rounded-xl bg-white p-4 text-center text-[#061018]">
           <p className="text-sm font-black">{state.host.shopName}</p>
@@ -234,6 +238,7 @@ export function StoreCafeDesk({
         </button>
         <StoreProductPassDeskButton kind="cafe" token={token} shopName={state.host.shopName} />
       </div>
+      </StoreOpsSection>
 
       <StoreDeskArchiveDock tickets={state.orderArchive} accent="#c48a4a" filename="cafe-archive.json" />
       <StoreDeskHelpSupport product="cafe" />

@@ -27,6 +27,7 @@ import { StoreShopPresenceCount } from '@/components/store/StoreShopPresenceCoun
 import { StoreProductPassDeskButton } from '@/components/store/StoreProductPassDeskButton';
 import { StoreShopHoursDesk } from '@/components/store/StoreShopHoursDesk';
 import { StoreDeskHelpSupport } from '@/components/store/StoreDeskHelpSupport';
+import { StoreOpsSection } from '@/components/store/StoreOpsSection';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { cn } from '@/lib/utils';
 
@@ -273,11 +274,13 @@ export function StoreKitchenDesk({
         </div>
       </section>
 
+      <StoreOpsSection titleAr="ساعات العمل" accent="#b45a3c">
       <StoreShopHoursDesk
         value={state.host}
         onChange={(nextHours) => onChange({ ...state, host: { ...state.host, ...nextHours } })}
         accent="#b45a3c"
       />
+      </StoreOpsSection>
 
       <label className="block text-sm">
         {STORE_KITCHEN_LIVE.flashLabelAr}
@@ -344,6 +347,7 @@ export function StoreKitchenDesk({
 
       <StoreKitchenMenuBoard state={state} onChange={onChange} />
 
+      <StoreOpsSection titleAr="ملصق العرض" accent="#b45a3c">
       <div className="rounded-2xl border border-[#b45a3c]/30 p-4">
         <div id="kitchen-qr-print" className="mx-auto w-64 rounded-xl bg-white p-4 text-center text-[#061018]">
           <p className="text-sm font-black">{state.host.shopName}</p>
@@ -378,6 +382,7 @@ export function StoreKitchenDesk({
           qrStamp={state.host.qrActive ? state.host.qrStamp : ''}
         />
       </div>
+      </StoreOpsSection>
 
       <StoreDeskArchiveDock tickets={state.orderArchive} accent="#b45a3c" filename="kitchen-archive.json" />
       <StoreDeskHelpSupport product="kitchen" />

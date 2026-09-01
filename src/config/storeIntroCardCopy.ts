@@ -57,6 +57,8 @@ export const STORE_INTRO_CARD_COPY = {
   generateHint:
     'زر واتساب يرفق صورة البطاقة كاملة مع الرابط. الاسم والصفة يظهران على الكرت فقط.',
   downloadCta: 'تحميل الصورة',
+  downloadReady: 'تم تجهيز الصورة.',
+  downloadIosHint: 'اضغط الصورة مطولاً ثم احفظها في الجهاز.',
   shareCta: 'مشاركة',
   whatsappCta: 'واتساب',
   whatsappReady: 'أرسل الصورة من واتساب — البطاقة تظهر كاملة في المحادثة.',

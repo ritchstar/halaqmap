@@ -59,7 +59,7 @@ export function StoreWeddingLiveStudio({ token = STORE_WEDDING_LIVE_LAB_TOKEN }:
         </ul>
       </div>
       <StoreWeddingHallStage compact state={state} autoWelcome className="store-wedding-studio-hall mt-6" />
-      <div className="mt-5 flex flex-wrap gap-2 lg:hidden">
+      <div className="store-studio-switch mt-5 lg:hidden">
         <button
           type="button"
           onClick={() => setTab('guest')}

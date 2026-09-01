@@ -18,6 +18,7 @@ import { StoreShopHoursDesk } from '@/components/store/StoreShopHoursDesk';
 import { StoreShopPlaceDesk } from '@/components/store/StoreShopPlaceDesk';
 import { StoreShopPresenceCount } from '@/components/store/StoreShopPresenceCount';
 import { StoreDeskHelpSupport } from '@/components/store/StoreDeskHelpSupport';
+import { StoreOpsSection } from '@/components/store/StoreOpsSection';
 import { cn } from '@/lib/utils';
 
 export function StoreGrocersDesk({
@@ -164,6 +165,7 @@ export function StoreGrocersDesk({
         ))}
       </div>
 
+      <StoreOpsSection titleAr="الموقع وساعات العمل" accent="#8fbf7a">
       <StoreShopPlaceDesk
         value={state.host}
         onChange={(place) => onChange({ ...state, host: { ...state.host, ...place } })}
@@ -176,6 +178,7 @@ export function StoreGrocersDesk({
         onChange={(nextHours) => onChange({ ...state, host: { ...state.host, ...nextHours } })}
         accent="#8fbf7a"
       />
+      </StoreOpsSection>
 
       <label className="block text-sm">
         {STORE_GROCERS_LIVE.flashLabelAr}
@@ -187,6 +190,7 @@ export function StoreGrocersDesk({
         />
       </label>
 
+      <StoreOpsSection titleAr="حالات السلع" accent="#8fbf7a">
       <div className="rounded-2xl border border-white/12 p-4">
         <h3 className="font-extrabold">حالات السلع</h3>
         <ul className="mt-3 space-y-2">
@@ -204,9 +208,11 @@ export function StoreGrocersDesk({
           ))}
         </ul>
       </div>
+      </StoreOpsSection>
 
       <StoreGrocersIngest state={state} onChange={onChange} />
 
+      <StoreOpsSection titleAr="ملصق العرض" accent="#8fbf7a">
       <div className="rounded-2xl border border-[#8fbf7a]/30 p-4">
         <div id="grocers-qr-print" className="mx-auto w-64 rounded-xl bg-white p-4 text-center text-[#061018]">
           <p className="text-sm font-black">{state.host.shopName}</p>
@@ -220,6 +226,7 @@ export function StoreGrocersDesk({
         </button>
         <StoreProductPassDeskButton kind="grocers" token={token} shopName={state.host.shopName} />
       </div>
+      </StoreOpsSection>
 
       <StoreDeskArchiveDock tickets={state.orderArchive} accent="#8fbf7a" filename="grocers-archive.json" />
       <StoreDeskHelpSupport product="grocers" />

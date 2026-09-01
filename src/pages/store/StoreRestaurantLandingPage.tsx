@@ -13,6 +13,8 @@ import { StoreProductBenefitsLink } from '@/components/store/StoreProductBenefit
 import { StoreRestaurantOrderForm } from '@/components/store/StoreRestaurantOrderForm';
 import { StoreShot } from '@/components/store/StoreShot';
 import { StoreRestaurantStudio } from '@/components/store/StoreRestaurantStudio';
+import { StoreInViewMount } from '@/components/store/StoreInViewMount';
+import { StoreLandingFold } from '@/components/store/StoreLandingFold';
 import { STORE_MOBILE_VENDOR } from '@/config/storeMobileVendor';
 import {
   STORE_RESTAURANT_LIVE,
@@ -42,7 +44,7 @@ export default function StoreRestaurantLandingPage() {
         <div className="mx-auto grid max-w-5xl items-start gap-8 lg:grid-cols-[1.05fr_0.95fr]">
           <div>
             <p className="text-sm font-bold leading-7 tracking-wide text-[#e08a3c]">{STORE_RESTAURANT_LIVE.kickerAr}</p>
-            <h1 className="mt-2 text-4xl font-extrabold leading-tight">{STORE_RESTAURANT_LIVE.titleAr}</h1>
+            <h1 className="mt-2 text-3xl font-extrabold leading-tight md:text-4xl">{STORE_RESTAURANT_LIVE.titleAr}</h1>
             <p className="mt-4 max-w-xl text-base leading-8 text-white/78">{STORE_RESTAURANT_LIVE.leadAr}</p>
             <p className="mt-4 text-2xl font-black text-[#e08a3c]">{STORE_RESTAURANT_LIVE.priceLineAr}</p>
             <p className="mt-2 text-sm font-bold leading-7 text-[#e08a3c]">{STORE_MOBILE_VENDOR.priceLineAr}</p>
@@ -52,6 +54,7 @@ export default function StoreRestaurantLandingPage() {
                 انتهت المدة. الرابط ما زال لديكم. أتمّوا الشراء مرة أخرى لتمديد نفس الصفحة.
               </p>
             ) : null}
+            <StoreLandingFold accentClass="text-[#e08a3c]">
             <p className="mt-6 text-base font-extrabold text-[#f4efe4]">{STORE_RESTAURANT_LIVE.howTitleAr}</p>
             <p className="mt-2 max-w-xl text-sm leading-7 text-white/75">{STORE_RESTAURANT_LIVE.howLeadAr}</p>
             <ul className="mt-3 max-w-xl list-disc space-y-1 pr-5 text-sm leading-7 text-white/75">
@@ -89,6 +92,7 @@ export default function StoreRestaurantLandingPage() {
             </ul>
             <p className="mt-6 max-w-xl text-sm leading-7 text-white/75">{STORE_RESTAURANT_LIVE.privacyAr}</p>
             <p className="mt-3 max-w-xl text-sm font-extrabold leading-7 text-[#f4efe4]">{STORE_RESTAURANT_LIVE.closeAr}</p>
+            </StoreLandingFold>
             <StoreEnterpriseDirectMail
               className="mt-4 max-w-xl"
               linkClassName="text-[#e08a3c]"
@@ -143,7 +147,6 @@ export default function StoreRestaurantLandingPage() {
               reel="restaurant"
               alt={STORE_RESTAURANT_LIVE.heroAltAr}
               className="aspect-[16/10] w-full"
-              eager
             />
             <figcaption className="border-t border-[#e08a3c]/20 bg-[#1a1008] px-5 py-4">
               <p className="text-xl font-black">{STORE_RESTAURANT_LIVE.heroCaptionAr}</p>
@@ -154,7 +157,9 @@ export default function StoreRestaurantLandingPage() {
       </section>
       <section className="px-4 pb-14">
         <div className="mx-auto max-w-6xl">
-          <StoreRestaurantStudio token={STORE_RESTAURANT_LIVE_LAB_TOKEN} />
+          <StoreInViewMount>
+            <StoreRestaurantStudio token={STORE_RESTAURANT_LIVE_LAB_TOKEN} />
+          </StoreInViewMount>
           <div className="mt-10 max-w-2xl">
             <StoreRestaurantOrderForm renewToken={renewToken} />
           </div>

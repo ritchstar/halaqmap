@@ -49,7 +49,7 @@ export function StoreLoungeLiveStudio({ token = STORE_LOUNGE_LIVE_LAB_TOKEN }: {
         className="mt-6"
         guestUrl={`${typeof window !== 'undefined' ? window.location.origin : 'https://store.halaqmap.com'}/#/l/${encodeURIComponent(token)}/guest`}
       />
-      <div className="mt-5 flex flex-wrap gap-2">
+      <div className="store-studio-switch mt-5">
         <button
           type="button"
           onClick={() => setTab('guest')}
@@ -78,6 +78,7 @@ export function StoreLoungeLiveStudio({ token = STORE_LOUNGE_LIVE_LAB_TOKEN }: {
             state={state}
             onChange={commit}
             guestUrl={`${typeof window !== 'undefined' ? window.location.origin : 'https://store.halaqmap.com'}/#/l/${encodeURIComponent(token)}/guest`}
+            token={token}
           />
         ) : null}
       </div>

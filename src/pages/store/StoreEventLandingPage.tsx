@@ -18,6 +18,8 @@ import { StoreGiftPromoBanner } from '@/components/store/StoreGiftPromoBanner';
 import { StoreProductBenefitsLink } from '@/components/store/StoreProductBenefitsLink';
 import { StoreShot } from '@/components/store/StoreShot';
 import { StoreEventLiveStudio } from '@/components/store/StoreEventLiveStudio';
+import { StoreInViewMount } from '@/components/store/StoreInViewMount';
+import { StoreLandingFold } from '@/components/store/StoreLandingFold';
 import { StoreEventOrderForm } from '@/components/store/StoreEventOrderForm';
 import {
   STORE_EVENT_LIVE_LAB_TOKEN,
@@ -70,14 +72,16 @@ export default function StoreEventLandingPage() {
         <div className="mx-auto grid max-w-5xl items-start gap-8 lg:grid-cols-[1.05fr_0.95fr]">
           <div>
             <p className={cn('text-sm font-bold tracking-wide', text)}>{copy.kickerAr}</p>
-            <h1 className="mt-2 text-4xl font-extrabold leading-tight text-[#f4efe4]">{copy.titleAr}</h1>
+            <h1 className="mt-2 text-3xl font-extrabold leading-tight text-[#f4efe4] md:text-4xl">{copy.titleAr}</h1>
             <p className="mt-4 max-w-xl text-base leading-8 text-white/78">{copy.leadAr}</p>
             <p className={cn('mt-4 text-2xl font-black', text)}>{copy.priceLineAr}</p>
+            <StoreLandingFold accentClass={text}>
             <ul className="mt-6 space-y-2 text-sm leading-7 text-white/75">
               {features.map((item) => (
                 <li key={item}>{item}</li>
               ))}
             </ul>
+            </StoreLandingFold>
             <div className="mt-6 flex flex-wrap gap-3">
               <a
                 href="#live-preview"
@@ -132,7 +136,6 @@ export default function StoreEventLandingPage() {
                 reel={voice === 'women' ? 'event-women' : 'event'}
                 alt={copy.titleAr}
                 className="aspect-[16/9]"
-                eager
               />
             </figure>
             <StoreEventInviteCard host={demo.host} styleId={eventLiveDefaultStyle(voice)} />
@@ -141,7 +144,9 @@ export default function StoreEventLandingPage() {
       </section>
       <section className="px-4 pb-14">
         <div className="mx-auto max-w-6xl">
-          <StoreEventLiveStudio token={labToken} />
+          <StoreInViewMount minHeightClass="min-h-[28rem]">
+            <StoreEventLiveStudio token={labToken} />
+          </StoreInViewMount>
           <div className="mt-10 max-w-2xl">
             <StoreEventOrderForm voice={voice} />
           </div>

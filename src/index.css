@@ -3580,6 +3580,81 @@ html.platform-radar-fullscreen #root {
   overflow-x: clip;
 }
 
+.store-product-shell {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.store-visitor-header__row {
+  min-height: 3.25rem;
+}
+
+.store-preview-skeleton {
+  min-height: 18rem;
+  border-radius: 1.25rem;
+  border: 1px solid rgba(232, 197, 71, 0.18);
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03), rgba(232, 197, 71, 0.08), rgba(255, 255, 255, 0.03));
+  background-size: 160% 100%;
+  animation: store-preview-shimmer 1.6s ease-in-out infinite;
+}
+
+.store-ops-tool {
+  min-height: 2.75rem;
+  touch-action: manipulation;
+  transition:
+    transform 0.16s ease,
+    border-color 0.16s ease,
+    background-color 0.16s ease;
+}
+
+.store-ops-tool:active {
+  transform: scale(0.98);
+}
+
+.store-studio-switch {
+  position: sticky;
+  top: 0;
+  z-index: 25;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.55rem 0 0.7rem;
+  margin-inline: -0.15rem;
+  background: color-mix(in srgb, #061018 88%, transparent);
+  backdrop-filter: blur(14px);
+}
+
+.store-studio-switch > button {
+  min-height: 2.75rem;
+  touch-action: manipulation;
+  transition:
+    transform 0.16s ease,
+    background-color 0.16s ease,
+    border-color 0.16s ease;
+}
+
+.store-studio-switch > button:active {
+  transform: scale(0.97);
+}
+
+@keyframes store-preview-shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -60% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .store-preview-skeleton,
+  .store-ops-tool,
+  .store-studio-switch > button {
+    animation: none;
+    transition: none;
+  }
+}
+
 .store-shop-sky__shot {
   transition: opacity 1.2s ease;
 }

@@ -130,7 +130,7 @@ export function StoreWeddingHallStage({
 
         <header className="wedding-hall-masthead">
           <div
-            className={cn('hall-masthead-kicker invite-luminous', compact && 'hidden lg:block')}
+            className={cn('hall-masthead-kicker invite-luminous', compact && 'line-clamp-1 lg:line-clamp-none')}
             data-bidi="off"
             style={{ color: accent }}
           >
@@ -141,7 +141,7 @@ export function StoreWeddingHallStage({
             style={{ ['--hall-ornament' as string]: accent }}
             aria-hidden
           />
-          <div className={cn('hall-masthead-host', compact && 'hidden lg:block')} data-bidi="off">
+          <div className={cn('hall-masthead-host', compact && 'line-clamp-1 lg:line-clamp-none')} data-bidi="off">
             {weddingHostInviteLine(state.host)}
           </div>
           <div className="hall-masthead-names invite-luminous" data-bidi="off">
@@ -150,7 +150,7 @@ export function StoreWeddingHallStage({
           <div
             className={cn(
               'invite-luminous max-w-2xl text-base leading-8 text-white/90 md:text-lg',
-              compact && 'hidden lg:block',
+              compact && 'line-clamp-2 lg:line-clamp-none',
             )}
             data-bidi="off"
           >

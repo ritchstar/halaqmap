@@ -79,5 +79,10 @@ assert.match(preview, /STORE_INTRO_CARD_SECTORS/);
 assert.match(preview, /unicode-bidi:isolate/);
 assert.match(readFileSync(join(root, 'src/lib/storeIntroCard.ts'), 'utf8'), /STORE_INTRO_CARD_SECTORS/);
 assert.match(readFileSync(join(root, 'src/lib/storeIntroCard.ts'), 'utf8'), /qrSize = 168/);
+assert.match(readFileSync(join(root, 'src/lib/storeIntroCard.ts'), 'utf8'), /from ['"]@\/lib\/savePngBlob['"]/);
+assert.match(readFileSync(join(root, 'src/lib/storeIntroCard.ts'), 'utf8'), /QRCode\.toDataURL/);
+assert.match(readFileSync(join(root, 'src/lib/storeIntroCard.ts'), 'utf8'), /resolveIntroQrDataUrl/);
+assert.doesNotMatch(app, /from ['"]@\/lib\/savePngBlob['"]/);
+assert.equal(STORE_INTRO_CARD_COPY.downloadIosHint.endsWith('.'), true);
 
 console.log('store-intro-card: ok');

@@ -40,7 +40,7 @@ export function StoreRestaurantStudio({ token = STORE_RESTAURANT_LIVE_LAB_TOKEN 
       <p className="text-sm font-bold text-[#e08a3c]">{STORE_RESTAURANT_LIVE.labKickerAr}</p>
       <h2 className="mt-2 text-2xl font-extrabold">{STORE_RESTAURANT_LIVE.labTitleAr}</h2>
       <p className="mt-2 max-w-3xl text-sm leading-8 text-white/75">{STORE_RESTAURANT_LIVE.labLeadAr}</p>
-      <div className="mt-5 flex flex-wrap gap-2">
+      <div className="store-studio-switch mt-5">
         <button
           type="button"
           onClick={() => setTab('shop')}

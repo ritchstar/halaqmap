@@ -8,6 +8,7 @@ import {
   STORE_PUBLIC_NAME_AR,
   type StoreGreetingOccasion,
 } from '@/config/storeFront';
+import { savePngBlob } from '@/lib/savePngBlob';
 
 export const STORE_CARD_NAME_MAX = 80;
 export const STORE_CARD_CONTACT_MAX = 80;
@@ -308,12 +309,13 @@ export function storeGreetingCardFilename(occasion: StoreGreetingOccasion): stri
 }
 
 export async function downloadStoreGreetingCard(blob: Blob, occasion: StoreGreetingOccasion): Promise<void> {
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = storeGreetingCardFilename(occasion);
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  window.setTimeout(() => URL.revokeObjectURL(url), 1500);
+  const result = await savePngBlob({
+    blob,
+    fileName: storeGreetingCardFilename(occasion),
+    shareTitle: STORE_PUBLIC_NAME_AR,
+    preferShare: false,
+  });
+  if (!result.ok && result.error !== 'cancelled') {
+    throw new Error(result.error);
+  }
 }

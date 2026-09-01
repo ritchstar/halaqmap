@@ -18,6 +18,7 @@ import { StoreShopHoursDesk } from '@/components/store/StoreShopHoursDesk';
 import { StoreShopPlaceDesk } from '@/components/store/StoreShopPlaceDesk';
 import { StoreShopPresenceCount } from '@/components/store/StoreShopPresenceCount';
 import { StoreDeskHelpSupport } from '@/components/store/StoreDeskHelpSupport';
+import { StoreOpsSection } from '@/components/store/StoreOpsSection';
 import { cn } from '@/lib/utils';
 
 export function StoreProduceDesk({
@@ -179,6 +180,7 @@ export function StoreProduceDesk({
         ))}
       </div>
 
+      <StoreOpsSection titleAr="الموقع وساعات العمل" accent="#3d8b4a">
       <StoreShopPlaceDesk
         value={state.host}
         onChange={(place) => onChange({ ...state, host: { ...state.host, ...place } })}
@@ -191,6 +193,7 @@ export function StoreProduceDesk({
         onChange={(nextHours) => onChange({ ...state, host: { ...state.host, ...nextHours } })}
         accent="#3d8b4a"
       />
+      </StoreOpsSection>
 
       <label className="block text-sm">
         {STORE_PRODUCE_LIVE.flashLabelAr}
@@ -231,6 +234,7 @@ export function StoreProduceDesk({
 
       <StoreProduceIngest state={state} onChange={onChange} />
 
+      <StoreOpsSection titleAr="ملصق العرض" accent="#3d8b4a">
       <div className="rounded-2xl border border-[#3d8b4a]/30 p-4">
         <div id="produce-qr-print" className="mx-auto w-64 rounded-xl bg-white p-4 text-center text-[#061018]">
           <p className="text-sm font-black">{state.host.shopName}</p>
@@ -244,6 +248,7 @@ export function StoreProduceDesk({
         </button>
         <StoreProductPassDeskButton kind="produce" token={token} shopName={state.host.shopName} />
       </div>
+      </StoreOpsSection>
 
       <StoreDeskArchiveDock tickets={state.orderArchive} accent="#3d8b4a" filename="produce-archive.json" />
       <StoreDeskHelpSupport product="produce" />

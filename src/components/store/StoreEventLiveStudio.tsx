@@ -49,7 +49,7 @@ export function StoreEventLiveStudio({ token = STORE_EVENT_LIVE_LAB_TOKEN }: { t
         <p className="mt-2 text-sm leading-8 text-white/75">{copy.labLeadAr}</p>
       </div>
       <StoreEventHallStage state={state} className="mt-6" />
-      <div className="mt-5 flex flex-wrap gap-2">
+      <div className="store-studio-switch mt-5">
         <button
           type="button"
           onClick={() => setTab('guest')}

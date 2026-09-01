@@ -13,6 +13,8 @@ import { StoreEnterpriseDirectMail } from '@/components/store/StoreEnterpriseDir
 import { StoreProductBenefitsLink } from '@/components/store/StoreProductBenefitsLink';
 import { StoreShot } from '@/components/store/StoreShot';
 import { StoreCafeStudio } from '@/components/store/StoreCafeStudio';
+import { StoreInViewMount } from '@/components/store/StoreInViewMount';
+import { StoreLandingFold } from '@/components/store/StoreLandingFold';
 import { STORE_BRAND_LATIN } from '@/config/storeFront';
 import { STORE_MOBILE_VENDOR } from '@/config/storeMobileVendor';
 import {
@@ -43,7 +45,10 @@ export default function StoreCafeLandingPage() {
         <div className="mx-auto grid max-w-5xl items-start gap-8 lg:grid-cols-[1.05fr_0.95fr]">
           <div>
             <p className="text-sm font-bold leading-7 tracking-wide text-[#c48a4a]">{STORE_CAFE_LIVE.kickerAr}</p>
-            <h1 className="mt-2 text-4xl font-extrabold leading-tight">{STORE_CAFE_LIVE.titleAr}</h1>
+            <h1 className="mt-2 text-3xl font-extrabold leading-tight md:text-4xl">{STORE_CAFE_LIVE.titleAr}</h1>
+            <p className="mt-4 max-w-xl text-base leading-8 text-white/78">{STORE_CAFE_LIVE.leadAr}</p>
+            <p className="mt-4 text-2xl font-black text-[#c48a4a]">{STORE_CAFE_LIVE.priceLineAr}</p>
+            <StoreLandingFold accentClass="text-[#c48a4a]">
             <p className="mt-6 text-base font-extrabold text-[#f4efe4]">{STORE_CAFE_LIVE.problemTitleAr}</p>
             <p className="mt-2 max-w-xl text-base leading-8 text-white/78">{STORE_CAFE_LIVE.problemBodyAr}</p>
             <p className="mt-6 text-base font-extrabold text-[#f4efe4]">{STORE_CAFE_LIVE.solutionTitleAr}</p>
@@ -78,8 +83,6 @@ export default function StoreCafeLandingPage() {
               {STORE_CAFE_LIVE.legalLeadAfterAr}
             </p>
             <p className="mt-3 max-w-xl text-sm leading-7 text-white/75">{STORE_CAFE_LIVE.privacyAr}</p>
-            <p className="mt-6 text-base font-extrabold text-[#f4efe4]">{STORE_CAFE_LIVE.priceTitleAr}</p>
-            <p className="mt-2 text-2xl font-black text-[#c48a4a]">{STORE_CAFE_LIVE.priceLineAr}</p>
             <p className="mt-2 text-sm font-bold leading-7 text-[#c48a4a]">{STORE_MOBILE_VENDOR.priceLineAr}</p>
             <p className="mt-2 max-w-xl text-sm leading-7 text-white/65">{STORE_CAFE_LIVE.durationLineAr}</p>
             <p className="mt-6 text-base font-extrabold text-[#f4efe4]">{STORE_CAFE_LIVE.startTitleAr}</p>
@@ -113,6 +116,7 @@ export default function StoreCafeLandingPage() {
                 </li>
               ))}
             </ul>
+            </StoreLandingFold>
             <StoreEnterpriseDirectMail
               className="mt-4 max-w-xl"
               linkClassName="text-[#c48a4a]"
@@ -167,7 +171,6 @@ export default function StoreCafeLandingPage() {
               reel="lounge"
               alt={STORE_CAFE_LIVE.heroAltAr}
               className="aspect-[16/10] w-full"
-              eager
             />
             <figcaption className="border-t border-[#c48a4a]/20 bg-[#1a1008] px-5 py-4">
               <p className="text-xl font-black">{STORE_CAFE_LIVE.heroCaptionAr}</p>
@@ -178,7 +181,9 @@ export default function StoreCafeLandingPage() {
       </section>
       <section className="px-4 pb-14">
         <div className="mx-auto max-w-6xl">
-          <StoreCafeStudio token={STORE_CAFE_LIVE_LAB_TOKEN} />
+          <StoreInViewMount>
+            <StoreCafeStudio token={STORE_CAFE_LIVE_LAB_TOKEN} />
+          </StoreInViewMount>
           <div className="mt-10 max-w-2xl">
             <StoreCafeOrderForm renewToken={renewToken} />
           </div>

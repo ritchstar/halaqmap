@@ -146,7 +146,7 @@ export default function StoreIntroCardStudioPage() {
         return;
       }
       ProductEvents.storeIntroCardShare({ method: 'download' });
-      toast.success('تم تجهيز الصورة.');
+      toast.success(result.method === 'open' ? COPY.downloadIosHint : COPY.downloadReady);
     } catch {
       toast.error('تعذّر التحميل. جرّب من المتصفح مباشرة.');
     } finally {

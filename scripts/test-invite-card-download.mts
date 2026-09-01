@@ -23,8 +23,8 @@ assert.equal(
 
 const pearl = STORE_EVENT_LIVE_STYLES.find((item) => item.id === 'pearl');
 const rose = STORE_EVENT_LIVE_STYLES.find((item) => item.id === 'rosegold');
-assert.equal(pearl?.image, '/images/store/lab/lab-luxury-pearl.png');
-assert.equal(rose?.image, '/images/store/lab/lab-luxury-rosegold.png');
+assert.equal(pearl?.image, '/images/store/lab/lab-luxury-pearl.jpg');
+assert.equal(rose?.image, '/images/store/lab/lab-luxury-rosegold.jpg');
 assert.equal(
   STORE_WEDDING_LIVE_STYLES.find((item) => item.id === 'pearl')?.image,
   pearl?.image,
@@ -33,6 +33,22 @@ assert.equal(
 const downloadLib = readFileSync(join(root, 'src/lib/downloadInviteCardAsPng.ts'), 'utf8');
 assert.doesNotMatch(downloadLib, /from ['"]html2canvas['"]/);
 assert.doesNotMatch(downloadLib, /كوافير|coiffeur/i);
+assert.match(downloadLib, /from ['"]@\/lib\/savePngBlob['"]/);
+assert.match(downloadLib, /loadSameOriginImage/);
+assert.match(downloadLib, /8000/);
+assert.doesNotMatch(downloadLib, /revokeObjectURL\(url\), 1500/);
+assert.match(
+  readFileSync(join(root, 'src/lib/storePaidInviteCard.ts'), 'utf8'),
+  /from ['"]@\/lib\/savePngBlob['"]/,
+);
+assert.match(
+  readFileSync(join(root, 'src/lib/storeGreetingCard.ts'), 'utf8'),
+  /from ['"]@\/lib\/savePngBlob['"]/,
+);
+assert.match(
+  readFileSync(join(root, 'src/lib/downloadElementAsPngCard.ts'), 'utf8'),
+  /from ['"]@\/lib\/savePngBlob['"]/,
+);
 
 for (const file of [
   'src/components/store/StoreEventHostPanel.tsx',
