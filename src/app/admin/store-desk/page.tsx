@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { FounderCommandShell } from '@/components/admin/founder/FounderCommandShell';
 import { founderTheme } from '@/components/admin/founder/founderTheme';
+import { StoreHalanaIssueBoard } from '@/components/admin/StoreHalanaIssueBoard';
 import { StoreTrialOpsBoard } from '@/components/admin/StoreTrialOpsBoard';
 import { getAdminDashboardPathFor } from '@/config/adminAuth';
 import { STORE_DESK_COPY, STORE_DESK_STATUS_AR } from '@/config/storeDeskCopy';
@@ -66,6 +67,8 @@ export default function StoreDeskPage() {
   const [notice, setNotice] = useState('');
   const [accessToken, setAccessToken] = useState('');
   const [trialRefreshNonce, setTrialRefreshNonce] = useState(0);
+  const [trialBusy, setTrialBusy] = useState(false);
+  const [deskBusy, setDeskBusy] = useState(false);
   const autoMeetFor = useRef('');
 
   useDocumentTitle(STORE_DESK_COPY.documentTitle);
@@ -238,14 +241,19 @@ export default function StoreDeskPage() {
             </div>
             <button
               type="button"
+              disabled={deskBusy || trialBusy}
               onClick={() => {
-                void loadList();
-                setTrialRefreshNonce((n) => n + 1);
+                void (async () => {
+                  setDeskBusy(true);
+                  await loadList();
+                  setDeskBusy(false);
+                  setTrialRefreshNonce((n) => n + 1);
+                })();
               }}
-              className="inline-flex items-center gap-2 rounded-xl border border-[#e8c547]/30 px-3 py-2 text-sm text-[#e8c547]"
+              className="relative z-50 inline-flex items-center gap-2 rounded-xl border border-[#e8c547]/30 px-3 py-2 text-sm text-[#e8c547] disabled:opacity-60"
             >
-              <RefreshCw className="h-4 w-4" />
-              تحديث
+              <RefreshCw className={cn('h-4 w-4', (deskBusy || trialBusy) && 'animate-spin')} />
+              {deskBusy || trialBusy ? 'يجري التحديث…' : 'تحديث'}
             </button>
           </div>
         </header>
@@ -254,7 +262,14 @@ export default function StoreDeskPage() {
       <p className="max-w-3xl text-sm leading-7 text-white/70">{STORE_DESK_COPY.leadAr}</p>
       {accessToken ? (
         <div className="mt-8">
-          <StoreTrialOpsBoard accessToken={accessToken} refreshNonce={trialRefreshNonce} />
+          <StoreTrialOpsBoard
+            accessToken={accessToken}
+            refreshNonce={trialRefreshNonce}
+            onRefreshState={(state) => setTrialBusy(state.busy)}
+          />
+          <div className="mt-8">
+            <StoreHalanaIssueBoard accessToken={accessToken} />
+          </div>
         </div>
       ) : null}
       {hint ? <p className="mt-2 text-sm text-amber-200/80">{hint}</p> : null}

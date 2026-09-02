@@ -187,6 +187,10 @@ const STORE_PRODUCE_DESK_PATH =
   (ROUTE_PATHS as { STORE_PRODUCE_DESK?: string }).STORE_PRODUCE_DESK || "/v/:token/desk";
 const STORE_PRODUCE_PAY_PATH =
   (ROUTE_PATHS as { STORE_PRODUCE_PAY?: string }).STORE_PRODUCE_PAY || "/pay/produce/:token";
+const STORE_HALANA_VIEW_PATH =
+  (ROUTE_PATHS as { STORE_HALANA_VIEW?: string }).STORE_HALANA_VIEW || "/h/:token";
+const STORE_HALANA_DESK_PATH =
+  (ROUTE_PATHS as { STORE_HALANA_DESK?: string }).STORE_HALANA_DESK || "/h/:token/desk";
 const STORE_PRODUCT_PASS_PATH =
   (ROUTE_PATHS as { STORE_PRODUCT_PASS?: string }).STORE_PRODUCT_PASS || "/store/pass/:kind/:token";
 const STORE_AFFILIATES_PATH =
@@ -343,6 +347,7 @@ const StoreKitchenPayPage = lazy(() => import("@/pages/store/StoreKitchenPayPage
 const StoreProduceLandingPage = lazy(() => import("@/pages/store/StoreProduceLandingPage"));
 const StoreProduceShopPage = lazy(() => import("@/pages/store/StoreProduceShopPage"));
 const StoreProducePayPage = lazy(() => import("@/pages/store/StoreProducePayPage"));
+const StoreHalanaShopPage = lazy(() => import("@/pages/store/StoreHalanaShopPage"));
 const StoreAffiliatesHomePage = lazy(() => import("@/pages/store/StoreAffiliatesHomePage"));
 const StoreAffiliatesEnterPage = lazy(() => import("@/pages/store/StoreAffiliatesEnterPage"));
 const StoreAffiliatesDeskPage = lazy(() => import("@/pages/store/StoreAffiliatesDeskPage"));
@@ -918,6 +923,8 @@ export function App() {
           <Route path={STORE_PRODUCE_PATH} element={<LazyRoute><StoreProduceLandingPage /></LazyRoute>} />
           <Route path={STORE_PRODUCE_DESK_PATH} element={<LazyRoute><StoreProduceShopPage /></LazyRoute>} />
           <Route path={STORE_PRODUCE_VIEW_PATH} element={<LazyRoute><StoreProduceShopPage /></LazyRoute>} />
+          <Route path={STORE_HALANA_DESK_PATH} element={<LazyRoute><StoreHalanaShopPage /></LazyRoute>} />
+          <Route path={STORE_HALANA_VIEW_PATH} element={<LazyRoute><StoreHalanaShopPage /></LazyRoute>} />
           <Route path={STORE_AFFILIATES_ENTER_PATH} element={<LazyRoute><StoreAffiliatesEnterPage /></LazyRoute>} />
           <Route path={STORE_AFFILIATES_DESK_PATH} element={<LazyRoute><StoreAffiliatesDeskPage /></LazyRoute>} />
           <Route path={STORE_AFFILIATES_RULES_PATH} element={<LazyRoute><StoreAffiliatesRulesPage /></LazyRoute>} />

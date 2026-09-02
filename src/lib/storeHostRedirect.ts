@@ -39,7 +39,9 @@ function isStoreSurfacePath(path: string): boolean {
     path === '/c' ||
     path.startsWith('/c/') ||
     path === '/k' ||
-    path.startsWith('/k/')
+    path.startsWith('/k/') ||
+    path === '/h' ||
+    path.startsWith('/h/')
   );
 }
 
