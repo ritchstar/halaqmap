@@ -19,7 +19,7 @@ export const STORE_PRODUCE_LIVE_PRICE_12_HALALAS = 250000 as const;
 export const STORE_PRODUCE_LIVE_DAYS_6 = 180 as const;
 export const STORE_PRODUCE_LIVE_DAYS_12 = 360 as const;
 export const STORE_PRODUCE_LIVE_POLICY = '2026-08-29' as const;
-export const STORE_PRODUCE_TRIAL_DAYS = 180 as const;
+export const STORE_PRODUCE_TRIAL_DAYS = 60 as const;
 
 function envFlag(raw: string | undefined, fallback: boolean): boolean {
   const value = String(raw ?? '').trim().toLowerCase();

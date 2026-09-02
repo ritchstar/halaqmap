@@ -7,6 +7,7 @@ import { createClient } from '@supabase/supabase-js';
 import { verifyPlatformAdminFromRequestAny } from './_lib/adminManageBarbersAuth.js';
 import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
 import {
+  isGeneralTrialProductKey,
   isStoreProductTrialKey,
   isTrialEmail,
   issueStoreProductTrial,
@@ -70,7 +71,7 @@ async function attachTrialLinks(
           }),
         );
       }
-    } else if (key === 'grocers' || key === 'restaurant') {
+    } else if (key === 'grocers' || key === 'restaurant' || key === 'produce' || key === 'kitchen') {
       const { data } = await db.from(table).select('id, shop_token, desk_token').in('id', unique);
       for (const order of data || []) {
         const rec = order as { id: string; shop_token?: string; desk_token?: string };
@@ -155,8 +156,8 @@ export async function POST(request: Request): Promise<Response> {
 
   if (action === 'issue') {
     const productKey = body.productKey;
-    if (!isStoreProductTrialKey(productKey)) {
-      return Response.json({ ok: false, error: 'حدّد المنتج.' }, { status: 400, headers });
+    if (!isGeneralTrialProductKey(productKey)) {
+      return Response.json({ ok: false, error: 'التجربة العامة للمنتجات الستة فقط، وستون يوماً فقط.' }, { status: 400, headers });
     }
     const email = normalizeTrialEmail(body.email);
     const result = await issueStoreProductTrial(db, {
@@ -212,7 +213,12 @@ export async function POST(request: Request): Promise<Response> {
     const result = await issueStoreProductTrial(db, {
       productKey,
       email,
-      issuerKind: String(existing.issuer_kind) === 'marketer' ? 'marketer' : 'admin',
+      issuerKind:
+        String(existing.issuer_kind) === 'marketer'
+          ? 'marketer'
+          : String(existing.issuer_kind) === 'visitor'
+            ? 'visitor'
+            : 'admin',
       marketerId: existing.marketer_id ? String(existing.marketer_id) : null,
       issuedByLabel: String(existing.issued_by_label || 'مسوّق'),
       reviewer,

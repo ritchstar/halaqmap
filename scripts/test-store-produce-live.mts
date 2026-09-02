@@ -1,5 +1,5 @@
 /**
- * فحص خضارنا1: 1350/2500، عمولة 350/500، تجربة 180 يوماً، وعزل تمويناتا1.
+ * فحص خضارنا1: 1350/2500، عمولة 350/500، تجربة 60 يوماً، وعزل تمويناتا1.
  * تشغيل: npx tsx scripts/test-store-produce-live.mts
  */
 import assert from 'node:assert/strict';
@@ -54,7 +54,7 @@ assert.equal(STORE_PRODUCE_LIVE_PRICE_6_HALALAS, 135000);
 assert.equal(STORE_PRODUCE_LIVE_PRICE_12_HALALAS, 250000);
 assert.equal(STORE_PRODUCE_LIVE_DAYS_6, 180);
 assert.equal(STORE_PRODUCE_LIVE_DAYS_12, 360);
-assert.equal(STORE_PRODUCE_TRIAL_DAYS, 180);
+assert.equal(STORE_PRODUCE_TRIAL_DAYS, 60);
 assert.equal(STORE_PRODUCE_LIVE_PACKS.length, 2);
 assert.equal(STORE_PRODUCE_LIVE_FEATURES.length >= 5, true);
 assert.ok(STORE_PRODUCE_CATALOG.length >= 20);
@@ -89,15 +89,16 @@ assert.ok(affiliateCode.includes('/store/produce'));
 assert.ok(webhook.includes('isProduceLiveMeta'));
 assert.ok(webhook.includes('135000'));
 assert.ok(trialApi.includes("key === 'produce'"));
-assert.ok(trialApi.includes('trial-180'));
+assert.ok(trialApi.includes('trial-60'));
+assert.doesNotMatch(trialApi, /trial-180/);
 assert.ok(migrations.some((name) => name.includes('store_produce_live')));
 assert.ok(existsSync(join(root, '.cursor/rules/store-produce-live.mdc')));
 assert.ok(existsSync(join(root, 'fkrih/خضارنا1.md')));
 
 assert.ok(STORE_PRODUCT_TRIAL_KEYS.includes('produce'));
 assert.equal(STORE_PRODUCT_TRIAL_PRODUCTS.produce.productTag, 'store_produce_live');
-assert.equal(trialDaysFor('produce'), 180);
-assert.equal(trialDaysFor('kitchen'), 180);
+assert.equal(trialDaysFor('produce'), 60);
+assert.equal(trialDaysFor('kitchen'), 60);
 assert.equal(trialDaysFor('grocers'), 60);
 assert.equal(produceAffiliateCommissionSar('m6'), 350);
 assert.equal(produceAffiliateCommissionSar('m12'), 500);

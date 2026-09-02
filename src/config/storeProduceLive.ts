@@ -23,7 +23,7 @@ export const STORE_PRODUCE_LIVE_PRICE_6_SAR = 1350 as const;
 export const STORE_PRODUCE_LIVE_PRICE_12_SAR = 2500 as const;
 export const STORE_PRODUCE_LIVE_PRICE_6_HALALAS = 135000 as const;
 export const STORE_PRODUCE_LIVE_PRICE_12_HALALAS = 250000 as const;
-export const STORE_PRODUCE_TRIAL_DAYS = 180 as const;
+export const STORE_PRODUCE_TRIAL_DAYS = 60 as const;
 
 function envEnabled(name: string, fallback: boolean): boolean {
   const raw = String((import.meta as { env?: Record<string, unknown> }).env?.[name] ?? '')

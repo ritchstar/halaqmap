@@ -29,8 +29,11 @@ import { sendWeddingLiveLinksEmail } from './storeWeddingLiveMail.js';
 export const STORE_PRODUCT_TRIAL_TABLE = 'store_product_trials' as const;
 export const STORE_PRODUCT_TRIAL_DAYS = 60 as const;
 export const STORE_PRODUCT_TRIAL_QUOTA = 5 as const;
-export const STORE_PRODUCE_TRIAL_DAYS = 180 as const;
-export const STORE_KITCHEN_TRIAL_DAYS = 180 as const;
+export const STORE_PRODUCE_TRIAL_DAYS = STORE_PRODUCT_TRIAL_DAYS;
+export const STORE_KITCHEN_TRIAL_DAYS = STORE_PRODUCT_TRIAL_DAYS;
+
+export const STORE_GENERAL_TRIAL_KEYS = ['lounge', 'grocers', 'restaurant', 'cafe', 'kitchen', 'produce'] as const;
+export type StoreGeneralTrialKey = (typeof STORE_GENERAL_TRIAL_KEYS)[number];
 
 export type StoreProductTrialKey =
   | 'wedding'
@@ -56,6 +59,10 @@ export type StoreProductTrialRow = {
   review_note: string;
   reviewed_by: string;
   reviewed_at: string | null;
+  shop_name?: string;
+  city?: string;
+  neighborhood?: string;
+  whatsapp?: string;
   created_at: string;
   updated_at: string;
 };
@@ -99,8 +106,20 @@ export function isStoreProductTrialKey(raw: unknown): raw is StoreProductTrialKe
   );
 }
 
-export function trialDaysFor(key: StoreProductTrialKey): number {
-  return key === 'produce' || key === 'kitchen' ? STORE_PRODUCE_TRIAL_DAYS : STORE_PRODUCT_TRIAL_DAYS;
+export function isGeneralTrialProductKey(raw: unknown): raw is StoreGeneralTrialKey {
+  return (
+    raw === 'lounge' ||
+    raw === 'grocers' ||
+    raw === 'restaurant' ||
+    raw === 'cafe' ||
+    raw === 'kitchen' ||
+    raw === 'produce'
+  );
+}
+
+export function trialDaysFor(_key: StoreProductTrialKey): number {
+  void _key;
+  return STORE_PRODUCT_TRIAL_DAYS;
 }
 
 export function isGiftTrialProduct(key: StoreProductTrialKey): boolean {
@@ -416,10 +435,7 @@ export async function findBlockingTrial(
 
 async function sendIssuedMail(key: StoreProductTrialKey, email: string, tokens: Record<string, string>): Promise<void> {
   const links = productLinks(key, tokens);
-  const expiresLabel =
-    trialDaysFor(key) === STORE_PRODUCE_TRIAL_DAYS
-      ? 'مئة وثمانون يوماً من أول دخول للرابط'
-      : 'ستون يوماً من أول دخول للرابط';
+  const expiresLabel = 'ستون يوماً من أول دخول للرابط';
   if (key === 'cafe') {
     await sendCafeLiveLinksEmail({
       to: email,
@@ -581,7 +597,7 @@ async function insertLiveOrder(
         buyer_name: 'تجربة خضارنا1',
         price_halalas: 0,
         payload,
-        policy_version: 'trial-180',
+        policy_version: 'trial-60',
         is_trial: true,
         trial_id: trialId,
         expires_at: null,
@@ -606,7 +622,7 @@ async function insertLiveOrder(
         buyer_name: 'تجربة طبختنا1',
         price_halalas: 0,
         payload,
-        policy_version: 'trial-180',
+        policy_version: 'trial-60',
         is_trial: true,
         trial_id: trialId,
         expires_at: null,
@@ -657,6 +673,9 @@ export async function requestStoreProductTrial(
     marketerLabel: string;
   },
 ): Promise<{ ok: true; trialId: string } | { ok: false; error: string }> {
+  if (!isGeneralTrialProductKey(input.productKey)) {
+    return { ok: false, error: 'التجربة العامة للمنتجات الستة فقط، وستون يوماً فقط.' };
+  }
   const email = normalizeTrialEmail(input.email);
   if (!isTrialEmail(email)) return { ok: false, error: 'أدخل إيميلاً صالحاً للمستفيد المستهدف.' };
   const blocking = await findBlockingTrial(db, input.productKey, email);
@@ -691,12 +710,119 @@ export async function requestStoreProductTrial(
   return { ok: true, trialId: String(data.id) };
 }
 
+function clipField(raw: unknown, max: number): string {
+  return String(raw ?? '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, max);
+}
+
+export function normalizeTrialWhatsapp(raw: unknown): string {
+  return String(raw ?? '').replace(/\D/g, '').slice(0, 15);
+}
+
+export async function requestVisitorStoreProductTrial(
+  db: Db,
+  input: {
+    productKey: StoreGeneralTrialKey;
+    email: string;
+    shopName: string;
+    city: string;
+    neighborhood: string;
+    whatsapp?: string;
+  },
+): Promise<{ ok: true; trialId: string; resent?: boolean } | { ok: false; error: string }> {
+  if (!isGeneralTrialProductKey(input.productKey)) {
+    return { ok: false, error: 'التجربة العامة للمنتجات الستة فقط، وستون يوماً فقط.' };
+  }
+  const email = normalizeTrialEmail(input.email);
+  if (!isTrialEmail(email)) return { ok: false, error: 'أدخل بريداً صالحاً.' };
+  const shopName = clipField(input.shopName, 80);
+  const city = clipField(input.city, 60);
+  const neighborhood = clipField(input.neighborhood, 60);
+  const whatsapp = normalizeTrialWhatsapp(input.whatsapp);
+  if (shopName.length < 2) return { ok: false, error: 'أدخل اسم المشغّل أو المتجر.' };
+  if (city.length < 2) return { ok: false, error: 'أدخل المدينة.' };
+  if (neighborhood.length < 2) return { ok: false, error: 'أدخل الحي.' };
+  if (whatsapp && (whatsapp.length < 8 || whatsapp.length > 15)) {
+    return { ok: false, error: 'رقم الواتساب إن وُجد يكون أرقاماً فقط.' };
+  }
+
+  const blocking = await findBlockingTrial(db, input.productKey, email);
+  if (blocking) {
+    if (blocking.status === 'pending_confirm' && blocking.issuer_kind === 'visitor') {
+      const now = new Date().toISOString();
+      await db
+        .from(STORE_PRODUCT_TRIAL_TABLE)
+        .update({
+          shop_name: shopName,
+          city,
+          neighborhood,
+          whatsapp,
+          issued_by_label: shopName,
+          updated_at: now,
+        })
+        .eq('id', blocking.id);
+      return { ok: true, trialId: blocking.id, resent: true };
+    }
+    return { ok: false, error: 'هذا الإيميل مرتبط بنموذج لنفس المنتج. يُطلب الدخول بالإيميل المسجَّل.' };
+  }
+
+  const { data, error } = await db
+    .from(STORE_PRODUCT_TRIAL_TABLE)
+    .insert({
+      product_key: input.productKey,
+      beneficiary_email: email,
+      status: 'pending_confirm',
+      issuer_kind: 'visitor',
+      issued_by_label: shopName,
+      shop_name: shopName,
+      city,
+      neighborhood,
+      whatsapp,
+    })
+    .select('id')
+    .maybeSingle();
+  if (error || !data) {
+    if (String(error?.message || '').includes('store_product_trials_email_product_uidx')) {
+      return { ok: false, error: 'هذا الإيميل مرتبط بنموذج لنفس المنتج. يُطلب الدخول بالإيميل المسجَّل.' };
+    }
+    return { ok: false, error: 'تعذر حفظ طلب التجربة.' };
+  }
+  return { ok: true, trialId: String(data.id) };
+}
+
+export async function confirmVisitorStoreProductTrial(
+  db: Db,
+  trialId: string,
+  email: string,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const id = String(trialId || '').trim();
+  const normalized = normalizeTrialEmail(email);
+  if (!id || !isTrialEmail(normalized)) return { ok: false, error: 'رابط غير صالح.' };
+  const { data } = await db.from(STORE_PRODUCT_TRIAL_TABLE).select('*').eq('id', id).maybeSingle();
+  const row = data as StoreProductTrialRow | null;
+  if (!row || row.beneficiary_email !== normalized) return { ok: false, error: 'رابط غير صالح.' };
+  if (row.status === 'pending_review') return { ok: true };
+  if (row.status !== 'pending_confirm') {
+    return { ok: false, error: 'هذا الطلب لم يعد بانتظار التأكيد.' };
+  }
+  const now = new Date().toISOString();
+  const { error } = await db
+    .from(STORE_PRODUCT_TRIAL_TABLE)
+    .update({ status: 'pending_review', updated_at: now })
+    .eq('id', id)
+    .eq('status', 'pending_confirm');
+  if (error) return { ok: false, error: 'تعذر تأكيد البريد.' };
+  return { ok: true };
+}
+
 export async function issueStoreProductTrial(
   db: Db,
   input: {
     productKey: StoreProductTrialKey;
     email: string;
-    issuerKind: 'admin' | 'marketer';
+    issuerKind: 'admin' | 'marketer' | 'visitor';
     marketerId?: string | null;
     issuedByLabel: string;
     reviewer?: string;

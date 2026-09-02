@@ -187,6 +187,9 @@ function rateLimitMaxForRoute(routeId: string): number {
   if (routeId === 'public-store-gift') {
     return envInt('STORE_GIFT_RATE_LIMIT_MAX', 6);
   }
+  if (routeId === 'public-store-trial') {
+    return envInt('STORE_GENERAL_TRIAL_RATE_LIMIT_MAX', 6);
+  }
   if (routeId === 'public-store-kitchen-gift') {
     return envInt('STORE_KITCHEN_GIFT_RATE_LIMIT_MAX', 6);
   }

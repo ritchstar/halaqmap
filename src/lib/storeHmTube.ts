@@ -31,6 +31,9 @@ export function isStoreProductLandingPath(pathname: string): boolean {
   if (path === ROUTE_PATHS.STORE_KITCHEN_GIFT || path.startsWith(`${ROUTE_PATHS.STORE_KITCHEN_GIFT}/`)) {
     return false;
   }
+  if (path === ROUTE_PATHS.STORE_GENERAL_TRIAL || path.startsWith(`${ROUTE_PATHS.STORE_GENERAL_TRIAL}/`)) {
+    return false;
+  }
   return PRODUCT_LANDING_ROOTS.some((root) => path === root || path.startsWith(`${root}/`));
 }
 

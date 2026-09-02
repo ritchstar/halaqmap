@@ -56,6 +56,10 @@ export const ROUTE_PATHS = {
   STORE_GIFT: '/store/gift',
   STORE_GIFT_TERMS: '/store/gift/terms',
   STORE_GIFT_CONFIRM: '/store/gift/confirm',
+  /** نظام التجربة العام — ستون يوماً ثم تمديد بالشراء */
+  STORE_GENERAL_TRIAL: '/store/try',
+  STORE_GENERAL_TRIAL_TERMS: '/store/try/terms',
+  STORE_GENERAL_TRIAL_CONFIRM: '/store/try/confirm',
   /** تقييمات متجر خريطة الحل — نجوم وتعليق. مستقلة عن /reviews */
   STORE_REVIEWS: '/store/reviews',
   /** تصنيفات وفحوص مستقلة قابلة للتحقق */

@@ -17,6 +17,10 @@ export type StoreOpsTrialRow = {
   issuer_kind: string;
   issued_by_label: string;
   marketer_id: string | null;
+  shop_name?: string;
+  city?: string;
+  neighborhood?: string;
+  whatsapp?: string;
   order_id?: string | null;
   review_note: string;
   reviewed_by: string;

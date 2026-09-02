@@ -14,11 +14,11 @@ import {
   type StoreAffiliateLineId,
 } from '@/config/storeAffiliateLive';
 import {
+  STORE_GENERAL_TRIAL_KEYS,
   STORE_PRODUCT_TRIAL_COPY,
-  STORE_PRODUCT_TRIAL_KEYS,
   STORE_PRODUCT_TRIAL_PRODUCTS,
   STORE_PRODUCT_TRIAL_QUOTA,
-  isGiftTrialProduct,
+  type StoreGeneralTrialKey,
   type StoreProductTrialKey,
 } from '@/config/storeProductTrial';
 import { readHashQueryParam } from '@/lib/hashQueryParams';
@@ -48,9 +48,7 @@ export function AffiliateStoreLane({ hideCatalog = false }: { hideCatalog?: bool
   const [marketer, setMarketer] = useState<StoreAffiliateMarketer | null>(null);
   const [trials, setTrials] = useState<StoreAffiliateTrialRow[]>([]);
   const [trialUsed, setTrialUsed] = useState<Record<string, number>>({});
-  const [trialEmails, setTrialEmails] = useState<Record<StoreProductTrialKey, string>>({
-    wedding: '',
-    event: '',
+  const [trialEmails, setTrialEmails] = useState<Record<StoreGeneralTrialKey, string>>({
     lounge: '',
     grocers: '',
     restaurant: '',
@@ -131,7 +129,7 @@ export function AffiliateStoreLane({ hideCatalog = false }: { hideCatalog?: bool
     toast.message('خرجت من اللوحة.');
   }
 
-  async function submitTrial(productKey: StoreProductTrialKey) {
+  async function submitTrial(productKey: StoreGeneralTrialKey) {
     const email = trialEmails[productKey].trim();
     setBusy(true);
     const result = await requestStoreAffiliateTrial(productKey, email);
@@ -187,7 +185,7 @@ export function AffiliateStoreLane({ hideCatalog = false }: { hideCatalog?: bool
           <p className="text-base font-extrabold text-white">{STORE_PRODUCT_TRIAL_COPY.marketerTitleAr}</p>
           <p className="text-sm leading-7 text-slate-300">{STORE_PRODUCT_TRIAL_COPY.marketerLeadAr}</p>
           <p className="text-sm leading-7 text-amber-100">{STORE_PRODUCT_TRIAL_COPY.firstVisitAr}</p>
-          {STORE_PRODUCT_TRIAL_KEYS.map((key) => {
+          {STORE_GENERAL_TRIAL_KEYS.map((key) => {
             const product = STORE_PRODUCT_TRIAL_PRODUCTS[key];
             const used = trialUsed[key] || 0;
             const remaining = Math.max(0, STORE_PRODUCT_TRIAL_QUOTA - used);
@@ -198,9 +196,6 @@ export function AffiliateStoreLane({ hideCatalog = false }: { hideCatalog?: bool
                   {used} من {STORE_PRODUCT_TRIAL_QUOTA} · المتبقي {remaining}
                 </p>
                 <p className="mt-2 text-sm leading-7 text-slate-400">{product.howToAr}</p>
-                {isGiftTrialProduct(key) ? (
-                  <p className="mt-2 text-sm leading-7 text-amber-100/90">{STORE_PRODUCT_TRIAL_COPY.giftCourtesyAr}</p>
-                ) : null}
                 <label className="mt-3 block text-sm">
                   إيميل المستفيد
                   <input

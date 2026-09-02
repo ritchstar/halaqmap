@@ -1,14 +1,16 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
- * تجارب تسويقية لمنتجات المتجر. لا يُستورد من App.
- * ستون يوماً من أول دخول لبقية المنتجات. خضارنا1 وطبختنا1: مئة وثمانون يوماً.
- * خمسة نماذج لكل منتج لكل مسوّق معتمد.
+ * نظام التجربة العام: ستون يوماً من أول دخول لأي منتج، قابلة للتمديد بالشراء
+ * على نفس الصفحة. لا يُستورد من App. لا كاردي8.
  */
 export const STORE_PRODUCT_TRIAL_DAYS = 60 as const;
 export const STORE_PRODUCT_TRIAL_QUOTA = 5 as const;
-export const STORE_PRODUCE_TRIAL_DAYS = 180 as const;
-export const STORE_KITCHEN_TRIAL_DAYS = 180 as const;
+/** مدة التجربة العامة فقط. باقات الشراء تبقى على مددها. */
+export const STORE_PRODUCE_TRIAL_DAYS = STORE_PRODUCT_TRIAL_DAYS;
+export const STORE_KITCHEN_TRIAL_DAYS = STORE_PRODUCT_TRIAL_DAYS;
+export const STORE_GENERAL_TRIAL_PUBLIC_ENABLED = true as const;
+export const STORE_GENERAL_TRIAL_TERMS_VERSION = 'general-trial-1' as const;
 
 export type StoreProductTrialKey =
   | 'wedding'
@@ -19,6 +21,8 @@ export type StoreProductTrialKey =
   | 'cafe'
   | 'kitchen'
   | 'produce';
+
+export type StoreGeneralTrialKey = 'lounge' | 'grocers' | 'restaurant' | 'cafe' | 'kitchen' | 'produce';
 
 export const STORE_PRODUCT_TRIAL_KEYS: readonly StoreProductTrialKey[] = [
   'wedding',
@@ -31,22 +35,36 @@ export const STORE_PRODUCT_TRIAL_KEYS: readonly StoreProductTrialKey[] = [
   'produce',
 ] as const;
 
-export function trialDaysFor(key: StoreProductTrialKey): number {
-  return key === 'produce' || key === 'kitchen' ? STORE_PRODUCE_TRIAL_DAYS : STORE_PRODUCT_TRIAL_DAYS;
+export const STORE_GENERAL_TRIAL_KEYS: readonly StoreGeneralTrialKey[] = [
+  'lounge',
+  'grocers',
+  'restaurant',
+  'cafe',
+  'kitchen',
+  'produce',
+] as const;
+
+export function trialDaysFor(_key: StoreProductTrialKey): number {
+  void _key;
+  return STORE_PRODUCT_TRIAL_DAYS;
 }
 
 export function isGiftTrialProduct(key: StoreProductTrialKey): boolean {
   return key === 'wedding' || key === 'event';
 }
 
+export function isGeneralTrialProduct(key: string): key is StoreGeneralTrialKey {
+  return (STORE_GENERAL_TRIAL_KEYS as readonly string[]).includes(key);
+}
+
 export const STORE_PRODUCT_TRIAL_COPY = {
-  opsTitleAr: 'لوحة المتجر الإلكتروني',
-  opsKickerAr: 'من لوحة التحكم · مستقل عن رخصة النفاذ ومحفظة الحلاق',
+  opsTitleAr: 'نظام التجربة العام',
+  opsKickerAr: 'من لوحة التحكم · ستون يوماً ثم تمديد بالشراء على نفس الصفحة',
   opsLeadAr:
-    'سيطرة يدوية على النشر: أتمّ الطلب بإيميل المستفيد فيُدرج في المصدر تجريبياً. عند السداد ينتقل إلى المسدد المفعَّل.',
-  inboxTitleAr: 'إتمام الطلب',
+    'طلبات المتصفح والمسوّق في طابور واحد. أتمّ الطلب بعد تأكيد البريد فيُدرج ستون يوماً من أول دخول. عند السداد ينتقل إلى المسدد المفعَّل على نفس الصفحة.',
+  inboxTitleAr: 'طابور التجربة العامة',
   inboxLeadAr:
-    'ولّد نموذجاً من الإدارة، أو أتمّ طلباً محالاً من مسوّق بإدخال إيميل المستفيد ثم الإصدار.',
+    'ولّد نموذجاً من الإدارة، أو أتمّ طلب متصفح أو مسوّق بعد المراجعة. المدة ستون يوماً فقط، بلا مدد أطول.',
   generateCtaAr: 'إصدار من الإدارة',
   completeCtaAr: 'إتمام الإصدار',
   trialListTitleAr: 'المصدر تجريبياً',
@@ -55,19 +73,21 @@ export const STORE_PRODUCT_TRIAL_COPY = {
   paidListLeadAr: 'انتقل إلى هنا بعد سداد ميسر وتفعيل الاشتراك على نفس الصفحة.',
   referredFromAr: 'محال من مسوّق',
   generatedByAr: 'مولَّد من الإدارة',
+  visitorFromAr: 'طلب من التجربة العامة',
   copyLinkAr: 'نُسخ الرابط.',
   issueFieldAr: 'إيميل المستفيد',
   issueCtaAr: 'إصدار النموذج وإرسال الروابط',
   emailHintAr: 'تأكد من صحة الإيميل. لا يُكرَّر على المنتج نفسه، ولا يطلبه مسوّقان لنفس البريد.',
-  marketerTitleAr: 'نماذج تجريبية تسويقية',
+  marketerTitleAr: 'نظام التجربة العام',
   marketerLeadAr:
-    'لكل منتج خمسة نماذج. أحِل الطلب للإدارة فتتمّه بإيميل المستفيد. التجربة مجانية ولا تُحسب من العمولة. إن سدّد المستفيد لاحقاً تُقيَّد العمولة كبيع اعتيادي من رابطك.',
+    'اطلب تجربة ستين يوماً فقط لأي منتج من الستة. أحِل الطلب للإدارة فتتمّه بإيميل المستفيد. التجربة مجانية ولا تُحسب من العمولة. إن سدّد المستفيد لاحقاً تُقيَّد العمولة كبيع اعتيادي من رابطك.',
   giftCourtesyAr:
     'إهداء من متجر خريطة الحل للعرسان: تجربة واحدة مجانية تنتهي تلقائياً بلا مطالبة بسداد.',
   firstVisitAr:
-    'ستون يوماً تبدأ عند أول دخول للمستفيد إلى رابطه، لا عند الإرسال. خضارنا1 وطبختنا1 مئة وثمانون يوماً من أول دخول.',
+    'ستون يوماً تبدأ عند أول دخول للمستفيد إلى رابطه، لا عند الإرسال. بعد انتهائها يُمدَّد التشغيل بالشراء على نفس الصفحة.',
   sameEmailAr: 'بعد الانقطاع تبقى البيانات بمرجعية الإيميل. اطلب الدخول بالإيميل المسجَّل سابقاً.',
   statusAr: {
+    pending_confirm: 'بانتظار تأكيد البريد',
     pending_review: 'قيد التشاور',
     declined: 'اعتذار',
     issued: 'أُرسل بانتظار أول دخول',
@@ -77,6 +97,7 @@ export const STORE_PRODUCT_TRIAL_COPY = {
   } as const,
   issuerAdminAr: 'الإدارة',
   issuerMarketerAr: 'مسوّق',
+  issuerVisitorAr: 'متصفح',
   quotaFullAr: 'بلغت خمسة نماذج لهذا المنتج.',
   emailDupAr: 'هذا الإيميل مرتبط بنموذج لنفس المنتج. يُطلب الدخول بالإيميل المسجَّل.',
   emailDupMarketerAr: 'لا يجوز لمسوّقين اثنين طلب تجربة لنفس البريد على هذا المنتج.',
@@ -86,6 +107,79 @@ export const STORE_PRODUCT_TRIAL_COPY = {
   giftEndedAr:
     'انتهت التجربة المجانية. بيانات القاعة محفوظة بمرجعية الإيميل، بلا مطالبة بسداد.',
   venueEndedAr: 'انتهت فترة التجربة. اختر مدة التشغيل وأكمل الدفع على نفس الصفحة.',
+} as const;
+
+export const STORE_GENERAL_TRIAL_COPY = {
+  documentTitle: 'التجربة العامة | متجر خريطة الحل',
+  kickerAr: 'نظام التجربة العام',
+  titleAr: 'شغّل صفحتك ستين يوماً ثم قرر',
+  leadAr:
+    'للمشغّل الجاد في الحي: تشغيل كامل بلا رسوم تأسيس وبلا التزام بالشراء. بعد موافقة الإدارة تصل روابط الصفحة واللوحة إلى بريدك. الساعة ستون يوماً من أول دخول، وبعدها تمدّد نفس الصفحة بالشراء أو توقف.',
+  pickTitleAr: 'اختر المنتج',
+  formTitleAr: 'طلب التجربة',
+  shopLabelAr: 'اسم المشغّل / المتجر',
+  emailLabelAr: 'البريد الإلكتروني',
+  emailHintAr: 'ستُرسل رسالة لتأكيد البريد. روابط التشغيل تصل إلى هذا البريد بعد موافقة الإدارة.',
+  cityLabelAr: 'المدينة',
+  neighborhoodLabelAr: 'الحي',
+  whatsappLabelAr: 'رقم الواتساب',
+  whatsappOptionalAr: 'اختياري للدعم إن طلبت المساعدة. ليس قناة تسويق.',
+  commitAr: 'سأشغّل الصفحة لبيع فعلي في الحي.',
+  termsFoldTriggerAr: 'شروط التجربة العامة',
+  termsLinkAr: 'اقرأ شروط التجربة العامة',
+  consentAr: 'اطلعت على شروط التجربة العامة وأوافق عليها.',
+  submitAr: 'أرسل طلب التجربة',
+  confirmSentAr: 'وصل الطلب. افتح رسالة التأكيد على بريدك حتى يدخل طابور الإدارة.',
+  confirmTitleAr: 'تأكيد البريد',
+  confirmLeadAr: 'يجري التحقق من رابط التأكيد.',
+  confirmOkAr: 'تأكد بريدك. الطلب الآن في طابور الإدارة، والروابط تُرسل بعد الموافقة.',
+  confirmFailAr: 'تعذر تأكيد الرابط. أعد الطلب من صفحة التجربة العامة إن لزم.',
+  needProductAr: 'اختر المنتج.',
+  needShopAr: 'أدخل اسم المشغّل أو المتجر.',
+  needCityAr: 'أدخل المدينة.',
+  needNeighborhoodAr: 'أدخل الحي.',
+  needEmailAr: 'أدخل بريداً صالحاً.',
+  needCommitAr: 'التزم بتشغيل الصفحة لبيع فعلي.',
+  needConsentAr: 'الموافقة على شروط التجربة العامة مطلوبة.',
+  headerShortAr: 'تجربة',
+  promoBadgeAr: 'التجربة العامة',
+  promoTitleAr: 'ستون يوماً تشغيل كامل قبل الشراء',
+  promoLeadAr: 'لاونجا1 وتمويناتا1 ومطعمنا1 وخضارنا1 وكافينا1 وطبختنا1. بعد موافقة الإدارة تصل الروابط إلى بريدك.',
+  promoCtaAr: 'اطلب التجربة',
+  promoAriaAr: 'إعلان نظام التجربة العام',
+  clockAr: 'ستون يوماً من أول دخول، ثم تمديد بالشراء على نفس الصفحة.',
+} as const;
+
+export const STORE_GENERAL_TRIAL_TERMS_COPY = {
+  documentTitle: 'شروط التجربة العامة | متجر خريطة الحل',
+  kickerAr: 'شروط التجربة العامة',
+  titleAr: 'شروط نظام التجربة العام',
+  subtitleAr:
+    'هذه الشروط خاصة بنظام التجربة العام، ومستقلة عن هدية خريطة الحل وعن هدية طبختنا1 وعن كاردي8 وعن رخصة النفاذ.',
+  versionLabelAr: 'الإصدار',
+  backAr: 'العودة إلى التجربة العامة',
+  sections: [
+    {
+      titleAr: 'موضوع التجربة',
+      bodyAr:
+        'التجربة تشغيل واحد لستين يوماً من أول دخول: لاونجا1 أو تمويناتا1 أو مطعمنا1 أو خضارنا1 أو كافينا1 أو طبختنا1. ليست نقداً، ولا كاردي8، ولا افراحي1، ولا اجواء1، ولا رخصة نفاذ.',
+    },
+    {
+      titleAr: 'المراجعة والروابط',
+      bodyAr:
+        'الطلب لا يصدر المتجر فوراً. يؤكَّد البريد ثم تراجعه الإدارة ثم تُرسل روابط الصفحة واللوحة. الساعة تبدأ عند أول دخول لا عند الإرسال.',
+    },
+    {
+      titleAr: 'بعد الستين يوماً',
+      bodyAr:
+        'تمدّد نفس الصفحة واللوحة بالشراء عبر ميسر على `www.halaqmap.com` بوسم ذلك المنتج، أو تتوقف. البيانات تبقى بمرجعية الإيميل. لا تحصيل من جار الحي أو الزبون عبر ميسر.',
+    },
+    {
+      titleAr: 'الخصوصية',
+      bodyAr:
+        'الحقول لتشغيل التجربة والدعم إن طلبت المساعدة. لا دفتر جيران ولا إرسال واتساب جماعي نيابة عنك. رقم الواتساب اختياري.',
+    },
+  ],
 } as const;
 
 export const STORE_PRODUCT_TRIAL_PRODUCTS: Record<
@@ -104,6 +198,7 @@ export const STORE_PRODUCT_TRIAL_PRODUCTS: Record<
     opsNoteAr: string;
     deskNoteAr: string;
     howToAr: string;
+    cardLeadAr: string;
   }
 > = {
   wedding: {
@@ -115,6 +210,7 @@ export const STORE_PRODUCT_TRIAL_PRODUCTS: Record<
       'الأتمتة التقنية للقاعة مستوفية بالكامل. يتبقى الربط التقني والتفعيل لأدوات العمل فعلياً في المناسبة.',
     howToAr:
       'افتح روابط القاعة من الإيميل، جرّب الشاشة وكرت الدعوة. التجربة إهداء مرة واحدة للعرسان وتنتهي بلا سداد. لتشغيل دائم بعد التجربة يُشترى افراحي1 بـ 899 ر.س متى شئتم، والبيانات تُستعاد بالإيميل نفسه.',
+    cardLeadAr: '',
   },
   event: {
     titleAr: 'اجواء1',
@@ -125,6 +221,7 @@ export const STORE_PRODUCT_TRIAL_PRODUCTS: Record<
       'الأتمتة التقنية للقاعة مستوفية بالكامل. يتبقى الربط التقني والتفعيل لأدوات العمل فعلياً في المناسبة.',
     howToAr:
       'افتح روابط القاعة من الإيميل وجرّب المسارين. التجربة إهداء مرة واحدة وتنتهي بلا مطالبة. التشغيل الدائم شراء اجواء1 بـ 899 ر.س، والبيانات تبقى بمرجعية الإيميل.',
+    cardLeadAr: '',
   },
   lounge: {
     titleAr: 'لاونجا1',
@@ -135,6 +232,7 @@ export const STORE_PRODUCT_TRIAL_PRODUCTS: Record<
       'الأتمتة التقنية للشاشة مستوفية بالكامل. يتبقى الربط التقني والتفعيل لأدوات العمل فعلياً على شاشات اللاونج.',
     howToAr:
       'ستون يوماً من أول دخول. بعدها تختار ثلاثة أو ستة أو اثني عشر شهراً وتسدّد على نفس الصفحة فتمدّد الشاشة ذاتها. البيانات محفوظة بالإيميل.',
+    cardLeadAr: 'شاشات اللاونج ولوحة المضيف ورابط الزبون. بعد الستين يوماً: 600 أو 1200 أو 2400 ر.س.',
   },
   grocers: {
     titleAr: 'تمويناتا1',
@@ -145,6 +243,7 @@ export const STORE_PRODUCT_TRIAL_PRODUCTS: Record<
       'الأتمتة التقنية للكاشير والمتجر مستوفية بالكامل. يتبقى الربط التقني والتفعيل لأدوات العمل فعلياً في المحل.',
     howToAr:
       'التجربة تشمل صندوق المحادثة. بعد ستين يوماً من أول دخول تختار ستة أو اثني عشر شهراً، وتقرر إن كنت تضيف الصندوق مع الشراء. البيانات تُستعاد بالإيميل.',
+    cardLeadAr: 'تموينات الحي والكاشير وصندوق المحادثة في التجربة. بعد الستين يوماً: 599 أو 899 ر.س.',
   },
   restaurant: {
     titleAr: 'مطعمنا1',
@@ -155,6 +254,7 @@ export const STORE_PRODUCT_TRIAL_PRODUCTS: Record<
       'الأتمتة التقنية للمطبخ والصفحة مستوفية بالكامل. يتبقى الربط التقني والتفعيل لأدوات العمل فعلياً في المطعم.',
     howToAr:
       'بعد ستين يوماً من أول دخول تشتري ستة أشهر بـ 699 أو اثني عشر بـ 999 على نفس الصفحة. الصندوق مدرج. البيانات محفوظة بالإيميل.',
+    cardLeadAr: 'صفحة ضيف الحي ولوحة المطبخ والصندوق المدرج. بعد الستين يوماً: 699 أو 999 ر.س.',
   },
   cafe: {
     titleAr: 'كافينا1',
@@ -165,6 +265,7 @@ export const STORE_PRODUCT_TRIAL_PRODUCTS: Record<
       'الأتمتة التقنية للكاشير والصفحة والشاشات مستوفية بالكامل. يتبقى الربط التقني والتفعيل لأدوات العمل فعلياً في المقهى.',
     howToAr:
       'ستون يوماً من أول دخول. بعدها تشتري ستة أشهر بـ 1199 أو اثني عشر بـ 2099 على نفس الصفحة. الصندوق مدرج. البيانات محفوظة بالإيميل.',
+    cardLeadAr: 'مقهى الحي والشاشات والكاشير والصندوق المدرج. بعد الستين يوماً: 1199 أو 2099 ر.س.',
   },
   kitchen: {
     titleAr: 'طبختنا1',
@@ -174,7 +275,8 @@ export const STORE_PRODUCT_TRIAL_PRODUCTS: Record<
     deskNoteAr:
       'الأتمتة التقنية للنشاط والصفحة مستوفية بالكامل. يتبقى الربط التقني والتفعيل لأدوات العمل فعلياً في النشاط.',
     howToAr:
-      'مئة وثمانون يوماً من أول دخول. بعدها تشتري مئة وثمانين يوماً بـ 300 أو ثلاثمئة وستين بـ 600 على نفس الصفحة. البيانات محفوظة بالإيميل.',
+      'ستون يوماً من أول دخول. بعدها تشتري مئة وثمانين يوماً بـ 300 أو ثلاثمئة وستين بـ 600 على نفس الصفحة. البيانات محفوظة بالإيميل.',
+    cardLeadAr: 'نشاط أسرة منتجة وصفحة الزبون ولوحة النشاط. بعد الستين يوماً: 300 أو 600 ر.س.',
   },
   produce: {
     titleAr: 'خضارنا1',
@@ -184,6 +286,7 @@ export const STORE_PRODUCT_TRIAL_PRODUCTS: Record<
     deskNoteAr:
       'الأتمتة التقنية للصندوق والصفحة مستوفية بالكامل. يتبقى الربط التقني والتفعيل لأدوات العمل فعلياً في المحل.',
     howToAr:
-      'مئة وثمانون يوماً من أول دخول. بعدها تشتري مئة وثمانين يوماً بـ 1350 أو ثلاثمئة وستين بـ 2500 على نفس الصفحة. الصندوق مدرج. البيانات محفوظة بالإيميل.',
+      'ستون يوماً من أول دخول. بعدها تشتري مئة وثمانين يوماً بـ 1350 أو ثلاثمئة وستين بـ 2500 على نفس الصفحة. الصندوق مدرج. البيانات محفوظة بالإيميل.',
+    cardLeadAr: 'صندوق الخضار وجار الحي وشريط وصل اليوم. بعد الستين يوماً: 1350 أو 2500 ر.س.',
   },
 };

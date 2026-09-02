@@ -7,9 +7,10 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { StoreAffiliateApplicationsPanel } from '@/components/admin/StoreAffiliateApplicationsPanel';
 import { toast } from '@/components/ui/sonner';
 import {
+  STORE_GENERAL_TRIAL_KEYS,
   STORE_PRODUCT_TRIAL_COPY,
-  STORE_PRODUCT_TRIAL_KEYS,
   STORE_PRODUCT_TRIAL_PRODUCTS,
+  type StoreGeneralTrialKey,
   type StoreProductTrialKey,
 } from '@/config/storeProductTrial';
 import {
@@ -33,6 +34,12 @@ function formatStamp(iso: string | null | undefined): string {
 
 function issuerLine(row: StoreOpsTrialRow): string {
   if (row.issuer_kind === 'admin') return STORE_PRODUCT_TRIAL_COPY.generatedByAr;
+  if (row.issuer_kind === 'visitor') {
+    const shop = String(row.shop_name || row.issued_by_label || '').trim();
+    return shop
+      ? `${STORE_PRODUCT_TRIAL_COPY.visitorFromAr}: ${shop}`
+      : STORE_PRODUCT_TRIAL_COPY.visitorFromAr;
+  }
   const name = String(row.issued_by_label || '').trim();
   return name
     ? `${STORE_PRODUCT_TRIAL_COPY.referredFromAr}: ${name}`
@@ -89,7 +96,7 @@ function TrialMeta({ row }: { row: StoreOpsTrialRow }) {
 
 export function StoreTrialOpsBoard({ accessToken }: { accessToken: string }) {
   const [rows, setRows] = useState<StoreOpsTrialRow[]>([]);
-  const [issueKey, setIssueKey] = useState<StoreProductTrialKey>('wedding');
+  const [issueKey, setIssueKey] = useState<StoreGeneralTrialKey>('grocers');
   const [issueEmail, setIssueEmail] = useState('');
   const [completeEmails, setCompleteEmails] = useState<Record<string, string>>({});
   const [busyKey, setBusyKey] = useState('');
@@ -196,7 +203,7 @@ export function StoreTrialOpsBoard({ accessToken }: { accessToken: string }) {
               value={issueKey}
               onChange={(event) => setIssueKey(event.target.value as StoreProductTrialKey)}
             >
-              {STORE_PRODUCT_TRIAL_KEYS.map((key) => (
+              {STORE_GENERAL_TRIAL_KEYS.map((key) => (
                 <option key={key} value={key}>
                   {STORE_PRODUCT_TRIAL_PRODUCTS[key].titleAr}
                 </option>
@@ -235,6 +242,16 @@ export function StoreTrialOpsBoard({ accessToken }: { accessToken: string }) {
                 <li key={row.id} className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm">
                   <p className="font-bold text-white">{product?.titleAr || row.product_key}</p>
                   <p className="mt-1 text-slate-400">{issuerLine(row)}</p>
+                  {row.city || row.neighborhood ? (
+                    <p className="mt-1 text-slate-500">
+                      {[row.city, row.neighborhood].filter(Boolean).join(' · ')}
+                    </p>
+                  ) : null}
+                  {row.whatsapp ? (
+                    <p className="mt-1 text-slate-500" dir="ltr">
+                      {row.whatsapp}
+                    </p>
+                  ) : null}
                   <label className="mt-3 block text-sm">
                     {STORE_PRODUCT_TRIAL_COPY.issueFieldAr}
                     <input

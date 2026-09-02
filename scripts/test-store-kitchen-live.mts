@@ -310,10 +310,11 @@ assert.doesNotMatch(apiLib + apiRoute + migration, /أكلنا1/);
 assert.ok(STORE_PRODUCT_TRIAL_KEYS.includes('kitchen'));
 assert.equal(STORE_PRODUCT_TRIAL_PRODUCTS.kitchen.productTag, 'store_kitchen_live');
 assert.equal(STORE_PRODUCT_TRIAL_PRODUCTS.kitchen.titleAr, 'طبختنا1');
-assert.equal(trialDaysFor('kitchen'), 180);
-assert.equal(trialDaysFor('produce'), 180);
+assert.equal(trialDaysFor('kitchen'), 60);
+assert.equal(trialDaysFor('produce'), 60);
 assert.equal(trialDaysFor('grocers'), 60);
-assert.match(STORE_PRODUCT_TRIAL_COPY.firstVisitAr, /خضارنا1 وطبختنا1/);
+assert.match(STORE_PRODUCT_TRIAL_COPY.firstVisitAr, /ستون يوماً/);
+assert.doesNotMatch(STORE_PRODUCT_TRIAL_COPY.firstVisitAr, /مئة وثمانون/);
 assert.doesNotMatch(kitchenLanding, /STORE_PRODUCT_TRIAL/);
 assert.doesNotMatch(readFileSync(join(root, 'src/config/storeKitchenLive.ts'), 'utf8'), /تجربة ستون|مكتب الطلبات/);
 
