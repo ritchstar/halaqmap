@@ -8,6 +8,9 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 
 export const STORE_HALANA_COPIES_TABLE = 'store_halana_copies' as const;
 export const STORE_HALANA_REQUESTS_TABLE = 'store_halana_requests' as const;
+export const STORE_HALANA_GALLERY_TABLE = 'store_halana_gallery' as const;
+export const STORE_HALANA_GALLERY_MAX = 12;
+export const STORE_HALANA_IMAGE_MAX_CHARS = 180000;
 
 const STATUSES = new Set([
   'new',
@@ -44,6 +47,26 @@ function clip(raw: unknown, max: number): string {
     .slice(0, max);
 }
 
+export type HalanaGalleryItem = { id: string; caption: string; src: string };
+
+export function parseHalanaImageSrc(raw: unknown): string {
+  const src = String(raw ?? '').trim();
+  if (src.length < 12 || src.length > STORE_HALANA_IMAGE_MAX_CHARS) return '';
+  if (/[<>]/.test(src) || /javascript:/i.test(src) || /data:image\/svg/i.test(src)) return '';
+  if (/^https:\/\/[^\s]+$/i.test(src) && src.length <= 500) return src;
+  if (/^data:image\/(jpeg|jpg|png|webp);base64,[A-Za-z0-9+/=\s]+$/i.test(src)) return src;
+  return '';
+}
+
+function galleryFromLegacyUrls(raw: string): HalanaGalleryItem[] {
+  return String(raw || '')
+    .split('\n')
+    .map((line) => parseHalanaImageSrc(line))
+    .filter(Boolean)
+    .slice(0, STORE_HALANA_GALLERY_MAX)
+    .map((src, index) => ({ id: `url-${index}`, caption: '', src }));
+}
+
 export function halanaShopUrl(token: string): string {
   return `https://store.halaqmap.com/#/h/${encodeURIComponent(token)}`;
 }
@@ -52,7 +75,13 @@ export function halanaDeskUrl(token: string): string {
   return `https://store.halaqmap.com/#/h/${encodeURIComponent(token)}/desk`;
 }
 
-export function publicCopyPayload(row: Record<string, unknown>, requests: Record<string, unknown>[] = []) {
+export function publicCopyPayload(
+  row: Record<string, unknown>,
+  requests: Record<string, unknown>[] = [],
+  gallery: HalanaGalleryItem[] = [],
+) {
+  const uploaded = gallery.filter((item) => parseHalanaImageSrc(item.src));
+  const merged = uploaded.length > 0 ? uploaded : galleryFromLegacyUrls(String(row.gallery_urls || ''));
   return {
     shopName: String(row.shop_name || row.specialist_name || 'حلانا1'),
     specialistName: String(row.specialist_name || ''),
@@ -60,10 +89,63 @@ export function publicCopyPayload(row: Record<string, unknown>, requests: Record
     policyAr: String(row.policy_ar || ''),
     quotesAr: String(row.quotes_ar || ''),
     whatsapp: String(row.whatsapp || ''),
-    galleryUrls: String(row.gallery_urls || ''),
+    gallery: merged,
     readyLines: String(row.ready_lines || ''),
     requests,
   };
+}
+
+export async function listHalanaGallery(db: Db, copyId: string): Promise<HalanaGalleryItem[]> {
+  const { data } = await db
+    .from(STORE_HALANA_GALLERY_TABLE)
+    .select('id, caption, image_src, sort_order, created_at')
+    .eq('copy_id', copyId)
+    .order('sort_order', { ascending: true })
+    .order('created_at', { ascending: true })
+    .limit(STORE_HALANA_GALLERY_MAX);
+  return ((data || []) as Record<string, unknown>[])
+    .map((row) => ({
+      id: String(row.id || ''),
+      caption: clip(row.caption, 60),
+      src: parseHalanaImageSrc(row.image_src),
+    }))
+    .filter((item) => item.id && item.src);
+}
+
+export async function addHalanaGallery(
+  db: Db,
+  copyId: string,
+  input: Record<string, unknown>,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const src = parseHalanaImageSrc(input.imageSrc);
+  if (!src) return { ok: false, error: 'ارفع صورة صالحة للعرض.' };
+  const { count } = await db
+    .from(STORE_HALANA_GALLERY_TABLE)
+    .select('id', { count: 'exact', head: true })
+    .eq('copy_id', copyId);
+  if ((count || 0) >= STORE_HALANA_GALLERY_MAX) {
+    return { ok: false, error: 'بلغت الصور الحد الأعلى.' };
+  }
+  const { error } = await db.from(STORE_HALANA_GALLERY_TABLE).insert({
+    copy_id: copyId,
+    caption: clip(input.caption, 60),
+    image_src: src,
+    sort_order: count || 0,
+  });
+  if (error) return { ok: false, error: 'تعذر حفظ الصورة.' };
+  return { ok: true };
+}
+
+export async function removeHalanaGallery(
+  db: Db,
+  copyId: string,
+  imageId: string,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const id = String(imageId || '').trim();
+  if (!/^[0-9a-f-]{16,40}$/i.test(id)) return { ok: false, error: 'صورة غير صالحة.' };
+  const { error } = await db.from(STORE_HALANA_GALLERY_TABLE).delete().eq('id', id).eq('copy_id', copyId);
+  if (error) return { ok: false, error: 'تعذر إخفاء الصورة.' };
+  return { ok: true };
 }
 
 export async function findHalanaCopy(
@@ -157,7 +239,6 @@ export async function saveHalanaHost(
       policy_ar: String(input.policyAr || '').slice(0, 1200),
       quotes_ar: String(input.quotesAr || '').slice(0, 1200),
       whatsapp: String(input.whatsapp || '').replace(/\D/g, '').slice(0, 15),
-      gallery_urls: String(input.galleryUrls || '').slice(0, 2000),
       ready_lines: String(input.readyLines || '').slice(0, 800),
       updated_at: new Date().toISOString(),
     })

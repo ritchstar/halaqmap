@@ -3,18 +3,22 @@
  *
  * صفحة العميلة ولوحة حلانا1. غير معلنة. لا تُستورد إعداداتها من App.
  */
-import { useEffect, useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent, type ReactNode } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import { toast } from '@/components/ui/sonner';
 import {
+  STORE_HALANA_ATMOSPHERE,
   STORE_HALANA_DEFAULT_FLAVORS_AR,
   STORE_HALANA_DEFAULT_POLICY_AR,
+  STORE_HALANA_GALLERY_MAX,
+  STORE_HALANA_IMAGE_MAX_CHARS,
   STORE_HALANA_LIVE_COPY,
   STORE_HALANA_REQUEST_STATUSES,
   type StoreHalanaRequestStatus,
 } from '@/config/storeHalanaLive';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { fetchHalanaPublic, postHalanaAction } from '@/lib/storeHalanaLiveRemote';
+import { compressImageFile } from '@/lib/storeWeddingLiveLab';
 
 type RequestRow = {
   id: string;
@@ -31,19 +35,18 @@ type RequestRow = {
   locked_date: string;
 };
 
+type GalleryItem = { id: string; caption: string; src: string };
+
 type Payload = {
   shopName: string;
   flavorsAr: string;
   policyAr: string;
   quotesAr: string;
   whatsapp: string;
-  galleryUrls: string;
+  gallery: GalleryItem[];
   readyLines: string;
   requests: RequestRow[];
 };
-
-const fieldClass =
-  'mt-1 w-full rounded-xl border border-white/15 bg-[#1a0c12] px-3 py-2.5 text-sm text-[#f4efe4] outline-none';
 
 function whatsappHref(phone: string, text: string): string {
   const digits = phone.replace(/\D/g, '');
@@ -56,6 +59,32 @@ function splitLines(raw: string): string[] {
     .split('\n')
     .map((line) => line.trim())
     .filter(Boolean);
+}
+
+function HalanaField({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <label className="halana-field-shell block text-sm">
+      {label}
+      {children}
+    </label>
+  );
+}
+
+function ProductGallery({ items, emptyAr }: { items: GalleryItem[]; emptyAr?: string }) {
+  const copy = STORE_HALANA_LIVE_COPY;
+  if (items.length === 0) {
+    return emptyAr ? <p className="text-sm leading-7 text-white/60">{emptyAr}</p> : null;
+  }
+  return (
+    <div className="grid gap-3 sm:grid-cols-2">
+      {items.map((item) => (
+        <figure key={item.id} className="overflow-hidden rounded-2xl border border-[#ffe2b4]/20 bg-black/20">
+          <img src={item.src} alt={item.caption || copy.galleryTitleAr} className="h-48 w-full object-cover" />
+          {item.caption ? <figcaption className="px-3 py-2 text-xs text-white/70">{item.caption}</figcaption> : null}
+        </figure>
+      ))}
+    </div>
+  );
 }
 
 export default function StoreHalanaShopPage() {
@@ -75,8 +104,12 @@ export default function StoreHalanaShopPage() {
       setPayload(null);
       return;
     }
+    const raw = res.payload as Payload & { galleryUrls?: string };
     setError('');
-    setPayload(res.payload as Payload);
+    setPayload({
+      ...raw,
+      gallery: Array.isArray(raw.gallery) ? raw.gallery : [],
+    });
   }
 
   useEffect(() => {
@@ -107,11 +140,20 @@ export default function StoreHalanaShopPage() {
   }
 
   return (
-    <div dir="rtl" className="min-h-svh bg-[#14080c] text-[#f4efe4]">
+    <div dir="rtl" className="halana-page min-h-svh text-[#f4efe4]">
       <div className="mx-auto max-w-3xl px-4 py-8">
+        <img
+          src={STORE_HALANA_ATMOSPHERE.cake}
+          alt=""
+          className="mb-6 h-40 w-full rounded-3xl object-cover shadow-[0_0_48px_rgba(255,210,160,0.28)]"
+        />
         <p className="text-sm font-bold tracking-wide text-[#e8a0b4]">{copy.kickerAr}</p>
         <h1 className="mt-2 text-3xl font-extrabold">{payload.shopName || copy.titleAr}</h1>
-        {desk ? <DeskPanel token={token} payload={payload} onSaved={() => void load()} /> : <ShopPanel token={token} payload={payload} busy={busy} setBusy={setBusy} />}
+        {desk ? (
+          <DeskPanel token={token} payload={payload} onSaved={() => void load()} />
+        ) : (
+          <ShopPanel token={token} payload={payload} busy={busy} setBusy={setBusy} />
+        )}
       </div>
     </div>
   );
@@ -168,20 +210,18 @@ function ShopPanel({
   }
 
   const flavors = splitLines(payload.flavorsAr || STORE_HALANA_DEFAULT_FLAVORS_AR);
-  const gallery = splitLines(payload.galleryUrls);
   const ready = splitLines(payload.readyLines);
   const quotes = splitLines(payload.quotesAr);
 
   return (
     <div className="mt-6 space-y-8">
       <p className="text-sm leading-8 text-white/75">{copy.shopLeadAr}</p>
-      {gallery.length > 0 ? (
-        <div className="grid gap-3 sm:grid-cols-2">
-          {gallery.map((src) => (
-            <img key={src} src={src} alt="" className="h-40 w-full rounded-2xl object-cover" />
-          ))}
+      <section>
+        <h2 className="text-lg font-extrabold">{copy.galleryTitleAr}</h2>
+        <div className="mt-3">
+          <ProductGallery items={payload.gallery || []} emptyAr={copy.galleryEmptyAr} />
         </div>
-      ) : null}
+      </section>
       <section>
         <h2 className="text-lg font-extrabold">{copy.flavorsTitleAr}</h2>
         <ul className="mt-2 list-disc pr-5 text-sm leading-7 text-white/75">
@@ -217,37 +257,30 @@ function ShopPanel({
       <p className="text-sm leading-7 text-amber-100/80">{copy.refWarnAr}</p>
       <p className="text-sm leading-7 text-amber-100/80">{copy.depositWarnAr}</p>
       <p className="text-sm leading-7 text-white/60">{copy.pickupWarnAr}</p>
-      <form onSubmit={(event) => void onSubmit(event)} className="space-y-3 rounded-2xl border border-white/10 bg-black/25 p-4">
+      <form onSubmit={(event) => void onSubmit(event)} className="halana-form-card space-y-4 rounded-2xl p-4">
         <p className="text-lg font-extrabold">{copy.formTitleAr}</p>
         <input type="text" name="website" tabIndex={-1} autoComplete="off" className="hidden" />
-        <label className="block text-sm">
-          {copy.deliverAtAr}
-          <input className={fieldClass} value={deliverAt} onChange={(event) => setDeliverAt(event.target.value)} />
-        </label>
-        <label className="block text-sm">
-          {copy.quantityAr}
-          <input className={fieldClass} value={quantity} onChange={(event) => setQuantity(event.target.value)} />
-        </label>
-        <label className="block text-sm">
-          {copy.sweetTypeAr}
-          <input className={fieldClass} value={sweetType} onChange={(event) => setSweetType(event.target.value)} />
-        </label>
-        <label className="block text-sm">
-          {copy.fillingsAr}
-          <input className={fieldClass} value={fillings} onChange={(event) => setFillings(event.target.value)} />
-        </label>
-        <label className="block text-sm">
-          {copy.refNoteAr}
-          <textarea className={`${fieldClass} min-h-24`} value={refNote} onChange={(event) => setRefNote(event.target.value)} />
-        </label>
-        <label className="block text-sm">
-          {copy.guestNameAr}
-          <input className={fieldClass} value={guestName} onChange={(event) => setGuestName(event.target.value)} />
-        </label>
-        <label className="block text-sm">
-          {copy.guestWhatsappAr}
-          <input className={fieldClass} dir="ltr" value={guestWhatsapp} onChange={(event) => setGuestWhatsapp(event.target.value)} />
-        </label>
+        <HalanaField label={copy.deliverAtAr}>
+          <input className="halana-field" value={deliverAt} onChange={(event) => setDeliverAt(event.target.value)} />
+        </HalanaField>
+        <HalanaField label={copy.quantityAr}>
+          <input className="halana-field" value={quantity} onChange={(event) => setQuantity(event.target.value)} />
+        </HalanaField>
+        <HalanaField label={copy.sweetTypeAr}>
+          <input className="halana-field" value={sweetType} onChange={(event) => setSweetType(event.target.value)} />
+        </HalanaField>
+        <HalanaField label={copy.fillingsAr}>
+          <input className="halana-field" value={fillings} onChange={(event) => setFillings(event.target.value)} />
+        </HalanaField>
+        <HalanaField label={copy.refNoteAr}>
+          <textarea className="halana-field min-h-24" value={refNote} onChange={(event) => setRefNote(event.target.value)} />
+        </HalanaField>
+        <HalanaField label={copy.guestNameAr}>
+          <input className="halana-field" value={guestName} onChange={(event) => setGuestName(event.target.value)} />
+        </HalanaField>
+        <HalanaField label={copy.guestWhatsappAr}>
+          <input className="halana-field" dir="ltr" value={guestWhatsapp} onChange={(event) => setGuestWhatsapp(event.target.value)} />
+        </HalanaField>
         <p className="text-xs leading-6 text-white/50">{copy.changeWarnAr}</p>
         <button
           type="submit"
@@ -268,9 +301,10 @@ function DeskPanel({ token, payload, onSaved }: { token: string; payload: Payloa
   const [policyAr, setPolicyAr] = useState(payload.policyAr || STORE_HALANA_DEFAULT_POLICY_AR);
   const [quotesAr, setQuotesAr] = useState(payload.quotesAr);
   const [whatsapp, setWhatsapp] = useState(payload.whatsapp);
-  const [galleryUrls, setGalleryUrls] = useState(payload.galleryUrls);
   const [readyLines, setReadyLines] = useState(payload.readyLines);
+  const [caption, setCaption] = useState('');
   const [busy, setBusy] = useState(false);
+  const gallery = payload.gallery || [];
 
   async function saveHost() {
     setBusy(true);
@@ -282,7 +316,6 @@ function DeskPanel({ token, payload, onSaved }: { token: string; payload: Payloa
       policyAr,
       quotesAr,
       whatsapp,
-      galleryUrls,
       readyLines,
     });
     setBusy(false);
@@ -291,6 +324,53 @@ function DeskPanel({ token, payload, onSaved }: { token: string; payload: Payloa
       return;
     }
     toast.success('حُفظت الصفحة.');
+    onSaved();
+  }
+
+  async function onUpload(file: File | undefined) {
+    if (!file || busy) return;
+    if (gallery.length >= STORE_HALANA_GALLERY_MAX) {
+      toast.error(copy.galleryFullAr);
+      return;
+    }
+    setBusy(true);
+    try {
+      let imageSrc = await compressImageFile(file, 900);
+      if (imageSrc.length > STORE_HALANA_IMAGE_MAX_CHARS) {
+        imageSrc = await compressImageFile(file, 640);
+      }
+      if (imageSrc.length > STORE_HALANA_IMAGE_MAX_CHARS) {
+        toast.error('الصورة أكبر من حد العرض. جرّبي صورة أوضح وأصغر.');
+        return;
+      }
+      const res = await postHalanaAction({
+        action: 'add_gallery',
+        token,
+        imageSrc,
+        caption,
+      });
+      if (!res.ok) {
+        toast.error(res.error);
+        return;
+      }
+      setCaption('');
+      toast.success('ظهرت الصورة في صفحة العميلات.');
+      onSaved();
+    } catch {
+      toast.error('تعذر رفع الصورة. جرّبي ملفاً أصغر.');
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function onRemove(imageId: string) {
+    setBusy(true);
+    const res = await postHalanaAction({ action: 'remove_gallery', token, imageId });
+    setBusy(false);
+    if (!res.ok) {
+      toast.error(res.error);
+      return;
+    }
     onSaved();
   }
 
@@ -315,36 +395,57 @@ function DeskPanel({ token, payload, onSaved }: { token: string; payload: Payloa
   return (
     <div className="mt-6 space-y-8">
       <p className="text-sm leading-8 text-white/75">{copy.deskLeadAr}</p>
-      <section className="space-y-3 rounded-2xl border border-white/10 bg-black/25 p-4">
+      <section className="halana-form-card space-y-4 rounded-2xl p-4">
+        <h2 className="text-lg font-extrabold">{copy.galleryDeskTitleAr}</h2>
+        <p className="text-sm leading-7 text-white/70">{copy.galleryDeskLeadAr}</p>
+        <ProductGallery items={gallery} />
+        {gallery.map((item) => (
+          <div key={`rm-${item.id}`} className="flex items-center justify-between gap-3 text-xs">
+            <span className="truncate text-white/65">{item.caption || 'صورة منتج'}</span>
+            <button type="button" disabled={busy} className="underline" onClick={() => void onRemove(item.id)}>
+              {copy.galleryRemoveAr}
+            </button>
+          </div>
+        ))}
+        <HalanaField label={copy.galleryCaptionAr}>
+          <input className="halana-field" value={caption} onChange={(event) => setCaption(event.target.value)} />
+        </HalanaField>
+        <label className="inline-flex cursor-pointer rounded-full bg-[#c45c7a] px-4 py-2 text-sm font-extrabold text-[#14080c]">
+          {copy.galleryUploadAr}
+          <input
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            className="sr-only"
+            disabled={busy || gallery.length >= STORE_HALANA_GALLERY_MAX}
+            onChange={(event) => {
+              const file = event.target.files?.[0];
+              event.target.value = '';
+              void onUpload(file);
+            }}
+          />
+        </label>
+        {gallery.length >= STORE_HALANA_GALLERY_MAX ? <p className="text-sm text-amber-100/80">{copy.galleryFullAr}</p> : null}
+      </section>
+      <section className="halana-form-card space-y-4 rounded-2xl p-4">
         <h2 className="text-lg font-extrabold">إعداد الصفحة</h2>
-        <label className="block text-sm">
-          اسم الصفحة
-          <input className={fieldClass} value={shopName} onChange={(event) => setShopName(event.target.value)} />
-        </label>
-        <label className="block text-sm">
-          واتساب التشغيل
-          <input className={fieldClass} dir="ltr" value={whatsapp} onChange={(event) => setWhatsapp(event.target.value)} />
-        </label>
-        <label className="block text-sm">
-          النكهات، سطراً لكل نكهة
-          <textarea className={`${fieldClass} min-h-24`} value={flavorsAr} onChange={(event) => setFlavorsAr(event.target.value)} />
-        </label>
-        <label className="block text-sm">
-          سياسة الطلب المسبق
-          <textarea className={`${fieldClass} min-h-24`} value={policyAr} onChange={(event) => setPolicyAr(event.target.value)} />
-        </label>
-        <label className="block text-sm">
-          آراء تظهرها للمتصفحة
-          <textarea className={`${fieldClass} min-h-20`} value={quotesAr} onChange={(event) => setQuotesAr(event.target.value)} />
-        </label>
-        <label className="block text-sm">
-          روابط صور المعرض، سطراً لكل رابط
-          <textarea className={`${fieldClass} min-h-20`} value={galleryUrls} onChange={(event) => setGalleryUrls(event.target.value)} />
-        </label>
-        <label className="block text-sm">
-          جاهز لتاريخ معيّن، سطراً لكل صنف
-          <textarea className={`${fieldClass} min-h-20`} value={readyLines} onChange={(event) => setReadyLines(event.target.value)} />
-        </label>
+        <HalanaField label="اسم الصفحة">
+          <input className="halana-field" value={shopName} onChange={(event) => setShopName(event.target.value)} />
+        </HalanaField>
+        <HalanaField label="واتساب التشغيل">
+          <input className="halana-field" dir="ltr" value={whatsapp} onChange={(event) => setWhatsapp(event.target.value)} />
+        </HalanaField>
+        <HalanaField label="النكهات، سطراً لكل نكهة">
+          <textarea className="halana-field min-h-24" value={flavorsAr} onChange={(event) => setFlavorsAr(event.target.value)} />
+        </HalanaField>
+        <HalanaField label="سياسة الطلب المسبق">
+          <textarea className="halana-field min-h-24" value={policyAr} onChange={(event) => setPolicyAr(event.target.value)} />
+        </HalanaField>
+        <HalanaField label="آراء تظهرها للمتصفحة">
+          <textarea className="halana-field min-h-20" value={quotesAr} onChange={(event) => setQuotesAr(event.target.value)} />
+        </HalanaField>
+        <HalanaField label="جاهز لتاريخ معيّن، سطراً لكل صنف">
+          <textarea className="halana-field min-h-20" value={readyLines} onChange={(event) => setReadyLines(event.target.value)} />
+        </HalanaField>
         <button
           type="button"
           disabled={busy}
@@ -361,7 +462,7 @@ function DeskPanel({ token, payload, onSaved }: { token: string; payload: Payloa
         ) : (
           <ul className="space-y-3">
             {(payload.requests || []).map((row) => (
-              <li key={row.id} className="rounded-2xl border border-white/10 bg-black/25 p-4 text-sm leading-7">
+              <li key={row.id} className="halana-form-card rounded-2xl p-4 text-sm leading-7">
                 <p className="font-bold">
                   {copy.statusAr[row.status as StoreHalanaRequestStatus] || row.status} · {row.sweet_type} · {row.quantity}
                 </p>
@@ -413,8 +514,12 @@ function DeskRequestActions({
   return (
     <div className="mt-3 space-y-2">
       <div className="grid gap-2 sm:grid-cols-2">
-        <input className={fieldClass} placeholder="مبلغ العرض" value={amount} onChange={(event) => setAmount(event.target.value)} />
-        <input className={fieldClass} placeholder="ملاحظة السعر" value={note} onChange={(event) => setNote(event.target.value)} />
+        <HalanaField label="مبلغ العرض">
+          <input className="halana-field" value={amount} onChange={(event) => setAmount(event.target.value)} />
+        </HalanaField>
+        <HalanaField label="ملاحظة السعر">
+          <input className="halana-field" value={note} onChange={(event) => setNote(event.target.value)} />
+        </HalanaField>
       </div>
       <div className="flex flex-wrap gap-2">
         <button

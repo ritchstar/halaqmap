@@ -197,7 +197,7 @@ function rateLimitMaxForRoute(routeId: string): number {
     return envInt('STORE_REVIEWS_RATE_LIMIT_MAX', 6);
   }
   if (routeId === 'public-store-halana-live') {
-    return envInt('STORE_HALANA_RATE_LIMIT_MAX', 8);
+    return envInt('STORE_HALANA_RATE_LIMIT_MAX', 16);
   }
   if (routeId.startsWith('barber-portal')) {
     const barberOnly = envInt('BARBER_PORTAL_RATE_LIMIT_MAX', -1);

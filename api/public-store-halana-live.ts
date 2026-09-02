@@ -12,10 +12,13 @@ import {
 } from './_lib/publicApiCors.js';
 import { recordHoneypotTrip, runSecurityGuard } from './_lib/securityGuard.js';
 import {
+  addHalanaGallery,
   addHalanaRequest,
   findHalanaCopy,
+  listHalanaGallery,
   listHalanaRequests,
   publicCopyPayload,
+  removeHalanaGallery,
   saveHalanaHost,
   updateHalanaRequest,
 } from './_lib/storeHalanaLive.js';
@@ -65,7 +68,8 @@ export async function GET(request: Request): Promise<Response> {
   const copy = await findHalanaCopy(db, token, role);
   if (!copy) return json({ ok: false, error: 'النسخة غير موجودة.' }, 404, headers);
   const requests = role === 'desk' ? await listHalanaRequests(db, String(copy.id)) : [];
-  return json({ ok: true, payload: publicCopyPayload(copy, requests) }, 200, headers);
+  const gallery = await listHalanaGallery(db, String(copy.id));
+  return json({ ok: true, payload: publicCopyPayload(copy, requests, gallery) }, 200, headers);
 }
 
 export async function POST(request: Request): Promise<Response> {
@@ -114,6 +118,18 @@ export async function POST(request: Request): Promise<Response> {
   if (action === 'update_request') {
     const updated = await updateHalanaRequest(db, String(desk.id), String(body.requestId || ''), body);
     if (!updated.ok) return json(updated, 400, headers);
+    return json({ ok: true }, 200, headers);
+  }
+
+  if (action === 'add_gallery') {
+    const added = await addHalanaGallery(db, String(desk.id), body);
+    if (!added.ok) return json(added, 400, headers);
+    return json({ ok: true }, 200, headers);
+  }
+
+  if (action === 'remove_gallery') {
+    const removed = await removeHalanaGallery(db, String(desk.id), String(body.imageId || ''));
+    if (!removed.ok) return json(removed, 400, headers);
     return json({ ok: true }, 200, headers);
   }
 

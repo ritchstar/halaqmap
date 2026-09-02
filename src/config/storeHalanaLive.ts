@@ -6,6 +6,13 @@
 export const STORE_HALANA_LIVE_PUBLIC_CATALOG = false as const;
 export const STORE_HALANA_LIVE_PRODUCT = 'store_halana_live' as const;
 export const STORE_HALANA_LIVE_ACCENT = '#c45c7a' as const;
+export const STORE_HALANA_GALLERY_MAX = 12;
+export const STORE_HALANA_IMAGE_MAX_CHARS = 180_000;
+export const STORE_HALANA_ATMOSPHERE = {
+  hero: '/images/store/halana/halana-hero-table.jpg',
+  fieldGlow: '/images/store/halana/halana-field-glow.jpg',
+  cake: '/images/store/halana/halana-cake-light.jpg',
+} as const;
 
 export const STORE_HALANA_REQUEST_STATUSES = [
   'new',
@@ -47,6 +54,14 @@ export const STORE_HALANA_LIVE_COPY = {
   policyTitleAr: 'سياسة الطلب المسبق',
   readyTitleAr: 'جاهز لتاريخ معيّن',
   quotesTitleAr: 'آراء تختارها المتخصصة',
+  galleryTitleAr: 'أعمال المتخصصة',
+  galleryEmptyAr: 'ستظهر أعمال المتخصصة هنا بعد رفع الصور من اللوحة.',
+  galleryDeskTitleAr: 'صور المنتجات المعروضة للعميلات',
+  galleryDeskLeadAr: 'ارفعي صوراً واضحة لأعمالك. تظهر في صفحة العميلة، بلا وصفات.',
+  galleryUploadAr: 'رفع صورة منتج',
+  galleryCaptionAr: 'وصف مختصر اختياري',
+  galleryRemoveAr: 'إخفاء',
+  galleryFullAr: 'بلغت الصور الحد الأعلى.',
   deskTitleAr: 'لوحة حلانا1',
   deskLeadAr: 'طلبات التسعير، عرض السعر، ثم تأكيد العربون لقفل الموعد.',
   quoteCtaAr: 'إرسال عرض السعر',
