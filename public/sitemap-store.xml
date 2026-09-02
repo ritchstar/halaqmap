@@ -26,6 +26,16 @@
     <priority>0.5</priority>
   </url>
   <url>
+    <loc>https://store.halaqmap.com/store/try</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://store.halaqmap.com/store/try/terms</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
     <loc>https://store.halaqmap.com/store/reviews</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>

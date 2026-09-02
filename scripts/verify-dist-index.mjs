@@ -90,6 +90,9 @@ for (const name of ['sitemap.xml', 'sitemap-pages.xml', 'sitemap-geo.xml', 'site
   if (name === 'sitemap-store.xml' && !body.includes('store.halaqmap.com/store')) {
     errors.push('sitemap-store.xml missing store.halaqmap.com/store');
   }
+  if (name === 'sitemap-store.xml' && !body.includes('store.halaqmap.com/store/try')) {
+    errors.push('sitemap-store.xml missing store.halaqmap.com/store/try');
+  }
   if (name === 'sitemap-summi.xml' && !body.includes('coiffeur.halaqmap.com/summi')) {
     errors.push('sitemap-summi.xml missing coiffeur.halaqmap.com/summi URLs');
   }
