@@ -19,6 +19,7 @@ import {
   type StoreOpsTrialLink,
   type StoreOpsTrialRow,
 } from '@/lib/adminStoreOpsRemote';
+import { groupStoreTrialOpsRows } from '@/lib/storeTrialOpsQueue';
 
 function statusLabel(status: string): string {
   const map = STORE_PRODUCT_TRIAL_COPY.statusAr as Record<string, string>;
@@ -94,7 +95,13 @@ function TrialMeta({ row }: { row: StoreOpsTrialRow }) {
   );
 }
 
-export function StoreTrialOpsBoard({ accessToken }: { accessToken: string }) {
+export function StoreTrialOpsBoard({
+  accessToken,
+  refreshNonce = 0,
+}: {
+  accessToken: string;
+  refreshNonce?: number;
+}) {
   const [rows, setRows] = useState<StoreOpsTrialRow[]>([]);
   const [issueKey, setIssueKey] = useState<StoreGeneralTrialKey>('grocers');
   const [issueEmail, setIssueEmail] = useState('');
@@ -115,15 +122,12 @@ export function StoreTrialOpsBoard({ accessToken }: { accessToken: string }) {
 
   useEffect(() => {
     if (accessToken) void refresh();
-  }, [accessToken, refresh]);
+  }, [accessToken, refresh, refreshNonce]);
 
-  const inbox = useMemo(() => rows.filter((row) => row.status === 'pending_review'), [rows]);
-  const issued = useMemo(
-    () => rows.filter((row) => row.status === 'issued' || row.status === 'activated' || row.status === 'expired'),
+  const { awaitingConfirm, inbox, issued, paid, declinedCount } = useMemo(
+    () => groupStoreTrialOpsRows(rows),
     [rows],
   );
-  const paid = useMemo(() => rows.filter((row) => row.status === 'converted'), [rows]);
-  const declinedCount = useMemo(() => rows.filter((row) => row.status === 'declined').length, [rows]);
   const issueProduct = STORE_PRODUCT_TRIAL_PRODUCTS[issueKey];
 
   async function issue() {
@@ -189,9 +193,46 @@ export function StoreTrialOpsBoard({ accessToken }: { accessToken: string }) {
   return (
     <div className="space-y-8">
       <section className="space-y-4 rounded-2xl border border-teal-300/20 bg-teal-400/[0.04] p-5">
-        <div>
-          <h2 className="text-lg font-extrabold">{STORE_PRODUCT_TRIAL_COPY.inboxTitleAr}</h2>
-          <p className="mt-1 text-sm leading-7 text-slate-400">{STORE_PRODUCT_TRIAL_COPY.inboxLeadAr}</p>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h2 className="text-lg font-extrabold">{STORE_PRODUCT_TRIAL_COPY.inboxTitleAr}</h2>
+            <p className="mt-1 text-sm leading-7 text-slate-400">{STORE_PRODUCT_TRIAL_COPY.inboxLeadAr}</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => void refresh()}
+            className="rounded-lg border border-teal-300/30 px-3 py-1.5 text-xs font-bold text-teal-100"
+          >
+            {STORE_PRODUCT_TRIAL_COPY.refreshInboxAr}
+          </button>
+        </div>
+        <div className="rounded-2xl border border-amber-300/20 bg-amber-400/[0.04] p-4">
+          <p className="text-sm font-bold text-amber-100">{STORE_PRODUCT_TRIAL_COPY.awaitingConfirmTitleAr}</p>
+          <p className="mt-1 text-sm leading-7 text-slate-400">{STORE_PRODUCT_TRIAL_COPY.awaitingConfirmLeadAr}</p>
+          {awaitingConfirm.length === 0 ? (
+            <p className="mt-3 text-sm text-slate-500">لا طلبات بانتظار تأكيد البريد.</p>
+          ) : (
+            <ul className="mt-3 space-y-2">
+              {awaitingConfirm.map((row) => {
+                const product = STORE_PRODUCT_TRIAL_PRODUCTS[row.product_key as StoreProductTrialKey];
+                return (
+                  <li key={row.id} className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm">
+                    <p className="font-bold text-white">{product?.titleAr || row.product_key}</p>
+                    <p className="mt-1 text-slate-400">{issuerLine(row)}</p>
+                    <p className="mt-1 text-slate-300" dir="ltr">
+                      {row.beneficiary_email || '—'}
+                    </p>
+                    {row.city || row.neighborhood ? (
+                      <p className="mt-1 text-slate-500">
+                        {[row.city, row.neighborhood].filter(Boolean).join(' · ')}
+                      </p>
+                    ) : null}
+                    <p className="mt-2 text-xs text-amber-200/80">{statusLabel(row.status)}</p>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
         </div>
         <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
           <p className="text-sm font-bold text-teal-200">{STORE_PRODUCT_TRIAL_COPY.generateCtaAr}</p>

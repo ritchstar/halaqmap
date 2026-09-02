@@ -8,6 +8,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import {
   confirmVisitorStoreProductTrial,
   isGeneralTrialProductKey,
+  normalizeTrialEmail,
   requestVisitorStoreProductTrial,
   type StoreGeneralTrialKey,
 } from './storeProductTrial.js';
@@ -106,7 +107,7 @@ export async function enterGeneralTrial(
   if (!entered.ok) return entered;
   const minted = mintGeneralTrialConfirmToken({
     trialId: entered.trialId,
-    email: String(input.email || '').trim().toLowerCase(),
+    email: normalizeTrialEmail(input.email),
   });
   if (!minted.ok) return minted;
   return { ok: true, trialId: entered.trialId, confirmToken: minted.token };

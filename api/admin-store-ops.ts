@@ -25,7 +25,16 @@ const CORS_OPTS = {
   allowHeaders: 'Content-Type, Authorization, x-client-supabase-url, x-supabase-anon',
 } as const;
 
-const ADMIN_PERMS = ['review_payments', 'manage_partner_billing', 'manage_partner_marketing'] as const;
+const ADMIN_PERMS = [
+  'view_overview',
+  'view_payments',
+  'review_payments',
+  'view_requests',
+  'review_requests',
+  'manage_partner_billing',
+  'view_partner_marketing',
+  'manage_partner_marketing',
+] as const;
 
 function corsHeaders(request: Request): Record<string, string> {
   return buildPublicApiCorsHeaders(request, CORS_OPTS).headers;

@@ -65,6 +65,10 @@ export const STORE_PRODUCT_TRIAL_COPY = {
   inboxTitleAr: 'طابور التجربة العامة',
   inboxLeadAr:
     'ولّد نموذجاً من الإدارة، أو أتمّ طلب متصفح أو مسوّق بعد المراجعة. المدة ستون يوماً فقط، بلا مدد أطول.',
+  awaitingConfirmTitleAr: 'وصلت ولم يُؤكَّد البريد بعد',
+  awaitingConfirmLeadAr:
+    'طلب المتصفح محفوظ هنا فور الإرسال. بعد ضغط رابط التأكيد في البريد ينتقل إلى الطابور القابل للإتمام.',
+  refreshInboxAr: 'تحديث الطابور',
   generateCtaAr: 'إصدار من الإدارة',
   completeCtaAr: 'إتمام الإصدار',
   trialListTitleAr: 'المصدر تجريبياً',

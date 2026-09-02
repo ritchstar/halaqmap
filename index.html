@@ -561,11 +561,13 @@
             }
           }
           if (!moved) return;
+          for (var j = 0; j < keys.length; j++) hp.delete(keys[j]);
+          var remain = hp.toString();
           var qs = sp.toString();
           window.history.replaceState(
             null,
             '',
-            window.location.pathname + (qs ? '?' + qs : '') + pathHash,
+            window.location.pathname + (qs ? '?' + qs : '') + pathHash + (remain ? '?' + remain : ''),
           );
         } catch (e2) {}
       })();
