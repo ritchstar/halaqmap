@@ -165,6 +165,8 @@ export const ROUTE_PATHS = {
   STORE_AFFILIATES_ENTER: '/store/affiliates/enter',
   STORE_AFFILIATES_DESK: '/store/affiliates/desk',
   STORE_AFFILIATES_RULES: '/store/affiliates/rules',
+  /** لوحة مشغّلي خريطة الحل — دخول بريد ثم رمز. ليست لوحة الإدارة */
+  STORE_OPERATORS: '/store/operators',
   /** مسار قديم على نطاق المتجر — يُحوَّل إلى لوحة التحكم */
   STORE_OPS: '/store/ops',
   /** بلاغات الوفاة والعزاء — خدمة مجتمعية مستقلة */

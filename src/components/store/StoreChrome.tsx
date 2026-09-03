@@ -10,6 +10,7 @@ import { STORE_GENERAL_TRIAL_COPY, STORE_GENERAL_TRIAL_PUBLIC_ENABLED } from '@/
 import { STORE_REVIEWS_COPY, STORE_REVIEWS_PUBLIC_ENABLED } from '@/config/storeReviews';
 import { STORE_ABOUT_COPY, STORE_BRAND_LATIN, STORE_CONTACT_EMAIL, STORE_CONTACT_PHONE_DISPLAY, STORE_CONTACT_PHONE_E164, STORE_CONTACT_WHATSAPP_URL, STORE_CONTACT_X_HANDLE, STORE_CONTACT_X_URL, STORE_FOOTER_CONTACT, STORE_LANDING_COPY, STORE_ORIGIN, STORE_VISUALS } from '@/config/storeFront';
 import { STORE_SAIP_COPY, STORE_SAIP_PUBLIC_WORKS } from '@/config/storeSaipRegistry';
+import { STORE_OPERATORS_DESK_COPY, STORE_OPERATORS_DESK_PUBLIC_ENABLED } from '@/config/storeOperatorsDesk';
 import { STORE_HMTUBE } from '@/config/storeHmTube';
 import { KSACityClocksBar } from '@/components/KSACityClocksBar';
 import { EcommerceVerifiedFooterBadge } from '@/components/EcommerceVerifiedFooterBadge';
@@ -206,6 +207,11 @@ export function StoreVisitorFooter() {
           <Link to={ROUTE_PATHS.STORE_ISSUED_CARDS_LEGAL} className="text-white/80">
             {STORE_LANDING_COPY.issuedCardsLegalAr}
           </Link>
+          {STORE_OPERATORS_DESK_PUBLIC_ENABLED ? (
+          <Link to={ROUTE_PATHS.STORE_OPERATORS} className="text-white/40">
+            {STORE_OPERATORS_DESK_COPY.footerNavAr}
+          </Link>
+          ) : null}
         </nav>
         <p className="text-sm leading-relaxed text-white/70">{STORE_LANDING_COPY.roleLine}</p>
         <p className="text-xs text-white/50">{STORE_ORIGIN}</p>
