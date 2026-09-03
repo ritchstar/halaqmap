@@ -176,18 +176,6 @@
       "permanent": true
     },
     {
-      "source": "/",
-      "has": [{ "type": "host", "value": "store.halaqmap.com" }],
-      "destination": "https://store.halaqmap.com/store",
-      "permanent": true
-    },
-    {
-      "source": "/index.html",
-      "has": [{ "type": "host", "value": "store.halaqmap.com" }],
-      "destination": "https://store.halaqmap.com/store",
-      "permanent": true
-    },
-    {
       "source": "/near/riyadh/manfuha",
       "destination": "/near/riyadh/hittin",
       "permanent": true
@@ -244,6 +232,16 @@
     }
   ],
   "rewrites": [
+    {
+      "source": "/",
+      "has": [{ "type": "host", "value": "store.halaqmap.com" }],
+      "destination": "/store-index.html"
+    },
+    {
+      "source": "/index.html",
+      "has": [{ "type": "host", "value": "store.halaqmap.com" }],
+      "destination": "/store-index.html"
+    },
     {
       "source": "/",
       "has": [{ "type": "host", "value": "coiffeur.halaqmap.com" }],
@@ -349,6 +347,46 @@
     {
       "source": "/register/:path*",
       "destination": "/index.html"
+    },
+    {
+      "source": "/h/:path*",
+      "has": [{ "type": "host", "value": "store.halaqmap.com" }],
+      "destination": "/store-index.html"
+    },
+    {
+      "source": "/w/:path*",
+      "has": [{ "type": "host", "value": "store.halaqmap.com" }],
+      "destination": "/store-index.html"
+    },
+    {
+      "source": "/e/:path*",
+      "has": [{ "type": "host", "value": "store.halaqmap.com" }],
+      "destination": "/store-index.html"
+    },
+    {
+      "source": "/l/:path*",
+      "has": [{ "type": "host", "value": "store.halaqmap.com" }],
+      "destination": "/store-index.html"
+    },
+    {
+      "source": "/g/:path*",
+      "has": [{ "type": "host", "value": "store.halaqmap.com" }],
+      "destination": "/store-index.html"
+    },
+    {
+      "source": "/k/:path*",
+      "has": [{ "type": "host", "value": "store.halaqmap.com" }],
+      "destination": "/store-index.html"
+    },
+    {
+      "source": "/r/:path*",
+      "has": [{ "type": "host", "value": "store.halaqmap.com" }],
+      "destination": "/store-index.html"
+    },
+    {
+      "source": "/v/:path*",
+      "has": [{ "type": "host", "value": "store.halaqmap.com" }],
+      "destination": "/store-index.html"
     },
     {
       "source": "/store/qr",

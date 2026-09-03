@@ -30,6 +30,12 @@ const buildPos = html.indexOf('name="halaqmap-build-commit"');
 if (headOpen >= 0 && dvPos >= 0 && buildPos >= 0 && dvPos > buildPos) {
   errors.push('domain-verification must appear before halaqmap-build-commit in head');
 }
+if (!html.includes('hm-store-refresh-heal')) {
+  errors.push('index.html missing store refresh healer');
+}
+if (!html.includes('hm-sw-reset-v19')) {
+  errors.push('index.html missing service-worker reset v19');
+}
 if (!/\/assets\/[^"']+\.(js|css)\?v=/.test(html)) {
   errors.push('missing ?v= on /assets/*.js or *.css');
 }

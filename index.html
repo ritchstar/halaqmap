@@ -89,9 +89,10 @@
     <script>
       (function () {
         try {
-          var flag = 'hm-sw-reset-v18';
+          var flag = 'hm-sw-reset-v19';
           if (localStorage.getItem(flag)) return;
           localStorage.setItem(flag, '1');
+          localStorage.removeItem('hm-sw-reset-v18');
           localStorage.removeItem('hm-sw-reset-v17');
           localStorage.removeItem('hm-sw-reset-v16');
           localStorage.removeItem('hm-sw-reset-v15');
@@ -115,7 +116,8 @@
           sessionStorage.removeItem('hm-sw-reset-v11-reload');
           /* بعد مسح الكاش: امنح الإقلاع البارد مهلة أطول ولا تمسح الكاش ثانيةً من الـ watchdog */
           sessionStorage.setItem('hm-boot-grace-after-sw-reset', String(Date.now()));
-          var reloadFlag = 'hm-sw-reset-v18-reload';
+          var reloadFlag = 'hm-sw-reset-v19-reload';
+          sessionStorage.removeItem('hm-sw-reset-v18-reload');
           sessionStorage.removeItem('hm-sw-reset-v17-reload');
           sessionStorage.removeItem('hm-sw-reset-v16-reload');
           sessionStorage.removeItem('hm-sw-reset-v15-reload');
@@ -511,7 +513,28 @@
               return;
             }
           }
-          if (hash.length > 1) return;
+          /* hm-store-refresh-heal: /store#/store/... بعد تحويل فيرسل القديم يكسر التحديث وعامل الخدمة */
+          if (hash.length > 1) {
+            var dirtyStore =
+              path === '/store' ||
+              path.indexOf('/store/') === 0 ||
+              path === '/h' || path.indexOf('/h/') === 0 ||
+              path === '/w' || path.indexOf('/w/') === 0 ||
+              path === '/e' || path.indexOf('/e/') === 0 ||
+              path === '/l' || path.indexOf('/l/') === 0 ||
+              path === '/g' || path.indexOf('/g/') === 0 ||
+              path === '/k' || path.indexOf('/k/') === 0 ||
+              path === '/r' || path.indexOf('/r/') === 0 ||
+              path === '/v' || path.indexOf('/v/') === 0 ||
+              path === '/oc' || path.indexOf('/oc/') === 0;
+            if (dirtyStore) {
+              var healed = '/' + search + hash;
+              if (window.location.pathname + window.location.search + window.location.hash !== healed) {
+                window.history.replaceState(null, '', healed);
+              }
+            }
+            return;
+          }
           if (path === '/' || path === '') return;
           if (path.indexOf('/api/') === 0) return;
           if (path.indexOf('/oc/') === 0 || path === '/oc') return;

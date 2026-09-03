@@ -12,6 +12,7 @@
  *  - 10-minute polling interval
  */
 import { APP_BUILD } from '@/lib/appBuild';
+import { healStoreRefreshUrl } from '@/lib/storeRefreshHeal';
 
 const META_COMMIT = 'halaqmap-build-commit';
 const META_BUILD_TIME = 'halaqmap-build-time';
@@ -76,7 +77,12 @@ async function performHardReload(): Promise<void> {
   const url = new URL(window.location.href);
   url.searchParams.delete('_b');
   url.searchParams.set('_b', String(Date.now()));
-  window.location.replace(`${url.pathname}${url.search}${url.hash}`);
+  const healed = healStoreRefreshUrl({
+    pathname: url.pathname,
+    search: url.search,
+    hash: url.hash,
+  });
+  window.location.replace(healed || `${url.pathname}${url.search}${url.hash}`);
 }
 
 const AUTO_RELOAD_GUARD = 'hm-build-sync-auto-reloaded';
