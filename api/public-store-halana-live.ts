@@ -13,13 +13,18 @@ import {
 import { recordHoneypotTrip, runSecurityGuard } from './_lib/securityGuard.js';
 import {
   addHalanaGallery,
+  addHalanaPayProof,
   addHalanaRequest,
   findHalanaCopy,
+  getHalanaPayInstructions,
   listHalanaGallery,
+  listHalanaPayProofs,
   listHalanaRequests,
+  payDeskFromCopy,
   publicCopyPayload,
   removeHalanaGallery,
   saveHalanaHost,
+  saveHalanaPay,
   updateHalanaGalleryCaption,
   updateHalanaRequest,
 } from './_lib/storeHalanaLive.js';
@@ -68,9 +73,24 @@ export async function GET(request: Request): Promise<Response> {
   if (token.length < 16) return json({ ok: false, error: 'رابط غير صالح.' }, 400, headers);
   const copy = await findHalanaCopy(db, token, role);
   if (!copy) return json({ ok: false, error: 'النسخة غير موجودة.' }, 404, headers);
+  const requestId = String(url.searchParams.get('requestId') || '').trim();
+  if (role === 'shop' && requestId) {
+    const pay = await getHalanaPayInstructions(db, copy, requestId);
+    if (!pay.ok) return json(pay, 400, headers);
+    return json({ ok: true, pay }, 200, headers);
+  }
   const requests = role === 'desk' ? await listHalanaRequests(db, String(copy.id)) : [];
   const gallery = await listHalanaGallery(db, String(copy.id));
-  return json({ ok: true, payload: publicCopyPayload(copy, requests, gallery) }, 200, headers);
+  const payload = publicCopyPayload(copy, requests, gallery) as Record<string, unknown>;
+  if (role === 'desk') {
+    payload.payDesk = payDeskFromCopy(copy);
+    const proofs = await listHalanaPayProofs(db, String(copy.id));
+    payload.requests = requests.map((row) => ({
+      ...row,
+      proof_src: proofs[String(row.id || '')] || '',
+    }));
+  }
+  return json({ ok: true, payload }, 200, headers);
 }
 
 export async function POST(request: Request): Promise<Response> {
@@ -104,6 +124,14 @@ export async function POST(request: Request): Promise<Response> {
     if (!copy) return json({ ok: false, error: 'النسخة غير موجودة.' }, 404, headers);
     const added = await addHalanaRequest(db, String(copy.id), body);
     if (!added.ok) return json(added, 400, headers);
+    return json({ ok: true, requestId: added.requestId }, 200, headers);
+  }
+
+  if (action === 'add_pay_proof') {
+    const copy = await findHalanaCopy(db, token, 'shop');
+    if (!copy) return json({ ok: false, error: 'النسخة غير موجودة.' }, 404, headers);
+    const added = await addHalanaPayProof(db, String(copy.id), String(body.requestId || ''), body.imageSrc);
+    if (!added.ok) return json(added, 400, headers);
     return json({ ok: true }, 200, headers);
   }
 
@@ -112,6 +140,12 @@ export async function POST(request: Request): Promise<Response> {
 
   if (action === 'save_host') {
     const saved = await saveHalanaHost(db, String(desk.id), body);
+    if (!saved.ok) return json(saved, 400, headers);
+    return json({ ok: true }, 200, headers);
+  }
+
+  if (action === 'save_pay') {
+    const saved = await saveHalanaPay(db, String(desk.id), body);
     if (!saved.ok) return json(saved, 400, headers);
     return json({ ok: true }, 200, headers);
   }

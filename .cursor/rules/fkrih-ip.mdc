@@ -37,6 +37,7 @@ globs: src/config/store*.ts,src/components/store/**,src/lib/store*.ts,api/_lib/s
 | مطعمنا1 | `fkrih/مطعمنا1.md` |
 | كافينا1 | `fkrih/كافينا1.md` |
 | طبختنا1 | `fkrih/طبختنا1.md` |
+| حلانا1 | `fkrih/حلانا1.md` |
 | كاردي8 | `fkrih/كاردي8.md` |
 | متجر خريطة الحل (ومعه الهدايا ومسوّقو المتجر كميزات) | `fkrih/متجر-خريطة-الحل.md` |
 | حلاق ماب | `fkrih/حلاق-ماب.md` |

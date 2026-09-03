@@ -24,6 +24,9 @@ import { StoreHalanaShareDesk } from '@/components/store/StoreHalanaShareDesk';
 import { STORE_HALANA_SUPPORT } from '@/config/storeProductSupport';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { splitHalanaYoutubeLines } from '@/lib/storeHalanaShare';
+import { StoreHalanaPayDesk, type HalanaPayDesk } from '@/components/store/StoreHalanaPayDesk';
+import { StoreHalanaPayGuest } from '@/components/store/StoreHalanaPayGuest';
+import { HALANA_PAY_REQUEST_KEY, halanaPayCopyText } from '@/lib/storeHalanaPay';
 import { fetchHalanaPublic, postHalanaAction } from '@/lib/storeHalanaLiveRemote';
 import { compressImageFile, youtubeEmbedSrc } from '@/lib/storeWeddingLiveLab';
 
@@ -40,9 +43,12 @@ type RequestRow = {
   quote_amount_sar: string;
   quote_note: string;
   locked_date: string;
+  proof_src?: string;
 };
 
 type GalleryItem = { id: string; caption: string; src: string };
+
+type PayPublic = { bankTransfer: boolean; cashOnPickup: boolean; networkOnPickup: boolean };
 
 type Payload = {
   shopName: string;
@@ -56,6 +62,17 @@ type Payload = {
   promoAr: string;
   youtubeUrls: string;
   requests: RequestRow[];
+  payPublic: PayPublic;
+  payDesk: HalanaPayDesk;
+};
+
+const EMPTY_PAY_PUBLIC: PayPublic = { bankTransfer: false, cashOnPickup: false, networkOnPickup: false };
+const EMPTY_PAY_DESK: HalanaPayDesk = {
+  bankName: '',
+  beneficiaryName: '',
+  iban: '',
+  cashRemainder: false,
+  networkRemainder: false,
 };
 
 function whatsappHref(phone: string, text: string): string {
@@ -205,6 +222,8 @@ export default function StoreHalanaShopPage() {
       promoTitleAr: raw.promoTitleAr || '',
       promoAr: raw.promoAr || '',
       youtubeUrls: raw.youtubeUrls || '',
+      payPublic: raw.payPublic || EMPTY_PAY_PUBLIC,
+      payDesk: raw.payDesk || EMPTY_PAY_DESK,
     });
   }
 
@@ -381,6 +400,17 @@ function ShowcasePanel({ token, payload }: { token: string; payload: Payload }) 
         <ShowcaseSection title={copy.policyTitleAr}>
           <p className="halana-lead">{payload.policyAr || STORE_HALANA_DEFAULT_POLICY_AR}</p>
         </ShowcaseSection>
+        {payload.payPublic.bankTransfer || payload.payPublic.cashOnPickup || payload.payPublic.networkOnPickup ? (
+          <ShowcaseSection title={copy.payTitleAr}>
+            <div className="flex flex-wrap gap-2">
+              {payload.payPublic.bankTransfer ? <span className="halana-flavor-chip">{copy.payPublicBankAr}</span> : null}
+              {payload.payPublic.cashOnPickup ? <span className="halana-flavor-chip">{copy.payPublicCashAr}</span> : null}
+              {payload.payPublic.networkOnPickup ? (
+                <span className="halana-flavor-chip">{copy.payPublicNetworkAr}</span>
+              ) : null}
+            </div>
+          </ShowcaseSection>
+        ) : null}
         <Link to={`/h/${encodeURIComponent(token)}/order`} className="halana-order-cta">
           <span className="halana-order-cta__mark" aria-hidden>
             ح
@@ -411,6 +441,7 @@ function OrderPanel({
   const [refNote, setRefNote] = useState('');
   const [guestName, setGuestName] = useState('');
   const [guestWhatsapp, setGuestWhatsapp] = useState('');
+  const [payTick, setPayTick] = useState(0);
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
@@ -431,6 +462,10 @@ function OrderPanel({
     if (!res.ok) {
       toast.error(res.error);
       return;
+    }
+    if (res.requestId) {
+      sessionStorage.setItem(`${HALANA_PAY_REQUEST_KEY}:${token}`, res.requestId);
+      setPayTick((n) => n + 1);
     }
     toast.success(copy.sentAr);
     setDeliverAt('');
@@ -509,6 +544,7 @@ function OrderPanel({
           {copy.submitAr}
         </button>
       </form>
+      <StoreHalanaPayGuest key={`${token}-${payTick}`} token={token} />
     </div>
   );
 }
@@ -715,6 +751,7 @@ function DeskPanel({ token, payload, onSaved }: { token: string; payload: Payloa
           حفظ المعرض
         </button>
       </section>
+      <StoreHalanaPayDesk token={token} initial={payload.payDesk} onSaved={onSaved} />
       <StoreHalanaShareDesk token={token} shopName={shopName} />
       <StoreDeskGuideLink
         to={ROUTE_PATHS.STORE_HALANA_SUPPORT}
@@ -746,7 +783,16 @@ function DeskPanel({ token, payload, onSaved }: { token: string; payload: Payloa
                     العرض: {row.quote_amount_sar} ر.س {row.quote_note}
                   </p>
                 ) : null}
-                <DeskRequestActions row={row} busy={busy} whatsapp={payload.whatsapp} onUpdate={updateRequest} />
+                {row.proof_src ? (
+                  <img src={row.proof_src} alt={copy.payProofAr} className="mt-2 max-h-40 rounded-xl object-cover" />
+                ) : null}
+                <DeskRequestActions
+                  row={row}
+                  busy={busy}
+                  whatsapp={payload.whatsapp}
+                  payDesk={payload.payDesk}
+                  onUpdate={updateRequest}
+                />
               </li>
             ))}
           </ul>
@@ -805,21 +851,33 @@ function DeskRequestActions({
   row,
   busy,
   whatsapp,
+  payDesk,
   onUpdate,
 }: {
   row: RequestRow;
   busy: boolean;
   whatsapp: string;
+  payDesk: HalanaPayDesk;
   onUpdate: (row: RequestRow, status: StoreHalanaRequestStatus, extra?: Record<string, string>) => Promise<void>;
 }) {
   const copy = STORE_HALANA_LIVE_COPY;
   const [amount, setAmount] = useState(row.quote_amount_sar);
   const [note, setNote] = useState(row.quote_note);
+  const payText = payDesk.iban
+    ? halanaPayCopyText({
+        bankName: payDesk.bankName,
+        beneficiaryName: payDesk.beneficiaryName,
+        iban: payDesk.iban,
+        amountSar: row.quote_amount_sar || amount,
+        requestRef: row.id.slice(0, 8),
+      })
+    : '';
   const message = [
     `طلب حلانا1: ${row.sweet_type}`,
     `العدد: ${row.quantity}`,
     `الوصول: ${row.deliver_at}`,
     row.quote_amount_sar ? `العرض: ${row.quote_amount_sar} ر.س` : '',
+    payText,
   ]
     .filter(Boolean)
     .join('\n');

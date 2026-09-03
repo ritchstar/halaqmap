@@ -31,7 +31,22 @@ export async function postHalanaAction(body: Record<string, unknown>) {
     if (!res.ok || data.ok === false) {
       return { ok: false, error: typeof data.error === 'string' ? data.error : 'تعذر تنفيذ الإجراء.' };
     }
-    return { ok: true };
+    return { ok: true, requestId: typeof data.requestId === 'string' ? data.requestId : '' };
+  } catch {
+    return { ok: false, error: 'تعذر الاتصال.' };
+  }
+}
+
+export async function fetchHalanaPay(token: string, requestId: string) {
+  try {
+    const res = await fetch(
+      `${PATH}?token=${encodeURIComponent(token)}&role=shop&requestId=${encodeURIComponent(requestId)}`,
+    );
+    const data = await readJson(res);
+    if (!res.ok || data.ok !== true || !data.pay || typeof data.pay !== 'object') {
+      return { ok: false, error: typeof data.error === 'string' ? data.error : 'تعذر قراءة تعليمات التحويل.' };
+    }
+    return { ok: true, pay: data.pay as Record<string, unknown> };
   } catch {
     return { ok: false, error: 'تعذر الاتصال.' };
   }

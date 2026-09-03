@@ -14,6 +14,7 @@ import {
 } from '../src/config/storeHalanaLive.ts';
 import { ROUTE_PATHS } from '../src/lib/routePaths.ts';
 import { isHalanaYoutubeChannelUrl, splitHalanaYoutubeLines } from '../src/lib/storeHalanaShare.ts';
+import { halanaPayCopyText, isHalanaIban, maskHalanaIban, normalizeHalanaIban } from '../src/lib/storeHalanaPay.ts';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const app = readFileSync(join(root, 'src/App.tsx'), 'utf8');
@@ -92,5 +93,43 @@ assert.match(page, /halana-form-card/);
 assert.match(desk, /StoreHalanaIssueBoard/);
 assert.match(api, /data:image\\\/svg/);
 assert.match(api, /javascript:/i);
+
+const payMigration = readFileSync(join(root, 'supabase/migrations/197_store_halana_direct_pay.sql'), 'utf8');
+const payApi = readFileSync(join(root, 'api/_lib/storeHalanaPay.ts'), 'utf8');
+assert.match(payMigration, /pay_iban_cipher/);
+assert.match(payMigration, /store_halana_pay_proofs/);
+assert.match(payMigration, /ENABLE ROW LEVEL SECURITY/);
+assert.match(payMigration, /REVOKE ALL ON TABLE public.store_halana_pay_proofs FROM anon, authenticated/);
+assert.match(payApi, /aes-256-gcm/);
+assert.match(payApi, /STORE_HALANA_PAY_SECRET/);
+assert.match(api, /saveHalanaPay/);
+assert.match(api, /getHalanaPayInstructions/);
+assert.match(api, /addHalanaPayProof/);
+assert.match(api, /payPublicFromCopy/);
+assert.match(api, /PAY_REVEAL/);
+assert.doesNotMatch(api, /payDesk: payDeskFromCopy/);
+assert.match(publicApi, /payload.payDesk = payDeskFromCopy/);
+assert.doesNotMatch(api, /moyasar/i);
+assert.match(publicApi, /save_pay/);
+assert.match(publicApi, /add_pay_proof/);
+assert.match(publicApi, /requestId/);
+assert.match(page, /StoreHalanaPayDesk/);
+assert.match(page, /StoreHalanaPayGuest/);
+assert.match(page, /halanaPayCopyText/);
+assert.match(page, /HALANA_PAY_REQUEST_KEY/);
+assert.doesNotMatch(page, /moyasar/i);
+assert.equal(normalizeHalanaIban('sa12 3456 7890 1234 5678 9012'), 'SA1234567890123456789012');
+assert.equal(isHalanaIban('SA1234567890123456789012'), true);
+assert.equal(isHalanaIban('SA123'), false);
+assert.equal(maskHalanaIban('SA1234567890123456789012'), 'SA12••••9012');
+assert.match(
+  halanaPayCopyText({
+    bankName: 'الأهلي',
+    beneficiaryName: 'متخصصة',
+    iban: 'SA1234567890123456789012',
+    amountSar: '200',
+  }),
+  /خريطة الحل لا تستلم/,
+);
 
 console.log('store-halana-live ok');
