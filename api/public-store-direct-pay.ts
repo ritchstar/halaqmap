@@ -74,7 +74,7 @@ export async function GET(request: Request): Promise<Response> {
   if (role === 'shop') {
     const pay = await getDirectPayInstructions(db, product, String(copy.id), requestRef);
     if (!pay.ok) return json(pay, 400, headers);
-    return json({ ok: true, ...pay }, 200, headers);
+    return json(pay, 200, headers);
   }
   const profile = await loadDirectPayProfile(db, product, String(copy.id));
   const proofs = await listDirectPayProofs(db, product, String(copy.id));
