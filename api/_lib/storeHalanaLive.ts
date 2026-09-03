@@ -155,6 +155,23 @@ export async function addHalanaGallery(
   return { ok: true };
 }
 
+export async function updateHalanaGalleryCaption(
+  db: Db,
+  copyId: string,
+  imageId: string,
+  caption: unknown,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const id = String(imageId || '').trim();
+  if (!/^[0-9a-f-]{16,40}$/i.test(id)) return { ok: false, error: 'صورة غير صالحة.' };
+  const { error } = await db
+    .from(STORE_HALANA_GALLERY_TABLE)
+    .update({ caption: clip(caption, STORE_HALANA_CAPTION_MAX) })
+    .eq('id', id)
+    .eq('copy_id', copyId);
+  if (error) return { ok: false, error: 'تعذر حفظ الوصف.' };
+  return { ok: true };
+}
+
 export async function removeHalanaGallery(
   db: Db,
   copyId: string,

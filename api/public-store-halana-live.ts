@@ -20,6 +20,7 @@ import {
   publicCopyPayload,
   removeHalanaGallery,
   saveHalanaHost,
+  updateHalanaGalleryCaption,
   updateHalanaRequest,
 } from './_lib/storeHalanaLive.js';
 
@@ -124,6 +125,12 @@ export async function POST(request: Request): Promise<Response> {
   if (action === 'add_gallery') {
     const added = await addHalanaGallery(db, String(desk.id), body);
     if (!added.ok) return json(added, 400, headers);
+    return json({ ok: true }, 200, headers);
+  }
+
+  if (action === 'update_gallery') {
+    const updated = await updateHalanaGalleryCaption(db, String(desk.id), String(body.imageId || ''), body.caption);
+    if (!updated.ok) return json(updated, 400, headers);
     return json({ ok: true }, 200, headers);
   }
 

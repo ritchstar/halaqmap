@@ -79,17 +79,50 @@ function ProductGallery({ items, emptyAr, featured }: { items: GalleryItem[]; em
   if (items.length === 0) {
     return emptyAr ? <p className="text-sm leading-7 text-white/60">{emptyAr}</p> : null;
   }
+  const [lead, ...rest] = items;
+  if (featured && lead) {
+    return (
+      <div className="space-y-6">
+        <figure className="halana-work-card overflow-hidden rounded-[1.75rem]">
+          <img src={lead.src} alt={lead.caption || copy.galleryTitleAr} className="h-[22rem] w-full object-cover sm:h-[28rem]" />
+          {lead.caption ? (
+            <figcaption className="halana-work-caption px-5 py-5 text-base leading-8">{lead.caption}</figcaption>
+          ) : null}
+        </figure>
+        {rest.length > 0 ? (
+          <div className="grid gap-5 sm:grid-cols-2">
+            {rest.map((item) => (
+              <figure key={item.id} className="halana-work-card overflow-hidden rounded-[1.6rem]">
+                <img src={item.src} alt={item.caption || copy.galleryTitleAr} className="h-64 w-full object-cover" />
+                {item.caption ? (
+                  <figcaption className="halana-work-caption px-4 py-4 text-sm leading-7">{item.caption}</figcaption>
+                ) : null}
+              </figure>
+            ))}
+          </div>
+        ) : null}
+      </div>
+    );
+  }
   return (
-    <div className={featured ? 'grid gap-5 sm:grid-cols-2' : 'grid gap-3 sm:grid-cols-2'}>
+    <div className="grid gap-3 sm:grid-cols-2">
       {items.map((item) => (
         <figure key={item.id} className="halana-work-card overflow-hidden rounded-3xl">
-          <img src={item.src} alt={item.caption || copy.galleryTitleAr} className={featured ? 'h-64 w-full object-cover' : 'h-40 w-full object-cover'} />
-          {item.caption ? (
-            <figcaption className="px-4 py-3 text-sm leading-7 text-white/80">{item.caption}</figcaption>
-          ) : null}
+          <img src={item.src} alt={item.caption || copy.galleryTitleAr} className="h-40 w-full object-cover" />
+          {item.caption ? <figcaption className="px-4 py-3 text-sm leading-7 text-white/80">{item.caption}</figcaption> : null}
         </figure>
       ))}
     </div>
+  );
+}
+
+function ShowcaseSection({ kicker, title, children }: { kicker?: string; title: string; children: ReactNode }) {
+  return (
+    <section className="halana-section">
+      {kicker ? <p className="halana-section-kicker">{kicker}</p> : null}
+      <h2 className="mt-2 text-2xl font-black tracking-tight">{title}</h2>
+      <div className="mt-5">{children}</div>
+    </section>
   );
 }
 
@@ -176,46 +209,47 @@ function ShowcasePanel({ token, payload }: { token: string; payload: Payload }) 
     .map((url) => ({ url, embed: youtubeEmbedSrc(url, { loop: false, autoplay: false }) }))
     .filter((item) => item.embed);
   const promo = splitLines(payload.promoAr);
+  const ready = splitLines(payload.readyLines);
   const hero = payload.gallery[0]?.src || STORE_HALANA_ATMOSPHERE.hero;
-  const works = payload.gallery.length > 1 ? payload.gallery.slice(1) : payload.gallery;
+  const heroCaption = payload.gallery[0]?.caption || '';
+  const works = payload.gallery;
 
   return (
     <div>
       <header className="halana-hero-stage relative overflow-hidden">
-        <img src={hero} alt="" className="h-[28rem] w-full object-cover sm:h-[34rem]" />
+        <img src={hero} alt={heroCaption || payload.shopName || copy.titleAr} className="h-[30rem] w-full object-cover sm:h-[38rem]" />
         <div className="halana-hero-veil absolute inset-0" />
-        <div className="absolute inset-x-0 bottom-0 mx-auto max-w-3xl px-5 pb-10">
-          <p className="text-sm font-bold tracking-wide text-[#f6d7b0]">{copy.kickerAr}</p>
-          <h1 className="mt-2 text-4xl font-black leading-tight sm:text-5xl">{payload.shopName || copy.titleAr}</h1>
-          <p className="mt-3 max-w-xl text-lg font-extrabold text-[#ffe8c4]">
+        <div className="absolute inset-x-0 bottom-0 mx-auto max-w-3xl px-5 pb-12">
+          <p className="halana-section-kicker">{copy.showcaseKickerAr}</p>
+          <h1 className="mt-3 text-4xl font-black leading-tight sm:text-6xl">{payload.shopName || copy.titleAr}</h1>
+          <p className="mt-4 max-w-xl text-xl font-extrabold leading-9 text-[#ffe8c4]">
             {payload.promoTitleAr || copy.showcaseLeadAr}
           </p>
+          {heroCaption ? <p className="mt-3 max-w-xl text-sm leading-8 text-white/75">{heroCaption}</p> : null}
         </div>
       </header>
-      <div className="mx-auto max-w-3xl space-y-12 px-4 py-10">
+      <div className="mx-auto max-w-3xl space-y-14 px-4 py-12">
         {promo.length > 0 ? (
-          <section className="space-y-4">
-            {promo.map((line) => (
-              <p key={line} className="text-base leading-9 text-white/80">
-                {line}
-              </p>
-            ))}
-          </section>
+          <ShowcaseSection kicker={copy.promoSectionAr} title={payload.promoTitleAr || copy.promoSectionAr}>
+            <div className="halana-promo-card space-y-4">
+              {promo.map((line) => (
+                <p key={line} className="text-base leading-9 text-white/82">
+                  {line}
+                </p>
+              ))}
+            </div>
+          </ShowcaseSection>
         ) : (
           <p className="text-sm leading-8 text-white/65">{copy.showcaseLeadAr}</p>
         )}
-        <section>
-          <h2 className="text-2xl font-black">{copy.galleryTitleAr}</h2>
-          <div className="mt-5">
-            <ProductGallery items={works} emptyAr={copy.galleryEmptyAr} featured />
-          </div>
-        </section>
+        <ShowcaseSection kicker={copy.worksLeadAr} title={copy.galleryTitleAr}>
+          <ProductGallery items={works} emptyAr={copy.galleryEmptyAr} featured />
+        </ShowcaseSection>
         {clips.length > 0 ? (
-          <section>
-            <h2 className="text-2xl font-black">{copy.youtubeTitleAr}</h2>
-            <div className="mt-5 space-y-5">
+          <ShowcaseSection title={copy.youtubeTitleAr}>
+            <div className="space-y-6">
               {clips.map((item) => (
-                <div key={item.url} className="halana-youtube-frame overflow-hidden rounded-3xl">
+                <div key={item.url} className="halana-youtube-frame overflow-hidden rounded-[1.6rem]">
                   <iframe
                     title={copy.youtubeTitleAr}
                     src={item.embed || ''}
@@ -226,32 +260,42 @@ function ShowcasePanel({ token, payload }: { token: string; payload: Payload }) 
                 </div>
               ))}
             </div>
-          </section>
+          </ShowcaseSection>
         ) : null}
         {quotes.length > 0 ? (
-          <section>
-            <h2 className="text-2xl font-black">{copy.quotesTitleAr}</h2>
-            <ul className="mt-4 space-y-3">
+          <ShowcaseSection title={copy.quotesTitleAr}>
+            <ul className="space-y-3">
               {quotes.map((line) => (
-                <li key={line} className="halana-quote rounded-2xl px-4 py-3 text-sm leading-8 text-white/75">
+                <li key={line} className="halana-quote rounded-2xl px-5 py-4 text-sm leading-8 text-white/78">
                   {line}
                 </li>
               ))}
             </ul>
-          </section>
+          </ShowcaseSection>
         ) : null}
         {flavors.length > 0 ? (
-          <section>
-            <h2 className="text-2xl font-black">{copy.flavorsTitleAr}</h2>
-            <div className="mt-4 flex flex-wrap gap-2">
+          <ShowcaseSection title={copy.flavorsTitleAr}>
+            <div className="flex flex-wrap gap-2">
               {flavors.map((line) => (
-                <span key={line} className="rounded-full border border-[#ffe2b4]/25 bg-black/25 px-4 py-1.5 text-sm">
+                <span key={line} className="halana-flavor-chip">
                   {line}
                 </span>
               ))}
             </div>
-          </section>
+          </ShowcaseSection>
         ) : null}
+        {ready.length > 0 ? (
+          <ShowcaseSection title={copy.readyTitleAr}>
+            <ul className="halana-promo-card space-y-2 text-sm leading-8 text-white/78">
+              {ready.map((line) => (
+                <li key={line}>{line}</li>
+              ))}
+            </ul>
+          </ShowcaseSection>
+        ) : null}
+        <ShowcaseSection title={copy.policyTitleAr}>
+          <p className="text-sm leading-8 text-white/75">{payload.policyAr || STORE_HALANA_DEFAULT_POLICY_AR}</p>
+        </ShowcaseSection>
         <Link to={`/h/${encodeURIComponent(token)}/order`} className="halana-order-cta">
           <span className="halana-order-cta__mark" aria-hidden>
             ح
@@ -457,6 +501,23 @@ function DeskPanel({ token, payload, onSaved }: { token: string; payload: Payloa
     }
   }
 
+  async function onSaveCaption(imageId: string, nextCaption: string) {
+    setBusy(true);
+    const res = await postHalanaAction({
+      action: 'update_gallery',
+      token,
+      imageId,
+      caption: nextCaption.slice(0, STORE_HALANA_CAPTION_MAX),
+    });
+    setBusy(false);
+    if (!res.ok) {
+      toast.error(res.error);
+      return;
+    }
+    toast.success('حُفظ وصف العمل.');
+    onSaved();
+  }
+
   async function onRemove(imageId: string) {
     setBusy(true);
     const res = await postHalanaAction({ action: 'remove_gallery', token, imageId });
@@ -497,12 +558,13 @@ function DeskPanel({ token, payload, onSaved }: { token: string; payload: Payloa
         <p className="text-sm leading-7 text-white/70">{copy.galleryDeskLeadAr}</p>
         <ProductGallery items={gallery} />
         {gallery.map((item) => (
-          <div key={`rm-${item.id}`} className="flex items-center justify-between gap-3 text-xs">
-            <span className="truncate text-white/65">{item.caption || 'صورة عمل'}</span>
-            <button type="button" disabled={busy} className="underline" onClick={() => void onRemove(item.id)}>
-              {copy.galleryRemoveAr}
-            </button>
-          </div>
+          <GalleryCaptionEditor
+            key={`cap-${item.id}`}
+            item={item}
+            busy={busy}
+            onSave={onSaveCaption}
+            onRemove={onRemove}
+          />
         ))}
         <HalanaField label={copy.galleryCaptionAr}>
           <textarea
@@ -595,6 +657,51 @@ function DeskPanel({ token, payload, onSaved }: { token: string; payload: Payloa
           </ul>
         )}
       </section>
+    </div>
+  );
+}
+
+function GalleryCaptionEditor({
+  item,
+  busy,
+  onSave,
+  onRemove,
+}: {
+  item: GalleryItem;
+  busy: boolean;
+  onSave: (imageId: string, caption: string) => Promise<void>;
+  onRemove: (imageId: string) => Promise<void>;
+}) {
+  const copy = STORE_HALANA_LIVE_COPY;
+  const [caption, setCaption] = useState(item.caption);
+
+  useEffect(() => {
+    setCaption(item.caption);
+  }, [item.caption, item.id]);
+
+  return (
+    <div className="space-y-2 rounded-2xl border border-white/10 p-3">
+      <HalanaField label={copy.galleryCaptionAr}>
+        <textarea
+          className="halana-field min-h-16"
+          maxLength={STORE_HALANA_CAPTION_MAX}
+          value={caption}
+          onChange={(event) => setCaption(event.target.value)}
+        />
+      </HalanaField>
+      <div className="flex flex-wrap gap-2">
+        <button
+          type="button"
+          disabled={busy}
+          className="rounded-full bg-[#c45c7a] px-3 py-1.5 text-xs font-bold text-[#14080c] disabled:opacity-60"
+          onClick={() => void onSave(item.id, caption)}
+        >
+          {copy.galleryCaptionSaveAr}
+        </button>
+        <button type="button" disabled={busy} className="text-xs underline" onClick={() => void onRemove(item.id)}>
+          {copy.galleryRemoveAr}
+        </button>
+      </div>
     </div>
   );
 }
