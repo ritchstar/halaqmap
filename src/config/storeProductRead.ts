@@ -2,7 +2,7 @@
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
  * إعداد صفحات قراءة المنتجات — لا يُستورد من App.
- * صفحة قراءة مستقلة لكل منتج منشور. حلانا1 مستثنى حتى الاعتماد.
+ * صفحة قراءة مستقلة لكل منتج منشور.
  * لا تجربة في صفحة العرض. لا ميسر على سلة الزبون. لا عمولة على الحرفة.
  */
 import { ROUTE_PATHS } from '@/lib/routePaths';
@@ -495,6 +495,66 @@ const INVITES: StoreProductReadEntry = {
   }),
 };
 
+/* ── حلانا1 ── */
+const HALANA: StoreProductReadEntry = {
+  id: 'halana',
+  documentTitle: 'حلانا1 — مقر رقمي لمتخصصة الحلويات — خريطة الحل',
+  accent: '#c45c7a',
+  kickerAr: 'حلويات خاصة',
+  titleAr: 'مسار طلب واحد للمتخصصة: من الرسائل المتفرقة إلى عربون تعتمده بنفسها',
+  metaDescriptionAr:
+    'حلانا1 يحوّل استقبال طلب الحلويات الخاصة من رسائل متفرقة إلى معرض أعمال وصفحة طلب مخصص ولوحة تعتمد منها المتخصصة العربون يدوياً. 894 ر.س لمئة وثمانين يوماً أو 1788 ر.س لثلاثمئة وستين يوماً.',
+  buyPath: ROUTE_PATHS.STORE_HALANA,
+  buyCtaAr: 'اشتركي في حلانا1',
+  sections: [
+    {
+      headingAr: 'من رسائل متفرقة إلى مقر رقمي',
+      bodyAr:
+        'حين تصل طلبات الحلويات الخاصة عبر رسائل متفرقة، يختلط الموعد بالنكهة بصورة التغليف. حلانا1 يفتح معرض أعمال توجّه إليه العميلات، وصفحة طلب منفصلة تجمع وقت الوصول والعدد والنوع والحشوات.',
+    },
+    {
+      headingAr: 'عربون يدوي لا قفل آلي',
+      bodyAr:
+        'بعد عرض السعر تظهر تعليمات التحويل التي تملكها المتخصصة. صورة الإثبات لا تقفل الموعد حتى تعتمد المتخصصة العربون من اللوحة. خريطة الحل لا تستلم المبلغ ولا تؤكد وصوله.',
+    },
+    {
+      headingAr: 'سعر ثابت بلا عمولة على الطلب',
+      bodyAr:
+        'الباقتان: 894 ر.س لمئة وثمانين يوماً، أو 1788 ر.س لثلاثمئة وستين يوماً. لا نسبة من قيمة طلب العميلة، ولا تحصيل لها عبر المنصة.',
+    },
+  ],
+  tableHeader: { product: 'حلانا1', other: 'طلب عبر رسائل متفرقة' },
+  tableRows: [
+    { label: 'تجميع تفاصيل الطلب', product: 'صفحة طلب مخصص من المعرض', other: 'يدوي، متكرر' },
+    { label: 'قفل الموعد', product: 'بعد عربون تعتمده المتخصصة', other: 'اتفاق شفهي أو رسالة' },
+    { label: 'عمولة على الطلب', product: 'لا يوجد', other: 'لا ينطبق' },
+    { label: 'السعر', product: '894 ر.س لمئة وثمانين يوماً أو 1788 ر.س لثلاثمئة وستين يوماً', other: 'لا ينطبق' },
+  ],
+  faqs: [
+    {
+      q: 'هل يحصّل حلانا1 مبلغ العميلة عبر ميسر؟',
+      a: 'لا، اشتراك المتخصصة عبر ميسر على الصفحة. طلب العميلة تحويل إلى وسيلة المتخصصة ثم تأكيد يدوي، أو نقد وشبكة عند الاستلام.',
+    },
+    {
+      q: 'هل يقفل رفع صورة التحويل الموعد تلقائياً؟',
+      a: 'لا، صورة الإثبات لا تقفل الموعد حتى تعتمد المتخصصة العربون من اللوحة.',
+    },
+    {
+      q: 'هل يختلف حلانا1 عن طبختنا1؟',
+      a: 'نعم، طبختنا1 للأسر المنتجة ووجبة جاهزة للتسليم، وحلانا1 لمتخصصة الحلويات الخاصة بمعرض أعمال وطلب مخصص وعربون يدوي.',
+    },
+  ],
+  faqJsonLd: JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: [
+      { '@type': 'Question', name: 'هل يحصّل حلانا1 مبلغ العميلة عبر ميسر؟', acceptedAnswer: { '@type': 'Answer', text: 'لا، اشتراك المتخصصة عبر ميسر على الصفحة. طلب العميلة تحويل إلى وسيلة المتخصصة ثم تأكيد يدوي، أو نقد وشبكة عند الاستلام.' } },
+      { '@type': 'Question', name: 'هل يقفل رفع صورة التحويل الموعد تلقائياً؟', acceptedAnswer: { '@type': 'Answer', text: 'لا، صورة الإثبات لا تقفل الموعد حتى تعتمد المتخصصة العربون من اللوحة.' } },
+      { '@type': 'Question', name: 'هل يختلف حلانا1 عن طبختنا1؟', acceptedAnswer: { '@type': 'Answer', text: 'نعم، طبختنا1 للأسر المنتجة ووجبة جاهزة للتسليم، وحلانا1 لمتخصصة الحلويات الخاصة بمعرض أعمال وطلب مخصص وعربون يدوي.' } },
+    ],
+  }),
+};
+
 /** فهرس الكل — يُقرأ في صفحة القراءة ولا يُستورد من App */
 export const STORE_PRODUCT_READ_REGISTRY: Record<string, StoreProductReadEntry> = {
   kitchen: KITCHEN,
@@ -506,6 +566,7 @@ export const STORE_PRODUCT_READ_REGISTRY: Record<string, StoreProductReadEntry> 
   wedding: WEDDING,
   event: EVENT,
   invites: INVITES,
+  halana: HALANA,
 };
 
 /** مطابقة المسار → إدخال القراءة */
@@ -520,5 +581,6 @@ export function storeProductReadByPath(pathname: string): StoreProductReadEntry 
   if (p === ROUTE_PATHS.STORE_WEDDING_READ) return WEDDING;
   if (p === ROUTE_PATHS.STORE_EVENT_READ) return EVENT;
   if (p === ROUTE_PATHS.STORE_INVITES_READ) return INVITES;
+  if (p === ROUTE_PATHS.STORE_HALANA_READ) return HALANA;
   return null;
 }

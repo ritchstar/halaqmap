@@ -149,11 +149,14 @@ export const ROUTE_PATHS = {
   STORE_PRODUCE_VIEW: '/v/:token',
   STORE_PRODUCE_DESK: '/v/:token/desk',
   STORE_PRODUCE_PAY: '/pay/produce/:token',
-  /** حلانا1 — صفحة خاصة غير معلنة. الإصدار بالاسم والبريد فقط. */
+  /** حلانا1 — معرض المتخصصة وصفحة الطلب ولوحة التشغيل */
+  STORE_HALANA: '/store/halana',
+  STORE_HALANA_READ: '/store/halana/read',
   STORE_HALANA_VIEW: '/h/:token',
   STORE_HALANA_ORDER: '/h/:token/order',
   STORE_HALANA_DESK: '/h/:token/desk',
-  /** دليل تشغيل وتسويق حلانا1 — من اللوحة فقط، غير معلن في واجهة المتجر */
+  STORE_HALANA_PAY: '/pay/halana/:token',
+  /** دليل تشغيل وتسويق حلانا1 — من اللوحة */
   STORE_HALANA_SUPPORT: '/store/halana/support',
   /** بطاقة كيو آر للجوال: اسم ومنصب داخل المنتج لإبراز رمز الصفحة */
   STORE_PRODUCT_PASS: '/store/pass/:kind/:token',

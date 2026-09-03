@@ -18,6 +18,8 @@ import {
 import { ROUTE_PATHS } from '../src/lib/routePaths.ts';
 import {
   groupStoreTrialOpsRows,
+  storeOpsListErrorAr,
+  storeOpsRefreshSummaryAr,
   trialRowReachesAdminDesk,
   trialRowReachesAdminInbox,
 } from '../src/lib/storeTrialOpsQueue.ts';
@@ -42,7 +44,7 @@ const migration = readFileSync(join(root, 'supabase/migrations/193_store_general
 
 assert.equal(STORE_GENERAL_TRIAL_PUBLIC_ENABLED, true);
 assert.equal(STORE_PRODUCT_TRIAL_DAYS, 60);
-assert.deepEqual([...STORE_GENERAL_TRIAL_KEYS], ['lounge', 'grocers', 'restaurant', 'cafe', 'kitchen', 'produce']);
+assert.deepEqual([...STORE_GENERAL_TRIAL_KEYS], ['lounge', 'grocers', 'restaurant', 'cafe', 'kitchen', 'produce', 'halana']);
 assert.equal(isGeneralTrialProduct('kitchen'), true);
 assert.equal(isGeneralTrialProduct('wedding'), false);
 assert.equal(trialDaysFor('kitchen'), 60);
@@ -74,6 +76,8 @@ assert.doesNotMatch(affiliate, /STORE_PRODUCT_TRIAL_KEYS\.map/);
 assert.match(adminBoard, /STORE_GENERAL_TRIAL_KEYS/);
 assert.match(adminBoard, /groupStoreTrialOpsRows/);
 assert.match(adminBoard, /awaitingConfirm/);
+assert.match(adminBoard, /listBusy/);
+assert.match(adminBoard, /refreshBusyAr/);
 assert.match(storeDesk, /StoreTrialOpsBoard/);
 assert.match(storeDesk, /trialRefreshNonce/);
 assert.match(dashboard, /إصدار تجارب المتجر/);
@@ -109,5 +113,8 @@ assert.equal(trialRowReachesAdminDesk('pending_confirm'), true);
 assert.equal(trialRowReachesAdminInbox('pending_confirm'), false);
 assert.equal(trialRowReachesAdminInbox('pending_review'), true);
 assert.equal(trialRowReachesAdminDesk('pending_review'), true);
+assert.equal(storeOpsListErrorAr('network_error'), 'تعذر الاتصال بالطابور.');
+assert.equal(storeOpsListErrorAr('not_authenticated'), 'انتهت الجلسة. سجّل الدخول بصفة الإدارة.');
+assert.match(storeOpsRefreshSummaryAr({ awaiting: 0, inbox: 1 }), /قيد التشاور: 1/);
 
 console.log('store-general-trial ok');

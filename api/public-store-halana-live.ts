@@ -1,7 +1,7 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
- * صفحة حلانا1 ولوحتها. لا ميسر على طلب العميلة.
+ * صفحة حلانا1 ولوحتها. اشتراك المتخصصة عبر ميسر. لا ميسر على طلب العميلة.
  */
 import { createClient } from '@supabase/supabase-js';
 import { runRegistrationRouteGuards } from './_lib/registrationRouteGuard.js';
@@ -15,8 +15,10 @@ import {
   addHalanaGallery,
   addHalanaPayProof,
   addHalanaRequest,
+  STORE_HALANA_COPIES_TABLE,
   findHalanaCopy,
   getHalanaPayInstructions,
+  isHalanaCopyOperable,
   listHalanaGallery,
   listHalanaPayProofs,
   listHalanaRequests,
@@ -28,6 +30,13 @@ import {
   updateHalanaGalleryCaption,
   updateHalanaRequest,
 } from './_lib/storeHalanaLive.js';
+import {
+  activateHalanaPaid,
+  createHalanaPending,
+  readHalanaPay,
+  syncHalanaPaid,
+} from './_lib/storeHalanaLiveBilling.js';
+import { applyStoreTrialClock } from './_lib/storeProductTrial.js';
 
 export const config = { maxDuration: 30 };
 
@@ -71,8 +80,26 @@ export async function GET(request: Request): Promise<Response> {
   const token = String(url.searchParams.get('token') || '').trim();
   const role = roleOf(url.searchParams.get('role'));
   if (token.length < 16) return json({ ok: false, error: 'رابط غير صالح.' }, 400, headers);
+  if (role === 'pay' || String(url.searchParams.get('role') || '') === 'pay') {
+    const pay = await readHalanaPay(db, token);
+    if (!pay.ok) return json(pay, pay.status || 404, headers);
+    return json({ ok: true, ...pay }, 200, headers);
+  }
   const copy = await findHalanaCopy(db, token, role);
   if (!copy) return json({ ok: false, error: 'النسخة غير موجودة.' }, 404, headers);
+  const clock = await applyStoreTrialClock(db, copy, STORE_HALANA_COPIES_TABLE);
+  if (clock.expired) {
+    return json(
+      {
+        ok: true,
+        expired: true,
+        renewPath: '/store/halana',
+        payload: { shopName: String(copy.shop_name || copy.specialist_name || 'حلانا1') },
+      },
+      200,
+      headers,
+    );
+  }
   const requestId = String(url.searchParams.get('requestId') || '').trim();
   if (role === 'shop' && requestId) {
     const pay = await getHalanaPayInstructions(db, copy, requestId);
@@ -117,11 +144,33 @@ export async function POST(request: Request): Promise<Response> {
 
   const token = String(body.token || '').trim();
   const action = String(body.action || '').trim();
+
+  if (action === 'create_pending') {
+    const created = await createHalanaPending(db, body);
+    if (!created.ok) return json({ error: created.error }, created.status || 400, headers);
+    return json({ ok: true, ...created }, 200, headers);
+  }
+  if (action === 'activate_paid') {
+    const activated = await activateHalanaPaid(db, token, String(body.paymentId || '').trim());
+    if (!activated.ok) return json({ error: activated.error }, activated.status || 400, headers);
+    return json({ ok: true, ...activated }, 200, headers);
+  }
+  if (action === 'sync_paid') {
+    const synced = await syncHalanaPaid(db, token);
+    if (!synced.ok) return json({ error: synced.error }, synced.status || 400, headers);
+    return json({ ok: true, ...synced }, 200, headers);
+  }
+  if (action === 'get_public' && String(body.role || '') === 'pay') {
+    const pay = await readHalanaPay(db, token);
+    if (!pay.ok) return json({ error: pay.error }, pay.status || 404, headers);
+    return json({ ok: true, ...pay }, 200, headers);
+  }
+
   if (token.length < 16) return json({ ok: false, error: 'رابط غير صالح.' }, 400, headers);
 
   if (action === 'add_request') {
     const copy = await findHalanaCopy(db, token, 'shop');
-    if (!copy) return json({ ok: false, error: 'النسخة غير موجودة.' }, 404, headers);
+    if (!copy || !isHalanaCopyOperable(copy)) return json({ ok: false, error: 'النسخة غير موجودة.' }, 404, headers);
     const added = await addHalanaRequest(db, String(copy.id), body);
     if (!added.ok) return json(added, 400, headers);
     return json({ ok: true, requestId: added.requestId }, 200, headers);

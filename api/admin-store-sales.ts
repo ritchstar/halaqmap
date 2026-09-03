@@ -25,6 +25,8 @@ const CORS_OPTS = {
 
 const SELECT =
   'id, status, buyer_email, buyer_name, price_halalas, moyasar_payment_id, payload, created_at, is_trial';
+const HALANA_SELECT =
+  'id, status, buyer_email, buyer_name, specialist_name, shop_name, pack_id, price_halalas, moyasar_payment_id, created_at, is_trial';
 
 function corsHeaders(request: Request): Record<string, string> {
   return buildPublicApiCorsHeaders(request, CORS_OPTS).headers;
@@ -40,7 +42,7 @@ async function loadProduct(
 ): Promise<StoreSalesLedgerRow[]> {
   const { data, error } = await supabase
     .from(STORE_SALES_TABLE[product])
-    .select(SELECT)
+    .select(product === 'halana' ? HALANA_SELECT : SELECT)
     .order('created_at', { ascending: false })
     .limit(200);
   if (error) return [];

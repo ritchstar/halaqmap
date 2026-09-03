@@ -23,6 +23,8 @@ import {
 } from './storeKitchenLive.js';
 import { DEFAULT_STORE_SHOP_HOURS } from './storeShopHours.js';
 import { sendKitchenLiveLinksEmail } from './storeKitchenLiveMail.js';
+import { newHalanaToken } from './storeHalanaLive.js';
+import { sendHalanaLiveLinksEmail } from './storeHalanaLiveMail.js';
 import { newWeddingToken } from './storeWeddingLive.js';
 import { sendWeddingLiveLinksEmail } from './storeWeddingLiveMail.js';
 
@@ -32,7 +34,7 @@ export const STORE_PRODUCT_TRIAL_QUOTA = 5 as const;
 export const STORE_PRODUCE_TRIAL_DAYS = STORE_PRODUCT_TRIAL_DAYS;
 export const STORE_KITCHEN_TRIAL_DAYS = STORE_PRODUCT_TRIAL_DAYS;
 
-export const STORE_GENERAL_TRIAL_KEYS = ['lounge', 'grocers', 'restaurant', 'cafe', 'kitchen', 'produce'] as const;
+export const STORE_GENERAL_TRIAL_KEYS = ['lounge', 'grocers', 'restaurant', 'cafe', 'kitchen', 'produce', 'halana'] as const;
 export type StoreGeneralTrialKey = (typeof STORE_GENERAL_TRIAL_KEYS)[number];
 
 export type StoreProductTrialKey =
@@ -43,7 +45,8 @@ export type StoreProductTrialKey =
   | 'restaurant'
   | 'cafe'
   | 'kitchen'
-  | 'produce';
+  | 'produce'
+  | 'halana';
 
 export type StoreProductTrialRow = {
   id: string;
@@ -78,6 +81,7 @@ const PRODUCT_TAG: Record<StoreProductTrialKey, string> = {
   cafe: 'store_cafe_live',
   kitchen: 'store_kitchen_live',
   produce: 'store_produce_live',
+  halana: 'store_halana_live',
 };
 
 const ORDER_TABLE: Record<StoreProductTrialKey, string> = {
@@ -89,6 +93,7 @@ const ORDER_TABLE: Record<StoreProductTrialKey, string> = {
   cafe: 'store_cafe_live_orders',
   kitchen: 'store_kitchen_live_orders',
   produce: 'store_produce_live_orders',
+  halana: 'store_halana_copies',
 };
 
 const GIFT_KEYS = new Set<StoreProductTrialKey>(['wedding', 'event']);
@@ -102,7 +107,8 @@ export function isStoreProductTrialKey(raw: unknown): raw is StoreProductTrialKe
     raw === 'restaurant' ||
     raw === 'cafe' ||
     raw === 'kitchen' ||
-    raw === 'produce'
+    raw === 'produce' ||
+    raw === 'halana'
   );
 }
 
@@ -113,7 +119,8 @@ export function isGeneralTrialProductKey(raw: unknown): raw is StoreGeneralTrial
     raw === 'restaurant' ||
     raw === 'cafe' ||
     raw === 'kitchen' ||
-    raw === 'produce'
+    raw === 'produce' ||
+    raw === 'halana'
   );
 }
 
@@ -179,6 +186,12 @@ function productLinks(key: StoreProductTrialKey, tokens: Record<string, string>)
       b: `${storeOrigin()}/#/k/${encodeURIComponent(tokens.desk)}/desk`,
     };
   }
+  if (key === 'halana') {
+    return {
+      a: `${storeOrigin()}/#/h/${encodeURIComponent(tokens.shop)}`,
+      b: `${storeOrigin()}/#/h/${encodeURIComponent(tokens.desk)}/desk`,
+    };
+  }
   if (key === 'event') {
     return {
       a: `${storeOrigin()}/#/e/${encodeURIComponent(tokens.display)}`,
@@ -234,6 +247,12 @@ export function publicTrialHrefs(
     return [
       { titleAr: 'الزبون', href: links.a },
       { titleAr: 'النشاط', href: links.b },
+    ];
+  }
+  if (key === 'halana') {
+    return [
+      { titleAr: 'المعرض', href: links.a },
+      { titleAr: 'اللوحة', href: links.b },
     ];
   }
   return [
@@ -339,6 +358,13 @@ function trialPayload(
       nextTicket: 1,
       ...DEFAULT_KITCHEN_PICKUP,
       ...DEFAULT_STORE_SHOP_HOURS,
+    };
+  }
+  if (key === 'halana') {
+    return {
+      packId: 'm6',
+      shopName: 'تجربة حلانا1',
+      hostName: 'المتخصصة',
     };
   }
   if (key === 'lounge') {
@@ -464,6 +490,10 @@ async function sendIssuedMail(key: StoreProductTrialKey, email: string, tokens: 
   }
   if (key === 'kitchen') {
     await sendKitchenLiveLinksEmail({ to: email, shopUrl: links.a, deskUrl: links.b, expiresLabel });
+    return;
+  }
+  if (key === 'halana') {
+    await sendHalanaLiveLinksEmail({ to: email, name: 'تجربة حلانا1', shopUrl: links.a, deskUrl: links.b });
     return;
   }
   if (key === 'event') {
@@ -636,6 +666,33 @@ async function insertLiveOrder(
       orderId: String(data.id),
       tokens: { shop, desk, qr: String((payload as { qrStamp?: string }).qrStamp || '') },
     };
+  }
+  if (key === 'halana') {
+    const shop = newHalanaToken();
+    const desk = newHalanaToken();
+    const { data, error } = await db
+      .from(table)
+      .insert({
+        status: 'live',
+        specialist_name: 'تجربة حلانا1',
+        shop_name: 'تجربة حلانا1',
+        beneficiary_email: email,
+        buyer_email: email,
+        buyer_name: 'تجربة حلانا1',
+        shop_token: shop,
+        desk_token: desk,
+        pack_id: 'm6',
+        price_halalas: 0,
+        is_trial: true,
+        trial_id: trialId,
+        expires_at: null,
+        created_at: now,
+        updated_at: now,
+      })
+      .select('id')
+      .maybeSingle();
+    if (error || !data) return { error: 'تعذر إنشاء صفحة حلانا1 التجريبية.' };
+    return { orderId: String(data.id), tokens: { shop, desk } };
   }
   const display = key === 'event' ? newEventToken() : key === 'lounge' ? newLoungeToken() : newWeddingToken();
   const guest = key === 'event' ? newEventToken() : key === 'lounge' ? newLoungeToken() : newWeddingToken();

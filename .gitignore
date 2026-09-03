@@ -148,6 +148,8 @@ scripts/data/fazaaFeaturedPartners.consented.json
 # --- SAIP source archives (local upload binaries) ---
 fkrih/saip-*/**/*.zip
 fkrih/saip-*/**/*.pdf
+fkrih/saip-pack/out/
+fkrih/saip-pack/__pycache__/
 *.zip
 !public/**/*.zip
 

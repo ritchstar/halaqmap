@@ -16,6 +16,7 @@ export type StoreMarketingReelId =
   | 'produce'
   | 'restaurant'
   | 'kitchen'
+  | 'halana'
   | 'wedding'
   | 'wedding-women'
   | 'event'
@@ -213,6 +214,15 @@ export const STORE_OPS_MARKETING_FRAMES = [
   '/images/partners/hero_mall_2.webp',
 ] as const;
 
+export const STORE_HALANA_MARKETING_FRAMES = [
+  '/images/store/halana/halana-hero-table.jpg',
+  '/images/store/halana/halana-atelier-clear.jpg',
+  '/images/store/halana/halana-cake-light.jpg',
+  '/images/store/halana/halana-ornate-frame.jpg',
+  '/images/store/halana/halana-field-glow.jpg',
+  '/images/store/halana/halana-gold-dust.jpg',
+] as const;
+
 export const STORE_LANDING_MARKETING_FRAMES = [
   '/images/halaqmap-hero.jpg',
   '/images/store/lounge-hero-marketing.jpg',
@@ -235,6 +245,7 @@ const REELS: Record<StoreMarketingReelId, readonly string[]> = {
   produce: STORE_PRODUCE_MARKETING_FRAMES,
   restaurant: STORE_RESTAURANT_MARKETING_FRAMES,
   kitchen: STORE_KITCHEN_MARKETING_FRAMES,
+  halana: STORE_HALANA_MARKETING_FRAMES,
   wedding: STORE_WEDDING_MARKETING_FRAMES,
   'wedding-women': STORE_WEDDING_WOMEN_MARKETING_FRAMES,
   event: STORE_EVENT_MARKETING_FRAMES,
@@ -257,6 +268,7 @@ export function storeLiveProductReel(productId: string): StoreMarketingReelId {
   if (productId === 'restaurant') return 'restaurant';
   if (productId === 'kitchen') return 'kitchen';
   if (productId === 'produce') return 'produce';
+  if (productId === 'halana') return 'halana';
   return 'landing';
 }
 

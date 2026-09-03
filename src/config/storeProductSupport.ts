@@ -683,7 +683,7 @@ export const STORE_HALANA_SUPPORT: StoreProductSupportGuide = {
   titleAr: 'دليل تشغيل وتسويق حلانا1',
   leadAr:
     'يُرشدك هذا الدليل من رسالة الإصدار حتى معرض الأعمال، ثم ملصق الرمز وكرت الجوال ومشاركة الصفحة على القنوات. الطلب يصل للوحة، والعربون صورة تحويل تؤكَّد يدوياً.',
-  landingPath: '',
+  landingPath: ROUTE_PATHS.STORE_HALANA,
   landingCtaAr: 'دليل التشغيل والتسويق',
   deskLeadAr: 'تعليمات تشغيل وتسويق حلانا1 من المعرض حتى كرت الرمز والقنوات.',
   deskCtaAr: 'افتح دليل التشغيل والتسويق',

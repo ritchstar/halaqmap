@@ -468,6 +468,13 @@ function produceLiveReturnPath(params: URLSearchParams): string | null {
   return `/pay/produce/${encodeURIComponent(token)}`;
 }
 
+function halanaLiveReturnPath(params: URLSearchParams): string | null {
+  const purpose = (params.get('purpose') || '').trim();
+  const token = (params.get('store_halana_token') || params.get('token') || '').trim();
+  if (purpose !== 'store_halana_live' || !token) return null;
+  return `/pay/halana/${encodeURIComponent(token)}`;
+}
+
 function storePayReturnPath(params: URLSearchParams | null): string | null {
   if (!params) return null;
   return (
@@ -479,7 +486,8 @@ function storePayReturnPath(params: URLSearchParams | null): string | null {
     restaurantLiveReturnPath(params) ||
     cafeLiveReturnPath(params) ||
     kitchenLiveReturnPath(params) ||
-    produceLiveReturnPath(params)
+    produceLiveReturnPath(params) ||
+    halanaLiveReturnPath(params)
   );
 }
 

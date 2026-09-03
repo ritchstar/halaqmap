@@ -258,6 +258,12 @@ function isProduceLiveMeta(meta: Record<string, unknown> | null | undefined): bo
   return pt === "store_produce_live";
 }
 
+function isHalanaLiveMeta(meta: Record<string, unknown> | null | undefined): boolean {
+  if (!meta || typeof meta !== "object") return false;
+  const pt = String(meta.product_type ?? meta.productType ?? meta.product ?? "").trim().toLowerCase();
+  return pt === "store_halana_live";
+}
+
 function storeAffiliateCodeFromMeta(meta: Record<string, unknown> | null | undefined): string {
   if (!meta || typeof meta !== "object") return "";
   const value = String(meta.store_affiliate_code ?? meta.storeAffiliateCode ?? "")
@@ -305,6 +311,10 @@ function matchStoreAffiliateCommission(
   if (tag === "store_produce_live") {
     if (amount === 135000) return { lineId: "produce_6", commissionHalalas: 35000 };
     if (amount === 250000) return { lineId: "produce_12", commissionHalalas: 50000 };
+  }
+  if (tag === "store_halana_live") {
+    if (amount === 89400) return { lineId: "halana_6", commissionHalalas: 19400 };
+    if (amount === 178800) return { lineId: "halana_12", commissionHalalas: 28800 };
   }
   return null;
 }
@@ -1235,6 +1245,52 @@ Deno.serve(async (req) => {
         paymentId,
         eventId: eventId || null,
         skipped: "store_produce_live",
+        activated,
+        credited,
+      },
+      200,
+    );
+  }
+
+  if (isHalanaLiveMeta(meta)) {
+    const token = String(meta.store_halana_token ?? meta.storeHalanaToken ?? "").trim();
+    const days = amount === 178800 ? 360 : amount === 89400 ? 180 : 0;
+    let activated = false;
+    if (successStatus && token && days) {
+      const expiresAt = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString();
+      const { data: halanaRow, error: halanaErr } = await supabase
+        .from("store_halana_copies")
+        .update({
+          status: "live",
+          moyasar_payment_id: paymentId,
+          expires_at: expiresAt,
+          price_halalas: amount,
+          is_trial: false,
+          paid_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        })
+        .eq("shop_token", token)
+        .in("status", ["pending_payment", "pending_renewal", "expired", "issued"])
+        .select("id")
+        .maybeSingle();
+      activated = !halanaErr;
+      if (halanaRow?.id) {
+        await supabase
+          .from("store_product_trials")
+          .update({ status: "converted", updated_at: new Date().toISOString() })
+          .eq("order_id", halanaRow.id)
+          .in("status", ["issued", "activated", "expired"]);
+      }
+    }
+    const credited = successStatus && days
+      ? await creditStoreAffiliateLedger(supabase, "store_halana_live", amount, paymentId, meta)
+      : false;
+    return jsonResponse(
+      {
+        ok: true,
+        paymentId,
+        eventId: eventId || null,
+        skipped: "store_halana_live",
         activated,
         credited,
       },

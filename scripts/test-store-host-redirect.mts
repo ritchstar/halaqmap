@@ -166,6 +166,7 @@ assert.equal(
 );
 
 assert.equal(isStoreHostPaymentPath('/pay/kitchen/abc'), true);
+assert.equal(isStoreHostPaymentPath('/pay/halana/abc'), true);
 
 assert.equal(
   resolveMensHostStoreRedirect({

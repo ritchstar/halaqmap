@@ -251,8 +251,13 @@ export default function StoreHalanaShopPage() {
 
   if (error && !payload) {
     return (
-      <div className="flex min-h-svh items-center justify-center bg-[#14080c] px-6 text-center text-[#f4efe4]" dir="rtl">
-        {error}
+      <div className="flex min-h-svh flex-col items-center justify-center gap-4 bg-[#14080c] px-6 text-center text-[#f4efe4]" dir="rtl">
+        <p>{error}</p>
+        {error.includes('انتهت مدة التشغيل') ? (
+          <Link className="text-[#c45c7a] underline" to={`${ROUTE_PATHS.STORE_HALANA}?renew=${encodeURIComponent(token)}`}>
+            إعادة الشراء على نفس الصفحة
+          </Link>
+        ) : null}
       </div>
     );
   }

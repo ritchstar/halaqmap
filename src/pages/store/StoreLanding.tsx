@@ -45,6 +45,7 @@ import { STORE_RESTAURANT_LIVE, STORE_RESTAURANT_LIVE_PUBLIC_ENABLED } from '@/c
 import { STORE_CAFE_LIVE, STORE_CAFE_LIVE_PUBLIC_ENABLED } from '@/config/storeCafeLive';
 import { STORE_KITCHEN_LIVE, STORE_KITCHEN_LIVE_PUBLIC_ENABLED } from '@/config/storeKitchenLive';
 import { STORE_PRODUCE_LIVE, STORE_PRODUCE_LIVE_PUBLIC_ENABLED } from '@/config/storeProduceLive';
+import { STORE_HALANA_LIVE, STORE_HALANA_LIVE_PUBLIC_ENABLED } from '@/config/storeHalanaLive';
 import { storeLiveProductReel, storeSoftwareShotReel } from '@/config/storeMarketingReels';
 
 export default function StoreLanding() {
@@ -203,6 +204,17 @@ export default function StoreLanding() {
                 leadAr={STORE_LANDING_COPY.kitchenLiveLeadAr}
                 ctaAr={STORE_LANDING_COPY.kitchenLiveCtaAr}
                 accent="#b45a3c"
+              />
+            ) : null}
+            {STORE_HALANA_LIVE_PUBLIC_ENABLED ? (
+              <StoreBrowseCard
+                to={ROUTE_PATHS.STORE_HALANA}
+                reel="halana"
+                alt={STORE_HALANA_LIVE.heroAltAr}
+                titleAr={STORE_LANDING_COPY.halanaLiveTitleAr}
+                leadAr={STORE_LANDING_COPY.halanaLiveLeadAr}
+                ctaAr={STORE_LANDING_COPY.halanaLiveCtaAr}
+                accent="#c45c7a"
               />
             ) : null}
             {STORE_RESTAURANT_LIVE_PUBLIC_ENABLED ? (

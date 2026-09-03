@@ -56,5 +56,9 @@ export function matchStoreAffiliateCommission(
     if (amount === 135000) return { lineId: 'produce_6', commissionHalalas: 35000 };
     if (amount === 250000) return { lineId: 'produce_12', commissionHalalas: 50000 };
   }
+  if (tag === 'store_halana_live') {
+    if (amount === 89400) return { lineId: 'halana_6', commissionHalalas: 19400 };
+    if (amount === 178800) return { lineId: 'halana_12', commissionHalalas: 28800 };
+  }
   return null;
 }

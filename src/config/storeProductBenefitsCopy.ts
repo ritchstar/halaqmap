@@ -121,12 +121,13 @@ export const STORE_PRODUCT_BENEFITS_COPY = {
     {
       titleAr: 'صفحات الحي',
       bodyAr:
-        'تمويناتا1 ومطعمنا1 وكافينا1 وطبختنا1: صفحة طلب من الجوال ولوحة تشغيل. الطلب يصل للمنشأة، والمحاسبة مع الزبون لديها.',
+        'تمويناتا1 ومطعمنا1 وكافينا1 وطبختنا1 وحلانا1: صفحة طلب من الجوال ولوحة تشغيل. الطلب يصل للمنشأة، والمحاسبة مع الزبون أو العميلة لديها.',
       links: [
         { labelAr: 'تمويناتا1', to: ROUTE_PATHS.STORE_GROCERS, external: false },
         { labelAr: 'مطعمنا1', to: ROUTE_PATHS.STORE_RESTAURANT, external: false },
         { labelAr: 'كافينا1', to: ROUTE_PATHS.STORE_CAFE, external: false },
         { labelAr: 'طبختنا1', to: ROUTE_PATHS.STORE_KITCHEN, external: false },
+        { labelAr: 'حلانا1', to: ROUTE_PATHS.STORE_HALANA, external: false },
       ],
     },
     {

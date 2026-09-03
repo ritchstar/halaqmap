@@ -320,6 +320,14 @@ PRODUCTS: list[Product] = [
         title_en="Khodarna1",
     ),
     P(
+        "halana1",
+        "حلانا1",
+        "fkrih/حلانا1.md",
+        include=("storeHalana", "StoreHalana", "store_halana", "/halana/", "/h/"),
+        extra=(".cursor/rules/store-halana-live.mdc", "fkrih/saip-pack/تمهيد-حلانا1.md"),
+        title_en="Halana1",
+    ),
+    P(
         "store-front",
         "متجر خريطة الحل",
         "fkrih/متجر-خريطة-الحل.md",

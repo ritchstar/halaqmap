@@ -32,12 +32,14 @@ assert.deepEqual([...STORE_SALES_LEDGER_PRODUCTS], [
   'cafe',
   'kitchen',
   'produce',
+  'halana',
   'lounge',
 ]);
-assert.equal(STORE_SALES_LEDGER_BRANCHES.length, 9);
+assert.equal(STORE_SALES_LEDGER_BRANCHES.length, 10);
 assert.ok(STORE_SALES_LEDGER_BRANCHES.every((item) => item.tag !== 'store_occasion_card'));
 assert.ok(STORE_SALES_LEDGER_BRANCHES.some((item) => item.id === 'kitchen'));
 assert.ok(STORE_SALES_LEDGER_BRANCHES.some((item) => item.id === 'produce'));
+assert.ok(STORE_SALES_LEDGER_BRANCHES.some((item) => item.id === 'halana'));
 assert.ok(STORE_SALES_LEDGER_COPY.leadAr.includes('افراحي1'));
 assert.ok(STORE_SALES_LEDGER_COPY.leadAr.includes('تمويناتا1'));
 assert.ok(STORE_SALES_LEDGER_COPY.leadAr.includes('طبختنا1'));
@@ -47,6 +49,7 @@ assert.ok(STORE_SALES_LEDGER_COPY.paymentAr.includes('معرّف الدفع'));
 assert.ok(isStoreSalesLedgerProduct('wedding-women'));
 assert.ok(isStoreSalesLedgerProduct('kitchen'));
 assert.ok(isStoreSalesLedgerProduct('produce'));
+assert.ok(isStoreSalesLedgerProduct('halana'));
 assert.equal(isStoreSalesLedgerProduct('card'), false);
 
 const secret = 'guest-token-secret-xyz';
@@ -211,6 +214,22 @@ assert.equal(produce6?.packAr, 'مئة وثمانون يوماً');
 assert.equal(produce6?.amountSar, 1350);
 assert.equal(produce6?.subjectAr, 'خضار السدرة');
 
+const halana6 = mapStoreSalesRow('halana', {
+  id: 'h6',
+  status: 'live',
+  buyer_name: 'متخصصة',
+  buyer_email: 'halana@example.com',
+  shop_name: 'حلويات الدار',
+  pack_id: 'm6',
+  price_halalas: 89400,
+  moyasar_payment_id: 'pay_h6',
+  created_at: '2026-09-03',
+  is_trial: false,
+});
+assert.equal(halana6?.titleAr, 'حلانا1');
+assert.equal(halana6?.packAr, 'مئة وثمانون يوماً');
+assert.equal(halana6?.amountSar, 894);
+
 const summary = summarizeStoreSales('wedding', [men!]);
 assert.equal(summary.liveCount, 1);
 assert.equal(summary.totalSar, 899);
@@ -231,6 +250,7 @@ assert.match(api, /view_payments/);
 assert.match(api, /is_trial/);
 assert.match(mapper, /store_kitchen_live_orders/);
 assert.match(mapper, /store_produce_live_orders/);
+assert.match(mapper, /store_halana_copies/);
 assert.doesNotMatch(api, /guest_token|host_token|shop_token|desk_token/);
 
 console.log('store-sales-ledger: ok');

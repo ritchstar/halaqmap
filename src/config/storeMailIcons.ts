@@ -4,7 +4,7 @@
  * هوية أيقونات روابط المتجر — اللوحة والإيميل يتبعان المصدر نفسه.
  * لا يُستورد من App.
  */
-export type StoreMailProductId = 'wedding' | 'event' | 'lounge' | 'grocers' | 'restaurant' | 'cafe' | 'kitchen' | 'produce';
+export type StoreMailProductId = 'wedding' | 'event' | 'lounge' | 'grocers' | 'restaurant' | 'cafe' | 'kitchen' | 'produce' | 'halana';
 
 export type StoreMailIconTheme = {
   id: StoreMailProductId | 'affiliate';
@@ -88,6 +88,15 @@ export const STORE_MAIL_PRODUCT_ICONS: readonly StoreMailIconTheme[] = [
     ink: '#061018',
     canvas: '#0b1a10',
     ring: '#7ec98a',
+  },
+  {
+    id: 'halana',
+    markAr: 'ح',
+    titleAr: 'حلانا1',
+    accent: '#c45c7a',
+    ink: '#1a0c10',
+    canvas: '#1a0c10',
+    ring: '#e08aa0',
   },
 ] as const;
 

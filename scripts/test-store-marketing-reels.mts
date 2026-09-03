@@ -89,6 +89,7 @@ const ids: StoreMarketingReelId[] = [
   'grocers',
   'produce',
   'kitchen',
+  'halana',
   'wedding',
   'wedding-women',
   'event',
@@ -121,6 +122,7 @@ assert.match(landing, /reel="grocers"/);
 assert.match(landing, /reel="restaurant"/);
 assert.match(landing, /reel="kitchen"/);
 assert.match(landing, /reel="produce"/);
+assert.match(landing, /reel="halana"/);
 assert.match(landing, /reel="wedding"/);
 assert.match(landing, /reel="event"/);
 assert.match(loungeLanding, /reel="lounge"/);

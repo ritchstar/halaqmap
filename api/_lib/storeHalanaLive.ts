@@ -1,11 +1,42 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
- * حلانا1 — نسخ غير معلنة. بلا ميسر على طلب العميلة.
+ * حلانا1 — تشغيل معلن. بلا ميسر على طلب العميلة.
  */
 import { randomBytes } from 'node:crypto';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { openHalanaIban, sealHalanaIban } from './storeHalanaPay.js';
+
+export const STORE_HALANA_LIVE_PRODUCT = 'store_halana_live' as const;
+export const STORE_HALANA_LIVE_PRICE_6_HALALAS = 89400 as const;
+export const STORE_HALANA_LIVE_PRICE_12_HALALAS = 178800 as const;
+export const STORE_HALANA_LIVE_DAYS_6 = 180 as const;
+export const STORE_HALANA_LIVE_DAYS_12 = 360 as const;
+
+export function parseHalanaPackId(raw: unknown): 'm6' | 'm12' {
+  return String(raw || '').trim() === 'm12' ? 'm12' : 'm6';
+}
+
+export function isHalanaPriceHalalas(raw: unknown): boolean {
+  const amount = Math.trunc(Number(raw) || 0);
+  return amount === STORE_HALANA_LIVE_PRICE_6_HALALAS || amount === STORE_HALANA_LIVE_PRICE_12_HALALAS;
+}
+
+export function halanaChargeHalalas(packId: 'm6' | 'm12'): number {
+  return packId === 'm12' ? STORE_HALANA_LIVE_PRICE_12_HALALAS : STORE_HALANA_LIVE_PRICE_6_HALALAS;
+}
+
+export function halanaDaysForAmount(amount: number): number {
+  if (amount === STORE_HALANA_LIVE_PRICE_12_HALALAS) return STORE_HALANA_LIVE_DAYS_12;
+  if (amount === STORE_HALANA_LIVE_PRICE_6_HALALAS) return STORE_HALANA_LIVE_DAYS_6;
+  return 0;
+}
+
+export function isHalanaLiveCheckoutEnabled(): boolean {
+  const raw = String(process.env.STORE_HALANA_LIVE_CHECKOUT_ENABLED || '').trim().toLowerCase();
+  if (raw === 'false' || raw === '0' || raw === 'off') return false;
+  return true;
+}
 
 export const STORE_HALANA_COPIES_TABLE = 'store_halana_copies' as const;
 export const STORE_HALANA_REQUESTS_TABLE = 'store_halana_requests' as const;
@@ -145,6 +176,10 @@ export function publicCopyPayload(
     youtubeUrls: parseHalanaYoutubeLines(row.youtube_urls),
     requests,
     payPublic: payPublicFromCopy(row),
+    status: String(row.status || ''),
+    isTrial: row.is_trial === true,
+    expiresAt: row.expires_at ? String(row.expires_at) : '',
+    packId: String(row.pack_id || 'm6'),
   };
 }
 
@@ -228,9 +263,14 @@ export async function findHalanaCopy(
     .from(STORE_HALANA_COPIES_TABLE)
     .select('*')
     .eq(col, token)
-    .eq('status', 'issued')
+    .in('status', ['issued', 'live', 'pending_payment', 'pending_renewal', 'expired'])
     .maybeSingle();
   return (data as Record<string, unknown> | null) || null;
+}
+
+export function isHalanaCopyOperable(row: Record<string, unknown> | null): boolean {
+  const status = String(row?.status || '');
+  return status === 'issued' || status === 'live';
 }
 
 export async function listHalanaRequests(db: Db, copyId: string): Promise<Record<string, unknown>[]> {

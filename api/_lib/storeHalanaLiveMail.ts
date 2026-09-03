@@ -11,12 +11,12 @@ export async function sendHalanaLiveLinksEmail(input: {
 }): Promise<boolean> {
   return sendStoreResendEmail({
     to: input.to,
-    subject: 'روابط تشغيل حلانا1 — نسخة خاصة',
+    subject: 'روابط تشغيل حلانا1 — خريطة الحل',
     html: buildStoreMailHtml({
-      theme: 'kitchen',
-      kickerAr: 'حلانا1 — نسخة تشغيل خاصة',
+      theme: 'halana',
+      kickerAr: 'حلانا1 — روابط التشغيل',
       titleAr: `نسخة ${input.name}`,
-      leadAr: 'الأولى معرض أعمالك توجّهين إليه العميلات. الثانية لوحة التشغيل. النسخة غير معلنة في المتجر.',
+      leadAr: 'الأولى معرض أعمالك توجّهين إليه العميلات. الثانية لوحة التشغيل.',
       iconRows: [
         [
           {
@@ -24,14 +24,14 @@ export async function sendHalanaLiveLinksEmail(input: {
             markAr: 'ح',
             titleAr: 'حلانا1',
             captionAr: 'معرض الأعمال',
-            theme: 'kitchen',
+            theme: 'halana',
           },
           {
             href: input.deskUrl,
             markAr: 'ل',
             titleAr: 'حلانا1',
             captionAr: 'لوحة التشغيل',
-            theme: 'kitchen',
+            theme: 'halana',
           },
         ],
       ],

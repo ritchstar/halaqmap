@@ -20,9 +20,10 @@ export type StoreProductTrialKey =
   | 'restaurant'
   | 'cafe'
   | 'kitchen'
-  | 'produce';
+  | 'produce'
+  | 'halana';
 
-export type StoreGeneralTrialKey = 'lounge' | 'grocers' | 'restaurant' | 'cafe' | 'kitchen' | 'produce';
+export type StoreGeneralTrialKey = 'lounge' | 'grocers' | 'restaurant' | 'cafe' | 'kitchen' | 'produce' | 'halana';
 
 export const STORE_PRODUCT_TRIAL_KEYS: readonly StoreProductTrialKey[] = [
   'wedding',
@@ -33,6 +34,7 @@ export const STORE_PRODUCT_TRIAL_KEYS: readonly StoreProductTrialKey[] = [
   'cafe',
   'kitchen',
   'produce',
+  'halana',
 ] as const;
 
 export const STORE_GENERAL_TRIAL_KEYS: readonly StoreGeneralTrialKey[] = [
@@ -42,6 +44,7 @@ export const STORE_GENERAL_TRIAL_KEYS: readonly StoreGeneralTrialKey[] = [
   'cafe',
   'kitchen',
   'produce',
+  'halana',
 ] as const;
 
 export function trialDaysFor(_key: StoreProductTrialKey): number {
@@ -69,6 +72,8 @@ export const STORE_PRODUCT_TRIAL_COPY = {
   awaitingConfirmLeadAr:
     'طلب المتصفح محفوظ هنا فور الإرسال. بعد ضغط رابط التأكيد في البريد ينتقل إلى الطابور القابل للإتمام.',
   refreshInboxAr: 'تحديث الطابور',
+  refreshBusyAr: 'يجري التحديث…',
+  refreshFailAr: 'تعذر تحديث الطابور.',
   generateCtaAr: 'إصدار من الإدارة',
   completeCtaAr: 'إتمام الإصدار',
   trialListTitleAr: 'المصدر تجريبياً',
@@ -148,7 +153,7 @@ export const STORE_GENERAL_TRIAL_COPY = {
   headerShortAr: 'تجربة',
   promoBadgeAr: 'التجربة العامة',
   promoTitleAr: 'ستون يوماً تشغيل كامل قبل الشراء',
-  promoLeadAr: 'لاونجا1 وتمويناتا1 ومطعمنا1 وخضارنا1 وكافينا1 وطبختنا1. بعد موافقة الإدارة تصل الروابط إلى بريدك.',
+  promoLeadAr: 'لاونجا1 وتمويناتا1 ومطعمنا1 وخضارنا1 وكافينا1 وطبختنا1 وحلانا1. بعد موافقة الإدارة تصل الروابط إلى بريدك.',
   promoCtaAr: 'اطلب التجربة',
   promoAriaAr: 'إعلان نظام التجربة العام',
   clockAr: 'ستون يوماً من أول دخول، ثم تمديد بالشراء على نفس الصفحة.',
@@ -166,7 +171,7 @@ export const STORE_GENERAL_TRIAL_TERMS_COPY = {
     {
       titleAr: 'موضوع التجربة',
       bodyAr:
-        'التجربة تشغيل واحد لستين يوماً من أول دخول: لاونجا1 أو تمويناتا1 أو مطعمنا1 أو خضارنا1 أو كافينا1 أو طبختنا1. ليست نقداً، ولا كاردي8، ولا افراحي1، ولا اجواء1، ولا رخصة نفاذ.',
+        'التجربة تشغيل واحد لستين يوماً من أول دخول: لاونجا1 أو تمويناتا1 أو مطعمنا1 أو خضارنا1 أو كافينا1 أو طبختنا1 أو حلانا1. ليست نقداً، ولا كاردي8، ولا افراحي1، ولا اجواء1، ولا رخصة نفاذ.',
     },
     {
       titleAr: 'المراجعة والروابط',
@@ -198,7 +203,8 @@ export const STORE_PRODUCT_TRIAL_PRODUCTS: Record<
       | 'store_restaurant_live'
       | 'store_cafe_live'
       | 'store_kitchen_live'
-      | 'store_produce_live';
+      | 'store_produce_live'
+      | 'store_halana_live';
     opsNoteAr: string;
     deskNoteAr: string;
     howToAr: string;
@@ -292,5 +298,16 @@ export const STORE_PRODUCT_TRIAL_PRODUCTS: Record<
     howToAr:
       'ستون يوماً من أول دخول. بعدها تشتري مئة وثمانين يوماً بـ 1350 أو ثلاثمئة وستين بـ 2500 على نفس الصفحة. الصندوق مدرج. البيانات محفوظة بالإيميل.',
     cardLeadAr: 'صندوق الخضار وجار الحي وشريط وصل اليوم. بعد الستين يوماً: 1350 أو 2500 ر.س.',
+  },
+  halana: {
+    titleAr: 'حلانا1',
+    productTag: 'store_halana_live',
+    opsNoteAr:
+      'الأتمتة التقنية لمعرض الأعمال وصفحة الطلب ولوحة المتخصصة مستوفية. يتبقى ربط جهاز المتخصصة وواتساب التواصل وتفعيل العمل اليومي.',
+    deskNoteAr:
+      'الأتمتة التقنية للمعرض واللوحة مستوفية بالكامل. يتبقى الربط التقني والتفعيل لأدوات العمل فعلياً عند المتخصصة.',
+    howToAr:
+      'ستون يوماً من أول دخول. بعدها تشتري مئة وثمانين يوماً بـ 894 أو ثلاثمئة وستين بـ 1788 على نفس الصفحة. البيانات محفوظة بالإيميل.',
+    cardLeadAr: 'معرض حلويات خاصة وطلب مخصص ولوحة المتخصصة. بعد الستين يوماً: 894 أو 1788 ر.س.',
   },
 };

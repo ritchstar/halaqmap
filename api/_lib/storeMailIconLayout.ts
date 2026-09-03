@@ -8,7 +8,7 @@ import { resolveResendFromAddress } from './resendFrom.js';
 import { storeAffiliateCheckoutLinks, type StoreAffiliateCheckoutLinks } from './storeAffiliateCode.js';
 import { STORE_LIVE_INVITE_MARK } from './storeLiveInviteShare.js';
 
-export type StoreMailThemeId = 'wedding' | 'event' | 'lounge' | 'grocers' | 'restaurant' | 'cafe' | 'kitchen' | 'produce' | 'affiliate';
+export type StoreMailThemeId = 'wedding' | 'event' | 'lounge' | 'grocers' | 'restaurant' | 'cafe' | 'kitchen' | 'produce' | 'halana' | 'affiliate';
 
 export type StoreMailTheme = {
   id: StoreMailThemeId;
@@ -100,6 +100,15 @@ const THEMES: Record<StoreMailThemeId, StoreMailTheme> = {
     ink: '#061018',
     canvas: '#0b1a10',
     ring: '#7ec98a',
+  },
+  halana: {
+    id: 'halana',
+    markAr: 'ح',
+    titleAr: 'حلانا1',
+    accent: '#c45c7a',
+    ink: '#1a0c10',
+    canvas: '#1a0c10',
+    ring: '#e08aa0',
   },
   affiliate: {
     id: 'affiliate',
@@ -667,6 +676,13 @@ export function buildStoreAffiliateMagicHtml(input: {
       titleAr: THEMES.produce.titleAr,
       captionAr: 'رابط الشراء',
       theme: 'produce',
+    },
+    {
+      href: input.productLinks.halana,
+      markAr: THEMES.halana.markAr,
+      titleAr: THEMES.halana.titleAr,
+      captionAr: 'رابط الشراء',
+      theme: 'halana',
     },
   ];
   return buildStoreMailHtml({

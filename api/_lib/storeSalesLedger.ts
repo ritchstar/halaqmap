@@ -12,6 +12,7 @@ export const STORE_SALES_LEDGER_PRODUCTS = [
   'cafe',
   'kitchen',
   'produce',
+  'halana',
   'lounge',
 ] as const;
 
@@ -26,6 +27,7 @@ const TITLES: Record<StoreSalesLedgerProduct, string> = {
   cafe: 'كافينا1',
   kitchen: 'طبختنا1',
   produce: 'خضارنا1',
+  halana: 'حلانا1',
   lounge: 'لاونجا1',
 };
 
@@ -38,6 +40,7 @@ export const STORE_SALES_TABLE: Record<
   | 'store_cafe_live_orders'
   | 'store_kitchen_live_orders'
   | 'store_produce_live_orders'
+  | 'store_halana_copies'
   | 'store_lounge_live_orders'
 > = {
   wedding: 'store_wedding_live_orders',
@@ -48,6 +51,7 @@ export const STORE_SALES_TABLE: Record<
   cafe: 'store_cafe_live_orders',
   kitchen: 'store_kitchen_live_orders',
   produce: 'store_produce_live_orders',
+  halana: 'store_halana_copies',
   lounge: 'store_lounge_live_orders',
 };
 
@@ -146,6 +150,9 @@ export function mapStoreSalesRow(
   } else if (product === 'produce') {
     subjectAr = clip(payload.shopName, 80) || '—';
     packAr = dayPackAr(payload, amountSar, 2500);
+  } else if (product === 'halana') {
+    subjectAr = clip(row.shop_name, 80) || clip(row.specialist_name, 80) || clip(row.buyer_name, 80) || '—';
+    packAr = dayPackAr({ packId: clip(row.pack_id, 8) }, amountSar, 1788);
   } else {
     subjectAr = clip(payload.loungeName, 80) || '—';
     packAr = loungePackAr(payload, amountSar);

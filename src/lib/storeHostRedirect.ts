@@ -76,7 +76,9 @@ export function isStoreHostPaymentPath(path: string): boolean {
     normalized.startsWith('/pay/grocers/') ||
     normalized.startsWith('/pay/restaurant/') ||
     normalized.startsWith('/pay/cafe/') ||
-    normalized.startsWith('/pay/kitchen/')
+    normalized.startsWith('/pay/kitchen/') ||
+    normalized.startsWith('/pay/produce/') ||
+    normalized.startsWith('/pay/halana/')
   );
 }
 
@@ -211,6 +213,24 @@ export function produceLivePayHref(token: string): string {
   if (typeof window === 'undefined') return `/#${hashPath}`;
   if (isHalaqmapStoreHost(window.location.hostname)) {
     return `https://www.halaqmap.com/#${hashPath}`;
+  }
+  return `/#${hashPath}`;
+}
+
+export function halanaLivePayHref(token: string): string {
+  const hashPath = `/pay/halana/${encodeURIComponent(token)}`;
+  if (typeof window === 'undefined') return `/#${hashPath}`;
+  if (isHalaqmapStoreHost(window.location.hostname)) {
+    return `https://www.halaqmap.com/#${hashPath}`;
+  }
+  return `/#${hashPath}`;
+}
+
+export function halanaLiveViewHref(token: string): string {
+  const hashPath = `/h/${encodeURIComponent(token)}`;
+  if (typeof window === 'undefined') return `/#${hashPath}`;
+  if (isHalaqmapMensHost(window.location.hostname)) {
+    return `https://store.halaqmap.com/#${hashPath}`;
   }
   return `/#${hashPath}`;
 }

@@ -70,6 +70,7 @@ assert.match(affiliate, /لوحة المسوّق/);
 assert.ok(affiliate.includes(products.wedding));
 assert.ok(affiliate.includes(products.restaurant));
 assert.ok(affiliate.includes(products.kitchen));
+assert.ok(affiliate.includes(products.halana));
 assert.match(affiliate, /طبختنا1/);
 assert.ok(affiliate.includes(login));
 
