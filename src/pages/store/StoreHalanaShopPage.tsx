@@ -8,6 +8,7 @@ import { Link, useLocation, useParams } from 'react-router-dom';
 import { toast } from '@/components/ui/sonner';
 import {
   STORE_HALANA_ATMOSPHERE,
+  STORE_HALANA_LIVE_ACCENT,
   STORE_HALANA_CAPTION_MAX,
   STORE_HALANA_DEFAULT_FLAVORS_AR,
   STORE_HALANA_DEFAULT_POLICY_AR,
@@ -24,9 +25,11 @@ import { StoreHalanaShareDesk } from '@/components/store/StoreHalanaShareDesk';
 import { STORE_HALANA_SUPPORT } from '@/config/storeProductSupport';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { splitHalanaYoutubeLines } from '@/lib/storeHalanaShare';
-import { StoreHalanaPayDesk, type HalanaPayDesk } from '@/components/store/StoreHalanaPayDesk';
-import { StoreHalanaPayGuest } from '@/components/store/StoreHalanaPayGuest';
-import { HALANA_PAY_REQUEST_KEY, halanaPayCopyText } from '@/lib/storeHalanaPay';
+import { StoreDirectPayDesk } from '@/components/store/StoreDirectPayDesk';
+import { StoreDirectPayGuest, StoreDirectPayPublicMount } from '@/components/store/StoreDirectPayGuest';
+import { DIRECT_PAY_REQUEST_KEY, directPayCopyText } from '@/lib/storeDirectPay';
+import { fetchDirectPay } from '@/lib/storeDirectPayRemote';
+import { HALANA_PAY_REQUEST_KEY } from '@/lib/storeHalanaPay';
 import { fetchHalanaPublic, postHalanaAction } from '@/lib/storeHalanaLiveRemote';
 import { compressImageFile, youtubeEmbedSrc } from '@/lib/storeWeddingLiveLab';
 
@@ -49,6 +52,13 @@ type RequestRow = {
 type GalleryItem = { id: string; caption: string; src: string };
 
 type PayPublic = { bankTransfer: boolean; cashOnPickup: boolean; networkOnPickup: boolean };
+type HalanaPayDesk = {
+  bankName: string;
+  beneficiaryName: string;
+  iban: string;
+  cashRemainder: boolean;
+  networkRemainder: boolean;
+};
 
 type Payload = {
   shopName: string;
@@ -400,17 +410,9 @@ function ShowcasePanel({ token, payload }: { token: string; payload: Payload }) 
         <ShowcaseSection title={copy.policyTitleAr}>
           <p className="halana-lead">{payload.policyAr || STORE_HALANA_DEFAULT_POLICY_AR}</p>
         </ShowcaseSection>
-        {payload.payPublic.bankTransfer || payload.payPublic.cashOnPickup || payload.payPublic.networkOnPickup ? (
-          <ShowcaseSection title={copy.payTitleAr}>
-            <div className="flex flex-wrap gap-2">
-              {payload.payPublic.bankTransfer ? <span className="halana-flavor-chip">{copy.payPublicBankAr}</span> : null}
-              {payload.payPublic.cashOnPickup ? <span className="halana-flavor-chip">{copy.payPublicCashAr}</span> : null}
-              {payload.payPublic.networkOnPickup ? (
-                <span className="halana-flavor-chip">{copy.payPublicNetworkAr}</span>
-              ) : null}
-            </div>
-          </ShowcaseSection>
-        ) : null}
+        <ShowcaseSection title={copy.payTitleAr}>
+          <StoreDirectPayPublicMount product="store_halana_live" token={token} accent={STORE_HALANA_LIVE_ACCENT} />
+        </ShowcaseSection>
         <Link to={`/h/${encodeURIComponent(token)}/order`} className="halana-order-cta">
           <span className="halana-order-cta__mark" aria-hidden>
             ح
@@ -465,6 +467,7 @@ function OrderPanel({
     }
     if (res.requestId) {
       sessionStorage.setItem(`${HALANA_PAY_REQUEST_KEY}:${token}`, res.requestId);
+      sessionStorage.setItem(`${DIRECT_PAY_REQUEST_KEY}:store_halana_live:${token}`, res.requestId);
       setPayTick((n) => n + 1);
     }
     toast.success(copy.sentAr);
@@ -544,7 +547,12 @@ function OrderPanel({
           {copy.submitAr}
         </button>
       </form>
-      <StoreHalanaPayGuest key={`${token}-${payTick}`} token={token} />
+      <StoreDirectPayGuest
+        key={`${token}-${payTick}`}
+        product="store_halana_live"
+        token={token}
+        accent={STORE_HALANA_LIVE_ACCENT}
+      />
     </div>
   );
 }
@@ -751,7 +759,7 @@ function DeskPanel({ token, payload, onSaved }: { token: string; payload: Payloa
           حفظ المعرض
         </button>
       </section>
-      <StoreHalanaPayDesk token={token} initial={payload.payDesk} onSaved={onSaved} />
+      <StoreDirectPayDesk product="store_halana_live" token={token} accent={STORE_HALANA_LIVE_ACCENT} onSaved={onSaved} />
       <StoreHalanaShareDesk token={token} shopName={shopName} />
       <StoreDeskGuideLink
         to={ROUTE_PATHS.STORE_HALANA_SUPPORT}
@@ -864,7 +872,7 @@ function DeskRequestActions({
   const [amount, setAmount] = useState(row.quote_amount_sar);
   const [note, setNote] = useState(row.quote_note);
   const payText = payDesk.iban
-    ? halanaPayCopyText({
+    ? directPayCopyText({
         bankName: payDesk.bankName,
         beneficiaryName: payDesk.beneficiaryName,
         iban: payDesk.iban,

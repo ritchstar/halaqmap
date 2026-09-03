@@ -66,6 +66,8 @@ export const ROUTE_PATHS = {
   STORE_TRUST: '/store/trust',
   /** شروط وأحكام وخصوصية منتجات المتجر الرقمية */
   STORE_ISSUED_CARDS_LEGAL: '/store/cards/legal',
+  /** سياسة وسائل الدفع المباشر — شريك تقني بلا عمولة على الحرفة */
+  STORE_DIRECT_PAY_POLICY: '/store/direct-pay',
   /** بطاقة مناسبة مدفوعة — معاينة ثم دفع عند النشر */
   STORE_INVITES: '/store/invites',
   STORE_INVITES_VIEW: '/store/invites/v/:token',

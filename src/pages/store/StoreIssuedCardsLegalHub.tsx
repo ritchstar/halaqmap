@@ -2,7 +2,7 @@
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -27,6 +27,7 @@ import {
 } from '@/config/storeIssuedCardsLegal';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { renderLegalContentBlocks } from '@/lib/legalPageRender';
+import { STORE_DIRECT_PAY_POLICY_TITLE_AR } from '@/config/storeDirectPayLegal';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { storeStoreIssuedConsent } from '@/lib/storeIssuedCardsConsent';
 import { toast } from '@/components/ui/sonner';
@@ -63,6 +64,11 @@ export default function StoreIssuedCardsLegalHub() {
         <p className="text-xs font-bold tracking-wide text-[#e8c547]">halaqmap · خريطة الحل</p>
         <h1 className="mt-2 text-3xl font-extrabold text-[#f4efe4]">{STORE_ISSUED_CARDS_LEGAL_TITLE_AR}</h1>
         <p className="mt-3 text-sm leading-7 text-white/75">{STORE_ISSUED_CARDS_LEGAL_SUBTITLE_AR}</p>
+        <p className="mt-2 text-sm leading-7 text-white/70">
+          <Link to={ROUTE_PATHS.STORE_DIRECT_PAY_POLICY} className="text-[#e8c547] underline">
+            {STORE_DIRECT_PAY_POLICY_TITLE_AR}
+          </Link>
+        </p>
         <p className="mt-2 text-xs text-white/45">نسخة السياسات: {STORE_ISSUED_CARDS_POLICY_VERSION}</p>
 
         <section id="issued-card-consents" className="mt-8 rounded-2xl border border-[#e8c547]/30 bg-[#0b1a24] p-5">

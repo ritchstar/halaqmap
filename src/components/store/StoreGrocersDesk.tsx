@@ -22,6 +22,7 @@ import { StoreDeskGuideLink } from '@/components/store/StoreDeskGuideLink';
 import { StoreShopLogoDesk } from '@/components/store/StoreShopLogoDesk';
 import { STORE_GROCERS_SUPPORT } from '@/config/storeProductSupport';
 import { StoreOpsSection } from '@/components/store/StoreOpsSection';
+import { StoreDirectPayDesk } from '@/components/store/StoreDirectPayDesk';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { cn } from '@/lib/utils';
 
@@ -135,6 +136,7 @@ export function StoreGrocersDesk({
         ) : null}
       </div>
       <StoreGrocersDeskChat state={state} onChange={onChange} />
+      <StoreDirectPayDesk product="store_grocers_live" token={token} accent="#8fbf7a" />
 
       <div className="grid gap-3 sm:grid-cols-2">
         <label className="block text-sm">

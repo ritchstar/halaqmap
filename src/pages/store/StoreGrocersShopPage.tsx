@@ -180,7 +180,7 @@ export default function StoreGrocersShopPage() {
               showTrialNote={isTrial}
             />
           ) : (
-            <StoreGrocersShop state={state} onChange={commit} />
+            <StoreGrocersShop state={state} onChange={commit} token={safeToken} />
           )
         ) : null}
       </div>

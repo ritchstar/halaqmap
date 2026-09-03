@@ -19,15 +19,18 @@ import {
   type KitchenService,
 } from '@/lib/storeKitchenLiveLab';
 import { StoreBuyerLocateButtons } from '@/components/store/StoreBuyerLocateButtons';
+import { StoreDirectPayGuest, StoreDirectPayPublicMount } from '@/components/store/StoreDirectPayGuest';
 import { isShopClosedNow } from '@/lib/storeShopHours';
 import { cn } from '@/lib/utils';
 
 export function StoreKitchenShop({
   state,
   onChange,
+  token,
 }: {
   state: KitchenLabState;
   onChange: (next: KitchenLabState) => void;
+  token: string;
 }) {
   const saved = useMemo(() => readSavedKitchenBuyer(), []);
   const [qty, setQty] = useState<Record<string, number>>({});
@@ -304,6 +307,9 @@ export function StoreKitchenShop({
               {STORE_KITCHEN_LIVE.payCardAr}
             </button>
           </div>
+          <div className="mt-3">
+            <StoreDirectPayPublicMount product="store_kitchen_live" token={token} accent="#b45a3c" />
+          </div>
           <label className="mt-4 flex items-start gap-2 text-sm leading-7">
             <input type="checkbox" checked={saveBuyer} onChange={(e) => setSaveBuyer(e.target.checked)} className="mt-1" />
             <span>{STORE_KITCHEN_LIVE.saveBuyerAr}</span>
@@ -312,6 +318,17 @@ export function StoreKitchenShop({
             {STORE_KITCHEN_LIVE.submitOrderAr}
           </button>
           {sent ? <p className="mt-3 text-sm text-[#b45a3c]">{sent}</p> : null}
+          {sent && myTicket?.id ? (
+            <div className="mt-4">
+              <StoreDirectPayGuest
+                product="store_kitchen_live"
+                token={token}
+                requestRef={myTicket.id}
+                accent="#b45a3c"
+                amountSar={String(total || '')}
+              />
+            </div>
+          ) : null}
           {myTicket?.readyAt ? (
             <aside className="mt-3 rounded-xl border border-[#b45a3c]/40 bg-[#b45a3c]/15 px-3 py-3 text-sm leading-7">
               <p className="font-extrabold">{STORE_KITCHEN_LIVE.orderReadyBannerAr}</p>

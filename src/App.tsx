@@ -73,6 +73,8 @@ const STORE_TRUST_PATH =
   (ROUTE_PATHS as { STORE_TRUST?: string }).STORE_TRUST || "/store/trust";
 const STORE_ISSUED_CARDS_LEGAL_PATH =
   (ROUTE_PATHS as { STORE_ISSUED_CARDS_LEGAL?: string }).STORE_ISSUED_CARDS_LEGAL || "/store/cards/legal";
+const STORE_DIRECT_PAY_POLICY_PATH =
+  (ROUTE_PATHS as { STORE_DIRECT_PAY_POLICY?: string }).STORE_DIRECT_PAY_POLICY || "/store/direct-pay";
 const STORE_INVITES_PATH =
   (ROUTE_PATHS as { STORE_INVITES?: string }).STORE_INVITES || "/store/invites";
 const STORE_INVITES_VIEW_PATH =
@@ -317,6 +319,7 @@ const StoreReviewsPage = lazy(() => import("@/pages/store/StoreReviewsPage"));
 const StoreProductPassPage = lazy(() => import("@/pages/store/StoreProductPassPage"));
 const StoreTrustPage = lazy(() => import("@/pages/store/StoreTrustPage"));
 const StoreIssuedCardsLegalHub = lazy(() => import("@/pages/store/StoreIssuedCardsLegalHub"));
+const StoreDirectPayPolicyPage = lazy(() => import("@/pages/store/StoreDirectPayPolicyPage"));
 const StorePaidInviteStudioPage = lazy(() => import("@/pages/store/StorePaidInviteStudioPage"));
 const StorePaidInviteViewPage = lazy(() => import("@/pages/store/StorePaidInviteViewPage"));
 const StorePaidInvitePayPage = lazy(() => import("@/pages/store/StorePaidInvitePayPage"));
@@ -872,6 +875,7 @@ export function App() {
           <Route path={STORE_PRODUCT_PASS_PATH} element={<LazyRoute><StoreProductPassPage /></LazyRoute>} />
           <Route path={STORE_TRUST_PATH} element={<LazyRoute><StoreTrustPage /></LazyRoute>} />
           <Route path={STORE_ISSUED_CARDS_LEGAL_PATH} element={<LazyRoute><StoreIssuedCardsLegalHub /></LazyRoute>} />
+          <Route path={STORE_DIRECT_PAY_POLICY_PATH} element={<LazyRoute><StoreDirectPayPolicyPage /></LazyRoute>} />
           <Route path={STORE_INVITES_PATH} element={<LazyRoute><StorePaidInviteStudioPage /></LazyRoute>} />
           <Route path={STORE_INVITES_LAB_PATH} element={<LazyRoute><StoreOccasionCardLabPage /></LazyRoute>} />
           <Route path={STORE_HALLS_SUPPORT_PATH} element={<LazyRoute><StoreProductSupportPage /></LazyRoute>} />

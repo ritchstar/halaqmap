@@ -71,7 +71,7 @@ export function StoreCafeStudio({ token = STORE_CAFE_LIVE_LAB_TOKEN }: { token?:
         </button>
       </div>
       <div className="mt-5 rounded-2xl border border-[#c48a4a]/30 bg-[#1a1008]/80 p-4">
-        {tab === 'shop' ? <StoreCafeShop state={state} onChange={commit} /> : null}
+        {tab === 'shop' ? <StoreCafeShop state={state} onChange={commit} token={token} /> : null}
         {tab === 'desk' ? <StoreCafeDesk state={state} onChange={commit} shopUrl={shopUrl} token={token} /> : null}
         {tab === 'screen' ? <StoreCafeHallStage state={state} mode="main" guestUrl={`${typeof window === 'undefined' ? '' : window.location.origin}/#/c/${encodeURIComponent(token)}/guest`} /> : null}
       </div>

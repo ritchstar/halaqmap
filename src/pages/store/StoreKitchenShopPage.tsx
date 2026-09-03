@@ -197,7 +197,7 @@ export default function StoreKitchenShopPage() {
               showTrialNote={isTrial}
             />
           ) : (
-            <StoreKitchenShop state={state} onChange={commit} />
+            <StoreKitchenShop state={state} onChange={commit} token={safeToken} />
           )
         ) : null}
       </div>

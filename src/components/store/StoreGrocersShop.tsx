@@ -24,13 +24,16 @@ import { STORE_SHOP_HOURS_COPY } from '@/config/storeShopHours';
 import { neighborVendorState } from '@/lib/storeMobileVendor';
 import { isShopClosedNow } from '@/lib/storeShopHours';
 import { cn } from '@/lib/utils';
+import { StoreDirectPayGuest, StoreDirectPayPublicMount } from '@/components/store/StoreDirectPayGuest';
 
 export function StoreGrocersShop({
   state,
   onChange,
+  token,
 }: {
   state: GrocersLabState;
   onChange: (next: GrocersLabState) => void;
+  token: string;
 }) {
   const saved = useMemo(() => readSavedGrocersBuyer(), []);
   const [qty, setQty] = useState<Record<string, number>>({});
@@ -201,6 +204,9 @@ export function StoreGrocersShop({
             {STORE_GROCERS_LIVE.payCardAr}
           </button>
         </div>
+        <div className="mt-3">
+          <StoreDirectPayPublicMount product="store_grocers_live" token={token} accent="#8fbf7a" />
+        </div>
         <label className="mt-4 flex items-start gap-2 text-sm leading-7">
           <input type="checkbox" checked={saveBuyer} onChange={(e) => setSaveBuyer(e.target.checked)} className="mt-1" />
           <span>{STORE_GROCERS_LIVE.saveBuyerAr}</span>
@@ -209,6 +215,17 @@ export function StoreGrocersShop({
           {STORE_GROCERS_LIVE.submitOrderAr}
         </button>
         {sent ? <p className="mt-3 text-sm text-[#8fbf7a]">وصل الطلب للكاشير.</p> : null}
+        {sent && state.orders[0]?.id ? (
+          <div className="mt-4">
+            <StoreDirectPayGuest
+              product="store_grocers_live"
+              token={token}
+              requestRef={state.orders[0].id}
+              accent="#8fbf7a"
+              amountSar={String(state.orders[0].total || '')}
+            />
+          </div>
+        ) : null}
       </form>
       <StoreGrocersBuyerChat state={state} onChange={onChange} />
     </div>

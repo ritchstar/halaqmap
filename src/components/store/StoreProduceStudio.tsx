@@ -57,7 +57,7 @@ export function StoreProduceStudio({ token = STORE_PRODUCE_LIVE_LAB_TOKEN }: { t
         </button>
       </div>
       <div className="mt-5 rounded-2xl border border-[#3d8b4a]/30 bg-[#0b1a10]/80 p-4">
-        {tab === 'shop' ? <StoreProduceShop state={state} onChange={commit} /> : <StoreProduceDesk state={state} onChange={commit} shopUrl={shopUrl} token={token} />}
+        {tab === 'shop' ? <StoreProduceShop state={state} onChange={commit} token={token} /> : <StoreProduceDesk state={state} onChange={commit} shopUrl={shopUrl} token={token} />}
       </div>
     </div>
   );

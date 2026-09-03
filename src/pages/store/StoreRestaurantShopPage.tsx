@@ -181,7 +181,7 @@ export default function StoreRestaurantShopPage() {
               showTrialNote={isTrial}
             />
           ) : (
-            <StoreRestaurantShop state={state} onChange={commit} />
+            <StoreRestaurantShop state={state} onChange={commit} token={safeToken} />
           )
         ) : null}
       </div>

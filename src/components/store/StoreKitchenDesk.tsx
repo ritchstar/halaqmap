@@ -31,6 +31,7 @@ import { StoreDeskGuideLink } from '@/components/store/StoreDeskGuideLink';
 import { StoreShopLogoDesk } from '@/components/store/StoreShopLogoDesk';
 import { STORE_KITCHEN_SUPPORT } from '@/config/storeProductSupport';
 import { StoreOpsSection } from '@/components/store/StoreOpsSection';
+import { StoreDirectPayDesk } from '@/components/store/StoreDirectPayDesk';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { cn } from '@/lib/utils';
 
@@ -282,6 +283,7 @@ export function StoreKitchenDesk({
         </div>
       </section>
 
+      <StoreDirectPayDesk product="store_kitchen_live" token={token} accent="#b45a3c" />
       <StoreOpsSection titleAr="ساعات العمل" accent="#b45a3c">
       <StoreShopHoursDesk
         value={state.host}

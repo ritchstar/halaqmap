@@ -57,7 +57,7 @@ export function StoreGrocersStudio({ token = STORE_GROCERS_LIVE_LAB_TOKEN }: { t
         </button>
       </div>
       <div className="mt-5 rounded-2xl border border-[#8fbf7a]/30 bg-[#07140e]/80 p-4">
-        {tab === 'shop' ? <StoreGrocersShop state={state} onChange={commit} /> : <StoreGrocersDesk state={state} onChange={commit} shopUrl={shopUrl} token={token} />}
+        {tab === 'shop' ? <StoreGrocersShop state={state} onChange={commit} token={token} /> : <StoreGrocersDesk state={state} onChange={commit} shopUrl={shopUrl} token={token} />}
       </div>
     </div>
   );

@@ -280,7 +280,7 @@ export default function StoreCafeShopPage() {
             />
           ) : null}
           {mode === 'guest' ? <StoreCafeGuestForm state={state} onChange={commit} rateKey={safeToken} /> : null}
-          {mode === 'shop' ? <StoreCafeShop state={state} onChange={commit} /> : null}
+          {mode === 'shop' ? <StoreCafeShop state={state} onChange={commit} token={safeToken} /> : null}
         </div>
       ) : null}
     </StorePurchasedShell>
