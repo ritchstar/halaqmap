@@ -87,7 +87,12 @@ export function StoreHalanaIssueBoard({ accessToken }: { accessToken: string }) 
               <div className="mt-2 flex flex-wrap gap-2">
                 {row.shopHref ? (
                   <a className="text-xs font-bold text-[#e8a0b4] underline" href={row.shopHref} target="_blank" rel="noreferrer">
-                    صفحة العميلة
+                    معرض الأعمال
+                  </a>
+                ) : null}
+                {row.orderHref ? (
+                  <a className="text-xs font-bold text-[#e8a0b4] underline" href={row.orderHref} target="_blank" rel="noreferrer">
+                    صفحة الطلب
                   </a>
                 ) : null}
                 {row.deskHref ? (

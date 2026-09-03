@@ -20,6 +20,7 @@ const landing = readFileSync(join(root, 'src/pages/store/StoreLanding.tsx'), 'ut
 const sitemap = readFileSync(join(root, 'public/sitemap-store.xml'), 'utf8');
 const migration = readFileSync(join(root, 'supabase/migrations/194_store_halana_live.sql'), 'utf8');
 const galleryMigration = readFileSync(join(root, 'supabase/migrations/195_store_halana_gallery.sql'), 'utf8');
+const showcaseMigration = readFileSync(join(root, 'supabase/migrations/196_store_halana_showcase.sql'), 'utf8');
 const api = readFileSync(join(root, 'api/_lib/storeHalanaLive.ts'), 'utf8');
 const publicApi = readFileSync(join(root, 'api/public-store-halana-live.ts'), 'utf8');
 const page = readFileSync(join(root, 'src/pages/store/StoreHalanaShopPage.tsx'), 'utf8');
@@ -27,6 +28,7 @@ const desk = readFileSync(join(root, 'src/app/admin/store-desk/page.tsx'), 'utf8
 
 assert.equal(STORE_HALANA_LIVE_PUBLIC_CATALOG, false);
 assert.equal(ROUTE_PATHS.STORE_HALANA_VIEW, '/h/:token');
+assert.equal(ROUTE_PATHS.STORE_HALANA_ORDER, '/h/:token/order');
 assert.equal(ROUTE_PATHS.STORE_HALANA_DESK, '/h/:token/desk');
 assert.match(STORE_HALANA_LIVE_COPY.titleAr, /حلانا1/);
 assert.ok(!STORE_HALANA_LIVE_COPY.shopLeadAr.includes('طبختنا1'));
@@ -41,6 +43,13 @@ assert.match(migration, /store_halana_requests/);
 assert.match(migration, /ENABLE ROW LEVEL SECURITY/);
 assert.match(galleryMigration, /store_halana_gallery/);
 assert.match(galleryMigration, /ENABLE ROW LEVEL SECURITY/);
+assert.match(showcaseMigration, /promo_ar/);
+assert.match(showcaseMigration, /youtube_urls/);
+assert.match(STORE_HALANA_LIVE_COPY.orderCtaAr, /اطلبي/);
+assert.match(page, /halana-order-cta/);
+assert.match(page, /\/order/);
+assert.match(api, /halanaOrderUrl/);
+assert.match(app, /\/h\/:token\/order/);
 assert.equal(STORE_HALANA_GALLERY_MAX, 12);
 assert.match(STORE_HALANA_ATMOSPHERE.hero, /halana-hero-table/);
 assert.match(api, /halanaShopUrl/);

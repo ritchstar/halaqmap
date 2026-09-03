@@ -189,6 +189,8 @@ const STORE_PRODUCE_PAY_PATH =
   (ROUTE_PATHS as { STORE_PRODUCE_PAY?: string }).STORE_PRODUCE_PAY || "/pay/produce/:token";
 const STORE_HALANA_VIEW_PATH =
   (ROUTE_PATHS as { STORE_HALANA_VIEW?: string }).STORE_HALANA_VIEW || "/h/:token";
+const STORE_HALANA_ORDER_PATH =
+  (ROUTE_PATHS as { STORE_HALANA_ORDER?: string }).STORE_HALANA_ORDER || "/h/:token/order";
 const STORE_HALANA_DESK_PATH =
   (ROUTE_PATHS as { STORE_HALANA_DESK?: string }).STORE_HALANA_DESK || "/h/:token/desk";
 const STORE_PRODUCT_PASS_PATH =
@@ -924,6 +926,7 @@ export function App() {
           <Route path={STORE_PRODUCE_DESK_PATH} element={<LazyRoute><StoreProduceShopPage /></LazyRoute>} />
           <Route path={STORE_PRODUCE_VIEW_PATH} element={<LazyRoute><StoreProduceShopPage /></LazyRoute>} />
           <Route path={STORE_HALANA_DESK_PATH} element={<LazyRoute><StoreHalanaShopPage /></LazyRoute>} />
+          <Route path={STORE_HALANA_ORDER_PATH} element={<LazyRoute><StoreHalanaShopPage /></LazyRoute>} />
           <Route path={STORE_HALANA_VIEW_PATH} element={<LazyRoute><StoreHalanaShopPage /></LazyRoute>} />
           <Route path={STORE_AFFILIATES_ENTER_PATH} element={<LazyRoute><StoreAffiliatesEnterPage /></LazyRoute>} />
           <Route path={STORE_AFFILIATES_DESK_PATH} element={<LazyRoute><StoreAffiliatesDeskPage /></LazyRoute>} />

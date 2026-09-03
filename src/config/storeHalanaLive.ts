@@ -7,7 +7,9 @@ export const STORE_HALANA_LIVE_PUBLIC_CATALOG = false as const;
 export const STORE_HALANA_LIVE_PRODUCT = 'store_halana_live' as const;
 export const STORE_HALANA_LIVE_ACCENT = '#c45c7a' as const;
 export const STORE_HALANA_GALLERY_MAX = 12;
+export const STORE_HALANA_YOUTUBE_MAX = 6;
 export const STORE_HALANA_IMAGE_MAX_CHARS = 180_000;
+export const STORE_HALANA_CAPTION_MAX = 180;
 export const STORE_HALANA_ATMOSPHERE = {
   hero: '/images/store/halana/halana-hero-table.jpg',
   fieldGlow: '/images/store/halana/halana-field-glow.jpg',
@@ -32,7 +34,15 @@ export const STORE_HALANA_LIVE_COPY = {
   kickerAr: 'حلانا1 — نسخة تشغيل خاصة',
   titleAr: 'حلانا1',
   shopLeadAr:
-    'اختاري من المعرض أو املئي طلب حلوى خاصة: وقت الوصول والعدد والنوع والحشوات. الموعد يُثبَّت بعد عربون الجدية.',
+    'اختاري من المعرض ثم اطلبِ حلوى خاصة: وقت الوصول والعدد والنوع والحشوات. الموعد يُثبَّت بعد عربون الجدية.',
+  showcaseLeadAr: 'معرض أعمال المتخصصة: صور ووصف ولقطات. الطلب من الأيقونة أسفل الصفحة.',
+  promoTitleLabelAr: 'عنوان دعائي ظاهر في المعرض',
+  promoBodyLabelAr: 'نص دعائي أو إعلاني، فقرات قصيرة',
+  youtubeLabelAr: 'روابط يوتيوب، سطراً لكل لقطة',
+  youtubeTitleAr: 'لقطات من الأعمال',
+  orderCtaAr: 'اطلبي حلوى خاصة',
+  orderBackAr: 'العودة إلى المعرض',
+  orderKickerAr: 'طلب تسعير',
   refWarnAr:
     'الصورة المرجعية توضح التغليف أو الصينية أو الترتيب. التنفيذ يتبع أسلوب المتخصصة وخاماتها، وليس نسخاً حرفياً.',
   depositWarnAr:
@@ -57,7 +67,7 @@ export const STORE_HALANA_LIVE_COPY = {
   galleryTitleAr: 'أعمال المتخصصة',
   galleryEmptyAr: 'ستظهر أعمال المتخصصة هنا بعد رفع الصور من اللوحة.',
   galleryDeskTitleAr: 'صور المنتجات المعروضة للعميلات',
-  galleryDeskLeadAr: 'ارفعي صوراً واضحة لأعمالك. تظهر في صفحة العميلة، بلا وصفات.',
+  galleryDeskLeadAr: 'ارفعي صور أعمالك واكتبي وصف كل عمل. تظهر في الصفحة الرئيسية التي توجّهين إليها العميلات، بلا وصفات.',
   galleryUploadAr: 'رفع صورة منتج',
   galleryCaptionAr: 'وصف مختصر اختياري',
   galleryRemoveAr: 'إخفاء',

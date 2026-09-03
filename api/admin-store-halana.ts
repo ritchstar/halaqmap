@@ -6,7 +6,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { verifyPlatformAdminFromRequestAny } from './_lib/adminManageBarbersAuth.js';
 import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
-import { halanaDeskUrl, halanaShopUrl, issueHalanaCopy, listHalanaCopies } from './_lib/storeHalanaLive.js';
+import { halanaDeskUrl, halanaOrderUrl, halanaShopUrl, issueHalanaCopy, listHalanaCopies } from './_lib/storeHalanaLive.js';
 import { sendHalanaLiveLinksEmail } from './_lib/storeHalanaLiveMail.js';
 
 export const config = { maxDuration: 30 };
@@ -67,6 +67,7 @@ export async function GET(request: Request): Promise<Response> {
       rows: rows.map((row) => ({
         ...row,
         shopHref: halanaShopUrl(String(row.shop_token || '')),
+        orderHref: halanaOrderUrl(String(row.shop_token || '')),
         deskHref: halanaDeskUrl(String(row.desk_token || '')),
       })),
     },

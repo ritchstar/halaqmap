@@ -16,14 +16,14 @@ export async function sendHalanaLiveLinksEmail(input: {
       theme: 'kitchen',
       kickerAr: 'حلانا1 — نسخة تشغيل خاصة',
       titleAr: `نسخة ${input.name}`,
-      leadAr: 'اضغطي الأيقونة لفتح صفحة العميلة أو لوحة التشغيل. النسخة غير معلنة في المتجر.',
+      leadAr: 'الأولى معرض أعمالك توجّهين إليه العميلات. الثانية لوحة التشغيل. النسخة غير معلنة في المتجر.',
       iconRows: [
         [
           {
             href: input.shopUrl,
             markAr: 'ح',
             titleAr: 'حلانا1',
-            captionAr: 'صفحة العميلة',
+            captionAr: 'معرض الأعمال',
             theme: 'kitchen',
           },
           {

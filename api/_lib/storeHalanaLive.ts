@@ -10,7 +10,9 @@ export const STORE_HALANA_COPIES_TABLE = 'store_halana_copies' as const;
 export const STORE_HALANA_REQUESTS_TABLE = 'store_halana_requests' as const;
 export const STORE_HALANA_GALLERY_TABLE = 'store_halana_gallery' as const;
 export const STORE_HALANA_GALLERY_MAX = 12;
+export const STORE_HALANA_YOUTUBE_MAX = 6;
 export const STORE_HALANA_IMAGE_MAX_CHARS = 180000;
+export const STORE_HALANA_CAPTION_MAX = 180;
 
 const STATUSES = new Set([
   'new',
@@ -75,6 +77,20 @@ export function halanaDeskUrl(token: string): string {
   return `https://store.halaqmap.com/#/h/${encodeURIComponent(token)}/desk`;
 }
 
+export function halanaOrderUrl(token: string): string {
+  return `https://store.halaqmap.com/#/h/${encodeURIComponent(token)}/order`;
+}
+
+export function parseHalanaYoutubeLines(raw: unknown): string {
+  return String(raw ?? '')
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => /^https:\/\/(www\.)?(youtube\.com|youtu\.be)\//i.test(line) && !/[<>]/.test(line))
+    .slice(0, STORE_HALANA_YOUTUBE_MAX)
+    .join('\n')
+    .slice(0, 2000);
+}
+
 export function publicCopyPayload(
   row: Record<string, unknown>,
   requests: Record<string, unknown>[] = [],
@@ -91,6 +107,9 @@ export function publicCopyPayload(
     whatsapp: String(row.whatsapp || ''),
     gallery: merged,
     readyLines: String(row.ready_lines || ''),
+    promoTitleAr: String(row.promo_title_ar || ''),
+    promoAr: String(row.promo_ar || ''),
+    youtubeUrls: parseHalanaYoutubeLines(row.youtube_urls),
     requests,
   };
 }
@@ -106,7 +125,7 @@ export async function listHalanaGallery(db: Db, copyId: string): Promise<HalanaG
   return ((data || []) as Record<string, unknown>[])
     .map((row) => ({
       id: String(row.id || ''),
-      caption: clip(row.caption, 60),
+      caption: clip(row.caption, STORE_HALANA_CAPTION_MAX),
       src: parseHalanaImageSrc(row.image_src),
     }))
     .filter((item) => item.id && item.src);
@@ -128,7 +147,7 @@ export async function addHalanaGallery(
   }
   const { error } = await db.from(STORE_HALANA_GALLERY_TABLE).insert({
     copy_id: copyId,
-    caption: clip(input.caption, 60),
+    caption: clip(input.caption, STORE_HALANA_CAPTION_MAX),
     image_src: src,
     sort_order: count || 0,
   });
@@ -240,6 +259,9 @@ export async function saveHalanaHost(
       quotes_ar: String(input.quotesAr || '').slice(0, 1200),
       whatsapp: String(input.whatsapp || '').replace(/\D/g, '').slice(0, 15),
       ready_lines: String(input.readyLines || '').slice(0, 800),
+      promo_title_ar: clip(input.promoTitleAr, 80),
+      promo_ar: String(input.promoAr || '').slice(0, 1600),
+      youtube_urls: parseHalanaYoutubeLines(input.youtubeUrls),
       updated_at: new Date().toISOString(),
     })
     .eq('id', copyId);

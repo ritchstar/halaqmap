@@ -140,6 +140,7 @@ export const ROUTE_PATHS = {
   STORE_PRODUCE_PAY: '/pay/produce/:token',
   /** حلانا1 — صفحة خاصة غير معلنة. الإصدار بالاسم والبريد فقط. */
   STORE_HALANA_VIEW: '/h/:token',
+  STORE_HALANA_ORDER: '/h/:token/order',
   STORE_HALANA_DESK: '/h/:token/desk',
   /** بطاقة كيو آر للجوال: اسم ومنصب داخل المنتج لإبراز رمز الصفحة */
   STORE_PRODUCT_PASS: '/store/pass/:kind/:token',

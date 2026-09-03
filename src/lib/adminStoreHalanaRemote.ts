@@ -24,6 +24,7 @@ export type StoreHalanaCopyRow = {
   beneficiary_email: string;
   status: string;
   shopHref?: string;
+  orderHref?: string;
   deskHref?: string;
   created_at: string;
 };
