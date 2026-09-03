@@ -3,7 +3,7 @@
  *
  * صندوق التعليمات والدعم في لوحة الكاشير. لا يُستورد من App.
  */
-export const STORE_DESK_HELP_PRODUCTS = ['grocers', 'restaurant', 'cafe', 'kitchen', 'produce'] as const;
+export const STORE_DESK_HELP_PRODUCTS = ['grocers', 'restaurant', 'cafe', 'kitchen', 'produce', 'halana'] as const;
 
 export type StoreDeskHelpProduct = (typeof STORE_DESK_HELP_PRODUCTS)[number];
 
@@ -83,6 +83,19 @@ export const STORE_DESK_HELP = {
       'حدّث ما وصل هذا الصباح وتوفر الأصناف بالحبة أو الكيلو أو الحزمة.',
       'أرسل المذكرة من جهازك عبر واتساب للتسليم أو الاستلام.',
       'طلب الجار نقداً أو شبكة عند الصندوق، بلا تحصيل سلّته من هنا.',
+    ],
+  },
+  halana: {
+    productAr: 'حلانا1',
+    accent: '#c45c7a',
+    whatsappPrefillAr: 'مرحباً، أكتب من لوحة حلانا1 وأحتاج دعماً من الإدارة.',
+    stepsAr: [
+      'ارفعي صور الأعمال واكتبي وصف كل عمل، ثم احفظي النص الدعائي وروابط يوتيوب.',
+      'وجّهي العميلات إلى المعرض. الطلب من الأيقونة أسفل الصفحة.',
+      'راجعي طلب التسعير ثم أرسلي مبلغ العرض من اللوحة.',
+      'لا يُقفَل الموعد إلا بعد عربون بصورة تحويل ثم تأكيدك.',
+      'اطبعي ملصق الرمز أو افتحي كرت الجوال وأرسليه على واتساب.',
+      'انشري رابط المعرض من قسم القنوات التسويقية في هذه اللوحة.',
     ],
   },
 } as const;

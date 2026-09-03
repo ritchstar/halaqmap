@@ -21,14 +21,15 @@ assert.equal(STORE_DESK_HELP_COPY.titleAr, 'التعليمات والدعم');
 assert.match(STORE_DESK_HELP_COPY.supportPageAr, /صفحة الدعم/);
 assert.match(STORE_DESK_HELP_COPY.whatsappAr, /واتساب/);
 assert.match(STORE_DESK_HELP_COPY.chatAr, /محادثة مباشرة مع الإدارة/);
-assert.deepEqual([...STORE_DESK_HELP_PRODUCTS], ['grocers', 'restaurant', 'cafe', 'kitchen', 'produce']);
+assert.deepEqual([...STORE_DESK_HELP_PRODUCTS], ['grocers', 'restaurant', 'cafe', 'kitchen', 'produce', 'halana']);
 
 const foreign = {
-  grocers: /مطعمنا1|كافينا1|طبختنا1|خضارنا1|افراحي1|اجواء1|لاونجا1|كاردي8/,
-  restaurant: /تمويناتا1|كافينا1|طبختنا1|خضارنا1|افراحي1|اجواء1|لاونجا1|كاردي8/,
-  cafe: /تمويناتا1|مطعمنا1|طبختنا1|خضارنا1|افراحي1|اجواء1|لاونجا1|كاردي8/,
-  kitchen: /تمويناتا1|مطعمنا1|كافينا1|خضارنا1|افراحي1|اجواء1|لاونجا1|كاردي8/,
-  produce: /تمويناتا1|مطعمنا1|كافينا1|طبختنا1|افراحي1|اجواء1|لاونجا1|كاردي8/,
+  grocers: /مطعمنا1|كافينا1|طبختنا1|خضارنا1|افراحي1|اجواء1|لاونجا1|كاردي8|حلانا1/,
+  restaurant: /تمويناتا1|كافينا1|طبختنا1|خضارنا1|افراحي1|اجواء1|لاونجا1|كاردي8|حلانا1/,
+  cafe: /تمويناتا1|مطعمنا1|طبختنا1|خضارنا1|افراحي1|اجواء1|لاونجا1|كاردي8|حلانا1/,
+  kitchen: /تمويناتا1|مطعمنا1|كافينا1|خضارنا1|افراحي1|اجواء1|لاونجا1|كاردي8|حلانا1/,
+  produce: /تمويناتا1|مطعمنا1|كافينا1|طبختنا1|افراحي1|اجواء1|لاونجا1|كاردي8|حلانا1/,
+  halana: /تمويناتا1|مطعمنا1|كافينا1|طبختنا1|خضارنا1|افراحي1|اجواء1|لاونجا1|كاردي8/,
 } as const;
 
 for (const product of STORE_DESK_HELP_PRODUCTS) {
@@ -37,7 +38,9 @@ for (const product of STORE_DESK_HELP_PRODUCTS) {
   assert.match(pack.whatsappPrefillAr, new RegExp(pack.productAr));
   assert.doesNotMatch(pack.stepsAr.join('\n'), foreign[product]);
   assert.doesNotMatch(pack.whatsappPrefillAr, foreign[product]);
-  assert.match(pack.stepsAr.join('\n'), /تم الاستلام ثم أرشفة وإنهاء/);
+  if (product !== 'halana') {
+    assert.match(pack.stepsAr.join('\n'), /تم الاستلام ثم أرشفة وإنهاء/);
+  }
 }
 
 assert.match(help, /useState\(false\)/);
@@ -55,6 +58,7 @@ const desks = {
   cafe: 'src/components/store/StoreCafeDesk.tsx',
   kitchen: 'src/components/store/StoreKitchenDesk.tsx',
   produce: 'src/components/store/StoreProduceDesk.tsx',
+  halana: 'src/pages/store/StoreHalanaShopPage.tsx',
 } as const;
 
 for (const [product, file] of Object.entries(desks)) {

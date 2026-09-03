@@ -18,6 +18,12 @@ import {
   type StoreHalanaRequestStatus,
 } from '@/config/storeHalanaLive';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
+import { StoreDeskGuideLink } from '@/components/store/StoreDeskGuideLink';
+import { StoreDeskHelpSupport } from '@/components/store/StoreDeskHelpSupport';
+import { StoreHalanaShareDesk } from '@/components/store/StoreHalanaShareDesk';
+import { STORE_HALANA_SUPPORT } from '@/config/storeProductSupport';
+import { ROUTE_PATHS } from '@/lib/routePaths';
+import { splitHalanaYoutubeLines } from '@/lib/storeHalanaShare';
 import { fetchHalanaPublic, postHalanaAction } from '@/lib/storeHalanaLiveRemote';
 import { compressImageFile, youtubeEmbedSrc } from '@/lib/storeWeddingLiveLab';
 
@@ -205,7 +211,8 @@ function ShowcasePanel({ token, payload }: { token: string; payload: Payload }) 
   const copy = STORE_HALANA_LIVE_COPY;
   const flavors = splitLines(payload.flavorsAr || STORE_HALANA_DEFAULT_FLAVORS_AR);
   const quotes = splitLines(payload.quotesAr);
-  const clips = splitLines(payload.youtubeUrls)
+  const youtube = splitHalanaYoutubeLines(payload.youtubeUrls);
+  const clips = youtube.clips
     .map((url) => ({ url, embed: youtubeEmbedSrc(url, { loop: false, autoplay: false }) }))
     .filter((item) => item.embed);
   const promo = splitLines(payload.promoAr);
@@ -245,6 +252,23 @@ function ShowcasePanel({ token, payload }: { token: string; payload: Payload }) 
         <ShowcaseSection kicker={copy.worksLeadAr} title={copy.galleryTitleAr}>
           <ProductGallery items={works} emptyAr={copy.galleryEmptyAr} featured />
         </ShowcaseSection>
+        {youtube.channels.length > 0 ? (
+          <ShowcaseSection title={copy.youtubeChannelAr}>
+            <div className="flex flex-col gap-2">
+              {youtube.channels.map((url) => (
+                <a
+                  key={url}
+                  href={url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center rounded-full border border-[#ffe2b4]/35 px-5 py-3 text-sm font-extrabold text-[#ffe8c4]"
+                >
+                  {copy.youtubeChannelAr}
+                </a>
+              ))}
+            </div>
+          </ShowcaseSection>
+        ) : null}
         {clips.length > 0 ? (
           <ShowcaseSection title={copy.youtubeTitleAr}>
             <div className="space-y-6">
@@ -628,6 +652,14 @@ function DeskPanel({ token, payload, onSaved }: { token: string; payload: Payloa
           حفظ المعرض
         </button>
       </section>
+      <StoreHalanaShareDesk token={token} shopName={shopName} />
+      <StoreDeskGuideLink
+        to={ROUTE_PATHS.STORE_HALANA_SUPPORT}
+        leadAr={STORE_HALANA_SUPPORT.deskLeadAr}
+        ctaAr={STORE_HALANA_SUPPORT.deskCtaAr}
+        accent={STORE_HALANA_SUPPORT.accent}
+      />
+      <StoreDeskHelpSupport product="halana" />
       <section className="space-y-3">
         <h2 className="text-lg font-extrabold">الطلبات</h2>
         {(payload.requests || []).length === 0 ? (

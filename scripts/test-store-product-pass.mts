@@ -29,11 +29,13 @@ const restaurant = readFileSync(join(root, 'src/components/store/StoreRestaurant
 const cafe = readFileSync(join(root, 'src/components/store/StoreCafeDesk.tsx'), 'utf8');
 const kitchen = readFileSync(join(root, 'src/components/store/StoreKitchenDesk.tsx'), 'utf8');
 const lounge = readFileSync(join(root, 'src/components/store/StoreLoungeHostPanel.tsx'), 'utf8');
+const produce = readFileSync(join(root, 'src/components/store/StoreProduceDesk.tsx'), 'utf8');
+const halana = readFileSync(join(root, 'src/pages/store/StoreHalanaShopPage.tsx'), 'utf8');
 
 assert.equal(ROUTE_PATHS.STORE_PRODUCT_PASS, '/store/pass/:kind/:token');
-assert.deepEqual([...STORE_PRODUCT_PASS_KINDS], ['lounge', 'grocers', 'restaurant', 'cafe', 'kitchen']);
-assert.equal(STORE_PRODUCT_PASS_ROLES.length, 7);
-assert.match(STORE_PRODUCT_PASS_ROLES.map((item) => item.labelAr).join(' '), /المالك|المالكة|مشرف|مشرفة|مساعد|مساعدة|عامل التوصيل/);
+assert.deepEqual([...STORE_PRODUCT_PASS_KINDS], ['lounge', 'grocers', 'restaurant', 'cafe', 'kitchen', 'produce', 'halana']);
+assert.equal(STORE_PRODUCT_PASS_ROLES.length, 8);
+assert.match(STORE_PRODUCT_PASS_ROLES.map((item) => item.labelAr).join(' '), /المالك|المالكة|المتخصصة|مشرف|مشرفة|مساعد|مساعدة|عامل التوصيل/);
 assert.match(STORE_PRODUCT_PASS_COPY.openAr, /افتح/);
 assert.match(STORE_PRODUCT_PASS_COPY.copyAr, /انسخ الرابط/);
 assert.match(STORE_PRODUCT_PASS_COPY.saveHintAr, /احفظ صورة الشاشة/);
@@ -45,6 +47,7 @@ assert.equal(parsePassName('سارة أحمد'), 'سارة أحمد');
 assert.equal(parsePassRole('owner_f'), 'owner_f');
 assert.equal(parsePassRole('manager'), null);
 assert.equal(passShopHashPath('grocers', 'abc'), '/g/abc');
+assert.equal(passShopHashPath('halana', 'abc'), '/h/abc');
 assert.equal(passShopHashPath('kitchen', 'abc', 'stamp1'), '/k/abc?qr=stamp1');
 assert.match(passIssuerPath({ kind: 'cafe', token: 'cafe-lab' }), /\/store\/pass\/cafe\/cafe-lab/);
 assert.match(passCardPath({ kind: 'lounge', token: 'lounge-lab', name: 'أحمد', role: 'supervisor', shopName: 'الردهة', qrStamp: '' }), /n=/);
@@ -61,6 +64,8 @@ assert.match(restaurant, /StoreProductPassDeskButton/);
 assert.match(cafe, /StoreProductPassDeskButton/);
 assert.match(kitchen, /StoreProductPassDeskButton/);
 assert.match(lounge, /StoreProductPassDeskButton/);
+assert.match(produce, /StoreProductPassDeskButton/);
+assert.match(halana, /StoreHalanaShareDesk/);
 assert.doesNotMatch(STORE_PRODUCT_PASS_COPY.leadAr, /كاردي8|افراحي1|اجواء1/);
 
 console.log('test-store-product-pass: ok');

@@ -21,7 +21,7 @@ export type StoreProductSupportTab = {
 };
 
 export type StoreProductSupportGuide = {
-  id: 'kitchen' | 'grocers' | 'produce' | 'restaurant' | 'cafe' | 'lounge' | 'halls';
+  id: 'kitchen' | 'grocers' | 'produce' | 'restaurant' | 'cafe' | 'lounge' | 'halls' | 'halana';
   productAr: string;
   accent: string;
   documentTitle: string;
@@ -674,6 +674,129 @@ export const STORE_HALLS_SUPPORT: StoreProductSupportGuide = {
   ]),
 };
 
+export const STORE_HALANA_SUPPORT: StoreProductSupportGuide = {
+  id: 'halana',
+  productAr: 'حلانا1',
+  accent: '#c45c7a',
+  documentTitle: 'halaqmap — دليل تشغيل وتسويق حلانا1',
+  kickerAr: 'من الإصدار حتى أول انتشار للأعمال',
+  titleAr: 'دليل تشغيل وتسويق حلانا1',
+  leadAr:
+    'يُرشدك هذا الدليل من رسالة الإصدار حتى معرض الأعمال، ثم ملصق الرمز وكرت الجوال ومشاركة الصفحة على القنوات. الطلب يصل للوحة، والعربون صورة تحويل تؤكَّد يدوياً.',
+  landingPath: '',
+  landingCtaAr: 'دليل التشغيل والتسويق',
+  deskLeadAr: 'تعليمات تشغيل وتسويق حلانا1 من المعرض حتى كرت الرمز والقنوات.',
+  deskCtaAr: 'افتح دليل التشغيل والتسويق',
+  tabs: tabs([
+    {
+      id: 'activate',
+      titleAr: 'بعد الإصدار',
+      sections: [
+        {
+          headingAr: 'رسالة الروابط',
+          bodyAr: [
+            'تصلك من الإدارة رسالة على البريد فيها رابط المعرض ورابط صفحة الطلب ورابط اللوحة.',
+            'المعرض على مسار `/h/` ثم الرمز. الطلب على المسار نفسه ثم `/order`. اللوحة ثم `/desk`.',
+          ],
+        },
+        {
+          headingAr: 'أول إجراء',
+          bodyAr: [
+            'افتحي اللوحة واحفظيها في المفضلة أو على الشاشة الرئيسية للجوال.',
+            'وجّهي العميلات إلى المعرض فقط. لا تشاركي رابط اللوحة.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'identity',
+      titleAr: 'الهوية والمعرض',
+      sections: [
+        {
+          headingAr: 'الاسم والنص الدعائي',
+          bodyAr: [
+            'اكتبي اسم الصفحة كما يظهر للعميلة، وعنواناً دعائياً قصيراً، ثم فقرات قصيرة عن أسلوبك.',
+            'لا تكتبي وصفات التحضير ولا دفتر زبائن.',
+          ],
+        },
+        {
+          headingAr: 'صور الأعمال',
+          bodyAr: [
+            'ارفعي صوراً احترافية من اللوحة واكتبي وصف كل عمل.',
+            'الصورة الأولى تظهر في رأس المعرض ومع بقية الأعمال.',
+          ],
+        },
+        {
+          headingAr: 'يوتيوب',
+          bodyAr: [
+            'ضعي رابط قناتك سطراً مستقلاً ليظهر زر القناة في المعرض.',
+            'ضعي روابط اللقطات سطراً لكل فيديو لتُعرض مضمّنة في المعرض.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'orders',
+      titleAr: 'الطلب الحي',
+      sections: [
+        {
+          headingAr: 'قبل السعر',
+          bodyAr: [
+            'الطلب من أيقونة عريضة أسفل المعرض: وقت الوصول والعدد والنوع والحشوات ووصف التغليف أو الصينية.',
+          ],
+        },
+        {
+          headingAr: 'العرض والعربون',
+          bodyAr: [
+            'السعر مزيج تكلفة ووقت إنجاز، تعرضينه يدوياً من اللوحة.',
+            'لا يُقفَل الموعد إلا بعد عربون جدية بصورة تحويل ثم تأكيدك.',
+            'لا تحصيل من العميلة عبر بوابة الدفع من هذه الصفحة.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'qr',
+      titleAr: 'الملصق والكرت',
+      sections: [
+        {
+          headingAr: 'ملصق الرمز',
+          bodyAr: [
+            'اطبعي ملصق المعرض من اللوحة وضعيه على العلب والصواني وبطاقة التسليم.',
+            'اكتبي تحت الرمز: امسحي لمعرض الأعمال ثم اطلبي مسبقاً.',
+          ],
+        },
+        {
+          headingAr: 'كرت الجوال',
+          bodyAr: [
+            'افتحي بطاقة الاسم والمنصب من اللوحة لعرض الرمز من شاشة الجوال.',
+            'أرسلي رابط الكرت على واتساب ليُفتح كبطاقة تُمسح من الشاشة.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'neighborhood',
+      titleAr: 'القنوات',
+      sections: [
+        {
+          headingAr: 'إنستغرام والقنوات',
+          bodyAr: [
+            'انسخي النص الجاهز من اللوحة، وهو ستايل قصير عملي: جملة الأعمال ثم الدعوة للطلب المسبق ثم الرابط.',
+            'ضعي الرابط في بايو إنستغرام وسناب وتيك توك، وانشري من واتساب وتلجرام وإكس من الأزرار نفسها.',
+          ],
+        },
+        {
+          headingAr: 'دائرة العميلات',
+          bodyAr: [
+            'ابدئي بالمعارف والجارات. لا إرسال جماعي نيابة عنك، ولا سوق يجمع المتخصصات.',
+          ],
+        },
+      ],
+    },
+  ]),
+};
+
 export const STORE_PRODUCT_SUPPORT_GUIDES = {
   kitchen: STORE_KITCHEN_SUPPORT,
   grocers: STORE_GROCERS_SUPPORT,
@@ -682,6 +805,7 @@ export const STORE_PRODUCT_SUPPORT_GUIDES = {
   cafe: STORE_CAFE_SUPPORT,
   lounge: STORE_LOUNGE_SUPPORT,
   halls: STORE_HALLS_SUPPORT,
+  halana: STORE_HALANA_SUPPORT,
 } as const;
 
 export type StoreProductSupportId = keyof typeof STORE_PRODUCT_SUPPORT_GUIDES;
@@ -695,5 +819,6 @@ export function storeProductSupportByPath(pathname: string): StoreProductSupport
   if (path === ROUTE_PATHS.STORE_CAFE_SUPPORT) return STORE_CAFE_SUPPORT;
   if (path === ROUTE_PATHS.STORE_LOUNGE_SUPPORT) return STORE_LOUNGE_SUPPORT;
   if (path === ROUTE_PATHS.STORE_HALLS_SUPPORT) return STORE_HALLS_SUPPORT;
+  if (path === ROUTE_PATHS.STORE_HALANA_SUPPORT) return STORE_HALANA_SUPPORT;
   return null;
 }

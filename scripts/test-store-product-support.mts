@@ -10,6 +10,7 @@ import {
   STORE_CAFE_SUPPORT,
   STORE_GROCERS_SUPPORT,
   STORE_HALLS_SUPPORT,
+  STORE_HALANA_SUPPORT,
   STORE_KITCHEN_SUPPORT,
   STORE_LOUNGE_SUPPORT,
   STORE_PRODUCE_SUPPORT,
@@ -33,6 +34,7 @@ assert.equal(ROUTE_PATHS.STORE_RESTAURANT_SUPPORT, '/store/restaurant/support');
 assert.equal(ROUTE_PATHS.STORE_CAFE_SUPPORT, '/store/cafe/support');
 assert.equal(ROUTE_PATHS.STORE_LOUNGE_SUPPORT, '/store/lounge/support');
 assert.equal(ROUTE_PATHS.STORE_HALLS_SUPPORT, '/store/halls/support');
+assert.equal(ROUTE_PATHS.STORE_HALANA_SUPPORT, '/store/halana/support');
 
 assert.deepEqual([...STORE_PRODUCT_SUPPORT_TAB_IDS], ['activate', 'identity', 'orders', 'qr', 'neighborhood']);
 
@@ -44,11 +46,14 @@ const guides = [
   STORE_CAFE_SUPPORT,
   STORE_LOUNGE_SUPPORT,
   STORE_HALLS_SUPPORT,
+  STORE_HALANA_SUPPORT,
 ];
-assert.equal(Object.keys(STORE_PRODUCT_SUPPORT_GUIDES).length, 7);
+assert.equal(Object.keys(STORE_PRODUCT_SUPPORT_GUIDES).length, 8);
 for (const guide of guides) {
   assert.deepEqual(guide.tabs.map((tab) => tab.id), [...STORE_PRODUCT_SUPPORT_TAB_IDS]);
-  assert.equal(guide.tabs[0].titleAr, 'بعد الشراء');
+  if (guide.id !== 'halana') {
+    assert.equal(guide.tabs[0].titleAr, 'بعد الشراء');
+  }
 }
 
 assert.equal(storeProductSupportByPath('/store/kitchen/support'), STORE_KITCHEN_SUPPORT);
@@ -69,11 +74,15 @@ assert.match(blob(STORE_HALLS_SUPPORT), /افراحي1/);
 assert.match(blob(STORE_HALLS_SUPPORT), /اجواء1/);
 assert.doesNotMatch(blob(STORE_HALLS_SUPPORT), /كاردي8|12 و29 و59|999/);
 assert.match(STORE_HALLS_SUPPORT.leadAr, /ثمانمائة وتسعة وتسعون/);
+assert.doesNotMatch(blob(STORE_HALANA_SUPPORT), /تمويناتا1|مطعمنا1|كافينا1|طبختنا1|خضارنا1|لاونجا1|كاردي8|افراحي1/);
+assert.equal(STORE_HALANA_SUPPORT.landingPath, '');
 
 assert.doesNotMatch(app, /storeProductSupport/);
 assert.match(app, /StoreProductSupportPage/);
 assert.match(app, /STORE_KITCHEN_SUPPORT/);
 assert.match(app, /STORE_HALLS_SUPPORT/);
+assert.match(app, /STORE_HALANA_SUPPORT/);
+assert.doesNotMatch(app, /storeHalanaLive/);
 
 assert.match(landingKitchen, /STORE_KITCHEN_SUPPORT/);
 assert.match(landingGrocers, /STORE_GROCERS_SUPPORT/);
@@ -88,6 +97,7 @@ const desks = [
   ['src/components/store/StoreLoungeHostPanel.tsx', 'STORE_LOUNGE_SUPPORT'],
   ['src/components/store/StoreWeddingHostPanel.tsx', 'STORE_HALLS_SUPPORT'],
   ['src/components/store/StoreEventHostPanel.tsx', 'STORE_HALLS_SUPPORT'],
+  ['src/pages/store/StoreHalanaShopPage.tsx', 'STORE_HALANA_SUPPORT'],
 ] as const;
 for (const [rel, token] of desks) {
   const src = readFileSync(join(root, rel), 'utf8');

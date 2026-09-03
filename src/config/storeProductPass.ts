@@ -4,12 +4,13 @@
  * بطاقة كيو آر للجوال: اسم ومنصب داخل المنتج، وإبراز رمز الصفحة كثقة تعامل.
  * لا تُستورد من App.
  */
-export const STORE_PRODUCT_PASS_KINDS = ['lounge', 'grocers', 'restaurant', 'cafe', 'kitchen', 'produce'] as const;
+export const STORE_PRODUCT_PASS_KINDS = ['lounge', 'grocers', 'restaurant', 'cafe', 'kitchen', 'produce', 'halana'] as const;
 export type StoreProductPassKind = (typeof STORE_PRODUCT_PASS_KINDS)[number];
 
 export const STORE_PRODUCT_PASS_ROLES = [
   { id: 'owner', labelAr: 'المالك' },
   { id: 'owner_f', labelAr: 'المالكة' },
+  { id: 'specialist', labelAr: 'المتخصصة' },
   { id: 'supervisor', labelAr: 'مشرف' },
   { id: 'supervisor_f', labelAr: 'مشرفة' },
   { id: 'assistant', labelAr: 'مساعد' },
@@ -28,6 +29,7 @@ export const STORE_PRODUCT_PASS_META: Record<
   cafe: { skuAr: 'كافينا1', accent: '#c48a4a', ink: '#061018', shopPath: '/c/:token' },
   kitchen: { skuAr: 'طبختنا1', accent: '#b45a3c', ink: '#061018', shopPath: '/k/:token' },
   produce: { skuAr: 'خضارنا1', accent: '#3d8b4a', ink: '#061018', shopPath: '/v/:token' },
+  halana: { skuAr: 'حلانا1', accent: '#c45c7a', ink: '#14080c', shopPath: '/h/:token' },
 };
 
 export const STORE_PRODUCT_PASS_COPY = {

@@ -142,6 +142,8 @@ export const ROUTE_PATHS = {
   STORE_HALANA_VIEW: '/h/:token',
   STORE_HALANA_ORDER: '/h/:token/order',
   STORE_HALANA_DESK: '/h/:token/desk',
+  /** دليل تشغيل وتسويق حلانا1 — من اللوحة فقط، غير معلن في واجهة المتجر */
+  STORE_HALANA_SUPPORT: '/store/halana/support',
   /** بطاقة كيو آر للجوال: اسم ومنصب داخل المنتج لإبراز رمز الصفحة */
   STORE_PRODUCT_PASS: '/store/pass/:kind/:token',
   /** بوابة مسوّقي منتجات المتجر — مستقلة عن سفراء حلاق ماب وكوافير ماب */

@@ -21,9 +21,11 @@ export function StoreProductSupportGuideView({ guide }: { guide: StoreProductSup
       </p>
       <h1 className="mt-2 text-3xl font-extrabold leading-tight">{guide.titleAr}</h1>
       <p className="mt-4 text-base leading-8 text-white/78">{guide.leadAr}</p>
-      <Link to={guide.landingPath} className="mt-4 inline-flex text-sm font-bold" style={{ color: guide.accent }}>
-        {STORE_PRODUCT_SUPPORT_SHELL.backAr}
-      </Link>
+      {guide.landingPath ? (
+        <Link to={guide.landingPath} className="mt-4 inline-flex text-sm font-bold" style={{ color: guide.accent }}>
+          {STORE_PRODUCT_SUPPORT_SHELL.backAr}
+        </Link>
+      ) : null}
 
       <div className="store-studio-switch mt-8 flex gap-2 overflow-x-auto pb-2" aria-label={STORE_PRODUCT_SUPPORT_SHELL.tabsLabelAr}>
         {guide.tabs.map((item) => (
