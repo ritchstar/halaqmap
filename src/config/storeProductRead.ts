@@ -422,6 +422,7 @@ const WEDDING: StoreProductReadEntry = {
 /* ── اجواء1 ── */
 const EVENT: StoreProductReadEntry = {
   id: 'event',
+  saipProductId: 'event',
   documentTitle: 'اجواء1 — دليل ومقارنة — خريطة الحل',
   accent: '#e8c547',
   kickerAr: 'الدعوة الحرة التفاعلية',

@@ -2,18 +2,19 @@
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
  * شهادات تسجيل المصنفات البرمجية الصادرة من الهيئة السعودية للملكية الفكرية.
- * خمسة منتجات فقط. لا يُستورد من App. لا تُنسب الشهادة لمنتج آخر.
- * حلانا1 وافراحي1 واجواء1 وكاردي8 ومطعمنا1 ليست في هذه القائمة العلنية.
+ * ستة منتجات فقط. لا يُستورد من App. لا تُنسب الشهادة لمنتج آخر.
+ * حلانا1 وافراحي1 وكاردي8 ومطعمنا1 ليست في هذه القائمة العلنية.
  */
 import { ROUTE_PATHS } from '@/lib/routePaths';
 
-export type StoreSaipProductId = 'cafe' | 'grocers' | 'produce' | 'kitchen' | 'lounge';
+export type StoreSaipProductId = 'cafe' | 'grocers' | 'produce' | 'kitchen' | 'lounge' | 'event';
 
 export type StoreSaipWork = {
   id: StoreSaipProductId;
   titleAr: string;
   latin: string;
   certificateNo: string;
+  certImage: string;
   buyPath: string;
 };
 
@@ -23,8 +24,9 @@ export const STORE_SAIP_COPY = {
   issuerAr: 'الهيئة السعودية للملكية الفكرية',
   footerLeadAr: 'مصنفات برمجية مسجّلة لدى الهيئة السعودية للملكية الفكرية.',
   trustTitleAr: 'تسجيل المصنفات البرمجية',
+  certImageAltAr: 'شهادة تسجيل المصنف لدى الهيئة السعودية للملكية الفكرية',
   trustLeadAr:
-    'خمسة منتجات من متجر خريطة الحل مسجّلة مصنفات برمجية لدى الهيئة السعودية للملكية الفكرية. الأرقام أدناه لشهادات التسجيل الصادرة. ليست علامة تجارية ولا براءة اختراع.',
+    'ستة منتجات من متجر خريطة الحل مسجّلة مصنفات برمجية لدى الهيئة السعودية للملكية الفكرية. الأرقام أدناه لشهادات التسجيل الصادرة. ليست علامة تجارية ولا براءة اختراع.',
 } as const;
 
 export const STORE_SAIP_PUBLIC_WORKS: readonly StoreSaipWork[] = [
@@ -33,6 +35,7 @@ export const STORE_SAIP_PUBLIC_WORKS: readonly StoreSaipWork[] = [
     titleAr: 'كافينا1',
     latin: 'Kaffina1',
     certificateNo: '26-12-103276935',
+    certImage: '/images/store/saip/cafe-26-12-103276935.png',
     buyPath: ROUTE_PATHS.STORE_CAFE,
   },
   {
@@ -40,6 +43,7 @@ export const STORE_SAIP_PUBLIC_WORKS: readonly StoreSaipWork[] = [
     titleAr: 'تمويناتا1',
     latin: 'Tamwinata1',
     certificateNo: '26-12-103276933',
+    certImage: '/images/store/saip/grocers-26-12-103276933.png',
     buyPath: ROUTE_PATHS.STORE_GROCERS,
   },
   {
@@ -47,6 +51,7 @@ export const STORE_SAIP_PUBLIC_WORKS: readonly StoreSaipWork[] = [
     titleAr: 'خضارنا1',
     latin: 'Khodarna1',
     certificateNo: '26-12-103276978',
+    certImage: '/images/store/saip/produce-26-12-103276978.png',
     buyPath: ROUTE_PATHS.STORE_PRODUCE,
   },
   {
@@ -54,6 +59,7 @@ export const STORE_SAIP_PUBLIC_WORKS: readonly StoreSaipWork[] = [
     titleAr: 'طبختنا1',
     latin: 'Tabkhatna1',
     certificateNo: '26-12-103276936',
+    certImage: '/images/store/saip/kitchen-26-12-103276936.png',
     buyPath: ROUTE_PATHS.STORE_KITCHEN,
   },
   {
@@ -61,7 +67,16 @@ export const STORE_SAIP_PUBLIC_WORKS: readonly StoreSaipWork[] = [
     titleAr: 'لاونجا1',
     latin: 'Launja1',
     certificateNo: '26-12-103276926',
+    certImage: '/images/store/saip/lounge-26-12-103276926.png',
     buyPath: ROUTE_PATHS.STORE_LOUNGE,
+  },
+  {
+    id: 'event',
+    titleAr: 'اجواء1',
+    latin: 'Ajwa1',
+    certificateNo: '26-12-103276923',
+    certImage: '/images/store/saip/event-26-12-103276923.png',
+    buyPath: ROUTE_PATHS.STORE_EVENT,
   },
 ] as const;
 

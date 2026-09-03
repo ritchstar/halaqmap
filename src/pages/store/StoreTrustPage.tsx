@@ -147,6 +147,13 @@ export default function StoreTrustPage() {
                       {work.certificateNo}
                     </code>
                   </p>
+                  <figure className="mt-3 overflow-hidden rounded-xl border border-white/10 bg-white">
+                    <img
+                      src={work.certImage}
+                      alt={`${work.titleAr} — ${STORE_SAIP_COPY.certImageAltAr} ${work.certificateNo}`}
+                      className="aspect-[4/3] w-full object-contain object-top"
+                    />
+                  </figure>
                   <Link
                     to={work.buyPath}
                     className="mt-3 inline-flex text-sm font-bold text-[#e8c547] underline-offset-4 hover:underline"

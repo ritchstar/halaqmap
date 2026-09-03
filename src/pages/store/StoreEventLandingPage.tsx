@@ -18,6 +18,7 @@ import { StoreGiftPromoBanner } from '@/components/store/StoreGiftPromoBanner';
 import { StoreProductBenefitsLink } from '@/components/store/StoreProductBenefitsLink';
 import { StoreProductSupportLink } from '@/components/store/StoreProductSupportLink';
 import { StoreProductReadLink } from '@/components/store/StoreProductReadLink';
+import { StoreSaipTrustLine } from '@/components/store/StoreSaipTrustLine';
 import { StoreShot } from '@/components/store/StoreShot';
 import { StoreEventLiveStudio } from '@/components/store/StoreEventLiveStudio';
 import { StoreInViewMount } from '@/components/store/StoreInViewMount';
@@ -77,6 +78,7 @@ export default function StoreEventLandingPage() {
             <h1 className="mt-2 text-3xl font-extrabold leading-tight text-[#f4efe4] md:text-4xl">{copy.titleAr}</h1>
             <p className="mt-4 max-w-xl text-base leading-8 text-white/78">{copy.leadAr}</p>
             <p className={cn('mt-4 text-2xl font-black', text)}>{copy.priceLineAr}</p>
+            <StoreSaipTrustLine productId="event" />
             <StoreProductReadLink to={ROUTE_PATHS.STORE_EVENT_READ} />
             <StoreLandingFold accentClass={text}>
             <ul className="mt-6 space-y-2 text-sm leading-7 text-white/75">

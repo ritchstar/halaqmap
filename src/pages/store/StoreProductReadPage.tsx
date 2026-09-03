@@ -44,7 +44,7 @@ export default function StoreProductReadPage() {
           <p className="mt-4 max-w-2xl text-base leading-8 text-white/78">
             {entry.metaDescriptionAr}
           </p>
-          {entry.saipProductId ? <StoreSaipTrustLine productId={entry.saipProductId} /> : null}
+          {entry.saipProductId ? <StoreSaipTrustLine productId={entry.saipProductId} showImage /> : null}
           <div className="mt-6 flex flex-wrap gap-3">
             <Link
               to={entry.buyPath}
