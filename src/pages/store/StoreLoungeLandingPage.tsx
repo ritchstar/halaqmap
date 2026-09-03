@@ -15,6 +15,8 @@ import {
 import { StoreEnterpriseDirectMail } from '@/components/store/StoreEnterpriseDirectMail';
 import { StoreProductBenefitsLink } from '@/components/store/StoreProductBenefitsLink';
 import { StoreProductSupportLink } from '@/components/store/StoreProductSupportLink';
+import { StoreProductReadLink } from '@/components/store/StoreProductReadLink';
+import { StoreSaipTrustLine } from '@/components/store/StoreSaipTrustLine';
 import { StoreLoungeLiveStudio } from '@/components/store/StoreLoungeLiveStudio';
 import { StoreInViewMount } from '@/components/store/StoreInViewMount';
 import { StoreLandingFold } from '@/components/store/StoreLandingFold';
@@ -53,7 +55,9 @@ export default function StoreLoungeLandingPage() {
             <h1 className="mt-2 text-3xl font-extrabold leading-tight text-[#f4efe4] md:text-4xl">{STORE_LOUNGE_LIVE.titleAr}</h1>
             <p className="mt-4 max-w-xl text-base leading-8 text-white/78">{STORE_LOUNGE_LIVE.leadAr}</p>
             <p className="mt-4 text-2xl font-black text-[#d4a574]">{STORE_LOUNGE_LIVE.priceLineAr}</p>
+            <StoreProductReadLink to={ROUTE_PATHS.STORE_LOUNGE_READ} />
             <p className="mt-2 max-w-xl text-sm leading-7 text-white/65">{STORE_LOUNGE_LIVE.durationLineAr}</p>
+            <StoreSaipTrustLine productId="lounge" />
             {renewToken ? (
               <p className="mt-4 rounded-xl border border-[#d4a574]/35 bg-[#d4a574]/10 px-4 py-3 text-sm leading-7">
                 {STORE_LOUNGE_LIVE.expiredLeadAr}

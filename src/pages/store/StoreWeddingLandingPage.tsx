@@ -16,6 +16,7 @@ import { StoreEnterpriseDirectMail } from '@/components/store/StoreEnterpriseDir
 import { StoreGiftPromoBanner } from '@/components/store/StoreGiftPromoBanner';
 import { StoreProductBenefitsLink } from '@/components/store/StoreProductBenefitsLink';
 import { StoreProductSupportLink } from '@/components/store/StoreProductSupportLink';
+import { StoreProductReadLink } from '@/components/store/StoreProductReadLink';
 import { StoreShot } from '@/components/store/StoreShot';
 import { StoreWeddingInviteCard } from '@/components/store/StoreWeddingInviteCard';
 import { StoreWeddingLiveStudio } from '@/components/store/StoreWeddingLiveStudio';
@@ -75,6 +76,7 @@ export default function StoreWeddingLandingPage() {
             <h1 className="mt-2 text-3xl font-extrabold leading-tight text-[#f4efe4] md:text-4xl">{copy.titleAr}</h1>
             <p className="mt-4 max-w-xl text-base leading-8 text-white/78">{copy.leadAr}</p>
             <p className={cn('mt-4 text-2xl font-black', text)}>{copy.priceLineAr}</p>
+            <StoreProductReadLink to={ROUTE_PATHS.STORE_WEDDING_READ} />
             <StoreLandingFold accentClass={text}>
             <p className="mt-6 text-base font-extrabold text-[#f4efe4]">{copy.problemTitleAr}</p>
             <p className="mt-2 max-w-xl text-base leading-8 text-white/78">{copy.problemBodyAr}</p>

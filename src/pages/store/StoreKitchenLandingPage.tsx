@@ -13,6 +13,8 @@ import { StoreEnterpriseDirectMail } from '@/components/store/StoreEnterpriseDir
 import { StoreKitchenOrderForm } from '@/components/store/StoreKitchenOrderForm';
 import { StoreProductBenefitsLink } from '@/components/store/StoreProductBenefitsLink';
 import { StoreProductSupportLink } from '@/components/store/StoreProductSupportLink';
+import { StoreProductReadLink } from '@/components/store/StoreProductReadLink';
+import { StoreSaipTrustLine } from '@/components/store/StoreSaipTrustLine';
 import { StoreKitchenStudio } from '@/components/store/StoreKitchenStudio';
 import { StoreInViewMount } from '@/components/store/StoreInViewMount';
 import { StoreLandingFold } from '@/components/store/StoreLandingFold';
@@ -50,6 +52,7 @@ export default function StoreKitchenLandingPage() {
             <h1 className="mt-2 text-3xl font-extrabold leading-tight md:text-4xl">{STORE_KITCHEN_LIVE.titleAr}</h1>
             <p className="mt-4 max-w-xl text-base leading-8 text-white/78">{STORE_KITCHEN_LIVE.leadAr}</p>
             <p className="mt-4 text-2xl font-black text-[#b45a3c]">{STORE_KITCHEN_LIVE.priceLineAr}</p>
+            <StoreProductReadLink to={ROUTE_PATHS.STORE_KITCHEN_READ} />
             <StoreLandingFold accentClass="text-[#b45a3c]">
             <p className="mt-6 text-base font-extrabold text-[#f4efe4]">{STORE_KITCHEN_LIVE.problemTitleAr}</p>
             <p className="mt-2 max-w-xl text-base leading-8 text-white/78">{STORE_KITCHEN_LIVE.problemBodyAr}</p>
@@ -85,6 +88,7 @@ export default function StoreKitchenLandingPage() {
               </code>
               {STORE_KITCHEN_LIVE.legalLeadAfterAr}
             </p>
+            <StoreSaipTrustLine productId="kitchen" />
             <p className="mt-3 max-w-xl text-sm leading-7 text-white/75">{STORE_KITCHEN_LIVE.privacyAr}</p>
             <p className="mt-6 text-base font-extrabold text-[#f4efe4]">{STORE_KITCHEN_LIVE.startTitleAr}</p>
             <p className="mt-2 max-w-xl text-sm font-extrabold leading-7 text-[#f4efe4]">{STORE_KITCHEN_LIVE.closeAr}</p>

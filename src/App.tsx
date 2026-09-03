@@ -183,6 +183,25 @@ const STORE_PRODUCE_PATH =
   (ROUTE_PATHS as { STORE_PRODUCE?: string }).STORE_PRODUCE || "/store/produce";
 const STORE_PRODUCE_SUPPORT_PATH =
   (ROUTE_PATHS as { STORE_PRODUCE_SUPPORT?: string }).STORE_PRODUCE_SUPPORT || "/store/produce/support";
+/** مسارات قراءة المنتجات — صفحة موحّدة لجميع المنتجات المنشورة */
+const STORE_KITCHEN_READ_PATH =
+  (ROUTE_PATHS as { STORE_KITCHEN_READ?: string }).STORE_KITCHEN_READ || "/store/kitchen/read";
+const STORE_GROCERS_READ_PATH =
+  (ROUTE_PATHS as { STORE_GROCERS_READ?: string }).STORE_GROCERS_READ || "/store/grocers/read";
+const STORE_PRODUCE_READ_PATH =
+  (ROUTE_PATHS as { STORE_PRODUCE_READ?: string }).STORE_PRODUCE_READ || "/store/produce/read";
+const STORE_RESTAURANT_READ_PATH =
+  (ROUTE_PATHS as { STORE_RESTAURANT_READ?: string }).STORE_RESTAURANT_READ || "/store/restaurant/read";
+const STORE_CAFE_READ_PATH =
+  (ROUTE_PATHS as { STORE_CAFE_READ?: string }).STORE_CAFE_READ || "/store/cafe/read";
+const STORE_LOUNGE_READ_PATH =
+  (ROUTE_PATHS as { STORE_LOUNGE_READ?: string }).STORE_LOUNGE_READ || "/store/lounge/read";
+const STORE_WEDDING_READ_PATH =
+  (ROUTE_PATHS as { STORE_WEDDING_READ?: string }).STORE_WEDDING_READ || "/store/wedding/read";
+const STORE_EVENT_READ_PATH =
+  (ROUTE_PATHS as { STORE_EVENT_READ?: string }).STORE_EVENT_READ || "/store/event/read";
+const STORE_INVITES_READ_PATH =
+  (ROUTE_PATHS as { STORE_INVITES_READ?: string }).STORE_INVITES_READ || "/store/invites/read";
 const STORE_PRODUCE_VIEW_PATH =
   (ROUTE_PATHS as { STORE_PRODUCE_VIEW?: string }).STORE_PRODUCE_VIEW || "/v/:token";
 const STORE_PRODUCE_DESK_PATH =
@@ -345,6 +364,7 @@ const StoreCafeLandingPage = lazy(() => import("@/pages/store/StoreCafeLandingPa
 const StoreCafeShopPage = lazy(() => import("@/pages/store/StoreCafeShopPage"));
 const StoreCafePayPage = lazy(() => import("@/pages/store/StoreCafePayPage"));
 const StoreKitchenLandingPage = lazy(() => import("@/pages/store/StoreKitchenLandingPage"));
+const StoreProductReadPage = lazy(() => import("@/pages/store/StoreProductReadPage"));
 const StoreProductSupportPage = lazy(() => import("@/pages/store/StoreProductSupportPage"));
 const StoreKitchenGiftLandingPage = lazy(() => import("@/pages/store/StoreKitchenGiftLandingPage"));
 const StoreKitchenGiftTermsPage = lazy(() => import("@/pages/store/StoreKitchenGiftTermsPage"));
@@ -922,6 +942,16 @@ export function App() {
           <Route path={STORE_KITCHEN_GIFT_CONFIRM_PATH} element={<LazyRoute><StoreKitchenGiftConfirmPage /></LazyRoute>} />
           <Route path={STORE_KITCHEN_GIFT_TERMS_PATH} element={<LazyRoute><StoreKitchenGiftTermsPage /></LazyRoute>} />
           <Route path={STORE_KITCHEN_GIFT_PATH} element={<LazyRoute><StoreKitchenGiftLandingPage /></LazyRoute>} />
+          {/* صفحات قراءة المنتجات — مسار /read لكل منتج منشور. حلانا1 مستثنى. */}
+          <Route path={STORE_KITCHEN_READ_PATH} element={<LazyRoute><StoreProductReadPage /></LazyRoute>} />
+          <Route path={STORE_GROCERS_READ_PATH} element={<LazyRoute><StoreProductReadPage /></LazyRoute>} />
+          <Route path={STORE_PRODUCE_READ_PATH} element={<LazyRoute><StoreProductReadPage /></LazyRoute>} />
+          <Route path={STORE_RESTAURANT_READ_PATH} element={<LazyRoute><StoreProductReadPage /></LazyRoute>} />
+          <Route path={STORE_CAFE_READ_PATH} element={<LazyRoute><StoreProductReadPage /></LazyRoute>} />
+          <Route path={STORE_LOUNGE_READ_PATH} element={<LazyRoute><StoreProductReadPage /></LazyRoute>} />
+          <Route path={STORE_WEDDING_READ_PATH} element={<LazyRoute><StoreProductReadPage /></LazyRoute>} />
+          <Route path={STORE_EVENT_READ_PATH} element={<LazyRoute><StoreProductReadPage /></LazyRoute>} />
+          <Route path={STORE_INVITES_READ_PATH} element={<LazyRoute><StoreProductReadPage /></LazyRoute>} />
           <Route path={STORE_KITCHEN_SUPPORT_PATH} element={<LazyRoute><StoreProductSupportPage /></LazyRoute>} />
           <Route path={STORE_KITCHEN_PATH} element={<LazyRoute><StoreKitchenLandingPage /></LazyRoute>} />
           <Route path={STORE_KITCHEN_DESK_PATH} element={<LazyRoute><StoreKitchenShopPage /></LazyRoute>} />

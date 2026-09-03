@@ -152,6 +152,7 @@ export const STORE_PRODUCT_BENEFITS_COPY = {
     `النشاط المعتمد للعرض الإلكتروني: ${ISIC_ACTIVITY_LABEL_AR}، رمز ${ISIC_ACTIVITY_CODE}.`,
     'أنشطة مساندة ظاهرة في السجل: تصميم وبرمجة البرمجيات الخاصة، تطوير التطبيقات، وخدمات الاستضافة للمواقع والتطبيقات.',
     `توثيق التجارة الإلكترونية لدى ${LEGAL_ECOMMERCE_AUTH_ISSUER_AR} — رقم ${LEGAL_ECOMMERCE_AUTH_NUMBER} (${LEGAL_ECOMMERCE_AUTH_STATUS_AR}).`,
+    'خمسة مصنفات برمجية مسجّلة لدى الهيئة السعودية للملكية الفكرية: كافينا1، تمويناتا1، خضارنا1، طبختنا1، ولاونجا1. الأرقام في التصنيفات والتحقق وفي تذييل المتجر.',
     LEGAL_MEDIA_LICENSE_FOOTER_LINE_AR,
     `${LEGAL_UNIFIED_NUMBER_LABEL_AR}: ${LEGAL_NATIONAL_UNIFIED_NUMBER}.`,
   ],

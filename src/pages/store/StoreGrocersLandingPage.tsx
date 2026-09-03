@@ -12,6 +12,8 @@ import { StoreEnterpriseDirectMail } from '@/components/store/StoreEnterpriseDir
 import { StoreGrocersOrderForm } from '@/components/store/StoreGrocersOrderForm';
 import { StoreProductBenefitsLink } from '@/components/store/StoreProductBenefitsLink';
 import { StoreProductSupportLink } from '@/components/store/StoreProductSupportLink';
+import { StoreProductReadLink } from '@/components/store/StoreProductReadLink';
+import { StoreSaipTrustLine } from '@/components/store/StoreSaipTrustLine';
 import { StoreShot } from '@/components/store/StoreShot';
 import { StoreGrocersStudio } from '@/components/store/StoreGrocersStudio';
 import { StoreInViewMount } from '@/components/store/StoreInViewMount';
@@ -49,6 +51,7 @@ export default function StoreGrocersLandingPage() {
             <h1 className="mt-2 text-3xl font-extrabold leading-tight md:text-4xl">{STORE_GROCERS_LIVE.titleAr}</h1>
             <p className="mt-4 max-w-xl text-base leading-8 text-white/78">{STORE_GROCERS_LIVE.leadAr}</p>
             <p className="mt-4 text-2xl font-black text-[#8fbf7a]">{STORE_GROCERS_LIVE.priceLineAr}</p>
+            <StoreProductReadLink to={ROUTE_PATHS.STORE_GROCERS_READ} />
             <p className="mt-2 text-sm font-bold leading-7 text-[#8fbf7a]">{STORE_MOBILE_VENDOR.priceLineAr}</p>
             <p className="mt-2 max-w-xl text-sm leading-7 text-white/65">{STORE_GROCERS_LIVE.durationLineAr}</p>
             <StoreLandingFold accentClass="text-[#8fbf7a]">
@@ -79,6 +82,7 @@ export default function StoreGrocersLandingPage() {
               </code>
               {STORE_GROCERS_LIVE.legalLeadAfterAr}
             </p>
+            <StoreSaipTrustLine productId="grocers" />
             <p className="mt-6 text-base font-extrabold text-[#f4efe4]">{STORE_GROCERS_LIVE.startTitleAr}</p>
             <p className="mt-2 max-w-xl text-sm font-extrabold leading-7 text-[#f4efe4]">{STORE_GROCERS_LIVE.closeAr}</p>
             {renewToken ? (

@@ -12,6 +12,8 @@ import { StoreEnterpriseDirectMail } from '@/components/store/StoreEnterpriseDir
 import { StoreProduceOrderForm } from '@/components/store/StoreProduceOrderForm';
 import { StoreProductBenefitsLink } from '@/components/store/StoreProductBenefitsLink';
 import { StoreProductSupportLink } from '@/components/store/StoreProductSupportLink';
+import { StoreProductReadLink } from '@/components/store/StoreProductReadLink';
+import { StoreSaipTrustLine } from '@/components/store/StoreSaipTrustLine';
 import { StoreShot } from '@/components/store/StoreShot';
 import { StoreProduceStudio } from '@/components/store/StoreProduceStudio';
 import { StoreInViewMount } from '@/components/store/StoreInViewMount';
@@ -48,6 +50,7 @@ export default function StoreProduceLandingPage() {
             <h1 className="mt-2 text-3xl font-extrabold leading-tight md:text-4xl">{STORE_PRODUCE_LIVE.titleAr}</h1>
             <p className="mt-4 max-w-xl text-base leading-8 text-white/78">{STORE_PRODUCE_LIVE.leadAr}</p>
             <p className="mt-4 text-2xl font-black text-[#3d8b4a]">{STORE_PRODUCE_LIVE.priceLineAr}</p>
+            <StoreProductReadLink to={ROUTE_PATHS.STORE_PRODUCE_READ} />
             <StoreLandingFold accentClass="text-[#3d8b4a]">
             <p className="mt-6 text-base font-extrabold text-[#f4efe4]">{STORE_PRODUCE_LIVE.problemTitleAr}</p>
             <p className="mt-2 max-w-xl text-base leading-8 text-white/78">{STORE_PRODUCE_LIVE.problemBodyAr}</p>
@@ -75,6 +78,7 @@ export default function StoreProduceLandingPage() {
               </code>
               {STORE_PRODUCE_LIVE.legalLeadAfterAr}
             </p>
+            <StoreSaipTrustLine productId="produce" />
             <p className="mt-6 text-base font-extrabold text-[#f4efe4]">{STORE_PRODUCE_LIVE.priceTitleAr}</p>
             <p className="mt-2 text-2xl font-black text-[#3d8b4a]">{STORE_PRODUCE_LIVE.priceLineAr}</p>
             <p className="mt-2 max-w-xl text-sm leading-7 text-white/65">{STORE_PRODUCE_LIVE.durationLineAr}</p>

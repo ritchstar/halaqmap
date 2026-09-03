@@ -28,6 +28,7 @@ import {
 import {
   LEGAL_ECOMMERCE_INQUIRY_URL,
 } from '@/config/partnerLegal';
+import { STORE_SAIP_COPY, STORE_SAIP_PUBLIC_WORKS } from '@/config/storeSaipRegistry';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 
@@ -129,6 +130,32 @@ export default function StoreTrustPage() {
                 {STORE_TRUST_COPY.activityCtaAr}
               </Link>
             </div>
+          </section>
+
+          <section className="mt-8 rounded-2xl border border-white/12 bg-[#0b1a24]/80 p-5 md:p-6">
+            <h2 className="text-xl font-extrabold text-[#f4efe4]">{STORE_TRUST_COPY.saipTitleAr}</h2>
+            <p className="mt-3 max-w-3xl text-sm leading-7 text-white/75">{STORE_TRUST_COPY.saipLeadAr}</p>
+            <ul className="mt-5 grid gap-3 sm:grid-cols-2">
+              {STORE_SAIP_PUBLIC_WORKS.map((work) => (
+                <li key={work.id} className="rounded-2xl border border-white/12 bg-white/[0.04] p-4">
+                  <p className="font-extrabold text-[#e8c547]">{work.titleAr}</p>
+                  <p className="mt-2 text-xs leading-6 text-white/60">{STORE_SAIP_COPY.phraseAr}</p>
+                  <p className="mt-2 text-sm text-white/75">
+                    {STORE_SAIP_COPY.certLabelAr}
+                    {' '}
+                    <code dir="ltr" className="inline-block font-bold text-white/90">
+                      {work.certificateNo}
+                    </code>
+                  </p>
+                  <Link
+                    to={work.buyPath}
+                    className="mt-3 inline-flex text-sm font-bold text-[#e8c547] underline-offset-4 hover:underline"
+                  >
+                    {STORE_TRUST_COPY.saipOpenAr}
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </section>
 
           <section className="mt-8">

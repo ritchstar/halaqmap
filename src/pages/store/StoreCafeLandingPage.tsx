@@ -12,6 +12,8 @@ import { StoreCafeOrderForm } from '@/components/store/StoreCafeOrderForm';
 import { StoreEnterpriseDirectMail } from '@/components/store/StoreEnterpriseDirectMail';
 import { StoreProductBenefitsLink } from '@/components/store/StoreProductBenefitsLink';
 import { StoreProductSupportLink } from '@/components/store/StoreProductSupportLink';
+import { StoreProductReadLink } from '@/components/store/StoreProductReadLink';
+import { StoreSaipTrustLine } from '@/components/store/StoreSaipTrustLine';
 import { StoreShot } from '@/components/store/StoreShot';
 import { StoreCafeStudio } from '@/components/store/StoreCafeStudio';
 import { StoreInViewMount } from '@/components/store/StoreInViewMount';
@@ -49,6 +51,7 @@ export default function StoreCafeLandingPage() {
             <h1 className="mt-2 text-3xl font-extrabold leading-tight md:text-4xl">{STORE_CAFE_LIVE.titleAr}</h1>
             <p className="mt-4 max-w-xl text-base leading-8 text-white/78">{STORE_CAFE_LIVE.leadAr}</p>
             <p className="mt-4 text-2xl font-black text-[#c48a4a]">{STORE_CAFE_LIVE.priceLineAr}</p>
+            <StoreProductReadLink to={ROUTE_PATHS.STORE_CAFE_READ} />
             <StoreLandingFold accentClass="text-[#c48a4a]">
             <p className="mt-6 text-base font-extrabold text-[#f4efe4]">{STORE_CAFE_LIVE.problemTitleAr}</p>
             <p className="mt-2 max-w-xl text-base leading-8 text-white/78">{STORE_CAFE_LIVE.problemBodyAr}</p>
@@ -83,6 +86,7 @@ export default function StoreCafeLandingPage() {
               </code>
               {STORE_CAFE_LIVE.legalLeadAfterAr}
             </p>
+            <StoreSaipTrustLine productId="cafe" />
             <p className="mt-3 max-w-xl text-sm leading-7 text-white/75">{STORE_CAFE_LIVE.privacyAr}</p>
             <p className="mt-2 text-sm font-bold leading-7 text-[#c48a4a]">{STORE_MOBILE_VENDOR.priceLineAr}</p>
             <p className="mt-2 max-w-xl text-sm leading-7 text-white/65">{STORE_CAFE_LIVE.durationLineAr}</p>
