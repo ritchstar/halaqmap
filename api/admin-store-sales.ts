@@ -46,8 +46,8 @@ async function loadProduct(
     .order('created_at', { ascending: false })
     .limit(200);
   if (error) return [];
-  return (data || [])
-    .map((row) => mapStoreSalesRow(product, row as Record<string, unknown>))
+  return ((data || []) as unknown as Record<string, unknown>[])
+    .map((row) => mapStoreSalesRow(product, row))
     .filter((row): row is StoreSalesLedgerRow => Boolean(row));
 }
 

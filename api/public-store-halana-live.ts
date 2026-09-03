@@ -60,8 +60,11 @@ function serviceClient() {
   return createClient(url, serviceRole, { auth: { persistSession: false, autoRefreshToken: false } });
 }
 
-function roleOf(raw: unknown): 'shop' | 'desk' {
-  return String(raw || '') === 'desk' ? 'desk' : 'shop';
+function roleOf(raw: unknown): 'shop' | 'desk' | 'pay' {
+  const role = String(raw || '').trim();
+  if (role === 'desk') return 'desk';
+  if (role === 'pay') return 'pay';
+  return 'shop';
 }
 
 export async function OPTIONS(request: Request): Promise<Response> {
@@ -80,10 +83,10 @@ export async function GET(request: Request): Promise<Response> {
   const token = String(url.searchParams.get('token') || '').trim();
   const role = roleOf(url.searchParams.get('role'));
   if (token.length < 16) return json({ ok: false, error: 'رابط غير صالح.' }, 400, headers);
-  if (role === 'pay' || String(url.searchParams.get('role') || '') === 'pay') {
+  if (role === 'pay') {
     const pay = await readHalanaPay(db, token);
     if (!pay.ok) return json(pay, pay.status || 404, headers);
-    return json({ ok: true, ...pay }, 200, headers);
+    return json(pay, 200, headers);
   }
   const copy = await findHalanaCopy(db, token, role);
   if (!copy) return json({ ok: false, error: 'النسخة غير موجودة.' }, 404, headers);
@@ -148,22 +151,22 @@ export async function POST(request: Request): Promise<Response> {
   if (action === 'create_pending') {
     const created = await createHalanaPending(db, body);
     if (!created.ok) return json({ error: created.error }, created.status || 400, headers);
-    return json({ ok: true, ...created }, 200, headers);
+    return json(created, 200, headers);
   }
   if (action === 'activate_paid') {
     const activated = await activateHalanaPaid(db, token, String(body.paymentId || '').trim());
     if (!activated.ok) return json({ error: activated.error }, activated.status || 400, headers);
-    return json({ ok: true, ...activated }, 200, headers);
+    return json(activated, 200, headers);
   }
   if (action === 'sync_paid') {
     const synced = await syncHalanaPaid(db, token);
     if (!synced.ok) return json({ error: synced.error }, synced.status || 400, headers);
-    return json({ ok: true, ...synced }, 200, headers);
+    return json(synced, 200, headers);
   }
-  if (action === 'get_public' && String(body.role || '') === 'pay') {
+  if (action === 'get_public' && roleOf(body.role) === 'pay') {
     const pay = await readHalanaPay(db, token);
     if (!pay.ok) return json({ error: pay.error }, pay.status || 404, headers);
-    return json({ ok: true, ...pay }, 200, headers);
+    return json(pay, 200, headers);
   }
 
   if (token.length < 16) return json({ ok: false, error: 'رابط غير صالح.' }, 400, headers);
