@@ -3,7 +3,7 @@
  * تشغيل: npx tsx scripts/test-store-halana-live.mts
  */
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
@@ -67,6 +67,20 @@ assert.match(publicApi, /update_gallery/);
 assert.match(app, /\/h\/:token\/order/);
 assert.equal(STORE_HALANA_GALLERY_MAX, 12);
 assert.match(STORE_HALANA_ATMOSPHERE.hero, /halana-hero-table/);
+assert.match(STORE_HALANA_ATMOSPHERE.atelier, /halana-atelier-clear/);
+assert.match(STORE_HALANA_ATMOSPHERE.frame, /halana-ornate-frame/);
+assert.match(STORE_HALANA_ATMOSPHERE.goldDust, /halana-gold-dust/);
+for (const file of ['halana-atelier-clear.jpg', 'halana-ornate-frame.jpg', 'halana-gold-dust.jpg']) {
+  assert.ok(existsSync(join(root, 'public/images/store/halana', file)), file);
+}
+assert.match(page, /HalanaSparkLayer/);
+assert.match(page, /halana-title/);
+const css = readFileSync(join(root, 'src/index.css'), 'utf8');
+assert.match(css, /halana-atelier-clear/);
+assert.match(css, /halana-ornate-frame/);
+assert.match(css, /halana-gold-dust/);
+assert.match(css, /halana-title/);
+assert.match(css, /halana-ornament/);
 assert.match(api, /halanaShopUrl/);
 assert.match(api, /addHalanaGallery/);
 assert.match(api, /parseHalanaImageSrc/);

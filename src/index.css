@@ -4056,13 +4056,13 @@ html.platform-radar-fullscreen #root {
   isolation: isolate;
   background-color: #14080c;
   background-image:
-    radial-gradient(ellipse 78% 46% at 18% 8%, rgba(255, 214, 170, 0.34), transparent 62%),
-    radial-gradient(ellipse 62% 42% at 88% 12%, rgba(232, 160, 180, 0.3), transparent 64%),
-    radial-gradient(ellipse 70% 48% at 50% 100%, rgba(196, 92, 122, 0.22), transparent 70%),
-    url('/images/store/halana/halana-hero-table.jpg');
-  background-size: auto, auto, auto, cover;
-  background-position: center, center, center, center top;
+    radial-gradient(ellipse 70% 38% at 12% 6%, rgba(255, 226, 180, 0.28), transparent 58%),
+    radial-gradient(ellipse 54% 34% at 92% 10%, rgba(232, 160, 180, 0.26), transparent 62%),
+    url('/images/store/halana/halana-atelier-clear.jpg');
+  background-size: auto, auto, cover;
+  background-position: center, center, center top;
   background-repeat: no-repeat;
+  background-attachment: scroll;
 }
 
 .halana-page::before {
@@ -4070,55 +4070,255 @@ html.platform-radar-fullscreen #root {
   position: absolute;
   inset: 0;
   z-index: -1;
-  background: linear-gradient(180deg, rgba(20, 8, 12, 0.42) 0%, rgba(20, 8, 12, 0.78) 42%, rgba(20, 8, 12, 0.92) 100%);
+  background: linear-gradient(180deg, rgba(20, 8, 12, 0.18) 0%, rgba(20, 8, 12, 0.42) 38%, rgba(20, 8, 12, 0.72) 100%);
+}
+
+.halana-page::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(circle at 18% 22%, rgba(243, 196, 138, 0.16), transparent 22%),
+    radial-gradient(circle at 86% 64%, rgba(196, 92, 122, 0.14), transparent 26%),
+    url('/images/store/halana/halana-gold-dust.jpg');
+  background-size: auto, auto, cover;
+  background-position: center;
+  opacity: 0.38;
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+
+.halana-spark-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.halana-spark {
+  position: absolute;
+  border-radius: 999px;
+  background: radial-gradient(circle, #fff6e6 0%, #f3c48a 46%, transparent 78%);
+  box-shadow: 0 0 10px rgba(255, 226, 180, 0.7);
+  animation: halana-spark-drift 9s ease-in-out infinite;
+}
+
+.halana-petal {
+  position: absolute;
+  width: 16px;
+  height: 22px;
+  border-radius: 80% 20% 70% 30%;
+  background: radial-gradient(circle at 30% 28%, #f3c4d0, #a43d5c 72%);
+  opacity: 0.42;
+  filter: blur(0.2px);
+  animation: halana-petal-drift 16s ease-in-out infinite;
+}
+
+.halana-shell,
+.halana-page > :not(.halana-spark-layer) {
+  position: relative;
+  z-index: 1;
 }
 
 .halana-hero-veil {
-  background: linear-gradient(180deg, rgba(20, 8, 12, 0.04) 0%, rgba(20, 8, 12, 0.28) 38%, rgba(20, 8, 12, 0.94) 100%);
+  background: linear-gradient(180deg, rgba(20, 8, 12, 0.02) 0%, rgba(20, 8, 12, 0.18) 42%, rgba(20, 8, 12, 0.78) 100%);
+}
+
+.halana-desk-hero {
+  position: relative;
+  overflow: hidden;
+  min-height: 18rem;
+}
+
+.halana-desk-hero img {
+  height: 20rem;
+  width: 100%;
+  object-fit: cover;
+}
+
+.halana-desk-hero__copy {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 2;
+  margin-inline: auto;
+  max-width: 48rem;
+  padding: 0 1.25rem 2.4rem;
+}
+
+.halana-hero-frame {
+  position: absolute;
+  inset: 0.7rem;
+  z-index: 1;
+  border: 1px solid rgba(243, 196, 138, 0.55);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 226, 180, 0.2),
+    0 0 0 6px rgba(20, 8, 12, 0.2);
+  pointer-events: none;
 }
 
 .halana-section-kicker {
-  color: #f6d7b0;
-  font-size: 0.78rem;
+  color: #ffe8c4;
+  font-size: 0.92rem;
   font-weight: 800;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.12em;
+  text-shadow: 0 0 18px rgba(243, 196, 138, 0.45);
+}
+
+.halana-title {
+  color: #fff6e6;
+  font-size: clamp(2.15rem, 7vw, 3.7rem);
+  font-weight: 900;
+  line-height: 1.28;
+  letter-spacing: -0.02em;
+  text-shadow:
+    0 0 28px rgba(243, 196, 138, 0.42),
+    0 2px 0 rgba(20, 8, 12, 0.45);
+}
+
+.halana-title-sm {
+  color: #ffe8c4;
+  font-size: clamp(1.35rem, 3.8vw, 1.95rem);
+  font-weight: 900;
+  line-height: 1.45;
+  text-shadow: 0 0 18px rgba(243, 196, 138, 0.28);
+}
+
+.halana-title-sm::after {
+  content: '';
+  display: block;
+  width: 4.75rem;
+  height: 2px;
+  margin-top: 0.6rem;
+  background: linear-gradient(270deg, rgba(243, 196, 138, 0.05), #f3c48a 42%, #c45c7a);
+  box-shadow: 0 0 12px rgba(243, 196, 138, 0.45);
+}
+
+.halana-lead {
+  font-size: 1.05rem;
+  line-height: 2.05;
+  color: rgba(255, 232, 196, 0.9);
+  text-shadow: 0 1px 12px rgba(20, 8, 12, 0.55);
+}
+
+.halana-ornament {
+  position: relative;
+  border: 1px solid rgba(243, 196, 138, 0.42);
+  background:
+    linear-gradient(180deg, rgba(20, 8, 12, 0.42), rgba(20, 8, 12, 0.68)),
+    url('/images/store/halana/halana-ornate-frame.jpg');
+  background-size: cover;
+  background-position: center;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 226, 180, 0.16),
+    0 0 0 6px rgba(20, 8, 12, 0.28),
+    0 0 0 7px rgba(243, 196, 138, 0.28),
+    0 22px 48px rgba(0, 0, 0, 0.32);
+}
+
+.halana-ornament::before,
+.halana-ornament::after {
+  content: '';
+  position: absolute;
+  z-index: 2;
+  width: 1.15rem;
+  height: 1.15rem;
+  pointer-events: none;
+}
+
+.halana-ornament::before {
+  top: 0.45rem;
+  inset-inline-start: 0.45rem;
+  border-block-start: 2px solid #f3c48a;
+  border-inline-start: 2px solid #f3c48a;
+  box-shadow: -4px -4px 0 -2px rgba(196, 92, 122, 0.55);
+}
+
+.halana-ornament::after {
+  bottom: 0.45rem;
+  inset-inline-end: 0.45rem;
+  border-block-end: 2px solid #f3c48a;
+  border-inline-end: 2px solid #f3c48a;
+  box-shadow: 4px 4px 0 -2px rgba(196, 92, 122, 0.55);
 }
 
 .halana-work-card {
-  border: 1px solid rgba(255, 226, 180, 0.18);
-  background: rgba(12, 6, 10, 0.55);
-  box-shadow: 0 0 28px rgba(255, 196, 150, 0.16);
+  position: relative;
+  border: 1px solid rgba(255, 226, 180, 0.28);
+  background: rgba(12, 6, 10, 0.42);
+  box-shadow:
+    inset 0 0 0 4px rgba(20, 8, 12, 0.45),
+    inset 0 0 0 5px rgba(243, 196, 138, 0.38),
+    0 0 32px rgba(255, 196, 150, 0.22);
+}
+
+.halana-work-card::before,
+.halana-work-card::after {
+  content: '';
+  position: absolute;
+  z-index: 2;
+  width: 1.05rem;
+  height: 1.05rem;
+  pointer-events: none;
+}
+
+.halana-work-card::before {
+  top: 0.45rem;
+  inset-inline-start: 0.45rem;
+  border-block-start: 2px solid #f3c48a;
+  border-inline-start: 2px solid #f3c48a;
+}
+
+.halana-work-card::after {
+  bottom: 0.45rem;
+  inset-inline-end: 0.45rem;
+  border-block-end: 2px solid #f3c48a;
+  border-inline-end: 2px solid #f3c48a;
 }
 
 .halana-work-caption {
-  color: rgba(244, 239, 228, 0.86);
-  background: linear-gradient(180deg, rgba(20, 8, 12, 0.2), rgba(20, 8, 12, 0.55));
+  color: #fff6e6;
+  font-weight: 700;
+  background: linear-gradient(180deg, rgba(20, 8, 12, 0.12), rgba(20, 8, 12, 0.62));
 }
 
 .halana-promo-card {
-  border: 1px solid rgba(255, 226, 180, 0.16);
+  border: 1px solid rgba(255, 226, 180, 0.28);
   border-radius: 1.4rem;
-  background: rgba(12, 6, 10, 0.42);
-  padding: 1.25rem 1.2rem;
-  box-shadow: 0 0 32px rgba(255, 196, 150, 0.12);
+  background:
+    linear-gradient(180deg, rgba(20, 8, 12, 0.28), rgba(20, 8, 12, 0.55)),
+    url('/images/store/halana/halana-gold-dust.jpg');
+  background-size: cover;
+  padding: 1.35rem 1.3rem;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 226, 180, 0.12),
+    0 0 36px rgba(255, 196, 150, 0.16);
 }
 
 .halana-youtube-frame {
-  border: 1px solid rgba(255, 226, 180, 0.2);
-  box-shadow: 0 0 36px rgba(196, 92, 122, 0.22);
+  border: 1px solid rgba(255, 226, 180, 0.32);
+  box-shadow:
+    inset 0 0 0 4px rgba(20, 8, 12, 0.4),
+    0 0 36px rgba(196, 92, 122, 0.28);
 }
 
 .halana-quote {
-  border: 1px solid rgba(255, 226, 180, 0.14);
-  background: rgba(0, 0, 0, 0.22);
+  border: 1px solid rgba(255, 226, 180, 0.22);
+  background: rgba(0, 0, 0, 0.28);
+  box-shadow: inset 0 0 0 1px rgba(243, 196, 138, 0.12);
 }
 
 .halana-flavor-chip {
-  border: 1px solid rgba(255, 226, 180, 0.28);
+  border: 1px solid rgba(255, 226, 180, 0.42);
   border-radius: 999px;
-  background: rgba(0, 0, 0, 0.28);
-  padding: 0.4rem 1rem;
-  font-size: 0.875rem;
+  background: rgba(20, 8, 12, 0.42);
+  padding: 0.5rem 1.15rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #ffe8c4;
+  box-shadow: 0 0 16px rgba(243, 196, 138, 0.18);
 }
 
 .halana-order-cta {
@@ -4149,20 +4349,30 @@ html.platform-radar-fullscreen #root {
   font-size: 1.05rem;
 }
 
+.halana-action {
+  background: linear-gradient(135deg, #f3c48a, #c45c7a 58%, #a43d5c);
+  color: #14080c;
+  box-shadow:
+    0 0 0 1px rgba(255, 226, 180, 0.28),
+    0 0 22px rgba(255, 196, 150, 0.28);
+}
+
 .halana-form-card {
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  border: 1px solid rgba(255, 214, 170, 0.22);
+  border: 1px solid rgba(243, 196, 138, 0.42);
   background:
-    linear-gradient(180deg, rgba(20, 8, 12, 0.62), rgba(20, 8, 12, 0.78)),
+    linear-gradient(180deg, rgba(20, 8, 12, 0.38), rgba(20, 8, 12, 0.62)),
+    url('/images/store/halana/halana-gold-dust.jpg'),
     url('/images/store/halana/halana-field-glow.jpg');
   background-size: cover;
   background-position: center;
   box-shadow:
-    0 0 0 1px rgba(255, 224, 190, 0.12),
-    0 0 36px rgba(255, 196, 150, 0.28),
-    0 0 80px rgba(196, 92, 122, 0.2);
+    inset 0 0 0 1px rgba(255, 226, 180, 0.16),
+    inset 0 0 0 7px rgba(20, 8, 12, 0.35),
+    inset 0 0 0 8px rgba(243, 196, 138, 0.42),
+    0 22px 48px rgba(0, 0, 0, 0.32);
 }
 
 .halana-form-card::before {
@@ -4180,6 +4390,9 @@ html.platform-radar-fullscreen #root {
 .halana-field-shell {
   position: relative;
   isolation: isolate;
+  color: #ffe8c4;
+  font-size: 0.95rem;
+  font-weight: 800;
 }
 
 .halana-field-shell::before {
@@ -4204,6 +4417,7 @@ html.platform-radar-fullscreen #root {
   background: rgba(20, 8, 12, 0.72);
   padding: 0.65rem 0.75rem;
   color: #f4efe4;
+  font-weight: 600;
   outline: none;
   box-shadow:
     0 0 18px rgba(255, 210, 160, 0.18),
@@ -4227,15 +4441,42 @@ html.platform-radar-fullscreen #root {
   }
 }
 
+@keyframes halana-spark-drift {
+  0%,
+  100% {
+    opacity: 0.28;
+    transform: translate3d(0, 0, 0) scale(0.85);
+  }
+  45% {
+    opacity: 1;
+    transform: translate3d(-8px, -14px, 0) scale(1.2);
+  }
+}
+
+@keyframes halana-petal-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(-12deg);
+    opacity: 0.28;
+  }
+  50% {
+    transform: translate3d(-18px, 22px, 0) rotate(18deg);
+    opacity: 0.55;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .lounge-star,
   .lounge-meteor,
   .lounge-frame-glow,
   .lounge-frame-glow-soft,
-  .halana-field-shell::before {
+  .halana-field-shell::before,
+  .halana-spark,
+  .halana-petal {
     animation: none;
   }
-  .lounge-meteor {
+  .lounge-meteor,
+  .halana-spark-layer {
     display: none;
   }
 }

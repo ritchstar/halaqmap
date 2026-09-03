@@ -71,9 +71,56 @@ function splitLines(raw: string): string[] {
     .filter(Boolean);
 }
 
+const HALANA_SPARKS = [
+  { top: '7%', right: '8%', size: 5, delay: '0s', duration: '8s' },
+  { top: '14%', right: '78%', size: 3, delay: '1.2s', duration: '11s' },
+  { top: '28%', right: '18%', size: 4, delay: '2.1s', duration: '9s' },
+  { top: '36%', right: '62%', size: 6, delay: '0.6s', duration: '12s' },
+  { top: '48%', right: '10%', size: 3, delay: '3s', duration: '10s' },
+  { top: '58%', right: '84%', size: 5, delay: '1.8s', duration: '8.5s' },
+  { top: '72%', right: '22%', size: 4, delay: '2.6s', duration: '13s' },
+  { top: '81%', right: '70%', size: 3, delay: '0.4s', duration: '9.4s' },
+  { top: '88%', right: '40%', size: 5, delay: '1.5s', duration: '11.5s' },
+] as const;
+
+const HALANA_PETALS = [
+  { top: '12%', right: '42%', delay: '0s' },
+  { top: '40%', right: '88%', delay: '3s' },
+  { top: '66%', right: '8%', delay: '5s' },
+  { top: '84%', right: '54%', delay: '2s' },
+] as const;
+
+function HalanaSparkLayer() {
+  return (
+    <div className="halana-spark-layer" aria-hidden>
+      {HALANA_SPARKS.map((spark, index) => (
+        <span
+          key={`spark-${index}`}
+          className="halana-spark"
+          style={{
+            top: spark.top,
+            right: spark.right,
+            width: spark.size,
+            height: spark.size,
+            animationDelay: spark.delay,
+            animationDuration: spark.duration,
+          }}
+        />
+      ))}
+      {HALANA_PETALS.map((petal, index) => (
+        <span
+          key={`petal-${index}`}
+          className="halana-petal"
+          style={{ top: petal.top, right: petal.right, animationDelay: petal.delay }}
+        />
+      ))}
+    </div>
+  );
+}
+
 function HalanaField({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <label className="halana-field-shell block text-sm">
+    <label className="halana-field-shell block">
       {label}
       {children}
     </label>
@@ -89,19 +136,19 @@ function ProductGallery({ items, emptyAr, featured }: { items: GalleryItem[]; em
   if (featured && lead) {
     return (
       <div className="space-y-6">
-        <figure className="halana-work-card overflow-hidden rounded-[1.75rem]">
+        <figure className="halana-work-card overflow-hidden rounded-[1.75rem] p-1.5">
           <img src={lead.src} alt={lead.caption || copy.galleryTitleAr} className="h-[22rem] w-full object-cover sm:h-[28rem]" />
           {lead.caption ? (
-            <figcaption className="halana-work-caption px-5 py-5 text-base leading-8">{lead.caption}</figcaption>
+            <figcaption className="halana-work-caption px-5 py-5 text-lg leading-9">{lead.caption}</figcaption>
           ) : null}
         </figure>
         {rest.length > 0 ? (
           <div className="grid gap-5 sm:grid-cols-2">
             {rest.map((item) => (
-              <figure key={item.id} className="halana-work-card overflow-hidden rounded-[1.6rem]">
+              <figure key={item.id} className="halana-work-card overflow-hidden rounded-[1.6rem] p-1.5">
                 <img src={item.src} alt={item.caption || copy.galleryTitleAr} className="h-64 w-full object-cover" />
                 {item.caption ? (
-                  <figcaption className="halana-work-caption px-4 py-4 text-sm leading-7">{item.caption}</figcaption>
+                  <figcaption className="halana-work-caption px-4 py-4 text-base leading-8">{item.caption}</figcaption>
                 ) : null}
               </figure>
             ))}
@@ -113,9 +160,9 @@ function ProductGallery({ items, emptyAr, featured }: { items: GalleryItem[]; em
   return (
     <div className="grid gap-3 sm:grid-cols-2">
       {items.map((item) => (
-        <figure key={item.id} className="halana-work-card overflow-hidden rounded-3xl">
-          <img src={item.src} alt={item.caption || copy.galleryTitleAr} className="h-40 w-full object-cover" />
-          {item.caption ? <figcaption className="px-4 py-3 text-sm leading-7 text-white/80">{item.caption}</figcaption> : null}
+        <figure key={item.id} className="halana-work-card overflow-hidden rounded-3xl p-1.5">
+          <img src={item.src} alt={item.caption || copy.galleryTitleAr} className="h-52 w-full object-cover" />
+          {item.caption ? <figcaption className="halana-work-caption px-4 py-3 text-sm leading-7">{item.caption}</figcaption> : null}
         </figure>
       ))}
     </div>
@@ -126,7 +173,7 @@ function ShowcaseSection({ kicker, title, children }: { kicker?: string; title: 
   return (
     <section className="halana-section">
       {kicker ? <p className="halana-section-kicker">{kicker}</p> : null}
-      <h2 className="mt-2 text-2xl font-black tracking-tight">{title}</h2>
+      <h2 className="halana-title-sm mt-2">{title}</h2>
       <div className="mt-5">{children}</div>
     </section>
   );
@@ -190,14 +237,27 @@ export default function StoreHalanaShopPage() {
 
   return (
     <div dir="rtl" className="halana-page min-h-svh text-[#f4efe4]">
+      <HalanaSparkLayer />
       {desk ? (
-        <div className="mx-auto max-w-3xl px-4 py-8">
-          <p className="text-sm font-bold tracking-wide text-[#e8a0b4]">{copy.deskTitleAr}</p>
-          <h1 className="mt-2 text-3xl font-extrabold">{payload.shopName || copy.titleAr}</h1>
-          <DeskPanel token={token} payload={payload} onSaved={() => void load()} />
-        </div>
+        <>
+          <header className="halana-desk-hero">
+            <img
+              src={payload.gallery[0]?.src || STORE_HALANA_ATMOSPHERE.atelier}
+              alt={payload.shopName || copy.titleAr}
+            />
+            <div className="halana-hero-frame" />
+            <div className="halana-hero-veil absolute inset-0" />
+            <div className="halana-desk-hero__copy">
+              <p className="halana-section-kicker">{copy.deskTitleAr}</p>
+              <h1 className="halana-title mt-3">{payload.shopName || copy.titleAr}</h1>
+            </div>
+          </header>
+          <div className="halana-shell mx-auto max-w-3xl px-4 py-8">
+            <DeskPanel token={token} payload={payload} onSaved={() => void load()} />
+          </div>
+        </>
       ) : order ? (
-        <div className="mx-auto max-w-3xl px-4 py-8">
+        <div className="halana-shell mx-auto max-w-3xl px-4 py-8">
           <OrderPanel token={token} payload={payload} busy={busy} setBusy={setBusy} />
         </div>
       ) : (
@@ -225,14 +285,15 @@ function ShowcasePanel({ token, payload }: { token: string; payload: Payload }) 
     <div>
       <header className="halana-hero-stage relative overflow-hidden">
         <img src={hero} alt={heroCaption || payload.shopName || copy.titleAr} className="h-[30rem] w-full object-cover sm:h-[38rem]" />
+        <div className="halana-hero-frame" />
         <div className="halana-hero-veil absolute inset-0" />
-        <div className="absolute inset-x-0 bottom-0 mx-auto max-w-3xl px-5 pb-12">
+        <div className="absolute inset-x-0 bottom-0 z-[2] mx-auto max-w-3xl px-5 pb-12">
           <p className="halana-section-kicker">{copy.showcaseKickerAr}</p>
-          <h1 className="mt-3 text-4xl font-black leading-tight sm:text-6xl">{payload.shopName || copy.titleAr}</h1>
-          <p className="mt-4 max-w-xl text-xl font-extrabold leading-9 text-[#ffe8c4]">
+          <h1 className="halana-title mt-3">{payload.shopName || copy.titleAr}</h1>
+          <p className="halana-lead mt-4 max-w-xl font-extrabold">
             {payload.promoTitleAr || copy.showcaseLeadAr}
           </p>
-          {heroCaption ? <p className="mt-3 max-w-xl text-sm leading-8 text-white/75">{heroCaption}</p> : null}
+          {heroCaption ? <p className="mt-3 max-w-xl text-base leading-8 text-[#ffe8c4]/80">{heroCaption}</p> : null}
         </div>
       </header>
       <div className="mx-auto max-w-3xl space-y-14 px-4 py-12">
@@ -240,7 +301,7 @@ function ShowcasePanel({ token, payload }: { token: string; payload: Payload }) 
           <ShowcaseSection kicker={copy.promoSectionAr} title={payload.promoTitleAr || copy.promoSectionAr}>
             <div className="halana-promo-card space-y-4">
               {promo.map((line) => (
-                <p key={line} className="text-base leading-9 text-white/82">
+                <p key={line} className="text-lg leading-9 text-[#fff6e6]/90">
                   {line}
                 </p>
               ))}
@@ -273,7 +334,7 @@ function ShowcasePanel({ token, payload }: { token: string; payload: Payload }) 
           <ShowcaseSection title={copy.youtubeTitleAr}>
             <div className="space-y-6">
               {clips.map((item) => (
-                <div key={item.url} className="halana-youtube-frame overflow-hidden rounded-[1.6rem]">
+                <div key={item.url} className="halana-youtube-frame overflow-hidden rounded-[1.6rem] p-1.5">
                   <iframe
                     title={copy.youtubeTitleAr}
                     src={item.embed || ''}
@@ -290,7 +351,7 @@ function ShowcasePanel({ token, payload }: { token: string; payload: Payload }) 
           <ShowcaseSection title={copy.quotesTitleAr}>
             <ul className="space-y-3">
               {quotes.map((line) => (
-                <li key={line} className="halana-quote rounded-2xl px-5 py-4 text-sm leading-8 text-white/78">
+                <li key={line} className="halana-quote rounded-2xl px-5 py-4 text-base leading-8 text-[#fff6e6]/88">
                   {line}
                 </li>
               ))}
@@ -318,7 +379,7 @@ function ShowcasePanel({ token, payload }: { token: string; payload: Payload }) 
           </ShowcaseSection>
         ) : null}
         <ShowcaseSection title={copy.policyTitleAr}>
-          <p className="text-sm leading-8 text-white/75">{payload.policyAr || STORE_HALANA_DEFAULT_POLICY_AR}</p>
+          <p className="halana-lead">{payload.policyAr || STORE_HALANA_DEFAULT_POLICY_AR}</p>
         </ShowcaseSection>
         <Link to={`/h/${encodeURIComponent(token)}/order`} className="halana-order-cta">
           <span className="halana-order-cta__mark" aria-hidden>
@@ -385,21 +446,23 @@ function OrderPanel({
 
   return (
     <div className="space-y-8">
-      <Link to={`/h/${encodeURIComponent(token)}`} className="text-sm font-bold text-[#e8a0b4] underline">
+      <Link to={`/h/${encodeURIComponent(token)}`} className="text-sm font-bold text-[#ffe8c4] underline">
         {copy.orderBackAr}
       </Link>
-      <img
-        src={payload.gallery[0]?.src || STORE_HALANA_ATMOSPHERE.cake}
-        alt=""
-        className="h-40 w-full rounded-3xl object-cover shadow-[0_0_48px_rgba(255,210,160,0.28)]"
-      />
-      <p className="text-sm font-bold tracking-wide text-[#e8a0b4]">{copy.orderKickerAr}</p>
-      <h1 className="text-3xl font-extrabold">{payload.shopName || copy.titleAr}</h1>
-      <p className="text-sm leading-8 text-white/75">{copy.shopLeadAr}</p>
+      <div className="halana-ornament overflow-hidden rounded-[1.6rem] p-1.5">
+        <img
+          src={payload.gallery[0]?.src || STORE_HALANA_ATMOSPHERE.cake}
+          alt=""
+          className="h-48 w-full rounded-[1.2rem] object-cover"
+        />
+      </div>
+      <p className="halana-section-kicker">{copy.orderKickerAr}</p>
+      <h1 className="halana-title">{payload.shopName || copy.titleAr}</h1>
+      <p className="halana-lead">{copy.shopLeadAr}</p>
       {ready.length > 0 ? (
         <section>
-          <h2 className="text-lg font-extrabold">{copy.readyTitleAr}</h2>
-          <ul className="mt-2 space-y-1 text-sm leading-7 text-white/75">
+          <h2 className="halana-title-sm">{copy.readyTitleAr}</h2>
+          <ul className="mt-3 space-y-1 text-base leading-8 text-[#ffe8c4]/85">
             {ready.map((line) => (
               <li key={line}>{line}</li>
             ))}
@@ -407,14 +470,14 @@ function OrderPanel({
         </section>
       ) : null}
       <section>
-        <h2 className="text-lg font-extrabold">{copy.policyTitleAr}</h2>
-        <p className="mt-2 text-sm leading-8 text-white/75">{payload.policyAr || STORE_HALANA_DEFAULT_POLICY_AR}</p>
+        <h2 className="halana-title-sm">{copy.policyTitleAr}</h2>
+        <p className="halana-lead mt-3">{payload.policyAr || STORE_HALANA_DEFAULT_POLICY_AR}</p>
       </section>
-      <p className="text-sm leading-7 text-amber-100/80">{copy.refWarnAr}</p>
-      <p className="text-sm leading-7 text-amber-100/80">{copy.depositWarnAr}</p>
-      <p className="text-sm leading-7 text-white/60">{copy.pickupWarnAr}</p>
-      <form onSubmit={(event) => void onSubmit(event)} className="halana-form-card space-y-4 rounded-2xl p-4">
-        <p className="text-lg font-extrabold">{copy.formTitleAr}</p>
+      <p className="text-base leading-8 text-amber-100/85">{copy.refWarnAr}</p>
+      <p className="text-base leading-8 text-amber-100/85">{copy.depositWarnAr}</p>
+      <p className="text-base leading-8 text-[#ffe8c4]/70">{copy.pickupWarnAr}</p>
+      <form onSubmit={(event) => void onSubmit(event)} className="halana-form-card space-y-4 rounded-2xl p-5">
+        <p className="halana-title-sm">{copy.formTitleAr}</p>
         <input type="text" name="website" tabIndex={-1} autoComplete="off" className="hidden" />
         <HalanaField label={copy.deliverAtAr}>
           <input className="halana-field" value={deliverAt} onChange={(event) => setDeliverAt(event.target.value)} />
@@ -441,7 +504,7 @@ function OrderPanel({
         <button
           type="submit"
           disabled={busy}
-          className="w-full rounded-full bg-[#c45c7a] px-5 py-3 text-sm font-extrabold text-[#14080c] disabled:opacity-60"
+          className="halana-action w-full rounded-full px-5 py-3 text-sm font-extrabold disabled:opacity-60"
         >
           {copy.submitAr}
         </button>
@@ -572,14 +635,14 @@ function DeskPanel({ token, payload, onSaved }: { token: string; payload: Payloa
   }
 
   return (
-    <div className="mt-6 space-y-8">
-      <p className="text-sm leading-8 text-white/75">{copy.deskLeadAr}</p>
-      <p className="text-sm leading-7 text-[#f6d7b0]">
+    <div className="space-y-8">
+      <p className="halana-lead">{copy.deskLeadAr}</p>
+      <p className="halana-lead">
         الصفحة التي توجّهين إليها العميلات هي المعرض. الطلب في صفحة مستقلة أسفل المعرض.
       </p>
-      <section className="halana-form-card space-y-4 rounded-2xl p-4">
-        <h2 className="text-lg font-extrabold">{copy.galleryDeskTitleAr}</h2>
-        <p className="text-sm leading-7 text-white/70">{copy.galleryDeskLeadAr}</p>
+      <section className="halana-form-card space-y-4 rounded-2xl p-5">
+        <h2 className="halana-title-sm">{copy.galleryDeskTitleAr}</h2>
+        <p className="text-base leading-8 text-[#ffe8c4]/80">{copy.galleryDeskLeadAr}</p>
         <ProductGallery items={gallery} />
         {gallery.map((item) => (
           <GalleryCaptionEditor
@@ -598,7 +661,7 @@ function DeskPanel({ token, payload, onSaved }: { token: string; payload: Payloa
             onChange={(event) => setCaption(event.target.value)}
           />
         </HalanaField>
-        <label className="inline-flex cursor-pointer rounded-full bg-[#c45c7a] px-4 py-2 text-sm font-extrabold text-[#14080c]">
+        <label className="halana-action inline-flex cursor-pointer rounded-full px-4 py-2 text-sm font-extrabold">
           {copy.galleryUploadAr}
           <input
             type="file"
@@ -614,8 +677,8 @@ function DeskPanel({ token, payload, onSaved }: { token: string; payload: Payloa
         </label>
         {gallery.length >= STORE_HALANA_GALLERY_MAX ? <p className="text-sm text-amber-100/80">{copy.galleryFullAr}</p> : null}
       </section>
-      <section className="halana-form-card space-y-4 rounded-2xl p-4">
-        <h2 className="text-lg font-extrabold">نصوص المعرض ولقطاته</h2>
+      <section className="halana-form-card space-y-4 rounded-2xl p-5">
+        <h2 className="halana-title-sm">نصوص المعرض ولقطاته</h2>
         <HalanaField label="اسم الصفحة">
           <input className="halana-field" value={shopName} onChange={(event) => setShopName(event.target.value)} />
         </HalanaField>
@@ -647,7 +710,7 @@ function DeskPanel({ token, payload, onSaved }: { token: string; payload: Payloa
           type="button"
           disabled={busy}
           onClick={() => void saveHost()}
-          className="rounded-full bg-[#c45c7a] px-5 py-2.5 text-sm font-extrabold text-[#14080c] disabled:opacity-60"
+          className="halana-action rounded-full px-5 py-2.5 text-sm font-extrabold disabled:opacity-60"
         >
           حفظ المعرض
         </button>
@@ -661,9 +724,9 @@ function DeskPanel({ token, payload, onSaved }: { token: string; payload: Payloa
       />
       <StoreDeskHelpSupport product="halana" />
       <section className="space-y-3">
-        <h2 className="text-lg font-extrabold">الطلبات</h2>
+        <h2 className="halana-title-sm">الطلبات</h2>
         {(payload.requests || []).length === 0 ? (
-          <p className="text-sm text-white/55">لا طلبات بعد.</p>
+          <p className="text-sm leading-8 text-white/55">لا طلبات بعد.</p>
         ) : (
           <ul className="space-y-3">
             {(payload.requests || []).map((row) => (
@@ -712,7 +775,7 @@ function GalleryCaptionEditor({
   }, [item.caption, item.id]);
 
   return (
-    <div className="space-y-2 rounded-2xl border border-white/10 p-3">
+    <div className="halana-ornament space-y-2 rounded-2xl p-3">
       <HalanaField label={copy.galleryCaptionAr}>
         <textarea
           className="halana-field min-h-16"
@@ -725,7 +788,7 @@ function GalleryCaptionEditor({
         <button
           type="button"
           disabled={busy}
-          className="rounded-full bg-[#c45c7a] px-3 py-1.5 text-xs font-bold text-[#14080c] disabled:opacity-60"
+          className="halana-action rounded-full px-3 py-1.5 text-xs font-bold disabled:opacity-60"
           onClick={() => void onSave(item.id, caption)}
         >
           {copy.galleryCaptionSaveAr}
@@ -776,7 +839,7 @@ function DeskRequestActions({
           type="button"
           disabled={busy}
           onClick={() => void onUpdate(row, 'quoted', { quoteAmountSar: amount, quoteNote: note })}
-          className="rounded-lg bg-[#c45c7a] px-3 py-1.5 text-xs font-bold text-[#14080c] disabled:opacity-60"
+          className="halana-action rounded-lg px-3 py-1.5 text-xs font-bold disabled:opacity-60"
         >
           {copy.quoteCtaAr}
         </button>

@@ -44,9 +44,9 @@ export function StoreHalanaShareDesk({ token, shopName }: { token: string; shopN
   }
 
   return (
-    <section className="halana-form-card space-y-4 rounded-2xl p-4">
-      <h2 className="text-lg font-extrabold">{copy.shareTitleAr}</h2>
-      <p className="text-sm leading-7 text-white/70">{copy.shareLeadAr}</p>
+    <section className="halana-form-card space-y-4 rounded-2xl p-5">
+      <h2 className="halana-title-sm">{copy.shareTitleAr}</h2>
+      <p className="text-base leading-8 text-[#ffe8c4]/80">{copy.shareLeadAr}</p>
       <div id="halana-qr-print" className="mx-auto w-64 rounded-xl bg-white p-4 text-center text-[#14080c]">
         <p className="text-sm font-black">{shopName || copy.titleAr}</p>
         <div className="mx-auto my-3 w-40">

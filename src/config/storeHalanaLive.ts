@@ -12,7 +12,10 @@ export const STORE_HALANA_IMAGE_MAX_CHARS = 180_000;
 export const STORE_HALANA_CAPTION_MAX = 180;
 export const STORE_HALANA_ATMOSPHERE = {
   hero: '/images/store/halana/halana-hero-table.jpg',
+  atelier: '/images/store/halana/halana-atelier-clear.jpg',
   fieldGlow: '/images/store/halana/halana-field-glow.jpg',
+  goldDust: '/images/store/halana/halana-gold-dust.jpg',
+  frame: '/images/store/halana/halana-ornate-frame.jpg',
   cake: '/images/store/halana/halana-cake-light.jpg',
 } as const;
 
