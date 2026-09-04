@@ -7,7 +7,7 @@ import { ROUTE_PATHS } from '@/lib/routePaths';
 
 export function TrustRail() {
   return (
-    <section className="border-y border-[var(--atlas-line)] bg-[var(--atlas-raised)] py-8">
+    <section className="store-atlas__dark-band border-y border-[var(--atlas-line)] bg-[var(--atlas-raised)] py-8">
       <ul className="store-atlas__shell grid gap-4 md:grid-cols-3">
         <li className="store-atlas__body font-bold">{STORE_ATLAS_COPY.trustProfessionAr}</li>
         <li className="store-atlas__body font-bold">{STORE_ATLAS_COPY.trustDirectAr}</li>

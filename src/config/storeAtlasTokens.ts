@@ -49,9 +49,9 @@ export const STORE_ATLAS_LAB_VIEWS: readonly {
 export const STORE_ATLAS_COPY = {
   documentTitle: 'معاينة أطلس الحلول — خريطة الحل',
   labKickerAr: 'معاينة V3 — داخلية، ليست الواجهة العامة',
-  daylightOnAr: 'ضوء الأطلس',
+  daylightOnAr: 'خلفية أطلس المشرقة',
   daylightOffAr: 'خلفية داكنة ثابتة',
-  daylightHintAr: 'طبقة ضوء نهاري هادئة خلف الليل، ليست وضعاً نهارياً.',
+  daylightHintAr: 'خلفية نهارية مشرقة للسوق المفتوح، تعلوها قشرة التشغيل الداكنة.',
   signalHintAr: 'القشرة طبقة تشغيل رقمية. الإشارات نموذج توضيحي لتجربة المنتج، ليست بيانات حية.',
   signalCaptionAr: 'نموذج توضيحي لتجربة المنتج',
   mockCaptionAr: 'نموذج توضيحي للواجهة، ليس لقطة إنتاج',

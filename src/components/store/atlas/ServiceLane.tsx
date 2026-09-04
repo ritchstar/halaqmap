@@ -7,7 +7,7 @@ import { STORE_ATLAS_COPY, STORE_ATLAS_SERVICES } from '@/config/storeAtlasToken
 
 export function ServiceLane() {
   return (
-    <section className="store-atlas__section border-y border-[var(--atlas-line)] bg-[var(--atlas-raised)]">
+    <section className="store-atlas__section store-atlas__dark-band border-y border-[var(--atlas-line)] bg-[var(--atlas-raised)]">
       <div className="store-atlas__shell">
         <h2 className="store-atlas__section-title">{STORE_ATLAS_COPY.servicesTitleAr}</h2>
         <p className="store-atlas__body mt-3 max-w-2xl text-[var(--atlas-muted)]">{STORE_ATLAS_COPY.servicesLeadAr}</p>

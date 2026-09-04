@@ -56,10 +56,13 @@ assert.match(tokens, /تضم المنظومة مصنفات برمجية مسجل
 assert.match(tokens, /mockCaptionAr:/);
 assert.match(tokens, /orderColItemAr: 'الصنف'/);
 assert.match(tokens, /daylightOnAr:/);
+assert.match(tokens, /خلفية أطلس المشرقة/);
 assert.match(tokens, /parseStoreAtlasDaylight/);
 assert.match(tokens, /storeAtlasCardGlow/);
 assert.match(css, /store-atlas-daylight/);
 assert.match(css, /atlas-daylight-day/);
+assert.match(css, /linear-gradient\(145deg, #f4efe4/);
+assert.match(css, /store-atlas__dark-band/);
 assert.match(css, /prefers-reduced-motion/);
 assert.match(tokens, /forWhomLabelAr: 'لمن صُمم؟'/);
 assert.match(tokens, /26-12-103276978/);

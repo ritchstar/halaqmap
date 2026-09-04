@@ -54,7 +54,7 @@ export function AtlasProduceMock({ compact = false }: { compact?: boolean }) {
         </div>
       </section>
 
-      <section className="store-atlas__section bg-[var(--atlas-raised)]">
+      <section className="store-atlas__section store-atlas__dark-band bg-[var(--atlas-raised)]">
         <div className="store-atlas__shell grid gap-4 md:grid-cols-3">
           {STORE_ATLAS_PRODUCE_TRANSFORM.map((item) => (
             <article key={item.id} className="border-s-2 border-[var(--atlas-teal)] ps-4">
@@ -78,7 +78,7 @@ export function AtlasProduceMock({ compact = false }: { compact?: boolean }) {
         </div>
       </section>
 
-      <section className="store-atlas__section bg-[var(--atlas-raised)]">
+      <section className="store-atlas__section store-atlas__dark-band bg-[var(--atlas-raised)]">
         <div className="store-atlas__shell grid items-center gap-8 lg:grid-cols-2">
           <div>
             <h2 className="store-atlas__section-title">{STORE_ATLAS_COPY.produceDeskTitleAr}</h2>
@@ -115,7 +115,7 @@ export function AtlasProduceMock({ compact = false }: { compact?: boolean }) {
         </div>
       </section>
 
-      <section className="store-atlas__section bg-[var(--atlas-raised)]">
+      <section className="store-atlas__section store-atlas__dark-band bg-[var(--atlas-raised)]">
         <div className="store-atlas__shell max-w-3xl">
           <h2 className="store-atlas__section-title">{STORE_ATLAS_COPY.producePriceTitleAr}</h2>
           <ul className="mt-6 space-y-3">

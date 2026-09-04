@@ -11,7 +11,7 @@ import { cn } from '@/lib/utils';
 
 export function AtlasHeader({ compact = false }: { compact?: boolean }) {
   return (
-    <header className={cn('border-b border-[var(--atlas-line)] bg-[var(--atlas-raised)]', compact ? 'py-2' : 'py-3')}>
+    <header className={cn('store-atlas__dark-band border-b border-[var(--atlas-line)] bg-[var(--atlas-raised)]', compact ? 'py-2' : 'py-3')}>
       <div className="store-atlas__shell flex items-center gap-2">
         <Link to={ROUTE_PATHS.STORE_LANDING} className="me-auto flex min-w-0 items-center gap-2">
           <img

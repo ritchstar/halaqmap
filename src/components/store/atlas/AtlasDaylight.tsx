@@ -1,7 +1,7 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
- * ضوء الأطلس: طبقة نهارية هادئة خلف الخلفية الليلية. ليست Light Mode.
+ * خلفية أطلس المشرقة: سوق نهاري بصري تعلوه قشرة التشغيل الداكنة.
  */
 import { useEffect, useRef } from 'react';
 
