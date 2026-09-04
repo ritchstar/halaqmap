@@ -102,7 +102,9 @@ export default function StoreKitchenGrowthHubPage() {
                         data-product={STORE_KITCHEN_GROWTH_HUB_PRODUCT_ID}
                       >
                         <p className="text-sm font-extrabold text-[#f4efe4]">{item.titleAr}</p>
-                        <p className="mt-2 text-sm leading-7 text-white/75">{item.bodyAr}</p>
+                        <p dir="rtl" className="chat-arabic-text mt-2 whitespace-pre-wrap text-sm leading-7 text-white/75">
+                          {item.bodyAr}
+                        </p>
                         {item.copyable ? (
                           <button
                             type="button"

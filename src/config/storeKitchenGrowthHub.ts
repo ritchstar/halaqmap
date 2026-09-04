@@ -2,16 +2,17 @@
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
  * مركز نمو وتسويق طبختنا1. لا يُستورد من App.tsx.
- * بلا أسعار اشتراك وبلا ميسر وبلا تجربة وبلا إرسال جماعي.
+ * بلا أسعار اشتراك وبلا تجربة وبلا إرسال جماعي.
+ * ذكر ميسّر هنا لنفي التحصيل عن سلة الزبون فقط.
  */
 
 export const STORE_KITCHEN_GROWTH_HUB_PRODUCT_ID = 'kitchen' as const;
 
-export const STORE_KITCHEN_GROWTH_HUB_REVISION = 1 as const;
+export const STORE_KITCHEN_GROWTH_HUB_REVISION = 2 as const;
 
-export const STORE_KITCHEN_GROWTH_HUB_PUBLISHED_AT = '2026-09-04T12:00:00+03:00' as const;
+export const STORE_KITCHEN_GROWTH_HUB_PUBLISHED_AT = '2026-09-04T13:13:00+03:00' as const;
 
-export type StoreKitchenGrowthCategory = 'whatsapp' | 'offer_plan' | 'basket' | 'qr';
+export type StoreKitchenGrowthCategory = 'whatsapp' | 'basket' | 'intake' | 'qr';
 
 export type StoreKitchenGrowthItem = {
   id: string;
@@ -25,83 +26,81 @@ export const STORE_KITCHEN_GROWTH_CATEGORIES: readonly {
   id: StoreKitchenGrowthCategory;
   titleAr: string;
 }[] = [
-  { id: 'whatsapp', titleAr: 'نصوص واتساب' },
-  { id: 'offer_plan', titleAr: 'خطط العروض' },
-  { id: 'basket', titleAr: 'أفكار رفع السلة' },
-  { id: 'qr', titleAr: 'تصاميم الرمز' },
+  { id: 'whatsapp', titleAr: 'نصوص الواتساب والمنصات' },
+  { id: 'basket', titleAr: 'تكتيكات رفع متوسط قيمة السلة' },
+  { id: 'intake', titleAr: 'تنظيم استقبال الطلبات والحد من الهدر' },
+  { id: 'qr', titleAr: 'عبارات ملصقات الرمز على التغليف' },
 ] as const;
 
 export const STORE_KITCHEN_GROWTH_ITEMS: readonly StoreKitchenGrowthItem[] = [
   {
-    id: 'wa-neighbor-open',
+    id: 'wa-weekend-preorder',
     category: 'whatsapp',
-    titleAr: 'افتتاح الحي',
+    titleAr: 'نهاية الأسبوع وحجز مسبق',
     bodyAr:
-      'السلام عليكم. فتحنا صفحة طبختنا1 لطلب الأكل البيتي من الجوال: تختار الصنف وتكتب ملاحظاتك ويصلنا الطلب منظماً. الرابط في الرسالة التالية.',
+      'أهلاً بك 🌸\nلتصنع نهاية أسبوع مميزة مع العائلة، باب الحجز المسبق لأطباقنا المنزلية الطازجة متاح الآن لميعاد [أدخل اليوم، مثلاً: الجمعة]! 🍲✨\nخفف زحمة التفكير، واطلب طبقك المفضل مباشرة وتأكد من وصوله في موعدك المحدد عبر مقرنا الرقمي المباشر:\n[رابط المتجر]',
     copyable: true,
   },
   {
-    id: 'wa-today-dish',
+    id: 'wa-home-cooking',
     category: 'whatsapp',
-    titleAr: 'طبق اليوم',
+    titleAr: 'طبخ بيت وحجز بضغطة',
     bodyAr:
-      'اليوم جهزنا صنفاً محدود الكمية. اطلب من صفحة النشاط قبل نفاد الكمية، واكتب موعد التسليم إن احتجت.',
+      'طبخ بيت حقيقي بكل حب واحترافية 👩‍🍳🔥\nاختصر عناء التفاوض ورسائل الواتساب الطويلة! الآن يمكنك تخصيص طبقك وحجز وجبتك العائلية أو ولائمتك بضغطة زر واحدة عبر موقعنا الرسمي المباشر 👇\n[رابط المتجر]\n📍 نستقبل طلبات الموعد المسبق لضمان أعلى جودة وطزاجة!',
     copyable: true,
   },
   {
-    id: 'wa-qr-share',
-    category: 'whatsapp',
-    titleAr: 'مشاركة الملصق',
-    bodyAr:
-      'هذا رمز صفحة النشاط. امسحه من الجوال واطلب مباشرة. الطلب يصل للوحة النشاط بلا كتابة مطولة في المحادثة.',
-    copyable: true,
-  },
-  {
-    id: 'plan-thursday-preorder',
-    category: 'offer_plan',
-    titleAr: 'طلب الخميس مسبقاً',
-    bodyAr:
-      'أعلن يوم الثلاثاء صنفاً واحداً ليوم الخميس بكمية محدودة. أغلق الاستقبال عند اكتمال الطاقة. لا تزد الإعلان إذا تأخرت التذاكر.',
-    copyable: true,
-  },
-  {
-    id: 'plan-two-person',
-    category: 'offer_plan',
-    titleAr: 'وجبة لشخصين',
-    bodyAr:
-      'اجمع صنفاً رئيساً مع طبق جانبي في سطر واحد على الصفحة. السعر النهائي من عندك، ظاهراً في بطاقة الصنف.',
-    copyable: true,
-  },
-  {
-    id: 'basket-add-bread',
+    id: 'basket-family-combo',
     category: 'basket',
-    titleAr: 'خبز أو سلطة مع الوجبة',
+    titleAr: 'باقة اللمة',
     bodyAr:
-      'أضف صنفاً صغيراً بجانب كل وجبة رئيسة: خبز أو سلطة أو مشروب. يظهر في الصفحة كسطر مستقل يُطلب معه.',
+      'تقديم خيار مجمّع يدمج الطبق الرئيسي مع أطباق جانبية (كالمنزلية أو الحلويات)، مما يشجع العميل على زيادة قيمة طلبه بناءً على تسعيرك الخاص.',
     copyable: true,
   },
   {
-    id: 'basket-family-tray',
+    id: 'basket-upsell-size',
     category: 'basket',
-    titleAr: 'صينية أهل البيت',
+    titleAr: 'ترقية الحجم',
     bodyAr:
-      'سمّ صنفاً يكفي الأسرة واذكر عدد الأشخاص في الاسم. يقلل الأسئلة ويوضح الكمية قبل الطلب.',
+      'إتاحة خيارات أحجام متدرجة للطلب داخل الواجهة (مثل: حجم عادي / حجم عائلي)، لمنح العميل حرية الترقية بحسب احتياجه.',
     copyable: true,
   },
   {
-    id: 'qr-door',
-    category: 'qr',
-    titleAr: 'ملصق الباب',
+    id: 'intake-capacity',
+    category: 'intake',
+    titleAr: 'التحكم بالسعة التشغيلية',
     bodyAr:
-      'اطبع ملصق الرمز من اللوحة وثبّته على باب الاستلام أو مدخل المطبخ. أبطل الرمز من اللوحة إن تسرب وأعد توليد ملصق جديد.',
+      'ضبط حدود الاستقبال اليومي وفق طاقتك الإنتاجية الفردية عبر إعدادات اللوحة، لتجنب تكدس الطلبات وحماية جودة الطهي.',
     copyable: true,
   },
   {
-    id: 'qr-status',
-    category: 'qr',
-    titleAr: 'حالة واتساب',
+    id: 'intake-schedule',
+    category: 'intake',
+    titleAr: 'جدولة الطلب المسبق',
     bodyAr:
-      'ضع صورة الملصق في حالة واتساب مع جملة واحدة: امسح واطلب. لا ترسل الملصق جماعياً نيابة عنك من المنصة.',
+      'تفعيل اختيار تاريخ ووقت التسليم المسبق، لتأمين المكونات الطازجة على قدر الاحتياج الفعلي فقط وتفادي تلف المواد.',
+    copyable: true,
+  },
+  {
+    id: 'intake-direct-pay',
+    category: 'intake',
+    titleAr: 'المعاملات المالية المباشرة',
+    bodyAr:
+      'تتم كافة عمليات التحصيل والدفع بشكل مباشر ومستقل تماماً بينك وبين عملائك، دون أي تدخل أو ميسّر مالي على سلة العميل من طرف المنصة.',
+    copyable: true,
+  },
+  {
+    id: 'qr-pack-ensure',
+    category: 'qr',
+    titleAr: 'اضمن طبقك المفضل',
+    bodyAr: 'عجبك الطبق؟ اضمن طبقك المفضل المرة القادمة قبل نفاذ الكمية بطلبك المباشر عبر كود الـ QR 📲',
+    copyable: true,
+  },
+  {
+    id: 'qr-pack-love',
+    category: 'qr',
+    titleAr: 'مسح الكود للطلب القادم',
+    bodyAr: 'طبخنا لكم بكل حب ❤️.. لا تحتاج لحفظ رقمنا، امسح الكود واطلب مستقبلاً بضغطة زر واحدة.',
     copyable: true,
   },
 ] as const;
@@ -110,7 +109,7 @@ export const STORE_KITCHEN_GROWTH_HUB_COPY = {
   buttonAr: 'مركز النمو والتسويق',
   titleAr: 'مركز النمو والتسويق',
   kickerAr: 'طبختنا1',
-  leadAr: 'نصوص وخطط جاهزة لصاحب النشاط. انسخ وأرسل من جهازك. الزبون يبقى على صفحة الطلب.',
+  leadAr: 'النصوص الأربعة المعتمدة لصاحب النشاط. انسخ وأرسل من جهازك. الزبون يبقى على صفحة الطلب.',
   copiedAr: 'نُسخ النص.',
   copyAr: 'انسخ',
   backAr: 'عودة إلى لوحة النشاط',

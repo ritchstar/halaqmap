@@ -35,20 +35,33 @@ const produceDesk = readFileSync(join(root, 'src/components/store/StoreProduceDe
 const restaurantDesk = readFileSync(join(root, 'src/components/store/StoreRestaurantDesk.tsx'), 'utf8');
 
 assert.equal(STORE_KITCHEN_GROWTH_HUB_PRODUCT_ID, 'kitchen');
-assert.equal(STORE_KITCHEN_GROWTH_HUB_REVISION, 1);
+assert.equal(STORE_KITCHEN_GROWTH_HUB_REVISION, 2);
 assert.equal(ROUTE_PATHS.STORE_KITCHEN_GROWTH, '/k/:token/desk/growth');
 assert.equal(kitchenGrowthHubPath('kitchen-lab'), '/k/kitchen-lab/desk/growth');
-assert.equal(STORE_KITCHEN_GROWTH_CATEGORIES.length, 4);
-assert.ok(STORE_KITCHEN_GROWTH_ITEMS.length >= 8);
-assert.equal(kitchenGrowthItemsByCategory('whatsapp').length, 3);
+assert.deepEqual(
+  STORE_KITCHEN_GROWTH_CATEGORIES.map((item) => item.id),
+  ['whatsapp', 'basket', 'intake', 'qr'],
+);
+assert.equal(STORE_KITCHEN_GROWTH_ITEMS.length, 9);
+assert.equal(kitchenGrowthItemsByCategory('whatsapp').length, 2);
+assert.equal(kitchenGrowthItemsByCategory('basket').length, 2);
+assert.equal(kitchenGrowthItemsByCategory('intake').length, 3);
+assert.equal(kitchenGrowthItemsByCategory('qr').length, 2);
 
 const copyBlob = [
   JSON.stringify(STORE_KITCHEN_GROWTH_HUB_COPY),
+  JSON.stringify(STORE_KITCHEN_GROWTH_CATEGORIES),
   JSON.stringify(STORE_KITCHEN_GROWTH_ITEMS),
 ].join('\n');
 assert.match(copyBlob, /طبختنا1/);
+assert.match(copyBlob, /نصوص الواتساب والمنصات/);
+assert.match(copyBlob, /باقة اللمة/);
+assert.match(copyBlob, /جدولة الطلب المسبق/);
+assert.match(copyBlob, /كود الـ QR/);
+assert.match(copyBlob, /ميسّر مالي على سلة العميل/);
 assert.doesNotMatch(copyBlob, /أكلنا1|مطعمنا1|تمويناتا1|كافينا1|خضارنا1|افراحي1|اجواء1|لاونجا1|كاردي8/);
-assert.doesNotMatch(copyBlob, /ميسر|تجربة|رخصة النفاذ/);
+assert.doesNotMatch(copyBlob, /تجربة|رخصة النفاذ/);
+assert.doesNotMatch(copyBlob.replace(/ميسّر مالي على سلة العميل/g, ''), /ميسر|ميسّر/);
 assert.doesNotMatch(copyBlob, /300 ر\.س|600 ر\.س|899/);
 assert.doesNotMatch(page, /أكلنا1|ميسر|تجربة/);
 assert.doesNotMatch(page, /WhatsApp Business API|إرسال جماعي نيابة/);
