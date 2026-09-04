@@ -141,6 +141,7 @@ export const ROUTE_PATHS = {
   STORE_KITCHEN_GIFT_CONFIRM: '/store/kitchen/gift/confirm',
   STORE_KITCHEN_VIEW: '/k/:token',
   STORE_KITCHEN_DESK: '/k/:token/desk',
+  STORE_KITCHEN_GROWTH: '/k/:token/desk/growth',
   STORE_KITCHEN_PAY: '/pay/kitchen/:token',
   /** خضارنا1 — صفحة صندوق الخضار ولوحة الصندوق */
   STORE_PRODUCE: '/store/produce',

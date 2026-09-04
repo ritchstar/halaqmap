@@ -3,6 +3,7 @@
  */
 import { StoreDeskOrderAlert } from '@/components/store/StoreDeskOrderAlert';
 import { StoreDeskControlTitle } from '@/components/store/StoreDeskControlTitle';
+import { StoreKitchenGrowthHubButton } from '@/components/store/StoreKitchenGrowthHubButton';
 import { StoreDeskArchiveDock } from '@/components/store/StoreDeskArchiveDock';
 import { StoreDeskTicketActions } from '@/components/store/StoreDeskTicketActions';
 import { Link } from 'react-router-dom';
@@ -154,10 +155,15 @@ export function StoreKitchenDesk({
         orderIds={fresh.map((item) => item.id)}
         unreadCount={fresh.length}
       />
-      <StoreDeskControlTitle
-        kitchen
-        trialNote={showTrialNote && !gift ? STORE_PRODUCT_TRIAL_PRODUCTS.kitchen.deskNoteAr : ''}
-      />
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          <StoreDeskControlTitle
+            kitchen
+            trialNote={showTrialNote && !gift ? STORE_PRODUCT_TRIAL_PRODUCTS.kitchen.deskNoteAr : ''}
+          />
+        </div>
+        <StoreKitchenGrowthHubButton token={token} />
+      </div>
       {gift ? (
         <section className="rounded-2xl border border-[#b45a3c] bg-[#1a0c08] p-4" aria-label={giftCopy.deskBadgeAr}>
           <p className="inline-flex rounded-full border border-[#b45a3c]/50 bg-[#b45a3c]/20 px-2.5 py-0.5 text-[0.7rem] font-extrabold text-[#b45a3c]">

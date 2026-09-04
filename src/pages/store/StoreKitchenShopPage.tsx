@@ -70,7 +70,7 @@ function payloadToState(payload: Record<string, unknown>, fallback: KitchenLabSt
 
 export default function StoreKitchenShopPage() {
   const location = useLocation();
-  const desk = location.pathname.endsWith('/desk');
+  const desk = /\/desk\/?$/.test(location.pathname);
   const { token = '' } = useParams<{ token: string }>();
   const safeToken = token.trim() || STORE_KITCHEN_LIVE_LAB_TOKEN;
   const isLab = safeToken === STORE_KITCHEN_LIVE_LAB_TOKEN;

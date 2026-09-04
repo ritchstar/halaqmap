@@ -159,6 +159,7 @@ assert.match(landing, /STORE_KITCHEN/);
 assert.equal(ROUTE_PATHS.STORE_KITCHEN, '/store/kitchen');
 assert.equal(ROUTE_PATHS.STORE_KITCHEN_VIEW, '/k/:token');
 assert.equal(ROUTE_PATHS.STORE_KITCHEN_DESK, '/k/:token/desk');
+assert.equal(ROUTE_PATHS.STORE_KITCHEN_GROWTH, '/k/:token/desk/growth');
 assert.equal(ROUTE_PATHS.STORE_KITCHEN_PAY, '/pay/kitchen/:token');
 
 assert.equal(existsSync(join(root, 'src/lib/storeKitchenLiveMoyasar.ts')), true);

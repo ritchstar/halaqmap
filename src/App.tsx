@@ -177,6 +177,8 @@ const STORE_KITCHEN_VIEW_PATH =
   (ROUTE_PATHS as { STORE_KITCHEN_VIEW?: string }).STORE_KITCHEN_VIEW || "/k/:token";
 const STORE_KITCHEN_DESK_PATH =
   (ROUTE_PATHS as { STORE_KITCHEN_DESK?: string }).STORE_KITCHEN_DESK || "/k/:token/desk";
+const STORE_KITCHEN_GROWTH_PATH =
+  (ROUTE_PATHS as { STORE_KITCHEN_GROWTH?: string }).STORE_KITCHEN_GROWTH || "/k/:token/desk/growth";
 const STORE_KITCHEN_PAY_PATH =
   (ROUTE_PATHS as { STORE_KITCHEN_PAY?: string }).STORE_KITCHEN_PAY || "/pay/kitchen/:token";
 const STORE_PRODUCE_PATH =
@@ -378,6 +380,7 @@ const StoreKitchenGiftLandingPage = lazy(() => import("@/pages/store/StoreKitche
 const StoreKitchenGiftTermsPage = lazy(() => import("@/pages/store/StoreKitchenGiftTermsPage"));
 const StoreKitchenGiftConfirmPage = lazy(() => import("@/pages/store/StoreKitchenGiftConfirmPage"));
 const StoreKitchenShopPage = lazy(() => import("@/pages/store/StoreKitchenShopPage"));
+const StoreKitchenGrowthHubPage = lazy(() => import("@/pages/store/StoreKitchenGrowthHubPage"));
 const StoreKitchenPayPage = lazy(() => import("@/pages/store/StoreKitchenPayPage"));
 const StoreProduceLandingPage = lazy(() => import("@/pages/store/StoreProduceLandingPage"));
 const StoreProduceShopPage = lazy(() => import("@/pages/store/StoreProduceShopPage"));
@@ -966,6 +969,7 @@ export function App() {
           <Route path={STORE_HALANA_READ_PATH} element={<LazyRoute><StoreProductReadPage /></LazyRoute>} />
           <Route path={STORE_KITCHEN_SUPPORT_PATH} element={<LazyRoute><StoreProductSupportPage /></LazyRoute>} />
           <Route path={STORE_KITCHEN_PATH} element={<LazyRoute><StoreKitchenLandingPage /></LazyRoute>} />
+          <Route path={STORE_KITCHEN_GROWTH_PATH} element={<LazyRoute><StoreKitchenGrowthHubPage /></LazyRoute>} />
           <Route path={STORE_KITCHEN_DESK_PATH} element={<LazyRoute><StoreKitchenShopPage /></LazyRoute>} />
           <Route path={STORE_KITCHEN_VIEW_PATH} element={<LazyRoute><StoreKitchenShopPage /></LazyRoute>} />
           <Route path={STORE_PRODUCE_PAY_PATH} element={<LazyRoute><StoreProducePayPage /></LazyRoute>} />
