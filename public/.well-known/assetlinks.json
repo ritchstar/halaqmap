@@ -8,5 +8,15 @@
         "79:64:E5:1A:BF:5C:1E:9A:48:65:04:EF:E3:4E:C4:F7:47:E8:0C:13:CA:81:91:B4:91:1D:23:FC:31:86:5D:74"
       ]
     }
+  },
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.halaqmap.operators",
+      "sha256_cert_fingerprints": [
+        "2B:CF:4F:45:F3:7C:40:BF:83:EF:E0:D4:19:AA:82:18:83:1A:B1:D5:4E:0F:45:B8:B9:72:D5:36:51:32:A4:87"
+      ]
+    }
   }
 ]

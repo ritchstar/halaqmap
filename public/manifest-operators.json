@@ -1,0 +1,58 @@
+{
+  "name": "لوحة مشغّلي خريطة الحل",
+  "short_name": "لوحة المشغّلين",
+  "description": "دخول المشغّل إلى لوحات التشغيل المرتبطة ببريده. الزبون يبقى على صفحة الويب في متصفحه.",
+  "start_url": "/#/store/operators",
+  "scope": "/",
+  "id": "/store-operators-app",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "portrait-primary",
+  "background_color": "#061018",
+  "theme_color": "#e8c547",
+  "lang": "ar",
+  "dir": "rtl",
+  "categories": ["business", "productivity"],
+  "shortcuts": [
+    {
+      "name": "لوحة المشغّلين",
+      "short_name": "الدخول",
+      "description": "فتح لوحة مشغّلي خريطة الحل",
+      "url": "/#/store/operators",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "خريطة الحل",
+      "short_name": "المتجر",
+      "description": "فتح واجهة خريطة الحل",
+      "url": "/#/store",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    }
+  ],
+  "icons": [
+    {
+      "src": "/images/halaqmap-store-mark-radar-square-1200x1200.png",
+      "sizes": "1200x1200",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

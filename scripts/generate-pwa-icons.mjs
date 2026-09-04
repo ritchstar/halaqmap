@@ -18,6 +18,9 @@ const sourcePath = join(root, 'public', 'images', 'halaqmap_logo_refined.png');
 const legacyLogoPath = join(root, 'public', 'images', 'halaqmap_logo_20260409_073322.png');
 const outDir = join(root, 'public', 'icons');
 const androidRes = join(root, 'android-partner-twa', 'app', 'src', 'main', 'res');
+const operatorsAndroidRes = join(root, 'android-operators-twa', 'app', 'src', 'main', 'res');
+const operatorsMarkPath = join(root, 'public', 'images', 'halaqmap-store-mark-radar-square-1200x1200.png');
+const operatorsCanvas = { r: 6, g: 16, b: 24, alpha: 1 };
 
 const TEAL = { r: 13, g: 148, b: 136, alpha: 1 };
 
@@ -89,6 +92,88 @@ for (const [folder, dims] of Object.entries(launcher)) {
   await sharp(await logoSquare(dims.any)).toFile(join(dir, 'ic_launcher.png'));
   await sharp(await logoMaskable(dims.maskable, 0.12)).toFile(join(dir, 'ic_maskable.png'));
 }
+
+async function operatorsLogoSquare(size) {
+  return sharp(operatorsMarkPath)
+    .resize(size, size, { fit: 'cover', position: 'centre' })
+    .png()
+    .toBuffer();
+}
+
+async function operatorsLogoMaskable(size, padRatio = 0.12) {
+  const pad = Math.round(size * padRatio);
+  const inner = size - pad * 2;
+  const innerBuf = await sharp(operatorsMarkPath)
+    .resize(inner, inner, { fit: 'contain', background: operatorsCanvas })
+    .png()
+    .toBuffer();
+  return sharp({
+    create: { width: size, height: size, channels: 4, background: operatorsCanvas },
+  })
+    .composite([{ input: innerBuf, gravity: 'centre' }])
+    .png()
+    .toBuffer();
+}
+
+async function operatorsNotificationIcon(size) {
+  const mark = await sharp(operatorsMarkPath)
+    .resize(size, size, { fit: 'cover', position: 'centre' })
+    .greyscale()
+    .png()
+    .toBuffer();
+  return sharp(mark)
+    .ensureAlpha()
+    .linear(1.8, -40)
+    .toBuffer();
+}
+
+const operatorsSplash = {
+  'drawable-mdpi': 300,
+  'drawable-hdpi': 450,
+  'drawable-xhdpi': 600,
+  'drawable-xxhdpi': 900,
+  'drawable-xxxhdpi': 1200,
+};
+for (const [folder, size] of Object.entries(operatorsSplash)) {
+  const dir = join(operatorsAndroidRes, folder);
+  await mkdir(dir, { recursive: true });
+  await sharp(await operatorsLogoSquare(size)).toFile(join(dir, 'splash.png'));
+  await sharp(await operatorsLogoSquare(Math.round(size * 0.28))).toFile(join(dir, 'shortcut_0.png'));
+  await sharp(await operatorsLogoSquare(Math.round(size * 0.28))).toFile(join(dir, 'shortcut_1.png'));
+}
+
+const operatorsNotify = {
+  'drawable-mdpi': 24,
+  'drawable-hdpi': 36,
+  'drawable-xhdpi': 48,
+  'drawable-xxhdpi': 72,
+  'drawable-xxxhdpi': 96,
+};
+for (const [folder, size] of Object.entries(operatorsNotify)) {
+  const dir = join(operatorsAndroidRes, folder);
+  await mkdir(dir, { recursive: true });
+  await sharp(await operatorsNotificationIcon(size)).toFile(join(dir, 'ic_notification_icon.png'));
+}
+
+for (const [folder, dims] of Object.entries(launcher)) {
+  const dir = join(operatorsAndroidRes, folder);
+  await mkdir(dir, { recursive: true });
+  await sharp(await operatorsLogoSquare(dims.any)).toFile(join(dir, 'ic_launcher.png'));
+  await sharp(await operatorsLogoMaskable(dims.maskable, 0.12)).toFile(join(dir, 'ic_maskable.png'));
+}
+
+await mkdir(join(root, 'android-operators-twa'), { recursive: true });
+await mkdir(join(root, 'play-store', 'operators', 'graphics'), { recursive: true });
+await sharp(await operatorsLogoSquare(512)).toFile(join(root, 'android-operators-twa', 'store_icon.png'));
+await sharp(await operatorsLogoSquare(512)).toFile(
+  join(root, 'play-store', 'operators', 'graphics', 'app-icon-512.png'),
+);
+await sharp({
+  create: { width: 1024, height: 500, channels: 4, background: operatorsCanvas },
+})
+  .composite([{ input: await operatorsLogoSquare(360), gravity: 'centre' }])
+  .png()
+  .toFile(join(root, 'play-store', 'operators', 'graphics', 'feature-graphic-1024x500.png'));
 
 /**
  * أيقونة متصفح: قصّ على دبوس البوصلة (بدون كلمة HalaqMap السفلية)
@@ -183,3 +268,4 @@ await writeFile(join(root, 'public', 'favicon.ico'), packPngsToIco(icoPngs));
 await copyFile(sourcePath, legacyLogoPath);
 
 console.log('Official HalaqMap logo applied to PWA icons, favicon.ico, splash, and Android launcher assets.');
+console.log('Store mark applied to operators TWA splash, launcher, and Play graphics.');

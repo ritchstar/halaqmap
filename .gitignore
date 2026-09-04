@@ -120,17 +120,30 @@ android-partner-twa/android-keys.env
 android-partner-twa/android-keys.env.txt
 android-partner-twa/passwords.txt
 android-partner-twa/local.properties
+android-operators-twa/android.keystore
+android-operators-twa/*.keystore
+android-operators-twa/android-keys.env
+android-operators-twa/android-keys.env.txt
+android-operators-twa/passwords.txt
+android-operators-twa/local.properties
 
 # --- Android TWA build artifacts ---
 android-partner-twa/.gradle/
 android-partner-twa/**/build/
 android-partner-twa/*.apk
 android-partner-twa/*.aab
+android-operators-twa/.gradle/
+android-operators-twa/**/build/
+android-operators-twa/*.apk
+android-operators-twa/*.aab
 play-store/delivery/*.aab
 play-store/delivery/*.apk
 android-partner-twa/*.idsig
 android-partner-twa/manifest-checksum.txt
 android-partner-twa/app/src/main/res/raw/
+android-operators-twa/*.idsig
+android-operators-twa/manifest-checksum.txt
+android-operators-twa/app/src/main/res/raw/
 
 # --- iOS Capacitor consumer shell ---
 ios/App/Pods/

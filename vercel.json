@@ -82,7 +82,23 @@
       "permanent": true
     },
     {
+      "source": "/pay/produce",
+      "destination": "https://store.halaqmap.com/store/produce",
+      "permanent": true
+    },
+    {
+      "source": "/pay/produce/",
+      "destination": "https://store.halaqmap.com/store/produce",
+      "permanent": true
+    },
+    {
       "source": "/c",
+      "has": [{ "type": "host", "value": "www.halaqmap.com" }],
+      "destination": "https://coiffeur.halaqmap.com/coiffeur",
+      "permanent": true
+    },
+    {
+      "source": "/c/",
       "has": [{ "type": "host", "value": "www.halaqmap.com" }],
       "destination": "https://coiffeur.halaqmap.com/coiffeur",
       "permanent": true
@@ -94,12 +110,118 @@
       "permanent": true
     },
     {
+      "source": "/c/",
+      "has": [{ "type": "host", "value": "store.halaqmap.com" }],
+      "destination": "https://store.halaqmap.com/store/cafe",
+      "permanent": true
+    },
+    {
       "source": "/oc",
       "destination": "https://store.halaqmap.com/store/invites",
       "permanent": true
     },
     {
+      "source": "/oc/",
+      "destination": "https://store.halaqmap.com/store/invites",
+      "permanent": true
+    },
+    {
+      "source": "/guest",
+      "destination": "https://store.halaqmap.com/store",
+      "permanent": true
+    },
+    {
+      "source": "/guest/",
+      "destination": "https://store.halaqmap.com/store",
+      "permanent": true
+    },
+    {
+      "source": "/w",
+      "destination": "https://store.halaqmap.com/store/wedding",
+      "permanent": true
+    },
+    {
+      "source": "/w/",
+      "destination": "https://store.halaqmap.com/store/wedding",
+      "permanent": true
+    },
+    {
+      "source": "/e",
+      "destination": "https://store.halaqmap.com/store/event",
+      "permanent": true
+    },
+    {
+      "source": "/e/",
+      "destination": "https://store.halaqmap.com/store/event",
+      "permanent": true
+    },
+    {
+      "source": "/l",
+      "destination": "https://store.halaqmap.com/store/lounge",
+      "permanent": true
+    },
+    {
+      "source": "/l/",
+      "destination": "https://store.halaqmap.com/store/lounge",
+      "permanent": true
+    },
+    {
+      "source": "/g",
+      "destination": "https://store.halaqmap.com/store/grocers",
+      "permanent": true
+    },
+    {
+      "source": "/g/",
+      "destination": "https://store.halaqmap.com/store/grocers",
+      "permanent": true
+    },
+    {
+      "source": "/r",
+      "destination": "https://store.halaqmap.com/store/restaurant",
+      "permanent": true
+    },
+    {
+      "source": "/r/",
+      "destination": "https://store.halaqmap.com/store/restaurant",
+      "permanent": true
+    },
+    {
+      "source": "/k",
+      "destination": "https://store.halaqmap.com/store/kitchen",
+      "permanent": true
+    },
+    {
+      "source": "/k/",
+      "destination": "https://store.halaqmap.com/store/kitchen",
+      "permanent": true
+    },
+    {
+      "source": "/v",
+      "destination": "https://store.halaqmap.com/store/produce",
+      "permanent": true
+    },
+    {
+      "source": "/v/",
+      "destination": "https://store.halaqmap.com/store/produce",
+      "permanent": true
+    },
+    {
+      "source": "/h",
+      "destination": "https://store.halaqmap.com/store",
+      "permanent": true
+    },
+    {
+      "source": "/h/",
+      "destination": "https://store.halaqmap.com/store",
+      "permanent": true
+    },
+    {
       "source": "/rate",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/rate/",
       "destination": "/",
       "permanent": true
     },
@@ -109,13 +231,38 @@
       "permanent": true
     },
     {
+      "source": "/barber/",
+      "destination": "/partners",
+      "permanent": true
+    },
+    {
       "source": "/api",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/api/",
       "destination": "/",
       "permanent": true
     },
     {
       "source": "/assets",
       "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/assets/",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/store/",
+      "destination": "/store",
+      "permanent": true
+    },
+    {
+      "source": "/partners/",
+      "destination": "/partners",
       "permanent": true
     },
     {
@@ -707,6 +854,15 @@
     },
     {
       "source": "/manifest-partner.json",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/manifest-operators.json",
       "headers": [
         {
           "key": "Cache-Control",

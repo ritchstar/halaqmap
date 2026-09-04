@@ -15,6 +15,13 @@ import {
 } from '../src/config/storeOperatorsDesk.ts';
 import { ROUTE_PATHS } from '../src/lib/routePaths.ts';
 import { isOperatorEmail, normalizeOperatorEmail } from '../api/_lib/storeOperatorsDesk.ts';
+import {
+  STORE_OPERATORS_ANDROID_PACKAGE_ID,
+  STORE_OPERATORS_APP_DISPLAY_NAME_AR,
+  STORE_OPERATORS_TWA_HOST,
+  STORE_OPERATORS_TWA_LAUNCH_PATH,
+  STORE_OPERATORS_TWA_START,
+} from '../src/config/storeOperatorsAppShell.ts';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const app = readFileSync(join(root, 'src/App.tsx'), 'utf8');
@@ -89,5 +96,42 @@ assert.match(rule, /\/store\/operators/);
 assert.equal(normalizeOperatorEmail('  Ali@Shop.sa '), 'ali@shop.sa');
 assert.equal(isOperatorEmail('ops@shop.sa'), true);
 assert.equal(isOperatorEmail('bad'), false);
+
+const appShell = readFileSync(join(root, 'src/config/storeOperatorsAppShell.ts'), 'utf8');
+const twaManifest = readFileSync(join(root, 'android-operators-twa/twa-manifest.json'), 'utf8');
+const twaGradle = readFileSync(join(root, 'android-operators-twa/app/build.gradle'), 'utf8');
+const twaAndroid = readFileSync(join(root, 'android-operators-twa/app/src/main/AndroidManifest.xml'), 'utf8');
+const webManifest = readFileSync(join(root, 'public/manifest-operators.json'), 'utf8');
+const assetLinks = readFileSync(join(root, 'public/.well-known/assetlinks.json'), 'utf8');
+const partnerTwa = readFileSync(join(root, 'android-partner-twa/twa-manifest.json'), 'utf8');
+
+assert.equal(STORE_OPERATORS_ANDROID_PACKAGE_ID, 'com.halaqmap.operators');
+assert.equal(STORE_OPERATORS_TWA_HOST, 'store.halaqmap.com');
+assert.equal(STORE_OPERATORS_TWA_START, ROUTE_PATHS.STORE_OPERATORS);
+assert.equal(STORE_OPERATORS_TWA_LAUNCH_PATH, `/#${ROUTE_PATHS.STORE_OPERATORS}`);
+assert.equal(STORE_OPERATORS_APP_DISPLAY_NAME_AR, 'لوحة مشغّلي خريطة الحل');
+assert.match(appShell, /com\.halaqmap\.operators/);
+assert.match(appShell, /store\.halaqmap\.com/);
+assert.match(appShell, /\/#\/store\/operators/);
+assert.doesNotMatch(app, /from ['"]@\/config\/storeOperatorsAppShell['"]/);
+assert.doesNotMatch(app, /storeOperatorsAppShell/);
+assert.match(twaManifest, /"packageId": "com\.halaqmap\.operators"/);
+assert.match(twaManifest, /"host": "store\.halaqmap\.com"/);
+assert.match(twaManifest, /\/#\/store\/operators/);
+assert.match(twaManifest, /لوحة مشغّلي خريطة الحل/);
+assert.match(twaManifest, /2B:CF:4F:45:F3:7C:40:BF:83:EF:E0:D4:19:AA:82:18:83:1A:B1:D5:4E:0F:45:B8:B9:72:D5:36:51:32:A4:87/);
+assert.doesNotMatch(twaManifest, /com\.halaqmap\.partner/);
+assert.doesNotMatch(twaManifest, /www\.halaqmap\.com/);
+assert.match(twaGradle, /com\.halaqmap\.operators/);
+assert.match(twaGradle, /store\.halaqmap\.com/);
+assert.match(twaAndroid, /com\.halaqmap\.operators/);
+assert.match(webManifest, /\/#\/store\/operators/);
+assert.match(webManifest, /لوحة مشغّلي خريطة الحل/);
+assert.match(assetLinks, /com\.halaqmap\.operators/);
+assert.match(assetLinks, /2B:CF:4F:45:F3:7C:40:BF:83:EF:E0:D4:19:AA:82:18:83:1A:B1:D5:4E:0F:45:B8:B9:72:D5:36:51:32:A4:87/);
+assert.match(assetLinks, /com\.halaqmap\.partner/);
+assert.match(partnerTwa, /com\.halaqmap\.partner/);
+assert.doesNotMatch(partnerTwa, /com\.halaqmap\.operators/);
+assert.doesNotMatch(twaManifest + twaGradle + webManifest, /اشتر|ميسر|ر\.س|تجربة/);
 
 console.log('store-operators-desk: ok');

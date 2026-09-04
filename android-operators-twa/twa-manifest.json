@@ -1,0 +1,66 @@
+{
+  "packageId": "com.halaqmap.operators",
+  "host": "store.halaqmap.com",
+  "name": "لوحة مشغّلي خريطة الحل",
+  "launcherName": "لوحة المشغّلين",
+  "display": "standalone",
+  "themeColor": "#E8C547",
+  "themeColorDark": "#061018",
+  "navigationColor": "#061018",
+  "navigationColorDark": "#061018",
+  "navigationDividerColor": "#000000",
+  "navigationDividerColorDark": "#000000",
+  "backgroundColor": "#061018",
+  "enableNotifications": true,
+  "startUrl": "/#/store/operators",
+  "iconUrl": "https://store.halaqmap.com/images/halaqmap-store-mark-radar-square-1200x1200.png",
+  "maskableIconUrl": "https://store.halaqmap.com/icons/icon-512-maskable.png",
+  "splashScreenFadeOutDuration": 300,
+  "signingKey": {
+    "path": "./android.keystore",
+    "alias": "halaqmap-operators-key"
+  },
+  "appVersionName": "1.0.0",
+  "appVersionCode": 1,
+  "shortcuts": [
+    {
+      "name": "لوحة المشغّلين",
+      "shortName": "الدخول",
+      "url": "/#/store/operators",
+      "chosenIconUrl": "https://store.halaqmap.com/icons/icon-192.png"
+    },
+    {
+      "name": "خريطة الحل",
+      "shortName": "المتجر",
+      "url": "/#/store",
+      "chosenIconUrl": "https://store.halaqmap.com/icons/icon-192.png"
+    }
+  ],
+  "generatorApp": "bubblewrap-cli",
+  "webManifestUrl": "https://store.halaqmap.com/manifest-operators.json",
+  "fallbackType": "customtabs",
+  "features": {
+    "playBilling": {
+      "enabled": false
+    }
+  },
+  "alphaDependencies": {
+    "enabled": false
+  },
+  "enableSiteSettingsShortcut": true,
+  "isChromeOSOnly": false,
+  "isMetaQuest": false,
+  "fullScopeUrl": "https://store.halaqmap.com/",
+  "minSdkVersion": 21,
+  "orientation": "portrait",
+  "fingerprints": [
+    {
+      "value": "2B:CF:4F:45:F3:7C:40:BF:83:EF:E0:D4:19:AA:82:18:83:1A:B1:D5:4E:0F:45:B8:B9:72:D5:36:51:32:A4:87"
+    }
+  ],
+  "additionalTrustedOrigins": [],
+  "retainedBundles": [],
+  "protocolHandlers": [],
+  "displayOverride": [],
+  "appVersion": "1.0.0"
+}
