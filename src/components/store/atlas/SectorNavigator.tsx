@@ -17,7 +17,7 @@ export function SectorNavigator({ compact = false }: { compact?: boolean }) {
   const count = cards.length;
 
   return (
-    <section id="atlas-products" className="store-atlas__section">
+    <section id="atlas-products" className="store-atlas__section store-atlas__products">
       <div className="store-atlas__shell">
         <p className="store-atlas__meta font-extrabold text-[var(--atlas-teal)]">{STORE_ATLAS_COPY.sectorAskAr}</p>
         <div className={cn('mt-4 flex gap-2', compact ? 'overflow-x-auto pb-2' : 'flex-wrap')}>

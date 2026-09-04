@@ -24,9 +24,9 @@ export function AtlasProduceMock({ compact = false }: { compact?: boolean }) {
   return (
     <div className="store-atlas min-h-full">
       <AtlasHeader compact={compact} />
-      <section className="store-atlas__section">
+      <section className="store-atlas__section store-atlas__hero">
         <div className="store-atlas__shell grid items-center gap-8 lg:grid-cols-[1.05fr_0.95fr]">
-          <div>
+          <div className="store-atlas__copy-veil">
             <p className="store-atlas__meta font-bold text-[var(--atlas-teal)]">{STORE_PRODUCE_LIVE.kickerAr}</p>
             <h1 className={compact ? 'mt-2 text-[2.1rem] font-extrabold' : 'mt-2 text-5xl font-extrabold md:text-6xl'}>
               {STORE_PRODUCE_LIVE.titleAr}
@@ -41,7 +41,7 @@ export function AtlasProduceMock({ compact = false }: { compact?: boolean }) {
               <RegisteredWorkBadge />
             </div>
           </div>
-          <div className="store-atlas__card relative overflow-hidden p-5">
+          <div className="store-atlas__card store-atlas__skin store-atlas__skin--warm relative overflow-hidden p-5">
             <img
               src="/images/store/produce/produce-01.jpg"
               alt=""

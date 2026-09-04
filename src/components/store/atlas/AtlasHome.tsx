@@ -24,7 +24,7 @@ export function AtlasHome({ compact = false }: { compact?: boolean }) {
       <SectorNavigator compact={compact} />
       <AtlasPath compact={compact} />
       <ServiceLane />
-      <section className="store-atlas__section bg-[var(--atlas-raised)]">
+      <section className="store-atlas__section store-atlas__request store-atlas__skin store-atlas__skin--warm">
         <div className="store-atlas__shell max-w-3xl text-center">
           <h2 className="store-atlas__section-title">{STORE_ATLAS_COPY.requestTitleAr}</h2>
           <p className="store-atlas__body mt-3 text-[var(--atlas-muted)]">{STORE_ATLAS_COPY.requestLeadAr}</p>

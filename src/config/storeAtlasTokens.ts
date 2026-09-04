@@ -20,9 +20,10 @@ export const STORE_ATLAS_COLORS = {
   teal: '#0D9488',
   muted: '#9EABB3',
   line: '#1D3340',
+  ink: '#020912',
 } as const;
 
-export const STORE_ATLAS_LAB_VERSION = 2 as const;
+export const STORE_ATLAS_LAB_VERSION = 3 as const;
 
 export const STORE_ATLAS_SPACE = {
   shell: 1260,
@@ -47,7 +48,23 @@ export const STORE_ATLAS_LAB_VIEWS: readonly {
 
 export const STORE_ATLAS_COPY = {
   documentTitle: 'معاينة أطلس الحلول — خريطة الحل',
-  labKickerAr: 'معاينة V2 — داخلية، ليست الواجهة العامة',
+  labKickerAr: 'معاينة V3 — داخلية، ليست الواجهة العامة',
+  daylightOnAr: 'ضوء الأطلس',
+  daylightOffAr: 'خلفية داكنة ثابتة',
+  daylightHintAr: 'طبقة ضوء نهاري هادئة خلف الليل، ليست وضعاً نهارياً.',
+  signalHintAr: 'القشرة طبقة تشغيل رقمية. الإشارات نموذج توضيحي لتجربة المنتج، ليست بيانات حية.',
+  signalCaptionAr: 'نموذج توضيحي لتجربة المنتج',
+  mockCaptionAr: 'نموذج توضيحي للواجهة، ليس لقطة إنتاج',
+  orderColItemAr: 'الصنف',
+  orderColQtyAr: 'الكمية',
+  orderColPriceAr: 'السعر',
+  discoverArrowAr: 'اكتشف المنتج ←',
+  footerIntroAr: 'تعريف المتجر',
+  footerIntroLeadAr: 'منتجات رقمية متخصصة تشغّل مهنة العرض والطلب من رابط واحد.',
+  footerProductsAr: 'المنتجات والقطاعات',
+  footerTrialServicesAr: 'التجربة والخدمات',
+  footerLegalAr: 'السياسات والمصنفات',
+  footerContactAr: 'التواصل',
   labTitleAr: 'أطلس الحلول',
   noindexNoteAr: 'هذه الصفحة للمعاينة البصرية فقط.',
   discoverProductAr: 'اكتشف المنتج',
@@ -65,7 +82,7 @@ export const STORE_ATLAS_COPY = {
   heroSecondaryAr: 'استكشف الحلول',
   trustProfessionAr: 'منتجات متخصصة حسب المهنة',
   trustDirectAr: 'علاقة مباشرة بين المشغّل وعميله',
-  trustWorksAr: 'مصنفات برمجية مسجلة للمنتجات المشمولة',
+  trustWorksAr: 'تضم المنظومة مصنفات برمجية مسجلة لدى الهيئة السعودية للملكية الفكرية',
   sectorAskAr: 'ما طبيعة عملك؟',
   journeyTitleAr: 'كيف تعمل المنظومة؟',
   journeyLeadAr: 'كل منتج نقطة على مسار واحد: من العرض إلى الولاء.',
@@ -312,6 +329,20 @@ export function storeAtlasCardCtaAr(status: StoreAtlasCard['status']): string {
 
 export function storeAtlasGridFeatured(count: number): boolean {
   return count === 1 || count % 2 === 1;
+}
+
+export type StoreAtlasDaylightMode = 'on' | 'off';
+
+export function parseStoreAtlasDaylight(raw: string | null): StoreAtlasDaylightMode {
+  return raw === 'off' ? 'off' : 'on';
+}
+
+export function storeAtlasCardGlow(id: string): string {
+  if (id === 'produce') return '#3d8b4a';
+  if (id === 'grocers' || id === 'cafe') return '#0D9488';
+  if (id === 'lounge') return '#d4af67';
+  if (id === 'kitchen' || id === 'restaurant') return '#c4a574';
+  return '#E8C547';
 }
 
 export function parseStoreAtlasLabView(raw: string | null): StoreAtlasLabView {
