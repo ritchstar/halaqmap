@@ -18,11 +18,13 @@ export type StoreBuyerLocateCopy = {
 export function StoreBuyerLocateButtons({
   value,
   onLocated,
+  onCoords,
   accent,
   copy,
 }: {
   value: string;
   onLocated: (mapsUrl: string) => void;
+  onCoords?: (lat: number, lng: number) => void;
   accent: string;
   copy: StoreBuyerLocateCopy;
 }) {
@@ -40,6 +42,7 @@ export function StoreBuyerLocateButtons({
       return;
     }
     onLocated(shopMapsSearchUrl(result.lat, result.lng));
+    onCoords?.(result.lat, result.lng);
     setHint(copy.locateSavedAr);
   }
 

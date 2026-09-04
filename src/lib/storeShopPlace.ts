@@ -124,8 +124,7 @@ export function publicShopPlaceFields(role: string, place: ShopPickupPlace): Sho
   const desk = shopPlaceRoleSeesCoords(role);
   const stale = place.vendorMode === 'mobile' && isMobileVendorStale(place.pickupUpdatedAt);
   const showFixed = place.vendorMode !== 'mobile' && place.pickupPlaceVisible;
-  const showMobile =
-    place.vendorMode === 'mobile' && place.pickupPlaceVisible && !place.vendorTransit && !stale;
+  const showMobile = place.vendorMode === 'mobile' && place.pickupPlaceVisible && !stale;
   const show = desk || showFixed || showMobile;
   return {
     ...place,

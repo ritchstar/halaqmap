@@ -37,7 +37,7 @@ export type ProduceOrderLine = {
 };
 
 export type ProducePayMethod = 'cash' | 'card';
-export type ProduceService = 'delivery' | 'pickup';
+export type ProduceService = 'delivery' | 'pickup' | 'come';
 
 export type ProduceOrder = {
   id: string;
@@ -50,6 +50,8 @@ export type ProduceOrder = {
   total: number;
   at: string;
   seen: boolean;
+  buyerLat?: number;
+  buyerLng?: number;
   phase?: 'new' | 'received' | 'done';
   receivedAt?: string;
   doneAt?: string;
@@ -208,19 +210,25 @@ export function activateProduceCatalogItem(
   };
 }
 
+export function produceServiceLabelAr(service: ProduceService): string {
+  if (service === 'come') return 'تعال إلى الموقع';
+  if (service === 'pickup') return 'استلام من الصندوق';
+  return 'توصيل في الحي';
+}
+
 export function produceWhatsAppText(order: ProduceOrder, shopName: string, mapsUrl = ''): string {
   const pay = order.pay === 'card' ? 'شبكة عند التسليم' : 'نقداً عند التسليم';
-  const service = order.service === 'pickup' ? 'استلام من الصندوق' : 'توصيل في الحي';
   const lines = order.lines.map((line) => `${line.nameAr} × ${line.qty} = ${line.price * line.qty} ر.س`).join('\n');
   return [
     `مذكرة صندوق — ${shopName}`,
     `الزبون: ${order.name}`,
     `الجوال: ${order.phone}`,
-    `التسليم: ${service}`,
+    `التسليم: ${produceServiceLabelAr(order.service)}`,
     `الموقع: ${order.place}`,
     mapsUrl ? `موقع الصندوق: ${mapsUrl}` : '',
     `الدفع: ${pay}`,
     lines,
+    order.service === 'come' && !lines ? 'تسوق حر من الصندوق' : '',
     `الإجمالي: ${order.total} ر.س`,
   ].filter(Boolean).join('\n');
 }

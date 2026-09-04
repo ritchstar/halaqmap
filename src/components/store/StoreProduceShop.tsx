@@ -1,9 +1,15 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { STORE_PRODUCE_LIVE } from '@/config/storeProduceLive';
 import { STORE_PRODUCE_UNIT_AR } from '@/config/storeProduceCatalog';
+import {
+  isProduceComeApproaching,
+  parseMapsQueryCoords,
+  requestProduceComeNotify,
+  showProduceComeApproachingNotice,
+} from '@/lib/storeProduceCome';
 import {
   produceCartTotal,
   readSavedProduceBuyer,
@@ -43,6 +49,10 @@ export function StoreProduceShop({
   const [place, setPlace] = useState(saved?.place || '');
   const [pay, setPay] = useState<ProducePayMethod>('cash');
   const [service, setService] = useState<ProduceService>('delivery');
+  const [buyerLat, setBuyerLat] = useState(0);
+  const [buyerLng, setBuyerLng] = useState(0);
+  const [comeHint, setComeHint] = useState('');
+  const [watchingCome, setWatchingCome] = useState(false);
   const [saveBuyer, setSaveBuyer] = useState(Boolean(saved));
   const [sent, setSent] = useState(false);
 
@@ -73,24 +83,57 @@ export function StoreProduceShop({
     });
   }
 
-  function submit() {
-    if (name.trim().length < 2 || phone.trim().length < 9 || !lines.length) return;
+  useEffect(() => {
+    if (!mobile && service === 'come') setService('delivery');
+  }, [mobile, service]);
+
+  useEffect(() => {
+    if (!watchingCome || !buyerLat || !buyerLng) return;
+    if (!isProduceComeApproaching(buyerLat, buyerLng, state.host.pickupLat, state.host.pickupLng)) return;
+    setWatchingCome(false);
+    setComeHint(STORE_PRODUCE_LIVE.comeApproachingAr);
+    void showProduceComeApproachingNotice(state.host.shopName);
+  }, [watchingCome, buyerLat, buyerLng, state.host.pickupLat, state.host.pickupLng, state.host.shopName]);
+
+  async function submit() {
+    if (name.trim().length < 2 || phone.trim().length < 9) return;
+    const come = mobile && service === 'come';
+    if (!come && !lines.length) return;
+    setComeHint('');
+    const coords = come ? parseMapsQueryCoords(place) || (buyerLat && buyerLng ? { lat: buyerLat, lng: buyerLng } : null) : null;
+    if (come && !coords) {
+      setComeHint(STORE_PRODUCE_LIVE.comeNeedPlaceAr);
+      return;
+    }
+    if (come) {
+      const granted = await requestProduceComeNotify();
+      if (!granted) {
+        setComeHint(STORE_PRODUCE_LIVE.comeNotifyDeniedAr);
+        return;
+      }
+    }
     const order = {
       id: `${Date.now()}`,
       name: name.trim().slice(0, 40),
       phone: phone.trim().slice(0, 20),
-      place: place.trim().slice(0, 160),
-      service,
+      place: place.trim().slice(0, 240),
+      service: come ? ('come' as const) : service,
       pay,
       lines,
       total,
       at: new Date().toISOString(),
       seen: false,
+      buyerLat: coords?.lat,
+      buyerLng: coords?.lng,
     };
     onChange({ ...state, orders: [order, ...state.orders].slice(0, 200) });
     writeSavedProduceBuyer(saveBuyer ? { name: order.name, phone: order.phone, place: order.place } : null);
     setQty({});
     setSent(true);
+    if (come) {
+      setWatchingCome(true);
+      setComeHint(STORE_PRODUCE_LIVE.comeWatchingAr);
+    }
   }
 
   function priceLine(item: { price: number; unit: keyof typeof STORE_PRODUCE_UNIT_AR }) {
@@ -187,7 +230,7 @@ export function StoreProduceShop({
         className="rounded-2xl border border-[#3d8b4a]/35 bg-[#0b1a10] p-4"
         onSubmit={(event) => {
           event.preventDefault();
-          submit();
+          void submit();
         }}
       >
         <h3 className="text-lg font-extrabold">
@@ -209,18 +252,36 @@ export function StoreProduceShop({
           <button type="button" onClick={() => setService('pickup')} className={cn('rounded-full px-3 py-1.5 text-xs', service === 'pickup' ? 'bg-[#3d8b4a] font-bold text-[#061018]' : 'border border-white/20')}>
             {STORE_PRODUCE_LIVE.servicePickupAr}
           </button>
+          {mobile ? (
+            <button type="button" onClick={() => setService('come')} className={cn('rounded-full px-3 py-1.5 text-xs', service === 'come' ? 'bg-[#3d8b4a] font-bold text-[#061018]' : 'border border-white/20')}>
+              {STORE_PRODUCE_LIVE.serviceComeAr}
+            </button>
+          ) : null}
         </div>
-        {service === 'delivery' ? (
+        {service === 'come' ? (
+          <p className="mt-2 text-sm leading-7 text-white/75">{STORE_PRODUCE_LIVE.serviceComeLeadAr}</p>
+        ) : null}
+        {service === 'delivery' || service === 'come' ? (
           <>
             <label className="mt-3 block text-sm">
               {mobile ? STORE_MOBILE_VENDOR.placeHintAr : STORE_PRODUCE_LIVE.buyerPlaceLabelAr}
-              <input value={place} onChange={(e) => setPlace(e.target.value)} className="produce-field" maxLength={160} />
+              <input
+                value={place}
+                onChange={(e) => setPlace(e.target.value)}
+                className="produce-field"
+                maxLength={240}
+                required={service === 'come'}
+              />
             </label>
             <StoreBuyerLocateButtons
               value={place}
               accent="#3d8b4a"
               copy={STORE_PRODUCE_LIVE}
               onLocated={setPlace}
+              onCoords={(lat, lng) => {
+                setBuyerLat(lat);
+                setBuyerLng(lng);
+              }}
             />
           </>
         ) : null}
@@ -240,9 +301,10 @@ export function StoreProduceShop({
           <span>{STORE_PRODUCE_LIVE.saveBuyerAr}</span>
         </label>
         <button type="submit" className="mt-4 min-h-12 w-full rounded-full bg-[#3d8b4a] text-sm font-bold text-[#061018]">
-          {STORE_PRODUCE_LIVE.submitOrderAr}
+          {service === 'come' ? STORE_PRODUCE_LIVE.comeSubmitAr : STORE_PRODUCE_LIVE.submitOrderAr}
         </button>
-        {sent ? <p className="mt-3 text-sm text-[#3d8b4a]">وصل الطلب للصندوق.</p> : null}
+        {comeHint ? <p className="mt-3 text-sm leading-7 text-[#d8f0cc]">{comeHint}</p> : null}
+        {sent && service !== 'come' ? <p className="mt-3 text-sm text-[#3d8b4a]">وصل الطلب للصندوق.</p> : null}
         {sent && state.orders[0]?.id ? (
           <div className="mt-4">
             <StoreDirectPayGuest

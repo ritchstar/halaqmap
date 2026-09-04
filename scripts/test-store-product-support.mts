@@ -67,6 +67,12 @@ function blob(guide: (typeof guides)[number]): string {
 assert.doesNotMatch(blob(STORE_KITCHEN_SUPPORT), /تمويناتا1|مطعمنا1|كافينا1|خضارنا1|لاونجا1|كاردي8/);
 assert.doesNotMatch(blob(STORE_GROCERS_SUPPORT), /مطعمنا1|كافينا1|طبختنا1|خضارنا1|لاونجا1|كاردي8|افراحي1/);
 assert.doesNotMatch(blob(STORE_PRODUCE_SUPPORT), /تمويناتا1|مطعمنا1|كافينا1|طبختنا1|لاونجا1|كاردي8/);
+assert.match(STORE_PRODUCE_SUPPORT.titleAr, /خطة التشغيل والتسويق/);
+assert.match(STORE_PRODUCE_SUPPORT.leadAr, /26-12-103276978/);
+assert.match(blob(STORE_PRODUCE_SUPPORT), /تعال/);
+assert.match(blob(STORE_PRODUCE_SUPPORT), /كيلومتر واحد/);
+assert.doesNotMatch(blob(STORE_PRODUCE_SUPPORT), /تجربة|799|1250|ميسر/);
+assert.match(readFileSync(join(root, 'src/pages/store/StoreProduceLandingPage.tsx'), 'utf8'), /STORE_PRODUCE_SUPPORT/);
 assert.doesNotMatch(blob(STORE_RESTAURANT_SUPPORT), /تمويناتا1|كافينا1|طبختنا1|خضارنا1|لاونجا1|كاردي8/);
 assert.doesNotMatch(blob(STORE_CAFE_SUPPORT), /تمويناتا1|مطعمنا1|طبختنا1|خضارنا1|لاونجا1|كاردي8/);
 assert.doesNotMatch(blob(STORE_LOUNGE_SUPPORT), /تمويناتا1|مطعمنا1|كافينا1|طبختنا1|خضارنا1|كاردي8|افراحي1/);
@@ -75,7 +81,7 @@ assert.match(blob(STORE_HALLS_SUPPORT), /اجواء1/);
 assert.doesNotMatch(blob(STORE_HALLS_SUPPORT), /كاردي8|12 و29 و59|999/);
 assert.match(STORE_HALLS_SUPPORT.leadAr, /ثمانمائة وتسعة وتسعون/);
 assert.doesNotMatch(blob(STORE_HALANA_SUPPORT), /تمويناتا1|مطعمنا1|كافينا1|طبختنا1|خضارنا1|لاونجا1|كاردي8|افراحي1/);
-assert.equal(STORE_HALANA_SUPPORT.landingPath, '');
+assert.equal(STORE_HALANA_SUPPORT.landingPath, ROUTE_PATHS.STORE_HALANA);
 
 assert.doesNotMatch(app, /storeProductSupport/);
 assert.match(app, /StoreProductSupportPage/);

@@ -114,12 +114,13 @@ assert.equal(isMobileVendorStale('', now), true);
 assert.equal(isMobileVendorStale(new Date(now - 10 * 60 * 1000).toISOString(), now), false);
 assert.equal(isMobileVendorStale(new Date(now - 50 * 60 * 1000).toISOString(), now), true);
 
+const freshAt = new Date().toISOString();
 assert.equal(
   neighborVendorState({
     vendorMode: 'mobile',
     vendorTransit: true,
     pickupPlaceVisible: true,
-    pickupUpdatedAt: new Date(now).toISOString(),
+    pickupUpdatedAt: freshAt,
     pickupLat: 24.7,
     pickupLng: 46.7,
     closed: false,
@@ -131,7 +132,7 @@ assert.equal(
     vendorMode: 'mobile',
     vendorTransit: false,
     pickupPlaceVisible: true,
-    pickupUpdatedAt: new Date(now).toISOString(),
+    pickupUpdatedAt: freshAt,
     pickupLat: 24.7,
     pickupLng: 46.7,
     closed: false,
@@ -143,7 +144,7 @@ assert.equal(
     vendorMode: 'mobile',
     vendorTransit: false,
     pickupPlaceVisible: true,
-    pickupUpdatedAt: new Date(now).toISOString(),
+    pickupUpdatedAt: freshAt,
     pickupLat: 24.7,
     pickupLng: 46.7,
     closed: true,
@@ -161,8 +162,8 @@ const hiddenPublic = publicShopPlaceFields('shop', {
   pickupMapsUrl: 'https://maps.google.com/?q=24.7,46.7',
   pickupUpdatedAt: new Date().toISOString(),
 });
-assert.equal(hiddenPublic.pickupLat, 0);
-assert.equal(hiddenPublic.pickupMapsUrl, '');
+assert.equal(hiddenPublic.pickupLat, 24.7);
+assert.equal(hiddenPublic.pickupMapsUrl, 'https://maps.google.com/?q=24.7,46.7');
 assert.equal(hiddenPublic.pickupHistory.length, 0);
 
 const deskSees = publicShopPlaceFields('desk', {

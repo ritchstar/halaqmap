@@ -26,6 +26,7 @@ import {
   STORE_PRODUCE_LIVE_PACKS,
   STORE_PRODUCE_LIVE_PUBLIC_ENABLED,
 } from '@/config/storeProduceLive';
+import { STORE_PRODUCE_SUPPORT } from '@/config/storeProductSupport';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { readHashQueryParam } from '@/lib/hashQueryParams';
 import { ROUTE_PATHS } from '@/lib/routePaths';
@@ -143,7 +144,11 @@ export default function StoreProduceLandingPage() {
                 {STORE_PRODUCE_LIVE.orderCtaAr}
               </a>
               <StoreProductBenefitsLink />
-              <StoreProductSupportLink to={ROUTE_PATHS.STORE_PRODUCE_SUPPORT} className="border-[#3d8b4a]/50 text-[#3d8b4a]" />
+              <StoreProductSupportLink
+                to={ROUTE_PATHS.STORE_PRODUCE_SUPPORT}
+                labelAr={STORE_PRODUCE_SUPPORT.landingCtaAr}
+                className="border-[#3d8b4a]/50 text-[#3d8b4a]"
+              />
             </div>
             <StoreEnterpriseDirectMail
               className="mt-5 max-w-xl"

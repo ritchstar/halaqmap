@@ -29,7 +29,8 @@ import { STORE_LANDING_COPY } from '../src/config/storeFront.ts';
 import { STORE_PRODUCT_TRIAL_KEYS, STORE_PRODUCT_TRIAL_PRODUCTS, trialDaysFor } from '../src/config/storeProductTrial.ts';
 import { matchStoreAffiliateCommission } from '../api/_lib/storeAffiliateLive.ts';
 import { produceAffiliateCommissionSar } from '../src/config/storeAffiliateLive.ts';
-import { produceCartTotal, defaultProduceLabState } from '../src/lib/storeProduceLiveLab.ts';
+import { produceCartTotal, defaultProduceLabState, produceServiceLabelAr, produceWhatsAppText } from '../src/lib/storeProduceLiveLab.ts';
+import { haversineMeters, isProduceComeApproaching, parseMapsQueryCoords } from '../src/lib/storeProduceCome.ts';
 import { ROUTE_PATHS } from '../src/lib/routePaths.ts';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -113,7 +114,29 @@ assert.ok(!STORE_PRODUCE_LIVE.problemBodyAr.includes('رقان'));
 assert.equal(STORE_PRODUCE_LIVE_LAB_TOKEN, 'produce-lab');
 assert.match(STORE_PRODUCE_LIVE.locateMeAr, /حدد موقعي/);
 assert.match(STORE_PRODUCE_LIVE.confirmPlaceAr, /تأكد من موقعي/);
+assert.match(STORE_PRODUCE_LIVE.serviceComeAr, /تعال/);
+assert.equal(produceServiceLabelAr('come'), 'تعال إلى الموقع');
+assert.match(
+  produceWhatsAppText({
+    id: '1',
+    name: 'سعد',
+    phone: '0500000000',
+    place: 'https://maps.google.com/?q=24.7,46.7',
+    service: 'come',
+    pay: 'cash',
+    lines: [],
+    total: 0,
+    at: '2026-09-04T00:00:00.000Z',
+    seen: false,
+  }, 'صندوق الحي'),
+  /تعال/,
+);
+assert.equal(parseMapsQueryCoords('https://maps.google.com/?q=24.713600,46.675300')?.lat, 24.7136);
+assert.equal(isProduceComeApproaching(24.7136, 46.6753, 24.7137, 46.6754), true);
+assert.ok(haversineMeters(24.7, 46.7, 24.8, 46.8) > 1000);
 assert.match(readFileSync(join(root, 'src/components/store/StoreProduceShop.tsx'), 'utf8'), /StoreBuyerLocateButtons/);
+assert.match(readFileSync(join(root, 'src/components/store/StoreProduceShop.tsx'), 'utf8'), /service === 'come'/);
+assert.match(readFileSync(join(root, 'src/components/store/StoreProduceShop.tsx'), 'utf8'), /requestProduceComeNotify/);
 const produceDesk = readFileSync(join(root, 'src/components/store/StoreProduceDesk.tsx'), 'utf8');
 assert.match(produceDesk, /StoreOpsSection titleAr="حالات السلع"/);
 assert.match(produceDesk, /StoreOpsSection titleAr=\{STORE_PRODUCE_LIVE\.ingestTitleAr\}/);

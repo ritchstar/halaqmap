@@ -3,7 +3,7 @@
  */
 import QRCode from 'react-qr-code';
 import { STORE_PRODUCE_LIVE } from '@/config/storeProduceLive';
-import { produceWhatsAppText, type ProduceLabState } from '@/lib/storeProduceLiveLab';
+import { produceServiceLabelAr, produceWhatsAppText, type ProduceLabState } from '@/lib/storeProduceLiveLab';
 import { StoreDeskOrderAlert } from '@/components/store/StoreDeskOrderAlert';
 import { StoreDeskControlTitle } from '@/components/store/StoreDeskControlTitle';
 import { StoreDeskArchiveDock } from '@/components/store/StoreDeskArchiveDock';
@@ -101,7 +101,7 @@ export function StoreProduceDesk({
                     {order.name} · {order.phone}
                   </p>
                   <p className="mt-1 text-white/70">
-                    {order.service === 'pickup' ? STORE_PRODUCE_LIVE.servicePickupAr : STORE_PRODUCE_LIVE.serviceDeliveryAr}
+                    {produceServiceLabelAr(order.service)}
                     {order.place ? ` · ${order.place}` : ''}
                   </p>
                   <p className="mt-1">{order.lines.map((line) => `${line.nameAr}×${line.qty}`).join(' · ')}</p>
@@ -130,7 +130,7 @@ export function StoreProduceDesk({
                     {order.name} · {order.phone}
                   </p>
                   <p className="mt-1 text-white/70">
-                    {order.service === 'pickup' ? STORE_PRODUCE_LIVE.servicePickupAr : STORE_PRODUCE_LIVE.serviceDeliveryAr}
+                    {produceServiceLabelAr(order.service)}
                     {order.place ? ` · ${order.place}` : ''}
                   </p>
                   <p className="mt-1">{order.lines.map((line) => `${line.nameAr}×${line.qty}`).join(' · ')}</p>
