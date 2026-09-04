@@ -3,7 +3,7 @@
  */
 import { Link } from 'react-router-dom';
 import { STORE_ATLAS_COPY, STORE_ATLAS_SECTORS, STORE_ATLAS_SERVICES } from '@/config/storeAtlasTokens';
-import { STORE_CONTACT_EMAIL, STORE_FOOTER_CONTACT, STORE_LANDING_COPY, STORE_PUBLIC_NAME_AR } from '@/config/storeFront';
+import { STORE_CONTACT_EMAIL, STORE_FOOTER_CONTACT, STORE_PUBLIC_NAME_AR } from '@/config/storeFront';
 import { STORE_SAIP_COPY } from '@/config/storeSaipRegistry';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 
@@ -14,7 +14,8 @@ export function AtlasFooter() {
         <div className="store-atlas__footer-grid text-sm">
           <div>
             <p className="font-extrabold">{STORE_ATLAS_COPY.footerIntroAr}</p>
-            <p className="mt-2 font-extrabold">{STORE_LANDING_COPY.shopNameAr}</p>
+            <p className="mt-2 font-extrabold">{STORE_ATLAS_COPY.brandNameAr}</p>
+            <p className="mt-1 font-bold text-[var(--atlas-teal)]">{STORE_ATLAS_COPY.brandTaglineAr}</p>
             <p className="mt-2 text-[var(--atlas-muted)]">{STORE_ATLAS_COPY.footerIntroLeadAr}</p>
           </div>
           <nav>

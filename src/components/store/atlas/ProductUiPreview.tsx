@@ -157,7 +157,7 @@ export function ProductUiPreview({
             ))}
           </ul>
         </div>
-        <p className="mt-3 rounded-full bg-[var(--atlas-teal)] py-2 text-center text-xs font-extrabold text-[var(--atlas-ink)]">
+        <p className="store-atlas__action-pill mt-3 rounded-full py-2 text-center text-xs font-extrabold">
           {actionAr}
         </p>
         <p className="mt-2 text-center text-[0.7rem] text-[var(--atlas-muted)]">{STORE_ATLAS_COPY.mockCaptionAr}</p>

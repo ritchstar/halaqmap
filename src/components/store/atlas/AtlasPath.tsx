@@ -76,15 +76,16 @@ export function AtlasPath({ compact = false }: { compact?: boolean }) {
                   x2={layout.nodes[layout.nodes.length - 1]?.x ?? 0}
                   y2={layout.nodes[layout.nodes.length - 1]?.y ?? 0}
                 >
-                  <stop offset="0%" stopColor="#0D9488" />
-                  <stop offset="55%" stopColor="#43B8C5" />
-                  <stop offset="100%" stopColor="#E8C547" />
+                  <stop offset="0%" stopColor="var(--signal-color, #35C9BB)" />
+                  <stop offset="55%" stopColor="var(--atlas-teal, #0D9488)" />
+                  <stop offset="100%" stopColor="var(--signal-gold, #E8C547)" />
                 </linearGradient>
               </defs>
               <path
                 d={layout.d}
                 fill="none"
-                stroke="rgb(13 148 136 / 0.35)"
+                stroke="var(--signal-color, #35c9bb)"
+                strokeOpacity="0.45"
                 strokeWidth="1.4"
                 strokeDasharray="7 8"
                 strokeLinecap="round"
@@ -98,7 +99,7 @@ export function AtlasPath({ compact = false }: { compact?: boolean }) {
                 strokeLinecap="round"
                 opacity="0.45"
               />
-              <circle r="4" className="store-atlas__signal-bead" fill="#35c9bb">
+              <circle r="4" className="store-atlas__signal-bead" fill="var(--signal-color, #35c9bb)">
                 <animateMotion dur="10s" repeatCount="indefinite">
                   <mpath href={`#${pathId}`} />
                 </animateMotion>

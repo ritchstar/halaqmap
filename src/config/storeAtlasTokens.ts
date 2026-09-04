@@ -47,7 +47,9 @@ export const STORE_ATLAS_LAB_VIEWS: readonly {
 ] as const;
 
 export const STORE_ATLAS_COPY = {
-  documentTitle: 'معاينة أطلس الحلول — خريطة الحل',
+  documentTitle: 'خريطة الحل — متجر الحلول الرقمية | معاينة داخلية',
+  brandNameAr: 'خريطة الحل',
+  brandTaglineAr: 'حلول رقمية متخصصة',
   labKickerAr: 'معاينة V3 — داخلية، ليست الواجهة العامة',
   daylightOnAr: 'خلفية أطلس المشرقة',
   daylightOffAr: 'خلفية داكنة ثابتة',
@@ -60,7 +62,7 @@ export const STORE_ATLAS_COPY = {
   orderColPriceAr: 'السعر',
   discoverArrowAr: 'اكتشف المنتج ←',
   footerIntroAr: 'تعريف المتجر',
-  footerIntroLeadAr: 'منتجات رقمية متخصصة تشغّل مهنة العرض والطلب من رابط واحد.',
+  footerIntroLeadAr: 'حلول رقمية متخصصة تشغّل مهنة العرض والطلب من رابط واحد.',
   footerProductsAr: 'المنتجات والقطاعات',
   footerTrialServicesAr: 'التجربة والخدمات',
   footerLegalAr: 'السياسات والمصنفات',
@@ -75,11 +77,14 @@ export const STORE_ATLAS_COPY = {
   headerWorksAr: 'المصنفات المسجلة',
   headerRequestAr: 'طلب حل خاص',
   headerTrialAr: 'جرّب قبل أن تشتري',
-  heroTitleAr: 'منتجات رقمية تُشغّل مهنتك',
+  heroKickerAr: 'حلول رقمية متخصصة',
+  heroTitleAr: 'خريطة الحل',
+  heroClaimAr: 'لعملٍ أوضح ونموٍ أسرع',
   heroLeadAr:
-    'حلول سحابية متخصصة تساعدك على العرض واستقبال الطلبات وتنظيم العمل، من رابط واحد يناسب طبيعة نشاطك.',
-  heroPrimaryAr: 'جرّب قبل أن تشتري',
-  heroSecondaryAr: 'استكشف الحلول',
+    'منتجات رقمية سحابية متخصصة تساعدك على عرض ما تقدمه، واستقبال الطلبات، وتنظيم العمل؛ من رابط واحد يناسب طبيعة نشاطك.',
+  heroSectorsAr: 'حلول للمتاجر المحلية، والطعام والضيافة، والمناسبات، والمهن والخدمات.',
+  heroPrimaryAr: 'استكشف الحلول',
+  heroSecondaryAr: 'اطلب حلاً خاصاً',
   trustProfessionAr: 'منتجات متخصصة حسب المهنة',
   trustDirectAr: 'علاقة مباشرة بين المشغّل وعميله',
   trustWorksAr: 'تضم المنظومة مصنفات برمجية مسجلة لدى الهيئة السعودية للملكية الفكرية',

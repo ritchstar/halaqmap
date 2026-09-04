@@ -5,7 +5,7 @@
  */
 import { Link } from 'react-router-dom';
 import { STORE_ATLAS_COPY } from '@/config/storeAtlasTokens';
-import { STORE_BRAND_LATIN, STORE_LANDING_COPY, STORE_VISUALS } from '@/config/storeFront';
+import { STORE_BRAND_LATIN, STORE_VISUALS } from '@/config/storeFront';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { cn } from '@/lib/utils';
 
@@ -23,7 +23,7 @@ export function AtlasHeader({ compact = false }: { compact?: boolean }) {
           />
           <span className="min-w-0">
             <p className="text-[0.7rem] font-bold text-[var(--atlas-muted)]">{STORE_BRAND_LATIN}</p>
-            <p className={cn('truncate font-extrabold', compact ? 'text-sm' : 'text-base')}>{STORE_LANDING_COPY.shopNameAr}</p>
+            <p className={cn('truncate font-extrabold', compact ? 'text-sm' : 'text-base')}>{STORE_ATLAS_COPY.brandNameAr}</p>
           </span>
         </Link>
         <nav className={cn('hidden items-center gap-1 text-sm font-bold md:flex', compact && 'md:hidden')}>

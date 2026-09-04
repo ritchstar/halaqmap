@@ -48,7 +48,15 @@ export default function StoreAtlasStyleLabPage() {
   };
 
   return (
-    <div dir="rtl" data-atlas-daylight={daylight} className="relative min-h-screen bg-[#020912] text-[#F4EFE4]">
+    <div
+      dir="rtl"
+      data-atlas-daylight={daylight}
+      className={
+        daylight === 'on'
+          ? 'relative min-h-screen bg-[#EFF6F1] text-[#072530]'
+          : 'relative min-h-screen bg-[#020912] text-[#F4EFE4]'
+      }
+    >
       <AtlasDaylight enabled={daylight === 'on'} />
       <div className="relative z-[1]">
         <div className="store-atlas-lab-bar sticky top-0 z-30 px-3 py-3">

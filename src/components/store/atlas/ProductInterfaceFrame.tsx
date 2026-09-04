@@ -19,7 +19,7 @@ export function ProductInterfaceFrame({
         device === 'phone' ? 'mx-auto max-w-[18rem]' : 'w-full',
       )}
     >
-      <div className="overflow-hidden rounded-[18px] bg-black/40">
+      <div className="overflow-hidden rounded-[18px] bg-[var(--atlas-well)]">
         <img src={src} alt={alt} className="aspect-[9/16] w-full object-cover" />
       </div>
     </figure>

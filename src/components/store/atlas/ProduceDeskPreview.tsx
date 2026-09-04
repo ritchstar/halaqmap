@@ -17,7 +17,7 @@ export function ProduceDeskPreview({ compact = false }: { compact?: boolean }) {
       <div className={compact ? 'px-3 py-3' : 'px-4 py-4'}>
         <p className="store-atlas__meta font-extrabold text-[var(--atlas-teal)]">لوحة الصندوق</p>
         <p className="store-atlas__card-title mt-1">وصل طلب جديد</p>
-        <div className="mt-3 rounded-xl border border-[var(--atlas-line)] bg-[#061018] p-3">
+        <div className="mt-3 rounded-xl border border-[var(--atlas-line)] bg-[var(--atlas-raised)] p-3">
           <p className="text-sm font-extrabold">جار الحي</p>
           <p className="store-atlas__meta mt-1 text-[var(--atlas-muted)]">
             توصيل للبيت ·{' '}

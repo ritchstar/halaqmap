@@ -40,8 +40,6 @@ export function SectorNavigator({ compact = false }: { compact?: boolean }) {
             'store-atlas__grid mt-6',
             compact && '!grid-cols-1',
             count === 1 && 'store-atlas__grid--single',
-            count === 2 && 'store-atlas__grid--pair',
-            count % 2 === 1 && count > 1 && 'store-atlas__grid--odd',
           )}
         >
           {cards.map((card) => (
