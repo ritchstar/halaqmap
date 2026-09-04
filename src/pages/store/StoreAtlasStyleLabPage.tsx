@@ -65,7 +65,7 @@ export default function StoreAtlasStyleLabPage() {
           </div>
         </div>
       ) : null}
-      {view === 'produce' ? <AtlasProduceMock compact /> : null}
+      {view === 'produce' ? <AtlasProduceMock /> : null}
       {view === 'home-desktop' ? <AtlasHome /> : null}
     </div>
   );

@@ -9,8 +9,8 @@ import { ROUTE_PATHS } from '@/lib/routePaths';
 
 export function AtlasFooter() {
   return (
-    <footer className="border-t border-[var(--atlas-line)] bg-[var(--atlas-raised)] px-4 py-10">
-      <div className="mx-auto flex max-w-6xl flex-col gap-5 text-sm">
+    <footer className="border-t border-[var(--atlas-line)] bg-[var(--atlas-raised)] py-10">
+      <div className="store-atlas__shell flex flex-col gap-5 text-sm">
         <p className="font-extrabold">{STORE_LANDING_COPY.shopNameAr}</p>
         <nav className="flex flex-wrap gap-x-5 gap-y-2 font-bold">
           {STORE_ATLAS_SECTORS.map((sector) => (

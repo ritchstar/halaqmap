@@ -22,12 +22,16 @@ export const STORE_ATLAS_COLORS = {
   line: '#1D3340',
 } as const;
 
+export const STORE_ATLAS_LAB_VERSION = 2 as const;
+
 export const STORE_ATLAS_SPACE = {
-  sectionDesktop: 96,
-  sectionMobile: 64,
+  shell: 1260,
+  sectionDesktop: 72,
+  sectionMobile: 48,
   cardRadius: 24,
   chipRadius: 16,
   touch: 44,
+  cardMin: 340,
 } as const;
 
 export type StoreAtlasLabView = 'home-desktop' | 'home-mobile' | 'produce';
@@ -43,9 +47,12 @@ export const STORE_ATLAS_LAB_VIEWS: readonly {
 
 export const STORE_ATLAS_COPY = {
   documentTitle: 'معاينة أطلس الحلول — خريطة الحل',
-  labKickerAr: 'معاينة داخلية — ليست الواجهة العامة',
+  labKickerAr: 'معاينة V2 — داخلية، ليست الواجهة العامة',
   labTitleAr: 'أطلس الحلول',
   noindexNoteAr: 'هذه الصفحة للمعاينة البصرية فقط.',
+  discoverProductAr: 'اكتشف المنتج',
+  tryNowAr: 'جرّب الآن',
+  forWhomLabelAr: 'لمن صُمم؟',
   headerProductsAr: 'المنتجات',
   headerSystemAr: 'كيف تعمل المنظومة؟',
   headerWorksAr: 'المصنفات المسجلة',
@@ -61,6 +68,9 @@ export const STORE_ATLAS_COPY = {
   trustWorksAr: 'مصنفات برمجية مسجلة للمنتجات المشمولة',
   sectorAskAr: 'ما طبيعة عملك؟',
   journeyTitleAr: 'كيف تعمل المنظومة؟',
+  journeyLeadAr: 'كل منتج نقطة على مسار واحد: من العرض إلى الولاء.',
+  servicesTitleAr: 'المهن والخدمات',
+  servicesLeadAr: 'استعلام قطاعي وخريطة عمل، لا صفحة طلب حي.',
   requestTitleAr: 'مهنتك لها تفاصيل مختلفة؟',
   requestLeadAr: 'اشرحها، ونرسم معك المسار الرقمي المناسب.',
   requestCtaAr: 'طلب حل خاص',
@@ -113,13 +123,40 @@ export const STORE_ATLAS_PRODUCE_FAQ = [
 ] as const;
 
 export const STORE_ATLAS_JOURNEY = [
-  { id: 'show', titleAr: 'اعرض' },
-  { id: 'receive', titleAr: 'استقبل الطلب' },
-  { id: 'run', titleAr: 'نظّم التشغيل' },
-  { id: 'loyalty', titleAr: 'ابنِ الولاء' },
+  { id: 'show', titleAr: 'العرض' },
+  { id: 'receive', titleAr: 'الطلب' },
+  { id: 'run', titleAr: 'التشغيل' },
+  { id: 'loyalty', titleAr: 'الولاء' },
 ] as const;
 
-export type StoreAtlasSectorId = 'local' | 'food' | 'screens' | 'occasions' | 'trades';
+export const STORE_ATLAS_SERVICES = [
+  {
+    id: 'halaq',
+    nameAr: 'حلاق ماب',
+    forWhomAr: 'لصالون الحي وصاحب الرخصة',
+    resultAr: 'استعلام قرب، ثم صفحة صالون وحجز من الخريطة.',
+    href: 'https://www.halaqmap.com',
+  },
+  {
+    id: 'coiffeur',
+    nameAr: 'كوافير ماب',
+    forWhomAr: 'لصالون النساء ضمن أعمال المتجر',
+    resultAr: 'استعلام قطاعي وبوابة شريكات بتغطية متدرجة.',
+    href: 'https://coiffeur.halaqmap.com',
+  },
+] as const;
+
+export type StoreAtlasSectorId = 'local' | 'food' | 'screens' | 'occasions';
+export type StoreAtlasUiKind =
+  | 'produce'
+  | 'grocers'
+  | 'kitchen'
+  | 'restaurant'
+  | 'cafe'
+  | 'lounge'
+  | 'wedding'
+  | 'event'
+  | 'card';
 
 export const STORE_ATLAS_SECTORS: readonly {
   id: StoreAtlasSectorId;
@@ -129,18 +166,19 @@ export const STORE_ATLAS_SECTORS: readonly {
   { id: 'food', titleAr: 'الطعام والضيافة' },
   { id: 'screens', titleAr: 'الشاشات والتجارب' },
   { id: 'occasions', titleAr: 'المناسبات' },
-  { id: 'trades', titleAr: 'المهن والخدمات' },
 ] as const;
 
 export type StoreAtlasCard = {
   id: string;
   sector: StoreAtlasSectorId;
+  uiKind: StoreAtlasUiKind;
   nameAr: string;
+  forWhomAr: string;
   resultAr: string;
   caps: readonly [string, string, string];
   status: 'trial' | 'brief';
   href: string;
-  image: string;
+  sectorImage: string;
   imageAlt: string;
 };
 
@@ -148,128 +186,132 @@ export const STORE_ATLAS_CARDS: readonly StoreAtlasCard[] = [
   {
     id: 'produce',
     sector: 'local',
+    uiKind: 'produce',
     nameAr: 'خضارنا1',
-    resultAr: 'صندوق اليوم يصل لجار الحي من الجوال.',
+    forWhomAr: 'لصاحب صندوق الخضار والفواكه في الحي',
+    resultAr: 'جار الحي يطلب من الجوال، والطلب يصل للوحة الصندوق مكتوباً.',
     caps: ['شريط ما وصل', 'طلب حبة أو كيلو', 'لوحة الصندوق'],
     status: 'trial',
     href: ROUTE_PATHS.STORE_PRODUCE,
-    image: '/images/store/produce/produce-01.jpg',
-    imageAlt: 'واجهة خضارنا1 لجار الحي',
+    sectorImage: '/images/store/produce/produce-01.jpg',
+    imageAlt: 'رحلة طلب خضارنا1 من الجوال إلى اللوحة',
   },
   {
     id: 'grocers',
     sector: 'local',
+    uiKind: 'grocers',
     nameAr: 'تمويناتا1',
-    resultAr: 'تموينات الحي تُطلب من الصفحة وتصل للكاشير.',
+    forWhomAr: 'لتموينات الحي والكاشير',
+    resultAr: 'جار الحي يبني السلة، والكاشير يستقبل التذكرة.',
     caps: ['بنك أصناف', 'مذكرة توصيل', 'ملصق QR'],
     status: 'trial',
     href: ROUTE_PATHS.STORE_GROCERS,
-    image: '/images/store/grocers/grocers-01.jpg',
-    imageAlt: 'واجهة تمويناتا1 لجار الحي',
+    sectorImage: '/images/store/grocers/grocers-01.jpg',
+    imageAlt: 'واجهة طلب تمويناتا1',
   },
   {
     id: 'kitchen',
     sector: 'food',
+    uiKind: 'kitchen',
     nameAr: 'طبختنا1',
-    resultAr: 'الأسرة المنتجة تستقبل الطلب منظماً من الجوال.',
-    caps: ['أصناف منزلية', 'تذكرة نشاط', 'رمز المتجر'],
+    forWhomAr: 'للأسرة المنتجة',
+    resultAr: 'الزبون يحجز الطبق، والنشاط يستقبل تذكرة جاهزة.',
+    caps: ['أصناف منزلية', 'طلبك جاهز', 'رمز المتجر'],
     status: 'trial',
     href: ROUTE_PATHS.STORE_KITCHEN,
-    image: '/images/store/kitchen/kitchen-01.jpg',
-    imageAlt: 'واجهة طبختنا1 للزبون',
+    sectorImage: '/images/store/kitchen/kitchen-01.jpg',
+    imageAlt: 'واجهة طلب طبختنا1',
   },
   {
     id: 'restaurant',
     sector: 'food',
+    uiKind: 'restaurant',
     nameAr: 'مطعمنا1',
-    resultAr: 'ضيف الحي يطلب والأطباق تصل للمطبخ تذكرة.',
-    caps: ['طبق اليوم', 'توصيل أو استلام', 'صندوق محادثة'],
+    forWhomAr: 'لمطبخ الحي وضيفه',
+    resultAr: 'الضيف يطلب، والمطبخ يستلم تذكرة الطبق.',
+    caps: ['طبق اليوم', 'توصيل أو استلام', 'صندوق ملاحظة'],
     status: 'trial',
     href: ROUTE_PATHS.STORE_RESTAURANT,
-    image: '/images/store/restaurant/restaurant-02.jpg',
-    imageAlt: 'واجهة مطعمنا1 لضيف الحي',
+    sectorImage: '/images/store/restaurant/restaurant-02.jpg',
+    imageAlt: 'واجهة طلب مطعمنا1',
   },
   {
     id: 'cafe',
     sector: 'food',
+    uiKind: 'cafe',
     nameAr: 'كافينا1',
-    resultAr: 'جار الحي يطلب، والشاشات ترحّب داخل المقهى.',
-    caps: ['مشروبات وعروض', 'ثلاث شاشات', 'رابط ضيف'],
+    forWhomAr: 'لمقهى الحي',
+    resultAr: 'الجار يطلب، والشاشة ترحّب من رابط الضيف.',
+    caps: ['مشروبات اليوم', 'ثلاث شاشات', 'رابط ضيف'],
     status: 'trial',
     href: ROUTE_PATHS.STORE_CAFE,
-    image: '/images/store/lounge-hero-marketing.jpg',
-    imageAlt: 'واجهة كافينا1 لجار الحي',
+    sectorImage: '/images/store/lounge-hero-marketing.jpg',
+    imageAlt: 'واجهة طلب كافينا1',
   },
   {
     id: 'lounge',
     sector: 'screens',
+    uiKind: 'lounge',
     nameAr: 'لاونجا1',
-    resultAr: 'شاشة اللاونج تعرض الترحيب من رابط الضيف.',
+    forWhomAr: 'لصالة الضيافة والشاشة',
+    resultAr: 'رابط الضيف يظهر الترحيب على شاشة اللاونج.',
     caps: ['حزمة فعاليات', 'لوحة مضيف', 'رابط ترحيب'],
     status: 'trial',
     href: ROUTE_PATHS.STORE_LOUNGE,
-    image: '/images/store/lounge/lounge-01.jpg',
+    sectorImage: '/images/store/lounge/lounge-01.jpg',
     imageAlt: 'شاشة لاونجا1',
   },
   {
     id: 'wedding',
     sector: 'occasions',
+    uiKind: 'wedding',
     nameAr: 'افراحي1',
-    resultAr: 'كرت الدعوة يفتح قاعة حفل حيّة للمدعوين.',
+    forWhomAr: 'لصاحب الحفل ومدعويه',
+    resultAr: 'كرت الدعوة يفتح قاعة حيّة بروابط سرية.',
     caps: ['كرت فخم', 'قاعة حية', 'روابط سرية'],
     status: 'brief',
     href: ROUTE_PATHS.STORE_WEDDING,
-    image: STORE_VISUALS.cardStudio,
+    sectorImage: STORE_VISUALS.cardStudio,
     imageAlt: 'كرت افراحي1',
   },
   {
     id: 'event',
     sector: 'occasions',
+    uiKind: 'event',
     nameAr: 'اجواء1',
-    resultAr: 'دعوة حرة لمناسبة يسميها العميل بنفسه.',
-    caps: ['شق رجالي أو نسائي', 'قاعة حية', 'تهاني على الشاشة'],
+    forWhomAr: 'لصاحب المناسبة الحرة',
+    resultAr: 'دعوة يسميها العميل، بشقين وتهاني على الشاشة.',
+    caps: ['شق رجالي أو نسائي', 'قاعة حية', 'تهاني'],
     status: 'brief',
     href: ROUTE_PATHS.STORE_EVENT,
-    image: '/images/store/lab/lab-lounge-interior.jpg',
+    sectorImage: '/images/store/lab/lab-lounge-interior.jpg',
     imageAlt: 'قاعة اجواء1',
   },
   {
     id: 'card',
     sector: 'occasions',
+    uiKind: 'card',
     nameAr: 'كاردي8',
-    resultAr: 'بطاقة مناسبة حيّة تُشارك برابط واضح.',
+    forWhomAr: 'لمن يرسل بطاقة مناسبة',
+    resultAr: 'بطاقة حيّة تُشارك برابط واضح.',
     caps: ['معاينة مجانية', 'ثلاث طبقات', 'تحميل الصورة'],
     status: 'brief',
     href: ROUTE_PATHS.STORE_INVITES,
-    image: STORE_VISUALS.cardMark,
+    sectorImage: STORE_VISUALS.cardMark,
     imageAlt: 'كاردي8',
-  },
-  {
-    id: 'halaq',
-    sector: 'trades',
-    nameAr: 'حلاق ماب',
-    resultAr: 'استعلام للحي ورخصة نفاذ للصالون.',
-    caps: ['رادار القرب', 'صفحة الصالون', 'حجز من الخريطة'],
-    status: 'brief',
-    href: 'https://www.halaqmap.com',
-    image: STORE_VISUALS.radar,
-    imageAlt: 'رادار حلاق ماب',
-  },
-  {
-    id: 'coiffeur',
-    sector: 'trades',
-    nameAr: 'كوافير ماب',
-    resultAr: 'منتج قطاعي للنساء ضمن أعمال المتجر.',
-    caps: ['استعلام', 'بوابة الشريكات', 'تغطية متدرجة'],
-    status: 'brief',
-    href: 'https://coiffeur.halaqmap.com',
-    image: STORE_VISUALS.coiffeurHero,
-    imageAlt: 'كوافير ماب',
   },
 ] as const;
 
 export function storeAtlasCardsBySector(sector: StoreAtlasSectorId): StoreAtlasCard[] {
   return STORE_ATLAS_CARDS.filter((card) => card.sector === sector);
+}
+
+export function storeAtlasCardCtaAr(status: StoreAtlasCard['status']): string {
+  return status === 'trial' ? STORE_ATLAS_COPY.tryNowAr : STORE_ATLAS_COPY.discoverProductAr;
+}
+
+export function storeAtlasGridFeatured(count: number): boolean {
+  return count === 1 || count % 2 === 1;
 }
 
 export function parseStoreAtlasLabView(raw: string | null): StoreAtlasLabView {

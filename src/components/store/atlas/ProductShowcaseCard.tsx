@@ -2,44 +2,47 @@
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
 import { Link } from 'react-router-dom';
-import { STORE_ATLAS_COPY, STORE_ATLAS_SECTORS, type StoreAtlasCard } from '@/config/storeAtlasTokens';
-import { STORE_VISUALS } from '@/config/storeFront';
+import { ProductUiPreview } from '@/components/store/atlas/ProductUiPreview';
+import { STORE_ATLAS_COPY, storeAtlasCardCtaAr, type StoreAtlasCard } from '@/config/storeAtlasTokens';
 
 export function ProductShowcaseCard({ card }: { card: StoreAtlasCard }) {
-  const sector = STORE_ATLAS_SECTORS.find((item) => item.id === card.sector);
   const external = card.href.startsWith('http');
-  const cta = `${STORE_ATLAS_COPY.discoverPrefixAr} ${card.nameAr}`;
+  const cta = storeAtlasCardCtaAr(card.status);
   const body = (
     <>
-      <div className="flex items-center gap-2">
-        <img src={STORE_VISUALS.logo} alt="" width={28} height={28} className="h-7 w-7 rounded-lg object-cover" />
-        <p className="text-xs font-bold text-[var(--atlas-teal)]">{sector?.titleAr}</p>
+      <div className="relative overflow-hidden rounded-[20px] border border-[var(--atlas-line)] bg-[#07141c] p-3">
+        <img
+          src={card.sectorImage}
+          alt=""
+          className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-20"
+        />
+        <div className="relative flex justify-center py-2">
+          <ProductUiPreview kind={card.uiKind} compact actionAr={card.uiKind === 'produce' ? 'أرسل الطلب للصندوق' : 'أكمل الطلب'} />
+        </div>
       </div>
-      <img src={card.image} alt={card.imageAlt} className="mt-3 aspect-[16/10] w-full rounded-2xl object-cover" />
-      <h3 className="mt-4 text-[1.35rem] font-extrabold">{card.nameAr}</h3>
-      <p className="mt-2 text-sm leading-7 text-[var(--atlas-muted)]">{card.resultAr}</p>
-      <ul className="mt-3 space-y-1 text-sm text-[var(--atlas-ivory)]">
+      <h3 className="store-atlas__card-title mt-4">{card.nameAr}</h3>
+      <p className="store-atlas__meta mt-2 font-extrabold text-[var(--atlas-teal)]">{STORE_ATLAS_COPY.forWhomLabelAr}</p>
+      <p className="store-atlas__body mt-1">{card.forWhomAr}</p>
+      <p className="store-atlas__body mt-2 text-[var(--atlas-muted)]">{card.resultAr}</p>
+      <ul className="store-atlas__meta mt-3 space-y-1 text-[var(--atlas-ivory)]">
         {card.caps.map((cap) => (
           <li key={cap}>{cap}</li>
         ))}
       </ul>
-      <p className="mt-3 text-sm font-bold text-[var(--atlas-teal)]">
-        {card.status === 'trial' ? STORE_ATLAS_COPY.statusTrialAr : STORE_ATLAS_COPY.statusBriefAr}
-      </p>
-      <span className="store-atlas__btn store-atlas__btn--ghost mt-4 w-full">{cta}</span>
+      <span className="store-atlas__btn store-atlas__btn--teal mt-4 w-full">{cta}</span>
     </>
   );
 
   if (external) {
     return (
-      <a href={card.href} className="store-atlas__card block p-4" target="_blank" rel="noreferrer">
+      <a href={card.href} data-atlas-card={card.id} className="store-atlas__card block p-5" target="_blank" rel="noreferrer">
         {body}
       </a>
     );
   }
 
   return (
-    <Link to={card.href} className="store-atlas__card block p-4">
+    <Link to={card.href} data-atlas-card={card.id} className="store-atlas__card block p-5">
       {body}
     </Link>
   );
