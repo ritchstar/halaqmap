@@ -78,6 +78,8 @@ export const ROUTE_PATHS = {
   STORE_OCCASION_CARD_PAY: '/pay/occasion-card/:token',
   /** مختبر نماذج البطاقة الحيّة — تجريبي بلا دفع */
   STORE_INVITES_LAB: '/store/invites/lab',
+  /** معاينة أطلس الحلول — داخلية بلا تعميم على المتجر العام */
+  STORE_STYLE_LAB: '/store/style-lab',
   /** دعوة زواج تفاعلية — منتج مستقل بلا خلط ببطاقة المناسبة */
   STORE_WEDDING: '/store/wedding',
   STORE_WEDDING_READ: '/store/wedding/read',

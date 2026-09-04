@@ -70,6 +70,7 @@ function normalizeLocationHashSlashes(): void {
 const LAB_STANDALONE_ROUTES: Record<string, () => Promise<{ default: ComponentType }>> = {
   '/lab/silent-star-camp': () => import('./pages/SilentStarCampLanding.tsx'),
   '/lab/desert-light-lock': () => import('./pages/DesertLightLockLanding.tsx'),
+  '/store/style-lab': () => import('./pages/store/StoreAtlasStyleLabPage.tsx'),
 };
 
 async function bootstrapLabStandalone(rootEl: HTMLElement): Promise<boolean> {
@@ -86,9 +87,12 @@ async function bootstrapLabStandalone(rootEl: HTMLElement): Promise<boolean> {
   if (!Page) {
     throw new Error('تعذّر تحميل صفحة المختبر');
   }
+  const { HashRouter } = await import('react-router-dom-original');
   createRoot(rootEl).render(
     <RootErrorBoundary>
-      <Page />
+      <HashRouter>
+        <Page />
+      </HashRouter>
     </RootErrorBoundary>,
   );
   markAppMounted();

@@ -83,6 +83,8 @@ const STORE_OCCASION_CARD_PAY_PATH =
   (ROUTE_PATHS as { STORE_OCCASION_CARD_PAY?: string }).STORE_OCCASION_CARD_PAY || "/pay/occasion-card/:token";
 const STORE_INVITES_LAB_PATH =
   (ROUTE_PATHS as { STORE_INVITES_LAB?: string }).STORE_INVITES_LAB || "/store/invites/lab";
+const STORE_STYLE_LAB_PATH =
+  (ROUTE_PATHS as { STORE_STYLE_LAB?: string }).STORE_STYLE_LAB || "/store/style-lab";
 const STORE_WEDDING_PATH =
   (ROUTE_PATHS as { STORE_WEDDING?: string }).STORE_WEDDING || "/store/wedding";
 const STORE_WEDDING_WOMEN_PATH =
@@ -353,6 +355,7 @@ const StorePaidInviteStudioPage = lazy(() => import("@/pages/store/StorePaidInvi
 const StorePaidInviteViewPage = lazy(() => import("@/pages/store/StorePaidInviteViewPage"));
 const StorePaidInvitePayPage = lazy(() => import("@/pages/store/StorePaidInvitePayPage"));
 const StoreOccasionCardLabPage = lazy(() => import("@/pages/store/StoreOccasionCardLabPage"));
+const StoreAtlasStyleLabPage = lazy(() => import("@/pages/store/StoreAtlasStyleLabPage"));
 const StoreWeddingLandingPage = lazy(() => import("@/pages/store/StoreWeddingLandingPage"));
 const StoreWeddingLabPage = lazy(() => import("@/pages/store/StoreWeddingLabPage"));
 const StoreWeddingHallPage = lazy(() => import("@/pages/store/StoreWeddingHallPage"));
@@ -912,6 +915,7 @@ export function App() {
           <Route path={STORE_DIRECT_PAY_POLICY_PATH} element={<LazyRoute><StoreDirectPayPolicyPage /></LazyRoute>} />
           <Route path={STORE_INVITES_PATH} element={<LazyRoute><StorePaidInviteStudioPage /></LazyRoute>} />
           <Route path={STORE_INVITES_LAB_PATH} element={<LazyRoute><StoreOccasionCardLabPage /></LazyRoute>} />
+          <Route path={STORE_STYLE_LAB_PATH} element={<LazyRoute><StoreAtlasStyleLabPage /></LazyRoute>} />
           <Route path={STORE_HALLS_SUPPORT_PATH} element={<LazyRoute><StoreProductSupportPage /></LazyRoute>} />
           <Route path={STORE_WEDDING_LAB_PATH} element={<LazyRoute><StoreWeddingLabPage /></LazyRoute>} />
           <Route path={STORE_WEDDING_WOMEN_PATH} element={<LazyRoute><StoreWeddingLandingPage /></LazyRoute>} />
