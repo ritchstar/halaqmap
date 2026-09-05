@@ -10,9 +10,11 @@ import type { GrocersChatMsg, GrocersLabState } from '@/lib/storeGrocersLiveLab'
 export function StoreGrocersBuyerChat({
   state,
   onChange,
+  isLab = false,
 }: {
   state: GrocersLabState;
   onChange: (next: GrocersLabState) => void;
+  isLab?: boolean;
 }) {
   const [name, setName] = useState('');
   const [text, setText] = useState('');
@@ -24,7 +26,7 @@ export function StoreGrocersBuyerChat({
     const msg: GrocersChatMsg = {
       id: `${Date.now()}`,
       from: 'buyer',
-      name: name.trim().slice(0, 40) || 'جار الحي',
+      name: isLab ? STORE_GROCERS_LIVE.labDemoNameAr : name.trim().slice(0, 40) || 'عميل',
       text: body.slice(0, 240),
       at: new Date().toISOString(),
     };

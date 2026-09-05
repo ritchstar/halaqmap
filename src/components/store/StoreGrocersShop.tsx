@@ -2,7 +2,7 @@
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
 import { useMemo, useState } from 'react';
-import { STORE_GROCERS_LIVE } from '@/config/storeGrocersLive';
+import { STORE_GROCERS_LIVE, STORE_GROCERS_LIVE_LAB_TOKEN, grocersCatalogImage } from '@/config/storeGrocersLive';
 import {
   compressImageFile,
   grocersCartTotal,
@@ -26,6 +26,8 @@ import { isShopClosedNow } from '@/lib/storeShopHours';
 import { cn } from '@/lib/utils';
 import { StoreDirectPayGuest, StoreDirectPayPublicMount } from '@/components/store/StoreDirectPayGuest';
 
+type GrocersService = 'delivery' | 'pickup';
+
 export function StoreGrocersShop({
   state,
   onChange,
@@ -35,14 +37,17 @@ export function StoreGrocersShop({
   onChange: (next: GrocersLabState) => void;
   token: string;
 }) {
-  const saved = useMemo(() => readSavedGrocersBuyer(), []);
+  const isLab = token === STORE_GROCERS_LIVE_LAB_TOKEN;
+  const saved = useMemo(() => (isLab ? null : readSavedGrocersBuyer()), [isLab]);
   const [qty, setQty] = useState<Record<string, number>>({});
   const [name, setName] = useState(saved?.name || '');
   const [phone, setPhone] = useState(saved?.phone || '');
   const [place, setPlace] = useState(saved?.place || '');
+  const [placeConfirmed, setPlaceConfirmed] = useState(false);
   const [facadeSrc, setFacadeSrc] = useState('');
   const [pay, setPay] = useState<GrocersPayMethod>('cash');
-  const [saveBuyer, setSaveBuyer] = useState(Boolean(saved));
+  const [service, setService] = useState<GrocersService>('delivery');
+  const [saveBuyer, setSaveBuyer] = useState(false);
   const [sent, setSent] = useState(false);
 
   const mobile = state.host.vendorMode === 'mobile';
@@ -61,6 +66,7 @@ export function StoreGrocersShop({
     }))
     .filter((line) => line.qty > 0);
   const total = grocersCartTotal(lines);
+  const needsPlace = service === 'delivery';
 
   function bump(id: string, delta: number) {
     setQty((current) => {
@@ -79,21 +85,34 @@ export function StoreGrocersShop({
   }
 
   function submit() {
-    if (name.trim().length < 2 || phone.trim().length < 9 || !lines.length) return;
+    const orderName = isLab ? STORE_GROCERS_LIVE.labDemoNameAr : name.trim().slice(0, 40);
+    const orderPhone = isLab ? STORE_GROCERS_LIVE.labDemoPhoneAr : phone.trim().slice(0, 20);
+    const orderPlace = isLab
+      ? STORE_GROCERS_LIVE.labDemoPlaceAr
+      : needsPlace
+        ? place.trim().slice(0, 160)
+        : 'استلام من المحل';
+    if (!isLab && orderName.length < 2) return;
+    if (!isLab && orderPhone.length < 9) return;
+    if (!isLab && needsPlace && orderPlace.length < 3) return;
+    if (!lines.length) return;
     const order = {
       id: `${Date.now()}`,
-      name: name.trim().slice(0, 40),
-      phone: phone.trim().slice(0, 20),
-      place: place.trim().slice(0, 160),
-      facadeSrc,
+      name: orderName,
+      phone: orderPhone,
+      place: orderPlace,
+      facadeSrc: isLab ? '' : facadeSrc,
       pay,
+      service,
       lines,
       total,
       at: new Date().toISOString(),
       seen: false,
     };
     onChange({ ...state, orders: [order, ...state.orders].slice(0, 200) });
-    writeSavedGrocersBuyer(saveBuyer ? { name: order.name, phone: order.phone, place: order.place } : null);
+    if (!isLab) {
+      writeSavedGrocersBuyer(saveBuyer ? { name: order.name, phone: order.phone, place: order.place } : null);
+    }
     setQty({});
     setSent(true);
   }
@@ -107,7 +126,7 @@ export function StoreGrocersShop({
       ) : null}
       <header>
         <p className="text-xs tracking-[0.3em] text-[#8fbf7a]">{STORE_GROCERS_LIVE.shopKickerAr}</p>
-        <h2 className="mt-1 flex items-center gap-2 text-3xl font-black">
+        <h2 className="mt-1 flex flex-wrap items-center gap-2 text-2xl font-black md:text-3xl">
           <StoreShopLogoMark src={state.host.logoSrc} />
           <span>{state.host.shopName}</span>
           {mobile ? <StoreMobileVendorMark accent="#8fbf7a" /> : null}
@@ -130,14 +149,18 @@ export function StoreGrocersShop({
 
       <section>
         <h3 className="text-lg font-extrabold">{STORE_GROCERS_LIVE.featuredTitleAr}</h3>
-        <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-          {featured.map((item) => (
+        <div className="mt-3 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
+          {featured.map((item, index) => (
             <article key={item.catalogId} className="overflow-hidden rounded-2xl border border-[#8fbf7a]/30 bg-[#102018]">
-              <div className="flex aspect-square items-center justify-center bg-gradient-to-br from-[#8fbf7a]/35 to-[#061018] px-3 text-center text-sm font-bold">
-                {item.nameAr}
-              </div>
+              <img
+                src={grocersCatalogImage(index)}
+                alt=""
+                className="aspect-square w-full object-cover"
+                loading="lazy"
+              />
               <div className="p-3">
-                <p className="text-sm font-black text-[#8fbf7a]">{item.price} ر.س</p>
+                <p className="text-sm font-bold leading-6">{item.nameAr}</p>
+                <p className="mt-1 text-sm font-black text-[#8fbf7a]">{item.price} ر.س</p>
                 <QtyRow value={qty[item.catalogId] || 0} onMinus={() => bump(item.catalogId, -1)} onPlus={() => bump(item.catalogId, 1)} />
               </div>
             </article>
@@ -172,31 +195,91 @@ export function StoreGrocersShop({
           {preorder ? STORE_SHOP_HOURS_COPY.preorderTitleAr : STORE_GROCERS_LIVE.checkoutTitleAr}
         </h3>
         <p className="mt-1 text-sm text-[#8fbf7a]">الإجمالي الآن: {total} ر.س</p>
+
+        <p className="mt-4 text-sm font-bold">طريقة الاستلام</p>
+        <div className="mt-2 flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={() => setService('delivery')}
+            className={cn('rounded-full px-3 py-1.5 text-xs', service === 'delivery' ? 'bg-[#8fbf7a] font-bold text-[#061018]' : 'border border-white/20')}
+          >
+            {STORE_GROCERS_LIVE.serviceDeliveryAr}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setService('pickup');
+              setPlaceConfirmed(false);
+            }}
+            className={cn('rounded-full px-3 py-1.5 text-xs', service === 'pickup' ? 'bg-[#8fbf7a] font-bold text-[#061018]' : 'border border-white/20')}
+          >
+            {STORE_GROCERS_LIVE.servicePickupAr}
+          </button>
+        </div>
+
         <label className="mt-3 block text-sm">
           {STORE_GROCERS_LIVE.buyerNameLabelAr}
-          <input required value={name} onChange={(e) => setName(e.target.value)} className="grocers-field" maxLength={40} />
+          <input
+            required={!isLab}
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="grocers-field"
+            maxLength={40}
+            placeholder={isLab ? STORE_GROCERS_LIVE.labDemoNameAr : undefined}
+          />
         </label>
         <label className="mt-3 block text-sm">
           {STORE_GROCERS_LIVE.buyerPhoneLabelAr}
-          <input required value={phone} onChange={(e) => setPhone(e.target.value)} className="grocers-field" inputMode="tel" maxLength={20} />
+          <input
+            required={!isLab}
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            className="grocers-field"
+            inputMode="tel"
+            maxLength={20}
+            placeholder={isLab ? STORE_GROCERS_LIVE.labDemoPhoneAr : undefined}
+          />
         </label>
-        <label className="mt-3 block text-sm">
-          {mobile ? STORE_MOBILE_VENDOR.placeHintAr : STORE_GROCERS_LIVE.buyerPlaceLabelAr}
-          <input value={place} onChange={(e) => setPlace(e.target.value)} className="grocers-field" maxLength={160} />
-        </label>
-        <StoreBuyerLocateButtons
-          value={place}
-          accent="#8fbf7a"
-          copy={STORE_GROCERS_LIVE}
-          onLocated={setPlace}
-        />
-        {mobile ? null : (
+        {needsPlace ? (
+          <>
+            <label className="mt-3 block text-sm">
+              {mobile ? STORE_MOBILE_VENDOR.placeHintAr : STORE_GROCERS_LIVE.buyerPlaceLabelAr}
+              <input
+                value={place}
+                onChange={(e) => {
+                  setPlace(e.target.value);
+                  setPlaceConfirmed(false);
+                }}
+                className="grocers-field"
+                maxLength={160}
+                placeholder={isLab ? STORE_GROCERS_LIVE.labDemoPlaceAr : undefined}
+              />
+            </label>
+            <StoreBuyerLocateButtons
+              value={place}
+              accent="#8fbf7a"
+              copy={STORE_GROCERS_LIVE}
+              onLocated={(next) => {
+                setPlace(next);
+                setPlaceConfirmed(true);
+              }}
+            />
+            {placeConfirmed && !place.startsWith('http') ? (
+              <p className="mt-2 text-xs text-[#8fbf7a]">{STORE_GROCERS_LIVE.locateSavedAr}</p>
+            ) : null}
+          </>
+        ) : null}
+
+        {!isLab && needsPlace ? (
           <label className="mt-3 block text-sm">
             {STORE_GROCERS_LIVE.buyerFacadeLabelAr}
+            <p className="mt-1 text-xs leading-6 text-white/55">{STORE_GROCERS_LIVE.buyerFacadeHintAr}</p>
             <input type="file" accept="image/*" className="mt-2 block w-full text-xs" onChange={(e) => void onFacade(e.target.files?.[0])} />
           </label>
-        )}
-        <div className="mt-3 flex flex-wrap gap-2">
+        ) : null}
+
+        <p className="mt-4 text-sm font-bold">طريقة الدفع</p>
+        <div className="mt-2 flex flex-wrap gap-2">
           <button type="button" onClick={() => setPay('cash')} className={cn('rounded-full px-3 py-1.5 text-xs', pay === 'cash' ? 'bg-[#8fbf7a] font-bold text-[#061018]' : 'border border-white/20')}>
             {STORE_GROCERS_LIVE.payCashAr}
           </button>
@@ -207,15 +290,17 @@ export function StoreGrocersShop({
         <div className="mt-3">
           <StoreDirectPayPublicMount product="store_grocers_live" token={token} accent="#8fbf7a" />
         </div>
-        <label className="mt-4 flex items-start gap-2 text-sm leading-7">
-          <input type="checkbox" checked={saveBuyer} onChange={(e) => setSaveBuyer(e.target.checked)} className="mt-1" />
-          <span>{STORE_GROCERS_LIVE.saveBuyerAr}</span>
-        </label>
+        {!isLab ? (
+          <label className="mt-4 flex items-start gap-2 text-sm leading-7">
+            <input type="checkbox" checked={saveBuyer} onChange={(e) => setSaveBuyer(e.target.checked)} className="mt-1" />
+            <span>{STORE_GROCERS_LIVE.saveBuyerAr}</span>
+          </label>
+        ) : null}
         <button type="submit" className="mt-4 min-h-12 w-full rounded-full bg-[#8fbf7a] text-sm font-bold text-[#061018]">
           {STORE_GROCERS_LIVE.submitOrderAr}
         </button>
-        {sent ? <p className="mt-3 text-sm text-[#8fbf7a]">وصل الطلب للكاشير.</p> : null}
-        {sent && state.orders[0]?.id ? (
+        {sent ? <p className="mt-3 text-sm text-[#8fbf7a]">{STORE_GROCERS_LIVE.orderSentAr}</p> : null}
+        {sent && state.orders[0]?.id && !isLab ? (
           <div className="mt-4">
             <StoreDirectPayGuest
               product="store_grocers_live"
@@ -227,7 +312,7 @@ export function StoreGrocersShop({
           </div>
         ) : null}
       </form>
-      <StoreGrocersBuyerChat state={state} onChange={onChange} />
+      <StoreGrocersBuyerChat state={state} onChange={onChange} isLab={isLab} />
     </div>
   );
 }

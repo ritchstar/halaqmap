@@ -6,7 +6,7 @@
 import { STORE_GROCERS_CATALOG, grocersCatalogById, parseGrocersListText } from '@/config/storeGrocersCatalog';
 
 export { parseGrocersListText };
-import { STORE_GROCERS_LIVE_DEMO, type StoreGrocersLivePackId } from '@/config/storeGrocersLive';
+import { STORE_GROCERS_LIVE_DEMO, STORE_GROCERS_LAB_SHELF_NAMES, type StoreGrocersLivePackId } from '@/config/storeGrocersLive';
 import { DEFAULT_STORE_SHOP_HOURS, type StoreShopHoursState } from '@/config/storeShopHours';
 import { DEFAULT_SHOP_PICKUP, parseShopPickupPlace, type ShopPickupPlace } from '@/lib/storeShopPlace';
 import { hydrateDeskTickets } from '@/lib/storeDeskOrderTicket';
@@ -39,6 +39,7 @@ export type GrocersOrder = {
   place: string;
   facadeSrc: string;
   pay: GrocersPayMethod;
+  service?: 'delivery' | 'pickup';
   lines: GrocersOrderLine[];
   total: number;
   at: string;
@@ -103,7 +104,7 @@ export function defaultGrocersLabState(): GrocersLabState {
     const item = grocersCatalogById(id) || STORE_GROCERS_CATALOG[index];
     return {
       catalogId: item.id,
-      nameAr: item.nameAr,
+      nameAr: STORE_GROCERS_LAB_SHELF_NAMES[id] || item.nameAr,
       category: item.category,
       price: item.defaultPrice,
       inStock: true,
@@ -125,7 +126,7 @@ export function defaultGrocersLabState(): GrocersLabState {
     shelf,
     orders: [],
     orderArchive: [],
-    chatAddon: true,
+    chatAddon: false,
     chats: [],
   };
 }
@@ -146,7 +147,7 @@ export function readGrocersLabState(token: string): GrocersLabState {
       },
       shelf: Array.isArray(parsed.shelf) && parsed.shelf.length ? parsed.shelf : fallback.shelf,
       ...hydrateDeskTickets<GrocersOrder>(parsed.orders, parsed.orderArchive),
-      chatAddon: parsed.chatAddon !== false,
+      chatAddon: parsed.chatAddon === true,
       chats: Array.isArray(parsed.chats) ? parsed.chats : [],
     };
   } catch {
@@ -210,15 +211,16 @@ export function activateCatalogItem(
 }
 
 export function grocersWhatsAppText(order: GrocersOrder, shopName: string, mapsUrl = ''): string {
-  const pay = order.pay === 'card' ? 'شبكة مع التوصيل' : 'نقداً عند الاستلام';
+  const pay = order.pay === 'card' ? 'شبكة عند الاستلام' : 'نقداً عند الاستلام';
+  const service =
+    order.service === 'pickup' ? 'استلام من المحل' : 'توصيل داخل النطاق';
   const lines = order.lines.map((line) => `${line.nameAr} × ${line.qty} = ${line.price * line.qty} ر.س`).join('\n');
-  const facade = order.facadeSrc ? 'صورة واجهة السكن محفوظة في المذكرة.' : 'بلا صورة واجهة.';
   return [
-    `مذكرة توصيل — ${shopName}`,
+    `ملخص الطلب — ${shopName}`,
     `الزبون: ${order.name}`,
     `الجوال: ${order.phone}`,
+    `الاستلام: ${service}`,
     `الموقع: ${order.place}`,
-    facade,
     mapsUrl ? `موقع العربة: ${mapsUrl}` : '',
     `الدفع: ${pay}`,
     lines,

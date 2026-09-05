@@ -32,12 +32,14 @@ export function StoreGrocersDesk({
   shopUrl,
   token,
   showTrialNote = false,
+  maskPii = false,
 }: {
   state: GrocersLabState;
   onChange: (next: GrocersLabState) => void;
   shopUrl: string;
   token: string;
   showTrialNote?: boolean;
+  maskPii?: boolean;
 }) {
   const live = state.orders.filter(isLiveDeskTicket);
   const fresh = live.filter((item) => deskOrderPhase(item) === 'new');
@@ -70,6 +72,20 @@ export function StoreGrocersDesk({
     win.print();
   }
 
+  function displayName(order: { name: string }) {
+    return maskPii ? STORE_GROCERS_LIVE.labDeskMaskedNameAr : order.name;
+  }
+
+  function displayPhone(order: { phone: string }) {
+    return maskPii ? STORE_GROCERS_LIVE.labDeskMaskedPhoneAr : order.phone;
+  }
+
+  function displayPlace(order: { place: string }) {
+    if (maskPii) return STORE_GROCERS_LIVE.labDeskMaskedPlaceAr;
+    if (order.place.startsWith('http')) return 'تم تحديد الموقع';
+    return order.place || 'بلا موقع مكتوب';
+  }
+
   return (
     <div className="space-y-6">
       <StoreDeskOrderAlert
@@ -83,18 +99,18 @@ export function StoreGrocersDesk({
       <div className={cn('rounded-2xl border p-4', fresh.length ? 'grocers-alert border-[#8fbf7a]' : 'border-white/12')}>
         <h2 className="text-lg font-extrabold">{STORE_GROCERS_LIVE.liveOrdersAr}</h2>
         <p className="mt-1 text-sm text-white/60">{fresh.length ? `${fresh.length} طلب جديد` : 'لا طلبات جديدة الآن.'}</p>
-        <StoreShopPresenceCount productTag="store_grocers_live" token={token} />
+        <StoreShopPresenceCount productTag="store_grocers_live" token={token} labelAr={STORE_GROCERS_LIVE.presenceDeskLabelAr} />
         {fresh.length ? (
           <>
             <p className="mt-3 text-xs font-extrabold text-[#8fbf7a]">{STORE_DESK_ORDER_TICKET_COPY.newLaneAr}</p>
             <ul className="mt-2 space-y-3">
               {fresh.map((order) => (
                 <li key={order.id} className="rounded-xl border border-white/10 bg-black/30 p-3 text-sm">
-                  <p className="font-extrabold text-[#8fbf7a]">{order.name} · {order.phone}</p>
-                  <p className="mt-1 text-white/70">{order.place || 'بلا موقع مكتوب'}</p>
+                  <p className="font-extrabold text-[#8fbf7a]">{displayName(order)} · {displayPhone(order)}</p>
+                  <p className="mt-1 text-white/70">{displayPlace(order)}</p>
                   <p className="mt-1">{order.lines.map((line) => `${line.nameAr}×${line.qty}`).join(' · ')}</p>
                   <p className="mt-1 font-black">{order.total} ر.س · {order.pay === 'card' ? STORE_GROCERS_LIVE.payCardAr : STORE_GROCERS_LIVE.payCashAr}</p>
-                  {order.facadeSrc ? <img src={order.facadeSrc} alt="" className="mt-2 h-20 w-28 rounded-lg object-cover" /> : null}
+                  {!maskPii && order.facadeSrc ? <img src={order.facadeSrc} alt="" className="mt-2 h-20 w-28 rounded-lg object-cover" /> : null}
                   <a
                     className="mt-2 inline-flex rounded-full bg-[#8fbf7a] px-3 py-1.5 text-xs font-bold text-[#061018]"
                     href={`https://wa.me/?text=${encodeURIComponent(grocersWhatsAppText(order, state.host.shopName, state.host.vendorMode === 'mobile' ? state.host.pickupMapsUrl : ''))}`}
@@ -115,11 +131,11 @@ export function StoreGrocersDesk({
             <ul className="mt-2 space-y-3">
               {working.map((order) => (
                 <li key={order.id} className="rounded-xl border border-white/10 bg-black/30 p-3 text-sm">
-                  <p className="font-extrabold text-[#8fbf7a]">{order.name} · {order.phone}</p>
-                  <p className="mt-1 text-white/70">{order.place || 'بلا موقع مكتوب'}</p>
+                  <p className="font-extrabold text-[#8fbf7a]">{displayName(order)} · {displayPhone(order)}</p>
+                  <p className="mt-1 text-white/70">{displayPlace(order)}</p>
                   <p className="mt-1">{order.lines.map((line) => `${line.nameAr}×${line.qty}`).join(' · ')}</p>
                   <p className="mt-1 font-black">{order.total} ر.س · {order.pay === 'card' ? STORE_GROCERS_LIVE.payCardAr : STORE_GROCERS_LIVE.payCashAr}</p>
-                  {order.facadeSrc ? <img src={order.facadeSrc} alt="" className="mt-2 h-20 w-28 rounded-lg object-cover" /> : null}
+                  {!maskPii && order.facadeSrc ? <img src={order.facadeSrc} alt="" className="mt-2 h-20 w-28 rounded-lg object-cover" /> : null}
                   <a
                     className="mt-2 inline-flex rounded-full bg-[#8fbf7a] px-3 py-1.5 text-xs font-bold text-[#061018]"
                     href={`https://wa.me/?text=${encodeURIComponent(grocersWhatsAppText(order, state.host.shopName, state.host.vendorMode === 'mobile' ? state.host.pickupMapsUrl : ''))}`}
@@ -140,7 +156,7 @@ export function StoreGrocersDesk({
 
       <div className="grid gap-3 sm:grid-cols-2">
         <label className="block text-sm">
-          اسم التموينات
+          اسم المحل أو النشاط
           <input
             className="grocers-field"
             value={state.host.shopName}

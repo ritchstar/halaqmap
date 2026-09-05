@@ -7,14 +7,16 @@ import { useStoreShopPresence } from '@/hooks/useStoreShopPresence';
 export function StoreShopPresenceCount({
   productTag,
   token,
+  labelAr,
 }: {
   productTag: StoreShopPresenceTag;
   token: string;
+  labelAr?: string;
 }) {
   const count = useStoreShopPresence({ role: 'desk', productTag, token, enabled: Boolean(token) });
   return (
     <p className="mt-1 text-sm text-white/70">
-      {STORE_SHOP_PRESENCE_LABEL_AR} {count}
+      {labelAr ?? STORE_SHOP_PRESENCE_LABEL_AR} {count}
     </p>
   );
 }
