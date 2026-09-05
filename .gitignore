@@ -167,3 +167,10 @@ fkrih/saip-pack/__pycache__/
 !public/**/*.zip
 
 
+
+# --- iOS Capacitor operators shell ---
+operators-app/.assets-tmp/
+operators-app/ios/App/Pods/
+operators-app/ios/DerivedData/
+operators-app/ios/**/xcuserdata/
+operators-app/ios/**/*.xcuserstate

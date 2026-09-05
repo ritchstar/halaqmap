@@ -66,52 +66,15 @@ export default function StoreLanding() {
     <StoreVisitorShell>
       <StoreVisitorHeader />
 
-      <section className="px-4 py-10 md:py-14">
-        <div className="mx-auto grid max-w-5xl items-center gap-8 lg:grid-cols-[1.05fr_0.95fr]">
-          <div>
-            <p className="text-sm font-bold tracking-wide text-[#e8c547]">{STORE_LANDING_COPY.kicker}</p>
-            <h1 className="mt-2 text-3xl font-extrabold leading-tight text-[#f4efe4] md:text-4xl">
-              {STORE_LANDING_COPY.shopNameAr}
-            </h1>
-            <p className="mt-3 text-xl font-extrabold leading-tight text-white/90 md:text-2xl">
-              {STORE_LANDING_COPY.heroHeadlineAr}
-            </p>
-            <p className="mt-4 max-w-3xl text-base leading-relaxed text-white/78 md:text-lg">
-              {STORE_LANDING_COPY.pitchLeadAr}
-            </p>
-          </div>
-          <figure className="relative overflow-hidden rounded-2xl border border-[#e8c547]/30 shadow-[0_24px_60px_-28px_rgba(232,197,71,0.45)]">
-            <div className="absolute top-3 start-3 z-10">
-              <StoreHmTubeHero />
-            </div>
-            <StoreShot
-              reel="landing"
-              alt={STORE_LANDING_COPY.heroShotAlt}
-              className="aspect-[4/3]"
-              eager
-            />
-            <figcaption className="border-t border-white/10 bg-[#0b1a24] px-4 py-2 text-sm font-bold text-[#e8c547]">
-              {STORE_LANDING_COPY.heroShotCaption}
-            </figcaption>
-          </figure>
-        </div>
-      </section>
-
-      <StoreGiftPromoBanner />
-
-      <StoreGeneralTrialPromoBanner />
-
-      <StoreLiveOpsBanner />
-
-      <section id="store-newest-products" className="px-4 pb-5 pt-4">
+      <section id="store-newest-products" className="px-4 pb-6 pt-8 md:pt-12">
         <div className="relative mx-auto max-w-5xl text-center">
           <span className="store-pitch-aura" aria-hidden />
           <p className="relative text-sm font-bold tracking-wide text-[#e8c547]">
             {STORE_LANDING_COPY.newestTitleAr}
           </p>
-          <h2 className="store-pitch-headline relative mt-2 text-3xl font-black leading-tight text-[#e8c547] sm:text-4xl md:text-5xl">
+          <h1 className="store-pitch-headline relative mt-2 text-3xl font-black leading-tight text-[#e8c547] sm:text-4xl md:text-5xl">
             {STORE_LANDING_COPY.pitchHeadlineAr}
-          </h2>
+          </h1>
           <p className="relative mx-auto mt-4 max-w-3xl text-base font-bold leading-8 text-white/85 md:text-lg">
             {STORE_LANDING_COPY.pitchLeadAr}
           </p>
@@ -348,6 +311,35 @@ export default function StoreLanding() {
           </div>
         </div>
       </section>
+
+      <section className="px-4 pb-10">
+        <div className="mx-auto grid max-w-5xl items-center gap-8 lg:grid-cols-[1.05fr_0.95fr]">
+          <div>
+            <p className="text-sm font-bold tracking-wide text-[#e8c547]">{STORE_LANDING_COPY.kicker}</p>
+            <h2 className="mt-2 text-3xl font-extrabold leading-tight text-[#f4efe4] md:text-4xl">
+              {STORE_LANDING_COPY.shopNameAr}
+            </h2>
+            <p className="mt-3 max-w-3xl text-base leading-relaxed text-white/78 md:text-lg">
+              {STORE_LANDING_COPY.roleLine}
+            </p>
+          </div>
+          <figure className="relative overflow-hidden rounded-2xl border border-[#e8c547]/30 shadow-[0_24px_60px_-28px_rgba(232,197,71,0.45)]">
+            <div className="absolute top-3 start-3 z-10">
+              <StoreHmTubeHero />
+            </div>
+            <StoreShot reel="landing" alt={STORE_LANDING_COPY.heroShotAlt} className="aspect-[4/3]" />
+            <figcaption className="border-t border-white/10 bg-[#0b1a24] px-4 py-2 text-sm font-bold text-[#e8c547]">
+              {STORE_LANDING_COPY.heroShotCaption}
+            </figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <StoreGiftPromoBanner />
+
+      <StoreGeneralTrialPromoBanner />
+
+      <StoreLiveOpsBanner />
 
       <section id="store-about-solutions" className="px-4 pb-12">
         <div className="mx-auto max-w-5xl rounded-2xl border border-white/12 bg-[#0b1a24]/70 p-5 md:p-6">

@@ -1,0 +1,11 @@
+{
+  "name": "halaqmap-operators-app",
+  "private": true,
+  "version": "1.0.0",
+  "description": "غلاف لوحة مشغّلي خريطة الحل — Capacitor iOS",
+  "scripts": {
+    "sync": "cap sync ios",
+    "open": "cap open ios",
+    "copy": "cap copy ios"
+  }
+}
