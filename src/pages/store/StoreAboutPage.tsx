@@ -1,7 +1,7 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
- * تعريف متجر halaqmap على واجهة المتجر — من نحن.
+ * تعريف متجر halaqmap على واجهة المتجر — عن خريطة الحل.
  */
 import { Link } from 'react-router-dom';
 import {
@@ -9,21 +9,27 @@ import {
   StoreVisitorHeader,
   StoreVisitorShell,
 } from '@/components/store/StoreChrome';
-import { StoreLaterServicesSection } from '@/components/store/StoreLaterServicesSection';
-import { StoreProductBenefitsLink } from '@/components/store/StoreProductBenefitsLink';
 import { StoreShot } from '@/components/store/StoreShot';
 import { LICENSED_COMMERCIAL_ACTIVITIES } from '@/config/licensedCommercialActivities';
 import {
   STORE_ABOUT_COPY,
-  STORE_BRAND_LATIN,
-  STORE_LIVE_PRODUCTS,
-  STORE_PUBLIC_NAME_AR,
+  STORE_ABOUT_FEATURED_PRODUCTS,
+  STORE_ABOUT_HERO_COLLAGE,
+  STORE_ABOUT_PLATFORM_LINKS,
+  STORE_ABOUT_SPECIALIZED_PRODUCTS,
 } from '@/config/storeFront';
-import { STORE_CLOUD_SECTION_ID } from '@/config/storeCloudServicesCopy';
-import { STORE_PRODUCT_BENEFITS_COPY } from '@/config/storeProductBenefitsCopy';
-import { storeLiveProductReel } from '@/config/storeMarketingReels';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { ROUTE_PATHS } from '@/lib/routePaths';
+
+const proseClass = 'max-w-[42rem] text-base leading-[1.75] text-white/78';
+
+function StoreProductName({ children }: { children: string }) {
+  return (
+    <span dir="rtl" className="inline-block [unicode-bidi:isolate]">
+      {children}
+    </span>
+  );
+}
 
 export default function StoreAboutPage() {
   useDocumentTitle(STORE_ABOUT_COPY.documentTitle);
@@ -36,162 +42,204 @@ export default function StoreAboutPage() {
         <div className="mx-auto max-w-5xl">
           <header className="grid items-center gap-8 lg:grid-cols-[1.1fr_0.9fr]">
             <div>
-              <p className="text-sm font-bold tracking-wide text-[#e8c547]">{STORE_ABOUT_COPY.kicker}</p>
-              <h1 className="mt-2 text-4xl font-extrabold leading-tight text-[#f4efe4] md:text-5xl">
+              <p className="text-sm font-bold tracking-wide text-[#e8c547]">{STORE_ABOUT_COPY.kickerAr}</p>
+              <h1 className="mt-3 text-3xl font-extrabold leading-tight text-[#f4efe4] md:text-4xl lg:text-[2.65rem]">
                 {STORE_ABOUT_COPY.titleAr}
+                <br />
+                <span className="text-[#e8c547]">{STORE_ABOUT_COPY.titleLine2Ar}</span>
               </h1>
-              <p className="mt-2 text-2xl font-extrabold text-[#e8c547]">
-                <span dir="ltr" className="inline-block tracking-wide">
-                  {STORE_BRAND_LATIN}
-                </span>
-                <span className="mx-2 text-white/35">·</span>
-                {STORE_PUBLIC_NAME_AR}
+              <p className={`mt-5 ${proseClass}`}>{STORE_ABOUT_COPY.introLeadAr}</p>
+              <p className={`mt-4 ${proseClass}`}>{STORE_ABOUT_COPY.introBodyAr}</p>
+              <p className="mt-4 text-base font-bold tracking-wide text-[#e8c547]/90">
+                {STORE_ABOUT_COPY.journeyAr}
               </p>
-              <p className="mt-3 max-w-3xl text-lg font-bold leading-8 text-[#f4efe4]">
-                {STORE_ABOUT_COPY.introTaglineAr}
-              </p>
-              <p className="mt-4 max-w-3xl text-base leading-relaxed text-white/78 md:text-lg">
-                {STORE_ABOUT_COPY.introBeforeMark}
-                <code dir="ltr">{STORE_BRAND_LATIN}</code>
-                {STORE_ABOUT_COPY.introAfterMark}
-              </p>
+              <p className="mt-2 text-base font-extrabold text-[#f4efe4]">{STORE_ABOUT_COPY.taglineAr}</p>
             </div>
-            <figure className="overflow-hidden rounded-2xl border border-[#e8c547]/30 shadow-[0_24px_60px_-28px_rgba(232,197,71,0.45)]">
-              <StoreShot
-                reel="landing"
-                alt="واجهة برمجية لمتجر halaqmap"
-                className="aspect-[4/3]"
-                eager
-              />
+            <figure className="overflow-hidden rounded-2xl border border-white/12 shadow-[0_24px_60px_-28px_rgba(0,0,0,0.55)]">
+              <div className="grid grid-cols-2 gap-px bg-white/10">
+                {STORE_ABOUT_HERO_COLLAGE.map((frame) => (
+                  <StoreShot
+                    key={frame.reel}
+                    reel={frame.reel}
+                    alt={frame.alt}
+                    className="aspect-square w-full"
+                    eager
+                  />
+                ))}
+              </div>
             </figure>
           </header>
 
-          <section className="mt-12 rounded-2xl border border-white/12 bg-[#0b1a24]/80 p-5 md:p-6">
-            <h2 className="text-2xl font-extrabold text-[#f4efe4]">{STORE_ABOUT_COPY.natureTitle}</h2>
-            <p className="mt-3 text-sm leading-7 text-white/75 md:text-base md:leading-8">
-              {STORE_ABOUT_COPY.natureBody}
-            </p>
-            <p className="mt-5 text-base font-extrabold text-[#e8c547]">{STORE_ABOUT_COPY.natureServicesTitleAr}</p>
-            <ul className="mt-3 grid gap-2 sm:grid-cols-2">
-              {STORE_ABOUT_COPY.naturePoints.map((point) => (
+          <section className="mt-14">
+            <h2 className="text-2xl font-extrabold text-[#f4efe4] md:text-3xl">{STORE_ABOUT_COPY.howTitleAr}</h2>
+            <p className={`mt-4 ${proseClass}`}>{STORE_ABOUT_COPY.howBodyAr}</p>
+            <ul className="mt-6 grid gap-3 sm:grid-cols-2">
+              {STORE_ABOUT_COPY.howPillars.map((pillar) => (
                 <li
-                  key={point.titleAr}
-                  className="rounded-xl border border-white/10 bg-[#061018]/70 px-4 py-3 text-sm leading-7 text-white/80 md:text-base"
+                  key={pillar.titleAr}
+                  className="rounded-xl border border-white/10 bg-[#0b1a24]/70 p-4"
                 >
-                  <p className="font-extrabold text-[#e8c547]">{point.titleAr}</p>
-                  <p className="mt-1">{point.bodyAr}</p>
+                  <p className="font-extrabold text-[#e8c547]">{pillar.titleAr}</p>
+                  <p className="mt-2 text-base leading-[1.75] text-white/75">{pillar.bodyAr}</p>
                 </li>
               ))}
             </ul>
             <Link
-              to={ROUTE_PATHS.STORE_REQUEST}
-              className="mt-5 inline-flex rounded-full bg-[#e8c547] px-5 py-2.5 text-sm font-extrabold text-[#061018]"
+              to={ROUTE_PATHS.STORE_LANDING}
+              className="mt-6 inline-flex rounded-full bg-[#e8c547] px-5 py-2.5 text-sm font-extrabold text-[#061018]"
             >
-              {STORE_ABOUT_COPY.natureCta}
+              {STORE_ABOUT_COPY.howCtaAr}
             </Link>
           </section>
 
-          <section
-            id={STORE_CLOUD_SECTION_ID}
-            className="mt-8 scroll-mt-24 rounded-2xl border border-[#e8c547]/30 bg-[#0b1a24]/80 p-5 md:p-7"
-          >
-            <p className="text-sm font-bold tracking-wide text-[#e8c547]">
-              {STORE_PRODUCT_BENEFITS_COPY.aboutTeaserKickerAr}
-            </p>
-            <h2 className="mt-2 text-2xl font-extrabold text-[#f4efe4] md:text-3xl">
-              {STORE_PRODUCT_BENEFITS_COPY.aboutTeaserTitleAr}
-            </h2>
-            <p className="mt-4 text-sm leading-7 text-white/78 md:text-base md:leading-8">
-              {STORE_PRODUCT_BENEFITS_COPY.aboutTeaserBodyAr}
-            </p>
-            <StoreProductBenefitsLink className="mt-5 inline-flex" />
+          <section className="mt-14">
+            <h2 className="text-2xl font-extrabold text-[#f4efe4] md:text-3xl">{STORE_ABOUT_COPY.samplesTitleAr}</h2>
+            <p className={`mt-4 ${proseClass}`}>{STORE_ABOUT_COPY.samplesLeadAr}</p>
+            <ul className="mt-6 grid gap-4 md:grid-cols-2">
+              {STORE_ABOUT_FEATURED_PRODUCTS.map((product) => (
+                <li key={product.id}>
+                  <a
+                    href={product.href}
+                    className="block overflow-hidden rounded-2xl border border-white/12 bg-[#0b1a24]/70 transition hover:border-[#e8c547]/35"
+                  >
+                    <StoreShot reel={product.reel} alt={product.imageAlt} className="aspect-[16/9]" />
+                    <div className="p-4">
+                      <p className="text-lg font-extrabold text-[#e8c547]">
+                        <StoreProductName>{product.nameAr}</StoreProductName>
+                      </p>
+                      <p className="mt-2 text-base leading-[1.75] text-white/72">{product.blurbAr}</p>
+                    </div>
+                  </a>
+                </li>
+              ))}
+            </ul>
+
+            <div className="mt-10">
+              <h3 className="text-xl font-extrabold text-[#f4efe4]">{STORE_ABOUT_COPY.specializedGroupTitleAr}</h3>
+              <ul className="mt-4 flex flex-wrap gap-2">
+                {STORE_ABOUT_SPECIALIZED_PRODUCTS.map((product) => (
+                  <li key={product.nameAr}>
+                    <a
+                      href={product.href}
+                      className="inline-flex rounded-full border border-white/15 bg-white/[0.04] px-4 py-2 text-base font-bold text-white/85 transition hover:border-[#e8c547]/40 hover:text-[#e8c547]"
+                    >
+                      <StoreProductName>{product.nameAr}</StoreProductName>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </section>
 
-          <section className="mt-8 rounded-2xl border border-[#e8c547]/25 bg-[#0b1a24]/70 p-5 md:p-6">
-            <h2 className="text-2xl font-extrabold text-[#f4efe4]">{STORE_ABOUT_COPY.trustTeaserTitleAr}</h2>
-            <p className="mt-2 text-base font-bold leading-8 text-[#e8c547]">{STORE_ABOUT_COPY.trustTeaserLeadAr}</p>
-            <p className="mt-3 max-w-3xl text-sm leading-7 text-white/75 md:text-base">
-              {STORE_ABOUT_COPY.trustTeaserBodyAr}
-            </p>
+          <section className="mt-14">
+            <h2 className="text-2xl font-extrabold text-[#f4efe4] md:text-3xl">{STORE_ABOUT_COPY.pathTitleAr}</h2>
+            <ul className="mt-6 grid gap-4 md:grid-cols-3">
+              {STORE_ABOUT_COPY.pathCards.map((card) => (
+                <li
+                  key={card.titleAr}
+                  className="flex flex-col rounded-xl border border-white/12 bg-[#0b1a24]/70 p-5"
+                >
+                  <p className="text-lg font-extrabold text-[#e8c547]">{card.titleAr}</p>
+                  <p className="mt-3 flex-1 text-base leading-[1.75] text-white/75">{card.bodyAr}</p>
+                  <Link
+                    to={card.to}
+                    className="mt-5 inline-flex w-fit rounded-full bg-[#e8c547] px-4 py-2 text-sm font-extrabold text-[#061018]"
+                  >
+                    {card.ctaAr}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+
+          <section className="mt-14 rounded-2xl border border-white/12 bg-[#0b1a24]/70 p-5 md:p-7">
+            <h2 className="text-2xl font-extrabold text-[#f4efe4] md:text-3xl">{STORE_ABOUT_COPY.cloudTitleAr}</h2>
+            <p className={`mt-4 ${proseClass}`}>{STORE_ABOUT_COPY.cloudBodyAr}</p>
+            <ul className="mt-5 space-y-2">
+              {STORE_ABOUT_COPY.cloudBenefits.map((benefit) => (
+                <li key={benefit} className="text-base leading-[1.75] text-white/78">
+                  {benefit}
+                </li>
+              ))}
+            </ul>
             <Link
-              to={ROUTE_PATHS.STORE_TRUST}
-              className="mt-5 inline-flex rounded-full bg-[#e8c547] px-5 py-2.5 text-sm font-extrabold text-[#061018]"
+              to={ROUTE_PATHS.STORE_PRODUCT_BENEFITS}
+              className="mt-5 inline-flex text-base font-bold text-[#7ec8e3] underline-offset-4 hover:underline"
             >
-              {STORE_ABOUT_COPY.trustTeaserCtaAr}
+              {STORE_ABOUT_COPY.cloudMoreAr}
             </Link>
           </section>
 
-          <section className="mt-8">
-            <h2 className="text-2xl font-extrabold text-[#f4efe4]">{STORE_ABOUT_COPY.licenseTitleAr}</h2>
-            <p className="mt-3 max-w-3xl text-sm leading-7 text-[#f4efe4] md:text-base">
-              نعمل في{' '}
-              <code dir="ltr" className="inline-block rounded bg-white/10 px-1.5 py-0.5 text-[0.85em] font-bold text-[#e8c547]">
-                {STORE_BRAND_LATIN}
-              </code>
-              {STORE_ABOUT_COPY.licenseAfterMarkAr}
-            </p>
-            <p className="mt-4 max-w-3xl text-sm leading-7 text-white/75 md:text-base">
-              <span className="font-extrabold text-[#e8c547]">{STORE_ABOUT_COPY.licenseFraudTitleAr}</span>
-              {' '}
-              {STORE_ABOUT_COPY.licenseFraudBodyAr}
-            </p>
-            <p className="mt-3 max-w-3xl text-sm leading-7 text-white/75 md:text-base">
-              <span className="font-extrabold text-[#e8c547]">{STORE_ABOUT_COPY.licenseGovernanceTitleAr}</span>
-              {' '}
-              {STORE_ABOUT_COPY.licenseGovernanceBodyAr}
-            </p>
-            <h2 className="mt-6 text-2xl font-extrabold text-[#f4efe4]">{STORE_ABOUT_COPY.activitiesTitle}</h2>
-            <p className="mt-3 max-w-3xl text-sm leading-7 text-white/75 md:text-base">
-              {STORE_ABOUT_COPY.activitiesLead}
-            </p>
-            <ul className="mt-5 grid gap-3 sm:grid-cols-2">
+          <section className="mt-14 rounded-2xl border border-[#e8c547]/30 bg-[#0b1a24]/80 p-5 md:p-7">
+            <h2 className="text-2xl font-extrabold text-[#f4efe4] md:text-3xl">{STORE_ABOUT_COPY.trustTitleAr}</h2>
+            <p className={`mt-4 ${proseClass}`}>{STORE_ABOUT_COPY.trustBodyAr}</p>
+            <p className={`mt-4 ${proseClass}`}>{STORE_ABOUT_COPY.trustLegalAr}</p>
+            <p className={`mt-3 ${proseClass}`}>{STORE_ABOUT_COPY.trustCommitmentAr}</p>
+            <div className="mt-6 flex flex-wrap gap-3">
+              {STORE_ABOUT_COPY.trustLinks.map((link) =>
+                'href' in link ? (
+                  <a
+                    key={link.labelAr}
+                    href={link.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex rounded-full border border-white/15 px-4 py-2 text-sm font-bold text-[#7ec8e3] transition hover:border-[#7ec8e3]/40"
+                  >
+                    {link.labelAr}
+                  </a>
+                ) : (
+                  <Link
+                    key={link.labelAr}
+                    to={link.to}
+                    className="inline-flex rounded-full border border-white/15 px-4 py-2 text-sm font-bold text-[#7ec8e3] transition hover:border-[#7ec8e3]/40"
+                  >
+                    {link.labelAr}
+                  </Link>
+                ),
+              )}
+            </div>
+          </section>
+
+          <section className="mt-14">
+            <h2 className="text-2xl font-extrabold text-[#f4efe4] md:text-3xl">{STORE_ABOUT_COPY.activitiesTitleAr}</h2>
+            <p className={`mt-4 ${proseClass}`}>{STORE_ABOUT_COPY.activitiesLeadAr}</p>
+            <ul className="mt-6 grid gap-3 sm:grid-cols-2">
               {LICENSED_COMMERCIAL_ACTIVITIES.map((activity) => (
                 <li
                   key={activity.code}
                   className="rounded-xl border border-white/12 bg-white/[0.04] p-4"
                 >
-                  <p className="font-extrabold text-[#f4efe4]">{activity.label}</p>
-                  <p className="mt-1 text-sm text-[#e8c547]">
-                    <code dir="ltr" className="inline-block rounded bg-white/10 px-1.5 py-0.5 text-[0.8rem]">
+                  <p className="text-base font-extrabold leading-[1.75] text-[#f4efe4]">{activity.label}</p>
+                  <p className="mt-2 text-base text-[#e8c547]">
+                    {STORE_ABOUT_COPY.activityCodeLabelAr}{' '}
+                    <code dir="ltr" className="inline-block rounded bg-white/10 px-1.5 py-0.5 font-bold">
                       {activity.code}
                     </code>
                     {activity.primary ? (
                       <span className="ms-2 font-bold text-[#e8c547]">النشاط الرئيسي</span>
                     ) : null}
                   </p>
-                  {activity.definition ? (
-                    <p className="mt-2 text-sm text-white/60">{activity.definition}</p>
-                  ) : null}
                 </li>
               ))}
             </ul>
           </section>
 
-          <section className="mt-10">
-            <h2 className="text-2xl font-extrabold text-[#f4efe4]">{STORE_ABOUT_COPY.productsTitle}</h2>
-            <p className="mt-3 max-w-3xl text-sm leading-7 text-white/75 md:text-base">
-              {STORE_ABOUT_COPY.productsLead}
-            </p>
-            <ul className="mt-5 grid gap-4 md:grid-cols-2">
-              {STORE_LIVE_PRODUCTS.map((product) => (
-                <li key={product.id}>
+          <section className="mt-14">
+            <h2 className="text-2xl font-extrabold text-[#f4efe4] md:text-3xl">{STORE_ABOUT_COPY.platformsTitleAr}</h2>
+            <p className={`mt-4 ${proseClass}`}>{STORE_ABOUT_COPY.platformsLeadAr}</p>
+            <ul className="mt-6 grid gap-4 md:grid-cols-2">
+              {STORE_ABOUT_PLATFORM_LINKS.map((platform) => (
+                <li key={platform.nameAr}>
                   <a
-                    href={product.href}
-                    className="block overflow-hidden rounded-2xl border border-white/12 bg-[#0b1a24]/70 transition hover:border-[#e8c547]/40"
+                    href={platform.href}
+                    className="block overflow-hidden rounded-2xl border border-white/12 bg-[#0b1a24]/70 transition hover:border-[#e8c547]/35"
                   >
-                    <StoreShot reel={storeLiveProductReel(product.id)} alt={product.imageAlt} className="aspect-[16/9]" />
-                    <div className="flex items-start gap-3 p-4">
-                      <img
-                        src={product.mark}
-                        alt=""
-                        width={44}
-                        height={44}
-                        className="h-11 w-11 shrink-0 rounded-xl border border-white/10 object-cover"
-                      />
-                      <div className="min-w-0">
-                        <p className="font-extrabold text-[#e8c547]">{product.nameAr}</p>
-                        <p className="mt-1 text-sm leading-relaxed text-white/70">{product.blurb}</p>
-                      </div>
+                    <StoreShot reel={platform.reel} alt={platform.nameAr} className="aspect-[16/9]" />
+                    <div className="p-4">
+                      <p className="text-lg font-extrabold text-[#e8c547]">
+                        <StoreProductName>{platform.nameAr}</StoreProductName>
+                      </p>
+                      <p className="mt-2 text-base leading-[1.75] text-white/72">{platform.blurbAr}</p>
                     </div>
                   </a>
                 </li>
@@ -199,63 +247,14 @@ export default function StoreAboutPage() {
             </ul>
           </section>
 
-          <section className="mt-10 grid gap-8 lg:grid-cols-2">
-            <div className="overflow-hidden rounded-2xl border border-white/12 bg-white/[0.04] lg:col-span-2">
-              <StoreShot
-                reel="halaq"
-                alt="رادار استعلام برمجي لمنتج حلاق ماب ضمن أعمال المتجر"
-                className="aspect-[16/9] max-h-72 w-full object-cover"
-              />
-              <div className="p-5 md:p-6">
-                <h2 className="text-2xl font-extrabold text-[#f4efe4]">{STORE_ABOUT_COPY.detailsTitle}</h2>
-                <ul className="mt-4 grid gap-2 md:grid-cols-2">
-                  {STORE_ABOUT_COPY.detailsIn.map((item) => (
-                    <li key={item} className="text-sm leading-7 text-white/72">
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-                <ul className="mt-4 grid gap-2 border-t border-white/10 pt-4 md:grid-cols-2">
-                  {STORE_ABOUT_COPY.detailsOut.map((item) => (
-                    <li key={item} className="text-sm leading-7 text-white/55">
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </section>
-
-          <section className="mt-10 rounded-2xl border border-[#e8c547]/25 bg-[#0b1a24]/70 p-5 md:p-6">
-            <h2 className="text-2xl font-extrabold text-[#f4efe4]">{STORE_ABOUT_COPY.customTitle}</h2>
-            <p className="mt-3 max-w-3xl text-sm leading-7 text-white/75 md:text-base md:leading-8">
-              {STORE_ABOUT_COPY.customBody}
-            </p>
-            <div className="mt-8">
-              <StoreLaterServicesSection nested />
-            </div>
-            <h3 className="mt-8 text-xl font-extrabold text-[#e8c547]">{STORE_ABOUT_COPY.processTitle}</h3>
-            <ul className="mt-4 grid gap-3 md:grid-cols-3">
-              {STORE_ABOUT_COPY.processSteps.map((step) => (
-                <li
-                  key={step.title}
-                  className="rounded-xl border border-white/12 bg-[#061018]/80 p-4"
-                >
-                  <p className="text-sm font-bold text-[#e8c547]">{step.title}</p>
-                  <p className="mt-2 text-sm leading-7 text-white/70">{step.body}</p>
-                </li>
-              ))}
-            </ul>
-          </section>
-
-          <section className="mt-10 rounded-2xl border border-white/12 bg-white/[0.04] p-5 md:p-6">
-            <h2 className="text-2xl font-extrabold text-[#f4efe4]">{STORE_ABOUT_COPY.ctaTitle}</h2>
-            <p className="mt-2 max-w-3xl text-sm leading-7 text-white/75">{STORE_ABOUT_COPY.ctaLead}</p>
+          <section className="mt-14 rounded-2xl border border-[#e8c547]/25 bg-[#0b1a24]/70 p-5 md:p-7">
+            <h2 className="text-2xl font-extrabold text-[#f4efe4] md:text-3xl">{STORE_ABOUT_COPY.ctaTitleAr}</h2>
+            <p className={`mt-4 ${proseClass}`}>{STORE_ABOUT_COPY.ctaLeadAr}</p>
             <Link
               to={ROUTE_PATHS.STORE_REQUEST}
-              className="mt-5 inline-flex rounded-full bg-[#e8c547] px-5 py-2.5 text-sm font-extrabold text-[#061018]"
+              className="mt-6 inline-flex rounded-full bg-[#e8c547] px-5 py-2.5 text-sm font-extrabold text-[#061018]"
             >
-              {STORE_ABOUT_COPY.ctaLabel}
+              {STORE_ABOUT_COPY.ctaLabelAr}
             </Link>
           </section>
         </div>
