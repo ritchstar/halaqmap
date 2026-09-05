@@ -112,8 +112,8 @@ export function defaultProduceLabState(): ProduceLabState {
       unit: item.unit,
       price: item.defaultPrice,
       inStock: true,
-      arrivedToday: index < 5,
-      featured: index < 6,
+      arrivedToday: index < 4,
+      featured: index === 4 || index === 5,
     };
   });
   return {
@@ -212,15 +212,15 @@ export function activateProduceCatalogItem(
 
 export function produceServiceLabelAr(service: ProduceService): string {
   if (service === 'come') return 'تعال إلى الموقع';
-  if (service === 'pickup') return 'استلام من الصندوق';
-  return 'توصيل في الحي';
+  if (service === 'pickup') return 'استلام من الموقع';
+  return 'توصيل داخل النطاق';
 }
 
 export function produceWhatsAppText(order: ProduceOrder, shopName: string, mapsUrl = ''): string {
-  const pay = order.pay === 'card' ? 'شبكة عند التسليم' : 'نقداً عند التسليم';
+  const pay = order.pay === 'card' ? 'شبكة عند الاستلام' : 'نقداً عند الاستلام';
   const lines = order.lines.map((line) => `${line.nameAr} × ${line.qty} = ${line.price * line.qty} ر.س`).join('\n');
   return [
-    `مذكرة صندوق — ${shopName}`,
+    `ملخص الطلب — ${shopName}`,
     `الزبون: ${order.name}`,
     `الجوال: ${order.phone}`,
     `التسليم: ${produceServiceLabelAr(order.service)}`,

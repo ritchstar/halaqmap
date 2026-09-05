@@ -2,7 +2,7 @@
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
 import { useEffect, useMemo, useState } from 'react';
-import { STORE_PRODUCE_LIVE } from '@/config/storeProduceLive';
+import { STORE_PRODUCE_LIVE, STORE_PRODUCE_LIVE_LAB_TOKEN, produceCatalogImage } from '@/config/storeProduceLive';
 import { STORE_PRODUCE_UNIT_AR } from '@/config/storeProduceCatalog';
 import {
   isProduceComeApproaching,
@@ -42,7 +42,8 @@ export function StoreProduceShop({
   onChange: (next: ProduceLabState) => void;
   token: string;
 }) {
-  const saved = useMemo(() => readSavedProduceBuyer(), []);
+  const isLab = token === STORE_PRODUCE_LIVE_LAB_TOKEN;
+  const saved = useMemo(() => (isLab ? null : readSavedProduceBuyer()), [isLab]);
   const [qty, setQty] = useState<Record<string, number>>({});
   const [name, setName] = useState(saved?.name || '');
   const [phone, setPhone] = useState(saved?.phone || '');
@@ -53,7 +54,7 @@ export function StoreProduceShop({
   const [buyerLng, setBuyerLng] = useState(0);
   const [comeHint, setComeHint] = useState('');
   const [watchingCome, setWatchingCome] = useState(false);
-  const [saveBuyer, setSaveBuyer] = useState(Boolean(saved));
+  const [saveBuyer, setSaveBuyer] = useState(false);
   const [sent, setSent] = useState(false);
 
   const mobile = state.host.vendorMode === 'mobile';
@@ -62,10 +63,15 @@ export function StoreProduceShop({
   const preorder = closed || (mobile && neighbor !== 'at_pin');
   const visible = state.shelf.filter((item) => item.inStock);
   const arrived = visible.filter((item) => item.arrivedToday);
-  const featured = visible.filter((item) => item.featured && !item.arrivedToday).slice(0, 10);
+  const featuredAll = visible.filter((item) => item.featured && !item.arrivedToday).slice(0, 10);
+  const featured = featuredAll.length >= 2 ? featuredAll : [];
+  const featuredOrRest = featuredAll.length === 1 ? featuredAll : [];
   const rest = visible.filter(
-    (item) => !item.arrivedToday && !featured.some((row) => row.catalogId === item.catalogId),
-  );
+    (item) =>
+      !item.arrivedToday &&
+      !featured.some((row) => row.catalogId === item.catalogId) &&
+      !featuredOrRest.some((row) => row.catalogId === item.catalogId),
+  ).concat(featuredOrRest);
   const lines: ProduceOrderLine[] = visible
     .map((item) => ({
       catalogId: item.catalogId,
@@ -173,17 +179,17 @@ export function StoreProduceShop({
       {arrived.length ? (
         <section>
           <h3 className="text-lg font-extrabold">{STORE_PRODUCE_LIVE.todayTitleAr}</h3>
-          <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-            {arrived.map((item) => (
-              <article key={item.catalogId} className="overflow-hidden rounded-2xl border border-[#3d8b4a]/45 bg-[#102018]">
-                <div className="flex aspect-square items-center justify-center bg-gradient-to-br from-[#3d8b4a]/45 to-[#061018] px-3 text-center text-sm font-bold">
-                  {item.nameAr}
-                </div>
-                <div className="p-3">
-                  <p className="text-sm font-black text-[#3d8b4a]">{priceLine(item)}</p>
-                  <QtyRow value={qty[item.catalogId] || 0} onMinus={() => bump(item.catalogId, -1)} onPlus={() => bump(item.catalogId, 1)} />
-                </div>
-              </article>
+          <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+            {arrived.map((item, index) => (
+              <ProduceShelfCard
+                key={item.catalogId}
+                item={item}
+                imageIndex={index}
+                qty={qty[item.catalogId] || 0}
+                onMinus={() => bump(item.catalogId, -1)}
+                onPlus={() => bump(item.catalogId, 1)}
+                priceLine={priceLine(item)}
+              />
             ))}
           </div>
         </section>
@@ -192,17 +198,17 @@ export function StoreProduceShop({
       {featured.length ? (
         <section>
           <h3 className="text-lg font-extrabold">{STORE_PRODUCE_LIVE.featuredTitleAr}</h3>
-          <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-            {featured.map((item) => (
-              <article key={item.catalogId} className="overflow-hidden rounded-2xl border border-[#3d8b4a]/30 bg-[#102018]">
-                <div className="flex aspect-square items-center justify-center bg-gradient-to-br from-[#3d8b4a]/35 to-[#061018] px-3 text-center text-sm font-bold">
-                  {item.nameAr}
-                </div>
-                <div className="p-3">
-                  <p className="text-sm font-black text-[#3d8b4a]">{priceLine(item)}</p>
-                  <QtyRow value={qty[item.catalogId] || 0} onMinus={() => bump(item.catalogId, -1)} onPlus={() => bump(item.catalogId, 1)} />
-                </div>
-              </article>
+          <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+            {featured.map((item, index) => (
+              <ProduceShelfCard
+                key={item.catalogId}
+                item={item}
+                imageIndex={index + 4}
+                qty={qty[item.catalogId] || 0}
+                onMinus={() => bump(item.catalogId, -1)}
+                onPlus={() => bump(item.catalogId, 1)}
+                priceLine={priceLine(item)}
+              />
             ))}
           </div>
         </section>
@@ -237,13 +243,29 @@ export function StoreProduceShop({
           {preorder ? STORE_SHOP_HOURS_COPY.preorderTitleAr : STORE_PRODUCE_LIVE.checkoutTitleAr}
         </h3>
         <p className="mt-1 text-sm text-[#3d8b4a]">الإجمالي الآن: {total} ر.س</p>
+        <p className="mt-1 text-xs leading-6 text-white/55">{STORE_PRODUCE_LIVE.priceEstimateNoteAr}</p>
         <label className="mt-3 block text-sm">
           {STORE_PRODUCE_LIVE.buyerNameLabelAr}
-          <input required value={name} onChange={(e) => setName(e.target.value)} className="produce-field" maxLength={40} />
+          <input
+            required
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="produce-field"
+            maxLength={40}
+            placeholder={isLab ? STORE_PRODUCE_LIVE.labDemoNameAr : undefined}
+          />
         </label>
         <label className="mt-3 block text-sm">
           {STORE_PRODUCE_LIVE.buyerPhoneLabelAr}
-          <input required value={phone} onChange={(e) => setPhone(e.target.value)} className="produce-field" inputMode="tel" maxLength={20} />
+          <input
+            required
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            className="produce-field"
+            inputMode="tel"
+            maxLength={20}
+            placeholder={isLab ? STORE_PRODUCE_LIVE.labDemoPhoneAr : undefined}
+          />
         </label>
         <div className="mt-3 flex flex-wrap gap-2">
           <button type="button" onClick={() => setService('delivery')} className={cn('rounded-full px-3 py-1.5 text-xs', service === 'delivery' ? 'bg-[#3d8b4a] font-bold text-[#061018]' : 'border border-white/20')}>
@@ -271,6 +293,7 @@ export function StoreProduceShop({
                 className="produce-field"
                 maxLength={240}
                 required={service === 'come'}
+                placeholder={isLab ? STORE_PRODUCE_LIVE.labDemoPlaceAr : undefined}
               />
             </label>
             <StoreBuyerLocateButtons
@@ -304,7 +327,7 @@ export function StoreProduceShop({
           {service === 'come' ? STORE_PRODUCE_LIVE.comeSubmitAr : STORE_PRODUCE_LIVE.submitOrderAr}
         </button>
         {comeHint ? <p className="mt-3 text-sm leading-7 text-[#d8f0cc]">{comeHint}</p> : null}
-        {sent && service !== 'come' ? <p className="mt-3 text-sm text-[#3d8b4a]">وصل الطلب للصندوق.</p> : null}
+        {sent && service !== 'come' ? <p className="mt-3 text-sm text-[#3d8b4a]">{STORE_PRODUCE_LIVE.orderSentAr}</p> : null}
         {sent && state.orders[0]?.id ? (
           <div className="mt-4">
             <StoreDirectPayGuest
@@ -319,6 +342,41 @@ export function StoreProduceShop({
       </form>
       <StoreProduceBuyerChat state={state} onChange={onChange} />
     </div>
+  );
+}
+
+function ProduceShelfCard({
+  item,
+  imageIndex,
+  qty,
+  onMinus,
+  onPlus,
+  priceLine,
+}: {
+  item: { catalogId: string; nameAr: string };
+  imageIndex: number;
+  qty: number;
+  onMinus: () => void;
+  onPlus: () => void;
+  priceLine: string;
+}) {
+  return (
+    <article className="overflow-hidden rounded-2xl border border-[#3d8b4a]/35 bg-[#102018]">
+      <div className="aspect-[4/3] overflow-hidden bg-[#061018]">
+        <img
+          src={produceCatalogImage(imageIndex)}
+          alt={item.nameAr}
+          className="h-full w-full object-cover"
+          loading="lazy"
+          decoding="async"
+        />
+      </div>
+      <div className="p-3">
+        <p className="text-sm font-extrabold text-[#f4efe4]">{item.nameAr}</p>
+        <p className="mt-1 text-sm font-black text-[#3d8b4a]">{priceLine}</p>
+        <QtyRow value={qty} onMinus={onMinus} onPlus={onPlus} />
+      </div>
+    </article>
   );
 }
 

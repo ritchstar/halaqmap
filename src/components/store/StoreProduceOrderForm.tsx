@@ -2,6 +2,7 @@
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { StoreEnterpriseDirectMail } from '@/components/store/StoreEnterpriseDirectMail';
 import { StoreVendorPathPicker } from '@/components/store/StoreVendorPathPicker';
 import {
@@ -14,6 +15,7 @@ import { type StoreVendorMode } from '@/config/storeMobileVendor';
 import { rememberStoreAffiliateRef } from '@/lib/storeAffiliateRef';
 import { createProduceLivePending } from '@/lib/storeProduceLiveRemote';
 import { produceLivePayHref } from '@/lib/storeHostRedirect';
+import { ROUTE_PATHS } from '@/lib/routePaths';
 import { cn } from '@/lib/utils';
 
 export function StoreProduceOrderForm({ renewToken = '' }: { renewToken?: string }) {
@@ -21,7 +23,7 @@ export function StoreProduceOrderForm({ renewToken = '' }: { renewToken?: string
   const [vendorMode, setVendorMode] = useState<StoreVendorMode>('fixed');
   const [packId, setPackId] = useState<StoreProduceLivePackId>('m6');
   const [email, setEmail] = useState('');
-  const [shopName, setShopName] = useState('صندوق الحي');
+  const [shopName, setShopName] = useState('خضار الحي');
   const [consent, setConsent] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -62,13 +64,27 @@ export function StoreProduceOrderForm({ renewToken = '' }: { renewToken?: string
         void submit();
       }}
     >
-      <h2 className="text-xl font-extrabold">{renewing ? 'أعد الشراء على نفس الصفحة' : STORE_PRODUCE_LIVE.orderCtaAr}</h2>
-      <p className="mt-2 text-sm text-white/70">
-        {renewing
-          ? 'نفس روابط الصفحة واللوحة تُمدَّد بعد السداد.'
-          : 'بعد السداد يصلك رابط جار الحي ورابط لوحة الصندوق وملصق QR.'}
+      <h3 className="text-lg font-extrabold">{renewing ? 'مدّد تشغيل خضارنا1' : STORE_PRODUCE_LIVE.orderTitleAr}</h3>
+      <p className="mt-2 text-sm leading-7 text-white/70">
+        {renewing ? 'نفس روابط واجهة العميل ولوحة التشغيل تُمدَّد بعد السداد.' : STORE_PRODUCE_LIVE.orderLeadAr}
       </p>
-      <StoreVendorPathPicker value={vendorMode} onChange={setVendorMode} accent="#3d8b4a" />
+      {!renewing ? (
+        <p className="mt-2 text-sm leading-7 text-white/60">
+          {STORE_PRODUCE_LIVE.orderDirectAr}{' '}
+          <Link to={`${ROUTE_PATHS.STORE_GENERAL_TRIAL}?product=produce`} className="font-bold text-[#3d8b4a] underline-offset-4 hover:underline">
+            {STORE_PRODUCE_LIVE.trialCtaAr}
+          </Link>
+        </p>
+      ) : null}
+      <StoreVendorPathPicker
+        value={vendorMode}
+        onChange={setVendorMode}
+        accent="#3d8b4a"
+        titleAr={STORE_PRODUCE_LIVE.vendorPathTitleAr}
+        leadAr={STORE_PRODUCE_LIVE.vendorPathLeadAr}
+        fixedTitleAr={STORE_PRODUCE_LIVE.vendorFixedAr}
+        mobileTitleAr={STORE_PRODUCE_LIVE.vendorMobileAr}
+      />
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
         {STORE_PRODUCE_LIVE_PACKS.map((item) => (
           <button
@@ -87,7 +103,7 @@ export function StoreProduceOrderForm({ renewToken = '' }: { renewToken?: string
         ))}
       </div>
       <label className="mt-4 block text-sm">
-        البريد لاستلام روابط الصفحة ولوحة الصندوق وملصق QR
+        البريد لاستلام روابط واجهة العميل ولوحة التشغيل وملصق QR
         <input className="produce-field" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
       </label>
       {renewing ? null : (
@@ -100,6 +116,7 @@ export function StoreProduceOrderForm({ renewToken = '' }: { renewToken?: string
         <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} className="mt-1" />
         <span>{STORE_PRODUCE_LIVE.orderConsentAr}</span>
       </label>
+      <p className="mt-2 text-xs leading-6 text-white/55">{STORE_PRODUCE_LIVE.orderNoCollectAr}</p>
       {error ? <p className="mt-3 text-sm text-red-300">{error}</p> : null}
       <button
         type="submit"

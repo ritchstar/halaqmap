@@ -24,7 +24,7 @@ export function StoreProduceBuyerChat({
     const msg: ProduceChatMsg = {
       id: `${Date.now()}`,
       from: 'buyer',
-      name: name.trim().slice(0, 40) || 'جار الحي',
+      name: name.trim().slice(0, 40) || 'عميل',
       text: body.slice(0, 240),
       at: new Date().toISOString(),
     };
@@ -37,11 +37,11 @@ export function StoreProduceBuyerChat({
       <h3 className="font-extrabold">{STORE_PRODUCE_LIVE.chatBuyerTitleAr}</h3>
       <p className="mt-1 text-xs leading-6 text-white/60">{STORE_PRODUCE_LIVE.chatBuyerHintAr}</p>
       <label className="mt-3 block text-sm">
-        الاسم
+        {STORE_PRODUCE_LIVE.chatBuyerNameLabelAr}
         <input className="produce-field" value={name} onChange={(e) => setName(e.target.value)} />
       </label>
       <label className="mt-3 block text-sm">
-        ملاحظتك
+        {STORE_PRODUCE_LIVE.chatBuyerFieldLabelAr}
         <textarea
           className="produce-field min-h-24 py-2"
           value={text}
@@ -98,7 +98,7 @@ export function StoreProduceDeskChat({
       <ul className="mt-3 space-y-2 text-sm">
         {visible.map((item) => (
           <li key={item.id} className="rounded-xl border border-white/10 bg-black/30 p-3">
-            <p className="text-xs text-white/50">{item.from === 'desk' ? 'الصندوق' : 'جار الحي'} · {item.name}</p>
+            <p className="text-xs text-white/50">{item.from === 'desk' ? 'المشغّل' : 'العميل'} · {item.name}</p>
             <p className="mt-1 leading-7">{item.text}</p>
             <button type="button" className="mt-2 text-xs text-white/45 underline" onClick={() => hide(item.id)}>
               إخفاء

@@ -1,7 +1,7 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
-import { useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronDown } from 'lucide-react';
 import { toast } from '@/components/ui/sonner';
@@ -11,9 +11,11 @@ import {
   STORE_GENERAL_TRIAL_KEYS,
   STORE_GENERAL_TRIAL_TERMS_COPY,
   STORE_PRODUCT_TRIAL_PRODUCTS,
+  isGeneralTrialProduct,
   type StoreGeneralTrialKey,
 } from '@/config/storeProductTrial';
 import { enterStoreGeneralTrial } from '@/lib/storeGeneralTrialRemote';
+import { readHashQueryParam } from '@/lib/hashQueryParams';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { cn } from '@/lib/utils';
 
@@ -32,6 +34,13 @@ export function StoreGeneralTrialEnterForm() {
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [termsOpen, setTermsOpen] = useState(false);
   const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    const preset = readHashQueryParam('product');
+    if (preset && isGeneralTrialProduct(preset)) {
+      setProductKey(preset);
+    }
+  }, []);
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault();

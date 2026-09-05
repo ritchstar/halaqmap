@@ -37,7 +37,11 @@ export function StoreProduceStudio({ token = STORE_PRODUCE_LIVE_LAB_TOKEN }: { t
 
   return (
     <div id="live-preview" className="scroll-mt-8">
-      <p className="text-sm font-bold text-[#3d8b4a]">{STORE_PRODUCE_LIVE.labKickerAr}</p>
+      <p className="inline-flex rounded-full border border-amber-400/40 bg-amber-500/15 px-3 py-1 text-xs font-bold text-amber-100">
+        {STORE_PRODUCE_LIVE.labPreviewBadgeAr}
+      </p>
+      <p className="mt-2 text-xs leading-6 text-white/55">{STORE_PRODUCE_LIVE.labPreviewEnvAr}</p>
+      <p className="mt-4 text-sm font-bold text-[#3d8b4a]">{STORE_PRODUCE_LIVE.labKickerAr}</p>
       <h2 className="mt-2 text-2xl font-extrabold">{STORE_PRODUCE_LIVE.labTitleAr}</h2>
       <p className="mt-2 max-w-3xl text-sm leading-8 text-white/75">{STORE_PRODUCE_LIVE.labLeadAr}</p>
       <div className="store-studio-switch mt-5">
