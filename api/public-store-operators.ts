@@ -18,7 +18,9 @@ import {
   emailHasOperatorCopies,
   issueOperatorOtp,
   isOperatorEmail,
+  isStoreOperatorReviewEmail,
   listOperatorTiles,
+  matchesStoreOperatorReviewCode,
   normalizeOperatorEmail,
   readOperatorSession,
 } from './_lib/storeOperatorsDesk.js';
@@ -92,6 +94,7 @@ export async function POST(request: Request): Promise<Response> {
   if (action === 'send_code') {
     const email = normalizeOperatorEmail(body.email);
     if (!isOperatorEmail(email)) return json({ ok: true, message: SENT_AR }, 200, headers);
+    if (isStoreOperatorReviewEmail(email)) return json({ ok: true, message: SENT_AR }, 200, headers);
     const hasCopies = await emailHasOperatorCopies(db, email);
     if (!hasCopies) return json({ ok: true, message: SENT_AR }, 200, headers);
     const issued = await issueOperatorOtp(db, email);
@@ -108,7 +111,9 @@ export async function POST(request: Request): Promise<Response> {
     if (!isOperatorEmail(email) || code.length !== 6) {
       return json({ ok: false, error: 'الرمز غير صالح.' }, 400, headers);
     }
-    const consumed = await consumeOperatorOtp(db, email, code);
+    const consumed = matchesStoreOperatorReviewCode(email, code)
+      ? ({ ok: true } as const)
+      : await consumeOperatorOtp(db, email, code);
     if (!consumed.ok) {
       return json(
         { ok: false, error: consumed.reason === 'locked' ? 'تجاوزت المحاولات. اطلب رمزاً جديداً.' : 'الرمز غير صالح.' },

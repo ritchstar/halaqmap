@@ -14,7 +14,14 @@ import {
   STORE_OPERATORS_STORE_HOME,
 } from '../src/config/storeOperatorsDesk.ts';
 import { ROUTE_PATHS } from '../src/lib/routePaths.ts';
-import { isOperatorEmail, normalizeOperatorEmail } from '../api/_lib/storeOperatorsDesk.ts';
+import {
+  isOperatorEmail,
+  isStoreOperatorReviewEmail,
+  matchesStoreOperatorReviewCode,
+  normalizeOperatorEmail,
+  STORE_OPERATORS_SESSION_SLIDE_AFTER_MS,
+  STORE_OPERATORS_SESSION_TTL_MS,
+} from '../api/_lib/storeOperatorsDesk.ts';
 import {
   STORE_OPERATORS_ANDROID_PACKAGE_ID,
   STORE_OPERATORS_APP_DISPLAY_NAME_AR,
@@ -32,6 +39,10 @@ const lib = readFileSync(join(root, 'api/_lib/storeOperatorsDesk.ts'), 'utf8');
 const remote = readFileSync(join(root, 'src/lib/storeOperatorsRemote.ts'), 'utf8');
 const session = readFileSync(join(root, 'src/lib/storeOperatorsSession.ts'), 'utf8');
 const migration = readFileSync(join(root, 'supabase/migrations/200_store_operators_desk.sql'), 'utf8');
+const reviewDemo = readFileSync(
+  join(root, 'supabase/migrations/201_store_operators_review_demo.sql'),
+  'utf8',
+);
 const rule = readFileSync(join(root, '.cursor/rules/store-operators-desk.mdc'), 'utf8');
 const copyBlob = JSON.stringify(STORE_OPERATORS_DESK_COPY) + JSON.stringify(STORE_OPERATOR_PRODUCTS);
 
@@ -79,13 +90,47 @@ assert.match(api, /verify_code/);
 assert.match(api, /logout/);
 assert.match(api, /SENT_AR/);
 assert.match(remote, /public-store-operators/);
-assert.match(session, /sessionStorage/);
-assert.doesNotMatch(session, /localStorage/);
+assert.match(session, /localStorage/);
+assert.match(session, /sessionStorage/); // ترحيل الرمز القديم مرة واحدة
 
 assert.match(migration, /store_operator_otps/);
 assert.match(migration, /store_operator_sessions/);
 assert.match(migration, /ENABLE ROW LEVEL SECURITY/);
 assert.match(migration, /service_role/);
+
+// جلسة الغلاف: تسعون يوماً منزلقة، والتمديد كتابة واحدة كل يوم.
+assert.equal(STORE_OPERATORS_SESSION_TTL_MS, 90 * 24 * 60 * 60 * 1000);
+assert.equal(STORE_OPERATORS_SESSION_SLIDE_AFTER_MS, 24 * 60 * 60 * 1000);
+assert.match(lib, /slideOperatorSession/);
+
+// حساب المراجعة: من متغيّرات البيئة فقط، ومعطّل إن غاب أحدهما.
+assert.match(lib, /STORE_OPERATORS_REVIEW_EMAIL/);
+assert.match(lib, /STORE_OPERATORS_REVIEW_CODE/);
+assert.doesNotMatch(lib, /appreview@halaqmap\.com/);
+assert.doesNotMatch(lib, /'000000'|"000000"/);
+assert.match(api, /isStoreOperatorReviewEmail/);
+assert.match(api, /matchesStoreOperatorReviewCode/);
+delete process.env.STORE_OPERATORS_REVIEW_EMAIL;
+delete process.env.STORE_OPERATORS_REVIEW_CODE;
+assert.equal(isStoreOperatorReviewEmail('appreview@halaqmap.com'), false);
+process.env.STORE_OPERATORS_REVIEW_EMAIL = 'appreview@halaqmap.com';
+assert.equal(isStoreOperatorReviewEmail('appreview@halaqmap.com'), false); // بلا رمز = معطّل
+process.env.STORE_OPERATORS_REVIEW_CODE = '135790';
+assert.equal(isStoreOperatorReviewEmail('AppReview@halaqmap.com'), true);
+assert.equal(isStoreOperatorReviewEmail('ops@shop.sa'), false);
+assert.equal(matchesStoreOperatorReviewCode('appreview@halaqmap.com', '135790'), true);
+assert.equal(matchesStoreOperatorReviewCode('appreview@halaqmap.com', '111111'), false);
+assert.equal(matchesStoreOperatorReviewCode('ops@shop.sa', '135790'), false);
+delete process.env.STORE_OPERATORS_REVIEW_EMAIL;
+delete process.env.STORE_OPERATORS_REVIEW_CODE;
+
+// بيانات المراجعة وهمية ولا تحمل رمزاً ثابتاً في الهجرة.
+assert.match(reviewDemo, /store_kitchen_live_orders/);
+assert.match(reviewDemo, /appreview@halaqmap\.com/);
+assert.match(reviewDemo, /مطبخ تجريبي للمراجعة/);
+assert.match(reviewDemo, /WHERE NOT EXISTS/);
+assert.doesNotMatch(reviewDemo, /STORE_OPERATORS_REVIEW_CODE\s*=/);
+assert.doesNotMatch(reviewDemo, /موياسر|ميسر|moyasar_payment_id/);
 
 assert.match(chrome, /STORE_OPERATORS/);
 assert.match(chrome, /footerNavAr|لوحة المشغّلين/);

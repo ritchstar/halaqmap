@@ -7,7 +7,10 @@ import { createHash, randomBytes } from 'node:crypto';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 export const STORE_OPERATORS_OTP_TTL_MS = 10 * 60 * 1000;
-export const STORE_OPERATORS_SESSION_TTL_MS = 12 * 60 * 60 * 1000;
+/** تسعون يوماً منزلقة حتى لا يتكرر طلب الرمز على غلافي أندرويد وآيفون. */
+export const STORE_OPERATORS_SESSION_TTL_MS = 90 * 24 * 60 * 60 * 1000;
+/** لا يُكتب التمديد إلا مرة كل يوم لتقليل الكتابة على كل نداء. */
+export const STORE_OPERATORS_SESSION_SLIDE_AFTER_MS = 24 * 60 * 60 * 1000;
 export const STORE_OPERATORS_OTP_HOURLY_CAP = 3;
 export const STORE_OPERATORS_OTP_MAX_ATTEMPTS = 5;
 
@@ -106,6 +109,35 @@ export type StoreOperatorTile = {
 };
 
 type Db = SupabaseClient;
+
+/**
+ * حساب مراجعي متجر آبل. يعمل فقط عند ضبط المتغيّرين معاً، فيُعطَّل بحذف أحدهما
+ * بلا نشر جديد. مربوط ببيانات تشغيل وهمية لا ببيانات مشغّل حقيقي.
+ */
+export function storeOperatorReviewEmail(): string {
+  return normalizeOperatorEmail(process.env.STORE_OPERATORS_REVIEW_EMAIL);
+}
+
+function storeOperatorReviewCode(): string {
+  return String(process.env.STORE_OPERATORS_REVIEW_CODE || '')
+    .replace(/\D/g, '')
+    .slice(0, 6);
+}
+
+export function isStoreOperatorReviewEmail(email: string): boolean {
+  const configured = storeOperatorReviewEmail();
+  if (!configured || storeOperatorReviewCode().length !== 6) return false;
+  return normalizeOperatorEmail(email) === configured;
+}
+
+export function matchesStoreOperatorReviewCode(email: string, code: string): boolean {
+  if (!isStoreOperatorReviewEmail(email)) return false;
+  const expected = storeOperatorReviewCode();
+  const given = String(code || '')
+    .replace(/\D/g, '')
+    .slice(0, 6);
+  return given.length === 6 && given === expected;
+}
 
 export function normalizeOperatorEmail(raw: unknown): string {
   return String(raw ?? '')
@@ -252,17 +284,30 @@ export async function createOperatorSession(db: Db, email: string): Promise<stri
 export async function readOperatorSession(db: Db, token: string): Promise<string | null> {
   const trimmed = String(token || '').trim();
   if (trimmed.length < 16) return null;
+  const tokenHash = sha256Hex(trimmed);
   const { data } = await db
     .from('store_operator_sessions')
     .select('email, expires_at')
-    .eq('token_hash', sha256Hex(trimmed))
+    .eq('token_hash', tokenHash)
     .maybeSingle();
   if (!data) return null;
   if (isExpired(data.expires_at)) {
-    await db.from('store_operator_sessions').delete().eq('token_hash', sha256Hex(trimmed));
+    await db.from('store_operator_sessions').delete().eq('token_hash', tokenHash);
     return null;
   }
+  await slideOperatorSession(db, tokenHash, data.expires_at);
   return normalizeOperatorEmail(data.email);
+}
+
+async function slideOperatorSession(db: Db, tokenHash: string, expiresAt: unknown): Promise<void> {
+  const currentMs = Date.parse(String(expiresAt || ''));
+  if (!Number.isFinite(currentMs)) return;
+  const nextMs = Date.now() + STORE_OPERATORS_SESSION_TTL_MS;
+  if (nextMs - currentMs < STORE_OPERATORS_SESSION_SLIDE_AFTER_MS) return;
+  await db
+    .from('store_operator_sessions')
+    .update({ expires_at: new Date(nextMs).toISOString() })
+    .eq('token_hash', tokenHash);
 }
 
 export async function deleteOperatorSession(db: Db, token: string): Promise<void> {
