@@ -194,8 +194,8 @@ if (!existsSync(storeQr)) {
   if (qrHtml.includes('https://store.halaqmap.com/#/store')) {
     errors.push('store-qr.html must not use a hash store URL');
   }
-  if (!qrHtml.includes('متجر خريطة الحل')) {
-    errors.push('store-qr.html must use store shop name');
+  if (!qrHtml.includes('خريطة الحل') || qrHtml.includes('متجر خريطة الحل')) {
+    errors.push('store-qr.html must use shop name خريطة الحل without متجر');
   }
 }
 
@@ -207,7 +207,7 @@ if (!existsSync(storeShare)) {
   if (!storeHtml.includes('store.halaqmap.com')) {
     errors.push('store-index.html must point og tags at store.halaqmap.com');
   }
-  if (!storeHtml.includes('متجر خريطة الحل')) {
+  if (!storeHtml.includes('خريطة الحل')) {
     errors.push('store-index.html must use store shop name');
   }
   if (!storeHtml.includes('OnlineStore')) {

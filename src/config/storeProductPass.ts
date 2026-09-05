@@ -33,7 +33,7 @@ export const STORE_PRODUCT_PASS_META: Record<
 };
 
 export const STORE_PRODUCT_PASS_COPY = {
-  documentTitle: 'اصنع كيو ار منتجك | متجر خريطة الحل',
+  documentTitle: 'اصنع كيو ار منتجك | خريطة الحل',
   kickerAr: 'ثقة تعامل',
   titleAr: 'اصنع كيو ار منتجك',
   leadAr: 'ضع اسمك ومنصبك في المنتج، ثم افتح البطاقة أو انسخ رابطها لعرض رمز الصفحة من شاشة الجوال.',

@@ -11,9 +11,9 @@ import {
 } from './storeShareMeta.mjs';
 
 test('وسم مشاركة المتجر لا يذكر أقرب حلاق', () => {
-  assert.match(STORE_SHARE_META.title, /متجر خريطة الحل/);
+  assert.match(STORE_SHARE_META.title, /خريطة الحل/);
   assert.match(STORE_SHARE_META.title, /halaqmap/);
-  assert.match(STORE_SHARE_META.description, /متجر خريطة الحل/);
+  assert.match(STORE_SHARE_META.description, /خريطة الحل/);
   assert.equal(STORE_SHARE_META.url, 'https://store.halaqmap.com/store');
   assert.equal(STORE_SHARE_META.description.includes('اقرب حلاق'), false);
   assert.equal(STORE_SHARE_META.image.includes('store.halaqmap.com'), true);
@@ -44,9 +44,9 @@ test('تحويل HTML يستبدل وسم حلاق ماب بوسم المتجر'
     <meta name="twitter:image" content="https://www.halaqmap.com/images/halaqmap_logo_refined.png" />
   </head><body></body></html>`;
   const next = applyStoreShareMeta(html);
-  assert.match(next, /og:title" content="متجر خريطة الحل — halaqmap"/);
+  assert.match(next, /og:title" content="خريطة الحل — halaqmap"/);
   assert.match(next, /OnlineStore/);
-  assert.match(next, /<noscript><h1>متجر خريطة الحل<\/h1><\/noscript>/);
+  assert.match(next, /<noscript><h1>خريطة الحل<\/h1><\/noscript>/);
   assert.equal(next.includes('"name": "حلاق ماب"'), false);
   assert.match(next, /store\.halaqmap\.com\/images\/halaqmap-store-mark-radar-square-1200x1200\.png/);
   assert.equal(next.includes('اقرب حلاق · حلاق قريب | حلاق ماب'), false);

@@ -20,11 +20,11 @@ export function storeMeetQrTargetUrl(): string {
 }
 
 export const STORE_MEET_QR_COPY = {
-  documentTitle: 'رمز متجر خريطة الحل',
+  documentTitle: 'رمز خريطة الحل',
   kickerAr: 'للعرض من الآيفون أثناء المقابلة',
   titleAr: STORE_PUBLIC_NAME_AR,
   latinMark: STORE_BRAND_LATIN,
-  scanHintAr: 'امسح الرمز لدخول واجهة المتجر',
+  scanHintAr: 'امسح الرمز لدخول واجهة خريطة الحل',
   hostLine: `${STORE_SATELLITE_HOST}/store`,
   presentCtaAr: 'وضع العرض',
   presentExitAr: 'إغلاق العرض',
@@ -34,10 +34,10 @@ export const STORE_MEET_QR_COPY = {
   saveOkAr: 'جهّز الصورة. احفظها في الصور من قائمة الجهاز.',
   saveFailAr: 'تعذّر التجهيز. أعد المحاولة من المتصفح.',
   leadAr:
-    'افتح هذه الصفحة على الآيفون ثم اضغط وضع العرض أمام العميل. المسح يفتح واجهة المتجر على نطاقه بلا هاش.',
+    'افتح هذه الصفحة على الآيفون ثم اضغط وضع العرض أمام العميل. المسح يفتح واجهة خريطة الحل على نطاقه بلا هاش.',
   landingDoorTitleAr: 'رمز المقابلة على الآيفون',
   landingDoorLeadAr:
-    'لوحة بستايل المتجر لعرضها من الجوال أثناء المقابلة. المسح يدخل واجهة المتجر بلا هاش.',
+    'لوحة بستايل خريطة الحل لعرضها من الجوال أثناء المقابلة. المسح يدخل الواجهة بلا هاش.',
   landingDoorCtaAr: 'افتح رمز المقابلة',
 } as const;
 

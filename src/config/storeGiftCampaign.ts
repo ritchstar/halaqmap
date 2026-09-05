@@ -42,7 +42,7 @@ export const STORE_GIFT_SOURCE_OPTIONS: readonly {
 ] as const;
 
 export const STORE_GIFT_COPY = {
-  documentTitle: 'هدية خريطة الحل | متجر خريطة الحل',
+  documentTitle: 'هدية خريطة الحل | خريطة الحل',
   kickerAr: 'هدية خريطة الحل',
   titleAr: 'خمسة نماذج مناسبات تُهدى بالسحب التقني',
   leadAr:
@@ -95,7 +95,7 @@ export const STORE_GIFT_COPY = {
 } as const;
 
 export const STORE_GIFT_TERMS_COPY = {
-  documentTitle: 'شروط هدايا خريطة الحل | متجر خريطة الحل',
+  documentTitle: 'شروط هدايا خريطة الحل | خريطة الحل',
   kickerAr: 'شروط هدايا خريطة الحل',
   titleAr: 'مبادئ الإهداء',
   subtitleAr:

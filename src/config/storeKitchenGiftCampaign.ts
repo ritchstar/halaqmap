@@ -26,7 +26,7 @@ export const STORE_KITCHEN_GIFT_SOURCE_OPTIONS: readonly {
 ] as const;
 
 export const STORE_KITCHEN_GIFT_COPY = {
-  documentTitle: 'هدية طبختنا1 | متجر خريطة الحل',
+  documentTitle: 'هدية طبختنا1 | خريطة الحل',
   kickerAr: 'هدية طبختنا1',
   titleAr: 'خمسة نماذج تشغيل تُهدى بالسحب التقني',
   leadAr:
@@ -80,7 +80,7 @@ export const STORE_KITCHEN_GIFT_COPY = {
 } as const;
 
 export const STORE_KITCHEN_GIFT_TERMS_COPY = {
-  documentTitle: 'شروط هدية طبختنا1 | متجر خريطة الحل',
+  documentTitle: 'شروط هدية طبختنا1 | خريطة الحل',
   kickerAr: 'شروط هدية طبختنا1',
   titleAr: 'مبادئ الإهداء',
   subtitleAr:

@@ -6,14 +6,14 @@
 export const STORE_REVIEWS_PUBLIC_ENABLED = true as const;
 
 export const STORE_REVIEWS_COPY = {
-  documentTitle: 'تقييمات المتجر | متجر خريطة الحل',
-  kickerAr: 'تقييمات المتجر',
+  documentTitle: 'تقييمات خريطة الحل | خريطة الحل',
+  kickerAr: 'تقييمات خريطة الحل',
   titleAr: 'النجوم والتعليق',
-  leadAr: 'اترك تقييماً وتعليقاً عن متجر خريطة الحل. تظهر التعليقات في هذه الصفحة، وتصل إلى لوحة الإدارة.',
+  leadAr: 'اترك تقييماً وتعليقاً عن خريطة الحل. تظهر التعليقات في هذه الصفحة، وتصل إلى لوحة الإدارة.',
   formTitleAr: 'صندوق التقييم والتعليق',
   starsLabelAr: 'عدد النجوم',
   commentLabelAr: 'التعليق',
-  commentHintAr: 'اكتب ملاحظة قصيرة عن تجربتك مع المتجر.',
+  commentHintAr: 'اكتب ملاحظة قصيرة عن تجربتك مع خريطة الحل.',
   nameLabelAr: 'الاسم إن رغبت',
   optionalAr: 'اختياري',
   submitAr: 'أرسل التقييم والتعليق',
@@ -23,7 +23,7 @@ export const STORE_REVIEWS_COPY = {
   needStarsAr: 'اختر عدد النجوم.',
   needCommentAr: 'اكتب تعليقاً واضحاً لا يقل عن ثمانية أحرف.',
   visitorAr: 'زائر',
-  backAr: 'واجهة المتجر',
+  backAr: 'واجهة خريطة الحل',
   navAr: 'التقييمات',
 } as const;
 

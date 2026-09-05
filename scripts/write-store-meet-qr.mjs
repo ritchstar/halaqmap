@@ -18,7 +18,7 @@ export async function buildStoreMeetQrHtml() {
     margin: 1,
     color: { dark: '#061018', light: '#ffffff' },
   });
-  const qr = svg.replace('<svg', '<svg class="qr" role="img" aria-label="رمز متجر خريطة الحل"');
+  const qr = svg.replace('<svg', '<svg class="qr" role="img" aria-label="رمز خريطة الحل"');
 
   return `<!DOCTYPE html>
 <html lang="ar-SA" dir="rtl">
@@ -29,8 +29,8 @@ export async function buildStoreMeetQrHtml() {
     <meta name="theme-color" content="#061018" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="متجر خريطة الحل" />
-    <title>رمز متجر خريطة الحل</title>
+    <meta name="apple-mobile-web-app-title" content="خريطة الحل" />
+    <title>رمز خريطة الحل</title>
     <link rel="canonical" href="https://store.halaqmap.com/store/qr" />
     <style>
       :root { color-scheme: dark; }
@@ -112,11 +112,11 @@ export async function buildStoreMeetQrHtml() {
         <div class="bar" aria-hidden="true"></div>
         <img class="logo" src="/images/halaqmap-store-mark-radar-square-1200x1200.png" width="88" height="88" alt="" />
         <p class="latin" dir="ltr">halaqmap</p>
-        <h1>متجر خريطة الحل</h1>
+        <h1>خريطة الحل</h1>
         <p class="kicker">للعرض من الآيفون أثناء المقابلة</p>
         <div class="pad">${qr}</div>
         <p class="host" dir="ltr">store.halaqmap.com/store</p>
-        <p class="scan">امسح الرمز لدخول واجهة المتجر</p>
+        <p class="scan">امسح الرمز لدخول واجهة خريطة الحل</p>
         <ul class="chips">
           <li>افراحي1</li>
           <li>اجواء1</li>

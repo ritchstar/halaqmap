@@ -119,7 +119,7 @@ export const STORE_PRODUCT_TRIAL_COPY = {
 } as const;
 
 export const STORE_GENERAL_TRIAL_COPY = {
-  documentTitle: 'التجربة العامة | متجر خريطة الحل',
+  documentTitle: 'التجربة العامة | خريطة الحل',
   kickerAr: 'نظام التجربة العام',
   titleAr: 'شغّل صفحتك ستين يوماً ثم قرر',
   leadAr:
@@ -160,7 +160,7 @@ export const STORE_GENERAL_TRIAL_COPY = {
 } as const;
 
 export const STORE_GENERAL_TRIAL_TERMS_COPY = {
-  documentTitle: 'شروط التجربة العامة | متجر خريطة الحل',
+  documentTitle: 'شروط التجربة العامة | خريطة الحل',
   kickerAr: 'شروط التجربة العامة',
   titleAr: 'شروط نظام التجربة العام',
   subtitleAr:

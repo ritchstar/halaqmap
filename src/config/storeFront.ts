@@ -72,8 +72,8 @@ export const STORE_SOFTWARE_SHOTS = [
 ] as const;
 
 export const STORE_LANDING_COPY = {
-  documentTitle: `متجر خريطة الحل — ${STORE_BRAND_LATIN}`,
-  shopNameAr: 'متجر خريطة الحل',
+  documentTitle: `خريطة الحل — ${STORE_BRAND_LATIN}`,
+  shopNameAr: 'خريطة الحل',
   cardsTitle: `${STORE_PUBLIC_NAME_AR} — بطاقة تهنئة مجانية`,
   kicker: STORE_ENGLISH_LINE,
   publicName: STORE_PUBLIC_NAME_AR,
@@ -92,11 +92,11 @@ export const STORE_LANDING_COPY = {
   heroFormLink: 'نموذج الطلب',
   heroInviteAfter: '، ويقوم فريقنا البرمجي بالدراسة وتقديم العرض المناسب لك خلال 48 ساعة.',
   heroCta: 'قدّم طلبك الآن',
-  heroShotAlt: 'واجهة برمجية حية لمتجر halaqmap',
-  heroShotCaption: 'منتجات برمجية حية ضمن المتجر',
+  heroShotAlt: 'واجهة برمجية حية لخريطة الحل',
+  heroShotCaption: 'منتجات برمجية حية ضمن خريطة الحل',
   softwareStripTitle: 'طابع برمجي من المنتجات الحالية',
   roleLine: 'متجر إلكتروني للبيع بالتجزئة للبرمجيات.',
-  requestTitle: 'طلب خدمات المتجر',
+  requestTitle: 'طلب خدمات خريطة الحل',
   requestLead:
     'اكتب اسمك وبيانات التواصل، واسم المنشأة إن وُجد أو رقم وثيقة العمل الحر، ثم اشرح طلبك بوضوح مبدئي أو مفصّل. تدرسه الإدارة وترد خلال يومين عمل.',
   requestSuccess: 'وصل الطلب. ستدرسه الإدارة وترد خلال يومين عمل عبر البريد أو الجوال أو واتساب.',
@@ -108,7 +108,7 @@ export const STORE_LANDING_COPY = {
   browseCardsAr: 'البطاقات',
   browseWorksAr: 'أعمال أخرى',
   deskChatTitle: 'محادثة مباشرة مع الإدارة',
-  deskChatLead: 'من واجهة المتجر. جلسة ستون دقيقة، والرد يصلك هنا.',
+  deskChatLead: 'من واجهة خريطة الحل. جلسة ستون دقيقة، والرد يصلك هنا.',
   freeCardsTitle: 'خدمات برمجية مجانية الآن',
   freeCardsLead:
     'أصدر بطاقة تهنئة لنفسك: الاسم ورقم الجوال والبريد ورابط صورة شخصية. يوم وطني، تخرج، أو معايدة. نسخة أولى قابلة للتعديل لاحقاً.',
@@ -175,15 +175,15 @@ export const STORE_LANDING_COPY = {
 
 /** أيقونتا التقييم والمشاركة — أسفل يسار واجهة المتجر. */
 export const STORE_ENGAGE_COPY = {
-  rateAr: 'قيم المتجر',
-  shareAr: 'شارك المتجر',
-  rateTitleAr: 'قيم المتجر',
-  rateLeadAr: 'إن أعجبك المتجر، اختر عدد النجوم.',
+  rateAr: 'قيّم خريطة الحل',
+  shareAr: 'شارك خريطة الحل',
+  rateTitleAr: 'قيّم خريطة الحل',
+  rateLeadAr: 'إن أعجبتك خريطة الحل، اختر عدد النجوم.',
   rateSendAr: 'إرسال التقييم',
   rateThanksAr: 'شكراً لتقييمك.',
-  shareTitleAr: 'شارك المتجر',
-  shareLeadAr: 'أرسل رابط المتجر لمن يحتاجه.',
-  shareTextAr: 'متجر خريطة الحل — برمجيات وخدمات سحابية. كاردي8، افراحي1، اجواء1، لاونجا1، وتمويناتا1.',
+  shareTitleAr: 'شارك خريطة الحل',
+  shareLeadAr: 'أرسل رابط خريطة الحل لمن يحتاجه.',
+  shareTextAr: 'خريطة الحل — برمجيات وخدمات سحابية. كاردي8، افراحي1، اجواء1، لاونجا1، وتمويناتا1.',
   copyAr: 'نسخ الرابط',
   copiedAr: 'تم النسخ',
   whatsappAr: 'واتساب',

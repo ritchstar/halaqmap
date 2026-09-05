@@ -8,12 +8,13 @@ import { STORE_PRODUCT_BENEFITS_COPY } from '@/config/storeProductBenefitsCopy';
 import { STORE_GIFT_CAMPAIGN_PUBLIC_ENABLED, STORE_GIFT_COPY } from '@/config/storeGiftCampaign';
 import { STORE_GENERAL_TRIAL_COPY, STORE_GENERAL_TRIAL_PUBLIC_ENABLED } from '@/config/storeProductTrial';
 import { STORE_REVIEWS_COPY, STORE_REVIEWS_PUBLIC_ENABLED } from '@/config/storeReviews';
-import { STORE_ABOUT_COPY, STORE_BRAND_LATIN, STORE_CONTACT_EMAIL, STORE_CONTACT_PHONE_DISPLAY, STORE_CONTACT_PHONE_E164, STORE_CONTACT_WHATSAPP_URL, STORE_CONTACT_X_HANDLE, STORE_CONTACT_X_URL, STORE_FOOTER_CONTACT, STORE_LANDING_COPY, STORE_ORIGIN, STORE_VISUALS } from '@/config/storeFront';
+import { STORE_ABOUT_COPY, STORE_BRAND_LATIN, STORE_CONTACT_EMAIL, STORE_CONTACT_PHONE_DISPLAY, STORE_CONTACT_PHONE_E164, STORE_CONTACT_WHATSAPP_URL, STORE_CONTACT_X_HANDLE, STORE_CONTACT_X_URL, STORE_FOOTER_CONTACT, STORE_LANDING_COPY, STORE_ORIGIN } from '@/config/storeFront';
 import { STORE_SAIP_COPY, STORE_SAIP_PUBLIC_WORKS } from '@/config/storeSaipRegistry';
 import { STORE_OPERATORS_DESK_COPY, STORE_OPERATORS_DESK_PUBLIC_ENABLED } from '@/config/storeOperatorsDesk';
 import { STORE_HMTUBE } from '@/config/storeHmTube';
 import { KSACityClocksBar } from '@/components/KSACityClocksBar';
 import { EcommerceVerifiedFooterBadge } from '@/components/EcommerceVerifiedFooterBadge';
+import { StoreBrandMark } from '@/components/store/StoreBrandMark';
 import { StoreVisitorEngage } from '@/components/store/StoreVisitorEngage';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { rememberStoreAffiliateRef } from '@/lib/storeAffiliateRef';
@@ -98,14 +99,8 @@ export function StoreVisitorHeader() {
       {!isMobile ? <KSACityClocksBar /> : null}
       <header className="backdrop-blur">
         <div className="store-visitor-header__row mx-auto flex max-w-5xl items-center gap-2 px-3 py-2 md:flex-wrap md:gap-3 md:px-4 md:py-3">
-          <Link to={ROUTE_PATHS.STORE_LANDING} className="flex min-w-0 items-center gap-2 me-auto md:gap-3">
-            <img
-              src={STORE_VISUALS.logo}
-              alt=""
-              width={44}
-              height={44}
-              className="h-9 w-9 shrink-0 rounded-xl border border-white/10 object-cover md:h-11 md:w-11"
-            />
+          <Link to={ROUTE_PATHS.STORE_LANDING} className="flex min-w-0 items-center gap-3 me-auto md:gap-4">
+            <StoreBrandMark />
             <span className="min-w-0">
               <p className="text-[0.65rem] font-bold tracking-wide text-[#e8c547] md:text-[0.7rem]">{STORE_BRAND_LATIN}</p>
               <p className="truncate text-base font-extrabold text-[#f4efe4] md:text-lg">{STORE_LANDING_COPY.shopNameAr}</p>
@@ -199,7 +194,7 @@ export function StoreVisitorFooter() {
           </Link>
           ) : null}
           <Link to={ROUTE_PATHS.STORE_LANDING} className="text-white/80">
-            واجهة المتجر
+            واجهة خريطة الحل
           </Link>
           <Link to={ROUTE_PATHS.STORE_INTRO_CARDS} className="text-white/80">
             كروت تعريفية
