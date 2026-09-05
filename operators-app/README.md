@@ -24,14 +24,15 @@
 **قبل أول بناء على جهاز macOS**
 
 ```bash
-npm install
-npm install @capacitor/push-notifications
 cd operators-app
-npx cap sync ios
-npx cap open ios
+npm install
+npm run prepare:ios
+npm run open
 ```
 
-حزمة الإشعارات غير مثبّتة في `package.json` بعد؛ تُثبَّت على جهاز البناء ثم يُعاد `cap sync` حتى تدخل قائمة الإضافات في `Package.swift`.
+راجع **`APP-STORE-SUBMIT.md`** لخطوات التوقيع والأرشفة وملاحظات مراجعة آبل.
+
+`prepare:ios` يثبّت `DEVELOPMENT_TEAM` و`CODE_SIGN_ENTITLEMENTS` ثم يُزامِن `@capacitor/push-notifications` في مشروع Xcode.
 
 **ما هو مضبوط سلفاً**
 

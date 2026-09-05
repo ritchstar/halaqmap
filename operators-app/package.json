@@ -4,8 +4,20 @@
   "version": "1.0.0",
   "description": "غلاف لوحة مشغّلي خريطة الحل — Capacitor iOS",
   "scripts": {
+    "prepare:ios": "node patch-xcode-project.mjs && cap sync ios",
     "sync": "cap sync ios",
     "open": "cap open ios",
-    "copy": "cap copy ios"
+    "copy": "cap copy ios",
+    "assets": "node generate-ios-assets.mjs"
+  },
+  "dependencies": {
+    "@capacitor/core": "^8.5.0",
+    "@capacitor/ios": "^8.5.0",
+    "@capacitor/push-notifications": "^8.0.0",
+    "@capacitor/splash-screen": "^8.0.2",
+    "@capacitor/status-bar": "^8.0.3"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.5.0"
   }
 }
