@@ -59,11 +59,9 @@ export function StoreHalanaOrderForm({ renewToken = '' }: { renewToken?: string 
         void submit();
       }}
     >
-      <h2 className="text-xl font-extrabold">{renewing ? 'أعيدي الشراء على نفس الصفحة' : STORE_HALANA_LIVE.orderCtaLandingAr}</h2>
-      <p className="mt-2 text-sm text-white/70">
-        {renewing
-          ? 'نفس روابط المعرض ولوحة التشغيل تُمدَّد بعد السداد.'
-          : 'بعد السداد يصلك رابط المعرض ورابط اللوحة وملصق QR.'}
+      <h2 className="text-xl font-extrabold">{renewing ? 'مدّدي اشتراك حلانا1' : STORE_HALANA_LIVE.orderCtaLandingAr}</h2>
+      <p className="mt-2 text-sm leading-7 text-white/70">
+        {renewing ? STORE_HALANA_LIVE.orderRenewLeadAr : STORE_HALANA_LIVE.orderNewLeadAr}
       </p>
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
         {STORE_HALANA_LIVE_PACKS.map((item) => (
@@ -76,14 +74,18 @@ export function StoreHalanaOrderForm({ renewToken = '' }: { renewToken?: string 
               packId === item.id ? 'border-[#c45c7a] bg-[#c45c7a]/15' : 'border-white/15',
             )}
           >
-            <p className="font-extrabold">{item.titleAr}</p>
-            <p className="mt-1 text-lg font-black text-[#c45c7a]">{item.priceLineAr}</p>
+            <p className="font-extrabold">
+              <bdi>{item.titleAr}</bdi>
+            </p>
+            <p className="mt-1 text-lg font-black text-[#c45c7a]">
+              <bdi>{item.priceLineAr}</bdi>
+            </p>
             <p className="mt-1 text-xs leading-6 text-white/65">{item.lineAr}</p>
           </button>
         ))}
       </div>
       <label className="mt-4 block text-sm">
-        البريد لاستلام روابط المعرض ولوحة التشغيل
+        {STORE_HALANA_LIVE.orderEmailLabelAr}
         <input className="restaurant-field" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
       </label>
       {renewing ? null : (
@@ -96,13 +98,20 @@ export function StoreHalanaOrderForm({ renewToken = '' }: { renewToken?: string 
         <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} className="mt-1" />
         <span>{STORE_HALANA_LIVE.orderConsentAr}</span>
       </label>
+      <p className="mt-2 text-xs leading-6 text-white/55">{STORE_HALANA_LIVE.orderNoCollectAr}</p>
       {error ? <p className="mt-3 text-sm text-red-300">{error}</p> : null}
       <button
         type="submit"
         disabled={busy || !STORE_HALANA_LIVE_CHECKOUT_ENABLED}
         className="mt-4 min-h-12 w-full rounded-full bg-[#c45c7a] text-sm font-bold text-[#061018] disabled:opacity-50"
       >
-        {busy ? 'جاري تجهيز بوابة الدفع…' : `${STORE_HALANA_LIVE.orderSubmitAr} · ${pack.priceSar} ر.س`}
+        {busy ? (
+          'جاري تجهيز بوابة الدفع…'
+        ) : (
+          <>
+            {STORE_HALANA_LIVE.orderSubmitAr} — <bdi>{pack.priceSar} ر.س</bdi>
+          </>
+        )}
       </button>
       <StoreEnterpriseDirectMail
         className="mt-4"

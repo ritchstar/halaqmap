@@ -415,7 +415,7 @@ function ShowcasePanel({ token, payload }: { token: string; payload: Payload }) 
         <ShowcaseSection title={copy.policyTitleAr}>
           <p className="halana-lead">{payload.policyAr || STORE_HALANA_DEFAULT_POLICY_AR}</p>
         </ShowcaseSection>
-        <ShowcaseSection title={copy.payTitleAr}>
+        <ShowcaseSection title={copy.payInstructionsTitleAr}>
           <StoreDirectPayPublicMount product="store_halana_live" token={token} accent={STORE_HALANA_LIVE_ACCENT} />
         </ShowcaseSection>
         <Link to={`/h/${encodeURIComponent(token)}/order`} className="halana-order-cta">

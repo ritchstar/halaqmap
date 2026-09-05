@@ -121,16 +121,16 @@ export function StoreHalanaPayGuest({ token }: { token: string }) {
   if (!pay) {
     return (
       <section className="halana-form-card space-y-3 rounded-2xl p-5">
-        <h2 className="halana-title-sm">{copy.payTitleAr}</h2>
-        <p className="halana-lead">{waiting ? copy.payWaitAr : copy.payLeadAr}</p>
+        <h2 className="halana-title-sm">{copy.payInstructionsTitleAr}</h2>
+        <p className="halana-lead">{waiting ? copy.payWaitAr : copy.payInstructionsLeadAr}</p>
       </section>
     );
   }
 
   return (
     <section className="halana-form-card space-y-4 rounded-2xl p-5">
-      <h2 className="halana-title-sm">{copy.payTitleAr}</h2>
-      <p className="halana-lead">{copy.payLeadAr}</p>
+      <h2 className="halana-title-sm">{copy.payInstructionsTitleAr}</h2>
+      <p className="halana-lead">{copy.payInstructionsLeadAr}</p>
       {pay.amountSar ? <p className="text-base font-extrabold text-[#ffe8c4]">المبلغ: {pay.amountSar} ر.س</p> : null}
       {pay.quoteNote ? <p className="text-sm leading-7 text-[#ffe8c4]/80">{pay.quoteNote}</p> : null}
       {pay.beneficiaryName ? (

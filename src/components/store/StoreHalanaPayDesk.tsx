@@ -63,7 +63,7 @@ export function StoreHalanaPayDesk({
     <section className="halana-form-card space-y-4 rounded-2xl p-5">
       <h2 className="halana-title-sm">{copy.payDeskTitleAr}</h2>
       <p className="text-base leading-8 text-[#ffe8c4]/80">{copy.payDeskLeadAr}</p>
-      <p className="text-sm leading-7 text-[#ffe8c4]/75">{copy.payLeadAr}</p>
+      <p className="text-sm leading-7 text-[#ffe8c4]/75">{copy.payInstructionsLeadAr}</p>
       <label className="halana-field-shell block">
         {copy.payBankAr}
         <input className="halana-field" value={bankName} onChange={(event) => setBankName(event.target.value)} />
