@@ -3,7 +3,7 @@
  *
  * فورم طلب دعوة الزواج ثم التحويل إلى ميسر على www.
  */
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { StoreEnterpriseDirectMail } from '@/components/store/StoreEnterpriseDirectMail';
 import {
   STORE_WEDDING_LIVE_CHECKOUT_ENABLED,
@@ -25,6 +25,8 @@ import {
   normalizeOffspringKind,
   normalizeVenueKind,
   normalizeWeddingHostRole,
+  syncWeddingEventDates,
+  weddingEventDatePreview,
   type WeddingLiveHostRole,
   type WeddingOffspringKind,
   type WeddingVenueKind,
@@ -38,11 +40,11 @@ export function StoreWeddingOrderForm({ voice = 'men' }: { voice?: StoreWeddingL
   const [email, setEmail] = useState('');
   const [hostName, setHostName] = useState<string>(demo.hostName);
   const [hostRole, setHostRole] = useState<WeddingLiveHostRole>(demo.hostRole);
+  const [hostRoleCustomAr, setHostRoleCustomAr] = useState('');
   const [offspringKind, setOffspringKind] = useState<WeddingOffspringKind>(demo.offspringKind);
   const [groomName, setGroomName] = useState<string>(demo.groomName);
   const [brideName, setBrideName] = useState<string>(demo.brideName);
-  const [eventDate, setEventDate] = useState<string>(demo.eventDate);
-  const [eventDateEn, setEventDateEn] = useState<string>(demo.eventDateEn);
+  const [eventDateIso, setEventDateIso] = useState<string>(demo.eventDateIso || '2026-09-24');
   const [eventTime, setEventTime] = useState<string>(demo.eventTime);
   const [venueKind, setVenueKind] = useState<WeddingVenueKind>(demo.venueKind);
   const [venueName, setVenueName] = useState<string>(demo.venueName);
@@ -52,10 +54,27 @@ export function StoreWeddingOrderForm({ voice = 'men' }: { voice?: StoreWeddingL
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
 
+  const datePreview = useMemo(() => weddingEventDatePreview(eventDateIso), [eventDateIso]);
+  const syncedDates = useMemo(() => syncWeddingEventDates(eventDateIso), [eventDateIso]);
+  const mapsHref = useMemo(() => {
+    const t = venueMapsUrl.trim();
+    if (!t) return null;
+    try {
+      const u = new URL(t.startsWith('http') ? t : `https://${t}`);
+      return u.protocol === 'https:' ? u.toString() : null;
+    } catch {
+      return null;
+    }
+  }, [venueMapsUrl]);
+
   async function submit() {
     if (!STORE_WEDDING_LIVE_CHECKOUT_ENABLED || busy) return;
     if (!consent) {
       setError('الموافقة على شروط الخدمة مطلوبة قبل الدفع.');
+      return;
+    }
+    if (groomName.trim().length < 2) {
+      setError('اسم العريس مطلوب.');
       return;
     }
     ProductEvents.storeWeddingPayClick({ voice });
@@ -68,11 +87,12 @@ export function StoreWeddingOrderForm({ voice = 'men' }: { voice?: StoreWeddingL
       voice,
       hostName,
       hostRole,
+      hostRoleCustomAr,
       offspringKind,
       groomName,
-      brideName,
-      eventDate,
-      eventDateEn,
+      brideName: brideName.trim() || '—',
+      eventDate: syncedDates.eventDate,
+      eventDateEn: syncedDates.eventDateEn,
       eventTime,
       venueKind,
       venueName,
@@ -94,7 +114,7 @@ export function StoreWeddingOrderForm({ voice = 'men' }: { voice?: StoreWeddingL
     window.location.assign(invoiceUrl.startsWith('https://') ? invoiceUrl : weddingLivePayHref(result.token));
   }
 
-  const field = 'mt-1 h-12 w-full rounded-md border border-white/15 bg-[#061018] px-3 text-[#f4efe4]';
+  const field = 'mt-1 h-12 w-full rounded-md border border-white/15 bg-[#061018] px-3 text-base text-[#f4efe4]';
   const fill = weddingLiveFillClass(voice);
   const text = weddingLiveTextClass(voice);
   const border = voice === 'women' ? 'border-[#e4b7c5]/30' : 'border-[#e8c547]/30';
@@ -102,14 +122,16 @@ export function StoreWeddingOrderForm({ voice = 'men' }: { voice?: StoreWeddingL
   return (
     <form
       id="wedding-order"
-      className={cn('rounded-2xl bg-[#0b1a24]/90 p-5', 'border', border)}
+      className={cn('scroll-mt-24 rounded-2xl bg-[#0b1a24]/90 p-5', 'border', border)}
       onSubmit={(event) => {
         event.preventDefault();
         void submit();
       }}
     >
-      <h2 className="text-xl font-extrabold">{copy.orderCtaAr}</h2>
-      <p className="mt-2 text-sm text-white/70">بعد السداد تصلك ثلاثة روابط سرية على البريد.</p>
+      <h2 className="text-xl font-extrabold">
+        <bdi>{copy.activateCtaAr}</bdi>
+      </h2>
+      <p className="mt-2 text-sm leading-7 text-white/70">{copy.orderLinksIntroAr}</p>
       <label className="mt-4 block text-sm">
         {copy.orderEmailLabelAr}
         <input className={field} type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
@@ -133,6 +155,12 @@ export function StoreWeddingOrderForm({ voice = 'men' }: { voice?: StoreWeddingL
           {copy.hostNameLabelAr}
           <input className={field} required value={hostName} onChange={(e) => setHostName(e.target.value)} />
         </label>
+        {hostRole === 'custom' ? (
+          <label className="block text-sm sm:col-span-2">
+            {copy.hostRoleCustomLabelAr}
+            <input className={field} required value={hostRoleCustomAr} onChange={(e) => setHostRoleCustomAr(e.target.value)} />
+          </label>
+        ) : null}
         <label className="block text-sm sm:col-span-2">
           {copy.offspringKindLabelAr}
           <select
@@ -144,36 +172,31 @@ export function StoreWeddingOrderForm({ voice = 'men' }: { voice?: StoreWeddingL
             <option value="daughter">{copy.offspringDaughterAr}</option>
           </select>
         </label>
-        {offspringKind === 'daughter' ? (
-          <>
-            <label className="block text-sm">
-              {copy.offspringNameDaughterAr}
-              <input className={field} required value={brideName} onChange={(e) => setBrideName(e.target.value)} />
-            </label>
-            <label className="block text-sm">
-              {copy.spouseNameDaughterAr}
-              <input className={field} required value={groomName} onChange={(e) => setGroomName(e.target.value)} />
-            </label>
-          </>
-        ) : (
-          <>
-            <label className="block text-sm">
-              {copy.offspringNameSonAr}
-              <input className={field} required value={groomName} onChange={(e) => setGroomName(e.target.value)} />
-            </label>
-            <label className="block text-sm">
-              {copy.spouseNameSonAr}
-              <input className={field} required value={brideName} onChange={(e) => setBrideName(e.target.value)} />
-            </label>
-          </>
-        )}
         <label className="block text-sm">
-          {copy.eventDateLabelAr}
-          <input className={field} value={eventDate} onChange={(e) => setEventDate(e.target.value)} />
+          {copy.groomNameLabelAr}
+          <input className={field} required value={groomName} onChange={(e) => setGroomName(e.target.value)} />
         </label>
         <label className="block text-sm">
-          {copy.eventDateEnLabelAr}
-          <input className={field} dir="ltr" value={eventDateEn} onChange={(e) => setEventDateEn(e.target.value)} />
+          {copy.brideNameLabelAr}
+          <input className={field} value={brideName} onChange={(e) => setBrideName(e.target.value)} />
+        </label>
+        <label className="block text-sm sm:col-span-2">
+          {copy.eventDateLabelAr}
+          <input
+            className={field}
+            type="date"
+            dir="ltr"
+            required
+            value={eventDateIso}
+            onChange={(e) => setEventDateIso(e.target.value)}
+          />
+          {datePreview ? (
+            <span className="mt-1 block text-sm text-white/55">
+              <bdi>{datePreview}</bdi>
+            </span>
+          ) : (
+            <span className="mt-1 block text-sm text-white/55">{copy.eventDatePreviewHintAr}</span>
+          )}
         </label>
         <label className="block text-sm">
           {copy.eventTimeLabelAr}
@@ -193,7 +216,7 @@ export function StoreWeddingOrderForm({ voice = 'men' }: { voice?: StoreWeddingL
             ))}
           </select>
         </label>
-        <label className="block text-sm">
+        <label className="block text-sm sm:col-span-2">
           {copy.venueNameLabelAr}
           <input className={field} value={venueName} onChange={(e) => setVenueName(e.target.value)} />
         </label>
@@ -201,14 +224,26 @@ export function StoreWeddingOrderForm({ voice = 'men' }: { voice?: StoreWeddingL
           {copy.venueMapsLabelAr}
           <input className={field} dir="ltr" value={venueMapsUrl} onChange={(e) => setVenueMapsUrl(e.target.value)} />
           <span className="mt-1 block text-sm text-white/55">{copy.venueMapsHintAr}</span>
+          {mapsHref ? (
+            <a
+              href={mapsHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={cn('mt-2 inline-flex text-sm font-bold', text)}
+            >
+              {copy.venueMapsVerifyAr}
+            </a>
+          ) : null}
         </label>
       </div>
       <label className="mt-3 block text-sm">
         {copy.hostWelcomeLabelAr}
         <textarea
-          className="mt-1 h-24 w-full rounded-md border border-white/15 bg-[#061018] px-3 py-2 text-[#f4efe4]"
+          className="mt-1 h-24 w-full rounded-md border border-white/15 bg-[#061018] px-3 py-2 text-base text-[#f4efe4]"
           value={welcomeAr}
           onChange={(e) => setWelcomeAr(e.target.value)}
+          maxLength={200}
+          placeholder="تفضلوا طعام العشاء، وحياكم الله."
         />
       </label>
       <label className="mt-4 flex items-start gap-2 text-sm leading-7">

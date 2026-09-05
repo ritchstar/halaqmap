@@ -19,8 +19,8 @@ export type StoreMailIconTheme = {
 export const STORE_MAIL_PRODUCT_ICONS: readonly StoreMailIconTheme[] = [
   {
     id: 'wedding',
-    markAr: 'ا',
-    titleAr: 'افراحي1',
+    markAr: 'أ',
+    titleAr: 'أفراحي1',
     accent: '#e8c547',
     ink: '#061018',
     canvas: '#1a1208',

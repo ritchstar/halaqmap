@@ -31,8 +31,8 @@ export type StoreMailIconTile = {
 const THEMES: Record<StoreMailThemeId, StoreMailTheme> = {
   wedding: {
     id: 'wedding',
-    markAr: 'ا',
-    titleAr: 'افراحي1',
+    markAr: 'أ',
+    titleAr: 'أفراحي1',
     accent: '#e8c547',
     ink: '#061018',
     canvas: '#1a1208',
@@ -264,28 +264,29 @@ export function buildWeddingLiveLinksHtml(input: {
     theme: 'wedding',
     kickerAr: `روابط تشغيل — ${theme.titleAr}`,
     titleAr: 'روابط التشغيل جاهزة',
-    leadAr: 'اضغط الأيقونة لفتح المسار على جهازك. رابط الضيف يصدر من لوحة المضيف لكل مدعو.',
+    leadAr:
+      'ثلاثة روابط بعد السداد: لوحة تعديل الدعوة، لوحة إنشاء روابط المدعوين، ومعاينة الدعوة. لا تشارك روابط الإدارة مع أحد. روابط المدعوين الفردية تصدر من لوحتك.',
     iconRows: [
       [
         {
           href: input.displayUrl,
           markAr: theme.markAr,
           titleAr: theme.titleAr,
-          captionAr: 'شاشة القاعة',
+          captionAr: 'معاينة الدعوة',
           theme: 'wedding',
         },
         {
           href: input.hostUrl,
           markAr: 'ل',
           titleAr: theme.titleAr,
-          captionAr: 'لوحة المضيف',
+          captionAr: 'لوحة التعديل والمدعوين',
           theme: 'wedding',
         },
       ],
     ],
     notesAr: [
-      `تنتهي الصفحة في ${input.expiresLabel}. احفظ الأرشيف من لوحة المضيف قبل انتهائها.`,
-      'إعادة إرسال رابط المدعو من مدعو تُحظر.',
+      `تنتهي مدة التفعيل في ${input.expiresLabel}. احفظ الأرشيف من لوحتك قبل انتهائها.`,
+      'يمكن تقييد رابط المدعو على جهاز بعد أول فتح. لا يمثل ذلك ضماناً مطلقاً ضد إعادة مشاركة الرابط.',
     ],
   });
 }

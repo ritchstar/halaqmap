@@ -28,7 +28,7 @@ export function newWeddingToken(): string {
 }
 
 export function weddingLiveInvoiceDescription(): string {
-  return 'halaqmap — افراحي1';
+  return 'halaqmap — أفراحي1';
 }
 
 export function weddingLiveInvoiceMetadata(token: string, affiliateCode?: unknown): Record<string, string> {
@@ -87,15 +87,29 @@ export function parseWeddingVoice(raw: unknown): 'men' | 'women' {
 export function parseWeddingHostRole(
   raw: unknown,
   voice: 'men' | 'women' = 'men',
-): 'self' | 'groom_father' | 'bride_father' | 'groom_mother' | 'bride_mother' {
+): WeddingLiveOrderPayload['hostRole'] {
   const value = String(raw || '').trim();
+  const allowed = new Set<WeddingLiveOrderPayload['hostRole']>([
+    'self',
+    'groom',
+    'groom_father',
+    'groom_mother',
+    'bride_father',
+    'bride_mother',
+    'groom_family',
+    'bride_family',
+    'custom',
+  ]);
+  if (allowed.has(value as WeddingLiveOrderPayload['hostRole'])) {
+    return value as WeddingLiveOrderPayload['hostRole'];
+  }
   if (voice === 'women') {
-    if (value === 'self' || value === 'groom_mother' || value === 'bride_mother') return value;
     if (value === 'groom_father') return 'groom_mother';
     if (value === 'bride_father') return 'bride_mother';
     return 'groom_mother';
   }
-  if (value === 'groom_father' || value === 'bride_father') return value;
+  if (value === 'groom_mother') return 'groom_father';
+  if (value === 'bride_mother') return 'bride_father';
   return 'self';
 }
 
@@ -111,7 +125,16 @@ function parseVenueKind(raw: unknown): 'hall' | 'resthouse' | 'hotel' | 'other' 
 
 export type WeddingLiveOrderPayload = {
   voice: 'men' | 'women';
-  hostRole: 'self' | 'groom_father' | 'bride_father' | 'groom_mother' | 'bride_mother';
+  hostRole:
+    | 'self'
+    | 'groom'
+    | 'groom_father'
+    | 'bride_father'
+    | 'groom_mother'
+    | 'bride_mother'
+    | 'groom_family'
+    | 'bride_family'
+    | 'custom';
   hostName: string;
   offspringKind: 'son' | 'daughter';
   groomName: string;
@@ -151,8 +174,8 @@ export function parseWeddingLiveOrderBody(body: Record<string, unknown>):
   const hostName = clip(body.hostName, 80);
   const groomName = clip(body.groomName, 80);
   const brideName = clip(body.brideName, 80);
-  if (hostName.length < 2 || groomName.length < 2 || brideName.length < 2) {
-    return { ok: false, error: 'اسم الداعي أو الداعية واسم العريس واسم العروس مطلوبة.' };
+  if (hostName.length < 2 || groomName.length < 2) {
+    return { ok: false, error: 'اسم الداعي واسم العريس مطلوبان.' };
   }
   const voice = parseWeddingVoice(body.voice);
   const defaultPhoto =

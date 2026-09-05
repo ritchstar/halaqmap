@@ -58,7 +58,7 @@ const html = buildWeddingLiveLinksHtml({
 assert('html_has_store_logo', html.includes('halaqmap-store-mark-radar-square-1200x1200.png'));
 assert('html_has_brand_ar', html.includes('خريطة الحل'));
 assert('html_has_kind_label', html.includes('نوع الرسالة'));
-assert('html_has_wedding_kind', html.includes('روابط تشغيل — افراحي1'));
+assert('html_has_wedding_kind', html.includes('روابط تشغيل — أفراحي1'));
 assert('html_not_sender_product', !html.includes('>حلاق ماب<'));
 assert('html_footer_store', html.includes('رسالة من متجر خريطة الحل'));
 

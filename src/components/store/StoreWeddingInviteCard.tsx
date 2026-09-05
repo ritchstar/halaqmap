@@ -66,29 +66,29 @@ export function StoreWeddingInviteCard({
           )}
           style={{ borderColor: `${style.accent}73` }}
         >
-          <p className="invite-luminous text-sm tracking-wide opacity-80">{kicker}</p>
-          <p className="mt-1 text-sm opacity-80">{weddingHostInviteLine(host)}</p>
+          <p className="invite-luminous text-base tracking-wide opacity-80">{kicker}</p>
+          <p className="mt-1 text-base opacity-80">{weddingHostInviteLine(host)}</p>
           <h2 className="invite-luminous mt-2 text-2xl font-black">{weddingCoupleLine(host)}</h2>
           <p className="invite-luminous mt-3 text-base leading-8 opacity-95">{invitation}</p>
           {host.welcomeAr.trim() ? (
-            <p className="mt-3 text-sm leading-7 opacity-80">{host.welcomeAr.trim()}</p>
+            <p className="mt-3 text-base leading-7 opacity-80">{host.welcomeAr.trim()}</p>
           ) : null}
           <div className="mt-4 h-px w-full" style={{ background: `linear-gradient(90deg, transparent, ${style.accent}, transparent)` }} />
           <dl className="mt-5 space-y-2 text-base">
             <div>
-              <dt className="text-sm opacity-60">التاريخ</dt>
-              <dd>
+              <dt className="text-base opacity-60">التاريخ</dt>
+              <dd className="text-base font-semibold leading-7">
                 {host.eventDate}
                 {String(host.eventDateEn || '').trim() ? ` · ${String(host.eventDateEn).trim()}` : ''}
               </dd>
             </div>
             <div>
-              <dt className="text-sm opacity-60">الاستقبال</dt>
-              <dd>{host.eventTime}</dd>
+              <dt className="text-base opacity-60">الاستقبال</dt>
+              <dd className="text-base font-semibold">{host.eventTime}</dd>
             </div>
             <div>
-              <dt className="text-sm opacity-60">المكان</dt>
-              <dd>{host.venueName}</dd>
+              <dt className="text-base opacity-60">المكان</dt>
+              <dd className="text-base font-semibold leading-7">{host.venueName}</dd>
             </div>
           </dl>
           {maps ? (

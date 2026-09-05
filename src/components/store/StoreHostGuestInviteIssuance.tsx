@@ -20,6 +20,7 @@ import {
   type GuestInviteRow,
   type GuestLockKind,
 } from '@/lib/storeGuestDeviceLock';
+import { weddingLiveCopy } from '@/config/storeWeddingLive';
 import {
   listEventGuestInvites,
   markEventGuestInviteSent,
@@ -42,6 +43,7 @@ type InviteStats = {
 };
 
 const EMPTY_STATS: InviteStats = { remaining: 0, sent: 0, opened: 0, total: 0, cap: 0 };
+const DEMO_PREVIEW_STATS: InviteStats = { total: 100, opened: 72, sent: 72, remaining: 28, cap: 0 };
 
 function whatsappHref(url: string): string {
   return `https://wa.me/?text=${encodeURIComponent(`دعوتكم الخاصة:\n${url}`)}`;
@@ -107,6 +109,7 @@ export function StoreHostGuestInviteIssuance({
   titleAr,
   leadAr,
   ctaAr,
+  demoPreview = false,
 }: {
   kind: GuestLockKind;
   hostToken: string;
@@ -114,8 +117,10 @@ export function StoreHostGuestInviteIssuance({
   titleAr: string;
   leadAr: string;
   ctaAr: string;
+  demoPreview?: boolean;
 }) {
   const pathPrefix = kind === 'wedding' ? '/w' : '/e';
+  const statsCopy = kind === 'wedding' ? weddingLiveCopy('men') : null;
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [note, setNote] = useState('');
@@ -128,6 +133,8 @@ export function StoreHostGuestInviteIssuance({
   const ready = useMemo(() => readyRows(invites), [invites]);
   const consumed = useMemo(() => invites.filter((item) => item.sent || item.opened), [invites]);
   const selected = ready.find((item) => item.id === selectedId) || ready[0] || null;
+  const displayStats = demoPreview && isLab ? DEMO_PREVIEW_STATS : stats;
+  const pendingCount = demoPreview && isLab ? 28 : Math.max(0, displayStats.total - displayStats.opened);
 
   function applyLocal() {
     const rows = summarizeLocalGuestInvites(kind, hostToken, pathPrefix);
@@ -242,21 +249,32 @@ export function StoreHostGuestInviteIssuance({
     <section className="mb-5 rounded-2xl border border-[#d4a574]/35 bg-[#1a1208]/80 p-4">
       <h3 className="font-extrabold">{titleAr}</h3>
       <p className="mt-2 text-sm leading-7 text-white/70">{leadAr}</p>
+      {demoPreview && isLab && statsCopy ? (
+        <p className="mt-2 text-xs font-bold text-[#f4d7a8]">{statsCopy.inviteStatsDemoNoteAr}</p>
+      ) : null}
       <div className="mt-4 grid grid-cols-3 gap-2 text-center">
         <div className="rounded-xl border border-[#d4a574]/30 bg-black/30 px-2 py-3">
-          <p className="text-2xl font-black text-[#d4a574]">{stats.remaining}</p>
-          <p className="mt-1 text-[11px] leading-5 text-white/60">متبقٍ للإرسال</p>
+          <p className="text-2xl font-black text-[#d4a574]">{displayStats.total}</p>
+          <p className="mt-1 text-[11px] leading-5 text-white/60">
+            {statsCopy?.inviteStatsCreatedAr || 'روابط أُنشئت'}
+          </p>
         </div>
         <div className="rounded-xl border border-white/10 bg-black/30 px-2 py-3">
-          <p className="text-2xl font-black">{stats.sent}</p>
-          <p className="mt-1 text-[11px] leading-5 text-white/60">أُرسل</p>
+          <p className="text-2xl font-black">{displayStats.opened}</p>
+          <p className="mt-1 text-[11px] leading-5 text-white/60">
+            {statsCopy?.inviteStatsOpenedAr || 'روابط فُتحت'}
+          </p>
         </div>
         <div className="rounded-xl border border-white/10 bg-black/30 px-2 py-3">
-          <p className="text-2xl font-black">{stats.opened}</p>
-          <p className="mt-1 text-[11px] leading-5 text-white/60">فُتح على جهاز</p>
+          <p className="text-2xl font-black">{pendingCount}</p>
+          <p className="mt-1 text-[11px] leading-5 text-white/60">
+            {statsCopy?.inviteStatsPendingAr || 'روابط لم تُفتح'}
+          </p>
         </div>
       </div>
-      <p className="mt-2 text-sm leading-6 text-white/55">توليد الروابط بلا سقف. الإرسال من واتساب جهازكم، بلا حفظ أرقام الضيوف.</p>
+      <p className="mt-2 text-sm leading-6 text-white/55">
+        توليد الروابط بلا سقف إجمالي ضمن مدة التفعيل. الإرسال من واتساب جهازكم، بلا حفظ أرقام الضيوف.
+      </p>
       <div className="mt-3 flex flex-wrap gap-2">
         <button
           type="button"

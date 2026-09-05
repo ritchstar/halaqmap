@@ -23,8 +23,12 @@ import {
   normalizeOffspringKind,
   normalizeVenueKind,
   normalizeWeddingHostRole,
+  normalizeBrideDisplayMode,
   playWeddingLiveChime,
+  safeMapsHref,
+  syncWeddingEventDates,
   weddingCoupleLine,
+  weddingEventDatePreview,
   weddingHostInviteLine,
   weddingInvitationText,
   weddingKickerText,
@@ -149,11 +153,14 @@ export function StoreWeddingHostPanel({
       kind="wedding"
       hostToken={hostToken}
       isLab={isLab}
+      demoPreview={isLab}
       titleAr={copy.hostInviteTitleAr}
       leadAr={copy.hostInviteLeadAr}
       ctaAr={copy.hostInviteCtaAr}
     />
   ) : null;
+
+  const mapsHref = safeMapsHref(host.venueMapsUrl);
 
   const mapsField = (
     <label className="block text-base sm:col-span-2">
@@ -166,6 +173,11 @@ export function StoreWeddingHostPanel({
         placeholder="https://maps.google.com/..."
       />
       <span className="mt-1 block text-sm text-white/55">{copy.venueMapsHintAr}</span>
+      {mapsHref ? (
+        <a href={mapsHref} target="_blank" rel="noopener noreferrer" className={cn('mt-2 inline-flex text-sm font-bold', text)}>
+          {copy.venueMapsVerifyAr}
+        </a>
+      ) : null}
     </label>
   );
 
@@ -359,6 +371,16 @@ export function StoreWeddingHostPanel({
             {copy.hostNameLabelAr}
             <input className={fieldClass} value={host.hostName} onChange={(e) => patchHost({ hostName: e.target.value })} />
           </label>
+          {host.hostRole === 'custom' ? (
+            <label className="block text-base sm:col-span-2">
+              {copy.hostRoleCustomLabelAr}
+              <input
+                className={fieldClass}
+                value={host.hostRoleCustomAr || ''}
+                onChange={(e) => patchHost({ hostRoleCustomAr: e.target.value })}
+              />
+            </label>
+          ) : null}
           <label className="block text-base sm:col-span-2">
             {copy.offspringKindLabelAr}
             <select
@@ -370,41 +392,43 @@ export function StoreWeddingHostPanel({
               <option value="daughter">{copy.offspringDaughterAr}</option>
             </select>
           </label>
-          {offspringKind === 'daughter' ? (
-            <>
-              <label className="block text-base">
-                {copy.offspringNameDaughterAr}
-                <input className={fieldClass} value={host.brideName} onChange={(e) => patchHost({ brideName: e.target.value })} />
-              </label>
-              <label className="block text-base">
-                {copy.spouseNameDaughterAr}
-                <input className={fieldClass} value={host.groomName} onChange={(e) => patchHost({ groomName: e.target.value })} />
-              </label>
-            </>
-          ) : (
-            <>
-              <label className="block text-base">
-                {copy.offspringNameSonAr}
-                <input className={fieldClass} value={host.groomName} onChange={(e) => patchHost({ groomName: e.target.value })} />
-              </label>
-              <label className="block text-base">
-                {copy.spouseNameSonAr}
-                <input className={fieldClass} value={host.brideName} onChange={(e) => patchHost({ brideName: e.target.value })} />
-              </label>
-            </>
-          )}
           <label className="block text-base">
-            {copy.eventDateLabelAr}
-            <input className={fieldClass} value={host.eventDate} onChange={(e) => patchHost({ eventDate: e.target.value })} />
+            {copy.groomNameLabelAr}
+            <input className={fieldClass} value={host.groomName} onChange={(e) => patchHost({ groomName: e.target.value })} />
           </label>
           <label className="block text-base">
-            {copy.eventDateEnLabelAr}
+            {copy.brideNameLabelAr}
+            <input className={fieldClass} value={host.brideName} onChange={(e) => patchHost({ brideName: e.target.value })} />
+          </label>
+          <label className="block text-base sm:col-span-2">
+            {copy.brideDisplayLabelAr}
+            <select
+              className={fieldClass}
+              value={normalizeBrideDisplayMode(host.brideDisplayMode)}
+              onChange={(e) => patchHost({ brideDisplayMode: normalizeBrideDisplayMode(e.target.value) })}
+            >
+              <option value="full">{copy.brideDisplayFullAr}</option>
+              <option value="first">{copy.brideDisplayFirstAr}</option>
+              <option value="krimah">{copy.brideDisplayKrimahAr}</option>
+              <option value="hidden">{copy.brideDisplayHiddenAr}</option>
+            </select>
+          </label>
+          <label className="block text-base sm:col-span-2">
+            {copy.eventDateLabelAr}
             <input
               className={fieldClass}
+              type="date"
               dir="ltr"
-              value={host.eventDateEn}
-              onChange={(e) => patchHost({ eventDateEn: e.target.value })}
+              value={host.eventDateIso || ''}
+              onChange={(e) => patchHost(syncWeddingEventDates(e.target.value))}
             />
+            {host.eventDateIso ? (
+              <span className="mt-1 block text-sm text-white/55">
+                <bdi>{weddingEventDatePreview(host.eventDateIso)}</bdi>
+              </span>
+            ) : (
+              <span className="mt-1 block text-sm text-white/55">{copy.eventDatePreviewHintAr}</span>
+            )}
           </label>
           <label className="block text-base">
             {copy.eventTimeLabelAr}
@@ -480,6 +504,13 @@ export function StoreWeddingHostPanel({
           </label>
           <p className="mt-1 text-sm leading-7 text-white/55">{copy.hostYoutubeHintAr}</p>
           <div className="mt-3 flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => patchHost({ youtubeUrl: '' })}
+              className="rounded-full border border-white/20 px-3 py-1.5 text-sm"
+            >
+              {copy.hostYoutubeRemoveAr}
+            </button>
             <button
               type="button"
               onClick={() => patchHost({ youtubeHidden: true })}
