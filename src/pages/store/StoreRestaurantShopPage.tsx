@@ -47,7 +47,7 @@ function payloadToState(payload: Record<string, unknown>, fallback: RestaurantLa
     hostName: liveHostText(payload.hostName, fallback.host.hostName),
     blurbAr: liveHostText(payload.blurbAr, fallback.host.blurbAr),
     customFields: Array.isArray(payload.customFields)
-      ? (payload.customFields as string[]).slice(0, 5)
+      ? (payload.customFields as string[]).slice(0, 6)
       : fallback.host.customFields,
     flashAr: liveHostText(payload.flashAr, fallback.host.flashAr),
     packId: payload.packId === 'm12' ? 'm12' : 'm6',

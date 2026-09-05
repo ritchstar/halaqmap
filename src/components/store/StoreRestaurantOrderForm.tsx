@@ -1,7 +1,7 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { StoreEnterpriseDirectMail } from '@/components/store/StoreEnterpriseDirectMail';
 import { StoreVendorPathPicker } from '@/components/store/StoreVendorPathPicker';
 import {
@@ -10,7 +10,7 @@ import {
   STORE_RESTAURANT_LIVE_PACKS,
   type StoreRestaurantLivePackId,
 } from '@/config/storeRestaurantLive';
-import { STORE_MOBILE_VENDOR_PACKS, type StoreVendorMode } from '@/config/storeMobileVendor';
+import { STORE_MOBILE_VENDOR, STORE_MOBILE_VENDOR_PACKS, type StoreVendorMode } from '@/config/storeMobileVendor';
 import { rememberStoreAffiliateRef } from '@/lib/storeAffiliateRef';
 import { createRestaurantLivePending } from '@/lib/storeRestaurantLiveRemote';
 import { restaurantLivePayHref } from '@/lib/storeHostRedirect';
@@ -27,6 +27,12 @@ export function StoreRestaurantOrderForm({ renewToken = '' }: { renewToken?: str
   const [error, setError] = useState('');
   const packs = vendorMode === 'mobile' ? STORE_MOBILE_VENDOR_PACKS : STORE_RESTAURANT_LIVE_PACKS;
   const pack = packs.find((item) => item.id === packId) || packs[0];
+
+  useEffect(() => {
+    if (!packs.some((item) => item.id === packId)) {
+      setPackId(packs[0]?.id || 'm6');
+    }
+  }, [packId, packs]);
 
   async function submit() {
     if (!STORE_RESTAURANT_LIVE_CHECKOUT_ENABLED || busy) return;
@@ -54,6 +60,8 @@ export function StoreRestaurantOrderForm({ renewToken = '' }: { renewToken?: str
     window.location.assign(invoiceUrl.startsWith('https://') ? invoiceUrl : restaurantLivePayHref(result.token));
   }
 
+  const vendorLabel = vendorMode === 'mobile' ? STORE_MOBILE_VENDOR.mobileTitleAr : STORE_MOBILE_VENDOR.fixedTitleAr;
+
   return (
     <form
       id="restaurant-order"
@@ -63,11 +71,11 @@ export function StoreRestaurantOrderForm({ renewToken = '' }: { renewToken?: str
         void submit();
       }}
     >
-      <h2 className="text-xl font-extrabold">{renewing ? 'أعد الشراء على نفس الصفحة' : STORE_RESTAURANT_LIVE.orderCtaAr}</h2>
-      <p className="mt-2 text-sm text-white/70">
-        {renewing
-          ? 'نفس روابط الصفحة ولوحة المطبخ تُمدَّد بعد السداد.'
-          : 'بعد السداد يصلك رابط ضيف الحي ورابط لوحة المطبخ وملصق QR. صندوق المحادثة مدرج.'}
+      <h2 className="text-xl font-extrabold">
+        {renewing ? 'أعد الشراء على نفس الصفحة' : STORE_RESTAURANT_LIVE.orderCtaLandingAr}
+      </h2>
+      <p className="mt-2 text-sm leading-7 text-white/70">
+        {renewing ? STORE_RESTAURANT_LIVE.orderRenewLeadAr : STORE_RESTAURANT_LIVE.orderNewLeadAr}
       </p>
       <StoreVendorPathPicker value={vendorMode} onChange={setVendorMode} accent="#e08a3c" />
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
@@ -81,11 +89,33 @@ export function StoreRestaurantOrderForm({ renewToken = '' }: { renewToken?: str
               packId === item.id ? 'border-[#e08a3c] bg-[#e08a3c]/15' : 'border-white/15',
             )}
           >
-            <p className="font-extrabold">{item.titleAr}</p>
-            <p className="mt-1 text-lg font-black text-[#e08a3c]">{item.priceLineAr}</p>
+            <p className="font-extrabold">
+              <bdi>{item.titleAr}</bdi>
+            </p>
+            <p className="mt-1 text-lg font-black text-[#e08a3c]">
+              <bdi>{item.priceLineAr}</bdi>
+            </p>
             <p className="mt-1 text-xs leading-6 text-white/65">{item.lineAr}</p>
           </button>
         ))}
+      </div>
+      <div className="mt-4 rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm leading-7 text-white/75">
+        <p>
+          <span className="text-white/55">{STORE_RESTAURANT_LIVE.summaryProductAr}: </span>
+          <bdi>{STORE_RESTAURANT_LIVE.titleAr}</bdi>
+        </p>
+        <p className="mt-1">
+          <span className="text-white/55">{STORE_RESTAURANT_LIVE.summaryVendorAr}: </span>
+          {vendorLabel}
+        </p>
+        <p className="mt-1">
+          <span className="text-white/55">{STORE_RESTAURANT_LIVE.summaryTermAr}: </span>
+          <bdi>{pack.titleAr}</bdi>
+        </p>
+        <p className="mt-2 text-base font-black text-[#e08a3c]">
+          <span className="text-sm font-bold text-white/55">{STORE_RESTAURANT_LIVE.summaryTotalAr}: </span>
+          <bdi>{pack.priceSar.toLocaleString('ar-SA')} ر.س</bdi>
+        </p>
       </div>
       <label className="mt-4 block text-sm">
         البريد لاستلام روابط الصفحة ولوحة المطبخ وملصق QR
@@ -101,13 +131,20 @@ export function StoreRestaurantOrderForm({ renewToken = '' }: { renewToken?: str
         <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} className="mt-1" />
         <span>{STORE_RESTAURANT_LIVE.orderConsentAr}</span>
       </label>
+      <p className="mt-2 text-xs leading-6 text-white/55">{STORE_RESTAURANT_LIVE.orderNoCollectAr}</p>
       {error ? <p className="mt-3 text-sm text-red-300">{error}</p> : null}
       <button
         type="submit"
         disabled={busy || !STORE_RESTAURANT_LIVE_CHECKOUT_ENABLED}
         className="mt-4 min-h-12 w-full rounded-full bg-[#e08a3c] text-sm font-bold text-[#061018] disabled:opacity-50"
       >
-        {busy ? 'جاري تجهيز بوابة الدفع…' : `${STORE_RESTAURANT_LIVE.orderSubmitAr} · ${pack.priceSar} ر.س`}
+        {busy ? (
+          'جاري تجهيز بوابة الدفع…'
+        ) : (
+          <>
+            {STORE_RESTAURANT_LIVE.orderSubmitAr} — <bdi>{pack.priceSar.toLocaleString('ar-SA')} ر.س</bdi>
+          </>
+        )}
       </button>
       <StoreEnterpriseDirectMail
         className="mt-4"

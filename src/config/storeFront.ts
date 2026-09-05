@@ -156,7 +156,7 @@ export const STORE_LANDING_COPY = {
   grocersLiveLeadAr: 'حوّل مكالمات ورسائل الحي إلى طلبات مرتبة.',
   grocersLiveCtaAr: 'افتح تمويناتا1',
   restaurantLiveTitleAr: 'مطعمنا1',
-  restaurantLiveLeadAr: 'اعرض أصنافك ونظّم الطلب قبل وصوله.',
+  restaurantLiveLeadAr: 'من انتظار ضيف الحي إلى طلبه من جواله — صفحة طعام ولوحة مطبخ.',
   restaurantLiveCtaAr: 'افتح مطعمنا1',
   cafeLiveTitleAr: 'كافينا1',
   cafeLiveLeadAr: 'منيو قهوتك أقرب إلى جوال العميل.',

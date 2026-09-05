@@ -622,7 +622,7 @@ async function saveHost(db: Db, body: Record<string, unknown>, headers: Record<s
     logoSrc: parseShopLogoSrc(body.logoSrc, parseShopLogoSrc(current.logoSrc)),
     hostName: String(body.hostName ?? current.hostName).slice(0, 80),
     blurbAr: String(body.blurbAr ?? current.blurbAr).slice(0, 200),
-    customFields: Array.isArray(body.customFields) ? (body.customFields as string[]).slice(0, 5) : current.customFields,
+    customFields: Array.isArray(body.customFields) ? (body.customFields as string[]).slice(0, 6) : current.customFields,
     flashAr: String(body.flashAr ?? current.flashAr).slice(0, 160),
     shelf: Array.isArray(body.shelf) ? body.shelf : current.shelf,
     orders: Array.isArray(body.orders) ? (body.orders as unknown[]).slice(0, 80) : current.orders,

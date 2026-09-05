@@ -10,12 +10,15 @@ import type { RestaurantChatMsg, RestaurantLabState } from '@/lib/storeRestauran
 export function StoreRestaurantBuyerChat({
   state,
   onChange,
+  isLab = false,
 }: {
   state: RestaurantLabState;
   onChange: (next: RestaurantLabState) => void;
+  isLab?: boolean;
 }) {
   const [name, setName] = useState('');
   const [text, setText] = useState('');
+  const deskReplies = state.chats.filter((item) => item.from === 'desk' && !item.hidden).slice(0, 3);
 
   function send() {
     const body = text.trim();
@@ -23,7 +26,7 @@ export function StoreRestaurantBuyerChat({
     const msg: RestaurantChatMsg = {
       id: `${Date.now()}`,
       from: 'buyer',
-      name: name.trim().slice(0, 40) || 'ضيف الحي',
+      name: isLab ? STORE_RESTAURANT_LIVE.labDemoNameAr : name.trim().slice(0, 40) || 'ضيف الحي',
       text: body.slice(0, 240),
       at: new Date().toISOString(),
     };
@@ -35,12 +38,15 @@ export function StoreRestaurantBuyerChat({
     <section className="mt-6 rounded-2xl border border-[#e08a3c]/25 bg-[#1a1008]/80 p-4">
       <h3 className="font-extrabold">{STORE_RESTAURANT_LIVE.chatBuyerTitleAr}</h3>
       <p className="mt-1 text-xs leading-6 text-white/60">{STORE_RESTAURANT_LIVE.chatBuyerHintAr}</p>
+      <p className="mt-1 text-xs leading-6 text-white/50">{STORE_RESTAURANT_LIVE.chatBuyerReplyHintAr}</p>
+      {!isLab ? (
+        <label className="mt-3 block text-sm">
+          الاسم
+          <input className="restaurant-field" value={name} onChange={(e) => setName(e.target.value)} />
+        </label>
+      ) : null}
       <label className="mt-3 block text-sm">
-        الاسم
-        <input className="restaurant-field" value={name} onChange={(e) => setName(e.target.value)} />
-      </label>
-      <label className="mt-3 block text-sm">
-        ملاحظتك
+        استفسارك
         <textarea
           className="restaurant-field min-h-24 py-2"
           value={text}
@@ -55,6 +61,16 @@ export function StoreRestaurantBuyerChat({
       >
         {STORE_RESTAURANT_LIVE.chatBuyerSendAr}
       </button>
+      {deskReplies.length ? (
+        <ul className="mt-4 space-y-2 border-t border-white/10 pt-3 text-sm">
+          {deskReplies.map((item) => (
+            <li key={item.id} className="rounded-xl border border-white/10 bg-black/25 px-3 py-2">
+              <p className="text-xs text-white/50">رد المطبخ</p>
+              <p className="mt-1 leading-7">{item.text}</p>
+            </li>
+          ))}
+        </ul>
+      ) : null}
     </section>
   );
 }

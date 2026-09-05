@@ -2,7 +2,13 @@
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
 import QRCode from 'react-qr-code';
-import { STORE_RESTAURANT_LIVE } from '@/config/storeRestaurantLive';
+import {
+  STORE_RESTAURANT_AVAILABILITY_ORDER,
+  STORE_RESTAURANT_CUSTOM_FIELD_LABELS,
+  STORE_RESTAURANT_LIVE,
+  restaurantAvailabilityLabel,
+  type StoreRestaurantAvailability,
+} from '@/config/storeRestaurantLive';
 import { restaurantWhatsAppText, type RestaurantLabState } from '@/lib/storeRestaurantLiveLab';
 import { StoreDeskOrderAlert } from '@/components/store/StoreDeskOrderAlert';
 import { StoreDeskControlTitle } from '@/components/store/StoreDeskControlTitle';
@@ -32,12 +38,14 @@ export function StoreRestaurantDesk({
   shopUrl,
   token,
   showTrialNote = false,
+  maskPii = false,
 }: {
   state: RestaurantLabState;
   onChange: (next: RestaurantLabState) => void;
   shopUrl: string;
   token: string;
   showTrialNote?: boolean;
+  maskPii?: boolean;
 }) {
   const live = state.orders.filter(isLiveDeskTicket);
   const fresh = live.filter((item) => deskOrderPhase(item) === 'new');
@@ -52,11 +60,39 @@ export function StoreRestaurantDesk({
     onChange({ ...state, orders: next.orders, orderArchive: next.orderArchive });
   }
 
-  function toggleStock(catalogId: string) {
+  function cycleAvailability(catalogId: string) {
     onChange({
       ...state,
-      shelf: state.shelf.map((item) => (item.catalogId === catalogId ? { ...item, inStock: !item.inStock } : item)),
+      shelf: state.shelf.map((item) => {
+        if (item.catalogId !== catalogId) return item;
+        const current = item.availability || (item.inStock ? 'available' : 'out');
+        const index = STORE_RESTAURANT_AVAILABILITY_ORDER.indexOf(current);
+        const next = STORE_RESTAURANT_AVAILABILITY_ORDER[(index + 1) % STORE_RESTAURANT_AVAILABILITY_ORDER.length];
+        return {
+          ...item,
+          availability: next,
+          inStock: next === 'available' || next === 'limited',
+        };
+      }),
     });
+  }
+
+  function maskName(name: string) {
+    return maskPii ? STORE_RESTAURANT_LIVE.labDeskMaskedNameAr : name;
+  }
+
+  function maskPhone(phone: string) {
+    return maskPii ? STORE_RESTAURANT_LIVE.labDeskMaskedPhoneAr : phone;
+  }
+
+  function maskPlace(place: string) {
+    if (maskPii) return STORE_RESTAURANT_LIVE.labDeskMaskedPlaceAr;
+    return place;
+  }
+
+  function clearArchive() {
+    if (!window.confirm(STORE_RESTAURANT_LIVE.archiveDeleteConfirmAr)) return;
+    onChange({ ...state, orderArchive: [] });
   }
 
   function printQr() {
@@ -80,12 +116,17 @@ export function StoreRestaurantDesk({
         unreadCount={fresh.length}
       />
       <StoreDeskControlTitle
+        titleAr={STORE_RESTAURANT_LIVE.deskPanelTitleAr}
         trialNote={showTrialNote ? STORE_PRODUCT_TRIAL_PRODUCTS.restaurant.deskNoteAr : ''}
       />
       <div className={cn('rounded-2xl border p-4', fresh.length ? 'restaurant-alert border-[#e08a3c]' : 'border-white/12')}>
         <h2 className="text-lg font-extrabold">{STORE_RESTAURANT_LIVE.liveOrdersAr}</h2>
         <p className="mt-1 text-sm text-white/60">{fresh.length ? `${fresh.length} تذكرة جديدة` : 'لا تذاكر جديدة الآن.'}</p>
-        <StoreShopPresenceCount productTag="store_restaurant_live" token={token} />
+        <StoreShopPresenceCount
+          productTag="store_restaurant_live"
+          token={token}
+          labelAr={STORE_RESTAURANT_LIVE.presenceDeskLabelAr}
+        />
         {fresh.length ? (
           <>
             <p className="mt-3 text-xs font-extrabold text-[#e08a3c]">{STORE_DESK_ORDER_TICKET_COPY.newLaneAr}</p>
@@ -93,11 +134,11 @@ export function StoreRestaurantDesk({
               {fresh.map((order) => (
                 <li key={order.id} className="rounded-xl border border-white/10 bg-black/30 p-3 text-sm">
                   <p className="font-extrabold text-[#e08a3c]">
-                    تذكرة {order.ticketNo} · {order.name} · {order.phone}
+                    تذكرة {order.ticketNo} · {maskName(order.name)} · {maskPhone(order.phone)}
                   </p>
                   <p className="mt-1 text-white/70">
                     {order.service === 'pickup' ? STORE_RESTAURANT_LIVE.servicePickupAr : STORE_RESTAURANT_LIVE.serviceDeliveryAr}
-                    {order.place ? ` · ${order.place}` : ''}
+                    {order.place ? ` · ${maskPlace(order.place)}` : ''}
                   </p>
                   {order.note ? <p className="mt-1 text-white/60">{order.note}</p> : null}
                   <p className="mt-1">{order.lines.map((line) => `${line.nameAr}×${line.qty}`).join(' · ')}</p>
@@ -125,11 +166,11 @@ export function StoreRestaurantDesk({
               {working.map((order) => (
                 <li key={order.id} className="rounded-xl border border-white/10 bg-black/30 p-3 text-sm">
                   <p className="font-extrabold text-[#e08a3c]">
-                    تذكرة {order.ticketNo} · {order.name} · {order.phone}
+                    تذكرة {order.ticketNo} · {maskName(order.name)} · {maskPhone(order.phone)}
                   </p>
                   <p className="mt-1 text-white/70">
                     {order.service === 'pickup' ? STORE_RESTAURANT_LIVE.servicePickupAr : STORE_RESTAURANT_LIVE.serviceDeliveryAr}
-                    {order.place ? ` · ${order.place}` : ''}
+                    {order.place ? ` · ${maskPlace(order.place)}` : ''}
                   </p>
                   {order.note ? <p className="mt-1 text-white/60">{order.note}</p> : null}
                   <p className="mt-1">{order.lines.map((line) => `${line.nameAr}×${line.qty}`).join(' · ')}</p>
@@ -178,7 +219,7 @@ export function StoreRestaurantDesk({
         </label>
         {state.host.customFields.map((line, index) => (
           <label key={index} className="block text-sm sm:col-span-2">
-            نص مخصص {index + 1}
+            {STORE_RESTAURANT_CUSTOM_FIELD_LABELS[index] || `حقل ${index + 1}`}
             <input
               className="restaurant-field"
               value={line}
@@ -220,18 +261,25 @@ export function StoreRestaurantDesk({
       <div className="rounded-2xl border border-white/12 p-4">
         <h3 className="font-extrabold">حالة الأطباق</h3>
         <ul className="mt-3 space-y-2">
-          {state.shelf.map((item) => (
+          {state.shelf.map((item) => {
+            const status = (item.availability || (item.inStock ? 'available' : 'out')) as StoreRestaurantAvailability;
+            const visible = status === 'available' || status === 'limited';
+            return (
             <li key={item.catalogId} className="flex items-center justify-between gap-3 text-sm">
-              <span className={item.inStock ? '' : 'text-white/35 line-through'}>{item.nameAr}</span>
+              <span className={visible ? '' : 'text-white/35 line-through'}>{item.nameAr}</span>
               <button
                 type="button"
-                onClick={() => toggleStock(item.catalogId)}
-                className={cn('rounded-full px-3 py-1 text-xs', item.inStock ? 'bg-[#e08a3c] font-bold text-[#061018]' : 'border border-white/20')}
+                onClick={() => cycleAvailability(item.catalogId)}
+                className={cn(
+                  'rounded-full px-3 py-1 text-xs',
+                  status === 'available' ? 'bg-[#e08a3c] font-bold text-[#061018]' : 'border border-white/20',
+                )}
               >
-                {item.inStock ? STORE_RESTAURANT_LIVE.stockOnAr : STORE_RESTAURANT_LIVE.stockOffAr}
+                {restaurantAvailabilityLabel(status)}
               </button>
             </li>
-          ))}
+            );
+          })}
         </ul>
       </div>
 
@@ -253,7 +301,13 @@ export function StoreRestaurantDesk({
       </div>
       </StoreOpsSection>
 
-      <StoreDeskArchiveDock tickets={state.orderArchive} accent="#e08a3c" filename="restaurant-archive.json" />
+      <StoreDeskArchiveDock
+        tickets={state.orderArchive}
+        accent="#e08a3c"
+        filename="restaurant-archive.json"
+        onClear={clearArchive}
+        clearLabelAr={STORE_RESTAURANT_LIVE.archiveDeleteAr}
+      />
       <StoreDeskGuideLink
         to={ROUTE_PATHS.STORE_RESTAURANT_SUPPORT}
         leadAr={STORE_RESTAURANT_SUPPORT.deskLeadAr}

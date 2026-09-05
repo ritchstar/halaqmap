@@ -20,6 +20,7 @@ import {
   STORE_RESTAURANT_LIVE_PRICE_6_SAR,
   STORE_RESTAURANT_LIVE_PRODUCT,
   STORE_RESTAURANT_LIVE_PUBLIC_ENABLED,
+  restaurantShelfVisible,
 } from '../src/config/storeRestaurantLive.ts';
 import { STORE_EVENT_LIVE_PRODUCT } from '../src/config/storeEventLive.ts';
 import { STORE_GROCERS_LIVE_PRODUCT } from '../src/config/storeGrocersLive.ts';
@@ -55,21 +56,22 @@ const remote = readFileSync(join(root, 'src/lib/storeRestaurantLiveRemote.ts'), 
 const restaurantApi = readFileSync(join(root, 'api/public-store-restaurant-live.ts'), 'utf8');
 const sql = readFileSync(join(root, 'supabase/migrations/175_store_restaurant_live.sql'), 'utf8');
 const restaurantLanding = readFileSync(join(root, 'src/pages/store/StoreRestaurantLandingPage.tsx'), 'utf8');
+const restaurantShop = readFileSync(join(root, 'src/components/store/StoreRestaurantShop.tsx'), 'utf8');
+const restaurantDesk = readFileSync(join(root, 'src/components/store/StoreRestaurantDesk.tsx'), 'utf8');
+const restaurantStudio = readFileSync(join(root, 'src/components/store/StoreRestaurantStudio.tsx'), 'utf8');
 const copyBlob = [
   STORE_RESTAURANT_LIVE.leadAr,
-  STORE_RESTAURANT_LIVE.howLeadAr,
   STORE_RESTAURANT_LIVE.whatsappLineAr,
   STORE_RESTAURANT_LIVE.payIndependenceAr,
+  STORE_RESTAURANT_LIVE.payLeadAr,
   STORE_RESTAURANT_LIVE.opsBodyAr,
   STORE_RESTAURANT_LIVE.privacyAr,
   STORE_RESTAURANT_LIVE.closeAr,
   STORE_RESTAURANT_LIVE.kickerAr,
   STORE_RESTAURANT_LIVE.termsFoldBodyAr,
-  STORE_RESTAURANT_LIVE.priceLineAr,
-  STORE_RESTAURANT_LIVE.durationLineAr,
-  STORE_RESTAURANT_LIVE.labLeadAr,
+  STORE_RESTAURANT_LIVE.orderConsentAr,
   STORE_LANDING_COPY.restaurantLiveLeadAr,
-  STORE_RESTAURANT_LIVE.ticketItems.join('\n'),
+  STORE_RESTAURANT_LIVE.howSteps.map((step) => `${step.titleAr}\n${step.bodyAr}`).join('\n'),
   STORE_RESTAURANT_LIVE_FEATURES.map((item) => `${item.titleAr}\n${item.bodyAr}`).join('\n'),
 ].join('\n');
 
@@ -98,24 +100,31 @@ assert.equal(isRestaurantPriceHalalas(89900), false);
 assert.equal(isRestaurantPriceHalalas(60000), false);
 assert.match(restaurantLiveInvoiceDescription('m6'), /مطعمنا1/);
 assert.match(STORE_RESTAURANT_LIVE.titleAr, /مطعمنا1/);
-assert.match(STORE_RESTAURANT_LIVE.leadAr, /699/);
+assert.match(STORE_RESTAURANT_LIVE.leadAr, /لوحة الكاشير والمطبخ/);
 assert.match(STORE_RESTAURANT_LIVE.leadAr, /بنقرة واحدة/);
-assert.match(STORE_RESTAURANT_LIVE.howLeadAr, /خلال ثوانٍ/);
+assert.match(STORE_RESTAURANT_LIVE.howSteps[2]?.bodyAr || '', /رابط موقع التوصيل/);
 assert.match(STORE_RESTAURANT_LIVE.opsBodyAr, /جهاز تشغيل واحد/);
-assert.match(STORE_RESTAURANT_LIVE.privacyAr, /دفتر زبائن/);
+assert.match(STORE_RESTAURANT_LIVE.privacyAr, /لوحة المشغّل/);
 assert.match(STORE_RESTAURANT_LIVE.closeAr, /عامل التوصيل/);
-assert.doesNotMatch(copyBlob, /لحظة بلحظة|لوكيشن|واجهة المنزل|صفر عمولات|آلياً/);
+assert.match(STORE_RESTAURANT_LIVE.kickerAr, /ضيف الحي/);
+assert.match(STORE_RESTAURANT_LIVE.payIndependenceAr, /لا تحصيل لقيمة الطلب عبر خريطة الحل/);
+assert.doesNotMatch(copyBlob, /لا تحصيل إلكتروني|لحظة بلحظة|لوكيشن|واجهة المنزل|صفر عمولات|آلياً/);
 assert.doesNotMatch(copyBlob, /تمويناتا1|افراحي1|اجواء1|لاونجا1|كاردي8/);
 assert.doesNotMatch(copyBlob, /تجربة ستون|المسوّق/);
 assert.doesNotMatch(copyBlob, /599|600|898|1398/);
-assert.match(restaurantLanding, /howTitleAr/);
-assert.match(restaurantLanding, /ticketItems/);
+assert.match(restaurantLanding, /howSteps/);
+assert.match(restaurantLanding, /payTitleAr/);
 assert.match(restaurantLanding, /StoreEnterpriseDirectMail/);
-assert.match(restaurantLanding, /privacyAr/);
-assert.match(restaurantLanding, /closeAr/);
-assert.match(STORE_RESTAURANT_LIVE.priceLineAr, /999/);
+assert.match(restaurantLanding, /privacyTitleAr/);
+assert.match(restaurantLanding, /STORE_RESTAURANT_EXTENSION_PRICING/);
+assert.match(restaurantLanding, /formatRestaurantPriceSar\(799\)/);
+assert.match(STORE_RESTAURANT_LIVE_PACKS[0]?.titleAr || '', /180/);
 assert.match(STORE_LANDING_COPY.restaurantLiveTitleAr, /مطعمنا1/);
-assert.match(STORE_LANDING_COPY.restaurantLiveLeadAr, /699/);
+assert.match(STORE_LANDING_COPY.restaurantLiveLeadAr, /ضيف الحي/);
+assert.equal(STORE_RESTAURANT_LIVE.howSteps.length, 4);
+assert.equal(restaurantShelfVisible('available'), true);
+assert.equal(restaurantShelfVisible('limited'), true);
+assert.equal(restaurantShelfVisible('paused'), false);
 
 const end6 = Date.parse(restaurantLiveTermEndIso(180, Date.parse('2026-01-01T00:00:00.000Z')));
 assert.equal(end6 - Date.parse('2026-01-01T00:00:00.000Z'), 180 * 24 * 60 * 60 * 1000);
@@ -213,7 +222,10 @@ assert.match(app, /StoreRestaurantShopPage/);
 assert.match(app, /StoreRestaurantPayPage/);
 assert.doesNotMatch(app, /from ['"]@\/config\/storeRestaurantLive['"]/);
 assert.doesNotMatch(app, /from ['"]@\/lib\/storeRestaurantLiveRemote['"]/);
-assert.match(readFileSync(join(root, 'src/components/store/StoreRestaurantDesk.tsx'), 'utf8'), /StoreShopPresenceCount/);
+assert.match(restaurantDesk, /StoreShopPresenceCount/);
+assert.match(restaurantDesk, /presenceDeskLabelAr/);
+assert.match(restaurantDesk, /archiveDeleteAr/);
+assert.match(restaurantDesk, /STORE_RESTAURANT_CUSTOM_FIELD_LABELS/);
 assert.match(readFileSync(join(root, 'src/pages/store/StoreRestaurantShopPage.tsx'), 'utf8'), /useStoreShopPresence/);
 assert.match(readFileSync(join(root, 'src/pages/store/StoreRestaurantShopPage.tsx'), 'utf8'), /pickStoreLiveShelf/);
 assert.match(readFileSync(join(root, 'src/pages/store/StoreRestaurantShopPage.tsx'), 'utf8'), /useStoreLiveDeskSync/);
@@ -257,13 +269,21 @@ assert.equal(rows.length, 2);
 assert.equal(rows[0].price, 28);
 assert.equal(rows[1].nameAr, 'شاورما عربي');
 
-assert.match(STORE_RESTAURANT_LIVE.locateMeAr, /حدد موقعي/);
-assert.match(STORE_RESTAURANT_LIVE.confirmPlaceAr, /تأكد من موقعي/);
-assert.match(readFileSync(join(root, 'src/components/store/StoreRestaurantShop.tsx'), 'utf8'), /StoreBuyerLocateButtons/);
+assert.match(STORE_RESTAURANT_LIVE.locateMeAr, /استخدم موقعي الحالي/);
+assert.match(STORE_RESTAURANT_LIVE.confirmPlaceAr, /فتح الموقع للتحقق/);
+assert.match(STORE_RESTAURANT_LIVE.adoptPlaceAr, /اعتماد الموقع/);
+assert.match(STORE_RESTAURANT_LIVE.chatBuyerTitleAr, /اسأل المطعم/);
+assert.match(STORE_RESTAURANT_LIVE.serviceDeliveryAr, /^توصيل$/);
+assert.match(STORE_RESTAURANT_LIVE.ingestTitleAr, /مكتبة الأطباق/);
+assert.match(restaurantShop, /StoreBuyerLocateButtons/);
+assert.match(restaurantShop, /labPreviewEnvAr|RESTAURANT_LIVE_LAB_TOKEN/);
+assert.match(restaurantStudio, /labPreviewBadgeAr/);
+assert.match(restaurantStudio, /max-w-md/);
 assert.match(STORE_RESTAURANT_LIVE.pickupShowAr, /إبراز الموقع/);
 assert.doesNotMatch(STORE_RESTAURANT_LIVE.deskPickupLeadAr, /تمويناتا1|كافينا1|لاونجا1|طبختنا1/);
-assert.match(readFileSync(join(root, 'src/components/store/StoreRestaurantDesk.tsx'), 'utf8'), /StoreShopPlaceDesk/);
-assert.match(readFileSync(join(root, 'src/components/store/StoreRestaurantShop.tsx'), 'utf8'), /StoreShopPlacePin/);
+assert.match(restaurantDesk, /StoreShopPlaceDesk/);
+assert.match(restaurantShop, /StoreShopPlacePin/);
 assert.match(readFileSync(join(root, 'api/public-store-restaurant-live.ts'), 'utf8'), /parseShopPickupPlace/);
+assert.match(readFileSync(join(root, 'src/components/store/StoreVisitorEngage.tsx'), 'utf8'), /compactProductLanding/);
 
 console.log('store-restaurant-live ok', STORE_RESTAURANT_MENU.length);

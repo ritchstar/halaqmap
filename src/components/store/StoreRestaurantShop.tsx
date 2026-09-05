@@ -2,7 +2,11 @@
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
 import { useMemo, useState } from 'react';
-import { STORE_RESTAURANT_LIVE } from '@/config/storeRestaurantLive';
+import {
+  STORE_RESTAURANT_LIVE,
+  STORE_RESTAURANT_LIVE_LAB_TOKEN,
+  restaurantShelfVisible,
+} from '@/config/storeRestaurantLive';
 import {
   readSavedRestaurantBuyer,
   restaurantCartTotal,
@@ -35,15 +39,18 @@ export function StoreRestaurantShop({
   onChange: (next: RestaurantLabState) => void;
   token: string;
 }) {
-  const saved = useMemo(() => readSavedRestaurantBuyer(), []);
+  const isLab = token === STORE_RESTAURANT_LIVE_LAB_TOKEN;
+  const saved = useMemo(() => (isLab ? null : readSavedRestaurantBuyer()), [isLab]);
   const [qty, setQty] = useState<Record<string, number>>({});
   const [name, setName] = useState(saved?.name || '');
   const [phone, setPhone] = useState(saved?.phone || '');
-  const [place, setPlace] = useState(saved?.place || '');
+  const [placeDesc, setPlaceDesc] = useState(saved?.place || '');
+  const [placeCoords, setPlaceCoords] = useState(isLab ? STORE_RESTAURANT_LIVE.labDemoCoordsAr : '');
+  const [placeAdopted, setPlaceAdopted] = useState(isLab);
   const [note, setNote] = useState('');
   const [pay, setPay] = useState<RestaurantPayMethod>('cash');
   const [service, setService] = useState<RestaurantService>('delivery');
-  const [saveBuyer, setSaveBuyer] = useState(Boolean(saved));
+  const [saveBuyer, setSaveBuyer] = useState(Boolean(saved) && !isLab);
   const [sent, setSent] = useState('');
 
   const mobile = state.host.vendorMode === 'mobile';
@@ -51,7 +58,7 @@ export function StoreRestaurantShop({
   const neighbor = neighborVendorState({ ...state.host, closed });
   const preorder = closed || (mobile && neighbor !== 'at_pin');
   const serviceKind = mobile ? 'pickup' : service;
-  const visible = state.shelf.filter((item) => item.inStock);
+  const visible = state.shelf.filter((item) => restaurantShelfVisible(item.availability, item.inStock));
   const featured = visible.filter((item) => item.featured).slice(0, 8);
   const rest = visible.filter((item) => !featured.some((row) => row.catalogId === item.catalogId));
   const today = visible.find((item) => item.catalogId === 'today-board') || featured[0];
@@ -73,15 +80,27 @@ export function StoreRestaurantShop({
   }
 
   function submit() {
-    if (name.trim().length < 2 || phone.trim().length < 9 || !lines.length) return;
-    if (serviceKind === 'delivery' && place.trim().length < 3) return;
+    const orderName = isLab ? STORE_RESTAURANT_LIVE.labDemoNameAr : name.trim().slice(0, 40);
+    const orderPhone = isLab ? STORE_RESTAURANT_LIVE.labDemoPhoneAr : phone.trim().slice(0, 20);
+    const orderPlaceDesc = isLab ? STORE_RESTAURANT_LIVE.labDemoPlaceAr : placeDesc.trim().slice(0, 120);
+    const orderCoords = isLab ? STORE_RESTAURANT_LIVE.labDemoCoordsAr : placeCoords.trim();
+    const combinedPlace = [orderPlaceDesc, orderCoords].filter(Boolean).join(' · ').slice(0, 160);
+
+    if (!isLab && orderName.length < 2) return;
+    if (!isLab && orderPhone.length < 9) return;
+    if (!lines.length) return;
+    if (serviceKind === 'delivery') {
+      if (!isLab && orderPlaceDesc.length < 3) return;
+      if (!isLab && !placeAdopted) return;
+    }
+
     const ticketNo = state.host.nextTicket || 1;
     const order = {
       id: `${Date.now()}`,
       ticketNo,
-      name: name.trim().slice(0, 40),
-      phone: phone.trim().slice(0, 20),
-      place: place.trim().slice(0, 160),
+      name: orderName,
+      phone: orderPhone,
+      place: combinedPlace,
       note: note.trim().slice(0, 160),
       service: serviceKind,
       pay,
@@ -95,10 +114,12 @@ export function StoreRestaurantShop({
       host: { ...state.host, nextTicket: ticketNo + 1 },
       orders: [order, ...state.orders].slice(0, 200),
     });
-    writeSavedRestaurantBuyer(saveBuyer ? { name: order.name, phone: order.phone, place: order.place } : null);
+    if (!isLab) {
+      writeSavedRestaurantBuyer(saveBuyer ? { name: order.name, phone: order.phone, place: orderPlaceDesc } : null);
+    }
     setQty({});
     setNote('');
-    setSent(`وصلت تذكرة المطبخ رقم ${ticketNo}.`);
+    setSent(`${STORE_RESTAURANT_LIVE.orderSentAr} (${ticketNo})`);
   }
 
   return (
@@ -123,7 +144,7 @@ export function StoreRestaurantShop({
         </h2>
         <p className="mt-2 text-sm leading-7 text-white/75">{state.host.blurbAr}</p>
         <ul className="mt-3 space-y-1 text-sm leading-7 text-white/70">
-          {state.host.customFields.filter((line) => line.trim()).slice(0, 5).map((line) => (
+          {state.host.customFields.filter((line) => line.trim()).slice(0, 6).map((line) => (
             <li key={line}>{line}</li>
           ))}
         </ul>
@@ -135,14 +156,12 @@ export function StoreRestaurantShop({
         <section className="overflow-hidden rounded-2xl border border-[#e08a3c]/40 bg-[#1a1008]">
           <p className="px-4 pt-3 text-xs font-bold tracking-wide text-[#e08a3c]">{STORE_RESTAURANT_LIVE.todayTitleAr}</p>
           {today.photoSrc ? (
-            <img src={today.photoSrc} alt="" className="mt-2 aspect-[16/9] w-full object-cover" />
-          ) : (
-            <div className="mt-2 flex aspect-[16/9] items-center justify-center bg-gradient-to-br from-[#e08a3c]/40 to-[#061018] px-4 text-center text-xl font-black">
-              {today.nameAr}
-            </div>
-          )}
+            <img src={today.photoSrc} alt={today.nameAr} className="mt-2 aspect-[16/9] w-full object-cover" />
+          ) : null}
           <div className="flex items-center justify-between gap-3 px-4 py-3">
-            <p className="font-extrabold">{today.nameAr} · {today.price} ر.س</p>
+            <p className="font-extrabold">
+              {today.nameAr} · {today.price} ر.س
+            </p>
             <QtyRow value={qty[today.catalogId] || 0} onMinus={() => bump(today.catalogId, -1)} onPlus={() => bump(today.catalogId, 1)} />
           </div>
         </section>
@@ -150,16 +169,12 @@ export function StoreRestaurantShop({
 
       <section>
         <h3 className="text-lg font-extrabold">{STORE_RESTAURANT_LIVE.featuredTitleAr}</h3>
-        <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+        <div className="mt-3 grid grid-cols-2 gap-3">
           {featured.map((item) => (
             <article key={item.catalogId} className="overflow-hidden rounded-2xl border border-[#e08a3c]/30 bg-[#1a1008]">
               {item.photoSrc ? (
-                <img src={item.photoSrc} alt="" className="aspect-square w-full object-cover" />
-              ) : (
-                <div className="flex aspect-square items-center justify-center bg-gradient-to-br from-[#e08a3c]/35 to-[#061018] px-3 text-center text-sm font-bold">
-                  {item.nameAr}
-                </div>
-              )}
+                <img src={item.photoSrc} alt={item.nameAr} className="aspect-square w-full object-cover" />
+              ) : null}
               <div className="p-3">
                 <p className="text-sm font-bold">{item.nameAr}</p>
                 <p className="text-sm font-black text-[#e08a3c]">{item.price} ر.س</p>
@@ -176,7 +191,7 @@ export function StoreRestaurantShop({
           {rest.map((item) => (
             <li key={item.catalogId} className="flex items-center justify-between gap-3 px-3 py-2.5">
               <span className="flex min-w-0 items-center gap-3">
-                {item.photoSrc ? <img src={item.photoSrc} alt="" className="h-12 w-12 rounded-lg object-cover" /> : null}
+                {item.photoSrc ? <img src={item.photoSrc} alt="" className="h-12 w-12 shrink-0 rounded-lg object-cover" /> : null}
                 <span>
                   <p className="text-sm font-bold">{item.nameAr}</p>
                   <p className="text-xs text-[#e08a3c]">{item.price} ر.س</p>
@@ -202,20 +217,43 @@ export function StoreRestaurantShop({
         <p className="mt-1 text-sm text-[#e08a3c]">الإجمالي الآن: {total} ر.س</p>
         <label className="mt-3 block text-sm">
           {STORE_RESTAURANT_LIVE.buyerNameLabelAr}
-          <input required value={name} onChange={(e) => setName(e.target.value)} className="restaurant-field" maxLength={40} />
+          <input
+            required={!isLab}
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="restaurant-field"
+            maxLength={40}
+            placeholder={isLab ? STORE_RESTAURANT_LIVE.labDemoNameAr : undefined}
+          />
         </label>
         <label className="mt-3 block text-sm">
           {STORE_RESTAURANT_LIVE.buyerPhoneLabelAr}
-          <input required value={phone} onChange={(e) => setPhone(e.target.value)} className="restaurant-field" inputMode="tel" maxLength={20} />
+          <input
+            required={!isLab}
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            className="restaurant-field"
+            inputMode="tel"
+            maxLength={20}
+            placeholder={isLab ? STORE_RESTAURANT_LIVE.labDemoPhoneAr : undefined}
+          />
         </label>
         {mobile ? (
           <p className="mt-3 text-sm font-bold text-[#e08a3c]">{STORE_MOBILE_VENDOR.pickupFromCartAr}</p>
         ) : (
           <div className="mt-3 flex flex-wrap gap-2">
-            <button type="button" onClick={() => setService('delivery')} className={cn('rounded-full px-3 py-1.5 text-xs', service === 'delivery' ? 'bg-[#e08a3c] font-bold text-[#061018]' : 'border border-white/20')}>
+            <button
+              type="button"
+              onClick={() => setService('delivery')}
+              className={cn('rounded-full px-3 py-1.5 text-xs', service === 'delivery' ? 'bg-[#e08a3c] font-bold text-[#061018]' : 'border border-white/20')}
+            >
               {STORE_RESTAURANT_LIVE.serviceDeliveryAr}
             </button>
-            <button type="button" onClick={() => setService('pickup')} className={cn('rounded-full px-3 py-1.5 text-xs', service === 'pickup' ? 'bg-[#e08a3c] font-bold text-[#061018]' : 'border border-white/20')}>
+            <button
+              type="button"
+              onClick={() => setService('pickup')}
+              className={cn('rounded-full px-3 py-1.5 text-xs', service === 'pickup' ? 'bg-[#e08a3c] font-bold text-[#061018]' : 'border border-white/20')}
+            >
               {STORE_RESTAURANT_LIVE.servicePickupAr}
             </button>
           </div>
@@ -224,14 +262,39 @@ export function StoreRestaurantShop({
           <>
             <label className="mt-3 block text-sm">
               {STORE_RESTAURANT_LIVE.buyerPlaceLabelAr}
-              <input required value={place} onChange={(e) => setPlace(e.target.value)} className="restaurant-field" maxLength={160} />
+              <input
+                required={!isLab}
+                value={placeDesc}
+                onChange={(e) => setPlaceDesc(e.target.value)}
+                className="restaurant-field"
+                maxLength={120}
+                placeholder={isLab ? STORE_RESTAURANT_LIVE.labDemoPlaceAr : 'الحي، الشارع، رقم المبنى أو أقرب علامة'}
+              />
             </label>
-            <StoreBuyerLocateButtons
-              value={place}
-              accent="#e08a3c"
-              copy={STORE_RESTAURANT_LIVE}
-              onLocated={setPlace}
-            />
+            <label className="mt-3 block text-sm">
+              {STORE_RESTAURANT_LIVE.buyerPlaceCoordsLabelAr}
+              <input
+                readOnly
+                value={placeCoords}
+                className="restaurant-field text-white/70"
+                placeholder={STORE_RESTAURANT_LIVE.buyerPlaceCoordsHintAr}
+              />
+            </label>
+            {!isLab ? (
+              <StoreBuyerLocateButtons
+                value={placeCoords}
+                accent="#e08a3c"
+                copy={STORE_RESTAURANT_LIVE}
+                onLocated={(mapsUrl) => {
+                  setPlaceCoords(mapsUrl);
+                  setPlaceAdopted(false);
+                }}
+                onAdopted={() => setPlaceAdopted(true)}
+              />
+            ) : null}
+            {!isLab && placeCoords && !placeAdopted ? (
+              <p className="mt-2 text-xs text-amber-100">اعتمد الموقع قبل إرسال الطلب.</p>
+            ) : null}
           </>
         ) : null}
         <label className="mt-3 block text-sm">
@@ -239,25 +302,40 @@ export function StoreRestaurantShop({
           <input value={note} onChange={(e) => setNote(e.target.value)} className="restaurant-field" maxLength={160} />
         </label>
         <div className="mt-3 flex flex-wrap gap-2">
-          <button type="button" onClick={() => setPay('cash')} className={cn('rounded-full px-3 py-1.5 text-xs', pay === 'cash' ? 'bg-[#e08a3c] font-bold text-[#061018]' : 'border border-white/20')}>
+          <button
+            type="button"
+            onClick={() => setPay('cash')}
+            className={cn('rounded-full px-3 py-1.5 text-xs', pay === 'cash' ? 'bg-[#e08a3c] font-bold text-[#061018]' : 'border border-white/20')}
+          >
             {STORE_RESTAURANT_LIVE.payCashAr}
           </button>
-          <button type="button" onClick={() => setPay('card')} className={cn('rounded-full px-3 py-1.5 text-xs', pay === 'card' ? 'bg-[#e08a3c] font-bold text-[#061018]' : 'border border-white/20')}>
+          <button
+            type="button"
+            onClick={() => setPay('card')}
+            className={cn('rounded-full px-3 py-1.5 text-xs', pay === 'card' ? 'bg-[#e08a3c] font-bold text-[#061018]' : 'border border-white/20')}
+          >
             {STORE_RESTAURANT_LIVE.payCardAr}
           </button>
         </div>
-        <div className="mt-3">
-          <StoreDirectPayPublicMount product="store_restaurant_live" token={token} accent="#e08a3c" />
-        </div>
-        <label className="mt-4 flex items-start gap-2 text-sm leading-7">
-          <input type="checkbox" checked={saveBuyer} onChange={(e) => setSaveBuyer(e.target.checked)} className="mt-1" />
-          <span>{STORE_RESTAURANT_LIVE.saveBuyerAr}</span>
-        </label>
+        {!isLab ? (
+          <div className="mt-3">
+            <StoreDirectPayPublicMount product="store_restaurant_live" token={token} accent="#e08a3c" />
+          </div>
+        ) : null}
+        {!isLab ? (
+          <label className="mt-4 flex items-start gap-2 text-sm leading-7">
+            <input type="checkbox" checked={saveBuyer} onChange={(e) => setSaveBuyer(e.target.checked)} className="mt-1" />
+            <span>
+              {STORE_RESTAURANT_LIVE.saveBuyerAr}
+              <span className="mt-1 block text-xs text-white/55">{STORE_RESTAURANT_LIVE.saveBuyerHintAr}</span>
+            </span>
+          </label>
+        ) : null}
         <button type="submit" className="mt-4 min-h-12 w-full rounded-full bg-[#e08a3c] text-sm font-bold text-[#061018]">
           {STORE_RESTAURANT_LIVE.submitOrderAr}
         </button>
         {sent ? <p className="mt-3 text-sm text-[#e08a3c]">{sent}</p> : null}
-        {sent && state.orders[0]?.id ? (
+        {sent && state.orders[0]?.id && !isLab ? (
           <div className="mt-4">
             <StoreDirectPayGuest
               product="store_restaurant_live"
@@ -269,7 +347,7 @@ export function StoreRestaurantShop({
           </div>
         ) : null}
       </form>
-      <StoreRestaurantBuyerChat state={state} onChange={onChange} />
+      <StoreRestaurantBuyerChat state={state} onChange={onChange} isLab={isLab} />
     </div>
   );
 }

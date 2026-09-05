@@ -96,7 +96,7 @@ export function StoreRestaurantMenuBoard({
             <li key={item.id} className="flex items-center justify-between gap-3 rounded-xl border border-white/10 px-3 py-2 text-sm">
               <span>
                 <p className="font-bold">{item.nameAr}</p>
-                <p className="text-xs text-white/50">{item.defaultPrice} ر.س مقترح</p>
+                <p className="text-xs text-white/50">{item.defaultPrice} ر.س · {STORE_RESTAURANT_LIVE.suggestedPriceAr}</p>
               </span>
               <button
                 type="button"

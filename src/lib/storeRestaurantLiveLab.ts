@@ -4,7 +4,13 @@
  * حالة معاينة مطعم الحي — محلية بلا خلط بمنتجات أخرى.
  */
 import { STORE_RESTAURANT_MENU, restaurantMenuById, parseRestaurantListText } from '@/config/storeRestaurantMenu';
-import { STORE_RESTAURANT_LIVE_DEMO, type StoreRestaurantLivePackId } from '@/config/storeRestaurantLive';
+import {
+  STORE_RESTAURANT_LAB_DISH_PHOTOS,
+  STORE_RESTAURANT_LIVE_DEMO,
+  normalizeRestaurantAvailability,
+  type StoreRestaurantAvailability,
+  type StoreRestaurantLivePackId,
+} from '@/config/storeRestaurantLive';
 import { DEFAULT_STORE_SHOP_HOURS, type StoreShopHoursState } from '@/config/storeShopHours';
 import { DEFAULT_SHOP_PICKUP, parseShopPickupPlace, type ShopPickupPlace } from '@/lib/storeShopPlace';
 import { hydrateDeskTickets } from '@/lib/storeDeskOrderTicket';
@@ -18,6 +24,7 @@ export type RestaurantShelfItem = {
   category: string;
   price: number;
   inStock: boolean;
+  availability?: StoreRestaurantAvailability;
   featured: boolean;
   photoSrc: string;
 };
@@ -106,8 +113,9 @@ export function defaultRestaurantLabState(): RestaurantLabState {
       category: item.category,
       price: item.defaultPrice,
       inStock: true,
+      availability: 'available' as const,
       featured: index < 8,
-      photoSrc: '',
+      photoSrc: STORE_RESTAURANT_LAB_DISH_PHOTOS[index % STORE_RESTAURANT_LAB_DISH_PHOTOS.length] || '',
     };
   });
   return {
@@ -141,12 +149,20 @@ export function readRestaurantLabState(token: string): RestaurantLabState {
       host: {
         ...fallback.host,
         ...(parsed.host || {}),
-        customFields: Array.from({ length: 5 }, (_, i) => parsed.host?.customFields?.[i] || fallback.host.customFields[i] || ''),
+        customFields: Array.from({ length: 6 }, (_, i) => parsed.host?.customFields?.[i] || fallback.host.customFields[i] || ''),
         nextTicket: Number(parsed.host?.nextTicket) > 0 ? Number(parsed.host?.nextTicket) : 1,
         ...parseShopPickupPlace(parsed.host, fallback.host),
       },
       shelf: Array.isArray(parsed.shelf) && parsed.shelf.length
-        ? parsed.shelf.map((item) => ({ ...item, photoSrc: item.photoSrc || '' }))
+        ? parsed.shelf.map((item, index) => ({
+            ...item,
+            photoSrc:
+              item.photoSrc ||
+              STORE_RESTAURANT_LAB_DISH_PHOTOS[index % STORE_RESTAURANT_LAB_DISH_PHOTOS.length] ||
+              '',
+            availability: normalizeRestaurantAvailability(item.availability, item.inStock),
+            inStock: normalizeRestaurantAvailability(item.availability, item.inStock) !== 'out',
+          }))
         : fallback.shelf,
       ...hydrateDeskTickets<RestaurantOrder>(parsed.orders, parsed.orderArchive),
       chats: Array.isArray(parsed.chats) ? parsed.chats : [],
@@ -188,7 +204,14 @@ export function activateRestaurantDish(
     return {
       ...state,
       shelf: state.shelf.map((item) =>
-        item.catalogId === catalogId ? { ...item, inStock: true, price: price ?? item.price } : item,
+        item.catalogId === catalogId
+          ? {
+              ...item,
+              inStock: true,
+              availability: 'available' as const,
+              price: price ?? item.price,
+            }
+          : item,
       ),
     };
   }
@@ -203,16 +226,17 @@ export function activateRestaurantDish(
         category: catalog.category,
         price: price ?? catalog.defaultPrice,
         inStock: true,
+        availability: 'available' as const,
         featured: featuredCount < 8,
-        photoSrc: '',
+        photoSrc: STORE_RESTAURANT_LAB_DISH_PHOTOS[state.shelf.length % STORE_RESTAURANT_LAB_DISH_PHOTOS.length] || '',
       },
     ],
   };
 }
 
 export function restaurantWhatsAppText(order: RestaurantOrder, shopName: string, mapsUrl = ''): string {
-  const pay = order.pay === 'card' ? 'شبكة عند التسليم' : 'نقداً عند الاستلام';
-  const service = order.service === 'pickup' ? 'استلام من المطعم' : 'توصيل للبيت';
+  const pay = order.pay === 'card' ? 'عبر الشبكة عند الاستلام' : 'نقداً عند الاستلام';
+  const service = order.service === 'pickup' ? 'استلام من المطعم' : 'توصيل';
   const lines = order.lines.map((line) => `${line.nameAr} × ${line.qty} = ${line.price * line.qty} ر.س`).join('\n');
   return [
     `تذكرة مطبخ ${order.ticketNo} — ${shopName}`,

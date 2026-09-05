@@ -35,8 +35,8 @@ export const STORE_MOBILE_VENDOR_PACKS = [
     days: STORE_MOBILE_VENDOR_DAYS_6,
     priceSar: STORE_MOBILE_VENDOR_PRICE_6_SAR,
     priceHalalas: STORE_MOBILE_VENDOR_PRICE_6_HALALAS,
-    titleAr: 'باقة مئة وثمانين يوماً',
-    priceLineAr: '799 ر.س لمئة وثمانين يوماً',
+    titleAr: '180 يوماً',
+    priceLineAr: '799 ر.س',
     lineAr: 'مسار عربة. تحديث الموقع مشمول في السعر، بلا إضافة مدفوعة.',
   },
   {
@@ -45,9 +45,9 @@ export const STORE_MOBILE_VENDOR_PACKS = [
     days: STORE_MOBILE_VENDOR_DAYS_12,
     priceSar: STORE_MOBILE_VENDOR_PRICE_12_SAR,
     priceHalalas: STORE_MOBILE_VENDOR_PRICE_12_HALALAS,
-    titleAr: 'باقة ثلاثمئة وخمسة وستين يوماً',
-    priceLineAr: '1250 ر.س لثلاثمئة وخمسة وستين يوماً',
-    lineAr: 'مدة أطول لنفس الصفحة واللوحة ومسار العربة.',
+    titleAr: '365 يوماً',
+    priceLineAr: '1,250 ر.س',
+    lineAr: 'مدة أطول لنفس الصفحة واللوحة ومسار العربة. توفير 348 ر.س مقارنة بشراء 180 يوماً مرتين.',
   },
 ] as const;
 

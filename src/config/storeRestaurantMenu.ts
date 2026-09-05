@@ -17,9 +17,9 @@ export const STORE_RESTAURANT_MENU: readonly StoreRestaurantMenuItem[] = [
   { id: 'grill-mix', nameAr: 'مشويات مشكلة', category: 'مشويات', defaultPrice: 48 },
   { id: 'grill-tikka', nameAr: 'تكة دجاج', category: 'مشويات', defaultPrice: 26 },
   { id: 'grill-kofta', nameAr: 'كفتة مشوية', category: 'مشويات', defaultPrice: 24 },
-  { id: 'wrap-shawarma', nameAr: 'شاورما عربي', category: 'سندويش', defaultPrice: 14 },
-  { id: 'wrap-falafal', nameAr: 'فلافل', category: 'سندويش', defaultPrice: 8 },
-  { id: 'wrap-mutabbaq', nameAr: 'مطبق لحم', category: 'سندويش', defaultPrice: 12 },
+  { id: 'wrap-shawarma', nameAr: 'شاورما عربي', category: 'سندويشات', defaultPrice: 14 },
+  { id: 'wrap-falafal', nameAr: 'فلافل', category: 'سندويشات', defaultPrice: 8 },
+  { id: 'wrap-mutabbaq', nameAr: 'مطبق لحم', category: 'سندويشات', defaultPrice: 12 },
   { id: 'break-foul', nameAr: 'فول بالزيت', category: 'فطور', defaultPrice: 10 },
   { id: 'break-eggs', nameAr: 'بيض بالمطاعم', category: 'فطور', defaultPrice: 12 },
   { id: 'break-tamriya', nameAr: 'تمريّة', category: 'فطور', defaultPrice: 8 },
@@ -31,8 +31,8 @@ export const STORE_RESTAURANT_MENU: readonly StoreRestaurantMenuItem[] = [
   { id: 'drink-qahwa', nameAr: 'قهوة عربية', category: 'مشروبات', defaultPrice: 5 },
   { id: 'sweet-aseeda', nameAr: 'عصيدة', category: 'حلويات', defaultPrice: 12 },
   { id: 'sweet-luqaimat', nameAr: 'لقيمات', category: 'حلويات', defaultPrice: 10 },
-  { id: 'kids-nugget', nameAr: 'قطع دجاج للصغار', category: 'صغار', defaultPrice: 16 },
-  { id: 'today-board', nameAr: 'طبق اليوم', category: 'اليوم', defaultPrice: 22 },
+  { id: 'kids-nugget', nameAr: 'قطع دجاج للصغار', category: 'وجبات الأطفال', defaultPrice: 16 },
+  { id: 'today-board', nameAr: 'طبق اليوم', category: 'طبق اليوم', defaultPrice: 22 },
 ];
 
 export const STORE_RESTAURANT_CATEGORIES = Array.from(

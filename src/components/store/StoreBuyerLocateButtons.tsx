@@ -13,18 +13,21 @@ export type StoreBuyerLocateCopy = {
   locateDeniedAr: string;
   locateSavedAr: string;
   confirmPlaceAr: string;
+  adoptPlaceAr?: string;
 };
 
 export function StoreBuyerLocateButtons({
   value,
   onLocated,
   onCoords,
+  onAdopted,
   accent,
   copy,
 }: {
   value: string;
   onLocated: (mapsUrl: string) => void;
   onCoords?: (lat: number, lng: number) => void;
+  onAdopted?: () => void;
   accent: string;
   copy: StoreBuyerLocateCopy;
 }) {
@@ -72,6 +75,20 @@ export function StoreBuyerLocateButtons({
         >
           {copy.confirmPlaceAr}
         </button>
+        {copy.adoptPlaceAr && onAdopted ? (
+          <button
+            type="button"
+            onClick={() => {
+              if (!value.trim()) return;
+              onAdopted();
+            }}
+            disabled={!value.trim()}
+            className="rounded-full border px-4 py-2 text-sm font-bold disabled:opacity-50"
+            style={{ borderColor: `${accent}99`, color: accent }}
+          >
+            {copy.adoptPlaceAr}
+          </button>
+        ) : null}
       </div>
       {hint ? <p className="mt-2 text-xs leading-6 text-white/70">{hint}</p> : null}
     </div>
