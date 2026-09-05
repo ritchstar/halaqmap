@@ -53,9 +53,9 @@ for (const html of [wedding, event, lounge, grocers, restaurant, kitchen, affili
   assert.doesNotMatch(html, /store_occasion_card/);
 }
 
-assert.match(wedding, /افراحي1/);
-assert.match(wedding, /شاشة القاعة/);
-assert.match(wedding, /لوحة المضيف/);
+assert.match(wedding, /أفراحي1/);
+assert.match(wedding, /معاينة الدعوة/);
+assert.match(wedding, /لوحة التعديل والمدعوين/);
 assert.ok(wedding.includes(display));
 assert.match(event, /اجواء1/);
 assert.match(lounge, /لاونجا1/);

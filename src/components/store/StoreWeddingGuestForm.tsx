@@ -117,6 +117,8 @@ export function StoreWeddingGuestForm({
       <button type="submit" className={cn('mt-4 min-h-12 w-full rounded-full text-base font-bold', fill)}>
         {copy.guestSubmitAr}
       </button>
+      <p className="mt-3 text-sm leading-7 text-white/55">{copy.guestBlessingNoteAr}</p>
+      <p className="mt-2 text-center text-sm leading-7 text-white/55">{copy.guestBlessingsTimingAr}</p>
       {sent ? (
         <p className={cn('mt-3 text-sm', voice === 'women' ? 'text-[#e4b7c5]' : 'text-[#e8c547]')}>
           ظهرت تهنئتك على الشاشة.

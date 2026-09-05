@@ -40,14 +40,113 @@ export type WeddingLiveHostRole = StoreWeddingLiveHostRole;
 
 export type WeddingOffspringKind = StoreWeddingOffspringKind;
 export type WeddingVenueKind = StoreWeddingVenueKind;
+export type WeddingBrideDisplayMode = import('@/config/storeWeddingLive').StoreWeddingBrideDisplayMode;
+
+const EN_MONTHS = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+] as const;
+
+const AR_MONTHS = [
+  'يناير',
+  'فبراير',
+  'مارس',
+  'أبريل',
+  'مايو',
+  'يونيو',
+  'يوليو',
+  'أغسطس',
+  'سبتمبر',
+  'أكتوبر',
+  'نوفمبر',
+  'ديسمبر',
+] as const;
+
+const AR_DIGITS = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'] as const;
+
+function toArabicDigits(value: string): string {
+  return value.replace(/\d/g, (digit) => AR_DIGITS[Number(digit)] || digit);
+}
+
+export function formatWeddingEventDateAr(iso: string): string {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso || '').trim());
+  if (!match) return '';
+  const day = Number(match[3]);
+  const month = Number(match[2]) - 1;
+  if (month < 0 || month > 11 || !day) return '';
+  return `${toArabicDigits(String(day))} ${AR_MONTHS[month]} ${toArabicDigits(match[1])}`;
+}
+
+export function formatWeddingEventDateEn(iso: string): string {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso || '').trim());
+  if (!match) return '';
+  const day = Number(match[3]);
+  const month = Number(match[2]) - 1;
+  if (month < 0 || month > 11 || !day) return '';
+  return `${day} ${EN_MONTHS[month]} ${match[1]}`;
+}
+
+export function weddingEventDatePreview(iso: string): string {
+  const ar = formatWeddingEventDateAr(iso);
+  const en = formatWeddingEventDateEn(iso);
+  if (ar && en) return `${ar} · ${en}`;
+  return ar || en;
+}
+
+export function syncWeddingEventDates(iso: string): { eventDate: string; eventDateEn: string; eventDateIso: string } {
+  const clean = String(iso || '').trim();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(clean)) {
+    return { eventDate: '', eventDateEn: '', eventDateIso: '' };
+  }
+  return {
+    eventDateIso: clean,
+    eventDate: formatWeddingEventDateAr(clean),
+    eventDateEn: formatWeddingEventDateEn(clean),
+  };
+}
+
+export function normalizeBrideDisplayMode(raw: unknown): WeddingBrideDisplayMode {
+  const value = String(raw || '').trim();
+  if (value === 'first' || value === 'krimah' || value === 'hidden') return value;
+  return 'full';
+}
+
+export function displayBrideName(
+  brideName: string,
+  groomName: string,
+  mode: WeddingBrideDisplayMode,
+): string {
+  const bride = brideName.trim();
+  const groom = groomName.trim();
+  if (mode === 'hidden' || !bride) return '';
+  if (mode === 'first') return bride.split(/\s+/)[0] || bride;
+  if (mode === 'krimah') {
+    const family = groom.split(/\s+/).slice(1).join(' ').trim();
+    return family ? `كريمة ${family}` : `كريمة ${groom || 'فلان'}`;
+  }
+  return bride;
+}
 
 export type WeddingLiveHostState = {
   voice: StoreWeddingLiveVoice;
   hostRole: WeddingLiveHostRole;
   hostName: string;
+  hostRoleCustomAr: string;
   offspringKind: WeddingOffspringKind;
   groomName: string;
   brideName: string;
+  brideDisplayMode: WeddingBrideDisplayMode;
+  eventDateIso: string;
   eventDate: string;
   eventDateEn: string;
   eventTime: string;
@@ -104,11 +203,16 @@ export function weddingLiveDefaultStyle(voice: StoreWeddingLiveVoice): WeddingLi
 }
 
 export function weddingHostInviteLine(
-  host: Pick<WeddingLiveHostState, 'hostName' | 'hostRole'> & { voice?: StoreWeddingLiveVoice },
+  host: Pick<WeddingLiveHostState, 'hostName' | 'hostRole' | 'hostRoleCustomAr'> & { voice?: StoreWeddingLiveVoice },
 ): string {
   const voice = normalizeWeddingVoice(host.voice);
   const name = host.hostName.trim();
   const roleId = normalizeWeddingHostRole(host.hostRole, voice);
+  if (roleId === 'custom') {
+    const custom = String(host.hostRoleCustomAr || '').trim();
+    if (custom && name) return `${custom} ${name}`;
+    return custom || name || (voice === 'women' ? 'الداعية' : 'الداعي');
+  }
   const role = STORE_WEDDING_LIVE_HOST_ROLES.find((item) => item.id === roleId && item.voice === voice);
   const prefix = role?.linePrefixAr || (voice === 'women' ? 'الداعية' : 'الداعي');
   return name ? `${prefix} ${name}` : prefix;
@@ -116,7 +220,7 @@ export function weddingHostInviteLine(
 
 export function weddingCoupleLine(host: WeddingLiveHostState): string {
   const groom = host.groomName.trim();
-  const bride = host.brideName.trim();
+  const bride = displayBrideName(host.brideName, host.groomName, normalizeBrideDisplayMode(host.brideDisplayMode));
   if (groom && bride) return `${groom} و${bride}`;
   return groom || bride || host.hostName.trim();
 }
@@ -150,7 +254,12 @@ export function weddingInvitationLead(host: WeddingLiveHostState): string {
   const kind = normalizeOffspringKind(host.offspringKind);
   const childWord = kind === 'daughter' ? 'ابنتنا' : 'ابننا';
   const childName = (kind === 'daughter' ? host.brideName : host.groomName).trim();
-  const spouseName = (kind === 'daughter' ? host.groomName : host.brideName).trim();
+  const spouseRaw = kind === 'daughter' ? host.groomName : host.brideName;
+  const spouseName = displayBrideName(
+    kind === 'daughter' ? host.groomName : host.brideName,
+    host.groomName,
+    kind === 'daughter' ? 'full' : normalizeBrideDisplayMode(host.brideDisplayMode),
+  ).trim() || spouseRaw.trim();
   const dateAr = String(host.eventDate || '').trim();
   const dateEn = String(host.eventDateEn || '').trim();
   const datePart = [dateAr, dateEn].filter(Boolean).join(' ');
@@ -215,9 +324,12 @@ export function defaultWeddingLiveLabState(voice: StoreWeddingLiveVoice = 'men')
       voice,
       hostRole: demo.hostRole,
       hostName: demo.hostName,
+      hostRoleCustomAr: demo.hostRoleCustomAr ?? '',
       offspringKind: demo.offspringKind,
       groomName: demo.groomName,
       brideName: demo.brideName,
+      brideDisplayMode: demo.brideDisplayMode ?? 'full',
+      eventDateIso: demo.eventDateIso ?? '',
       eventDate: demo.eventDate,
       eventDateEn: demo.eventDateEn,
       eventTime: demo.eventTime,
@@ -261,20 +373,29 @@ export function readWeddingLiveLabState(token: string): WeddingLiveLabState {
     const parsed = JSON.parse(raw) as Partial<WeddingLiveLabState>;
     const parsedHost = parsed.host as Partial<WeddingLiveHostState> | undefined;
     const nextVoice = normalizeWeddingVoice(parsedHost?.voice ?? voice);
+    const mergedHost = {
+      ...fallback.host,
+      ...(parsedHost || {}),
+      voice: nextVoice,
+      hostRole: normalizeWeddingHostRole(parsedHost?.hostRole, nextVoice),
+      hostRoleCustomAr: String(parsedHost?.hostRoleCustomAr ?? fallback.host.hostRoleCustomAr ?? ''),
+      offspringKind: normalizeOffspringKind(parsedHost?.offspringKind),
+      brideDisplayMode: normalizeBrideDisplayMode(parsedHost?.brideDisplayMode ?? fallback.host.brideDisplayMode),
+      venueKind: normalizeVenueKind(parsedHost?.venueKind),
+      invitationAr: String(parsedHost?.invitationAr ?? ''),
+      kickerAr: String(parsedHost?.kickerAr ?? ''),
+      welcomeSetIndex: normalizeWeddingWelcomeSetIndex(parsedHost?.welcomeSetIndex),
+      welcomeLinesAr: normalizeWeddingWelcomeLinesAr(parsedHost?.welcomeLinesAr),
+      cardStyleId: parsedHost?.cardStyleId || weddingLiveDefaultStyle(nextVoice),
+    };
+    const iso = String(parsedHost?.eventDateIso ?? mergedHost.eventDateIso ?? '').trim();
+    const synced = iso ? syncWeddingEventDates(iso) : null;
     return {
       host: {
-        ...fallback.host,
-        ...(parsedHost || {}),
-        voice: nextVoice,
-        hostRole: normalizeWeddingHostRole(parsedHost?.hostRole, nextVoice),
-        offspringKind: normalizeOffspringKind(parsedHost?.offspringKind),
-        eventDateEn: String(parsedHost?.eventDateEn ?? fallback.host.eventDateEn),
-        venueKind: normalizeVenueKind(parsedHost?.venueKind),
-        invitationAr: String(parsedHost?.invitationAr ?? ''),
-        kickerAr: String(parsedHost?.kickerAr ?? ''),
-        welcomeSetIndex: normalizeWeddingWelcomeSetIndex(parsedHost?.welcomeSetIndex),
-        welcomeLinesAr: normalizeWeddingWelcomeLinesAr(parsedHost?.welcomeLinesAr),
-        cardStyleId: parsedHost?.cardStyleId || weddingLiveDefaultStyle(nextVoice),
+        ...mergedHost,
+        eventDateIso: synced?.eventDateIso || mergedHost.eventDateIso || '',
+        eventDate: synced?.eventDate || String(parsedHost?.eventDate ?? mergedHost.eventDate),
+        eventDateEn: synced?.eventDateEn || String(parsedHost?.eventDateEn ?? mergedHost.eventDateEn),
       },
       blessings: Array.isArray(parsed.blessings) ? parsed.blessings : fallback.blessings,
     };
@@ -404,7 +525,7 @@ export function weddingLiveArchiveBlob(state: WeddingLiveLabState): Blob {
     text: item.extra ? `${item.cannedText} ${item.extra}` : item.cannedText,
   }));
   const body = {
-    product: state.host.voice === 'women' ? 'افراحي1 نسائي' : 'افراحي1',
+    product: state.host.voice === 'women' ? 'أفراحي1 نسائي' : 'أفراحي1',
     brand: 'halaqmap',
     voice: state.host.voice,
     hostName: state.host.hostName,
