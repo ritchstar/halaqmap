@@ -66,50 +66,75 @@ export default function StoreLanding() {
     <StoreVisitorShell>
       <StoreVisitorHeader />
 
-      <section id="store-newest-products" className="px-4 pb-6 pt-8 md:pt-12">
+      <section id="store-pitch-hero" className="px-4 pb-4 pt-8 md:pt-12">
         <div className="relative mx-auto max-w-5xl text-center">
           <span className="store-pitch-aura" aria-hidden />
-          <p className="relative text-sm font-bold tracking-wide text-[#e8c547]">
-            {STORE_LANDING_COPY.newestTitleAr}
+          <p className="relative text-2xl font-black text-[#f4efe4] md:text-3xl">
+            {STORE_LANDING_COPY.shopNameAr}
           </p>
-          <h1 className="store-pitch-headline relative mt-2 text-3xl font-black leading-tight text-[#e8c547] sm:text-4xl md:text-5xl">
-            {STORE_LANDING_COPY.pitchHeadlineAr}
+          <h1 className="store-pitch-headline relative mt-3 text-3xl font-black leading-tight text-[#e8c547] sm:text-4xl md:text-5xl">
+            <span className="block">{STORE_LANDING_COPY.pitchHeadlineLine1Ar}</span>
+            <span className="mt-1 block">{STORE_LANDING_COPY.pitchHeadlineLine2Ar}</span>
           </h1>
-          <p className="relative mx-auto mt-4 max-w-3xl text-base font-bold leading-8 text-white/85 md:text-lg">
+          <p className="relative mx-auto mt-5 max-w-3xl text-base font-bold leading-8 text-white/85 md:text-lg">
             {STORE_LANDING_COPY.pitchLeadAr}
           </p>
-          <p className="relative mx-auto mt-2 max-w-3xl text-sm leading-7 text-white/65">
-            {STORE_LANDING_COPY.pitchPickLeadAr}
+          <p className="relative mx-auto mt-3 max-w-3xl text-sm leading-7 text-white/65 md:text-base">
+            {STORE_LANDING_COPY.pitchScopeAr}
+          </p>
+          <p className="relative mx-auto mt-4 text-xs font-bold tracking-wide text-[#e8c547]/85 md:text-sm">
+            {STORE_LANDING_COPY.pitchJourneyAr}
+          </p>
+          <div className="relative mt-6 flex flex-wrap items-center justify-center gap-3">
+            <button
+              type="button"
+              onClick={() => scrollStoreBrowse('store-browse-neighborhood')}
+              className="inline-flex rounded-full bg-[#e8c547] px-5 py-2.5 text-sm font-extrabold text-[#061018] shadow-[0_12px_30px_-12px_rgba(232,197,71,0.8)] hover:bg-[#f0d36a]"
+            >
+              {STORE_LANDING_COPY.pitchExploreCtaAr}
+            </button>
+            <Link
+              to={ROUTE_PATHS.STORE_REQUEST}
+              className="inline-flex rounded-full border border-[#e8c547]/45 bg-white/5 px-5 py-2.5 text-sm font-extrabold text-[#e8c547] hover:border-[#e8c547]/70 hover:bg-[#e8c547]/10"
+              onClick={openRequestForm}
+            >
+              {STORE_LANDING_COPY.pitchRequestCtaAr}
+            </Link>
+          </div>
+          <p className="relative mx-auto mt-5 text-sm font-extrabold text-white/75">
+            {STORE_LANDING_COPY.pitchTaglineAr}
           </p>
         </div>
       </section>
 
-      <nav
-        aria-label={STORE_LANDING_COPY.newestTitleAr}
-        className="sticky top-0 z-20 border-b border-white/10 bg-[#061018]/95 px-4 py-2 backdrop-blur"
-      >
-        <div className="mx-auto flex max-w-5xl gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {(
-            [
-              ['store-browse-neighborhood', STORE_LANDING_COPY.browseNeighborhoodAr],
-              ['store-browse-halls', STORE_LANDING_COPY.browseHallsAr],
-              ['store-browse-cards', STORE_LANDING_COPY.browseCardsAr],
-              ['store-browse-works', STORE_LANDING_COPY.browseWorksAr],
-            ] as const
-          ).map(([id, label]) => (
-            <button
-              key={id}
-              type="button"
-              onClick={() => scrollStoreBrowse(id)}
-              className="shrink-0 rounded-full border border-white/15 bg-white/5 px-3.5 py-1.5 text-xs font-bold text-white/85 hover:border-[#e8c547]/50 hover:text-[#e8c547]"
-            >
-              {label}
-            </button>
-          ))}
-        </div>
-      </nav>
+      <section id="store-newest-products" className="scroll-mt-14 px-4 pb-2 pt-2">
+        <nav
+          aria-label={STORE_LANDING_COPY.pitchExploreCtaAr}
+          className="sticky top-0 z-20 border-b border-white/10 bg-[#061018]/95 px-0 py-2 backdrop-blur"
+        >
+          <div className="mx-auto flex max-w-5xl gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {(
+              [
+                ['store-browse-neighborhood', STORE_LANDING_COPY.browseNeighborhoodAr],
+                ['store-browse-hospitality', STORE_LANDING_COPY.browseHospitalityAr],
+                ['store-browse-halls', STORE_LANDING_COPY.browseHallsAr],
+                ['store-browse-works', STORE_LANDING_COPY.browseWorksAr],
+              ] as const
+            ).map(([id, label]) => (
+              <button
+                key={id}
+                type="button"
+                onClick={() => scrollStoreBrowse(id)}
+                className="shrink-0 rounded-full border border-white/15 bg-white/5 px-3.5 py-1.5 text-xs font-bold text-white/85 hover:border-[#e8c547]/50 hover:text-[#e8c547]"
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </nav>
+      </section>
 
-      <section id="store-browse-neighborhood" className="scroll-mt-14 px-4 pb-8 pt-6">
+      <section id="store-browse-neighborhood" className="scroll-mt-14 px-4 pb-6 pt-4">
         <div className="mx-auto max-w-5xl">
           <h2 className="text-lg font-extrabold text-white/90">{STORE_LANDING_COPY.browseNeighborhoodAr}</h2>
           <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -122,6 +147,7 @@ export default function StoreLanding() {
                 leadAr={STORE_LANDING_COPY.produceLiveLeadAr}
                 ctaAr={STORE_LANDING_COPY.produceLiveCtaAr}
                 accent="#3d8b4a"
+                showTrialBadge
               />
             ) : null}
             {STORE_GROCERS_LIVE_PUBLIC_ENABLED ? (
@@ -133,8 +159,19 @@ export default function StoreLanding() {
                 leadAr={STORE_LANDING_COPY.grocersLiveLeadAr}
                 ctaAr={STORE_LANDING_COPY.grocersLiveCtaAr}
                 accent="#8fbf7a"
+                showTrialBadge
               />
             ) : null}
+          </div>
+        </div>
+      </section>
+
+      <section id="store-browse-hospitality" className="scroll-mt-14 px-4 pb-8">
+        <div className="mx-auto max-w-5xl">
+          <h2 className="text-lg font-extrabold text-white/90">
+            {STORE_LANDING_COPY.browseHospitalitySectionAr}
+          </h2>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {STORE_KITCHEN_LIVE_PUBLIC_ENABLED ? (
               <StoreBrowseCard
                 to={ROUTE_PATHS.STORE_KITCHEN}
@@ -144,6 +181,7 @@ export default function StoreLanding() {
                 leadAr={STORE_LANDING_COPY.kitchenLiveLeadAr}
                 ctaAr={STORE_LANDING_COPY.kitchenLiveCtaAr}
                 accent="#b45a3c"
+                showTrialBadge
               />
             ) : null}
             {STORE_HALANA_LIVE_PUBLIC_ENABLED ? (
@@ -155,6 +193,7 @@ export default function StoreLanding() {
                 leadAr={STORE_LANDING_COPY.halanaLiveLeadAr}
                 ctaAr={STORE_LANDING_COPY.halanaLiveCtaAr}
                 accent="#c45c7a"
+                showTrialBadge
               />
             ) : null}
             {STORE_RESTAURANT_LIVE_PUBLIC_ENABLED ? (
@@ -166,6 +205,7 @@ export default function StoreLanding() {
                 leadAr={STORE_LANDING_COPY.restaurantLiveLeadAr}
                 ctaAr={STORE_LANDING_COPY.restaurantLiveCtaAr}
                 accent="#e08a3c"
+                showTrialBadge
               />
             ) : null}
             {STORE_CAFE_LIVE_PUBLIC_ENABLED ? (
@@ -177,6 +217,19 @@ export default function StoreLanding() {
                 leadAr={STORE_LANDING_COPY.cafeLiveLeadAr}
                 ctaAr={STORE_LANDING_COPY.cafeLiveCtaAr}
                 accent="#c48a4a"
+                showTrialBadge
+              />
+            ) : null}
+            {STORE_LOUNGE_LIVE_PUBLIC_ENABLED ? (
+              <StoreBrowseCard
+                to={ROUTE_PATHS.STORE_LOUNGE}
+                reel="lounge"
+                alt="لاونجا1"
+                titleAr={STORE_LANDING_COPY.loungeLiveTitleAr}
+                leadAr={STORE_LANDING_COPY.loungeLiveLeadAr}
+                ctaAr={STORE_LANDING_COPY.loungeLiveCtaAr}
+                accent="#d4a574"
+                showTrialBadge
               />
             ) : null}
           </div>
@@ -185,7 +238,7 @@ export default function StoreLanding() {
 
       <section id="store-browse-halls" className="scroll-mt-14 px-4 pb-8">
         <div className="mx-auto max-w-5xl">
-          <h2 className="text-lg font-extrabold text-white/90">{STORE_LANDING_COPY.browseHallsAr}</h2>
+          <h2 className="text-lg font-extrabold text-white/90">{STORE_LANDING_COPY.browseHallsSectionAr}</h2>
           <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {STORE_WEDDING_LIVE_PUBLIC_ENABLED ? (
               <StoreBrowseCard
@@ -218,17 +271,6 @@ export default function StoreLanding() {
                 leadAr={STORE_LANDING_COPY.eventLiveLeadAr}
                 ctaAr={STORE_LANDING_COPY.eventLiveCtaAr}
                 accent="#e8c547"
-              />
-            ) : null}
-            {STORE_LOUNGE_LIVE_PUBLIC_ENABLED ? (
-              <StoreBrowseCard
-                to={ROUTE_PATHS.STORE_LOUNGE}
-                reel="lounge"
-                alt="لاونجا1"
-                titleAr={STORE_LANDING_COPY.loungeLiveTitleAr}
-                leadAr={STORE_LANDING_COPY.loungeLiveLeadAr}
-                ctaAr={STORE_LANDING_COPY.loungeLiveCtaAr}
-                accent="#d4a574"
               />
             ) : null}
           </div>
@@ -268,7 +310,9 @@ export default function StoreLanding() {
             فتح الاستوديو
           </Link>
           <div className="mt-6 rounded-xl border border-[#e8c547]/25 bg-[#061018]/70 p-4">
-            <h3 className="text-xl font-extrabold">{STORE_LANDING_COPY.paidInvitesTitleAr}</h3>
+            <h3 className="text-xl font-extrabold">
+              <StoreProductName>{STORE_LANDING_COPY.paidInvitesTitleAr}</StoreProductName>
+            </h3>
             <p className="mt-2 max-w-3xl text-sm leading-7 text-white/70">{STORE_LANDING_COPY.paidInvitesLeadAr}</p>
             <Link to={ROUTE_PATHS.STORE_INVITES} className="mt-4 inline-flex text-sm font-bold text-[#e8c547]">
               {STORE_LANDING_COPY.paidInvitesCtaAr}
@@ -279,7 +323,7 @@ export default function StoreLanding() {
 
       <section id="store-browse-works" className="scroll-mt-14 px-4 pb-10">
         <div className="mx-auto max-w-5xl">
-          <h2 className="text-lg font-extrabold text-white/90">{STORE_LANDING_COPY.browseWorksAr}</h2>
+          <h2 className="text-lg font-extrabold text-white/90">{STORE_LANDING_COPY.browseWorksSectionAr}</h2>
           <p className="mt-3 text-base font-extrabold text-white/90">{STORE_SECTOR_SPLIT_COPY.titleAr}</p>
           <p className="mt-2 max-w-3xl text-sm leading-relaxed text-white/70">
             {STORE_SECTOR_SPLIT_COPY.leadAr}
@@ -535,6 +579,14 @@ function scrollStoreBrowse(id: string) {
   document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
+function StoreProductName({ children }: { children: string }) {
+  return (
+    <span dir="rtl" className="inline-block [unicode-bidi:isolate]">
+      {children}
+    </span>
+  );
+}
+
 function StoreBrowseCard({
   to,
   reel,
@@ -543,6 +595,7 @@ function StoreBrowseCard({
   leadAr,
   ctaAr,
   accent,
+  showTrialBadge = false,
 }: {
   to: string;
   reel: StoreMarketingReelId;
@@ -551,6 +604,7 @@ function StoreBrowseCard({
   leadAr: string;
   ctaAr: string;
   accent: string;
+  showTrialBadge?: boolean;
 }) {
   return (
     <Link
@@ -562,8 +616,17 @@ function StoreBrowseCard({
         <StoreShot reel={reel} alt={alt} className="aspect-[16/10] w-full" />
       </StoreInViewMount>
       <div className="p-3">
-        <h3 className="text-base font-extrabold">{titleAr}</h3>
-        <p className="mt-1 line-clamp-2 text-xs leading-6 text-white/70">{leadAr}</p>
+        <div className="flex flex-wrap items-center gap-2">
+          <h3 className="text-base font-extrabold">
+            <StoreProductName>{titleAr}</StoreProductName>
+          </h3>
+          {showTrialBadge ? (
+            <span className="rounded-full border border-[#e8c547]/35 bg-[#e8c547]/12 px-2 py-0.5 text-[0.68rem] font-bold text-[#e8c547]">
+              {STORE_LANDING_COPY.browseTrialBadgeAr}
+            </span>
+          ) : null}
+        </div>
+        <p className="mt-2 text-sm leading-7 text-white/78">{leadAr}</p>
         <p className="mt-2 text-sm font-bold" style={{ color: accent }}>
           {ctaAr}
         </p>
