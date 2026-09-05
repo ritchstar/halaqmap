@@ -1,10 +1,11 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
- * تصنيفات وفحوص مستقلة لمتجر halaqmap — تحقق علني، بلا ترتيب بحث.
+ * التوثيق والتحقق — متجر halaqmap. ثقة رسمية أولاً، ثم فحوص تقنية مساندة.
  */
+import { useEffect, useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { ExternalLink, ShieldCheck } from 'lucide-react';
+import { Download, ExternalLink, ShieldCheck, X } from 'lucide-react';
 import {
   StoreVisitorFooter,
   StoreVisitorHeader,
@@ -12,185 +13,346 @@ import {
 } from '@/components/store/StoreChrome';
 import { EcommerceVerifiedFooterBadge } from '@/components/EcommerceVerifiedFooterBadge';
 import {
-  STORE_BRAND_LATIN,
-  STORE_PUBLIC_NAME_AR,
-  STORE_TRUST_COPY,
-} from '@/config/storeFront';
-import {
-  PLATFORM_EXTERNAL_TRUST_SCANS,
-} from '@/config/platformOperationalTrust';
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { STORE_TRUST_COPY } from '@/config/storeFront';
+import { PLATFORM_EXTERNAL_TRUST_SCANS } from '@/config/platformOperationalTrust';
 import {
   PLATFORM_TLS_DOMAIN,
   PLATFORM_TLS_SSL_LABS_GRADE,
   PLATFORM_TLS_SSL_LABS_REPORT_DATE_AR,
   PLATFORM_TLS_SSL_LABS_URL,
 } from '@/config/platformTlsTrust';
-import {
-  LEGAL_ECOMMERCE_INQUIRY_URL,
-} from '@/config/partnerLegal';
-import { STORE_SAIP_COPY, STORE_SAIP_PUBLIC_WORKS } from '@/config/storeSaipRegistry';
+import { LEGAL_ECOMMERCE_INQUIRY_URL } from '@/config/partnerLegal';
+import { STORE_SAIP_COPY, STORE_SAIP_PUBLIC_WORKS, type StoreSaipWork } from '@/config/storeSaipRegistry';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 
 const REPUTATION_SCANS = PLATFORM_EXTERNAL_TRUST_SCANS.filter((scan) => scan.id !== 'ssl-labs');
 
+type CertPreview = StoreSaipWork;
+type ImagePreview = { src: string; titleAr: string; alt: string; productPath?: string };
+
+const proseClass = 'max-w-[42rem] text-base leading-[1.75] text-white/78';
+
+function StoreProductName({ children }: { children: string }) {
+  return (
+    <bdi dir="rtl" className="inline-block [unicode-bidi:isolate]">
+      {children}
+    </bdi>
+  );
+}
+
+function TrustSectionCard({ children, className = '' }: { children: ReactNode; className?: string }) {
+  return (
+    <section className={`rounded-2xl border border-white/12 bg-[#0b1a24]/80 p-5 md:p-6 ${className}`}>
+      {children}
+    </section>
+  );
+}
+
 export default function StoreTrustPage() {
   useDocumentTitle(STORE_TRUST_COPY.documentTitle);
+  const [certPreview, setCertPreview] = useState<CertPreview | null>(null);
+  const [imagePreview, setImagePreview] = useState<ImagePreview | null>(null);
+
+  useEffect(() => {
+    const metaName = 'description';
+    let tag = document.querySelector(`meta[name="${metaName}"]`);
+    const created = !tag;
+    if (!tag) {
+      tag = document.createElement('meta');
+      tag.setAttribute('name', metaName);
+      document.head.appendChild(tag);
+    }
+    const previous = tag.getAttribute('content');
+    tag.setAttribute('content', STORE_TRUST_COPY.metaDescriptionAr);
+    return () => {
+      if (created) {
+        tag?.remove();
+      } else if (previous) {
+        tag?.setAttribute('content', previous);
+      }
+    };
+  }, []);
 
   return (
     <StoreVisitorShell>
       <StoreVisitorHeader />
 
-      <article className="px-4 py-10 md:py-14">
-        <div className="mx-auto max-w-5xl">
+      <article className="px-5 py-10 md:py-14">
+        <div className="mx-auto w-full max-w-[70rem]">
           <header>
-            <p className="text-sm font-bold tracking-wide text-[#e8c547]">{STORE_TRUST_COPY.kicker}</p>
-            <h1 className="mt-2 text-4xl font-extrabold leading-tight text-[#f4efe4] md:text-5xl">
+            <h1 className="text-3xl font-extrabold leading-tight text-[#f4efe4] md:text-4xl lg:text-5xl">
               {STORE_TRUST_COPY.titleAr}
             </h1>
-            <p className="mt-2 text-2xl font-extrabold text-[#e8c547]">
-              <span dir="ltr" className="inline-block tracking-wide">
-                {STORE_BRAND_LATIN}
-              </span>
-              <span className="mx-2 text-white/35">·</span>
-              {STORE_PUBLIC_NAME_AR}
-            </p>
-            <p className="mt-4 max-w-3xl text-base leading-relaxed text-white/78 md:text-lg">
-              {STORE_TRUST_COPY.leadAr}
+            <p className={`mt-5 ${proseClass}`}>{STORE_TRUST_COPY.leadAr}</p>
+            <p className={`mt-4 text-sm leading-[1.75] text-white/55 ${proseClass}`}>
+              {STORE_TRUST_COPY.scansTimingNoteAr}
             </p>
           </header>
 
-          <section className="mt-12 overflow-hidden rounded-[1.75rem] border border-[#e8c547]/35 bg-[#0b1a24]/85">
-            <div className="grid items-center gap-0 lg:grid-cols-[1.05fr_0.95fr]">
-              <div className="p-6 md:p-8">
-                <p className="text-xs font-black tracking-[0.18em] text-[#e8c547]">{STORE_TRUST_COPY.sslKickerAr}</p>
-                <h2 className="mt-3 text-2xl font-extrabold leading-snug text-[#f4efe4] md:text-3xl">
-                  {STORE_TRUST_COPY.sslTitleAr}
-                </h2>
-                <p className="mt-3 inline-flex items-center gap-2 rounded-full border border-emerald-400/35 bg-emerald-500/15 px-3 py-1 text-sm font-black text-emerald-100">
-                  <ShieldCheck className="h-4 w-4" aria-hidden />
-                  <span dir="ltr">{PLATFORM_TLS_SSL_LABS_GRADE}</span>
-                  <span className="font-bold text-emerald-50/80">Qualys SSL Labs</span>
-                </p>
-                <p className="mt-4 text-sm leading-7 text-white/75 md:text-base md:leading-8">
-                  {STORE_TRUST_COPY.sslBodyAr}
-                </p>
-                <p className="mt-3 text-xs text-white/50">
-                  <code dir="ltr">{PLATFORM_TLS_DOMAIN}</code>
-                  <span className="mx-2">·</span>
-                  {PLATFORM_TLS_SSL_LABS_REPORT_DATE_AR}
-                </p>
-                <a
-                  href={PLATFORM_TLS_SSL_LABS_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-5 inline-flex items-center gap-2 rounded-full bg-[#e8c547] px-5 py-2.5 text-sm font-extrabold text-[#061018] hover:bg-[#f0d36a]"
-                >
-                  {STORE_TRUST_COPY.sslVerifyAr}
-                  <ExternalLink className="h-4 w-4" aria-hidden />
-                </a>
-              </div>
-              <figure className="border-t border-white/10 bg-white lg:border-t-0 lg:border-s">
-                <img
-                  src={STORE_TRUST_COPY.sslImage}
-                  alt={STORE_TRUST_COPY.sslAltAr}
-                  className="aspect-[16/10] w-full bg-white object-contain object-top"
-                />
-                <figcaption className="border-t border-white/10 bg-[#061018] px-4 py-3 text-sm font-bold text-[#e8c547]">
-                  {STORE_TRUST_COPY.sslCaptionAr}
-                </figcaption>
-              </figure>
-            </div>
-          </section>
-
-          <section className="mt-8 grid gap-4 lg:grid-cols-2">
-            <div className="rounded-2xl border border-white/12 bg-[#0b1a24]/80 p-5 md:p-6">
-              <h2 className="text-xl font-extrabold text-[#f4efe4]">{STORE_TRUST_COPY.ecomTitleAr}</h2>
-              <p className="mt-3 text-sm leading-7 text-white/75">{STORE_TRUST_COPY.ecomBodyAr}</p>
-              <div className="mt-5">
+          <div className="mt-12 space-y-8">
+            <TrustSectionCard>
+              <h2 className="text-xl font-extrabold text-[#f4efe4] md:text-2xl">{STORE_TRUST_COPY.ecomTitleAr}</h2>
+              <p className={`mt-4 ${proseClass}`}>{STORE_TRUST_COPY.ecomBodyAr}</p>
+              <div className="mt-6">
                 <EcommerceVerifiedFooterBadge variant="dark" />
               </div>
               <a
                 href={LEGAL_ECOMMERCE_INQUIRY_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-[#e8c547] underline-offset-4 hover:underline"
+                className="mt-5 inline-flex items-center gap-2 rounded-full bg-[#e8c547] px-5 py-2.5 text-sm font-extrabold text-[#061018] hover:bg-[#f0d36a]"
               >
                 {STORE_TRUST_COPY.ecomVerifyAr}
                 <ExternalLink className="h-4 w-4" aria-hidden />
               </a>
-            </div>
-            <div className="rounded-2xl border border-white/12 bg-[#0b1a24]/80 p-5 md:p-6">
-              <h2 className="text-xl font-extrabold text-[#f4efe4]">{STORE_TRUST_COPY.activityTitleAr}</h2>
-              <p className="mt-3 text-sm leading-7 text-white/75">{STORE_TRUST_COPY.activityBodyAr}</p>
+            </TrustSectionCard>
+
+            <TrustSectionCard>
+              <h2 className="text-xl font-extrabold text-[#f4efe4] md:text-2xl">{STORE_TRUST_COPY.activityTitleAr}</h2>
+              <p className={`mt-4 ${proseClass}`}>{STORE_TRUST_COPY.activityBodyAr}</p>
               <Link
-                to={ROUTE_PATHS.STORE_ABOUT}
-                className="mt-5 inline-flex text-sm font-bold text-[#e8c547] underline-offset-4 hover:underline"
+                to={`${ROUTE_PATHS.STORE_ABOUT}#registered-activities`}
+                className="mt-5 inline-flex text-sm font-bold text-[#7ec8e3] underline-offset-4 hover:underline"
               >
                 {STORE_TRUST_COPY.activityCtaAr}
               </Link>
-            </div>
-          </section>
+            </TrustSectionCard>
 
-          <section className="mt-8 rounded-2xl border border-white/12 bg-[#0b1a24]/80 p-5 md:p-6">
-            <h2 className="text-xl font-extrabold text-[#f4efe4]">{STORE_TRUST_COPY.saipTitleAr}</h2>
-            <p className="mt-3 max-w-3xl text-sm leading-7 text-white/75">{STORE_TRUST_COPY.saipLeadAr}</p>
-            <ul className="mt-5 grid gap-3 sm:grid-cols-2">
-              {STORE_SAIP_PUBLIC_WORKS.map((work) => (
-                <li key={work.id} className="rounded-2xl border border-white/12 bg-white/[0.04] p-4">
-                  <p className="font-extrabold text-[#e8c547]">{work.titleAr}</p>
-                  <p className="mt-2 text-xs leading-6 text-white/60">{STORE_SAIP_COPY.phraseAr}</p>
-                  <p className="mt-2 text-sm text-white/75">
-                    {STORE_SAIP_COPY.certLabelAr}
-                    {' '}
-                    <code dir="ltr" className="inline-block font-bold text-white/90">
-                      {work.certificateNo}
-                    </code>
-                  </p>
-                  <figure className="mt-3 overflow-hidden rounded-xl border border-white/10 bg-white">
-                    <img
-                      src={work.certImage}
-                      alt={`${work.titleAr} — ${STORE_SAIP_COPY.certImageAltAr} ${work.certificateNo}`}
-                      className="aspect-[4/3] w-full object-contain object-top"
-                    />
-                  </figure>
-                  <Link
-                    to={work.buyPath}
-                    className="mt-3 inline-flex text-sm font-bold text-[#e8c547] underline-offset-4 hover:underline"
+            <TrustSectionCard>
+              <h2 className="text-xl font-extrabold text-[#f4efe4] md:text-2xl">{STORE_TRUST_COPY.saipTitleAr}</h2>
+              <p className={`mt-4 ${proseClass}`}>{STORE_SAIP_COPY.trustLeadAr}</p>
+              <p className={`mt-3 text-sm leading-[1.75] text-white/60 ${proseClass}`}>{STORE_SAIP_COPY.trustNoteAr}</p>
+              <ul className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+                {STORE_SAIP_PUBLIC_WORKS.map((work) => (
+                  <li
+                    key={work.id}
+                    className="flex flex-col rounded-2xl border border-white/12 bg-white/[0.04] p-4"
                   >
-                    {STORE_TRUST_COPY.saipOpenAr}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </section>
+                    <span className="inline-flex w-fit rounded-full border border-[#e8c547]/35 bg-[#e8c547]/10 px-2.5 py-0.5 text-xs font-bold text-[#e8c547]">
+                      {STORE_SAIP_COPY.badgeAr}
+                    </span>
+                    <p className="mt-3 text-lg font-extrabold text-[#f4efe4]">
+                      {work.certificateRegisteredNameAr ? (
+                        <>
+                          {STORE_SAIP_COPY.productLabelAr}{' '}
+                          <StoreProductName>{work.titleAr}</StoreProductName>
+                        </>
+                      ) : (
+                        <StoreProductName>{work.titleAr}</StoreProductName>
+                      )}
+                    </p>
+                    {work.certificateRegisteredNameAr ? (
+                      <p className="mt-2 text-sm leading-[1.75] text-white/70">
+                        {STORE_SAIP_COPY.registeredNameLabelAr}{' '}
+                        <StoreProductName>{work.certificateRegisteredNameAr}</StoreProductName>
+                      </p>
+                    ) : null}
+                    <p className="mt-2 text-sm text-white/75">
+                      {STORE_SAIP_COPY.certLabelAr}
+                      <br />
+                      <bdi dir="ltr" className="mt-1 inline-block font-bold text-[#e8c547]">
+                        {work.certificateNo}
+                      </bdi>
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => setCertPreview(work)}
+                      className="mt-3 block w-full overflow-hidden rounded-xl border border-white/10 bg-white transition hover:border-[#e8c547]/35"
+                    >
+                      <img
+                        src={work.certImage}
+                        alt={`${work.titleAr} — ${STORE_SAIP_COPY.certImageAltAr}`}
+                        className="aspect-[5/3] w-full object-contain object-top p-1"
+                      />
+                    </button>
+                    <div className="mt-auto flex flex-wrap gap-2 pt-4">
+                      <button
+                        type="button"
+                        onClick={() => setCertPreview(work)}
+                        className="inline-flex rounded-full border border-white/15 px-3 py-1.5 text-sm font-bold text-[#e8c547]"
+                      >
+                        {STORE_SAIP_COPY.viewCertAr}
+                      </button>
+                      <Link
+                        to={work.buyPath}
+                        className="inline-flex rounded-full border border-white/15 px-3 py-1.5 text-sm font-bold text-[#7ec8e3] underline-offset-4 hover:underline"
+                      >
+                        {STORE_SAIP_COPY.productPageAr}
+                      </Link>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </TrustSectionCard>
 
-          <section className="mt-8">
-            <h2 className="text-xl font-extrabold text-[#f4efe4]">{STORE_TRUST_COPY.scansTitleAr}</h2>
-            <p className="mt-2 max-w-3xl text-sm leading-7 text-white/70">{STORE_TRUST_COPY.scansLeadAr}</p>
-            <ul className="mt-4 grid gap-3 sm:grid-cols-2">
-              {REPUTATION_SCANS.map((scan) => (
-                <li key={scan.id} className="rounded-2xl border border-white/12 bg-white/[0.04] p-5">
-                  <p className="font-extrabold text-[#e8c547]">{scan.labelAr}</p>
-                  <p className="mt-2 text-sm leading-7 text-white/70">{scan.summaryAr.replace(/`/g, '')}</p>
-                  <p className="mt-2 text-xs text-white/45">{scan.reportDateAr}</p>
+            <TrustSectionCard>
+              <p className="text-xs font-black tracking-[0.18em] text-[#e8c547]">{STORE_TRUST_COPY.sslKickerAr}</p>
+              <h2 className="mt-2 text-xl font-extrabold text-[#f4efe4] md:text-2xl">{STORE_TRUST_COPY.sslTitleAr}</h2>
+              <p className={`mt-4 ${proseClass}`}>{STORE_TRUST_COPY.sslBodyAr}</p>
+              <dl className="mt-5 grid gap-3 sm:grid-cols-3">
+                <div className="rounded-xl border border-white/10 bg-white/[0.04] p-3">
+                  <dt className="text-xs font-bold text-white/55">{STORE_TRUST_COPY.sslDomainLabelAr}</dt>
+                  <dd dir="ltr" className="mt-1 font-mono text-sm font-bold text-[#e8c547]">
+                    {PLATFORM_TLS_DOMAIN}
+                  </dd>
+                </div>
+                <div className="rounded-xl border border-white/10 bg-white/[0.04] p-3">
+                  <dt className="text-xs font-bold text-white/55">{STORE_TRUST_COPY.sslGradeLabelAr}</dt>
+                  <dd className="mt-1 inline-flex items-center gap-2 font-bold text-emerald-100">
+                    <ShieldCheck className="h-4 w-4 text-emerald-300" aria-hidden />
+                    <span dir="ltr">{PLATFORM_TLS_SSL_LABS_GRADE}</span>
+                  </dd>
+                </div>
+                <div className="rounded-xl border border-white/10 bg-white/[0.04] p-3">
+                  <dt className="text-xs font-bold text-white/55">{STORE_TRUST_COPY.sslDateLabelAr}</dt>
+                  <dd className="mt-1 text-sm font-bold text-white/85">{PLATFORM_TLS_SSL_LABS_REPORT_DATE_AR}</dd>
+                </div>
+              </dl>
+              <p className={`mt-4 text-sm leading-[1.75] text-white/60 ${proseClass}`}>
+                {STORE_TRUST_COPY.sslScopeNoteAr}
+              </p>
+              <div className="mt-5 flex flex-col gap-4 sm:flex-row sm:items-start">
+                <button
+                  type="button"
+                  onClick={() =>
+                    setImagePreview({
+                      src: STORE_TRUST_COPY.sslImage,
+                      titleAr: `${PLATFORM_TLS_DOMAIN} — ${STORE_TRUST_COPY.sslTitleAr}`,
+                      alt: STORE_TRUST_COPY.sslAltAr,
+                    })
+                  }
+                  className="shrink-0 overflow-hidden rounded-xl border border-white/10 bg-white sm:w-40"
+                >
+                  <img
+                    src={STORE_TRUST_COPY.sslImage}
+                    alt={STORE_TRUST_COPY.sslAltAr}
+                    className="aspect-[16/10] w-full object-contain object-top"
+                  />
+                </button>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm leading-[1.75] text-white/55">{STORE_TRUST_COPY.sslCaptionAr}</p>
                   <a
-                    href={scan.reportUrl}
+                    href={PLATFORM_TLS_SSL_LABS_URL}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="mt-3 inline-flex items-center gap-1.5 text-sm font-bold text-white/80 underline-offset-4 hover:text-[#e8c547] hover:underline"
+                    className="mt-4 inline-flex items-center gap-2 rounded-full bg-[#e8c547] px-5 py-2.5 text-sm font-extrabold text-[#061018] hover:bg-[#f0d36a]"
                   >
-                    {STORE_TRUST_COPY.scanOpenAr}
-                    <ExternalLink className="h-3.5 w-3.5" aria-hidden />
+                    {STORE_TRUST_COPY.sslVerifyAr}
+                    <ExternalLink className="h-4 w-4" aria-hidden />
                   </a>
-                </li>
-              ))}
-            </ul>
-          </section>
+                </div>
+              </div>
+            </TrustSectionCard>
 
-          <p className="mt-8 max-w-3xl text-sm leading-7 text-white/55">{STORE_TRUST_COPY.disclaimerAr}</p>
+            <TrustSectionCard>
+              <h2 className="text-xl font-extrabold text-[#f4efe4] md:text-2xl">{STORE_TRUST_COPY.scansTitleAr}</h2>
+              <p className={`mt-4 ${proseClass}`}>{STORE_TRUST_COPY.scansLeadAr}</p>
+              <ul className="mt-5 grid gap-4 md:grid-cols-2">
+                {REPUTATION_SCANS.map((scan) => (
+                  <li key={scan.id} className="rounded-2xl border border-white/12 bg-white/[0.04] p-5">
+                    <p className="font-extrabold text-[#e8c547]">{scan.labelAr}</p>
+                    <p className="mt-2 text-base leading-[1.75] text-white/72">{scan.summaryAr}</p>
+                    <a
+                      href={scan.reportUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-4 inline-flex items-center gap-1.5 text-sm font-bold text-[#7ec8e3] underline-offset-4 hover:underline"
+                    >
+                      {STORE_TRUST_COPY.scanOpenAr}
+                      <ExternalLink className="h-3.5 w-3.5" aria-hidden />
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </TrustSectionCard>
+
+            <p className={`${proseClass} text-sm leading-[1.75] text-white/55`}>{STORE_TRUST_COPY.disclaimerAr}</p>
+          </div>
         </div>
       </article>
+
+      <Dialog open={certPreview !== null} onOpenChange={(open) => !open && setCertPreview(null)}>
+        <DialogContent className="max-h-[92vh] max-w-4xl overflow-y-auto border-white/15 bg-[#0b1a24] text-[#f4efe4]">
+          {certPreview ? (
+            <>
+              <DialogTitle className="pe-10 text-lg font-extrabold text-[#f4efe4]">
+                <StoreProductName>{certPreview.titleAr}</StoreProductName>
+              </DialogTitle>
+              <DialogClose className="absolute end-4 top-4 rounded-full border border-white/15 p-1 text-white/70 hover:text-white">
+                <X className="h-4 w-4" aria-hidden />
+                <span className="sr-only">إغلاق</span>
+              </DialogClose>
+              <img
+                src={certPreview.certImage}
+                alt={`${certPreview.titleAr} — ${STORE_SAIP_COPY.certImageAltAr}`}
+                className="mt-2 w-full rounded-xl border border-white/10 bg-white object-contain"
+              />
+              <div className="mt-4 flex flex-wrap gap-3">
+                <a
+                  href={certPreview.certImage}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-full border border-white/15 px-4 py-2 text-sm font-bold text-[#7ec8e3]"
+                >
+                  <Download className="h-4 w-4" aria-hidden />
+                  فتح الصورة الأصلية
+                </a>
+                <Link
+                  to={certPreview.buyPath}
+                  className="inline-flex rounded-full bg-[#e8c547] px-4 py-2 text-sm font-extrabold text-[#061018]"
+                  onClick={() => setCertPreview(null)}
+                >
+                  {STORE_SAIP_COPY.productPageAr}
+                </Link>
+              </div>
+            </>
+          ) : null}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={imagePreview !== null} onOpenChange={(open) => !open && setImagePreview(null)}>
+        <DialogContent className="max-h-[92vh] max-w-4xl overflow-y-auto border-white/15 bg-[#0b1a24] text-[#f4efe4]">
+          {imagePreview ? (
+            <>
+              <DialogTitle className="pe-10 text-lg font-extrabold text-[#f4efe4]">{imagePreview.titleAr}</DialogTitle>
+              <DialogClose className="absolute end-4 top-4 rounded-full border border-white/15 p-1 text-white/70 hover:text-white">
+                <X className="h-4 w-4" aria-hidden />
+                <span className="sr-only">إغلاق</span>
+              </DialogClose>
+              <img
+                src={imagePreview.src}
+                alt={imagePreview.alt}
+                className="mt-2 w-full rounded-xl border border-white/10 bg-white object-contain"
+              />
+              <div className="mt-4 flex flex-wrap gap-3">
+                <a
+                  href={imagePreview.src}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-full border border-white/15 px-4 py-2 text-sm font-bold text-[#7ec8e3]"
+                >
+                  <Download className="h-4 w-4" aria-hidden />
+                  فتح الصورة الأصلية
+                </a>
+                <a
+                  href={PLATFORM_TLS_SSL_LABS_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex rounded-full bg-[#e8c547] px-4 py-2 text-sm font-extrabold text-[#061018]"
+                >
+                  {STORE_TRUST_COPY.sslVerifyAr}
+                </a>
+              </div>
+            </>
+          ) : null}
+        </DialogContent>
+      </Dialog>
 
       <StoreVisitorFooter />
     </StoreVisitorShell>

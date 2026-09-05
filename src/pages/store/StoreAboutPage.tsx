@@ -222,7 +222,7 @@ export default function StoreAboutPage() {
             </div>
           </section>
 
-          <section className={sectionGap}>
+          <section id="registered-activities" className={sectionGap}>
             <h2 className="text-2xl font-extrabold text-[#f4efe4] md:text-3xl">{STORE_ABOUT_COPY.activitiesTitleAr}</h2>
             <p className={`mt-4 ${proseClass}`}>{STORE_ABOUT_COPY.activitiesLeadAr}</p>
             <p className={`mt-3 text-sm leading-[1.75] text-white/55 ${proseClass}`}>

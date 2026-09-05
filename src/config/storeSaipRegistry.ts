@@ -16,17 +16,27 @@ export type StoreSaipWork = {
   certificateNo: string;
   certImage: string;
   buyPath: string;
+  /** اسم المصنف كما في الشهادة — إن اختلف عن اسم المنتج التسويقي */
+  certificateRegisteredNameAr?: string;
 };
 
 export const STORE_SAIP_COPY = {
-  phraseAr: 'مصنف برمجي مسجّل رسمياً لدى الهيئة السعودية للملكية الفكرية',
-  certLabelAr: 'رقم الشهادة',
+  badgeAr: 'مصنف برمجي مسجل',
+  certLabelAr: 'رقم شهادة التسجيل',
+  productLabelAr: 'المنتج:',
+  registeredNameLabelAr: 'اسم المصنف في الشهادة:',
   issuerAr: 'الهيئة السعودية للملكية الفكرية',
   footerLeadAr: 'مصنفات برمجية مسجّلة لدى الهيئة السعودية للملكية الفكرية.',
-  trustTitleAr: 'تسجيل المصنفات البرمجية',
+  trustTitleAr: 'المصنفات البرمجية المسجلة',
   certImageAltAr: 'شهادة تسجيل المصنف لدى الهيئة السعودية للملكية الفكرية',
   trustLeadAr:
-    'ستة منتجات من متجر خريطة الحل مسجّلة مصنفات برمجية لدى الهيئة السعودية للملكية الفكرية. الأرقام أدناه لشهادات التسجيل الصادرة. ليست علامة تجارية ولا براءة اختراع.',
+    'تضم منظومة خريطة الحل ستة مصنفات برمجية مسجلة لدى الهيئة السعودية للملكية الفكرية. تعرض البطاقات اسم كل منتج ورقم شهادة تسجيل المصنف المرتبط به.',
+  trustNoteAr:
+    'تسجيل المصنف يندرج ضمن حقوق المؤلف، ولا يعني تسجيل الاسم كعلامة تجارية أو منحه براءة اختراع.',
+  viewCertAr: 'عرض الشهادة',
+  productPageAr: 'صفحة المنتج',
+  /** للسطر القانوني المختصر في صفحات المنتج */
+  phraseAr: 'مصنف برمجي مسجّل لدى الهيئة السعودية للملكية الفكرية',
 } as const;
 
 export const STORE_SAIP_PUBLIC_WORKS: readonly StoreSaipWork[] = [
@@ -72,9 +82,10 @@ export const STORE_SAIP_PUBLIC_WORKS: readonly StoreSaipWork[] = [
   },
   {
     id: 'event',
-    titleAr: 'اجواء1',
+    titleAr: 'أجواء1',
     latin: 'Ajwa1',
     certificateNo: '26-12-103276923',
+    certificateRegisteredNameAr: 'أجواء',
     certImage: '/images/store/saip/event-26-12-103276923.png',
     buyPath: ROUTE_PATHS.STORE_EVENT,
   },

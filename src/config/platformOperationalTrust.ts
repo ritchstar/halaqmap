@@ -44,14 +44,16 @@ export const PLATFORM_EXTERNAL_TRUST_SCANS: PlatformExternalTrustScan[] = [
   {
     id: 'virustotal',
     labelAr: 'VirusTotal',
-    summaryAr: 'سمعة الرابط — 0/92 (لا vendor أبلغ عن URL خبيث)',
+    summaryAr:
+      'نتيجة محفوظة في يونيو 2026: لم تُبلغ أي جهة فحص من أصل 92 جهة عن تصنيف الرابط كعنوان ضار وقت إجراء الفحص.',
     reportUrl: 'https://www.virustotal.com/gui/domain/halaqmap.com',
     reportDateAr: 'يونيو 2026',
   },
   {
     id: 'sucuri',
     labelAr: 'Sucuri SiteCheck',
-    summaryAr: 'لا malware ظاهر — غير مُدرج في blacklists المفحوصة',
+    summaryAr:
+      'نتيجة محفوظة في يونيو 2026: لم تظهر برمجيات ضارة في الفحص، ولم يكن النطاق مدرجاً ضمن قوائم الحظر التي شملها التقرير.',
     reportUrl: 'https://sitecheck.sucuri.net/results/https/www.halaqmap.com',
     reportDateAr: 'يونيو 2026',
   },

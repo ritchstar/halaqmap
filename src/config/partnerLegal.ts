@@ -38,7 +38,7 @@ export const LEGAL_TRADE_NAME_AR = LEGAL_FIRST_SOFTWARE_PRODUCT_AR;
 /** الرقم الوطني الموحد — معرّف السجل التجاري المعتمد وفق وزارة التجارة */
 export const LEGAL_NATIONAL_UNIFIED_NUMBER = '7054117093';
 
-/** شهادة توثيق التجارة الإلكترونية — المركز السعودي للتنافسية والأعمال */
+/** شهادة توثيق التجارة الإلكترونية — المركز السعودي للأعمال */
 export const LEGAL_ECOMMERCE_AUTH_NUMBER = '0000291761';
 
 export const LEGAL_ECOMMERCE_AUTH_STATUS_AR = 'ساري' as const;
@@ -46,7 +46,7 @@ export const LEGAL_ECOMMERCE_AUTH_STATUS_AR = 'ساري' as const;
 /** سطر حالة توثيق التجارة الإلكترونية — للعرض والردود */
 export const LEGAL_ECOMMERCE_AUTH_STATUS_LINE_AR = 'توثيق التجارة الإلكترونية ساري' as const;
 
-export const LEGAL_ECOMMERCE_AUTH_ISSUER_AR = 'المركز السعودي للتنافسية والأعمال' as const;
+export const LEGAL_ECOMMERCE_AUTH_ISSUER_AR = 'المركز السعودي للأعمال' as const;
 
 /** بوابة الاستعلام عن متجر إلكتروني موثّق — المركز السعودي للأعمال */
 export const LEGAL_ECOMMERCE_INQUIRY_URL =
@@ -59,11 +59,11 @@ export const LEGAL_SBC_LOGO_SRC = '/images/saudi-business-center-logo.png' as co
 export const LEGAL_ECOMMERCE_VERIFIED_BADGE_AR = 'موثق' as const;
 
 /** تسمية العرض — رقم توثيق التجارة الإلكترونية (للاستعلام في بوابة المركز) */
-export const LEGAL_ECOMMERCE_AUTH_NUMBER_LABEL_AR = 'رقم التوثيق' as const;
+export const LEGAL_ECOMMERCE_AUTH_NUMBER_LABEL_AR = 'رقم توثيق التجارة الإلكترونية' as const;
 
 /** تلميح النسخ — رقم التوثيق لصفحة الاستعلام */
 export const LEGAL_ECOMMERCE_INQUIRY_COPY_HINT_AR =
-  'انسخ رقم التوثيق والصقه في بوابة الاستعلام للتحقق الفوري';
+  'انسخ الرقم، ثم أدخله في بوابة التحقق الرسمية للاطلاع على بيانات التوثيق.';
 
 /** سطر التذييل — يُعرض في الواجهات العامة ومسار الشركاء وصفحات الخصوصية */
 export const LEGAL_ECOMMERCE_AUTH_FOOTER_LINE_AR =
