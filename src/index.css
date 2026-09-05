@@ -1646,6 +1646,47 @@
   }
 }
 
+@keyframes store-pitch-headline-pulse {
+  0%,
+  100% {
+    text-shadow:
+      0 0 14px rgba(232, 197, 71, 0.34),
+      0 0 40px rgba(232, 197, 71, 0.16);
+    filter: brightness(1);
+  }
+  50% {
+    text-shadow:
+      0 0 26px rgba(232, 197, 71, 0.82),
+      0 0 66px rgba(232, 197, 71, 0.42),
+      0 0 96px rgba(45, 212, 191, 0.22);
+    filter: brightness(1.16);
+  }
+}
+
+.store-pitch-headline {
+  animation: store-pitch-headline-pulse 2.8s ease-in-out infinite;
+}
+
+.store-pitch-aura {
+  position: absolute;
+  inset: -35% -10%;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 60% 55% at 50% 50%, rgb(232 197 71 / 0.16), transparent 70%),
+    radial-gradient(ellipse 40% 45% at 50% 80%, rgb(13 148 136 / 0.14), transparent 72%);
+  animation: store-pitch-headline-pulse 2.8s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .store-pitch-headline,
+  .store-pitch-aura {
+    animation: none;
+  }
+  .store-pitch-headline {
+    text-shadow: 0 0 18px rgba(232, 197, 71, 0.45);
+  }
+}
+
 @keyframes store-hmtube-glow {
   0%,
   100% {

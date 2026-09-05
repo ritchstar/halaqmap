@@ -77,40 +77,8 @@ export default function StoreLanding() {
               {STORE_LANDING_COPY.heroHeadlineAr}
             </p>
             <p className="mt-4 max-w-3xl text-base leading-relaxed text-white/78 md:text-lg">
-              {STORE_LANDING_COPY.heroLead}
+              {STORE_LANDING_COPY.pitchLeadAr}
             </p>
-            <p className="mt-5 text-base font-extrabold text-[#e8c547] md:text-lg">
-              {STORE_LANDING_COPY.heroSolutionsTitleAr}
-            </p>
-            <ul className="mt-2 max-w-3xl space-y-2 text-base leading-relaxed text-white/78 md:text-lg">
-              {STORE_LANDING_COPY.heroSolutions.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
-            <p className="mt-5 text-base font-extrabold text-[#e8c547] md:text-lg">
-              {STORE_LANDING_COPY.heroInviteKickerAr}
-            </p>
-            <p className="mt-2 max-w-3xl text-base leading-relaxed text-white/78 md:text-lg">
-              {STORE_LANDING_COPY.heroInviteBefore}
-              <Link
-                to={ROUTE_PATHS.STORE_REQUEST}
-                className="font-extrabold text-[#e8c547] underline decoration-[#e8c547]/50 underline-offset-4 hover:decoration-[#e8c547]"
-                onClick={openRequestForm}
-              >
-                {STORE_LANDING_COPY.heroFormLink}
-              </Link>
-              {STORE_LANDING_COPY.heroInviteAfter}
-            </p>
-            <div className="mt-6 flex flex-wrap gap-3">
-              <Link
-                to={ROUTE_PATHS.STORE_REQUEST}
-                className="inline-flex rounded-full bg-[#e8c547] px-5 py-2.5 text-sm font-extrabold text-[#061018] shadow-[0_12px_30px_-12px_rgba(232,197,71,0.8)] hover:bg-[#f0d36a]"
-                onClick={openRequestForm}
-              >
-                {STORE_LANDING_COPY.heroCta}
-              </Link>
-              <StoreProductBenefitsLink />
-            </div>
           </div>
           <figure className="relative overflow-hidden rounded-2xl border border-[#e8c547]/30 shadow-[0_24px_60px_-28px_rgba(232,197,71,0.45)]">
             <div className="absolute top-3 start-3 z-10">
@@ -135,12 +103,21 @@ export default function StoreLanding() {
 
       <StoreLiveOpsBanner />
 
-      <section id="store-newest-products" className="px-4 pb-4">
-        <div className="mx-auto max-w-5xl text-center">
-          <h2 className="store-newest-title text-2xl font-black text-[#e8c547] md:text-3xl">
+      <section id="store-newest-products" className="px-4 pb-5 pt-4">
+        <div className="relative mx-auto max-w-5xl text-center">
+          <span className="store-pitch-aura" aria-hidden />
+          <p className="relative text-sm font-bold tracking-wide text-[#e8c547]">
             {STORE_LANDING_COPY.newestTitleAr}
+          </p>
+          <h2 className="store-pitch-headline relative mt-2 text-3xl font-black leading-tight text-[#e8c547] sm:text-4xl md:text-5xl">
+            {STORE_LANDING_COPY.pitchHeadlineAr}
           </h2>
-          <p className="mx-auto mt-3 max-w-3xl text-sm leading-7 text-white/72">{STORE_LANDING_COPY.newestLeadAr}</p>
+          <p className="relative mx-auto mt-4 max-w-3xl text-base font-bold leading-8 text-white/85 md:text-lg">
+            {STORE_LANDING_COPY.pitchLeadAr}
+          </p>
+          <p className="relative mx-auto mt-2 max-w-3xl text-sm leading-7 text-white/65">
+            {STORE_LANDING_COPY.pitchPickLeadAr}
+          </p>
         </div>
       </section>
 
@@ -295,6 +272,48 @@ export default function StoreLanding() {
         </div>
       </section>
 
+      <section id="store-browse-cards" className="scroll-mt-14 px-4 pb-10">
+        <div className="mx-auto max-w-5xl rounded-2xl border border-[#e8c547]/25 bg-[#0b1a24]/70 p-5 md:p-6">
+          <p className="text-sm font-bold text-[#e8c547]">{STORE_LANDING_COPY.browseCardsAr}</p>
+          <h2 className="mt-1 text-2xl font-extrabold">{STORE_LANDING_COPY.freeCardsTitle}</h2>
+          <p className="mt-2 max-w-3xl text-sm leading-relaxed text-white/70">
+            {STORE_LANDING_COPY.freeCardsLead}
+          </p>
+          <div className="mt-5 grid gap-3 sm:grid-cols-3">
+            {STORE_GREETING_OCCASIONS.map((item) => (
+              <Link
+                key={item.id}
+                to={storeCardsPath(item.id)}
+                className="overflow-hidden rounded-xl border border-white/12 bg-[#061018] transition hover:border-[#e8c547]/50"
+              >
+                <StoreShot reel="occasion" alt={item.imageAlt} className="aspect-[16/10]" />
+                <div className="p-4">
+                  <p className="font-extrabold text-[#f4efe4]">{item.titleAr}</p>
+                  <p className="mt-1 text-sm text-white/65">{item.subtitleAr}</p>
+                  <p className="mt-3 inline-flex items-center gap-1 text-sm font-bold text-[#e8c547]">
+                    إصدار البطاقة
+                    <ArrowLeft className="h-4 w-4" />
+                  </p>
+                </div>
+              </Link>
+            ))}
+          </div>
+          <Link
+            to={ROUTE_PATHS.STORE_CARDS}
+            className="mt-4 inline-flex text-sm font-bold text-white/70 underline-offset-4 hover:underline"
+          >
+            فتح الاستوديو
+          </Link>
+          <div className="mt-6 rounded-xl border border-[#e8c547]/25 bg-[#061018]/70 p-4">
+            <h3 className="text-xl font-extrabold">{STORE_LANDING_COPY.paidInvitesTitleAr}</h3>
+            <p className="mt-2 max-w-3xl text-sm leading-7 text-white/70">{STORE_LANDING_COPY.paidInvitesLeadAr}</p>
+            <Link to={ROUTE_PATHS.STORE_INVITES} className="mt-4 inline-flex text-sm font-bold text-[#e8c547]">
+              {STORE_LANDING_COPY.paidInvitesCtaAr}
+            </Link>
+          </div>
+        </div>
+      </section>
+
       <section id="store-browse-works" className="scroll-mt-14 px-4 pb-10">
         <div className="mx-auto max-w-5xl">
           <h2 className="text-lg font-extrabold text-white/90">{STORE_LANDING_COPY.browseWorksAr}</h2>
@@ -326,6 +345,49 @@ export default function StoreLanding() {
           </div>
           <div className="mt-8">
             <StoreLaterServicesSection onOpenForm={openRequestForm} />
+          </div>
+        </div>
+      </section>
+
+      <section id="store-about-solutions" className="px-4 pb-12">
+        <div className="mx-auto max-w-5xl rounded-2xl border border-white/12 bg-[#0b1a24]/70 p-5 md:p-6">
+          <h2 className="text-xl font-extrabold leading-tight text-[#f4efe4] md:text-2xl">
+            {STORE_LANDING_COPY.heroHeadlineAr}
+          </h2>
+          <p className="mt-4 max-w-3xl text-base leading-relaxed text-white/78 md:text-lg">
+            {STORE_LANDING_COPY.heroLead}
+          </p>
+          <p className="mt-5 text-base font-extrabold text-[#e8c547] md:text-lg">
+            {STORE_LANDING_COPY.heroSolutionsTitleAr}
+          </p>
+          <ul className="mt-2 max-w-3xl space-y-2 text-base leading-relaxed text-white/78 md:text-lg">
+            {STORE_LANDING_COPY.heroSolutions.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+          <p className="mt-5 text-base font-extrabold text-[#e8c547] md:text-lg">
+            {STORE_LANDING_COPY.heroInviteKickerAr}
+          </p>
+          <p className="mt-2 max-w-3xl text-base leading-relaxed text-white/78 md:text-lg">
+            {STORE_LANDING_COPY.heroInviteBefore}
+            <Link
+              to={ROUTE_PATHS.STORE_REQUEST}
+              className="font-extrabold text-[#e8c547] underline decoration-[#e8c547]/50 underline-offset-4 hover:decoration-[#e8c547]"
+              onClick={openRequestForm}
+            >
+              {STORE_LANDING_COPY.heroFormLink}
+            </Link>
+            {STORE_LANDING_COPY.heroInviteAfter}
+          </p>
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Link
+              to={ROUTE_PATHS.STORE_REQUEST}
+              className="inline-flex rounded-full bg-[#e8c547] px-5 py-2.5 text-sm font-extrabold text-[#061018] shadow-[0_12px_30px_-12px_rgba(232,197,71,0.8)] hover:bg-[#f0d36a]"
+              onClick={openRequestForm}
+            >
+              {STORE_LANDING_COPY.heroCta}
+            </Link>
+            <StoreProductBenefitsLink />
           </div>
         </div>
       </section>
@@ -394,48 +456,6 @@ export default function StoreLanding() {
                 className="aspect-[16/8]"
               />
             </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="store-browse-cards" className="scroll-mt-14 px-4 pb-14">
-        <div className="mx-auto max-w-5xl rounded-2xl border border-[#e8c547]/25 bg-[#0b1a24]/70 p-5 md:p-6">
-          <p className="text-sm font-bold text-[#e8c547]">{STORE_LANDING_COPY.browseCardsAr}</p>
-          <h2 className="mt-1 text-2xl font-extrabold">{STORE_LANDING_COPY.freeCardsTitle}</h2>
-          <p className="mt-2 max-w-3xl text-sm leading-relaxed text-white/70">
-            {STORE_LANDING_COPY.freeCardsLead}
-          </p>
-          <div className="mt-5 grid gap-3 sm:grid-cols-3">
-            {STORE_GREETING_OCCASIONS.map((item) => (
-              <Link
-                key={item.id}
-                to={storeCardsPath(item.id)}
-                className="overflow-hidden rounded-xl border border-white/12 bg-[#061018] transition hover:border-[#e8c547]/50"
-              >
-                <StoreShot reel="occasion" alt={item.imageAlt} className="aspect-[16/10]" />
-                <div className="p-4">
-                  <p className="font-extrabold text-[#f4efe4]">{item.titleAr}</p>
-                  <p className="mt-1 text-sm text-white/65">{item.subtitleAr}</p>
-                  <p className="mt-3 inline-flex items-center gap-1 text-sm font-bold text-[#e8c547]">
-                    إصدار البطاقة
-                    <ArrowLeft className="h-4 w-4" />
-                  </p>
-                </div>
-              </Link>
-            ))}
-          </div>
-          <Link
-            to={ROUTE_PATHS.STORE_CARDS}
-            className="mt-4 inline-flex text-sm font-bold text-white/70 underline-offset-4 hover:underline"
-          >
-            فتح الاستوديو
-          </Link>
-          <div className="mt-6 rounded-xl border border-[#e8c547]/25 bg-[#061018]/70 p-4">
-            <h3 className="text-xl font-extrabold">{STORE_LANDING_COPY.paidInvitesTitleAr}</h3>
-            <p className="mt-2 max-w-3xl text-sm leading-7 text-white/70">{STORE_LANDING_COPY.paidInvitesLeadAr}</p>
-            <Link to={ROUTE_PATHS.STORE_INVITES} className="mt-4 inline-flex text-sm font-bold text-[#e8c547]">
-              {STORE_LANDING_COPY.paidInvitesCtaAr}
-            </Link>
           </div>
         </div>
       </section>
