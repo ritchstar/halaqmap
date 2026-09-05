@@ -6,7 +6,7 @@ import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { test } from 'node:test';
-import { GEO_NEAR_LEGACY_REDIRECTS } from '../data/geoNearLegacyRedirects.mjs';
+import { GEO_NEAR_LEGACY_REDIRECTS_MANUAL } from '../lib/geoNearLegacyRedirects.mjs';
 import {
   FAZAA_EN_NEAR_PAGES,
   findEnNearPageByArPath,
@@ -47,8 +47,8 @@ test('تهجئة المعذر القديمة تُحوَّل والهاش يخر�
   const app = readFileSync(join(root, 'src/App.tsx'), 'utf8');
   const vercel = readFileSync(join(root, 'vercel.json'), 'utf8');
   assert.match(app, /StaticSeoRedirect path="\/near\/:city\/:slug"/);
-  assert.equal(GEO_NEAR_LEGACY_REDIRECTS.some((row) => row.from === '/near/riyadh/maathar'), true);
-  assert.equal(GEO_NEAR_LEGACY_REDIRECTS.every((row) => row.to === '/near/riyadh/maather'), true);
+  assert.equal(GEO_NEAR_LEGACY_REDIRECTS_MANUAL.some((row) => row.from === '/near/riyadh/maathar'), true);
+  assert.equal(GEO_NEAR_LEGACY_REDIRECTS_MANUAL.every((row) => row.to === '/near/riyadh/maather' || row.to === '/near/riyadh/hittin'), true);
   assert.match(vercel, /\/near\/riyadh\/maathar/);
   assert.match(vercel, /\/near\/riyadh\/maather/);
 });

@@ -4,7 +4,7 @@
  * يولّد صفحات فزعة الإنجليزية تحت dist/en/near/** وملف sitemap-en.xml
  * محور + الرياض + مكة فقط — بدون أحياء وبدون بيانات شركاء.
  */
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
@@ -28,8 +28,11 @@ import {
   hreflangLinksHtml,
   languageSwitchForEnPage,
 } from './lib/fazaaEnNearPages.mjs';
+import { renderLegacyRedirect } from './lib/seoLegacyRedirectHtml.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+const ROOT = join(__dirname, '..');
+const REGISTRY_PATH = join(ROOT, 'src', 'config', 'geoNearRegistry.json');
 const DIST = join(__dirname, '..', 'dist');
 
 function escapeHtml(s) {
@@ -258,11 +261,27 @@ function writeFileDeep(filePath, content) {
 function main() {
   const lastmod = new Date().toISOString().slice(0, 10);
   const urlEntries = [];
+  let cityAliasRedirects = 0;
 
   for (const page of FAZAA_EN_NEAR_PAGES) {
     const html = renderPage(page);
     writeFileDeep(join(DIST, ...page.enPath.split('/').filter(Boolean), 'index.html'), html);
     urlEntries.push({ loc: `${ORIGIN}${page.enPath}`, priority: page.priority, ar: page.arPath });
+  }
+
+  const enCitySlugs = new Set(
+    FAZAA_EN_NEAR_PAGES.filter((page) => page.citySlug).map((page) => page.citySlug),
+  );
+  const registry = JSON.parse(readFileSync(REGISTRY_PATH, 'utf8'));
+  for (const node of registry.nodes || []) {
+    if (node.kind !== 'city' || enCitySlugs.has(node.slug)) continue;
+    const enPath = `/en/near/${node.slug}`;
+    const arPath = `/near/${node.slug}`;
+    writeFileDeep(
+      join(DIST, ...enPath.split('/').filter(Boolean), 'index.html'),
+      renderLegacyRedirect(arPath, { title: 'Open the Arabic city page' }),
+    );
+    cityAliasRedirects += 1;
   }
 
   const sitemapEn = `<?xml version="1.0" encoding="UTF-8"?>
@@ -284,7 +303,7 @@ ${urlEntries
 `;
   writeFileDeep(join(DIST, 'sitemap-en.xml'), sitemapEn);
   console.log(
-    `[generate-en-near-seo] wrote ${urlEntries.length} English URLs under dist/en/near + sitemap-en.xml`,
+    `[generate-en-near-seo] wrote ${urlEntries.length} English URLs + ${cityAliasRedirects} city aliases under dist/en/near + sitemap-en.xml`,
   );
 }
 

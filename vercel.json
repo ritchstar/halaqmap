@@ -560,7 +560,7 @@
   ],
   "framework": "vite",
   "installCommand": "npm install --no-audit --no-fund --loglevel=error",
-  "buildCommand": "npm run typecheck:api && npm run build && node scripts/verify-dist-index.mjs",
+  "buildCommand": "npm run typecheck:api && npm run build && node scripts/verify-dist-index.mjs && node scripts/verify-fazaa-links.mjs",
   "outputDirectory": "dist",
   "headers": [
     {
