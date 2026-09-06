@@ -68,7 +68,7 @@ if (!existsSync(coiffeurShare)) {
   }
 }
 
-for (const name of ['sitemap.xml', 'sitemap-pages.xml', 'sitemap-geo.xml', 'sitemap-en.xml', 'sitemap-summi.xml', 'sitemap-store.xml']) {
+for (const name of ['sitemap.xml', 'sitemap-pages.xml', 'sitemap-geo.xml', 'sitemap-en.xml', 'sitemap-summi.xml', 'sitemap-store.xml', 'sitemap-store-intent.xml']) {
   const path = join(dist, name);
   if (!existsSync(path)) {
     errors.push(`missing ${name}`);
@@ -92,6 +92,15 @@ for (const name of ['sitemap.xml', 'sitemap-pages.xml', 'sitemap-geo.xml', 'site
   }
   if (name === 'sitemap.xml' && !body.includes('sitemap-store.xml')) {
     errors.push('sitemap.xml index must reference sitemap-store.xml');
+  }
+  if (name === 'sitemap.xml' && !body.includes('sitemap-store-intent.xml')) {
+    errors.push('sitemap.xml index must reference sitemap-store-intent.xml');
+  }
+  if (name === 'sitemap-store-intent.xml' && !body.includes('/need/wedding-invite-digital')) {
+    errors.push('sitemap-store-intent.xml missing store intent URLs');
+  }
+  if (name === 'sitemap-store-intent.xml' && body.includes('salon-women-visibility')) {
+    errors.push('sitemap-store-intent.xml must not index salon-women-visibility yet');
   }
   if (name === 'sitemap-store.xml' && !body.includes('store.halaqmap.com/store')) {
     errors.push('sitemap-store.xml missing store.halaqmap.com/store');
@@ -155,6 +164,27 @@ for (const rel of ['summi/index.html', 'summi/near-me/index.html', 'summi/beauty
   }
   if (!body.includes('https://coiffeur.halaqmap.com')) {
     errors.push(`${rel} missing coiffeur origin in json-ld`);
+  }
+}
+
+for (const spec of [
+  { rel: 'need/store/index.html', canonical: 'https://www.halaqmap.com/need/store', heading: 'حلول أعمال متجر خريطة الحل' },
+  { rel: 'need/wedding-invite-digital/index.html', canonical: 'https://www.halaqmap.com/need/wedding-invite-digital', product: 'افراحي1' },
+]) {
+  const path = join(dist, spec.rel);
+  if (!existsSync(path)) {
+    errors.push(`missing ${spec.rel}`);
+    continue;
+  }
+  const body = readFileSync(path, 'utf8');
+  if (!body.includes(`<link rel="canonical" href="${spec.canonical}"`)) {
+    errors.push(`${spec.rel} missing canonical`);
+  }
+  if (spec.heading && !body.includes(`<h1>${spec.heading}</h1>`)) {
+    errors.push(`${spec.rel} missing heading`);
+  }
+  if (spec.product && !body.includes(spec.product)) {
+    errors.push(`${spec.rel} missing product tag`);
   }
 }
 
