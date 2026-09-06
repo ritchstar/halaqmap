@@ -42,6 +42,7 @@ import { parseStoreShopHours } from '@/lib/storeShopHours';
 import { parseShopLogoSrc } from '@/lib/storeShopLogo';
 import { parseShopPickupPlace } from '@/lib/storeShopPlace';
 import { ROUTE_PATHS } from '@/lib/routePaths';
+import { storeLiveShopShareHref } from '@/lib/storeHostRedirect';
 
 type Gate = 'loading' | 'ok' | 'expired' | 'missing';
 type CafePageMode = 'shop' | 'desk' | 'host' | 'guest' | CafeScreenMode;
@@ -114,11 +115,7 @@ export default function StoreCafeShopPage() {
   );
   const [gate, setGate] = useState<Gate>(isLab ? 'ok' : 'loading');
   const [renewToken, setRenewToken] = useState('');
-  const [shopUrl, setShopUrl] = useState(
-    typeof window === 'undefined'
-      ? `/#/c/${encodeURIComponent(safeToken)}`
-      : `${window.location.origin}/#/c/${encodeURIComponent(safeToken)}`,
-  );
+  const [shopUrl, setShopUrl] = useState(storeLiveShopShareHref('cafe', safeToken));
   const [guestUrl, setGuestUrl] = useState('');
   const [displayUrl, setDisplayUrl] = useState('');
   const [quietUrl, setQuietUrl] = useState('');
@@ -141,7 +138,7 @@ export default function StoreCafeShopPage() {
       let raw = cafeLabRaw(safeToken);
       setState(readCafeLabState(safeToken));
       const origin = window.location.origin;
-      setShopUrl(`${origin}/#/c/${encodeURIComponent(safeToken)}`);
+      setShopUrl(storeLiveShopShareHref('cafe', safeToken));
       setGuestUrl(`${origin}/#/c/${encodeURIComponent(safeToken)}/guest`);
       setDisplayUrl(`${origin}/#/c/${encodeURIComponent(safeToken)}`);
       setQuietUrl(`${origin}/#/c/${encodeURIComponent(safeToken)}/quiet`);

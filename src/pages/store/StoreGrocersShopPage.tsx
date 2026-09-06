@@ -31,6 +31,7 @@ import { parseStoreShopHours } from '@/lib/storeShopHours';
 import { parseShopLogoSrc } from '@/lib/storeShopLogo';
 import { parseShopPickupPlace } from '@/lib/storeShopPlace';
 import { ROUTE_PATHS } from '@/lib/routePaths';
+import { storeLiveShopShareHref } from '@/lib/storeHostRedirect';
 
 type Gate = 'loading' | 'ok' | 'expired' | 'missing';
 
@@ -71,9 +72,7 @@ export default function StoreGrocersShopPage() {
   const deskSync = useStoreLiveDeskSync(desk && !isLab);
   const [renewToken, setRenewToken] = useState('');
   const [isTrial, setIsTrial] = useState(false);
-  const [shopUrl, setShopUrl] = useState(
-    typeof window === 'undefined' ? `/#/g/${encodeURIComponent(safeToken)}` : `${window.location.origin}/#/g/${encodeURIComponent(safeToken)}`,
-  );
+  const [shopUrl, setShopUrl] = useState(storeLiveShopShareHref('grocers', safeToken));
   useDocumentTitle(STORE_GROCERS_LIVE.documentTitle);
   useStoreShopPresence({
     role: 'shop',

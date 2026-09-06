@@ -3,6 +3,7 @@
  *
  * روابط مشاركة معرض حلانا1. لا إرسال جماعي نيابة عن المتخصصة.
  */
+import { storeLiveShopShareHref } from '@/lib/storeHostRedirect';
 import { passCardAbsoluteUrl, passCardPath } from '@/lib/storeProductPass';
 
 export function isHalanaYoutubeChannelUrl(url: string): boolean {
@@ -20,9 +21,7 @@ export function splitHalanaYoutubeLines(raw: string): { channels: string[]; clip
 }
 
 export function halanaShowcaseAbsoluteUrl(token: string): string {
-  const path = `/#/h/${encodeURIComponent(token)}`;
-  if (typeof window === 'undefined') return `https://store.halaqmap.com${path}`;
-  return `${window.location.origin}${path}`;
+  return storeLiveShopShareHref('halana', token);
 }
 
 export function halanaShareCaptionAr(shopName: string, url: string): string {

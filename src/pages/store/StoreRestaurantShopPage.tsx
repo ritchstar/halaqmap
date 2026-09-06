@@ -36,6 +36,7 @@ import { parseStoreShopHours } from '@/lib/storeShopHours';
 import { parseShopLogoSrc } from '@/lib/storeShopLogo';
 import { parseShopPickupPlace } from '@/lib/storeShopPlace';
 import { ROUTE_PATHS } from '@/lib/routePaths';
+import { storeLiveShopShareHref } from '@/lib/storeHostRedirect';
 
 type Gate = 'loading' | 'ok' | 'expired' | 'missing';
 
@@ -76,11 +77,7 @@ export default function StoreRestaurantShopPage() {
   const deskSync = useStoreLiveDeskSync(desk && !isLab);
   const [renewToken, setRenewToken] = useState('');
   const [isTrial, setIsTrial] = useState(false);
-  const [shopUrl, setShopUrl] = useState(
-    typeof window === 'undefined'
-      ? `/#/r/${encodeURIComponent(safeToken)}`
-      : `${window.location.origin}/#/r/${encodeURIComponent(safeToken)}`,
-  );
+  const [shopUrl, setShopUrl] = useState(storeLiveShopShareHref('restaurant', safeToken));
   useDocumentTitle(STORE_RESTAURANT_LIVE.documentTitle);
   useStoreShopPresence({
     role: 'shop',

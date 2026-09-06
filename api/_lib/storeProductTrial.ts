@@ -27,6 +27,7 @@ import { newHalanaToken } from './storeHalanaLive.js';
 import { sendHalanaLiveLinksEmail } from './storeHalanaLiveMail.js';
 import { newWeddingToken } from './storeWeddingLive.js';
 import { sendWeddingLiveLinksEmail } from './storeWeddingLiveMail.js';
+import { storeLiveShopShareHref } from './storeLiveShopShare.js';
 
 export const STORE_PRODUCT_TRIAL_TABLE = 'store_product_trials' as const;
 export const STORE_PRODUCT_TRIAL_DAYS = 60 as const;
@@ -155,26 +156,26 @@ function storeOrigin(): string {
 function productLinks(key: StoreProductTrialKey, tokens: Record<string, string>): { a: string; b: string; c?: string } {
   if (key === 'cafe') {
     return {
-      a: `${storeOrigin()}/#/c/${encodeURIComponent(tokens.shop)}`,
+      a: storeLiveShopShareHref('cafe', tokens.shop),
       b: `${storeOrigin()}/#/c/${encodeURIComponent(tokens.desk)}/desk`,
       c: `${storeOrigin()}/#/c/${encodeURIComponent(tokens.display)}`,
     };
   }
   if (key === 'grocers') {
     return {
-      a: `${storeOrigin()}/#/g/${encodeURIComponent(tokens.shop)}`,
+      a: storeLiveShopShareHref('grocers', tokens.shop),
       b: `${storeOrigin()}/#/g/${encodeURIComponent(tokens.desk)}/desk`,
     };
   }
   if (key === 'restaurant') {
     return {
-      a: `${storeOrigin()}/#/r/${encodeURIComponent(tokens.shop)}`,
+      a: storeLiveShopShareHref('restaurant', tokens.shop),
       b: `${storeOrigin()}/#/r/${encodeURIComponent(tokens.desk)}/desk`,
     };
   }
   if (key === 'produce') {
     return {
-      a: `${storeOrigin()}/#/v/${encodeURIComponent(tokens.shop)}`,
+      a: storeLiveShopShareHref('produce', tokens.shop),
       b: `${storeOrigin()}/#/v/${encodeURIComponent(tokens.desk)}/desk`,
     };
   }
@@ -182,13 +183,13 @@ function productLinks(key: StoreProductTrialKey, tokens: Record<string, string>)
     const stamp = String(tokens.qr || '').trim();
     const q = stamp ? `?qr=${encodeURIComponent(stamp)}` : '';
     return {
-      a: `${storeOrigin()}/#/k/${encodeURIComponent(tokens.shop)}${q}`,
+      a: `${storeLiveShopShareHref('kitchen', tokens.shop)}${q}`,
       b: `${storeOrigin()}/#/k/${encodeURIComponent(tokens.desk)}/desk`,
     };
   }
   if (key === 'halana') {
     return {
-      a: `${storeOrigin()}/#/h/${encodeURIComponent(tokens.shop)}`,
+      a: storeLiveShopShareHref('halana', tokens.shop),
       b: `${storeOrigin()}/#/h/${encodeURIComponent(tokens.desk)}/desk`,
     };
   }

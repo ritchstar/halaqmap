@@ -267,3 +267,20 @@ export function occasionCardShareHref(token: string): string {
   const safe = String(token || '').trim();
   return `${STORE_ORIGIN}/oc/${encodeURIComponent(safe)}`;
 }
+
+export type StoreLiveShopShareKind = 'halana' | 'grocers' | 'restaurant' | 'cafe' | 'kitchen' | 'produce';
+
+const LIVE_SHOP_SHARE_PREFIX: Record<StoreLiveShopShareKind, string> = {
+  halana: '/h',
+  grocers: '/g',
+  restaurant: '/r',
+  cafe: '/c',
+  kitchen: '/k',
+  produce: '/v',
+};
+
+/** مسار بلا هاش حتى تقرأ واتساب اسم النشاط لا عنوان المتجر العام. */
+export function storeLiveShopShareHref(kind: StoreLiveShopShareKind, token: string): string {
+  const safe = String(token || '').trim();
+  return `${STORE_ORIGIN}${LIVE_SHOP_SHARE_PREFIX[kind]}/${encodeURIComponent(safe)}`;
+}

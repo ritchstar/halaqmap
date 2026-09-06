@@ -401,18 +401,22 @@
     },
     {
       "source": "/c/:token/og.jpg",
+      "has": [{ "type": "host", "value": "coiffeur.halaqmap.com" }],
       "destination": "/api/public-coiffeur-card-og?c=:token"
     },
     {
       "source": "/c/:token/og.png",
+      "has": [{ "type": "host", "value": "coiffeur.halaqmap.com" }],
       "destination": "/api/public-coiffeur-card-og?c=:token"
     },
     {
       "source": "/c/:token",
+      "has": [{ "type": "host", "value": "coiffeur.halaqmap.com" }],
       "destination": "/api/public-coiffeur-card?c=:token"
     },
     {
       "source": "/c/:token/",
+      "has": [{ "type": "host", "value": "coiffeur.halaqmap.com" }],
       "destination": "/api/public-coiffeur-card?c=:token"
     },
     {
@@ -438,6 +442,66 @@
     {
       "source": "/e/:token/guest/",
       "destination": "/api/public-store-live-invite-share?kind=event&token=:token"
+    },
+    {
+      "source": "/h/:token",
+      "has": [{ "type": "host", "value": "store.halaqmap.com" }],
+      "destination": "/api/public-store-live-shop-share?kind=halana&token=:token"
+    },
+    {
+      "source": "/h/:token/",
+      "has": [{ "type": "host", "value": "store.halaqmap.com" }],
+      "destination": "/api/public-store-live-shop-share?kind=halana&token=:token"
+    },
+    {
+      "source": "/g/:token",
+      "has": [{ "type": "host", "value": "store.halaqmap.com" }],
+      "destination": "/api/public-store-live-shop-share?kind=grocers&token=:token"
+    },
+    {
+      "source": "/g/:token/",
+      "has": [{ "type": "host", "value": "store.halaqmap.com" }],
+      "destination": "/api/public-store-live-shop-share?kind=grocers&token=:token"
+    },
+    {
+      "source": "/r/:token",
+      "has": [{ "type": "host", "value": "store.halaqmap.com" }],
+      "destination": "/api/public-store-live-shop-share?kind=restaurant&token=:token"
+    },
+    {
+      "source": "/r/:token/",
+      "has": [{ "type": "host", "value": "store.halaqmap.com" }],
+      "destination": "/api/public-store-live-shop-share?kind=restaurant&token=:token"
+    },
+    {
+      "source": "/c/:token",
+      "has": [{ "type": "host", "value": "store.halaqmap.com" }],
+      "destination": "/api/public-store-live-shop-share?kind=cafe&token=:token"
+    },
+    {
+      "source": "/c/:token/",
+      "has": [{ "type": "host", "value": "store.halaqmap.com" }],
+      "destination": "/api/public-store-live-shop-share?kind=cafe&token=:token"
+    },
+    {
+      "source": "/k/:token",
+      "has": [{ "type": "host", "value": "store.halaqmap.com" }],
+      "destination": "/api/public-store-live-shop-share?kind=kitchen&token=:token"
+    },
+    {
+      "source": "/k/:token/",
+      "has": [{ "type": "host", "value": "store.halaqmap.com" }],
+      "destination": "/api/public-store-live-shop-share?kind=kitchen&token=:token"
+    },
+    {
+      "source": "/v/:token",
+      "has": [{ "type": "host", "value": "store.halaqmap.com" }],
+      "destination": "/api/public-store-live-shop-share?kind=produce&token=:token"
+    },
+    {
+      "source": "/v/:token/",
+      "has": [{ "type": "host", "value": "store.halaqmap.com" }],
+      "destination": "/api/public-store-live-shop-share?kind=produce&token=:token"
     },
     {
       "source": "/pay/:path*",
@@ -512,6 +576,11 @@
     },
     {
       "source": "/l/:path*",
+      "has": [{ "type": "host", "value": "store.halaqmap.com" }],
+      "destination": "/store-index.html"
+    },
+    {
+      "source": "/c/:path*",
       "has": [{ "type": "host", "value": "store.halaqmap.com" }],
       "destination": "/store-index.html"
     },

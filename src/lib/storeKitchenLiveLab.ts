@@ -10,6 +10,7 @@ import {
 } from '@/config/storeKitchenLive';
 import { DEFAULT_STORE_SHOP_HOURS, type StoreShopHoursState } from '@/config/storeShopHours';
 import { hydrateDeskTickets } from '@/lib/storeDeskOrderTicket';
+import { storeLiveShopShareHref } from '@/lib/storeHostRedirect';
 import { compressImageFile } from '@/lib/storeWeddingLiveLab';
 
 export { parseKitchenListText, compressImageFile };
@@ -319,9 +320,9 @@ export function kitchenShopHashPath(token: string, qrStamp: string): string {
 }
 
 export function kitchenShopUrl(token: string, qrStamp: string): string {
-  const hashPath = kitchenShopHashPath(token, qrStamp);
-  if (typeof window === 'undefined') return `/#${hashPath}`;
-  return `${window.location.origin}/#${hashPath}`;
+  const base = storeLiveShopShareHref('kitchen', token);
+  const stamp = String(qrStamp || '').trim();
+  return stamp ? `${base}?qr=${encodeURIComponent(stamp)}` : base;
 }
 
 export function kitchenQrMatches(host: KitchenHostState, qrParam: string): boolean {

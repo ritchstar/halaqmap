@@ -33,6 +33,7 @@ import { nextStoreLivePublicGate, pickStoreLiveShelf } from '@/lib/storeLivePubl
 import { parseStoreShopHours } from '@/lib/storeShopHours';
 import { parseShopLogoSrc } from '@/lib/storeShopLogo';
 import { ROUTE_PATHS } from '@/lib/routePaths';
+import { storeLiveShopShareHref } from '@/lib/storeHostRedirect';
 
 type Gate = 'loading' | 'ok' | 'expired' | 'missing';
 
@@ -82,11 +83,7 @@ export default function StoreKitchenShopPage() {
   const [renewToken, setRenewToken] = useState('');
   const [giftNotice, setGiftNotice] = useState<{ expiresAt: string; shopToken: string } | null>(null);
   const [isTrial, setIsTrial] = useState(false);
-  const [shopUrl, setShopUrl] = useState(
-    typeof window === 'undefined'
-      ? `/#/k/${encodeURIComponent(safeToken)}`
-      : kitchenShopUrl(safeToken, ''),
-  );
+  const [shopUrl, setShopUrl] = useState(kitchenShopUrl(safeToken, ''));
   const qrParam = readHashQueryParam('qr') || '';
   const qrOk = desk || kitchenQrMatches(state.host, qrParam);
   useDocumentTitle(STORE_KITCHEN_LIVE.documentTitle);

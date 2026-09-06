@@ -6,6 +6,7 @@
 import { randomBytes } from 'node:crypto';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { openHalanaIban, sealHalanaIban } from './storeHalanaPay.js';
+import { storeLiveShopShareHref } from './storeLiveShopShare.js';
 
 export const STORE_HALANA_LIVE_PRODUCT = 'store_halana_live' as const;
 export const STORE_HALANA_LIVE_PRICE_6_HALALAS = 89400 as const;
@@ -134,7 +135,7 @@ function galleryFromLegacyUrls(raw: string): HalanaGalleryItem[] {
 }
 
 export function halanaShopUrl(token: string): string {
-  return `https://store.halaqmap.com/#/h/${encodeURIComponent(token)}`;
+  return storeLiveShopShareHref('halana', token);
 }
 
 export function halanaDeskUrl(token: string): string {

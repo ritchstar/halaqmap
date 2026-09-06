@@ -43,6 +43,7 @@ import { lockPaidVendorMode, parseVendorMode } from './_lib/storeMobileVendor.js
 import { parseShopPickupPlace } from './_lib/storeShopPlace.js';
 import { sendRestaurantLiveLinksEmail } from './_lib/storeRestaurantLiveMail.js';
 import { applyStoreTrialClock, markStoreTrialConverted } from './_lib/storeProductTrial.js';
+import { storeLiveShopShareHref } from './_lib/storeLiveShopShare.js';
 import { storeAffiliateCodeFromMeta } from './_lib/storeAffiliateCode.js';
 import { creditStoreAffiliateLedger } from './_lib/storeAffiliateLedger.js';
 
@@ -82,7 +83,7 @@ function payOrigin(request: Request): string {
 }
 
 function shopUrl(token: string): string {
-  return `${storeOrigin()}/#/r/${encodeURIComponent(token)}`;
+  return storeLiveShopShareHref('restaurant', token);
 }
 function deskUrl(token: string): string {
   return `${storeOrigin()}/#/r/${encodeURIComponent(token)}/desk`;

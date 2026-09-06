@@ -45,6 +45,7 @@ import { lockPaidVendorMode, parseVendorMode } from './_lib/storeMobileVendor.js
 import { parseShopPickupPlace } from './_lib/storeShopPlace.js';
 import { sendProduceLiveLinksEmail } from './_lib/storeProduceLiveMail.js';
 import { applyStoreTrialClock, markStoreTrialConverted } from './_lib/storeProductTrial.js';
+import { storeLiveShopShareHref } from './_lib/storeLiveShopShare.js';
 
 export const config = { maxDuration: 20 };
 
@@ -82,7 +83,7 @@ function payOrigin(request: Request): string {
 }
 
 function shopUrl(token: string): string {
-  return `${storeOrigin()}/#/v/${encodeURIComponent(token)}`;
+  return storeLiveShopShareHref('produce', token);
 }
 function deskUrl(token: string): string {
   return `${storeOrigin()}/#/v/${encodeURIComponent(token)}/desk`;

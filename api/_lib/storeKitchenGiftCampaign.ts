@@ -18,6 +18,7 @@ import {
 } from './storeKitchenLive.js';
 import { DEFAULT_STORE_SHOP_HOURS } from './storeShopHours.js';
 import { sendKitchenLiveLinksEmail } from './storeKitchenLiveMail.js';
+import { storeLiveShopShareHref } from './storeLiveShopShare.js';
 
 export const STORE_KITCHEN_GIFT_CYCLE_CAP = 50 as const;
 export const STORE_KITCHEN_GIFT_SLOT_COUNT = 5 as const;
@@ -154,9 +155,9 @@ function storeOrigin(): string {
 }
 
 function shopUrl(token: string, stamp = '', active = true): string {
-  const path = `/#/k/${encodeURIComponent(token)}`;
+  const base = storeLiveShopShareHref('kitchen', token);
   const q = active && stamp ? `?qr=${encodeURIComponent(stamp)}` : '';
-  return `${storeOrigin()}${path}${q}`;
+  return `${base}${q}`;
 }
 
 function deskUrl(token: string): string {

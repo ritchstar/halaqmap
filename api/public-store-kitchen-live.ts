@@ -44,6 +44,7 @@ import { parseStoreShopHours } from './_lib/storeShopHours.js';
 import { parseShopLogoSrc } from './_lib/storeShopLogo.js';
 import { sendKitchenLiveLinksEmail } from './_lib/storeKitchenLiveMail.js';
 import { applyStoreTrialClock, markStoreTrialConverted } from './_lib/storeProductTrial.js';
+import { storeLiveShopShareHref } from './_lib/storeLiveShopShare.js';
 import { storeAffiliateCodeFromMeta } from './_lib/storeAffiliateCode.js';
 import { creditStoreAffiliateLedger } from './_lib/storeAffiliateLedger.js';
 
@@ -83,9 +84,9 @@ function payOrigin(request: Request): string {
 }
 
 function shopUrl(token: string, stamp = '', active = true): string {
-  const path = `/#/k/${encodeURIComponent(token)}`;
+  const base = storeLiveShopShareHref('kitchen', token);
   const q = active && stamp ? `?qr=${encodeURIComponent(stamp)}` : '';
-  return `${storeOrigin()}${path}${q}`;
+  return `${base}${q}`;
 }
 
 function deskUrl(token: string): string {

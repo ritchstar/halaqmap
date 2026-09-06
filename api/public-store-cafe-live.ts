@@ -47,6 +47,7 @@ import { sendCafeLiveLinksEmail } from './_lib/storeCafeLiveMail.js';
 import { applyStoreTrialClock, markStoreTrialConverted } from './_lib/storeProductTrial.js';
 import { storeAffiliateCodeFromMeta } from './_lib/storeAffiliateCode.js';
 import { creditStoreAffiliateLedger } from './_lib/storeAffiliateLedger.js';
+import { storeLiveShopShareHref } from './_lib/storeLiveShopShare.js';
 
 export const config = { maxDuration: 20 };
 
@@ -84,7 +85,7 @@ function payOrigin(request: Request): string {
 }
 
 function shopUrl(token: string): string {
-  return `${storeOrigin()}/#/c/${encodeURIComponent(token)}`;
+  return storeLiveShopShareHref('cafe', token);
 }
 function deskUrl(token: string): string {
   return `${storeOrigin()}/#/c/${encodeURIComponent(token)}/desk`;

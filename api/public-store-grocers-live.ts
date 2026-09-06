@@ -46,6 +46,7 @@ import { lockPaidVendorMode, parseVendorMode } from './_lib/storeMobileVendor.js
 import { parseShopPickupPlace } from './_lib/storeShopPlace.js';
 import { sendGrocersLiveLinksEmail } from './_lib/storeGrocersLiveMail.js';
 import { applyStoreTrialClock, markStoreTrialConverted } from './_lib/storeProductTrial.js';
+import { storeLiveShopShareHref } from './_lib/storeLiveShopShare.js';
 
 export const config = { maxDuration: 20 };
 
@@ -83,7 +84,7 @@ function payOrigin(request: Request): string {
 }
 
 function shopUrl(token: string): string {
-  return `${storeOrigin()}/#/g/${encodeURIComponent(token)}`;
+  return storeLiveShopShareHref('grocers', token);
 }
 function deskUrl(token: string): string {
   return `${storeOrigin()}/#/g/${encodeURIComponent(token)}/desk`;
