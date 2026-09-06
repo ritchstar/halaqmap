@@ -10,6 +10,7 @@ import {
 } from '@/config/storeKitchenLive';
 import { DEFAULT_STORE_SHOP_HOURS, type StoreShopHoursState } from '@/config/storeShopHours';
 import { hydrateDeskTickets } from '@/lib/storeDeskOrderTicket';
+import { parseShopLogoSrc } from '@/lib/storeShopLogo';
 import { storeLiveShopShareHref } from '@/lib/storeHostRedirect';
 import { compressImageFile } from '@/lib/storeWeddingLiveLab';
 
@@ -175,6 +176,7 @@ export function readKitchenLabState(token: string): KitchenLabState {
         ...fallback.host,
         ...(parsed.host || {}),
         customFields: Array.from({ length: 5 }, (_, i) => parsed.host?.customFields?.[i] || fallback.host.customFields[i] || ''),
+        logoSrc: parseShopLogoSrc(parsed.host?.logoSrc, fallback.host.logoSrc),
         nextTicket: Number(parsed.host?.nextTicket) > 0 ? Number(parsed.host?.nextTicket) : 1,
         deliveryFee: Math.max(0, Number(parsed.host?.deliveryFee) || 0),
         acceptingOrders: parsed.host?.acceptingOrders !== false,

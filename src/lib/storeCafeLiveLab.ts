@@ -12,6 +12,7 @@ import {
 } from '@/config/storeCafeLive';
 import { DEFAULT_STORE_SHOP_HOURS, type StoreShopHoursState } from '@/config/storeShopHours';
 import { hydrateDeskTickets } from '@/lib/storeDeskOrderTicket';
+import { parseShopLogoSrc } from '@/lib/storeShopLogo';
 import { DEFAULT_SHOP_PICKUP, parseShopPickupPlace, type ShopPickupPlace } from '@/lib/storeShopPlace';
 import { compressImageFile, youtubeEmbedSrc } from '@/lib/storeWeddingLiveLab';
 
@@ -189,6 +190,7 @@ export function readCafeLabState(token: string): CafeLabState {
         ...fallback.host,
         ...(parsed.host || {}),
         customFields: Array.from({ length: 5 }, (_, i) => parsed.host?.customFields?.[i] || fallback.host.customFields[i] || ''),
+        logoSrc: parseShopLogoSrc(parsed.host?.logoSrc, fallback.host.logoSrc),
         nextTicket: Number(parsed.host?.nextTicket) > 0 ? Number(parsed.host?.nextTicket) : 1,
         guestPaused: parsed.host?.guestPaused === true,
         reviewBeforeShow: parsed.host?.reviewBeforeShow === true,

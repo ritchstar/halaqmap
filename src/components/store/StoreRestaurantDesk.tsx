@@ -23,7 +23,7 @@ import { StoreShopPlaceDesk } from '@/components/store/StoreShopPlaceDesk';
 import { StoreDeskHelpSupport } from '@/components/store/StoreDeskHelpSupport';
 import { StoreDeskGuideLink } from '@/components/store/StoreDeskGuideLink';
 import { StoreDeskCornerDock } from '@/components/store/StoreDeskCornerNav';
-import { StoreShopLogoDesk } from '@/components/store/StoreShopLogoDesk';
+import { StoreShopIdentityDesk } from '@/components/store/StoreShopIdentityDesk';
 import { STORE_RESTAURANT_SUPPORT } from '@/config/storeProductSupport';
 import { StoreOpsSection } from '@/components/store/StoreOpsSection';
 import { StoreDirectPayDesk } from '@/components/store/StoreDirectPayDesk';
@@ -120,6 +120,24 @@ export function StoreRestaurantDesk({
         titleAr={STORE_RESTAURANT_LIVE.deskPanelTitleAr}
         trialNote={showTrialNote ? STORE_PRODUCT_TRIAL_PRODUCTS.restaurant.deskNoteAr : ''}
       />
+      <StoreShopIdentityDesk
+        shopNameLabel={STORE_RESTAURANT_LIVE.restaurantNameLabelAr}
+        shopName={state.host.shopName}
+        onShopNameChange={(shopName) => onChange({ ...state, host: { ...state.host, shopName } })}
+        logoSrc={state.host.logoSrc}
+        onLogoChange={(logoSrc) => onChange({ ...state, host: { ...state.host, logoSrc } })}
+        blurbAr={state.host.blurbAr}
+        onBlurbChange={(blurbAr) => onChange({ ...state, host: { ...state.host, blurbAr } })}
+        customFields={state.host.customFields}
+        onCustomFieldChange={(index, value) => {
+          const customFields = state.host.customFields.slice();
+          customFields[index] = value;
+          onChange({ ...state, host: { ...state.host, customFields } });
+        }}
+        customFieldLabel={(index) => STORE_RESTAURANT_CUSTOM_FIELD_LABELS[index] || `حقل ${index + 1}`}
+        accent="#e08a3c"
+        fieldClassName="restaurant-field"
+      />
       <div className={cn('rounded-2xl border p-4', fresh.length ? 'restaurant-alert border-[#e08a3c]' : 'border-white/12')}>
         <h2 className="text-lg font-extrabold">{STORE_RESTAURANT_LIVE.liveOrdersAr}</h2>
         <p className="mt-1 text-sm text-white/60">{fresh.length ? `${fresh.length} تذكرة جديدة` : 'لا تذاكر جديدة الآن.'}</p>
@@ -195,44 +213,6 @@ export function StoreRestaurantDesk({
       </div>
       <StoreRestaurantDeskChat state={state} onChange={onChange} />
       <StoreDirectPayDesk product="store_restaurant_live" token={token} accent="#e08a3c" />
-
-      <div className="grid gap-3 sm:grid-cols-2">
-        <label className="block text-sm">
-          {STORE_RESTAURANT_LIVE.restaurantNameLabelAr}
-          <input
-            className="restaurant-field"
-            value={state.host.shopName}
-            onChange={(e) => onChange({ ...state, host: { ...state.host, shopName: e.target.value } })}
-          />
-        </label>
-        <StoreShopLogoDesk
-          logoSrc={state.host.logoSrc}
-          onChange={(logoSrc) => onChange({ ...state, host: { ...state.host, logoSrc } })}
-          accent="#e08a3c"
-        />
-        <label className="block text-sm sm:col-span-2">
-          خانة تعريفية
-          <input
-            className="restaurant-field"
-            value={state.host.blurbAr}
-            onChange={(e) => onChange({ ...state, host: { ...state.host, blurbAr: e.target.value } })}
-          />
-        </label>
-        {state.host.customFields.map((line, index) => (
-          <label key={index} className="block text-sm sm:col-span-2">
-            {STORE_RESTAURANT_CUSTOM_FIELD_LABELS[index] || `حقل ${index + 1}`}
-            <input
-              className="restaurant-field"
-              value={line}
-              onChange={(e) => {
-                const customFields = state.host.customFields.slice();
-                customFields[index] = e.target.value;
-                onChange({ ...state, host: { ...state.host, customFields } });
-              }}
-            />
-          </label>
-        ))}
-      </div>
 
       <StoreOpsSection titleAr="الموقع وساعات العمل" accent="#e08a3c">
       <StoreShopPlaceDesk

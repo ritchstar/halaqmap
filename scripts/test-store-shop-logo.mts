@@ -45,6 +45,8 @@ assert.equal(publicCafePayload({ shopName: 'أ', logoSrc: jpeg } as never).logoS
 assert.equal(publicProducePayload({ shopName: 'أ', logoSrc: jpeg } as never).logoSrc, jpeg);
 
 assert.match(STORE_SHOP_LOGO_COPY.labelAr, /شعار المحل/);
+assert.match(STORE_SHOP_LOGO_COPY.sectionAr, /هوية المحل/);
+assert.match(STORE_SHOP_LOGO_COPY.leadAr, /جار الحي/);
 assert.doesNotMatch(Object.values(STORE_SHOP_LOGO_COPY).join(' '), /افراحي1|اجواء1|لاونجا1|كاردي8/);
 
 const desks = [
@@ -55,8 +57,14 @@ const desks = [
   'src/components/store/StoreCafeDesk.tsx',
 ];
 for (const rel of desks) {
-  assert.match(read(rel), /StoreShopLogoDesk/);
+  assert.match(read(rel), /StoreShopIdentityDesk/);
+  const controlIdx = read(rel).indexOf('StoreDeskControlTitle');
+  const identityIdx = read(rel).indexOf('StoreShopIdentityDesk');
+  const ordersIdx = read(rel).indexOf('liveOrdersAr');
+  assert.ok(controlIdx >= 0 && identityIdx > controlIdx, rel);
+  assert.ok(ordersIdx < 0 || identityIdx < ordersIdx, rel);
 }
+assert.match(read('src/components/store/StoreShopIdentityDesk.tsx'), /StoreShopLogoDesk/);
 
 const shops = [
   'src/components/store/StoreKitchenShop.tsx',

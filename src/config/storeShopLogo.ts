@@ -6,8 +6,9 @@
 export const STORE_SHOP_LOGO_MAX_CHARS = 80_000;
 
 export const STORE_SHOP_LOGO_COPY = {
+  sectionAr: 'هوية المحل وشعاره',
   labelAr: 'شعار المحل',
-  leadAr: 'دائرة صغيرة بجوار اسم المحل في صفحة الحي. صورة مربعة واضحة.',
+  leadAr: 'ارفع أيقونة مربعة واضحة لتظهر دائرة صغيرة بجوار اسم النشاط في صفحة جار الحي.',
   uploadAr: 'رفع شعار',
   removeAr: 'إزالة الشعار',
   errorAr: 'تعذر اعتماد الشعار. استخدم صورة أصغر مربعة.',

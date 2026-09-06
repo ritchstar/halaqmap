@@ -20,7 +20,7 @@ import { StoreShopPresenceCount } from '@/components/store/StoreShopPresenceCoun
 import { StoreDeskHelpSupport } from '@/components/store/StoreDeskHelpSupport';
 import { StoreDeskGuideLink } from '@/components/store/StoreDeskGuideLink';
 import { StoreDeskCornerDock } from '@/components/store/StoreDeskCornerNav';
-import { StoreShopLogoDesk } from '@/components/store/StoreShopLogoDesk';
+import { StoreShopIdentityDesk } from '@/components/store/StoreShopIdentityDesk';
 import { STORE_GROCERS_SUPPORT } from '@/config/storeProductSupport';
 import { StoreOpsSection } from '@/components/store/StoreOpsSection';
 import { StoreDirectPayDesk } from '@/components/store/StoreDirectPayDesk';
@@ -97,6 +97,23 @@ export function StoreGrocersDesk({
         unreadCount={fresh.length}
       />
       <StoreDeskControlTitle trialNote={showTrialNote ? STORE_PRODUCT_TRIAL_PRODUCTS.grocers.deskNoteAr : ''} />
+      <StoreShopIdentityDesk
+        shopNameLabel="اسم المحل أو النشاط"
+        shopName={state.host.shopName}
+        onShopNameChange={(shopName) => onChange({ ...state, host: { ...state.host, shopName } })}
+        logoSrc={state.host.logoSrc}
+        onLogoChange={(logoSrc) => onChange({ ...state, host: { ...state.host, logoSrc } })}
+        blurbAr={state.host.blurbAr}
+        onBlurbChange={(blurbAr) => onChange({ ...state, host: { ...state.host, blurbAr } })}
+        customFields={state.host.customFields}
+        onCustomFieldChange={(index, value) => {
+          const customFields = state.host.customFields.slice();
+          customFields[index] = value;
+          onChange({ ...state, host: { ...state.host, customFields } });
+        }}
+        accent="#8fbf7a"
+        fieldClassName="grocers-field"
+      />
       <div className={cn('rounded-2xl border p-4', fresh.length ? 'grocers-alert border-[#8fbf7a]' : 'border-white/12')}>
         <h2 className="text-lg font-extrabold">{STORE_GROCERS_LIVE.liveOrdersAr}</h2>
         <p className="mt-1 text-sm text-white/60">{fresh.length ? `${fresh.length} طلب جديد` : 'لا طلبات جديدة الآن.'}</p>
@@ -154,44 +171,6 @@ export function StoreGrocersDesk({
       </div>
       <StoreGrocersDeskChat state={state} onChange={onChange} />
       <StoreDirectPayDesk product="store_grocers_live" token={token} accent="#8fbf7a" />
-
-      <div className="grid gap-3 sm:grid-cols-2">
-        <label className="block text-sm">
-          اسم المحل أو النشاط
-          <input
-            className="grocers-field"
-            value={state.host.shopName}
-            onChange={(e) => onChange({ ...state, host: { ...state.host, shopName: e.target.value } })}
-          />
-        </label>
-        <StoreShopLogoDesk
-          logoSrc={state.host.logoSrc}
-          onChange={(logoSrc) => onChange({ ...state, host: { ...state.host, logoSrc } })}
-          accent="#8fbf7a"
-        />
-        <label className="block text-sm sm:col-span-2">
-          خانة تعريفية
-          <input
-            className="grocers-field"
-            value={state.host.blurbAr}
-            onChange={(e) => onChange({ ...state, host: { ...state.host, blurbAr: e.target.value } })}
-          />
-        </label>
-        {state.host.customFields.map((line, index) => (
-          <label key={index} className="block text-sm sm:col-span-2">
-            نص مخصص {index + 1}
-            <input
-              className="grocers-field"
-              value={line}
-              onChange={(e) => {
-                const customFields = state.host.customFields.slice();
-                customFields[index] = e.target.value;
-                onChange({ ...state, host: { ...state.host, customFields } });
-              }}
-            />
-          </label>
-        ))}
-      </div>
 
       <StoreOpsSection titleAr="الموقع وساعات العمل" accent="#8fbf7a">
       <StoreShopPlaceDesk

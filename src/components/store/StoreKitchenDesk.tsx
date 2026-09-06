@@ -30,7 +30,7 @@ import { StoreShopHoursDesk } from '@/components/store/StoreShopHoursDesk';
 import { StoreDeskHelpSupport } from '@/components/store/StoreDeskHelpSupport';
 import { StoreDeskGuideLink } from '@/components/store/StoreDeskGuideLink';
 import { StoreDeskCornerDock } from '@/components/store/StoreDeskCornerNav';
-import { StoreShopLogoDesk } from '@/components/store/StoreShopLogoDesk';
+import { StoreShopIdentityDesk } from '@/components/store/StoreShopIdentityDesk';
 import { STORE_KITCHEN_SUPPORT } from '@/config/storeProductSupport';
 import { StoreOpsSection } from '@/components/store/StoreOpsSection';
 import { StoreDirectPayDesk } from '@/components/store/StoreDirectPayDesk';
@@ -181,6 +181,36 @@ export function StoreKitchenDesk({
           ) : null}
         </section>
       ) : null}
+      <StoreShopIdentityDesk
+        shopNameLabel={STORE_KITCHEN_LIVE.kitchenNameLabelAr}
+        shopName={state.host.shopName}
+        onShopNameChange={(shopName) => onChange({ ...state, host: { ...state.host, shopName } })}
+        logoSrc={state.host.logoSrc}
+        onLogoChange={(logoSrc) => onChange({ ...state, host: { ...state.host, logoSrc } })}
+        blurbAr={state.host.blurbAr}
+        onBlurbChange={(blurbAr) => onChange({ ...state, host: { ...state.host, blurbAr } })}
+        customFields={state.host.customFields}
+        onCustomFieldChange={(index, value) => {
+          const customFields = state.host.customFields.slice();
+          customFields[index] = value;
+          onChange({ ...state, host: { ...state.host, customFields } });
+        }}
+        accent="#b45a3c"
+        fieldClassName="restaurant-field"
+        extraFields={
+          <label className="block text-sm">
+            {STORE_KITCHEN_LIVE.opsPhoneLabelAr}
+            <input
+              className="restaurant-field"
+              value={state.host.opsPhone}
+              onChange={(e) =>
+                onChange({ ...state, host: { ...state.host, opsPhone: e.target.value.slice(0, 20) } })
+              }
+              inputMode="tel"
+            />
+          </label>
+        }
+      />
       <div className={cn('rounded-2xl border p-4', fresh.length ? 'restaurant-alert border-[#b45a3c]' : 'border-white/12')}>
         <h2 className="text-lg font-extrabold">{STORE_KITCHEN_LIVE.liveOrdersAr}</h2>
         <p className="mt-1 text-sm text-white/60">{fresh.length ? `${fresh.length} تذكرة جديدة` : 'لا تذاكر جديدة الآن.'}</p>
@@ -197,53 +227,6 @@ export function StoreKitchenDesk({
             <ul className="mt-2 space-y-3">{working.map(renderTicket)}</ul>
           </>
         ) : null}
-      </div>
-
-      <div className="grid gap-3 sm:grid-cols-2">
-        <label className="block text-sm">
-          {STORE_KITCHEN_LIVE.kitchenNameLabelAr}
-          <input
-            className="restaurant-field"
-            value={state.host.shopName}
-            onChange={(e) => onChange({ ...state, host: { ...state.host, shopName: e.target.value } })}
-          />
-        </label>
-        <StoreShopLogoDesk
-          logoSrc={state.host.logoSrc}
-          onChange={(logoSrc) => onChange({ ...state, host: { ...state.host, logoSrc } })}
-          accent="#b45a3c"
-        />
-        <label className="block text-sm">
-          {STORE_KITCHEN_LIVE.opsPhoneLabelAr}
-          <input
-            className="restaurant-field"
-            value={state.host.opsPhone}
-            onChange={(e) => onChange({ ...state, host: { ...state.host, opsPhone: e.target.value.slice(0, 20) } })}
-            inputMode="tel"
-          />
-        </label>
-        <label className="block text-sm sm:col-span-2">
-          خانة تعريفية
-          <input
-            className="restaurant-field"
-            value={state.host.blurbAr}
-            onChange={(e) => onChange({ ...state, host: { ...state.host, blurbAr: e.target.value } })}
-          />
-        </label>
-        {state.host.customFields.map((line, index) => (
-          <label key={index} className="block text-sm sm:col-span-2">
-            نص مخصص {index + 1}
-            <input
-              className="restaurant-field"
-              value={line}
-              onChange={(e) => {
-                const customFields = state.host.customFields.slice();
-                customFields[index] = e.target.value;
-                onChange({ ...state, host: { ...state.host, customFields } });
-              }}
-            />
-          </label>
-        ))}
       </div>
 
       <section className="rounded-2xl border border-white/12 p-4">

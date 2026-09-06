@@ -14,6 +14,7 @@ import {
 import { DEFAULT_STORE_SHOP_HOURS, type StoreShopHoursState } from '@/config/storeShopHours';
 import { DEFAULT_SHOP_PICKUP, parseShopPickupPlace, type ShopPickupPlace } from '@/lib/storeShopPlace';
 import { hydrateDeskTickets } from '@/lib/storeDeskOrderTicket';
+import { parseShopLogoSrc } from '@/lib/storeShopLogo';
 import { compressImageFile } from '@/lib/storeWeddingLiveLab';
 
 export { parseRestaurantListText, compressImageFile };
@@ -150,6 +151,7 @@ export function readRestaurantLabState(token: string): RestaurantLabState {
         ...fallback.host,
         ...(parsed.host || {}),
         customFields: Array.from({ length: 6 }, (_, i) => parsed.host?.customFields?.[i] || fallback.host.customFields[i] || ''),
+        logoSrc: parseShopLogoSrc(parsed.host?.logoSrc, fallback.host.logoSrc),
         nextTicket: Number(parsed.host?.nextTicket) > 0 ? Number(parsed.host?.nextTicket) : 1,
         ...parseShopPickupPlace(parsed.host, fallback.host),
       },

@@ -13,6 +13,7 @@ import {
 import { STORE_PRODUCE_LIVE_DEMO, type StoreProduceLivePackId } from '@/config/storeProduceLive';
 import { DEFAULT_STORE_SHOP_HOURS, type StoreShopHoursState } from '@/config/storeShopHours';
 import { hydrateDeskTickets } from '@/lib/storeDeskOrderTicket';
+import { parseShopLogoSrc } from '@/lib/storeShopLogo';
 import { DEFAULT_SHOP_PICKUP, parseShopPickupPlace, type ShopPickupPlace } from '@/lib/storeShopPlace';
 import { compressImageFile } from '@/lib/storeWeddingLiveLab';
 
@@ -148,6 +149,7 @@ export function readProduceLabState(token: string): ProduceLabState {
         ...fallback.host,
         ...(parsed.host || {}),
         customFields: Array.from({ length: 5 }, (_, i) => parsed.host?.customFields?.[i] || fallback.host.customFields[i] || ''),
+        logoSrc: parseShopLogoSrc(parsed.host?.logoSrc, fallback.host.logoSrc),
         ...parseShopPickupPlace(parsed.host, fallback.host),
       },
       shelf: Array.isArray(parsed.shelf) && parsed.shelf.length ? parsed.shelf : fallback.shelf,
