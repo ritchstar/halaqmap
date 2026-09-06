@@ -16,8 +16,22 @@ assert.equal(STORE_LANDING_COPY.browseHospitalityAr, 'الطعام والضيا�
 assert.equal(STORE_LANDING_COPY.browseHallsAr, 'المناسبات');
 assert.equal(STORE_LANDING_COPY.browseCardsAr, 'البطاقات');
 assert.equal(STORE_LANDING_COPY.browseWorksAr, 'المهن والخدمات');
-assert.equal(STORE_LANDING_COPY.pitchHeadlineLine1Ar, 'من انتظار زبائنك…');
-assert.equal(STORE_LANDING_COPY.pitchHeadlineLine2Ar, 'إلى جوالاتهم.');
+assert.equal(
+  STORE_LANDING_COPY.pitchH1Ar,
+  'شغلك ما يحتاج متجر إلكتروني يفرض عليك طريقته.',
+);
+assert.equal(STORE_LANDING_COPY.pitchSupportAr, 'منتجات خريطة الحل مصممة حول سير عملك.');
+assert.equal(STORE_LANDING_COPY.pitchTransformAr, 'منتجاتنا تنقلك من انتظارهم… إلى جوالاتهم.');
+assert.equal(
+  STORE_LANDING_COPY.pitchClosingAr,
+  'وبطريقة تمشي مع شغلك، لا بطريقة يفرضها عليك نظام عام.',
+);
+assert.equal(STORE_LANDING_COPY.pitchFlowAr, 'عرضك → طلب العميل → تشغيلك');
+assert.equal(STORE_LANDING_COPY.pitchExploreCtaAr, 'استكشف المنتج المناسب لشغلك');
+assert.equal(
+  STORE_LANDING_COPY.pitchProductsBridgeAr,
+  'اختر المسار الرقمي الذي يناسب طريقة شغلك.',
+);
 assert.match(STORE_LANDING_COPY.newestLeadAr, /خضارنا1/);
 assert.match(STORE_LANDING_COPY.newestLeadAr, /طبختنا1/);
 assert.match(STORE_LANDING_COPY.newestLeadAr, /كافينا1/);
@@ -31,6 +45,9 @@ assert.match(landing, /scrollStoreBrowse/);
 assert.match(landing, /StoreBrowseCard/);
 assert.match(landing, /StoreProductName/);
 assert.match(landing, /pitchExploreCtaAr/);
+assert.match(landing, /pitchProductsBridgeAr/);
+assert.match(landing, /pitchH1Ar/);
+assert.doesNotMatch(landing, /pitchRequestCtaAr/);
 assert.match(landing, /sticky/);
 
 const neighborhoodStart = landing.indexOf('id="store-browse-neighborhood"');

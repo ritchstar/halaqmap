@@ -1677,6 +1677,28 @@
   animation: store-pitch-headline-pulse 2.8s ease-in-out infinite;
 }
 
+.store-pitch-flow {
+  position: relative;
+  padding-inline: 0.5rem;
+}
+
+.store-pitch-flow::before {
+  content: '';
+  position: absolute;
+  inset: 50% 12% auto;
+  height: 1px;
+  transform: translateY(-50%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgb(232 197 71 / 0.22) 18%,
+    rgb(232 197 71 / 0.38) 50%,
+    rgb(232 197 71 / 0.22) 82%,
+    transparent
+  );
+  pointer-events: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .store-pitch-headline,
   .store-pitch-aura {

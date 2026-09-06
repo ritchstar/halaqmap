@@ -7,15 +7,17 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { STORE_INTENT_HUB, STORE_INTENT_PAGES } from './data/storeIntentLandingPages.mjs';
 import {
-  BRAND_ICON_VERSION,
-  BRAND_LOGO_ABS,
-  BRAND_LOGO_PATH,
-  BRAND_LOGO_PATH_2X,
-  BRAND_SITE_NAME,
   brandIconLinks,
   brandPageTypeCss,
   fazaaMeasurementTagHtml,
 } from './lib/platformBrandIdentity.mjs';
+import {
+  STORE_BRAND_NAME_AR,
+  STORE_BRAND_NAME_EN,
+  STORE_LOGO_ABS_WWW,
+  STORE_SITE_NAME,
+  storeLogoImgHtml,
+} from './lib/storeBrandIdentity.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 export const STORE_INTENT_ORIGIN = 'https://www.halaqmap.com';
@@ -38,12 +40,12 @@ export function writeFileDeep(root, filePath, content) {
 
 function storeHeaderHtml() {
   return `    <header class="brand store-header">
-      <a class="brand-mark" href="${STORE_ORIGIN}/store" aria-label="خريطة الحل — المتجر">
-        <img src="${BRAND_LOGO_PATH}?v=${BRAND_ICON_VERSION}" srcset="${BRAND_LOGO_PATH}?v=${BRAND_ICON_VERSION} 1x, ${BRAND_LOGO_PATH_2X}?v=${BRAND_ICON_VERSION} 2x" width="56" height="56" alt="خريطة الحل" decoding="async" fetchpriority="high" />
+      <a class="brand-mark" href="${STORE_ORIGIN}/store" aria-label="${STORE_BRAND_NAME_AR} — المتجر">
+        ${storeLogoImgHtml()}
       </a>
-      <a class="brand-lockup" href="${STORE_ORIGIN}/store" aria-label="متجر خريطة الحل">
-        <span class="brand-ar">خريطة الحل</span>
-        <span class="brand-en" dir="ltr">HALAQ MAP STORE</span>
+      <a class="brand-lockup" href="${STORE_ORIGIN}/store" aria-label="متجر ${STORE_BRAND_NAME_AR}">
+        <span class="brand-ar">${STORE_BRAND_NAME_AR}</span>
+        <span class="brand-en" dir="ltr">${STORE_BRAND_NAME_EN}</span>
         <span class="store-sub">حلول أعمال · منتج واحد لكل صفحة</span>
       </a>
     </header>
@@ -177,9 +179,11 @@ function htmlShell({ title, description, keywords, canonical, robots, h1, bodyIn
   <meta property="og:description" content="${escapeHtml(description)}" />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="${escapeHtml(canonical)}" />
-  <meta property="og:image" content="${BRAND_LOGO_ABS}" />
+  <meta property="og:image" content="${STORE_LOGO_ABS_WWW}" />
+  <meta property="og:image:alt" content="${escapeHtml(STORE_BRAND_NAME_AR)}" />
   <meta property="og:locale" content="ar_SA" />
-  <meta property="og:site_name" content="${BRAND_SITE_NAME}" />
+  <meta property="og:site_name" content="${STORE_SITE_NAME}" />
+  <meta name="application-name" content="${STORE_SITE_NAME}" />
 ${brandIconLinks()}
   <script type="application/ld+json">${JSON.stringify(jsonLd)}</script>
   <style>

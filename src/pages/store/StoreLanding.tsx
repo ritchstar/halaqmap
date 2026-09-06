@@ -72,20 +72,22 @@ export default function StoreLanding() {
           <p className="relative text-2xl font-black text-[#f4efe4] md:text-3xl">
             {STORE_LANDING_COPY.shopNameAr}
           </p>
-          <h1 className="store-pitch-headline relative mt-3 text-3xl font-black leading-tight text-[#e8c547] sm:text-4xl md:text-5xl">
-            <span className="block">{STORE_LANDING_COPY.pitchHeadlineLine1Ar}</span>
-            <span className="mt-1 block">{STORE_LANDING_COPY.pitchHeadlineLine2Ar}</span>
+          <h1 className="store-pitch-headline relative mx-auto mt-3 max-w-4xl text-[1.65rem] font-black leading-snug text-[#e8c547] sm:text-4xl sm:leading-tight md:text-[2.65rem]">
+            {STORE_LANDING_COPY.pitchH1Ar}
           </h1>
-          <p className="relative mx-auto mt-5 max-w-3xl text-base font-bold leading-8 text-white/85 md:text-lg">
-            {STORE_LANDING_COPY.pitchLeadAr}
+          <p className="relative mx-auto mt-5 max-w-3xl text-lg font-bold leading-8 text-white/90 md:text-xl">
+            {STORE_LANDING_COPY.pitchSupportAr}
           </p>
-          <p className="relative mx-auto mt-3 max-w-3xl text-sm leading-7 text-white/65 md:text-base">
-            {STORE_LANDING_COPY.pitchScopeAr}
+          <p className="relative mx-auto mt-4 max-w-3xl text-base font-semibold leading-8 text-white/72 md:text-lg">
+            {STORE_LANDING_COPY.pitchTransformAr}
           </p>
-          <p className="relative mx-auto mt-4 text-xs font-bold tracking-wide text-[#e8c547]/85 md:text-sm">
-            {STORE_LANDING_COPY.pitchJourneyAr}
+          <p className="relative mx-auto mt-3 max-w-3xl text-sm leading-7 text-white/55 md:text-base">
+            {STORE_LANDING_COPY.pitchClosingAr}
           </p>
-          <div className="relative mt-6 flex flex-wrap items-center justify-center gap-3">
+          <p className="store-pitch-flow relative mx-auto mt-5 max-w-md text-xs font-bold tracking-wide text-[#e8c547]/70 md:text-sm">
+            {STORE_LANDING_COPY.pitchFlowAr}
+          </p>
+          <div className="relative mt-7 flex justify-center">
             <button
               type="button"
               onClick={() => scrollStoreBrowse('store-browse-neighborhood')}
@@ -93,21 +95,14 @@ export default function StoreLanding() {
             >
               {STORE_LANDING_COPY.pitchExploreCtaAr}
             </button>
-            <Link
-              to={ROUTE_PATHS.STORE_REQUEST}
-              className="inline-flex rounded-full border border-[#e8c547]/45 bg-white/5 px-5 py-2.5 text-sm font-extrabold text-[#e8c547] hover:border-[#e8c547]/70 hover:bg-[#e8c547]/10"
-              onClick={openRequestForm}
-            >
-              {STORE_LANDING_COPY.pitchRequestCtaAr}
-            </Link>
           </div>
-          <p className="relative mx-auto mt-5 text-sm font-extrabold text-white/75">
-            {STORE_LANDING_COPY.pitchTaglineAr}
-          </p>
         </div>
       </section>
 
       <section id="store-newest-products" className="scroll-mt-14 px-4 pb-2 pt-2">
+        <p className="mx-auto max-w-5xl pb-3 text-center text-base font-extrabold text-white/85 md:text-lg">
+          {STORE_LANDING_COPY.pitchProductsBridgeAr}
+        </p>
         <nav
           aria-label={STORE_LANDING_COPY.pitchExploreCtaAr}
           className="sticky top-0 z-20 border-b border-white/10 bg-[#061018]/95 px-0 py-2 backdrop-blur"
