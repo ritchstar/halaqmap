@@ -5,6 +5,7 @@ import { useMemo, useState } from 'react';
 import { STORE_WEDDING_LIVE_CANNED, weddingLiveCopy, weddingLiveFillClass } from '@/config/storeWeddingLive';
 import { ProductEvents } from '@/lib/analytics/productAnalytics';
 import type { WeddingLiveBlessing, WeddingLiveLabState } from '@/lib/storeWeddingLiveLab';
+import { weddingBlessingExtraBlocked } from '@/lib/storeWeddingLiveLab';
 import { cn } from '@/lib/utils';
 
 export function StoreWeddingGuestForm({
@@ -20,7 +21,7 @@ export function StoreWeddingGuestForm({
   const [cannedId, setCannedId] = useState<(typeof STORE_WEDDING_LIVE_CANNED)[number]['id']>('baraka');
   const [extra, setExtra] = useState('');
   const [showExtra, setShowExtra] = useState(false);
-  const [sent, setSent] = useState(false);
+  const [extraError, setExtraError] = useState('');
   const canned = useMemo(
     () => STORE_WEDDING_LIVE_CANNED.find((item) => item.id === cannedId) || STORE_WEDDING_LIVE_CANNED[0],
     [cannedId],
@@ -28,19 +29,28 @@ export function StoreWeddingGuestForm({
   const voice = state.host.voice === 'women' ? 'women' : 'men';
   const copy = weddingLiveCopy(voice);
   const fill = weddingLiveFillClass(voice);
+  const [sent, setSent] = useState(false);
 
   function submitBlessing() {
     const name = guestName.trim();
+    const trimmedExtra = extra.trim().slice(0, 80);
     if (name.length < 2) return;
+    if (weddingBlessingExtraBlocked(trimmedExtra)) {
+      setExtraError('لا تُقبل روابط أو أرقام جوال في التهنئة.');
+      return;
+    }
+    setExtraError('');
     const blessing: WeddingLiveBlessing = {
       id: `${Date.now()}`,
       name: name.slice(0, 40),
       cannedId: canned.id,
       cannedText: canned.textAr,
-      extra: extra.trim().slice(0, 80),
-      hidden: false,
+      extra: trimmedExtra,
+      hidden: true,
+      approved: isLab ? true : false,
       at: new Date().toISOString(),
     };
+    if (isLab && blessing.approved) blessing.hidden = false;
     onChange({ ...state, blessings: [...state.blessings, blessing] });
     ProductEvents.storeWeddingBlessingSend({ voice });
     setGuestName('');
@@ -100,7 +110,10 @@ export function StoreWeddingGuestForm({
           {copy.guestExtraLabelAr}
           <input
             value={extra}
-            onChange={(e) => setExtra(e.target.value)}
+            onChange={(e) => {
+              setExtra(e.target.value);
+              if (extraError) setExtraError('');
+            }}
             className="mt-1 h-11 w-full rounded-xl border border-white/15 bg-black/40 px-3 text-[#f4efe4]"
             maxLength={80}
           />
@@ -114,6 +127,7 @@ export function StoreWeddingGuestForm({
           سطر إضافي إن رغبت
         </button>
       )}
+      {extraError ? <p className="mt-2 text-sm text-red-300">{extraError}</p> : null}
       <button type="submit" className={cn('mt-4 min-h-12 w-full rounded-full text-base font-bold', fill)}>
         {copy.guestSubmitAr}
       </button>
@@ -121,7 +135,7 @@ export function StoreWeddingGuestForm({
       <p className="mt-2 text-center text-sm leading-7 text-white/55">{copy.guestBlessingsTimingAr}</p>
       {sent ? (
         <p className={cn('mt-3 text-sm', voice === 'women' ? 'text-[#e4b7c5]' : 'text-[#e8c547]')}>
-          ظهرت تهنئتك على الشاشة.
+          {isLab ? 'ظهرت تهنئتك على الشاشة.' : copy.guestBlessingNoteAr}
         </p>
       ) : null}
     </form>

@@ -1,0 +1,20 @@
+---
+description: متابعة أفراحي1 — noindex وإدارة روابط المدعوين (مُنفَّذ)
+globs: src/**/StoreWedding*,src/config/storeWeddingLive.ts,src/lib/storeWeddingLive*,api/**/storeWedding*,api/public-store-wedding-live.ts
+alwaysApply: false
+---
+
+# أفراحي1 — متابعة (2026-09-06)
+
+**حالة:** مُنفَّذ محلياً — لا رفع للإنتاج حتى يقول المستخدم **ادفع**.
+
+## ما اُنجز
+
+1. **noindex** على `/w/:token` (عرض، ضيف، مضيف) عبر `StoreWeddingHallPage`
+2. **إدارة روابط المدعوين:** إلغاء، رابط بديل، إعادة تهيئة — API + `StoreHostGuestInviteIssuance`
+3. **تهاني المدعو:** مخفية حتى اعتماد المضيف، حذف، منع روابط/جوال في السطر الإضافي
+
+## مرجع
+
+- `.cursor/rules/store-wedding-live.mdc`
+- commit `fe1c4b69` — تنقيح الهبوط المدفوع

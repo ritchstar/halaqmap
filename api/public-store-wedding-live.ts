@@ -32,6 +32,8 @@ import {
   weddingLiveInvoiceDescription,
   weddingLiveInvoiceMetadata,
   weddingLivePaymentMatches,
+  weddingBlessingExtraBlocked,
+  isWeddingLiveCheckoutEnabled,
   type WeddingLiveOrderPayload,
 } from './_lib/storeWeddingLive.js';
 import {
@@ -43,6 +45,9 @@ import {
   mintGuestInviteBatch,
   parseGuestInvites,
   parseGuestSeats,
+  reissueGuestInvite,
+  resetGuestInviteDevice,
+  revokeGuestInvite,
   summarizeGuestInvites,
 } from './_lib/storeGuestDeviceLock.js';
 import { sendWeddingLiveLinksEmail } from './_lib/storeWeddingLiveMail.js';
@@ -158,6 +163,9 @@ export async function POST(request: Request): Promise<Response> {
   if (action === 'mint_guest_invite') return mintGuestInviteAction(db, body, headers);
   if (action === 'list_guest_invites') return listGuestInvitesAction(db, body, headers);
   if (action === 'mark_guest_invite_sent') return markGuestInviteSentAction(db, body, headers);
+  if (action === 'revoke_guest_invite') return revokeGuestInviteAction(db, body, headers);
+  if (action === 'reissue_guest_invite') return reissueGuestInviteAction(db, body, headers);
+  if (action === 'reset_guest_invite_device') return resetGuestInviteDeviceAction(db, body, headers);
   if (action === 'save_host') return saveHost(db, body, headers);
   if (action === 'get_public') {
     return readByRole(db, String(body.token || '').trim(), String(body.role || 'display'), headers);
@@ -513,12 +521,64 @@ async function markGuestInviteSentAction(db: Db, body: Record<string, unknown>, 
   }, 200, headers);
 }
 
+async function revokeGuestInviteAction(db: Db, body: Record<string, unknown>, headers: Record<string, string>) {
+  const token = String(body.token || '').trim();
+  if (!token) return json({ error: 'رابط المضيف غير صالح' }, 400, headers);
+  const data = await loadHostInvites(db, token);
+  if (!data) return json({ error: 'رابط المضيف غير صالح' }, 404, headers);
+  const payload = { ...(data.payload as WeddingLiveOrderPayload & { guestInvites?: unknown }) };
+  const revoked = revokeGuestInvite(parseGuestInvites(payload.guestInvites), String(body.inviteId || ''));
+  if (!revoked.ok) return json({ error: 'الرابط غير صالح أو مُلغى مسبقاً' }, 404, headers);
+  payload.guestInvites = revoked.stamps;
+  await db.from(STORE_WEDDING_LIVE_TABLE).update({ payload, updated_at: new Date().toISOString() }).eq('id', data.id);
+  return json(hostInvitePayload(guestUrl(String(data.guest_token)), revoked.stamps), 200, headers);
+}
+
+async function reissueGuestInviteAction(db: Db, body: Record<string, unknown>, headers: Record<string, string>) {
+  const token = String(body.token || '').trim();
+  if (!token) return json({ error: 'رابط المضيف غير صالح' }, 400, headers);
+  const data = await loadHostInvites(db, token);
+  if (!data) return json({ error: 'رابط المضيف غير صالح' }, 404, headers);
+  const payload = { ...(data.payload as WeddingLiveOrderPayload & { guestInvites?: unknown }) };
+  const reissued = reissueGuestInvite(parseGuestInvites(payload.guestInvites), String(body.inviteId || ''));
+  if (!reissued.ok) return json({ error: 'الرابط غير صالح' }, 404, headers);
+  payload.guestInvites = reissued.stamps;
+  await db.from(STORE_WEDDING_LIVE_TABLE).update({ payload, updated_at: new Date().toISOString() }).eq('id', data.id);
+  const base = guestUrl(String(data.guest_token));
+  return json({
+    ...hostInvitePayload(base, reissued.stamps),
+    inviteId: reissued.stamp.id,
+    guestUrl: `${base}?invite=${encodeURIComponent(reissued.stamp.id)}`,
+  }, 200, headers);
+}
+
+async function resetGuestInviteDeviceAction(db: Db, body: Record<string, unknown>, headers: Record<string, string>) {
+  const token = String(body.token || '').trim();
+  if (!token) return json({ error: 'رابط المضيف غير صالح' }, 400, headers);
+  const data = await loadHostInvites(db, token);
+  if (!data) return json({ error: 'رابط المضيف غير صالح' }, 404, headers);
+  const payload = { ...(data.payload as WeddingLiveOrderPayload & { guestSeats?: unknown; guestInvites?: unknown }) };
+  const reset = resetGuestInviteDevice(
+    parseGuestSeats(payload.guestSeats),
+    parseGuestInvites(payload.guestInvites),
+    String(body.inviteId || ''),
+  );
+  if (!reset.ok) return json({ error: 'لا يمكن إعادة تهيئة هذا الرابط' }, 404, headers);
+  payload.guestSeats = reset.seats;
+  payload.guestInvites = reset.stamps;
+  await db.from(STORE_WEDDING_LIVE_TABLE).update({ payload, updated_at: new Date().toISOString() }).eq('id', data.id);
+  return json(hostInvitePayload(guestUrl(String(data.guest_token)), reset.stamps), 200, headers);
+}
+
 async function addBlessing(db: Db, body: Record<string, unknown>, headers: Record<string, string>) {
   const token = String(body.token || '').trim();
   const name = String(body.name || '').replace(/\s+/g, ' ').trim().slice(0, 40);
   const cannedText = String(body.cannedText || '').replace(/\s+/g, ' ').trim().slice(0, 160);
   const extra = String(body.extra || '').replace(/\s+/g, ' ').trim().slice(0, 80);
   if (!token || name.length < 2 || !cannedText) return json({ error: 'التهنئة ناقصة' }, 400, headers);
+  if (weddingBlessingExtraBlocked(extra)) {
+    return json({ error: 'لا تُقبل روابط أو أرقام جوال في التهنئة' }, 400, headers);
+  }
   const { data } = await db.from(STORE_WEDDING_LIVE_TABLE).select('id, status, payload').eq('guest_token', token).maybeSingle();
   if (!data || data.status !== 'live') return json({ error: 'رابط الضيف غير صالح' }, 404, headers);
   const payload = { ...(data.payload as WeddingLiveOrderPayload & { guestSeats?: unknown }) };
@@ -538,7 +598,8 @@ async function addBlessing(db: Db, body: Record<string, unknown>, headers: Recor
     cannedId: String(body.cannedId || '').slice(0, 24),
     cannedText,
     extra,
-    hidden: false,
+    hidden: true,
+    approved: false,
     at: new Date().toISOString(),
   });
   payload.blessings = blessings.slice(-80);

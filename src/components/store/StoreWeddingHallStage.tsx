@@ -18,6 +18,7 @@ import { StoreShot } from '@/components/store/StoreShot';
 import { StoreWeddingMapsPin } from '@/components/store/StoreWeddingMapsPin';
 import { STORE_WEDDING_MARKETING_FRAMES, STORE_WEDDING_WOMEN_MARKETING_FRAMES } from '@/config/storeMarketingReels';
 import type { WeddingLiveLabState } from '@/lib/storeWeddingLiveLab';
+import { weddingBlessingIsPublic } from '@/lib/storeWeddingLiveLab';
 import {
   safeMapsHref,
   weddingCoupleLine,
@@ -59,7 +60,7 @@ export function StoreWeddingHallStage({
   immersive?: boolean;
   compact?: boolean;
 }) {
-  const visible = state.blessings.filter((item) => !item.hidden);
+  const visible = state.blessings.filter((item) => weddingBlessingIsPublic(item));
   const ticker = visible
     .map((item) => `${item.name}: ${item.extra ? `${item.cannedText} ${item.extra}` : item.cannedText}`)
     .join('   ·   ');

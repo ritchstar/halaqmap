@@ -96,3 +96,15 @@ export async function markWeddingGuestInviteSent(token: string, inviteId: string
 export async function markWeddingGuestInvitesSent(token: string, inviteIds: string[]) {
   return postAction({ action: 'mark_guest_invite_sent', token, inviteIds });
 }
+
+export async function revokeWeddingGuestInvite(token: string, inviteId: string) {
+  return postAction({ action: 'revoke_guest_invite', token, inviteId });
+}
+
+export async function reissueWeddingGuestInvite(token: string, inviteId: string) {
+  return postAction({ action: 'reissue_guest_invite', token, inviteId });
+}
+
+export async function resetWeddingGuestInviteDevice(token: string, inviteId: string) {
+  return postAction({ action: 'reset_guest_invite_device', token, inviteId });
+}

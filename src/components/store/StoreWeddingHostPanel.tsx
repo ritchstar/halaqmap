@@ -97,6 +97,22 @@ export function StoreWeddingHostPanel({
     }
   }
 
+  function approveBlessing(id: string) {
+    onChange({
+      ...state,
+      blessings: state.blessings.map((item) =>
+        item.id === id ? { ...item, approved: true, hidden: false } : item,
+      ),
+    });
+  }
+
+  function deleteBlessing(id: string) {
+    onChange({
+      ...state,
+      blessings: state.blessings.filter((item) => item.id !== id),
+    });
+  }
+
   function hideBlessing(id: string) {
     onChange({
       ...state,
@@ -273,19 +289,54 @@ export function StoreWeddingHostPanel({
   const blessingList = (
     <>
       <p className="mt-5 text-base">تهاني الشاشة</p>
+      {state.blessings.some((item) => item.approved === false) ? (
+        <div className="mt-3 rounded-xl border border-[#d4a574]/30 bg-black/25 p-3">
+          <p className="text-sm font-bold text-[#f4d7a8]">بانتظار اعتمادكم</p>
+          <ul className="mt-2 space-y-2">
+            {state.blessings
+              .filter((item) => item.approved === false)
+              .map((item) => (
+                <li key={item.id} className="rounded-lg border border-white/10 px-3 py-2 text-sm">
+                  <p className="font-bold">{item.name}</p>
+                  <p className="mt-1 leading-7 text-white/70">
+                    {item.extra ? `${item.cannedText} ${item.extra}` : item.cannedText}
+                  </p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      className={cn('rounded-full px-3 py-1 text-xs font-bold', fill)}
+                      onClick={() => approveBlessing(item.id)}
+                    >
+                      اعتماد
+                    </button>
+                    <button
+                      type="button"
+                      className="rounded-full border border-white/20 px-3 py-1 text-xs font-bold"
+                      onClick={() => deleteBlessing(item.id)}
+                    >
+                      حذف
+                    </button>
+                  </div>
+                </li>
+              ))}
+          </ul>
+        </div>
+      ) : null}
       <ul className="mt-2 space-y-2">
-        {state.blessings.map((item) => (
-          <li key={item.id} className="flex items-center justify-between gap-3 rounded-xl border border-white/10 px-3 py-2 text-base">
-            <span className={item.hidden ? 'text-white/35 line-through' : ''}>{item.name}</span>
-            {!item.hidden ? (
-              <button type="button" className="text-sm text-white/50" onClick={() => hideBlessing(item.id)}>
-                إخفاء
-              </button>
-            ) : (
-              <span className="text-sm text-white/35">مخفية</span>
-            )}
-          </li>
-        ))}
+        {state.blessings
+          .filter((item) => item.approved !== false)
+          .map((item) => (
+            <li key={item.id} className="flex items-center justify-between gap-3 rounded-xl border border-white/10 px-3 py-2 text-base">
+              <span className={item.hidden ? 'text-white/35 line-through' : ''}>{item.name}</span>
+              {!item.hidden ? (
+                <button type="button" className="text-sm text-white/50" onClick={() => hideBlessing(item.id)}>
+                  إخفاء
+                </button>
+              ) : (
+                <span className="text-sm text-white/35">مخفية</span>
+              )}
+            </li>
+          ))}
       </ul>
     </>
   );

@@ -162,9 +162,26 @@ export type WeddingLiveOrderPayload = {
     cannedText: string;
     extra: string;
     hidden: boolean;
+    approved?: boolean;
     at: string;
   }>;
 };
+
+export function weddingBlessingExtraBlocked(text: string): boolean {
+  const value = String(text || '').trim();
+  if (!value) return false;
+  if (/https?:\/\//i.test(value) || /\bwww\./i.test(value)) return true;
+  const compact = value.replace(/\s/g, '');
+  if (/\b0?5\d{8}\b/.test(compact)) return true;
+  if (/\+9665\d{8}/.test(compact)) return true;
+  return false;
+}
+
+export function weddingBlessingIsPublic(item: { hidden?: boolean; approved?: boolean }): boolean {
+  if (item.hidden) return false;
+  if (item.approved === false) return false;
+  return true;
+}
 
 export function parseWeddingLiveOrderBody(body: Record<string, unknown>):
   | { ok: true; email: string; buyerName: string; payload: WeddingLiveOrderPayload }
@@ -236,6 +253,6 @@ export function publicWeddingPayload(payload: WeddingLiveOrderPayload) {
     announcement: payload.announcement,
     photoSrc: payload.photoSrc,
     panoramaSrc: payload.panoramaSrc,
-    blessings: (payload.blessings || []).filter((item) => !item.hidden),
+    blessings: (payload.blessings || []).filter((item) => weddingBlessingIsPublic(item)),
   };
 }
