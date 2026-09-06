@@ -11,6 +11,9 @@ import {
   markGuestInvitesSent,
   mintGuestInvite,
   mintGuestInviteBatch,
+  reissueGuestInvite,
+  resetGuestInviteDevice,
+  revokeGuestInvite,
 } from '../api/_lib/storeGuestDeviceLock.ts';
 import {
   GUEST_DELEGATE_PACK_SIZES,
@@ -100,5 +103,38 @@ assert.ok(longHref.length <= GUEST_DELEGATE_WHATSAPP_HREF_MAX);
 assert.match(decodeURIComponent(longHref), /هذه الرسالة بلا روابط/);
 assert.doesNotMatch(decodeURIComponent(longHref), /guest\?invite=/);
 assert.doesNotMatch(decodeURIComponent(longHref), /تفويض إرسال دعوات/);
+
+const revoked = revokeGuestInvite(batch.stamps, batch.created[1].id);
+assert.equal(revoked.ok, true);
+if (revoked.ok) {
+  assert.equal(guestInviteStats(revoked.stamps).revoked, 1);
+  const blocked = claimGuestSeat([], revoked.stamps, { inviteId: batch.created[1].id, deviceHash: 'dev-z' });
+  assert.equal(blocked.ok, false);
+}
+
+const reissued = reissueGuestInvite(revoked.ok ? revoked.stamps : batch.stamps, batch.created[2].id);
+assert.equal(reissued.ok, true);
+if (reissued.ok) {
+  assert.notEqual(reissued.stamp.id, batch.created[2].id);
+  assert.ok(reissued.stamps.find((item) => item.id === batch.created[2].id)?.revokedAt);
+}
+
+const opened = claimGuestSeat([], reissued.ok ? reissued.stamps : batch.stamps, {
+  inviteId: reissued.ok ? reissued.stamp.id : batch.created[3].id,
+  deviceHash: 'dev-open',
+});
+assert.equal(opened.ok, true);
+if (opened.ok) {
+  const reset = resetGuestInviteDevice(opened.seats, opened.stamps, reissued.ok ? reissued.stamp.id : batch.created[3].id);
+  assert.equal(reset.ok, true);
+  if (reset.ok) {
+    assert.equal(reset.stamp.usedBy, undefined);
+    const reclaim = claimGuestSeat(reset.seats, reset.stamps, {
+      inviteId: reset.stamp.id,
+      deviceHash: 'dev-new',
+    });
+    assert.equal(reclaim.ok, true);
+  }
+}
 
 console.log('store-guest-device-lock ok');

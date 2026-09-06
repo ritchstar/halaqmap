@@ -118,9 +118,26 @@ export type EventLiveOrderPayload = {
     cannedText: string;
     extra: string;
     hidden: boolean;
+    approved?: boolean;
     at: string;
   }>;
 };
+
+export function eventBlessingExtraBlocked(text: string): boolean {
+  const value = String(text || '').trim();
+  if (!value) return false;
+  if (/https?:\/\//i.test(value) || /\bwww\./i.test(value)) return true;
+  const compact = value.replace(/\s/g, '');
+  if (/\b0?5\d{8}\b/.test(compact)) return true;
+  if (/\+9665\d{8}/.test(compact)) return true;
+  return false;
+}
+
+export function eventBlessingIsPublic(item: { hidden?: boolean; approved?: boolean }): boolean {
+  if (item.hidden) return false;
+  if (item.approved === false) return false;
+  return true;
+}
 
 export function parseEventLiveOrderBody(body: Record<string, unknown>):
   | { ok: true; email: string; buyerName: string; payload: EventLiveOrderPayload }
@@ -179,6 +196,6 @@ export function publicEventPayload(payload: EventLiveOrderPayload) {
     announcement: payload.announcement,
     photoSrc: payload.photoSrc,
     panoramaSrc: payload.panoramaSrc,
-    blessings: (payload.blessings || []).filter((item) => !item.hidden),
+    blessings: (payload.blessings || []).filter((item) => eventBlessingIsPublic(item)),
   };
 }

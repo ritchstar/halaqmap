@@ -15,6 +15,8 @@ export type GuestInviteStamp = {
   exp: number;
   usedBy?: string;
   sentAt?: string;
+  revokedAt?: string;
+  replacedBy?: string;
 };
 
 export type GuestInviteRow = {
@@ -22,6 +24,7 @@ export type GuestInviteRow = {
   n: number;
   sent: boolean;
   opened: boolean;
+  revoked: boolean;
   guestUrl: string;
 };
 
@@ -54,12 +57,16 @@ export function parseGuestInvites(raw: unknown): GuestInviteStamp[] {
       const row = item && typeof item === 'object' ? (item as Record<string, unknown>) : {};
       const usedBy = String(row.usedBy || '').trim();
       const sentAt = String(row.sentAt || '').trim();
+      const revokedAt = String(row.revokedAt || '').trim();
+      const replacedBy = String(row.replacedBy || '').trim();
       return {
         id: String(row.id || '').trim(),
         n: Math.max(1, Number(row.n) || index + 1),
         exp: Number(row.exp) || 0,
         ...(usedBy ? { usedBy } : {}),
         ...(sentAt ? { sentAt } : {}),
+        ...(revokedAt ? { revokedAt } : {}),
+        ...(replacedBy ? { replacedBy } : {}),
       };
     })
     .filter((item) => item.id && item.exp > 0);
@@ -71,7 +78,7 @@ export function mintGuestInviteBatch(
   now = Date.now(),
 ): { created: GuestInviteStamp[]; stamps: GuestInviteStamp[] } {
   const add = Math.max(1, Math.min(GUEST_INVITE_BATCH_SIZE, Math.floor(Number(count) || 0)));
-  const kept = stamps.filter((item) => item.usedBy || item.sentAt || item.exp > now);
+  const kept = stamps.filter((item) => item.usedBy || item.sentAt || item.revokedAt || item.exp > now);
   let nextN = kept.reduce((max, item) => Math.max(max, item.n || 0), 0);
   const created: GuestInviteStamp[] = [];
   for (let i = 0; i < add; i += 1) {
@@ -101,7 +108,7 @@ export function markGuestInviteSent(
 ): { ok: true; stamp: GuestInviteStamp; stamps: GuestInviteStamp[] } | { ok: false } {
   const id = String(inviteId || '').trim();
   const found = stamps.find((item) => item.id === id);
-  if (!found || found.exp <= now) return { ok: false };
+  if (!found || found.exp <= now || found.revokedAt) return { ok: false };
   const sentAt = found.sentAt || new Date(now).toISOString();
   const stamp = { ...found, sentAt };
   return {
@@ -135,32 +142,92 @@ export function markGuestInvitesSent(
 }
 
 export function nextReadyInvite(stamps: GuestInviteStamp[], now = Date.now()): GuestInviteStamp | null {
-  return stamps.find((item) => !item.sentAt && !item.usedBy && item.exp > now) || null;
+  return stamps.find((item) => !item.sentAt && !item.usedBy && !item.revokedAt && item.exp > now) || null;
 }
 
 export function guestInviteStats(stamps: GuestInviteStamp[], now = Date.now()) {
-  const live = stamps.filter((item) => item.exp > now || item.sentAt || item.usedBy);
-  const ready = live.filter((item) => !item.sentAt && !item.usedBy && item.exp > now).length;
-  const opened = live.filter((item) => Boolean(item.usedBy)).length;
-  const sent = live.filter((item) => Boolean(item.sentAt) || Boolean(item.usedBy)).length;
+  const live = stamps.filter((item) => item.exp > now || item.sentAt || item.usedBy || item.revokedAt);
+  const ready = live.filter((item) => !item.sentAt && !item.usedBy && !item.revokedAt && item.exp > now).length;
+  const opened = live.filter((item) => Boolean(item.usedBy) && !item.revokedAt).length;
+  const sent = live.filter((item) => (Boolean(item.sentAt) || Boolean(item.usedBy)) && !item.revokedAt).length;
+  const revoked = live.filter((item) => Boolean(item.revokedAt)).length;
   return {
     total: live.length,
     ready,
     sent,
     opened,
     remaining: ready,
+    revoked,
     cap: 0,
   };
 }
 
 export function summarizeGuestInvites(stamps: GuestInviteStamp[], baseGuestUrl: string): GuestInviteRow[] {
-  return stamps.map((item) => ({
-    id: item.id,
-    n: item.n,
-    sent: Boolean(item.sentAt),
-    opened: Boolean(item.usedBy),
-    guestUrl: `${baseGuestUrl}?invite=${encodeURIComponent(item.id)}`,
-  }));
+  return stamps
+    .filter((item) => item.exp > Date.now() || item.sentAt || item.usedBy || item.revokedAt)
+    .map((item) => ({
+      id: item.id,
+      n: item.n,
+      sent: Boolean(item.sentAt),
+      opened: Boolean(item.usedBy),
+      revoked: Boolean(item.revokedAt),
+      guestUrl: item.revokedAt ? '' : `${baseGuestUrl}?invite=${encodeURIComponent(item.id)}`,
+    }));
+}
+
+export function revokeGuestInvite(
+  stamps: GuestInviteStamp[],
+  inviteId: string,
+  now = Date.now(),
+): { ok: true; stamps: GuestInviteStamp[] } | { ok: false } {
+  const id = String(inviteId || '').trim();
+  const found = stamps.find((item) => item.id === id);
+  if (!found || found.revokedAt) return { ok: false };
+  const stamp = { ...found, revokedAt: new Date(now).toISOString() };
+  return { ok: true, stamps: stamps.map((item) => (item.id === id ? stamp : item)) };
+}
+
+export function reissueGuestInvite(
+  stamps: GuestInviteStamp[],
+  inviteId: string,
+  now = Date.now(),
+): { ok: true; stamp: GuestInviteStamp; stamps: GuestInviteStamp[] } | { ok: false } {
+  const id = String(inviteId || '').trim();
+  const found = stamps.find((item) => item.id === id);
+  if (!found) return { ok: false };
+  const newStamp: GuestInviteStamp = {
+    id: newInviteId(now),
+    n: found.n,
+    exp: now + GUEST_INVITE_TTL_MS,
+  };
+  const revokedOld = {
+    ...found,
+    revokedAt: found.revokedAt || new Date(now).toISOString(),
+    replacedBy: newStamp.id,
+  };
+  return {
+    ok: true,
+    stamp: newStamp,
+    stamps: [...stamps.map((item) => (item.id === id ? revokedOld : item)), newStamp],
+  };
+}
+
+export function resetGuestInviteDevice(
+  seats: GuestDeviceSeat[],
+  stamps: GuestInviteStamp[],
+  inviteId: string,
+): { ok: true; seats: GuestDeviceSeat[]; stamps: GuestInviteStamp[]; stamp: GuestInviteStamp } | { ok: false } {
+  const id = String(inviteId || '').trim();
+  const found = stamps.find((item) => item.id === id);
+  if (!found || found.revokedAt || !found.usedBy) return { ok: false };
+  const deviceHash = found.usedBy;
+  const stamp: GuestInviteStamp = { ...found, usedBy: undefined };
+  return {
+    ok: true,
+    seats: seats.filter((item) => item.deviceHash !== deviceHash),
+    stamps: stamps.map((item) => (item.id === id ? stamp : item)),
+    stamp,
+  };
 }
 
 export function claimGuestSeat(
@@ -183,7 +250,7 @@ export function claimGuestSeat(
   if (mine) return { ok: true, seatId: mine.id, seats, stamps };
   const inviteId = String(input.inviteId || '').trim();
   const stamp = stamps.find((item) => item.id === inviteId);
-  if (!stamp || stamp.exp <= now) return { ok: false, blocked: true };
+  if (!stamp || stamp.exp <= now || stamp.revokedAt) return { ok: false, blocked: true };
   if (stamp.usedBy && stamp.usedBy !== deviceHash) return { ok: false, blocked: true };
   const nextSeat: GuestDeviceSeat = {
     id: `s${now.toString(36)}${Math.random().toString(36).slice(2, 10)}`,

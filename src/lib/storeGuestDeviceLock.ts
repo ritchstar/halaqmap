@@ -20,6 +20,8 @@ export type GuestInviteStamp = {
   exp: number;
   usedBy?: string;
   sentAt?: string;
+  revokedAt?: string;
+  replacedBy?: string;
 };
 
 export type GuestInviteRow = {
@@ -27,6 +29,7 @@ export type GuestInviteRow = {
   n: number;
   sent: boolean;
   opened: boolean;
+  revoked: boolean;
   guestUrl: string;
 };
 
@@ -143,7 +146,7 @@ export function mintGuestInviteBatch(
   now = Date.now(),
 ): { created: GuestInviteStamp[]; stamps: GuestInviteStamp[] } {
   const add = Math.max(1, Math.min(GUEST_INVITE_BATCH_SIZE, Math.floor(Number(count) || 0)));
-  const kept = stamps.filter((item) => item.usedBy || item.sentAt || item.exp > now);
+  const kept = stamps.filter((item) => item.usedBy || item.sentAt || item.revokedAt || item.exp > now);
   let nextN = kept.reduce((max, item) => Math.max(max, item.n || 0), 0);
   const created: GuestInviteStamp[] = [];
   for (let i = 0; i < add; i += 1) {
@@ -201,26 +204,77 @@ export function markLocalGuestInvitesSent(kind: GuestLockKind, token: string, in
 }
 
 export function guestInviteStats(stamps: GuestInviteStamp[], now = Date.now()) {
-  const live = stamps.filter((item) => item.exp > now || item.sentAt || item.usedBy);
-  const ready = live.filter((item) => !item.sentAt && !item.usedBy && item.exp > now).length;
+  const live = stamps.filter((item) => item.exp > now || item.sentAt || item.usedBy || item.revokedAt);
+  const ready = live.filter((item) => !item.sentAt && !item.usedBy && !item.revokedAt && item.exp > now).length;
   return {
     total: live.length,
     ready,
-    sent: live.filter((item) => Boolean(item.sentAt) || Boolean(item.usedBy)).length,
-    opened: live.filter((item) => Boolean(item.usedBy)).length,
+    sent: live.filter((item) => (Boolean(item.sentAt) || Boolean(item.usedBy)) && !item.revokedAt).length,
+    opened: live.filter((item) => Boolean(item.usedBy) && !item.revokedAt).length,
     remaining: ready,
+    revoked: live.filter((item) => Boolean(item.revokedAt)).length,
     cap: 0,
   };
 }
 
 export function summarizeLocalGuestInvites(kind: GuestLockKind, token: string, pathPrefix: '/w' | '/e'): GuestInviteRow[] {
-  return readLocalGuestInvites(kind, token).map((item) => ({
-    id: item.id,
-    n: item.n,
-    sent: Boolean(item.sentAt),
-    opened: Boolean(item.usedBy),
-    guestUrl: guestInviteHref(pathPrefix, token, item.id),
-  }));
+  return readLocalGuestInvites(kind, token)
+    .filter((item) => item.exp > Date.now() || item.sentAt || item.usedBy || item.revokedAt)
+    .map((item) => ({
+      id: item.id,
+      n: item.n,
+      sent: Boolean(item.sentAt),
+      opened: Boolean(item.usedBy),
+      revoked: Boolean(item.revokedAt),
+      guestUrl: item.revokedAt ? '' : guestInviteHref(pathPrefix, token, item.id),
+    }));
+}
+
+export function revokeLocalGuestInvite(kind: GuestLockKind, token: string, inviteId: string) {
+  const stamps = readLocalGuestInvites(kind, token);
+  const id = String(inviteId || '').trim();
+  const found = stamps.find((item) => item.id === id);
+  if (!found || found.revokedAt) return { ok: false as const };
+  const stamp = { ...found, revokedAt: new Date().toISOString() };
+  writeLocalGuestInvites(kind, token, stamps.map((item) => (item.id === id ? stamp : item)));
+  return { ok: true as const };
+}
+
+export function reissueLocalGuestInvite(kind: GuestLockKind, token: string, inviteId: string, now = Date.now()) {
+  const stamps = readLocalGuestInvites(kind, token);
+  const id = String(inviteId || '').trim();
+  const found = stamps.find((item) => item.id === id);
+  if (!found) return { ok: false as const };
+  const newStamp: GuestInviteStamp = {
+    id: typeof crypto !== 'undefined' && crypto.randomUUID
+      ? `i${crypto.randomUUID().replace(/-/g, '').slice(0, 16)}`
+      : `i${now.toString(36)}${Math.random().toString(36).slice(2, 8)}`,
+    n: found.n,
+    exp: now + GUEST_INVITE_TTL_MS,
+  };
+  const revokedOld = {
+    ...found,
+    revokedAt: found.revokedAt || new Date(now).toISOString(),
+    replacedBy: newStamp.id,
+  };
+  writeLocalGuestInvites(kind, token, [...stamps.map((item) => (item.id === id ? revokedOld : item)), newStamp]);
+  return { ok: true as const, stamp: newStamp };
+}
+
+export function resetLocalGuestInviteDevice(kind: GuestLockKind, token: string, inviteId: string) {
+  const stamps = readLocalGuestInvites(kind, token);
+  const seats = readLocalGuestSeats(kind, token);
+  const id = String(inviteId || '').trim();
+  const found = stamps.find((item) => item.id === id);
+  if (!found || found.revokedAt || !found.usedBy) return { ok: false as const };
+  const deviceHash = found.usedBy;
+  writeLocalGuestSeats(kind, token, seats.filter((item) => item.deviceHash !== deviceHash));
+  writeLocalGuestInvites(
+    kind,
+    token,
+    stamps.map((item) => (item.id === id ? { ...item, usedBy: undefined } : item)),
+  );
+  return { ok: true as const };
 }
 
 export function claimGuestSeat(
@@ -243,7 +297,7 @@ export function claimGuestSeat(
   if (mine) return { ok: true, seatId: mine.id, seats, stamps };
   const inviteId = String(input.inviteId || '').trim();
   const stamp = stamps.find((item) => item.id === inviteId);
-  if (!stamp || stamp.exp <= now) return { ok: false, blocked: true };
+  if (!stamp || stamp.exp <= now || stamp.revokedAt) return { ok: false, blocked: true };
   if (stamp.usedBy && stamp.usedBy !== deviceHash) return { ok: false, blocked: true };
   const nextSeat: GuestDeviceSeat = {
     id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `s${now}`,

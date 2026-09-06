@@ -15,6 +15,9 @@ import {
   mintLocalGuestInviteBatch,
   normalizeGuestDelegatePackSize,
   readLocalGuestInvites,
+  reissueLocalGuestInvite,
+  resetLocalGuestInviteDevice,
+  revokeLocalGuestInvite,
   summarizeLocalGuestInvites,
   type GuestDelegatePackSize,
   type GuestInviteRow,
@@ -26,24 +29,31 @@ import {
   markEventGuestInviteSent,
   markEventGuestInvitesSent,
   mintEventGuestInvite,
+  reissueEventGuestInvite,
+  resetEventGuestInviteDevice,
+  revokeEventGuestInvite,
 } from '@/lib/storeEventLiveRemote';
 import {
   listWeddingGuestInvites,
   markWeddingGuestInviteSent,
   markWeddingGuestInvitesSent,
   mintWeddingGuestInvite,
+  reissueWeddingGuestInvite,
+  resetWeddingGuestInviteDevice,
+  revokeWeddingGuestInvite,
 } from '@/lib/storeWeddingLiveRemote';
 
 type InviteStats = {
   remaining: number;
   sent: number;
   opened: number;
+  revoked: number;
   total: number;
   cap: number;
 };
 
-const EMPTY_STATS: InviteStats = { remaining: 0, sent: 0, opened: 0, total: 0, cap: 0 };
-const DEMO_PREVIEW_STATS: InviteStats = { total: 100, opened: 72, sent: 72, remaining: 28, cap: 0 };
+const EMPTY_STATS: InviteStats = { remaining: 0, sent: 0, opened: 0, revoked: 0, total: 0, cap: 0 };
+const DEMO_PREVIEW_STATS: InviteStats = { total: 100, opened: 72, sent: 72, remaining: 28, revoked: 0, cap: 0 };
 
 function whatsappHref(url: string): string {
   return `https://wa.me/?text=${encodeURIComponent(`دعوتكم الخاصة:\n${url}`)}`;
@@ -59,6 +69,7 @@ function asRows(raw: unknown): GuestInviteRow[] {
         n: Number(row.n) || 0,
         sent: row.sent === true,
         opened: row.opened === true,
+        revoked: row.revoked === true,
         guestUrl: String(row.guestUrl || ''),
       };
     })
@@ -71,13 +82,21 @@ function asStats(raw: unknown): InviteStats {
     remaining: Number(row.remaining) || 0,
     sent: Number(row.sent) || 0,
     opened: Number(row.opened) || 0,
+    revoked: Number(row.revoked) || 0,
     total: Number(row.total) || 0,
     cap: Number(row.cap) || 0,
   };
 }
 
 function readyRows(rows: GuestInviteRow[]): GuestInviteRow[] {
-  return rows.filter((item) => !item.sent && !item.opened);
+  return rows.filter((item) => !item.sent && !item.opened && !item.revoked);
+}
+
+function inviteStatusLabel(item: GuestInviteRow): string {
+  if (item.revoked) return 'أُلغي';
+  if (item.opened) return 'فُتح';
+  if (item.sent) return 'أُرسل ولم يُفتح';
+  return 'لم يُفتح';
 }
 
 async function copyText(text: string): Promise<boolean> {
@@ -131,7 +150,7 @@ export function StoreHostGuestInviteIssuance({
   const [packDraft, setPackDraft] = useState('');
 
   const ready = useMemo(() => readyRows(invites), [invites]);
-  const consumed = useMemo(() => invites.filter((item) => item.sent || item.opened), [invites]);
+  const managed = useMemo(() => invites.filter((item) => item.sent || item.opened || item.revoked), [invites]);
   const selected = ready.find((item) => item.id === selectedId) || ready[0] || null;
   const displayStats = demoPreview && isLab ? DEMO_PREVIEW_STATS : stats;
   const pendingCount = demoPreview && isLab ? 28 : Math.max(0, displayStats.total - displayStats.opened);
@@ -245,6 +264,40 @@ export function StoreHostGuestInviteIssuance({
     window.open(guestDelegateWhatsappHref(text), '_blank', 'noopener,noreferrer');
   }
 
+  async function runInviteAction(
+    inviteId: string,
+    action: 'revoke' | 'reissue' | 'reset',
+  ) {
+    if (busy || !hostToken || !inviteId) return;
+    setBusy(true);
+    setError('');
+    setNote('');
+    if (isLab) {
+      if (action === 'revoke') revokeLocalGuestInvite(kind, hostToken, inviteId);
+      if (action === 'reissue') reissueLocalGuestInvite(kind, hostToken, inviteId);
+      if (action === 'reset') resetLocalGuestInviteDevice(kind, hostToken, inviteId);
+      applyLocal();
+      if (action === 'reissue') {
+        setNote('أُصدر رابط بديل. أرسلوه من واتساب جهازكم.');
+      }
+      setBusy(false);
+      return;
+    }
+    const revoke = kind === 'wedding' ? revokeWeddingGuestInvite : revokeEventGuestInvite;
+    const reissue = kind === 'wedding' ? reissueWeddingGuestInvite : reissueEventGuestInvite;
+    const reset = kind === 'wedding' ? resetWeddingGuestInviteDevice : resetEventGuestInviteDevice;
+    const result =
+      action === 'revoke'
+        ? await revoke(hostToken, inviteId)
+        : action === 'reissue'
+          ? await reissue(hostToken, inviteId)
+          : await reset(hostToken, inviteId);
+    if (applyRemote(result) && action === 'reissue' && typeof result.guestUrl === 'string') {
+      setNote('أُصدر رابط بديل. أرسلوه من واتساب جهازكم.');
+    }
+    setBusy(false);
+  }
+
   return (
     <section className="mb-5 rounded-2xl border border-[#d4a574]/35 bg-[#1a1208]/80 p-4">
       <h3 className="font-extrabold">{titleAr}</h3>
@@ -252,7 +305,7 @@ export function StoreHostGuestInviteIssuance({
       {demoPreview && isLab && statsCopy ? (
         <p className="mt-2 text-xs font-bold text-[#f4d7a8]">{statsCopy.inviteStatsDemoNoteAr}</p>
       ) : null}
-      <div className="mt-4 grid grid-cols-3 gap-2 text-center">
+      <div className="mt-4 grid grid-cols-2 gap-2 text-center sm:grid-cols-4">
         <div className="rounded-xl border border-[#d4a574]/30 bg-black/30 px-2 py-3">
           <p className="text-2xl font-black text-[#d4a574]">{displayStats.total}</p>
           <p className="mt-1 text-[11px] leading-5 text-white/60">
@@ -269,6 +322,12 @@ export function StoreHostGuestInviteIssuance({
           <p className="text-2xl font-black">{pendingCount}</p>
           <p className="mt-1 text-[11px] leading-5 text-white/60">
             {statsCopy?.inviteStatsPendingAr || 'روابط لم تُفتح'}
+          </p>
+        </div>
+        <div className="rounded-xl border border-white/10 bg-black/30 px-2 py-3">
+          <p className="text-2xl font-black">{displayStats.revoked}</p>
+          <p className="mt-1 text-[11px] leading-5 text-white/60">
+            {statsCopy?.inviteStatsRevokedAr || 'روابط أُلغيت'}
           </p>
         </div>
       </div>
@@ -375,14 +434,53 @@ export function StoreHostGuestInviteIssuance({
           </select>
         </label>
       ) : null}
-      {consumed.length ? (
-        <ul className="mt-4 max-h-40 space-y-1 overflow-auto text-xs leading-6 text-white/55">
-          {consumed.slice(-30).reverse().map((item) => (
-            <li key={item.id}>
-              رابط {item.n}: {item.opened ? 'فُتح على جهاز المدعو' : 'أُرسل ويُنتظر الدخول'}
-            </li>
-          ))}
-        </ul>
+      {managed.length ? (
+        <div className="mt-4 rounded-2xl border border-white/12 bg-black/25 p-3">
+          <p className="text-sm font-extrabold">إدارة الروابط المرسلة</p>
+          <ul className="mt-3 max-h-52 space-y-2 overflow-auto text-sm leading-6">
+            {managed.slice(-40).reverse().map((item) => (
+              <li key={item.id} className="rounded-xl border border-white/10 px-3 py-2">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <span>
+                    رابط {item.n}: {inviteStatusLabel(item)}
+                  </span>
+                  {!item.revoked ? (
+                    <div className="flex flex-wrap gap-1">
+                      {!item.opened ? (
+                        <button
+                          type="button"
+                          disabled={busy}
+                          onClick={() => void runInviteAction(item.id, 'revoke')}
+                          className="rounded-full border border-white/20 px-2 py-1 text-xs font-bold disabled:opacity-50"
+                        >
+                          إلغاء
+                        </button>
+                      ) : null}
+                      <button
+                        type="button"
+                        disabled={busy}
+                        onClick={() => void runInviteAction(item.id, 'reissue')}
+                        className="rounded-full border border-[#d4a574]/40 px-2 py-1 text-xs font-bold disabled:opacity-50"
+                      >
+                        رابط بديل
+                      </button>
+                      {item.opened ? (
+                        <button
+                          type="button"
+                          disabled={busy}
+                          onClick={() => void runInviteAction(item.id, 'reset')}
+                          className="rounded-full border border-white/20 px-2 py-1 text-xs font-bold disabled:opacity-50"
+                        >
+                          إعادة تهيئة
+                        </button>
+                      ) : null}
+                    </div>
+                  ) : null}
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
       ) : null}
     </section>
   );

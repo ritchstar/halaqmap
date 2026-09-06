@@ -147,6 +147,14 @@ export default function StoreWeddingHallPage() {
   useDocumentTitle(copy.documentTitle);
 
   useEffect(() => {
+    const meta = document.createElement('meta');
+    meta.setAttribute('name', 'robots');
+    meta.setAttribute('content', 'noindex, nofollow');
+    document.head.appendChild(meta);
+    return () => meta.remove();
+  }, []);
+
+  useEffect(() => {
     if (isLab) return;
     let cancelled = false;
     void fetchWeddingLivePublic(safeToken, mode).then((result) => {

@@ -33,8 +33,25 @@ export type WeddingLiveBlessing = {
   cannedText: string;
   extra: string;
   hidden: boolean;
+  approved?: boolean;
   at: string;
 };
+
+export function weddingBlessingExtraBlocked(text: string): boolean {
+  const value = String(text || '').trim();
+  if (!value) return false;
+  if (/https?:\/\//i.test(value) || /\bwww\./i.test(value)) return true;
+  const compact = value.replace(/\s/g, '');
+  if (/\b0?5\d{8}\b/.test(compact)) return true;
+  if (/\+9665\d{8}/.test(compact)) return true;
+  return false;
+}
+
+export function weddingBlessingIsPublic(item: WeddingLiveBlessing): boolean {
+  if (item.hidden) return false;
+  if (item.approved === false) return false;
+  return true;
+}
 
 export type WeddingLiveHostRole = StoreWeddingLiveHostRole;
 
@@ -357,6 +374,7 @@ export function defaultWeddingLiveLabState(voice: StoreWeddingLiveVoice = 'men')
         cannedText: STORE_WEDDING_LIVE_CANNED[0].textAr,
         extra: '',
         hidden: false,
+        approved: true,
         at: new Date().toISOString(),
       },
     ],
@@ -520,7 +538,7 @@ export function playWeddingLiveChime(kind: Exclude<WeddingLiveAudioId, 'none'>):
 }
 
 export function weddingLiveArchiveBlob(state: WeddingLiveLabState): Blob {
-  const visible = state.blessings.filter((item) => !item.hidden).map((item) => ({
+  const visible = state.blessings.filter((item) => weddingBlessingIsPublic(item)).map((item) => ({
     name: item.name,
     text: item.extra ? `${item.cannedText} ${item.extra}` : item.cannedText,
   }));
