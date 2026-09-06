@@ -50,5 +50,7 @@ test('تحويل HTML يستبدل وسم حلاق ماب بوسم المتجر'
   assert.equal(next.includes('"name": "حلاق ماب"'), false);
   assert.match(next, /store\.halaqmap\.com\/images\/halaqmap-store-mark-radar-square-1200x1200\.png/);
   assert.equal(next.includes('اقرب حلاق · حلاق قريب | حلاق ماب'), false);
+  assert.match(next, /store-favicon\.ico/);
+  assert.equal(next.includes('/favicon.ico?v='), false);
   assert.match(next, /افراحي1/);
 });

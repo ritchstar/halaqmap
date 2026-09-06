@@ -186,6 +186,12 @@ for (const spec of [
   if (spec.product && !body.includes(spec.product)) {
     errors.push(`${spec.rel} missing product tag`);
   }
+  if (!body.includes('store-favicon.ico')) {
+    errors.push(`${spec.rel} must use store favicon not Halaq Map favicon`);
+  }
+  if (body.includes('/favicon.ico?v=')) {
+    errors.push(`${spec.rel} must not keep Halaq Map favicon.ico`);
+  }
 }
 
 for (const spec of [
@@ -242,6 +248,9 @@ if (!existsSync(storeShare)) {
   }
   if (!storeHtml.includes('OnlineStore')) {
     errors.push('store-index.html missing OnlineStore json-ld');
+  }
+  if (!storeHtml.includes('store-favicon.ico')) {
+    errors.push('store-index.html must use store favicon');
   }
   if (storeHtml.includes('اقرب حلاق · حلاق قريب | حلاق ماب')) {
     errors.push('store-index.html must not keep Halaq Map share title');

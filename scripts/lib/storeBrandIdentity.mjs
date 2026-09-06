@@ -16,3 +16,13 @@ export function storeLogoImgHtml({ width = 56, height = 56, className = '' } = {
   const cls = className ? ` class="${className}"` : '';
   return `<img src="${STORE_LOGO_PATH}?v=${v}" width="${width}" height="${height}" alt="${STORE_LOGO_ALT}" decoding="async" fetchpriority="high"${cls} />`;
 }
+
+export function storeIconLinks() {
+  const v = STORE_ICON_VERSION;
+  return `  <link rel="icon" href="/icons/store-favicon.ico?v=${v}" sizes="any" />
+  <link rel="shortcut icon" href="/icons/store-favicon.ico?v=${v}" />
+  <link rel="icon" href="/icons/store-favicon-48.png?v=${v}" type="image/png" sizes="48x48" />
+  <link rel="icon" href="/icons/store-favicon-96.png?v=${v}" type="image/png" sizes="96x96" />
+  <link rel="icon" href="/icons/store-favicon-32.png?v=${v}" type="image/png" sizes="32x32" />
+  <link rel="apple-touch-icon" href="/icons/store-apple-touch-icon.png?v=${v}" sizes="180x180" />`;
+}

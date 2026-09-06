@@ -179,14 +179,14 @@ export default function StoreWeddingHallPage() {
   }
   if (giftEnded) {
     return (
-      <StorePurchasedShell>
+      <StorePurchasedShell showStoreLink={false}>
         <StoreTrialGiftEnded titleAr={copy.titleAr} />
       </StorePurchasedShell>
     );
   }
 
   return (
-    <StorePurchasedShell>
+    <StorePurchasedShell showStoreLink={mode === 'guest'}>
       <StoreWeddingHallStage state={state} autoWelcome={mode === 'display'} immersive />
       {mode === 'guest' && gate.status === 'ok' ? <StoreWeddingGuestForm state={state} onChange={commit} /> : null}
       {mode === 'host' ? (

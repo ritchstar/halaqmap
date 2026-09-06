@@ -13,6 +13,12 @@ import {
 } from '@/lib/analytics/productAnalytics';
 import { trackGoogleAdsPageView } from '@/lib/googleAdsTag';
 import { initTikTokPixel, trackTikTokPageView } from '@/lib/tiktokPixel';
+import {
+  initSnapPixel,
+  isSnapStoreViewContentPath,
+  trackSnapPageView,
+  trackSnapViewContent,
+} from '@/lib/snapPixel';
 import { getSupabaseClient } from '@/integrations/supabase/client';
 import { readBarberAuthSession } from '@/lib/barberPortalSession';
 import { readAmbassadorPortal } from '@/lib/ambassadorPortalStore';
@@ -42,6 +48,7 @@ export function AnalyticsRouteTracker(): null {
   useEffect(() => {
     initProductAnalytics();
     initTikTokPixel();
+    initSnapPixel();
   }, []);
 
   useEffect(() => {
@@ -49,9 +56,12 @@ export function AnalyticsRouteTracker(): null {
     if (isProductAnalyticsEnabled()) {
       trackPageView(pathname, bucket);
     }
-    // Google Ads gtag + TikTok Pixel — مشاهدات صفحات الـ SPA
     trackGoogleAdsPageView(pathname);
     trackTikTokPageView(pathname);
+    trackSnapPageView(pathname);
+    if (isSnapStoreViewContentPath(pathname)) {
+      trackSnapViewContent(pathname);
+    }
   }, [pathname]);
 
   useEffect(() => {

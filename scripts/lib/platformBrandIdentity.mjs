@@ -5,6 +5,8 @@
  * ملاحظة SERP: محرّك Google لا يعرض خطوط الموقع داخل نتائج البحث —
  * ما يظهر هناك هو الأيقونة + العنوان + الوصف فقط. الخطوط الفاخرة تنطبق على صفحات الهبوط.
  */
+import { snapMeasurementTagHtml } from './snapPixelTag.mjs';
+
 export const BRAND_NAME_AR = 'حلاق ماب';
 export const BRAND_NAME_EN = 'HALAQ MAP';
 export const BRAND_SITE_NAME = 'حلاق ماب | HALAQ MAP';
@@ -143,8 +145,9 @@ export const FAZAA_GOOGLE_ADS_ID = 'AW-18240041811';
 /**
  * تاج Google (GA4 + Ads) لصفحات فزعة الثابتة — يُحمَّل بعد idle مثل الرئيسية
  * حتى لا تظهر /near و /need كـ «غير موسومة» في تشخيص العلامة.
+ * @param {{ snapViewContent?: boolean }} [opts]
  */
-export function fazaaMeasurementTagHtml() {
+export function fazaaMeasurementTagHtml({ snapViewContent = false } = {}) {
   return `  <!-- Google tag (GA4 + Ads) — idle boot, matches main index.html -->
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -174,7 +177,8 @@ export function fazaaMeasurementTagHtml() {
       if (document.readyState === 'complete') schedule();
       else window.addEventListener('load', schedule, { once: true });
     })();
-  </script>`;
+  </script>
+${snapMeasurementTagHtml({ viewContent: snapViewContent })}`;
 }
 
 export {

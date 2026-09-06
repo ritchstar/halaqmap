@@ -4,6 +4,8 @@
  * وسم مشاركة نطاق المتجر. واتساب لا يرى الهاش في
  * `https://store.halaqmap.com/#/store/...` فيقرأ جذر النطاق.
  */
+import { storeIconLinks, STORE_SITE_NAME } from './storeBrandIdentity.mjs';
+
 export const STORE_SHARE_ORIGIN = 'https://store.halaqmap.com';
 
 export const STORE_SHARE_META = {
@@ -66,6 +68,11 @@ function replaceNameMeta(html, key, content) {
   return replaceNamedMeta(html, 'name', key, content);
 }
 
+function applyStoreIconLinks(html) {
+  let next = html.replace(/<link\s+rel="(?:icon|shortcut icon|apple-touch-icon)"[^>]*>\s*/gi, '');
+  return next.replace('</head>', `${storeIconLinks()}\n  </head>`);
+}
+
 export function applyStoreShareMeta(html) {
   if (typeof html !== 'string' || !html.includes('<html')) {
     throw new Error('store share meta expects HTML');
@@ -75,6 +82,8 @@ export function applyStoreShareMeta(html) {
   next = replaceNameMeta(next, 'description', STORE_SHARE_META.description);
   next = replaceNameMeta(next, 'author', STORE_SHARE_META.author);
   next = replaceNameMeta(next, 'application-name', STORE_SHARE_META.siteName);
+  next = replaceNameMeta(next, 'apple-mobile-web-app-title', STORE_SITE_NAME);
+  next = applyStoreIconLinks(next);
   next = next.replace(
     /<link\s+rel="canonical"\s+href="[^"]*"\s*\/?>/i,
     `<link rel="canonical" href="${escapeAttr(STORE_SHARE_META.url)}" />`,

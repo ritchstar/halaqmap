@@ -20,6 +20,8 @@ const wedding = STORE_INTENT_PAGES[0];
 const html = renderStoreIntentPage(wedding);
 assert.match(html, /<h1>دعوة زفاف رقمية تفتح إلى قاعة حفل حيّة<\/h1>/);
 assert.match(html, /meta name="robots" content="index, follow"/);
+assert.match(html, /store-favicon\.ico/);
+assert.doesNotMatch(html, /\/favicon\.ico\?v=/);
 assert.match(html, /899 ر\.س/);
 assert.match(html, /RSVP/);
 assert.doesNotMatch(html, /اجواء1/);

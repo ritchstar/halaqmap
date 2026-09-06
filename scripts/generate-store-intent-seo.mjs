@@ -7,7 +7,6 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { STORE_INTENT_HUB, STORE_INTENT_PAGES } from './data/storeIntentLandingPages.mjs';
 import {
-  brandIconLinks,
   brandPageTypeCss,
   fazaaMeasurementTagHtml,
 } from './lib/platformBrandIdentity.mjs';
@@ -16,6 +15,7 @@ import {
   STORE_BRAND_NAME_EN,
   STORE_LOGO_ABS_WWW,
   STORE_SITE_NAME,
+  storeIconLinks,
   storeLogoImgHtml,
 } from './lib/storeBrandIdentity.mjs';
 
@@ -184,7 +184,7 @@ function htmlShell({ title, description, keywords, canonical, robots, h1, bodyIn
   <meta property="og:locale" content="ar_SA" />
   <meta property="og:site_name" content="${STORE_SITE_NAME}" />
   <meta name="application-name" content="${STORE_SITE_NAME}" />
-${brandIconLinks()}
+${storeIconLinks()}
   <script type="application/ld+json">${JSON.stringify(jsonLd)}</script>
   <style>
 ${storeHeaderCss()}
@@ -209,7 +209,7 @@ ${brandPageTypeCss('linear-gradient(180deg,#120a04,#1a1208 55%,#0c0804)')}
     .grid a strong { color:#fde68a; }
     footer { margin-top:2.5rem; padding-top:1rem; border-top:1px solid var(--line); color:var(--muted); font-size:.85rem; }
   </style>
-${fazaaMeasurementTagHtml()}
+${fazaaMeasurementTagHtml({ snapViewContent: true })}
 </head>
 <body>
   <div class="wrap">

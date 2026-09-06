@@ -19,6 +19,7 @@ import {
   type StoreHalanaRequestStatus,
 } from '@/config/storeHalanaLive';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
+import { StoreLiveStoreLink } from '@/components/store/StoreLiveStoreLink';
 import { StoreDeskGuideLink } from '@/components/store/StoreDeskGuideLink';
 import { StoreDeskHelpSupport } from '@/components/store/StoreDeskHelpSupport';
 import { StoreHalanaShareDesk } from '@/components/store/StoreHalanaShareDesk';
@@ -297,6 +298,7 @@ export default function StoreHalanaShopPage() {
       ) : (
         <ShowcasePanel token={token} payload={payload} />
       )}
+      {!desk ? <StoreLiveStoreLink /> : null}
     </div>
   );
 }

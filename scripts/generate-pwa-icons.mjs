@@ -231,10 +231,7 @@ const svgFavicon = `<?xml version="1.0" encoding="UTF-8"?>
 `;
 await writeFile(join(root, 'public', 'favicon.svg'), svgFavicon, 'utf8');
 
-/**
- * ICO متعدد المقاسات (PNG داخل ICO) — مسار Google الكلاسيكي `/favicon.ico`.
- * غياب الملف يُبقي أيقونة قديمة في نتائج البحث حتى بعد تحديث PNG/SVG.
- */
+/** ICO متعدد المقاسات (PNG داخل ICO) — مسار Google الكلاسيكي `/favicon.ico`. */
 function packPngsToIco(pngEntries) {
   const count = pngEntries.length;
   const headerSize = 6 + count * 16;
@@ -264,8 +261,25 @@ const icoPngs = await Promise.all(
 );
 await writeFile(join(root, 'public', 'favicon.ico'), packPngsToIco(icoPngs));
 
+async function storeMarkSquare(size) {
+  return sharp(operatorsMarkPath)
+    .resize(size, size, { fit: 'cover', position: 'centre' })
+    .png()
+    .toBuffer();
+}
+
+for (const s of [32, 48, 96]) {
+  await sharp(await storeMarkSquare(s)).toFile(join(outDir, `store-favicon-${s}.png`));
+}
+await sharp(await storeMarkSquare(180)).toFile(join(outDir, 'store-apple-touch-icon.png'));
+await sharp(await storeMarkSquare(512)).toFile(join(outDir, 'app-icon-store-512.png'));
+const storeIcoPngs = await Promise.all(
+  [16, 32, 48].map(async (size) => ({ size, png: await storeMarkSquare(size) })),
+);
+await writeFile(join(outDir, 'store-favicon.ico'), packPngsToIco(storeIcoPngs));
+
 /** استبدال ملف الشعار القديم بنفس الشعار الجديد حتى لا يظهر في أي صفحة */
 await copyFile(sourcePath, legacyLogoPath);
 
 console.log('Official HalaqMap logo applied to PWA icons, favicon.ico, splash, and Android launcher assets.');
-console.log('Store mark applied to operators TWA splash, launcher, and Play graphics.');
+console.log('Store mark applied to operators TWA splash, launcher, Play graphics, and store favicons.');

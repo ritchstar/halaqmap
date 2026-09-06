@@ -3610,6 +3610,19 @@ html.platform-radar-fullscreen #root {
   line-height: 1;
 }
 
+.store-live-store-link {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.34);
+  line-height: 1;
+  text-decoration: none;
+}
+
+.store-live-store-link:hover {
+  color: rgba(232, 197, 71, 0.82);
+}
+
 .store-live-lights {
   background:
     radial-gradient(ellipse 46% 36% at 16% 18%, rgba(255, 236, 180, 0.34), transparent 70%),

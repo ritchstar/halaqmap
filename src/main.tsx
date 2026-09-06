@@ -11,9 +11,11 @@ import { initPlatformBuildSync } from '@/lib/platformBuildSync'
 import { assertRuntimeEnvSafety } from '@/config/runtimeEnvGuard'
 import { applyPlatformDocumentLocale } from '@/lib/platformLocale'
 import { applyCoiffeurHeadSiteIdentity } from '@/lib/coiffeurSiteIdentity'
+import { applyStoreHeadSiteIdentity } from '@/lib/storeSiteIdentity'
 
 applyPlatformDocumentLocale()
 applyCoiffeurHeadSiteIdentity()
+applyStoreHeadSiteIdentity()
 
 // build-sync يُجدول بعد mount — يكتشف حزمة JS قديمة بعد النشر ويُحدّث PWA بأمان
 import { PARTNER_ASSISTANT_UI_VERSION } from './lib/partnerAssistantUiVersion'
