@@ -45,6 +45,7 @@ import {
   storeIssuedDeliveryProbe,
 } from './_lib/storeIssuedWhatsApp.js';
 import { normalizeArabMobileDigits } from './_lib/arabMobileDial.js';
+import { mergePurchaseLegalConsentIntoOrder } from './_lib/storePurchaseLegalConsent.js';
 
 export const config = { maxDuration: 20 };
 
@@ -53,7 +54,7 @@ const CORS_OPTS = {
   allowHeaders: 'Content-Type, x-client-supabase-url, x-supabase-anon',
 } as const;
 
-const POLICY_VERSION = '2026-08-20';
+const POLICY_VERSION = '2026-09-05';
 const OTP_TTL_MS = 10 * 60 * 1000;
 const BEREAVEMENT_TTL_MS = 14 * 24 * 60 * 60 * 1000;
 
@@ -396,7 +397,9 @@ async function createPaidPending(
   if (!isOccasionCardCheckoutEnabled()) {
     return json({ error: 'تحصيل بطاقة المناسبة مغلق حالياً.' }, 503, headers);
   }
-  const parsed = parsePaidInviteBody(body);
+  const parsedRaw = parsePaidInviteBody(body);
+  if (!parsedRaw.ok) return json({ error: parsedRaw.error }, 400, headers);
+  const parsed = mergePurchaseLegalConsentIntoOrder(parsedRaw, body);
   if (!parsed.ok) return json({ error: parsed.error }, 400, headers);
   const tier = paidInviteTierFromHalalas(parsed.priceHalalas);
   if (!tier) return json({ error: 'طبقة السعر غير معتمدة' }, 400, headers);

@@ -2,6 +2,7 @@
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
 import { useState } from 'react';
+import { StoreCheckoutLegalConsent } from '@/components/store/StoreCheckoutLegalConsent';
 import { StoreEnterpriseDirectMail } from '@/components/store/StoreEnterpriseDirectMail';
 import {
   STORE_HALANA_LIVE,
@@ -9,6 +10,7 @@ import {
   STORE_HALANA_LIVE_PACKS,
   type StoreHalanaLivePackId,
 } from '@/config/storeHalanaLive';
+import { buildStorePurchaseLegalConsentFields } from '@/lib/storePurchaseLegalConsent';
 import { rememberStoreAffiliateRef } from '@/lib/storeAffiliateRef';
 import { createHalanaLivePending } from '@/lib/storeHalanaLiveRemote';
 import { halanaLivePayHref } from '@/lib/storeHostRedirect';
@@ -33,10 +35,11 @@ export function StoreHalanaOrderForm({ renewToken = '' }: { renewToken?: string 
     setBusy(true);
     setError('');
     const affiliateCode = rememberStoreAffiliateRef();
+    const consentFields = buildStorePurchaseLegalConsentFields({ includeDirectPay: true });
     const result = await createHalanaLivePending(
       renewing
-        ? { email, renewToken, packId, affiliateCode }
-        : { email, buyerName: shopName, shopName, packId, affiliateCode },
+        ? { email, renewToken, packId, affiliateCode, ...consentFields }
+        : { email, buyerName: shopName, shopName, packId, affiliateCode, ...consentFields },
     );
     if (!result.ok || typeof result.token !== 'string') {
       setBusy(false);
@@ -94,10 +97,7 @@ export function StoreHalanaOrderForm({ renewToken = '' }: { renewToken?: string 
           <input className="restaurant-field" required value={shopName} onChange={(e) => setShopName(e.target.value)} />
         </label>
       )}
-      <label className="mt-4 flex items-start gap-2 text-sm leading-7">
-        <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} className="mt-1" />
-        <span>{STORE_HALANA_LIVE.orderConsentAr}</span>
-      </label>
+      <StoreCheckoutLegalConsent checked={consent} onChange={setConsent} includeDirectPay className="mt-4" />
       <p className="mt-2 text-xs leading-6 text-white/55">{STORE_HALANA_LIVE.orderNoCollectAr}</p>
       {error ? <p className="mt-3 text-sm text-red-300">{error}</p> : null}
       <button

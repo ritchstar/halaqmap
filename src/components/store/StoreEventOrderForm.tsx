@@ -4,6 +4,7 @@
  * فورم طلب الدعوة الحرة ثم التحويل إلى ميسر على www.
  */
 import { useState } from 'react';
+import { StoreCheckoutLegalConsent } from '@/components/store/StoreCheckoutLegalConsent';
 import { StoreEnterpriseDirectMail } from '@/components/store/StoreEnterpriseDirectMail';
 import {
   STORE_EVENT_LIVE_CHECKOUT_ENABLED,
@@ -20,6 +21,7 @@ import {
 } from '@/config/storeEventLive';
 import { normalizeEventHostRole, normalizeEventVenueKind, type EventLiveHostRole } from '@/lib/storeEventLiveLab';
 import type { StoreEventVenueKind } from '@/config/storeEventLive';
+import { buildStorePurchaseLegalConsentFields } from '@/lib/storePurchaseLegalConsent';
 import { rememberStoreAffiliateRef } from '@/lib/storeAffiliateRef';
 import { createEventLivePending } from '@/lib/storeEventLiveRemote';
 import { eventLivePayHref } from '@/lib/storeHostRedirect';
@@ -66,6 +68,7 @@ export function StoreEventOrderForm({ voice = 'men' }: { voice?: StoreEventLiveV
       venueName,
       venueMapsUrl,
       welcomeAr,
+      ...buildStorePurchaseLegalConsentFields(),
     });
     if (!result.ok || typeof result.token !== 'string') {
       setBusy(false);
@@ -180,10 +183,7 @@ export function StoreEventOrderForm({ voice = 'men' }: { voice?: StoreEventLiveV
           onChange={(e) => setWelcomeAr(e.target.value)}
         />
       </label>
-      <label className="mt-4 flex items-start gap-2 text-sm leading-7">
-        <input type="checkbox" className="mt-1" checked={consent} onChange={(e) => setConsent(e.target.checked)} />
-        <span>{copy.orderConsentAr}</span>
-      </label>
+      <StoreCheckoutLegalConsent checked={consent} onChange={setConsent} className="mt-4" />
       {error ? <p className="mt-3 text-sm text-red-300">{error}</p> : null}
       <button
         type="submit"

@@ -2,6 +2,7 @@
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
 import { useState } from 'react';
+import { StoreCheckoutLegalConsent } from '@/components/store/StoreCheckoutLegalConsent';
 import { StoreEnterpriseDirectMail } from '@/components/store/StoreEnterpriseDirectMail';
 import {
   STORE_KITCHEN_LIVE,
@@ -9,6 +10,7 @@ import {
   STORE_KITCHEN_LIVE_PACKS,
   type StoreKitchenLivePackId,
 } from '@/config/storeKitchenLive';
+import { buildStorePurchaseLegalConsentFields } from '@/lib/storePurchaseLegalConsent';
 import { rememberStoreAffiliateRef } from '@/lib/storeAffiliateRef';
 import { createKitchenLivePending } from '@/lib/storeKitchenLiveRemote';
 import { kitchenLivePayHref } from '@/lib/storeHostRedirect';
@@ -33,10 +35,11 @@ export function StoreKitchenOrderForm({ renewToken = '' }: { renewToken?: string
     setBusy(true);
     setError('');
     const affiliateCode = rememberStoreAffiliateRef();
+    const consentFields = buildStorePurchaseLegalConsentFields({ includeDirectPay: true });
     const result = await createKitchenLivePending(
       renewing
-        ? { email, renewToken, packId, affiliateCode }
-        : { email, buyerName: shopName, shopName, packId, affiliateCode },
+        ? { email, renewToken, packId, affiliateCode, ...consentFields }
+        : { email, buyerName: shopName, shopName, packId, affiliateCode, ...consentFields },
     );
     if (!result.ok || typeof result.token !== 'string') {
       setBusy(false);
@@ -92,10 +95,7 @@ export function StoreKitchenOrderForm({ renewToken = '' }: { renewToken?: string
           <input className="restaurant-field" required value={shopName} onChange={(e) => setShopName(e.target.value)} />
         </label>
       )}
-      <label className="mt-4 flex items-start gap-2 text-sm leading-7">
-        <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} className="mt-1" />
-        <span>{STORE_KITCHEN_LIVE.orderConsentAr}</span>
-      </label>
+      <StoreCheckoutLegalConsent checked={consent} onChange={setConsent} includeDirectPay className="mt-4" />
       {error ? <p className="mt-3 text-sm text-red-300">{error}</p> : null}
       <button
         type="submit"

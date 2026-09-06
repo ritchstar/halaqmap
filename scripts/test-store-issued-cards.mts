@@ -19,6 +19,7 @@ import {
   STORE_ISSUED_CARDS_LEGAL_FOLD_TRIGGER_AR,
   STORE_ISSUED_CARDS_LEGAL_SECTIONS,
   STORE_ISSUED_CARDS_LEGAL_TITLE_AR,
+  STORE_PRODUCT_ANNEXES,
   acceptedChecksForTrack,
   consentsForTrack,
   unifiedConsentLabelForTrack,
@@ -89,6 +90,7 @@ import {
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const app = readFileSync(join(root, 'src/App.tsx'), 'utf8');
 const legalBlob = STORE_ISSUED_CARDS_LEGAL_SECTIONS.map((s) => `${s.title}\n${s.content}`).join('\n');
+const annexBlob = STORE_PRODUCT_ANNEXES.map((a) => `${a.productNameAr}\n${a.content}`).join('\n');
 
 assert.match(STORE_PAID_INVITE_COPY.downloadCtaAr, /تحميل/);
 assert.match(STORE_PAID_INVITE_COPY.copyLinkCtaAr, /رابط/);
@@ -259,28 +261,25 @@ const homeMapsOk = parseBereavementBody({
 });
 assert.equal(homeMapsOk.ok, false);
 
-assert.match(STORE_ISSUED_CARDS_LEGAL_TITLE_AR, /شروط وأحكام وخصوصية/);
-assert.match(legalBlob, /12/);
-assert.match(legalBlob, /29/);
-assert.match(legalBlob, /59/);
-assert.match(legalBlob, /899/);
-assert.match(legalBlob, /600/);
-assert.match(legalBlob, /لاونجا1/);
-assert.match(legalBlob, /افراحي1/);
-assert.match(legalBlob, /كاردي8/);
-assert.match(legalBlob, /اجواء1/);
-assert.match(legalBlob, /تمويناتا1/);
-assert.match(legalBlob, /صندوق محادثة/);
-assert.match(legalBlob, /لوحة المضيف/);
-assert.match(legalBlob, /رقابة برمجية صارمة/);
+assert.match(STORE_ISSUED_CARDS_LEGAL_TITLE_AR, /شروط منتجات خريطة الحل/);
+assert.match(legalBlob, /نظام التجربة العام/);
+assert.match(legalBlob, /الزوار النشطون الآن/);
+assert.match(legalBlob, /ملخص الطلب/);
+assert.match(annexBlob, /كاردي8/);
+assert.match(annexBlob, /أفراحي1/);
+assert.match(annexBlob, /اجواء1/);
+assert.match(annexBlob, /لاونجا1/);
+assert.match(annexBlob, /تمويناتا1/);
+assert.match(annexBlob, /خضارنا1/);
 assert.match(legalBlob, /نظام حماية البيانات الشخصية/);
 assert.match(legalBlob, /بوابة الدفع/);
 assert.doesNotMatch(legalBlob, /المؤسس/);
 assert.match(legalBlob, /الإدارة/);
 assert.doesNotMatch(legalBlob, /وفاة|عزاء|bereavement|مسجد|مقبرة/);
-assert.equal(consentsForTrack('paid').some((c) => c.id === 'paidNoRefund'), true);
+assert.doesNotMatch(legalBlob, /لا استرداد/);
+assert.equal(consentsForTrack('paid').some((c) => c.id === 'paidPurchaseTerms'), true);
 assert.equal(acceptedChecksForTrack('paid').termsRead, true);
-assert.equal(acceptedChecksForTrack('paid').paidNoRefund, true);
+assert.equal(acceptedChecksForTrack('paid').paidPurchaseTerms, true);
 assert.match(unifiedConsentLabelForTrack('paid'), /موافقة|أوافق/);
 assert.match(STORE_ISSUED_CARDS_LEGAL_FOLD_TRIGGER_AR, /الشروط والأحكام والتعهدات/);
 

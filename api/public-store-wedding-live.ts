@@ -17,8 +17,8 @@ import {
 import { storeAffiliateCodeFromMeta } from './_lib/storeAffiliateCode.js';
 import { creditStoreAffiliateLedger } from './_lib/storeAffiliateLedger.js';
 import { isAllowedMoyasarInvoiceUrl } from './_lib/storeIssuedCards.js';
+import { mergePurchaseLegalConsentIntoOrder } from './_lib/storePurchaseLegalConsent.js';
 import {
-  isWeddingLiveCheckoutEnabled,
   newWeddingToken,
   parseWeddingHostRole,
   parseWeddingLiveOrderBody,
@@ -221,7 +221,9 @@ async function createPending(
   if (!isWeddingLiveCheckoutEnabled()) {
     return json({ error: 'تحصيل دعوة الزواج مغلق حالياً.' }, 503, headers);
   }
-  const parsed = parseWeddingLiveOrderBody(body);
+  const parsedRaw = parseWeddingLiveOrderBody(body);
+  if (!parsedRaw.ok) return json({ error: parsedRaw.error }, 400, headers);
+  const parsed = mergePurchaseLegalConsentIntoOrder(parsedRaw, body);
   if (!parsed.ok) return json({ error: parsed.error }, 400, headers);
   const displayToken = newWeddingToken();
   const guestToken = newWeddingToken();

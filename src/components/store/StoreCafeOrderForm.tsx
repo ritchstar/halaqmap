@@ -2,6 +2,7 @@
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
 import { useState } from 'react';
+import { StoreCheckoutLegalConsent } from '@/components/store/StoreCheckoutLegalConsent';
 import { StoreEnterpriseDirectMail } from '@/components/store/StoreEnterpriseDirectMail';
 import { StoreVendorPathPicker } from '@/components/store/StoreVendorPathPicker';
 import {
@@ -11,6 +12,7 @@ import {
   type StoreCafeLivePackId,
 } from '@/config/storeCafeLive';
 import { STORE_MOBILE_VENDOR_PACKS, type StoreVendorMode } from '@/config/storeMobileVendor';
+import { buildStorePurchaseLegalConsentFields } from '@/lib/storePurchaseLegalConsent';
 import { rememberStoreAffiliateRef } from '@/lib/storeAffiliateRef';
 import { createCafeLivePending } from '@/lib/storeCafeLiveRemote';
 import { cafeLivePayHref } from '@/lib/storeHostRedirect';
@@ -37,10 +39,11 @@ export function StoreCafeOrderForm({ renewToken = '' }: { renewToken?: string })
     setBusy(true);
     setError('');
     const affiliateCode = rememberStoreAffiliateRef();
+    const consentFields = buildStorePurchaseLegalConsentFields({ includeDirectPay: true });
     const result = await createCafeLivePending(
       renewing
-        ? { email, renewToken, packId, vendorMode, affiliateCode }
-        : { email, buyerName: shopName, shopName, packId, vendorMode, affiliateCode },
+        ? { email, renewToken, packId, vendorMode, affiliateCode, ...consentFields }
+        : { email, buyerName: shopName, shopName, packId, vendorMode, affiliateCode, ...consentFields },
     );
     if (!result.ok || typeof result.token !== 'string') {
       setBusy(false);
@@ -97,10 +100,7 @@ export function StoreCafeOrderForm({ renewToken = '' }: { renewToken?: string })
           <input className="cafe-field" required value={shopName} onChange={(e) => setShopName(e.target.value)} />
         </label>
       )}
-      <label className="mt-4 flex items-start gap-2 text-sm leading-7">
-        <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} className="mt-1" />
-        <span>{STORE_CAFE_LIVE.orderConsentAr}</span>
-      </label>
+      <StoreCheckoutLegalConsent checked={consent} onChange={setConsent} includeDirectPay className="mt-4" />
       {error ? <p className="mt-3 text-sm text-red-300">{error}</p> : null}
       <button
         type="submit"

@@ -3,6 +3,7 @@
  */
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { StoreCheckoutLegalConsent } from '@/components/store/StoreCheckoutLegalConsent';
 import { StoreEnterpriseDirectMail } from '@/components/store/StoreEnterpriseDirectMail';
 import { StoreVendorPathPicker } from '@/components/store/StoreVendorPathPicker';
 import {
@@ -13,6 +14,7 @@ import {
   type StoreGrocersLivePackId,
 } from '@/config/storeGrocersLive';
 import { STORE_MOBILE_VENDOR, STORE_MOBILE_VENDOR_PACKS, type StoreVendorMode } from '@/config/storeMobileVendor';
+import { buildStorePurchaseLegalConsentFields } from '@/lib/storePurchaseLegalConsent';
 import { rememberStoreAffiliateRef } from '@/lib/storeAffiliateRef';
 import { createGrocersLivePending } from '@/lib/storeGrocersLiveRemote';
 import { grocersLivePayHref } from '@/lib/storeHostRedirect';
@@ -59,8 +61,8 @@ export function StoreGrocersOrderForm({
     const affiliateCode = rememberStoreAffiliateRef();
     const result = await createGrocersLivePending(
       renewing
-        ? { email, renewToken, packId, chatAddon: chatOn, vendorMode, affiliateCode }
-        : { email, buyerName: shopName, shopName, packId, chatAddon: chatOn, vendorMode, affiliateCode },
+        ? { email, renewToken, packId, chatAddon: chatOn, vendorMode, affiliateCode, ...buildStorePurchaseLegalConsentFields({ includeDirectPay: true }) }
+        : { email, buyerName: shopName, shopName, packId, chatAddon: chatOn, vendorMode, affiliateCode, ...buildStorePurchaseLegalConsentFields({ includeDirectPay: true }) },
     );
     if (!result.ok || typeof result.token !== 'string') {
       setBusy(false);
@@ -184,10 +186,7 @@ export function StoreGrocersOrderForm({
           {STORE_GROCERS_LIVE.summaryTotalAr}: {totalSar} ر.س
         </p>
       </div>
-      <label className="mt-4 flex items-start gap-2 text-sm leading-7">
-        <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} className="mt-1" />
-        <span>{STORE_GROCERS_LIVE.orderConsentAr}</span>
-      </label>
+      <StoreCheckoutLegalConsent checked={consent} onChange={setConsent} includeDirectPay className="mt-4" />
       <p className="mt-2 text-xs leading-6 text-white/55">{STORE_GROCERS_LIVE.orderNoCollectAr}</p>
       {error ? <p className="mt-3 text-sm text-red-300">{error}</p> : null}
       <button
