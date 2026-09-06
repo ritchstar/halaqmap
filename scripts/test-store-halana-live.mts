@@ -91,7 +91,10 @@ assert.match(api, /halanaOrderUrl/);
 assert.match(api, /updateHalanaGalleryCaption/);
 assert.match(publicApi, /update_gallery/);
 assert.match(app, /\/h\/:token\/order/);
-assert.equal(STORE_HALANA_GALLERY_MAX, 12);
+assert.equal(STORE_HALANA_GALLERY_MAX, 24);
+assert.match(page, /GalleryUploadRows/);
+assert.match(page, /galleryAddFieldAr/);
+assert.match(page, /lg:grid-cols-3/);
 assert.match(STORE_HALANA_ATMOSPHERE.hero, /halana-hero-table/);
 assert.match(STORE_HALANA_ATMOSPHERE.atelier, /halana-atelier-clear/);
 assert.match(STORE_HALANA_ATMOSPHERE.frame, /halana-ornate-frame/);
@@ -176,5 +179,20 @@ assert.match(
   }),
   /خريطة الحل لا تستلم/,
 );
+
+const shareDesk = readFileSync(join(root, 'src/components/store/StoreLiveShopShareDesk.tsx'), 'utf8');
+const halanaShareDesk = readFileSync(join(root, 'src/components/store/StoreHalanaShareDesk.tsx'), 'utf8');
+assert.match(shareDesk, /copyThenOpen/);
+assert.match(shareDesk, /liveShopWhatsappShareHref/);
+assert.match(halanaShareDesk, /StoreLiveShopShareDesk/);
+for (const rel of [
+  'src/components/store/StoreGrocersDesk.tsx',
+  'src/components/store/StoreCafeDesk.tsx',
+  'src/components/store/StoreProduceDesk.tsx',
+  'src/components/store/StoreRestaurantDesk.tsx',
+  'src/components/store/StoreKitchenDesk.tsx',
+] as const) {
+  assert.match(readFileSync(join(root, rel), 'utf8'), /StoreLiveShopShareDesk/, rel);
+}
 
 console.log('store-halana-live ok');

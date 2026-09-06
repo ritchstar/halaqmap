@@ -1,7 +1,7 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
-import QRCode from 'react-qr-code';
+import { StoreLiveShopShareDesk } from '@/components/store/StoreLiveShopShareDesk';
 import { STORE_PRODUCE_LIVE } from '@/config/storeProduceLive';
 import { produceServiceLabelAr, produceWhatsAppText, type ProduceLabState } from '@/lib/storeProduceLiveLab';
 import { StoreDeskOrderAlert } from '@/components/store/StoreDeskOrderAlert';
@@ -13,7 +13,6 @@ import { STORE_DESK_ORDER_TICKET_COPY } from '@/config/storeDeskOrderTicket';
 import { applyDeskFinish, deskOrderPhase, isLiveDeskTicket, receiveDeskTicket } from '@/lib/storeDeskOrderTicket';
 import { StoreProduceIngest } from '@/components/store/StoreProduceIngest';
 import { StoreProduceDeskChat } from '@/components/store/StoreProduceChat';
-import { StoreProductPassDeskButton } from '@/components/store/StoreProductPassDeskButton';
 import { StoreShopHoursDesk } from '@/components/store/StoreShopHoursDesk';
 import { StoreShopPlaceDesk } from '@/components/store/StoreShopPlaceDesk';
 import { StoreShopPresenceCount } from '@/components/store/StoreShopPresenceCount';
@@ -65,17 +64,6 @@ export function StoreProduceDesk({
       ...state,
       shelf: state.shelf.map((item) => (item.catalogId === catalogId ? { ...item, arrivedToday: !item.arrivedToday } : item)),
     });
-  }
-
-  function printQr() {
-    const node = document.getElementById('produce-qr-print');
-    if (!node) return;
-    const win = window.open('', '_blank', 'width=420,height=640');
-    if (!win) return;
-    win.document.write(`<html lang="ar" dir="rtl"><head><title>ملصق QR</title></head><body>${node.innerHTML}</body></html>`);
-    win.document.close();
-    win.focus();
-    win.print();
   }
 
   return (
@@ -230,19 +218,16 @@ export function StoreProduceDesk({
       </StoreOpsSection>
 
       <StoreOpsSection titleAr="ملصق العرض" accent="#3d8b4a">
-      <div className="rounded-2xl border border-[#3d8b4a]/30 p-4">
-        <div id="produce-qr-print" className="mx-auto w-64 rounded-xl bg-white p-4 text-center text-[#061018]">
-          <p className="text-sm font-black">{state.host.shopName}</p>
-          <div className="mx-auto my-3 w-40">
-            <QRCode value={shopUrl} size={160} />
-          </div>
-          <p className="text-xs leading-6">{STORE_PRODUCE_LIVE.qrPhraseAr}</p>
-        </div>
-        <button type="button" onClick={printQr} className="mt-3 w-full rounded-full bg-[#3d8b4a] py-2 text-sm font-bold text-[#061018]">
-          {STORE_PRODUCE_LIVE.qrPrintAr}
-        </button>
-        <StoreProductPassDeskButton kind="produce" token={token} shopName={state.host.shopName} />
-      </div>
+        <StoreLiveShopShareDesk
+          kind="produce"
+          token={token}
+          shopName={state.host.shopName}
+          shopUrl={shopUrl}
+          qrPhraseAr={STORE_PRODUCE_LIVE.qrPhraseAr}
+          qrPrintAr={STORE_PRODUCE_LIVE.qrPrintAr}
+          accent="#3d8b4a"
+          showTitle={false}
+        />
       </StoreOpsSection>
 
       <StoreDeskArchiveDock tickets={state.orderArchive} accent="#3d8b4a" filename="produce-archive.json" />

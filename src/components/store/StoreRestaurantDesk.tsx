@@ -1,7 +1,7 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
-import QRCode from 'react-qr-code';
+import { StoreLiveShopShareDesk } from '@/components/store/StoreLiveShopShareDesk';
 import {
   STORE_RESTAURANT_AVAILABILITY_ORDER,
   STORE_RESTAURANT_CUSTOM_FIELD_LABELS,
@@ -17,7 +17,6 @@ import { StoreDeskTicketActions } from '@/components/store/StoreDeskTicketAction
 import { StoreRestaurantMenuBoard } from '@/components/store/StoreRestaurantMenuBoard';
 import { StoreRestaurantDeskChat } from '@/components/store/StoreRestaurantChat';
 import { StoreShopPresenceCount } from '@/components/store/StoreShopPresenceCount';
-import { StoreProductPassDeskButton } from '@/components/store/StoreProductPassDeskButton';
 import { StoreShopHoursDesk } from '@/components/store/StoreShopHoursDesk';
 import { StoreShopPlaceDesk } from '@/components/store/StoreShopPlaceDesk';
 import { StoreDeskHelpSupport } from '@/components/store/StoreDeskHelpSupport';
@@ -94,17 +93,6 @@ export function StoreRestaurantDesk({
   function clearArchive() {
     if (!window.confirm(STORE_RESTAURANT_LIVE.archiveDeleteConfirmAr)) return;
     onChange({ ...state, orderArchive: [] });
-  }
-
-  function printQr() {
-    const node = document.getElementById('restaurant-qr-print');
-    if (!node) return;
-    const win = window.open('', '_blank', 'width=420,height=640');
-    if (!win) return;
-    win.document.write(`<html lang="ar" dir="rtl"><head><title>ملصق QR</title></head><body>${node.innerHTML}</body></html>`);
-    win.document.close();
-    win.focus();
-    win.print();
   }
 
   return (
@@ -267,19 +255,16 @@ export function StoreRestaurantDesk({
       <StoreRestaurantMenuBoard state={state} onChange={onChange} />
 
       <StoreOpsSection titleAr="ملصق العرض" accent="#e08a3c">
-      <div className="rounded-2xl border border-[#e08a3c]/30 p-4">
-        <div id="restaurant-qr-print" className="mx-auto w-64 rounded-xl bg-white p-4 text-center text-[#061018]">
-          <p className="text-sm font-black">{state.host.shopName}</p>
-          <div className="mx-auto my-3 w-40">
-            <QRCode value={shopUrl} size={160} />
-          </div>
-          <p className="text-xs leading-6">{STORE_RESTAURANT_LIVE.qrPhraseAr}</p>
-        </div>
-        <button type="button" onClick={printQr} className="mt-3 w-full rounded-full bg-[#e08a3c] py-2 text-sm font-bold text-[#061018]">
-          {STORE_RESTAURANT_LIVE.qrPrintAr}
-        </button>
-        <StoreProductPassDeskButton kind="restaurant" token={token} shopName={state.host.shopName} />
-      </div>
+        <StoreLiveShopShareDesk
+          kind="restaurant"
+          token={token}
+          shopName={state.host.shopName}
+          shopUrl={shopUrl}
+          qrPhraseAr={STORE_RESTAURANT_LIVE.qrPhraseAr}
+          qrPrintAr={STORE_RESTAURANT_LIVE.qrPrintAr}
+          accent="#e08a3c"
+          showTitle={false}
+        />
       </StoreOpsSection>
 
       <StoreDeskArchiveDock

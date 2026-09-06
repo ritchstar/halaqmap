@@ -1,7 +1,7 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
-import QRCode from 'react-qr-code';
+import { StoreLiveShopShareDesk } from '@/components/store/StoreLiveShopShareDesk';
 import { STORE_CAFE_LIVE } from '@/config/storeCafeLive';
 import { cafeWhatsAppText, type CafeLabState } from '@/lib/storeCafeLiveLab';
 import { StoreDeskOrderAlert } from '@/components/store/StoreDeskOrderAlert';
@@ -14,7 +14,6 @@ import { applyDeskFinish, deskOrderPhase, isLiveDeskTicket, receiveDeskTicket } 
 import { StoreCafeMenuBoard } from '@/components/store/StoreCafeMenuBoard';
 import { StoreCafeDeskChat } from '@/components/store/StoreCafeChat';
 import { StoreShopPresenceCount } from '@/components/store/StoreShopPresenceCount';
-import { StoreProductPassDeskButton } from '@/components/store/StoreProductPassDeskButton';
 import { StoreShopHoursDesk } from '@/components/store/StoreShopHoursDesk';
 import { StoreShopPlaceDesk } from '@/components/store/StoreShopPlaceDesk';
 import { StoreDeskHelpSupport } from '@/components/store/StoreDeskHelpSupport';
@@ -58,17 +57,6 @@ export function StoreCafeDesk({
       ...state,
       shelf: state.shelf.map((item) => (item.catalogId === catalogId ? { ...item, inStock: !item.inStock } : item)),
     });
-  }
-
-  function printQr() {
-    const node = document.getElementById('cafe-qr-print');
-    if (!node) return;
-    const win = window.open('', '_blank', 'width=420,height=640');
-    if (!win) return;
-    win.document.write(`<html lang="ar" dir="rtl"><head><title>ملصق QR</title></head><body>${node.innerHTML}</body></html>`);
-    win.document.close();
-    win.focus();
-    win.print();
   }
 
   return (
@@ -216,19 +204,16 @@ export function StoreCafeDesk({
       <StoreCafeMenuBoard state={state} onChange={onChange} />
 
       <StoreOpsSection titleAr="ملصق العرض" accent="#c48a4a">
-      <div className="rounded-2xl border border-[#c48a4a]/30 p-4">
-        <div id="cafe-qr-print" className="mx-auto w-64 rounded-xl bg-white p-4 text-center text-[#061018]">
-          <p className="text-sm font-black">{state.host.shopName}</p>
-          <div className="mx-auto my-3 w-40">
-            <QRCode value={shopUrl} size={160} />
-          </div>
-          <p className="text-xs leading-6">{STORE_CAFE_LIVE.qrPhraseAr}</p>
-        </div>
-        <button type="button" onClick={printQr} className="mt-3 w-full rounded-full bg-[#c48a4a] py-2 text-sm font-bold text-[#061018]">
-          {STORE_CAFE_LIVE.qrPrintAr}
-        </button>
-        <StoreProductPassDeskButton kind="cafe" token={token} shopName={state.host.shopName} />
-      </div>
+        <StoreLiveShopShareDesk
+          kind="cafe"
+          token={token}
+          shopName={state.host.shopName}
+          shopUrl={shopUrl}
+          qrPhraseAr={STORE_CAFE_LIVE.qrPhraseAr}
+          qrPrintAr={STORE_CAFE_LIVE.qrPrintAr}
+          accent="#c48a4a"
+          showTitle={false}
+        />
       </StoreOpsSection>
 
       <StoreDeskArchiveDock tickets={state.orderArchive} accent="#c48a4a" filename="cafe-archive.json" />

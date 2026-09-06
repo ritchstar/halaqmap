@@ -7,7 +7,7 @@ import { StoreKitchenGrowthHubButton } from '@/components/store/StoreKitchenGrow
 import { StoreDeskArchiveDock } from '@/components/store/StoreDeskArchiveDock';
 import { StoreDeskTicketActions } from '@/components/store/StoreDeskTicketActions';
 import { Link } from 'react-router-dom';
-import QRCode from 'react-qr-code';
+import { StoreLiveShopShareDesk } from '@/components/store/StoreLiveShopShareDesk';
 import { STORE_KITCHEN_GIFT_COPY } from '@/config/storeKitchenGiftCampaign';
 import { STORE_KITCHEN_LIVE } from '@/config/storeKitchenLive';
 import { STORE_PRODUCT_TRIAL_PRODUCTS } from '@/config/storeProductTrial';
@@ -25,7 +25,6 @@ import {
 import { StoreKitchenLocateButton } from '@/components/store/StoreKitchenLocateButton';
 import { StoreKitchenMenuBoard } from '@/components/store/StoreKitchenMenuBoard';
 import { StoreShopPresenceCount } from '@/components/store/StoreShopPresenceCount';
-import { StoreProductPassDeskButton } from '@/components/store/StoreProductPassDeskButton';
 import { StoreShopHoursDesk } from '@/components/store/StoreShopHoursDesk';
 import { StoreDeskHelpSupport } from '@/components/store/StoreDeskHelpSupport';
 import { StoreDeskGuideLink } from '@/components/store/StoreDeskGuideLink';
@@ -128,17 +127,6 @@ export function StoreKitchenDesk({
         <StoreDeskTicketActions order={order} accent="#b45a3c" onReceive={() => receiveOrder(order.id)} onFinish={() => finishOrder(order.id)} />
       </li>
     );
-  }
-
-  function printQr() {
-    const node = document.getElementById('kitchen-qr-print');
-    if (!node) return;
-    const win = window.open('', '_blank', 'width=420,height=640');
-    if (!win) return;
-    win.document.write(`<html lang="ar" dir="rtl"><head><title>ملصق QR</title></head><body>${node.innerHTML}</body></html>`);
-    win.document.close();
-    win.focus();
-    win.print();
   }
 
   const giftCopy = STORE_KITCHEN_GIFT_COPY;
@@ -343,40 +331,36 @@ export function StoreKitchenDesk({
       <StoreKitchenMenuBoard state={state} onChange={onChange} />
 
       <StoreOpsSection titleAr="ملصق العرض" accent="#b45a3c">
-      <div className="rounded-2xl border border-[#b45a3c]/30 p-4">
-        <div id="kitchen-qr-print" className="mx-auto w-64 rounded-xl bg-white p-4 text-center text-[#061018]">
-          <p className="text-sm font-black">{state.host.shopName}</p>
-          <div className="mx-auto my-3 w-40">
-            <QRCode value={state.host.qrActive ? shopUrl : 'رمز أُبطل'} size={160} />
-          </div>
-          <p className="text-xs leading-6">{STORE_KITCHEN_LIVE.qrPhraseAr}</p>
-        </div>
-        <div className="mt-3 grid gap-2 sm:grid-cols-2">
-          <button type="button" onClick={printQr} className="rounded-full bg-[#b45a3c] py-2 text-sm font-bold text-[#061018]">
-            {STORE_KITCHEN_LIVE.qrPrintAr}
-          </button>
-          <button
-            type="button"
-            onClick={() => onChange({ ...state, host: { ...state.host, qrActive: false } })}
-            className="rounded-full border border-white/20 py-2 text-sm"
-          >
-            {STORE_KITCHEN_LIVE.qrRevokeAr}
-          </button>
-          <button
-            type="button"
-            onClick={() => onChange({ ...state, host: { ...state.host, qrStamp: newKitchenQrStamp(), qrActive: true } })}
-            className="sm:col-span-2 rounded-full border border-[#b45a3c]/40 py-2 text-sm text-[#b45a3c]"
-          >
-            {STORE_KITCHEN_LIVE.qrRenewAr}
-          </button>
-        </div>
-        <StoreProductPassDeskButton
+        <StoreLiveShopShareDesk
           kind="kitchen"
           token={token}
           shopName={state.host.shopName}
+          shopUrl={shopUrl}
+          qrValue={state.host.qrActive ? shopUrl : 'رمز أُبطل'}
+          qrPhraseAr={STORE_KITCHEN_LIVE.qrPhraseAr}
+          qrPrintAr={STORE_KITCHEN_LIVE.qrPrintAr}
+          accent="#b45a3c"
           qrStamp={state.host.qrActive ? state.host.qrStamp : ''}
+          showTitle={false}
+          afterPrint={
+            <div className="grid gap-2 sm:grid-cols-2">
+              <button
+                type="button"
+                onClick={() => onChange({ ...state, host: { ...state.host, qrActive: false } })}
+                className="rounded-full border border-white/20 py-2 text-sm"
+              >
+                {STORE_KITCHEN_LIVE.qrRevokeAr}
+              </button>
+              <button
+                type="button"
+                onClick={() => onChange({ ...state, host: { ...state.host, qrStamp: newKitchenQrStamp(), qrActive: true } })}
+                className="sm:col-span-2 rounded-full border border-[#b45a3c]/40 py-2 text-sm text-[#b45a3c]"
+              >
+                {STORE_KITCHEN_LIVE.qrRenewAr}
+              </button>
+            </div>
+          }
         />
-      </div>
       </StoreOpsSection>
 
       <StoreDeskArchiveDock tickets={state.orderArchive} accent="#b45a3c" filename="kitchen-archive.json" />

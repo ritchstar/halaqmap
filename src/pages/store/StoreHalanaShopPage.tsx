@@ -34,6 +34,7 @@ import { fetchDirectPay } from '@/lib/storeDirectPayRemote';
 import { HALANA_PAY_REQUEST_KEY } from '@/lib/storeHalanaPay';
 import { fetchHalanaPublic, postHalanaAction } from '@/lib/storeHalanaLiveRemote';
 import { compressImageFile, youtubeEmbedSrc } from '@/lib/storeWeddingLiveLab';
+import { cn } from '@/lib/utils';
 
 type RequestRow = {
   id: string;
@@ -172,7 +173,7 @@ function ProductGallery({ items, emptyAr, featured }: { items: GalleryItem[]; em
           ) : null}
         </figure>
         {rest.length > 0 ? (
-          <div className="grid gap-5 sm:grid-cols-2">
+          <div className={cn('grid gap-5', rest.length >= 4 ? 'sm:grid-cols-2 lg:grid-cols-3' : 'sm:grid-cols-2')}>
             {rest.map((item) => (
               <figure key={item.id} className="halana-work-card overflow-hidden rounded-[1.6rem] p-1.5">
                 <img src={item.src} alt={item.caption || copy.galleryTitleAr} className="h-64 w-full object-cover" />
@@ -187,7 +188,7 @@ function ProductGallery({ items, emptyAr, featured }: { items: GalleryItem[]; em
     );
   }
   return (
-    <div className="grid gap-3 sm:grid-cols-2">
+    <div className={cn('grid gap-3', items.length >= 4 ? 'sm:grid-cols-2 lg:grid-cols-3' : 'sm:grid-cols-2')}>
       {items.map((item) => (
         <figure key={item.id} className="halana-work-card overflow-hidden rounded-3xl p-1.5">
           <img src={item.src} alt={item.caption || copy.galleryTitleAr} className="h-52 w-full object-cover" />
@@ -565,6 +566,105 @@ function OrderPanel({
   );
 }
 
+type PendingGalleryRow = { id: string; caption: string };
+
+function GalleryUploadRows({
+  busy,
+  galleryCount,
+  onUpload,
+}: {
+  busy: boolean;
+  galleryCount: number;
+  onUpload: (caption: string, file: File) => Promise<boolean>;
+}) {
+  const copy = STORE_HALANA_LIVE_COPY;
+  const slotsLeft = Math.max(0, STORE_HALANA_GALLERY_MAX - galleryCount);
+  const [rows, setRows] = useState<PendingGalleryRow[]>([{ id: 'row-0', caption: '' }]);
+
+  useEffect(() => {
+    setRows((current) => (current.length > slotsLeft && slotsLeft > 0 ? current.slice(0, slotsLeft) : current));
+  }, [slotsLeft]);
+
+  function addRow() {
+    if (rows.length >= slotsLeft) return;
+    setRows((current) => [...current, { id: `row-${Date.now()}`, caption: '' }]);
+  }
+
+  function updateCaption(id: string, caption: string) {
+    setRows((current) => current.map((row) => (row.id === id ? { ...row, caption } : row)));
+  }
+
+  function removeRow(id: string) {
+    setRows((current) => (current.length <= 1 ? current : current.filter((row) => row.id !== id)));
+  }
+
+  async function handleFile(id: string, file: File | undefined) {
+    if (!file || busy) return;
+    const row = rows.find((item) => item.id === id);
+    if (!row) return;
+    const ok = await onUpload(row.caption, file);
+    if (!ok) return;
+    setRows((current) => {
+      if (current.length <= 1) return [{ id: current[0]?.id || 'row-0', caption: '' }];
+      return current.filter((item) => item.id !== id);
+    });
+  }
+
+  if (slotsLeft <= 0) {
+    return <p className="text-sm text-amber-100/80">{copy.galleryFullAr}</p>;
+  }
+
+  return (
+    <div className="space-y-4">
+      <p className="text-sm text-white/65">{copy.galleryCountAr(galleryCount, STORE_HALANA_GALLERY_MAX)}</p>
+      {rows.map((row, index) => (
+        <div key={row.id} className="halana-ornament space-y-3 rounded-2xl p-4">
+          <p className="text-sm font-bold text-[#ffe8c4]/90">حقل العمل {index + 1}</p>
+          <HalanaField label={copy.galleryCaptionAr}>
+            <textarea
+              className="halana-field min-h-20"
+              maxLength={STORE_HALANA_CAPTION_MAX}
+              value={row.caption}
+              onChange={(event) => updateCaption(row.id, event.target.value)}
+            />
+          </HalanaField>
+          <div className="flex flex-wrap items-center gap-2">
+            <label className="halana-action inline-flex cursor-pointer rounded-full px-4 py-2 text-sm font-extrabold">
+              {copy.galleryUploadAr}
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                className="sr-only"
+                disabled={busy}
+                onChange={(event) => {
+                  const file = event.target.files?.[0];
+                  event.target.value = '';
+                  void handleFile(row.id, file);
+                }}
+              />
+            </label>
+            {rows.length > 1 ? (
+              <button type="button" disabled={busy} className="text-xs underline" onClick={() => removeRow(row.id)}>
+                {copy.galleryRemoveAr}
+              </button>
+            ) : null}
+          </div>
+        </div>
+      ))}
+      {rows.length < slotsLeft ? (
+        <button
+          type="button"
+          disabled={busy}
+          className="rounded-full border border-white/20 px-4 py-2 text-sm font-bold"
+          onClick={addRow}
+        >
+          {copy.galleryAddFieldAr}
+        </button>
+      ) : null}
+    </div>
+  );
+}
+
 function DeskPanel({ token, payload, onSaved }: { token: string; payload: Payload; onSaved: () => void }) {
   const copy = STORE_HALANA_LIVE_COPY;
   const [shopName, setShopName] = useState(payload.shopName);
@@ -576,7 +676,6 @@ function DeskPanel({ token, payload, onSaved }: { token: string; payload: Payloa
   const [promoTitleAr, setPromoTitleAr] = useState(payload.promoTitleAr);
   const [promoAr, setPromoAr] = useState(payload.promoAr);
   const [youtubeUrls, setYoutubeUrls] = useState(payload.youtubeUrls);
-  const [caption, setCaption] = useState('');
   const [busy, setBusy] = useState(false);
   const gallery = payload.gallery || [];
 
@@ -604,11 +703,11 @@ function DeskPanel({ token, payload, onSaved }: { token: string; payload: Payloa
     onSaved();
   }
 
-  async function onUpload(file: File | undefined) {
-    if (!file || busy) return;
+  async function onUpload(captionText: string, file: File): Promise<boolean> {
+    if (busy) return false;
     if (gallery.length >= STORE_HALANA_GALLERY_MAX) {
       toast.error(copy.galleryFullAr);
-      return;
+      return false;
     }
     setBusy(true);
     try {
@@ -618,23 +717,24 @@ function DeskPanel({ token, payload, onSaved }: { token: string; payload: Payloa
       }
       if (imageSrc.length > STORE_HALANA_IMAGE_MAX_CHARS) {
         toast.error('الصورة أكبر من حد العرض. جرّبي صورة أوضح وأصغر.');
-        return;
+        return false;
       }
       const res = await postHalanaAction({
         action: 'add_gallery',
         token,
         imageSrc,
-        caption: caption.slice(0, STORE_HALANA_CAPTION_MAX),
+        caption: captionText.slice(0, STORE_HALANA_CAPTION_MAX),
       });
       if (!res.ok) {
         toast.error(res.error);
-        return;
+        return false;
       }
-      setCaption('');
       toast.success('ظهرت الصورة في معرض العميلات.');
       onSaved();
+      return true;
     } catch {
       toast.error('تعذر رفع الصورة. جرّبي ملفاً أصغر.');
+      return false;
     } finally {
       setBusy(false);
     }
@@ -705,29 +805,7 @@ function DeskPanel({ token, payload, onSaved }: { token: string; payload: Payloa
             onRemove={onRemove}
           />
         ))}
-        <HalanaField label={copy.galleryCaptionAr}>
-          <textarea
-            className="halana-field min-h-20"
-            maxLength={STORE_HALANA_CAPTION_MAX}
-            value={caption}
-            onChange={(event) => setCaption(event.target.value)}
-          />
-        </HalanaField>
-        <label className="halana-action inline-flex cursor-pointer rounded-full px-4 py-2 text-sm font-extrabold">
-          {copy.galleryUploadAr}
-          <input
-            type="file"
-            accept="image/jpeg,image/png,image/webp"
-            className="sr-only"
-            disabled={busy || gallery.length >= STORE_HALANA_GALLERY_MAX}
-            onChange={(event) => {
-              const file = event.target.files?.[0];
-              event.target.value = '';
-              void onUpload(file);
-            }}
-          />
-        </label>
-        {gallery.length >= STORE_HALANA_GALLERY_MAX ? <p className="text-sm text-amber-100/80">{copy.galleryFullAr}</p> : null}
+        <GalleryUploadRows busy={busy} galleryCount={gallery.length} onUpload={onUpload} />
       </section>
       <section className="halana-form-card space-y-4 rounded-2xl p-5">
         <h2 className="halana-title-sm">نصوص المعرض ولقطاته</h2>

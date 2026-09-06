@@ -74,7 +74,7 @@ export function payDeskFromCopy(row: Record<string, unknown>) {
     networkRemainder: Boolean(row.pay_network_remainder),
   };
 }
-export const STORE_HALANA_GALLERY_MAX = 12;
+export const STORE_HALANA_GALLERY_MAX = 24;
 export const STORE_HALANA_YOUTUBE_MAX = 6;
 export const STORE_HALANA_IMAGE_MAX_CHARS = 180000;
 export const STORE_HALANA_CAPTION_MAX = 180;

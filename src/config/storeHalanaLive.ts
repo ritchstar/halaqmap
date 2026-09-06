@@ -79,7 +79,7 @@ export function halanaDaysForPack(packId: StoreHalanaLivePackId): number {
 export function halanaAffiliateCommissionSar(packId: StoreHalanaLivePackId): number {
   return packId === 'm12' ? 288 : 194;
 }
-export const STORE_HALANA_GALLERY_MAX = 12;
+export const STORE_HALANA_GALLERY_MAX = 24;
 export const STORE_HALANA_YOUTUBE_MAX = 6;
 export const STORE_HALANA_IMAGE_MAX_CHARS = 180_000;
 export const STORE_HALANA_CAPTION_MAX = 180;
@@ -268,7 +268,9 @@ export const STORE_HALANA_LIVE_COPY = {
   galleryEmptyAr: 'ستظهر أعمال المتخصصة هنا بعد رفع الصور من اللوحة.',
   galleryDeskTitleAr: 'صور المنتجات المعروضة للعميلات',
   galleryDeskLeadAr: 'ارفعي صور أعمالك واكتبي وصف كل عمل. تظهر في الصفحة الرئيسية التي توجّهين إليها العميلات، بلا وصفات.',
-  galleryUploadAr: 'رفع صورة منتج',
+  galleryUploadAr: 'رفع صورة العمل',
+  galleryAddFieldAr: 'إضافة حقل عمل',
+  galleryCountAr: (count: number, max: number) => `${count} من ${max} عمل`,
   galleryCaptionAr: 'وصف مختصر اختياري',
   galleryRemoveAr: 'إخفاء',
   galleryFullAr: 'بلغت الصور الحد الأعلى.',
