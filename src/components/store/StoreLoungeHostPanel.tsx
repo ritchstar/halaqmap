@@ -18,6 +18,7 @@ import { StoreTrialOpsNote } from '@/components/store/StoreTrialOpsNote';
 import { StoreProductPassDeskButton } from '@/components/store/StoreProductPassDeskButton';
 import { StoreShopPlaceDesk } from '@/components/store/StoreShopPlaceDesk';
 import { StoreDeskGuideLink } from '@/components/store/StoreDeskGuideLink';
+import { StoreDeskCornerDock } from '@/components/store/StoreDeskCornerNav';
 import { STORE_LOUNGE_SUPPORT } from '@/config/storeProductSupport';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 
@@ -93,14 +94,6 @@ export function StoreLoungeHostPanel({
           <StoreTrialOpsNote productKey="lounge" />
         </div>
       ) : null}
-      <div className="mt-4">
-        <StoreDeskGuideLink
-          to={ROUTE_PATHS.STORE_LOUNGE_SUPPORT}
-          leadAr={STORE_LOUNGE_SUPPORT.deskLeadAr}
-          ctaAr={STORE_LOUNGE_SUPPORT.deskCtaAr}
-          accent={STORE_LOUNGE_SUPPORT.accent}
-        />
-      </div>
       {expiresAt ? (
         <p className="mt-2 text-xs text-white/55">تنتهي مدة التشغيل في {expiresAt.slice(0, 10)}.</p>
       ) : null}
@@ -276,6 +269,13 @@ export function StoreLoungeHostPanel({
           ))}
         </ul>
       ) : null}
+      <StoreDeskCornerDock>
+        <StoreDeskGuideLink
+          to={ROUTE_PATHS.STORE_LOUNGE_SUPPORT}
+          leadAr={STORE_LOUNGE_SUPPORT.deskLeadAr}
+          labelAr={STORE_LOUNGE_SUPPORT.landingCtaAr}
+        />
+      </StoreDeskCornerDock>
     </div>
   );
 }

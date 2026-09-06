@@ -30,6 +30,7 @@ import { StoreGuestResentLinkPreview } from '@/components/store/StoreGuestResent
 import { StoreHostGuestInviteIssuance } from '@/components/store/StoreHostGuestInviteIssuance';
 import { StoreTrialOpsNote } from '@/components/store/StoreTrialOpsNote';
 import { StoreDeskGuideLink } from '@/components/store/StoreDeskGuideLink';
+import { StoreDeskCornerDock } from '@/components/store/StoreDeskCornerNav';
 import { STORE_HALLS_SUPPORT } from '@/config/storeProductSupport';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { cn } from '@/lib/utils';
@@ -134,14 +135,6 @@ export function StoreEventHostPanel({
       <div className="invite-host-panel rounded-[28px] border border-white/12 bg-[#0b1a24]/92 p-5">
         <h2 className="invite-luminous text-xl font-extrabold">{copy.hostPanelTitleAr}</h2>
         {isLab ? null : <div className="mt-3"><StoreTrialOpsNote productKey="event" /></div>}
-        <div className="mt-4">
-          <StoreDeskGuideLink
-            to={ROUTE_PATHS.STORE_HALLS_SUPPORT}
-            leadAr={STORE_HALLS_SUPPORT.deskLeadAr}
-            ctaAr={STORE_HALLS_SUPPORT.deskCtaAr}
-            accent={STORE_HALLS_SUPPORT.accent}
-          />
-        </div>
         {hostToken ? (
           <StoreHostGuestInviteIssuance
             kind="event"
@@ -350,6 +343,13 @@ export function StoreEventHostPanel({
           />
         </div>
       ) : null}
+      <StoreDeskCornerDock>
+        <StoreDeskGuideLink
+          to={ROUTE_PATHS.STORE_HALLS_SUPPORT}
+          leadAr={STORE_HALLS_SUPPORT.deskLeadAr}
+          labelAr={STORE_HALLS_SUPPORT.landingCtaAr}
+        />
+      </StoreDeskCornerDock>
     </div>
   );
 }

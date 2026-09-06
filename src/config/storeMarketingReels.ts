@@ -95,6 +95,7 @@ const KITCHEN_GENERATED = [
 
 export const STORE_KITCHEN_MARKETING_FRAMES = [
   '/images/store/kitchen-hero-marketing.jpg',
+  '/images/store/kitchen/kitchen-sky-ambient.jpg',
   ...KITCHEN_GENERATED,
 ] as const;
 

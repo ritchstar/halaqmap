@@ -19,6 +19,7 @@ import { StoreShopPlaceDesk } from '@/components/store/StoreShopPlaceDesk';
 import { StoreShopPresenceCount } from '@/components/store/StoreShopPresenceCount';
 import { StoreDeskHelpSupport } from '@/components/store/StoreDeskHelpSupport';
 import { StoreDeskGuideLink } from '@/components/store/StoreDeskGuideLink';
+import { StoreDeskCornerDock } from '@/components/store/StoreDeskCornerNav';
 import { StoreShopLogoDesk } from '@/components/store/StoreShopLogoDesk';
 import { STORE_PRODUCE_SUPPORT } from '@/config/storeProductSupport';
 import { StoreOpsSection } from '@/components/store/StoreOpsSection';
@@ -78,7 +79,7 @@ export function StoreProduceDesk({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-14">
       <StoreDeskOrderAlert
         product="produce"
         token={token}
@@ -266,13 +267,14 @@ export function StoreProduceDesk({
       </StoreOpsSection>
 
       <StoreDeskArchiveDock tickets={state.orderArchive} accent="#3d8b4a" filename="produce-archive.json" />
-      <StoreDeskGuideLink
-        to={ROUTE_PATHS.STORE_PRODUCE_SUPPORT}
-        leadAr={STORE_PRODUCE_SUPPORT.deskLeadAr}
-        ctaAr={STORE_PRODUCE_SUPPORT.deskCtaAr}
-        accent={STORE_PRODUCE_SUPPORT.accent}
-      />
-      <StoreDeskHelpSupport product="produce" />
+      <StoreDeskCornerDock>
+        <StoreDeskGuideLink
+          to={ROUTE_PATHS.STORE_PRODUCE_SUPPORT}
+          leadAr={STORE_PRODUCE_SUPPORT.deskLeadAr}
+          labelAr={STORE_PRODUCE_SUPPORT.landingCtaAr}
+        />
+        <StoreDeskHelpSupport product="produce" />
+      </StoreDeskCornerDock>
     </div>
   );
 }

@@ -1,16 +1,17 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
- * سماء متجر الحي: تمويناتا1 وخضارنا1 فقط. كل منتج بصوره.
+ * سماء متجر الحي: تمويناتا1 وخضارنا1 وطبختنا1. كل منتج بصوره.
  * لا قاعات زواج ولا بانوراما اللاونج. لا يُستورد من App.
  */
 import type { AmbientPhaseId } from '@/config/platformAmbientPhases';
 import {
   STORE_GROCERS_MARKETING_FRAMES,
+  STORE_KITCHEN_MARKETING_FRAMES,
   STORE_PRODUCE_MARKETING_FRAMES,
 } from '@/config/storeMarketingReels';
 
-export type StoreShopSkyProduct = 'grocers' | 'produce';
+export type StoreShopSkyProduct = 'grocers' | 'produce' | 'kitchen';
 export type StoreShopSkySurface = 'shop' | 'desk';
 
 export const STORE_SHOP_SKY_INTERVAL_MS = {
@@ -74,6 +75,7 @@ export const STORE_SHOP_SKY_VEIL: Record<StoreShopSkySurface, Record<AmbientPhas
 const BANKS: Record<StoreShopSkyProduct, readonly string[]> = {
   grocers: STORE_GROCERS_MARKETING_FRAMES,
   produce: STORE_PRODUCE_MARKETING_FRAMES,
+  kitchen: STORE_KITCHEN_MARKETING_FRAMES,
 };
 
 export function storeShopSkyBank(product: StoreShopSkyProduct): readonly string[] {

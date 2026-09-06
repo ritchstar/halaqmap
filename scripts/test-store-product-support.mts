@@ -108,6 +108,8 @@ const desks = [
 for (const [rel, token] of desks) {
   const src = readFileSync(join(root, rel), 'utf8');
   assert.match(src, /StoreDeskGuideLink/);
+  assert.match(src, /StoreDeskCornerDock/);
+  assert.match(src, /landingCtaAr/);
   assert.match(src, new RegExp(token));
 }
 

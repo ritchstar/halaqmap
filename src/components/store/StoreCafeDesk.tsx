@@ -19,6 +19,7 @@ import { StoreShopHoursDesk } from '@/components/store/StoreShopHoursDesk';
 import { StoreShopPlaceDesk } from '@/components/store/StoreShopPlaceDesk';
 import { StoreDeskHelpSupport } from '@/components/store/StoreDeskHelpSupport';
 import { StoreDeskGuideLink } from '@/components/store/StoreDeskGuideLink';
+import { StoreDeskCornerDock } from '@/components/store/StoreDeskCornerNav';
 import { StoreShopLogoDesk } from '@/components/store/StoreShopLogoDesk';
 import { STORE_CAFE_SUPPORT } from '@/config/storeProductSupport';
 import { StoreOpsSection } from '@/components/store/StoreOpsSection';
@@ -71,7 +72,7 @@ export function StoreCafeDesk({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-14">
       <StoreDeskOrderAlert
         product="cafe"
         token={token}
@@ -252,13 +253,14 @@ export function StoreCafeDesk({
       </StoreOpsSection>
 
       <StoreDeskArchiveDock tickets={state.orderArchive} accent="#c48a4a" filename="cafe-archive.json" />
-      <StoreDeskGuideLink
-        to={ROUTE_PATHS.STORE_CAFE_SUPPORT}
-        leadAr={STORE_CAFE_SUPPORT.deskLeadAr}
-        ctaAr={STORE_CAFE_SUPPORT.deskCtaAr}
-        accent={STORE_CAFE_SUPPORT.accent}
-      />
-      <StoreDeskHelpSupport product="cafe" />
+      <StoreDeskCornerDock>
+        <StoreDeskGuideLink
+          to={ROUTE_PATHS.STORE_CAFE_SUPPORT}
+          leadAr={STORE_CAFE_SUPPORT.deskLeadAr}
+          labelAr={STORE_CAFE_SUPPORT.landingCtaAr}
+        />
+        <StoreDeskHelpSupport product="cafe" />
+      </StoreDeskCornerDock>
     </div>
   );
 }

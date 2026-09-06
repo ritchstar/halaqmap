@@ -1,12 +1,16 @@
 /**
- * سماء تمويناتا1 وخضارنا1: عزل الصور والمراحل، بلا قاعات.
+ * سماء تمويناتا1 وخضارنا1 وطبختنا1: عزل الصور والمراحل، بلا قاعات.
  * تشغيل: npx tsx scripts/test-store-shop-sky.mts
  */
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { STORE_GROCERS_MARKETING_FRAMES, STORE_PRODUCE_MARKETING_FRAMES } from '../src/config/storeMarketingReels.ts';
+import {
+  STORE_GROCERS_MARKETING_FRAMES,
+  STORE_KITCHEN_MARKETING_FRAMES,
+  STORE_PRODUCE_MARKETING_FRAMES,
+} from '../src/config/storeMarketingReels.ts';
 import { STORE_SHOP_SKY_RIYADH, storeShopSkyBank, storeShopSkyFrames } from '../src/config/storeShopSky.ts';
 import {
   resolveShopSkyWeatherPoint,
@@ -39,11 +43,13 @@ assert.doesNotMatch(app, /from ['"]@\/components\/store\/StoreShopSky['"]/);
 
 assert.match(grocersPage, /sky="grocers"/);
 assert.match(producePage, /sky="produce"/);
+assert.match(kitchenPage, /sky="kitchen"/);
 assert.doesNotMatch(grocersPage, /sky="produce"/);
 assert.doesNotMatch(producePage, /sky="grocers"/);
+assert.doesNotMatch(kitchenPage, /sky="grocers"/);
+assert.doesNotMatch(kitchenPage, /sky="produce"/);
 assert.doesNotMatch(restaurantPage, /sky=/);
 assert.doesNotMatch(cafePage, /sky=/);
-assert.doesNotMatch(kitchenPage, /sky=/);
 assert.doesNotMatch(loungePage, /sky=/);
 assert.doesNotMatch(weddingPage, /sky=/);
 assert.doesNotMatch(eventPage, /sky=/);
@@ -56,17 +62,23 @@ assert.doesNotMatch(sky, /STORE_LIVE_PANORAMAS/);
 assert.doesNotMatch(sky, /geolocation|getCurrentPosition|readStoredUserCoords|requestShopGeo/);
 assert.match(grocersPage, /skyLat=\{state\.host\.pickupLat\}/);
 assert.match(producePage, /skyLat=\{state\.host\.pickupLat\}/);
+assert.match(kitchenPage, /skyLat=\{state\.host\.pickupLat\}/);
 assert.doesNotMatch(readFileSync(join(root, 'src/components/store/StoreGrocersShop.tsx'), 'utf8'), /store-shop-sky-chip|fetchTemperatureCelsius/);
 assert.doesNotMatch(readFileSync(join(root, 'src/components/store/StoreProduceShop.tsx'), 'utf8'), /store-shop-sky-chip|fetchTemperatureCelsius/);
+assert.doesNotMatch(readFileSync(join(root, 'src/components/store/StoreKitchenShop.tsx'), 'utf8'), /store-shop-sky-chip|fetchTemperatureCelsius/);
 assert.doesNotMatch(readFileSync(join(root, 'src/components/store/StoreGrocersDesk.tsx'), 'utf8'), /store-shop-sky-chip/);
 assert.doesNotMatch(readFileSync(join(root, 'src/components/store/StoreProduceDesk.tsx'), 'utf8'), /store-shop-sky-chip/);
+assert.doesNotMatch(readFileSync(join(root, 'src/components/store/StoreKitchenDesk.tsx'), 'utf8'), /store-shop-sky-chip/);
 
 const grocersFajr = storeShopSkyFrames('grocers', 'fajr');
 const produceFajr = storeShopSkyFrames('produce', 'fajr');
+const kitchenFajr = storeShopSkyFrames('kitchen', 'fajr');
 assert.equal(grocersFajr.length, 4);
 assert.equal(produceFajr.length, 4);
+assert.equal(kitchenFajr.length, 4);
 assert.deepEqual([...storeShopSkyBank('grocers')], [...STORE_GROCERS_MARKETING_FRAMES]);
 assert.deepEqual([...storeShopSkyBank('produce')], [...STORE_PRODUCE_MARKETING_FRAMES]);
+assert.deepEqual([...storeShopSkyBank('kitchen')], [...STORE_KITCHEN_MARKETING_FRAMES]);
 for (const src of grocersFajr) {
   assert.ok(src.includes('/grocers'), src);
   assert.ok(!src.includes('/produce/'), src);
@@ -77,12 +89,20 @@ for (const src of produceFajr) {
   assert.ok(!src.includes('/grocers/'), src);
   assert.equal(shopSkyFrameIsHallPanorama(src), false);
 }
+for (const src of kitchenFajr) {
+  assert.ok(src.includes('/kitchen'), src);
+  assert.ok(!src.includes('/grocers/'), src);
+  assert.ok(!src.includes('/produce/'), src);
+  assert.equal(shopSkyFrameIsHallPanorama(src), false);
+}
 
 for (const phase of ['fajr', 'dhuhr', 'ghuroob', 'layl'] as const) {
   const grocers = storeShopSkySources('grocers', phase);
   const produce = storeShopSkySources('produce', phase);
+  const kitchen = storeShopSkySources('kitchen', phase);
   assert.ok(grocers.every((src) => !shopSkyFrameIsHallPanorama(src)));
   assert.ok(produce.every((src) => !shopSkyFrameIsHallPanorama(src)));
+  assert.ok(kitchen.every((src) => !shopSkyFrameIsHallPanorama(src)));
   assert.ok(storeShopSkyVeilOpacity('desk', phase) > storeShopSkyVeilOpacity('shop', phase));
 }
 

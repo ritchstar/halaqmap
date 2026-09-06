@@ -19,6 +19,7 @@ import { StoreShopPlaceDesk } from '@/components/store/StoreShopPlaceDesk';
 import { StoreShopPresenceCount } from '@/components/store/StoreShopPresenceCount';
 import { StoreDeskHelpSupport } from '@/components/store/StoreDeskHelpSupport';
 import { StoreDeskGuideLink } from '@/components/store/StoreDeskGuideLink';
+import { StoreDeskCornerDock } from '@/components/store/StoreDeskCornerNav';
 import { StoreShopLogoDesk } from '@/components/store/StoreShopLogoDesk';
 import { STORE_GROCERS_SUPPORT } from '@/config/storeProductSupport';
 import { StoreOpsSection } from '@/components/store/StoreOpsSection';
@@ -87,7 +88,7 @@ export function StoreGrocersDesk({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-14">
       <StoreDeskOrderAlert
         product="grocers"
         token={token}
@@ -256,13 +257,14 @@ export function StoreGrocersDesk({
       </StoreOpsSection>
 
       <StoreDeskArchiveDock tickets={state.orderArchive} accent="#8fbf7a" filename="grocers-archive.json" />
-      <StoreDeskGuideLink
-        to={ROUTE_PATHS.STORE_GROCERS_SUPPORT}
-        leadAr={STORE_GROCERS_SUPPORT.deskLeadAr}
-        ctaAr={STORE_GROCERS_SUPPORT.deskCtaAr}
-        accent={STORE_GROCERS_SUPPORT.accent}
-      />
-      <StoreDeskHelpSupport product="grocers" />
+      <StoreDeskCornerDock>
+        <StoreDeskGuideLink
+          to={ROUTE_PATHS.STORE_GROCERS_SUPPORT}
+          leadAr={STORE_GROCERS_SUPPORT.deskLeadAr}
+          labelAr={STORE_GROCERS_SUPPORT.landingCtaAr}
+        />
+        <StoreDeskHelpSupport product="grocers" />
+      </StoreDeskCornerDock>
     </div>
   );
 }

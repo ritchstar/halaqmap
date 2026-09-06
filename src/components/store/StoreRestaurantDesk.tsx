@@ -22,6 +22,7 @@ import { StoreShopHoursDesk } from '@/components/store/StoreShopHoursDesk';
 import { StoreShopPlaceDesk } from '@/components/store/StoreShopPlaceDesk';
 import { StoreDeskHelpSupport } from '@/components/store/StoreDeskHelpSupport';
 import { StoreDeskGuideLink } from '@/components/store/StoreDeskGuideLink';
+import { StoreDeskCornerDock } from '@/components/store/StoreDeskCornerNav';
 import { StoreShopLogoDesk } from '@/components/store/StoreShopLogoDesk';
 import { STORE_RESTAURANT_SUPPORT } from '@/config/storeProductSupport';
 import { StoreOpsSection } from '@/components/store/StoreOpsSection';
@@ -107,7 +108,7 @@ export function StoreRestaurantDesk({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-14">
       <StoreDeskOrderAlert
         product="restaurant"
         token={token}
@@ -308,13 +309,14 @@ export function StoreRestaurantDesk({
         onClear={clearArchive}
         clearLabelAr={STORE_RESTAURANT_LIVE.archiveDeleteAr}
       />
-      <StoreDeskGuideLink
-        to={ROUTE_PATHS.STORE_RESTAURANT_SUPPORT}
-        leadAr={STORE_RESTAURANT_SUPPORT.deskLeadAr}
-        ctaAr={STORE_RESTAURANT_SUPPORT.deskCtaAr}
-        accent={STORE_RESTAURANT_SUPPORT.accent}
-      />
-      <StoreDeskHelpSupport product="restaurant" />
+      <StoreDeskCornerDock>
+        <StoreDeskGuideLink
+          to={ROUTE_PATHS.STORE_RESTAURANT_SUPPORT}
+          leadAr={STORE_RESTAURANT_SUPPORT.deskLeadAr}
+          labelAr={STORE_RESTAURANT_SUPPORT.landingCtaAr}
+        />
+        <StoreDeskHelpSupport product="restaurant" />
+      </StoreDeskCornerDock>
     </div>
   );
 }

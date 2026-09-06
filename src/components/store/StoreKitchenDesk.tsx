@@ -29,6 +29,7 @@ import { StoreProductPassDeskButton } from '@/components/store/StoreProductPassD
 import { StoreShopHoursDesk } from '@/components/store/StoreShopHoursDesk';
 import { StoreDeskHelpSupport } from '@/components/store/StoreDeskHelpSupport';
 import { StoreDeskGuideLink } from '@/components/store/StoreDeskGuideLink';
+import { StoreDeskCornerDock } from '@/components/store/StoreDeskCornerNav';
 import { StoreShopLogoDesk } from '@/components/store/StoreShopLogoDesk';
 import { STORE_KITCHEN_SUPPORT } from '@/config/storeProductSupport';
 import { StoreOpsSection } from '@/components/store/StoreOpsSection';
@@ -147,7 +148,7 @@ export function StoreKitchenDesk({
   const giftEnds = gift?.expiresAt ? gift.expiresAt.slice(0, 10) : '';
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-14">
       <StoreDeskOrderAlert
         product="kitchen"
         token={token}
@@ -155,15 +156,10 @@ export function StoreKitchenDesk({
         orderIds={fresh.map((item) => item.id)}
         unreadCount={fresh.length}
       />
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0 flex-1">
-          <StoreDeskControlTitle
-            kitchen
-            trialNote={showTrialNote && !gift ? STORE_PRODUCT_TRIAL_PRODUCTS.kitchen.deskNoteAr : ''}
-          />
-        </div>
-        <StoreKitchenGrowthHubButton token={token} />
-      </div>
+      <StoreDeskControlTitle
+        kitchen
+        trialNote={showTrialNote && !gift ? STORE_PRODUCT_TRIAL_PRODUCTS.kitchen.deskNoteAr : ''}
+      />
       {gift ? (
         <section className="rounded-2xl border border-[#b45a3c] bg-[#1a0c08] p-4" aria-label={giftCopy.deskBadgeAr}>
           <p className="inline-flex rounded-full border border-[#b45a3c]/50 bg-[#b45a3c]/20 px-2.5 py-0.5 text-[0.7rem] font-extrabold text-[#b45a3c]">
@@ -401,13 +397,15 @@ export function StoreKitchenDesk({
       </StoreOpsSection>
 
       <StoreDeskArchiveDock tickets={state.orderArchive} accent="#b45a3c" filename="kitchen-archive.json" />
-      <StoreDeskGuideLink
-        to={ROUTE_PATHS.STORE_KITCHEN_SUPPORT}
-        leadAr={STORE_KITCHEN_SUPPORT.deskLeadAr}
-        ctaAr={STORE_KITCHEN_SUPPORT.deskCtaAr}
-        accent={STORE_KITCHEN_SUPPORT.accent}
-      />
-      <StoreDeskHelpSupport product="kitchen" />
+      <StoreDeskCornerDock>
+        <StoreKitchenGrowthHubButton token={token} />
+        <StoreDeskGuideLink
+          to={ROUTE_PATHS.STORE_KITCHEN_SUPPORT}
+          leadAr={STORE_KITCHEN_SUPPORT.deskLeadAr}
+          labelAr={STORE_KITCHEN_SUPPORT.landingCtaAr}
+        />
+        <StoreDeskHelpSupport product="kitchen" />
+      </StoreDeskCornerDock>
     </div>
   );
 }

@@ -1,15 +1,15 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
- * صندوق مغلق أسفل لوحة الكاشير: تعليمات المنتج ثم صفحة دعم داخل الصندوق.
+ * تعليمات ودعم المشغّل — رابط خفيف في الركن، والمحتوى في لوحة عائمة بلا تزاحم.
  */
-import { ChevronDown, Headphones, MessageCircle } from 'lucide-react';
+import { Headphones, MessageCircle, X } from 'lucide-react';
 import { lazy, Suspense, useState } from 'react';
 import { SiWhatsapp } from 'react-icons/si';
+import { StoreDeskCornerButton } from '@/components/store/StoreDeskCornerNav';
 import { STORE_DESK_HELP, STORE_DESK_HELP_COPY, type StoreDeskHelpProduct } from '@/config/storeDeskHelp';
 import { FOUNDER_DESK_WHATSAPP_E164 } from '@/config/founderDeskCopy';
 import { buildWhatsAppChatHref } from '@/lib/saudiWhatsAppPhone';
-import { cn } from '@/lib/utils';
 
 const FounderDeskVisitorChatLazy = lazy(() =>
   import('@/components/partner/FounderDeskVisitorChat').then((m) => ({ default: m.FounderDeskVisitorChat })),
@@ -23,6 +23,11 @@ export function StoreDeskHelpSupport({ product }: { product: StoreDeskHelpProduc
   const pack = STORE_DESK_HELP[product];
   const whatsappHref = buildWhatsAppChatHref(FOUNDER_DESK_WHATSAPP_E164, pack.whatsappPrefillAr);
 
+  function close() {
+    setOpen(false);
+    setPane('help');
+  }
+
   function toggle() {
     setOpen((current) => {
       if (current) setPane('help');
@@ -31,24 +36,36 @@ export function StoreDeskHelpSupport({ product }: { product: StoreDeskHelpProduc
   }
 
   return (
-    <section className="rounded-2xl border border-white/12 bg-black/25" style={{ borderColor: `${pack.accent}55` }}>
-      <button
-        type="button"
+    <>
+      <StoreDeskCornerButton
+        labelAr={STORE_DESK_HELP_COPY.titleAr}
+        ariaLabel={open ? STORE_DESK_HELP_COPY.closeAr : STORE_DESK_HELP_COPY.openAr}
+        pressed={open}
         onClick={toggle}
-        aria-expanded={open}
-        aria-label={open ? STORE_DESK_HELP_COPY.closeAr : STORE_DESK_HELP_COPY.openAr}
-        className="flex w-full items-center justify-between gap-3 px-4 py-3 text-start"
-      >
-        <span className="text-base font-extrabold" style={{ color: pack.accent }}>
-          {STORE_DESK_HELP_COPY.titleAr}
-        </span>
-        <ChevronDown className={cn('h-5 w-5 shrink-0 text-white/70 transition-transform', open && 'rotate-180')} aria-hidden />
-      </button>
+      />
 
       {open ? (
-        <div className="space-y-4 border-t border-white/10 px-4 py-4">
+        <section
+          className="store-live-desk-corner-panel pointer-events-auto fixed bottom-12 left-2 z-50 w-[min(calc(100vw-1rem),22rem)] rounded-2xl border bg-[#0b1218]/96 p-4 shadow-[0_12px_40px_rgba(0,0,0,0.45)] backdrop-blur-sm sm:bottom-14 sm:left-3"
+          style={{ borderColor: `${pack.accent}55` }}
+          aria-label={STORE_DESK_HELP_COPY.titleAr}
+        >
+          <div className="mb-3 flex items-start justify-between gap-3">
+            <p className="text-sm font-extrabold" style={{ color: pack.accent }}>
+              {STORE_DESK_HELP_COPY.titleAr}
+            </p>
+            <button
+              type="button"
+              onClick={close}
+              className="rounded-full p-1 text-white/60 hover:text-white"
+              aria-label={STORE_DESK_HELP_COPY.closeAr}
+            >
+              <X className="h-4 w-4" aria-hidden />
+            </button>
+          </div>
+
           {pane === 'help' ? (
-            <>
+            <div className="space-y-4">
               <p className="text-sm font-bold text-white/80">{pack.productAr}</p>
               <ol className="list-decimal space-y-2 ps-5 text-sm leading-7 text-white/75">
                 {pack.stepsAr.map((step) => (
@@ -64,7 +81,7 @@ export function StoreDeskHelpSupport({ product }: { product: StoreDeskHelpProduc
                 <Headphones className="h-4 w-4" aria-hidden />
                 {STORE_DESK_HELP_COPY.supportAr}
               </button>
-            </>
+            </div>
           ) : null}
 
           {pane === 'support' ? (
@@ -110,8 +127,8 @@ export function StoreDeskHelpSupport({ product }: { product: StoreDeskHelpProduc
               </button>
             </div>
           ) : null}
-        </div>
+        </section>
       ) : null}
-    </section>
+    </>
   );
 }

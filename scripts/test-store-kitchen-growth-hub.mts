@@ -78,8 +78,9 @@ assert.match(app, /\/k\/:token\/desk\/growth/);
 
 assert.match(desk, /import \{ StoreKitchenGrowthHubButton \}/);
 assert.equal((desk.match(/<StoreKitchenGrowthHubButton /g) || []).length, 1);
-assert.match(button, /hasKitchenGrowthHubBadge/);
-assert.match(button, /kitchenGrowthHubPath/);
+assert.match(desk, /StoreDeskCornerDock/);
+assert.match(button, /StoreDeskCornerLink/);
+assert.match(button, /cornerLinkAr/);
 assert.doesNotMatch(shop, /endsWith\(['"]\/desk['"]\)/);
 assert.doesNotMatch(operators, /StoreKitchenGrowthHub|مركز النمو والتسويق/);
 assert.doesNotMatch(cafeDesk, /StoreKitchenGrowthHubButton/);

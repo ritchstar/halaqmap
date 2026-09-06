@@ -21,6 +21,7 @@ import {
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { StoreLiveStoreLink } from '@/components/store/StoreLiveStoreLink';
 import { StoreDeskGuideLink } from '@/components/store/StoreDeskGuideLink';
+import { StoreDeskCornerDock } from '@/components/store/StoreDeskCornerNav';
 import { StoreDeskHelpSupport } from '@/components/store/StoreDeskHelpSupport';
 import { StoreHalanaShareDesk } from '@/components/store/StoreHalanaShareDesk';
 import { STORE_HALANA_SUPPORT } from '@/config/storeProductSupport';
@@ -686,7 +687,7 @@ function DeskPanel({ token, payload, onSaved }: { token: string; payload: Payloa
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 pb-14">
       <p className="halana-lead">{copy.deskLeadAr}</p>
       <p className="halana-lead">
         الصفحة التي توجّهين إليها العميلات هي المعرض. الطلب في صفحة مستقلة أسفل المعرض.
@@ -768,13 +769,6 @@ function DeskPanel({ token, payload, onSaved }: { token: string; payload: Payloa
       </section>
       <StoreDirectPayDesk product="store_halana_live" token={token} accent={STORE_HALANA_LIVE_ACCENT} onSaved={onSaved} />
       <StoreHalanaShareDesk token={token} shopName={shopName} />
-      <StoreDeskGuideLink
-        to={ROUTE_PATHS.STORE_HALANA_SUPPORT}
-        leadAr={STORE_HALANA_SUPPORT.deskLeadAr}
-        ctaAr={STORE_HALANA_SUPPORT.deskCtaAr}
-        accent={STORE_HALANA_SUPPORT.accent}
-      />
-      <StoreDeskHelpSupport product="halana" />
       <section className="space-y-3">
         <h2 className="halana-title-sm">الطلبات</h2>
         {(payload.requests || []).length === 0 ? (
@@ -813,6 +807,14 @@ function DeskPanel({ token, payload, onSaved }: { token: string; payload: Payloa
           </ul>
         )}
       </section>
+      <StoreDeskCornerDock>
+        <StoreDeskGuideLink
+          to={ROUTE_PATHS.STORE_HALANA_SUPPORT}
+          leadAr={STORE_HALANA_SUPPORT.deskLeadAr}
+          labelAr={STORE_HALANA_SUPPORT.landingCtaAr}
+        />
+        <StoreDeskHelpSupport product="halana" />
+      </StoreDeskCornerDock>
     </div>
   );
 }

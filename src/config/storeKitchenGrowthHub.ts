@@ -107,6 +107,7 @@ export const STORE_KITCHEN_GROWTH_ITEMS: readonly StoreKitchenGrowthItem[] = [
 
 export const STORE_KITCHEN_GROWTH_HUB_COPY = {
   buttonAr: 'مركز النمو والتسويق',
+  cornerLinkAr: 'مركز النمو',
   titleAr: 'مركز النمو والتسويق',
   kickerAr: 'طبختنا1',
   leadAr: 'النصوص الأربعة المعتمدة لصاحب النشاط. انسخ وأرسل من جهازك. الزبون يبقى على صفحة الطلب.',

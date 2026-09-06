@@ -3623,6 +3623,11 @@ html.platform-radar-fullscreen #root {
   color: rgba(232, 197, 71, 0.82);
 }
 
+.store-live-desk-corner-panel {
+  max-height: min(70svh, 28rem);
+  overflow-y: auto;
+}
+
 .store-live-lights {
   background:
     radial-gradient(ellipse 46% 36% at 16% 18%, rgba(255, 236, 180, 0.34), transparent 70%),
