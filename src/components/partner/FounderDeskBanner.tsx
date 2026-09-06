@@ -49,7 +49,14 @@ export function FounderDeskBanner({
   const isStore = deskOrigin === 'store';
 
   return (
-    <div className={cn('relative mx-auto w-full max-w-sm', className)} dir="rtl">
+    <div
+      className={cn(
+        'relative mx-auto w-full max-w-sm',
+        isStore && 'overflow-x-clip',
+        className,
+      )}
+      dir="rtl"
+    >
       <BannerRadiationField tier={isStore ? 'gold' : 'diamond'}>
         <div
           className={cn(

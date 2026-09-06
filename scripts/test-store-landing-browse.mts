@@ -80,4 +80,7 @@ assert.match(landing, /paidInvitesTitleAr/);
 assert.match(STORE_LANDING_COPY.paidInvitesLeadAr, /12 و29 و59/);
 assert.ok(landing.indexOf('paidInvitesTitleAr') > cardsStart);
 
+assert.match(landing, /overflow-x-clip/);
+assert.match(landing, /overflow-hidden text-center/);
+
 console.log('test-store-landing-browse: ok');

@@ -3661,6 +3661,13 @@ html.platform-radar-fullscreen #root {
 
 .store-product-shell {
   -webkit-tap-highlight-color: transparent;
+  max-width: 100%;
+  overflow-x: clip;
+  overscroll-behavior-x: none;
+}
+
+.store-product-shell .banner-radiation-field {
+  overflow: clip;
 }
 
 .store-visitor-header__row {

@@ -28,7 +28,7 @@ export function StoreVisitorShell({ children }: { children: ReactNode }) {
     rememberStoreAffiliateRef();
   }, []);
   return (
-    <div dir="rtl" className="store-product-shell min-h-[100svh] bg-[#061018] text-[#f4efe4]">
+    <div dir="rtl" className="store-product-shell min-h-[100svh] overflow-x-clip bg-[#061018] text-[#f4efe4]">
       {children}
     </div>
   );
@@ -98,7 +98,7 @@ export function StoreVisitorHeader() {
     <div className="border-b border-white/10 bg-[#061018]/90">
       {!isMobile ? <KSACityClocksBar /> : null}
       <header className="backdrop-blur">
-        <div className="store-visitor-header__row mx-auto flex max-w-5xl items-center gap-2 px-3 py-2 md:flex-wrap md:gap-3 md:px-4 md:py-3">
+        <div className="store-visitor-header__row mx-auto flex max-w-5xl min-w-0 items-center gap-2 overflow-x-clip px-3 py-2 md:flex-wrap md:gap-3 md:px-4 md:py-3">
           <Link to={ROUTE_PATHS.STORE_LANDING} className="flex min-w-0 items-center gap-3 me-auto md:gap-4">
             <StoreBrandMark />
             <span className="min-w-0">

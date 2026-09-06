@@ -66,8 +66,8 @@ export default function StoreLanding() {
     <StoreVisitorShell>
       <StoreVisitorHeader />
 
-      <section id="store-pitch-hero" className="px-4 pb-4 pt-8 md:pt-12">
-        <div className="relative mx-auto max-w-5xl text-center">
+      <section id="store-pitch-hero" className="overflow-x-clip px-4 pb-4 pt-8 md:pt-12">
+        <div className="relative mx-auto max-w-5xl overflow-hidden text-center">
           <span className="store-pitch-aura" aria-hidden />
           <p className="relative text-2xl font-black text-[#f4efe4] md:text-3xl">
             {STORE_LANDING_COPY.shopNameAr}
@@ -105,9 +105,9 @@ export default function StoreLanding() {
         </p>
         <nav
           aria-label={STORE_LANDING_COPY.pitchExploreCtaAr}
-          className="sticky top-0 z-20 border-b border-white/10 bg-[#061018]/95 px-0 py-2 backdrop-blur"
+          className="sticky top-0 z-20 border-b border-white/10 bg-[#061018]/95 py-2 backdrop-blur"
         >
-          <div className="mx-auto flex max-w-5xl gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div className="mx-auto flex max-w-5xl gap-2 overflow-x-auto px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {(
               [
                 ['store-browse-neighborhood', STORE_LANDING_COPY.browseNeighborhoodAr],
