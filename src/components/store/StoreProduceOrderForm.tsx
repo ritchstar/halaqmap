@@ -3,6 +3,7 @@
  */
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { StoreCheckoutLegalConsent } from '@/components/store/StoreCheckoutLegalConsent';
 import { StoreEnterpriseDirectMail } from '@/components/store/StoreEnterpriseDirectMail';
 import { StoreVendorPathPicker } from '@/components/store/StoreVendorPathPicker';
 import {
@@ -12,6 +13,7 @@ import {
   type StoreProduceLivePackId,
 } from '@/config/storeProduceLive';
 import { type StoreVendorMode } from '@/config/storeMobileVendor';
+import { buildStorePurchaseLegalConsentFields } from '@/lib/storePurchaseLegalConsent';
 import { rememberStoreAffiliateRef } from '@/lib/storeAffiliateRef';
 import { createProduceLivePending } from '@/lib/storeProduceLiveRemote';
 import { produceLivePayHref } from '@/lib/storeHostRedirect';
@@ -38,10 +40,11 @@ export function StoreProduceOrderForm({ renewToken = '' }: { renewToken?: string
     setBusy(true);
     setError('');
     const affiliateCode = rememberStoreAffiliateRef();
+    const consentFields = buildStorePurchaseLegalConsentFields({ includeDirectPay: true });
     const result = await createProduceLivePending(
       renewing
-        ? { email, renewToken, packId, vendorMode, affiliateCode }
-        : { email, buyerName: shopName, shopName, packId, vendorMode, affiliateCode },
+        ? { email, renewToken, packId, vendorMode, affiliateCode, ...consentFields }
+        : { email, buyerName: shopName, shopName, packId, vendorMode, affiliateCode, ...consentFields },
     );
     if (!result.ok || typeof result.token !== 'string') {
       setBusy(false);
@@ -112,10 +115,7 @@ export function StoreProduceOrderForm({ renewToken = '' }: { renewToken?: string
           <input className="produce-field" required value={shopName} onChange={(e) => setShopName(e.target.value)} />
         </label>
       )}
-      <label className="mt-4 flex items-start gap-2 text-sm leading-7">
-        <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} className="mt-1" />
-        <span>{STORE_PRODUCE_LIVE.orderConsentAr}</span>
-      </label>
+      <StoreCheckoutLegalConsent checked={consent} onChange={setConsent} includeDirectPay className="mt-4" />
       <p className="mt-2 text-xs leading-6 text-white/55">{STORE_PRODUCE_LIVE.orderNoCollectAr}</p>
       {error ? <p className="mt-3 text-sm text-red-300">{error}</p> : null}
       <button

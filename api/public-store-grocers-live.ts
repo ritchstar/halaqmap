@@ -17,6 +17,7 @@ import {
 import { storeAffiliateCodeFromMeta } from './_lib/storeAffiliateCode.js';
 import { creditStoreAffiliateLedger } from './_lib/storeAffiliateLedger.js';
 import { isAllowedMoyasarInvoiceUrl } from './_lib/storeIssuedCards.js';
+import { mergePurchaseLegalConsentIntoOrder } from './_lib/storePurchaseLegalConsent.js';
 import {
   grocersChargeHalalas,
   grocersChatAddonFromHalalas,
@@ -301,7 +302,9 @@ async function createPending(db: Db, body: Record<string, unknown>, headers: Rec
   }
   const renewToken = String(body.renewToken || '').trim();
   if (renewToken) return createRenewal(db, body, headers, request);
-  const parsed = parseGrocersLiveOrderBody(body);
+  const parsedRaw = parseGrocersLiveOrderBody(body);
+  if (!parsedRaw.ok) return json({ error: parsedRaw.error }, 400, headers);
+  const parsed = mergePurchaseLegalConsentIntoOrder(parsedRaw, body);
   if (!parsed.ok) return json({ error: parsed.error }, 400, headers);
   const charge = grocersChargeHalalas(parsed.packId, parsed.chatAddon, parsed.vendorMode);
   const shopToken = newGrocersToken();

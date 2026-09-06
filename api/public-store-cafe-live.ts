@@ -15,6 +15,7 @@ import {
   resolveOccasionCardMoyasarSecretKey,
 } from './_lib/moyasarApiClient.js';
 import { isAllowedMoyasarInvoiceUrl } from './_lib/storeIssuedCards.js';
+import { mergePurchaseLegalConsentIntoOrder } from './_lib/storePurchaseLegalConsent.js';
 import {
   isCafeLiveCheckoutEnabled,
   isCafePriceHalalas,
@@ -330,7 +331,9 @@ async function createPending(db: Db, body: Record<string, unknown>, headers: Rec
   }
   const renewToken = String(body.renewToken || '').trim();
   if (renewToken) return createRenewal(db, body, headers, request);
-  const parsed = parseCafeLiveOrderBody(body);
+  const parsedRaw = parseCafeLiveOrderBody(body);
+  if (!parsedRaw.ok) return json({ error: parsedRaw.error }, 400, headers);
+  const parsed = mergePurchaseLegalConsentIntoOrder(parsedRaw, body);
   if (!parsed.ok) return json({ error: parsed.error }, 400, headers);
   const charge = cafeChargeHalalas(parsed.packId, parsed.vendorMode);
   const shopToken = newCafeToken();

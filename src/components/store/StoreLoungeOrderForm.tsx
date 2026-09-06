@@ -4,6 +4,7 @@
  * فورم شراء لاونجا1 أو إعادة الشراء على نفس الصفحة.
  */
 import { useState } from 'react';
+import { StoreCheckoutLegalConsent } from '@/components/store/StoreCheckoutLegalConsent';
 import { StoreEnterpriseDirectMail } from '@/components/store/StoreEnterpriseDirectMail';
 import {
   STORE_LOUNGE_LIVE,
@@ -16,6 +17,7 @@ import {
   type StoreLoungeLiveEventId,
   type StoreLoungeLivePackId,
 } from '@/config/storeLoungeLive';
+import { buildStorePurchaseLegalConsentFields } from '@/lib/storePurchaseLegalConsent';
 import { rememberStoreAffiliateRef } from '@/lib/storeAffiliateRef';
 import { createLoungeLivePending } from '@/lib/storeLoungeLiveRemote';
 import { loungeLivePayHref } from '@/lib/storeHostRedirect';
@@ -43,9 +45,10 @@ export function StoreLoungeOrderForm({ renewToken = '' }: { renewToken?: string 
     setBusy(true);
     setError('');
     const affiliateCode = rememberStoreAffiliateRef();
+    const consentFields = buildStorePurchaseLegalConsentFields();
     const result = await createLoungeLivePending(
       renewing
-        ? { email, renewToken, packId, affiliateCode }
+        ? { email, renewToken, packId, affiliateCode, ...consentFields }
         : {
             email,
             buyerName: hostName,
@@ -55,6 +58,7 @@ export function StoreLoungeOrderForm({ renewToken = '' }: { renewToken?: string 
             welcomeAr,
             packId,
             affiliateCode,
+            ...consentFields,
           },
     );
     if (!result.ok || typeof result.token !== 'string') {
@@ -151,10 +155,7 @@ export function StoreLoungeOrderForm({ renewToken = '' }: { renewToken?: string 
           </label>
         </>
       )}
-      <label className="mt-4 flex items-start gap-2 text-sm leading-7">
-        <input type="checkbox" className="mt-1" checked={consent} onChange={(e) => setConsent(e.target.checked)} />
-        <span>{STORE_LOUNGE_LIVE.orderConsentAr}</span>
-      </label>
+      <StoreCheckoutLegalConsent checked={consent} onChange={setConsent} className="mt-4" />
       {error ? <p className="mt-3 text-sm text-red-300">{error}</p> : null}
       <button
         type="submit"

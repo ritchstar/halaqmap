@@ -26,6 +26,7 @@ import {
 } from '@/config/storeIssuedCardsCatalog';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { hasValidStoreIssuedConsent } from '@/lib/storeIssuedCardsConsent';
+import { buildStorePurchaseLegalConsentFields } from '@/lib/storePurchaseLegalConsent';
 import { createPaidInvitePending } from '@/lib/storeIssuedCardsRemote';
 import { occasionCardPayHref } from '@/lib/storeHostRedirect';
 import { isAllowedMoyasarInvoiceUrl, occasionCardLivePaymentsEnabled } from '@/lib/occasionCardMoyasar';
@@ -77,6 +78,7 @@ export default function StorePaidInviteStudioPage() {
       whenText: whenText.trim(),
       placeText: placeText.trim(),
       message: message.trim(),
+      ...buildStorePurchaseLegalConsentFields(),
     });
     if (!result.ok) {
       setBusy(false);

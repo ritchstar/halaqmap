@@ -4,6 +4,7 @@
  * فورم طلب دعوة الزواج ثم التحويل إلى ميسر على www.
  */
 import { useMemo, useState } from 'react';
+import { StoreCheckoutLegalConsent } from '@/components/store/StoreCheckoutLegalConsent';
 import { StoreEnterpriseDirectMail } from '@/components/store/StoreEnterpriseDirectMail';
 import {
   STORE_WEDDING_LIVE_CHECKOUT_ENABLED,
@@ -17,6 +18,7 @@ import {
   weddingLiveTextClass,
   type StoreWeddingLiveVoice,
 } from '@/config/storeWeddingLive';
+import { buildStorePurchaseLegalConsentFields } from '@/lib/storePurchaseLegalConsent';
 import { rememberStoreAffiliateRef } from '@/lib/storeAffiliateRef';
 import { ProductEvents } from '@/lib/analytics/productAnalytics';
 import { createWeddingLivePending } from '@/lib/storeWeddingLiveRemote';
@@ -98,6 +100,7 @@ export function StoreWeddingOrderForm({ voice = 'men' }: { voice?: StoreWeddingL
       venueName,
       venueMapsUrl,
       welcomeAr,
+      ...buildStorePurchaseLegalConsentFields(),
     });
     if (!result.ok || typeof result.token !== 'string') {
       setBusy(false);
@@ -246,10 +249,7 @@ export function StoreWeddingOrderForm({ voice = 'men' }: { voice?: StoreWeddingL
           placeholder="تفضلوا طعام العشاء، وحياكم الله."
         />
       </label>
-      <label className="mt-4 flex items-start gap-2 text-sm leading-7">
-        <input type="checkbox" className="mt-1" checked={consent} onChange={(e) => setConsent(e.target.checked)} />
-        <span>{copy.orderConsentAr}</span>
-      </label>
+      <StoreCheckoutLegalConsent checked={consent} onChange={setConsent} className="mt-4" />
       {error ? <p className="mt-3 text-sm text-red-300">{error}</p> : null}
       <button
         type="submit"

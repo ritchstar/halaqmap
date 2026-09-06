@@ -11,6 +11,7 @@ import {
 import { creditStoreAffiliateLedger } from './storeAffiliateLedger.js';
 import { storeAffiliateCodeFromMeta } from './storeAffiliateCode.js';
 import { markStoreTrialConverted } from './storeProductTrial.js';
+import { parseStorePurchaseLegalConsent } from './storePurchaseLegalConsent.js';
 import {
   STORE_HALANA_COPIES_TABLE,
   STORE_HALANA_LIVE_PRODUCT,
@@ -98,6 +99,8 @@ export async function createHalanaPending(
   body: Record<string, unknown>,
 ): Promise<{ ok: true; token: string; deskToken: string; priceHalalas: number } | { ok: false; error: string; status?: number }> {
   if (!isHalanaLiveCheckoutEnabled()) return { ok: false, error: 'تحصيل حلانا1 مغلق حالياً.', status: 503 };
+  const consent = parseStorePurchaseLegalConsent(body);
+  if (!consent.ok) return { ok: false, error: consent.error, status: 400 };
   const renewToken = String(body.renewToken || '').trim();
   const packId = parseHalanaPackId(body.packId);
   const charge = halanaChargeHalalas(packId);

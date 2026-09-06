@@ -17,6 +17,7 @@ import {
 import { storeAffiliateCodeFromMeta } from './_lib/storeAffiliateCode.js';
 import { creditStoreAffiliateLedger } from './_lib/storeAffiliateLedger.js';
 import { isAllowedMoyasarInvoiceUrl } from './_lib/storeIssuedCards.js';
+import { mergePurchaseLegalConsentIntoOrder } from './_lib/storePurchaseLegalConsent.js';
 import {
   isEventLiveCheckoutEnabled,
   newEventToken,
@@ -220,7 +221,9 @@ async function createPending(
   if (!isEventLiveCheckoutEnabled()) {
     return json({ error: 'تحصيل الدعوة الحرة مغلق حالياً.' }, 503, headers);
   }
-  const parsed = parseEventLiveOrderBody(body);
+  const parsedRaw = parseEventLiveOrderBody(body);
+  if (!parsedRaw.ok) return json({ error: parsedRaw.error }, 400, headers);
+  const parsed = mergePurchaseLegalConsentIntoOrder(parsedRaw, body);
   if (!parsed.ok) return json({ error: parsed.error }, 400, headers);
   const displayToken = newEventToken();
   const guestToken = newEventToken();
