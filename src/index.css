@@ -4425,6 +4425,18 @@ html.platform-radar-fullscreen #root {
   border-inline-end: 2px solid #f3c48a;
 }
 
+.halana-work-media {
+  background:
+    linear-gradient(180deg, rgba(26, 12, 18, 0.96), rgba(12, 6, 10, 0.98)),
+    radial-gradient(ellipse 80% 70% at 50% 42%, rgba(243, 196, 138, 0.08), transparent 72%);
+  padding: 0.65rem;
+}
+
+.halana-gallery-upload-bar {
+  position: relative;
+  isolation: isolate;
+}
+
 .halana-work-caption {
   color: #fff6e6;
   font-weight: 700;

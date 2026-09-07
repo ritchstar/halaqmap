@@ -3,7 +3,8 @@
  *
  * معرض حلانا1 وصفحة الطلب ولوحة المتخصصة. غير معلنة. لا تُستورد إعداداتها من App.
  */
-import { useEffect, useState, type FormEvent, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
+import { ImagePlus, Loader2 } from 'lucide-react';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { toast } from '@/components/ui/sonner';
 import {
@@ -157,6 +158,27 @@ function HalanaField({ label, children }: { label: string; children: ReactNode }
   );
 }
 
+function HalanaGalleryMedia({
+  src,
+  alt,
+  size = 'grid',
+}: {
+  src: string;
+  alt: string;
+  size?: 'lead' | 'grid';
+}) {
+  return (
+    <div
+      className={cn(
+        'halana-work-media flex w-full items-center justify-center overflow-hidden rounded-[1.15rem]',
+        size === 'lead' ? 'aspect-[5/4] min-h-[14rem] sm:aspect-[16/10] sm:min-h-[18rem]' : 'aspect-square min-h-[11rem]',
+      )}
+    >
+      <img src={src} alt={alt} className="max-h-full max-w-full object-contain object-center" loading="lazy" />
+    </div>
+  );
+}
+
 function ProductGallery({ items, emptyAr, featured }: { items: GalleryItem[]; emptyAr?: string; featured?: boolean }) {
   const copy = STORE_HALANA_LIVE_COPY;
   if (items.length === 0) {
@@ -166,8 +188,8 @@ function ProductGallery({ items, emptyAr, featured }: { items: GalleryItem[]; em
   if (featured && lead) {
     return (
       <div className="space-y-6">
-        <figure className="halana-work-card overflow-hidden rounded-[1.75rem] p-1.5">
-          <img src={lead.src} alt={lead.caption || copy.galleryTitleAr} className="h-[22rem] w-full object-cover sm:h-[28rem]" />
+        <figure className="halana-work-card overflow-hidden rounded-[1.75rem]">
+          <HalanaGalleryMedia src={lead.src} alt={lead.caption || copy.galleryTitleAr} size="lead" />
           {lead.caption ? (
             <figcaption className="halana-work-caption px-5 py-5 text-lg leading-9">{lead.caption}</figcaption>
           ) : null}
@@ -175,8 +197,8 @@ function ProductGallery({ items, emptyAr, featured }: { items: GalleryItem[]; em
         {rest.length > 0 ? (
           <div className={cn('grid gap-5', rest.length >= 4 ? 'sm:grid-cols-2 lg:grid-cols-3' : 'sm:grid-cols-2')}>
             {rest.map((item) => (
-              <figure key={item.id} className="halana-work-card overflow-hidden rounded-[1.6rem] p-1.5">
-                <img src={item.src} alt={item.caption || copy.galleryTitleAr} className="h-64 w-full object-cover" />
+              <figure key={item.id} className="halana-work-card overflow-hidden rounded-[1.6rem]">
+                <HalanaGalleryMedia src={item.src} alt={item.caption || copy.galleryTitleAr} />
                 {item.caption ? (
                   <figcaption className="halana-work-caption px-4 py-4 text-base leading-8">{item.caption}</figcaption>
                 ) : null}
@@ -190,8 +212,8 @@ function ProductGallery({ items, emptyAr, featured }: { items: GalleryItem[]; em
   return (
     <div className={cn('grid gap-3', items.length >= 4 ? 'sm:grid-cols-2 lg:grid-cols-3' : 'sm:grid-cols-2')}>
       {items.map((item) => (
-        <figure key={item.id} className="halana-work-card overflow-hidden rounded-3xl p-1.5">
-          <img src={item.src} alt={item.caption || copy.galleryTitleAr} className="h-52 w-full object-cover" />
+        <figure key={item.id} className="halana-work-card overflow-hidden rounded-3xl">
+          <HalanaGalleryMedia src={item.src} alt={item.caption || copy.galleryTitleAr} />
           {item.caption ? <figcaption className="halana-work-caption px-4 py-3 text-sm leading-7">{item.caption}</figcaption> : null}
         </figure>
       ))}
@@ -496,11 +518,11 @@ function OrderPanel({
       <Link to={`/h/${encodeURIComponent(token)}`} className="text-sm font-bold text-[#ffe8c4] underline">
         {copy.orderBackAr}
       </Link>
-      <div className="halana-ornament overflow-hidden rounded-[1.6rem] p-1.5">
-        <img
+      <div className="halana-ornament overflow-hidden rounded-[1.6rem]">
+        <HalanaGalleryMedia
           src={payload.gallery[0]?.src || STORE_HALANA_ATMOSPHERE.cake}
           alt=""
-          className="h-48 w-full rounded-[1.2rem] object-cover"
+          size="lead"
         />
       </div>
       <p className="halana-section-kicker">{copy.orderKickerAr}</p>
@@ -568,7 +590,50 @@ function OrderPanel({
 
 type PendingGalleryRow = { id: string; caption: string };
 
-function GalleryUploadRows({
+function HalanaGalleryUploadButton({
+  busy,
+  label,
+  compact = false,
+  onPick,
+}: {
+  busy: boolean;
+  label: string;
+  compact?: boolean;
+  onPick: (file: File) => void;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  return (
+    <>
+      <button
+        type="button"
+        disabled={busy}
+        onClick={() => inputRef.current?.click()}
+        className={cn(
+          'halana-action inline-flex cursor-pointer items-center justify-center gap-2 rounded-full font-extrabold shadow-lg ring-2 ring-[#f3c48a]/45 transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60',
+          compact ? 'px-4 py-2 text-sm' : 'min-h-[3rem] px-6 py-3 text-base',
+        )}
+      >
+        {busy ? <Loader2 className="h-5 w-5 animate-spin" aria-hidden /> : <ImagePlus className="h-5 w-5" aria-hidden />}
+        {label}
+      </button>
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/jpeg,image/png,image/webp"
+        className="sr-only"
+        disabled={busy}
+        onChange={(event) => {
+          const file = event.target.files?.[0];
+          event.target.value = '';
+          if (file) onPick(file);
+        }}
+      />
+    </>
+  );
+}
+
+function GalleryUploadProminent({
   busy,
   galleryCount,
   onUpload,
@@ -576,6 +641,43 @@ function GalleryUploadRows({
   busy: boolean;
   galleryCount: number;
   onUpload: (caption: string, file: File) => Promise<boolean>;
+}) {
+  const copy = STORE_HALANA_LIVE_COPY;
+  const slotsLeft = Math.max(0, STORE_HALANA_GALLERY_MAX - galleryCount);
+
+  if (slotsLeft <= 0) {
+    return <p className="text-sm text-amber-100/80">{copy.galleryFullAr}</p>;
+  }
+
+  return (
+    <div className="halana-gallery-upload-bar rounded-2xl border border-[#f3c48a]/40 bg-[#12060a]/90 p-4 shadow-[0_0_28px_rgba(243,196,138,0.14)]">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="space-y-1">
+          <p className="text-base font-black text-[#ffe8c4]">{copy.galleryUploadAr}</p>
+          <p className="text-sm text-white/65">{copy.galleryCountAr(galleryCount, STORE_HALANA_GALLERY_MAX)}</p>
+        </div>
+        <HalanaGalleryUploadButton
+          busy={busy}
+          label="اختيار صورة من الجوال"
+          onPick={(file) => {
+            void onUpload('', file);
+          }}
+        />
+      </div>
+    </div>
+  );
+}
+
+function GalleryUploadRows({
+  busy,
+  galleryCount,
+  onUpload,
+  hideSummary = false,
+}: {
+  busy: boolean;
+  galleryCount: number;
+  onUpload: (caption: string, file: File) => Promise<boolean>;
+  hideSummary?: boolean;
 }) {
   const copy = STORE_HALANA_LIVE_COPY;
   const slotsLeft = Math.max(0, STORE_HALANA_GALLERY_MAX - galleryCount);
@@ -616,7 +718,11 @@ function GalleryUploadRows({
 
   return (
     <div className="space-y-4">
-      <p className="text-sm text-white/65">{copy.galleryCountAr(galleryCount, STORE_HALANA_GALLERY_MAX)}</p>
+      {hideSummary ? (
+        <p className="text-sm font-bold text-[#ffe8c4]/85">إضافة أعمال متعددة مع وصف لكل صورة</p>
+      ) : (
+        <p className="text-sm text-white/65">{copy.galleryCountAr(galleryCount, STORE_HALANA_GALLERY_MAX)}</p>
+      )}
       {rows.map((row, index) => (
         <div key={row.id} className="halana-ornament space-y-3 rounded-2xl p-4">
           <p className="text-sm font-bold text-[#ffe8c4]/90">حقل العمل {index + 1}</p>
@@ -629,20 +735,14 @@ function GalleryUploadRows({
             />
           </HalanaField>
           <div className="flex flex-wrap items-center gap-2">
-            <label className="halana-action inline-flex cursor-pointer rounded-full px-4 py-2 text-sm font-extrabold">
-              {copy.galleryUploadAr}
-              <input
-                type="file"
-                accept="image/jpeg,image/png,image/webp"
-                className="sr-only"
-                disabled={busy}
-                onChange={(event) => {
-                  const file = event.target.files?.[0];
-                  event.target.value = '';
-                  void handleFile(row.id, file);
-                }}
-              />
-            </label>
+            <HalanaGalleryUploadButton
+              busy={busy}
+              compact
+              label={copy.galleryUploadAr}
+              onPick={(file) => {
+                void handleFile(row.id, file);
+              }}
+            />
             {rows.length > 1 ? (
               <button type="button" disabled={busy} className="text-xs underline" onClick={() => removeRow(row.id)}>
                 {copy.galleryRemoveAr}
@@ -795,17 +895,23 @@ function DeskPanel({ token, payload, onSaved }: { token: string; payload: Payloa
       <section className="halana-form-card space-y-4 rounded-2xl p-5">
         <h2 className="halana-title-sm">{copy.galleryDeskTitleAr}</h2>
         <p className="text-base leading-8 text-[#ffe8c4]/80">{copy.galleryDeskLeadAr}</p>
-        <ProductGallery items={gallery} />
-        {gallery.map((item) => (
-          <GalleryCaptionEditor
-            key={`cap-${item.id}`}
-            item={item}
-            busy={busy}
-            onSave={onSaveCaption}
-            onRemove={onRemove}
-          />
-        ))}
-        <GalleryUploadRows busy={busy} galleryCount={gallery.length} onUpload={onUpload} />
+        <GalleryUploadProminent busy={busy} galleryCount={gallery.length} onUpload={onUpload} />
+        <ProductGallery items={gallery} emptyAr={copy.galleryEmptyAr} />
+        {gallery.length > 0 ? (
+          <div className="space-y-3">
+            <p className="text-sm font-bold text-[#ffe8c4]/85">وصف الأعمال الحالية</p>
+            {gallery.map((item) => (
+              <GalleryCaptionEditor
+                key={`cap-${item.id}`}
+                item={item}
+                busy={busy}
+                onSave={onSaveCaption}
+                onRemove={onRemove}
+              />
+            ))}
+          </div>
+        ) : null}
+        <GalleryUploadRows busy={busy} galleryCount={gallery.length} hideSummary onUpload={onUpload} />
       </section>
       <section className="halana-form-card space-y-4 rounded-2xl p-5">
         <h2 className="halana-title-sm">نصوص المعرض ولقطاته</h2>
