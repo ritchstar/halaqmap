@@ -13,7 +13,10 @@ const tagLib = readFileSync(join(root, 'src/lib/googleAdsTag.ts'), 'utf8');
 const helper = readFileSync(join(root, 'src/lib/storeLivePaymentGoogleAds.ts'), 'utf8');
 const indexHtml = readFileSync(join(root, 'index.html'), 'utf8');
 
-assert.match(config, /AW-18240041811\/lozMCN-MgPAcENPmw_lD/);
+assert.match(config, /GOOGLE_ADS_PURCHASE_SEND_TO_CANONICAL = 'AW-18240041811\/lozMCN-MgPAcENPmw_lD'/);
+assert.match(config, /GOOGLE_ADS_PURCHASE_SEND_TO_DEPRECATED = 'AW-18240041811\/bTi4CLfOk-ECENPmw_1D'/);
+assert.match(config, /resolveGoogleAdsPurchaseSendTo/);
+assert.doesNotMatch(config, /import\.meta\.env\.VITE_GOOGLE_ADS_PURCHASE_SEND_TO \|\|\s*\n\s*'AW-18240041811\/lozMCN-MgPAcENPmw_lD'/);
 assert.match(tagLib, /trackGoogleAdsStorePurchase/);
 assert.match(tagLib, /store_purchase/);
 assert.match(tagLib, /transaction_id/);

@@ -160,10 +160,21 @@ export function GoogleAdsCampaignPanel() {
               </code>
             </p>
             <p className="mt-1 text-xs text-muted-foreground">
-              تسمية تحويل الشراء/الاشتراك:{' '}
+              تسمية تحويل الشراء/الاشتراك (المعتمد):{' '}
               <code className="font-mono" dir="ltr">
-                {GOOGLE_ADS_PURCHASE_SEND_TO || 'غير مضبوطة — أضف VITE_GOOGLE_ADS_PURCHASE_SEND_TO'}
+                {GOOGLE_ADS_PURCHASE_SEND_TO}
               </code>
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              في Vercel: `VITE_GOOGLE_ADS_PURCHASE_SEND_TO` ={' '}
+              <code className="font-mono" dir="ltr">
+                AW-18240041811/lozMCN-MgPAcENPmw_lD
+              </code>{' '}
+              أو احذف المتغير. القيمة القديمة{' '}
+              <code className="font-mono" dir="ltr">
+                bTi4CLfOk-ECENPmw_1D
+              </code>{' '}
+              تُرفض في البناء.
             </p>
             <div className="mt-3 rounded-md border border-amber-500/30 bg-amber-500/5 p-2.5 text-xs leading-relaxed">
               <p className="font-semibold text-amber-900 dark:text-amber-100">

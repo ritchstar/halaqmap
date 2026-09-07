@@ -17,14 +17,28 @@ export const GOOGLE_ADS_PAGE_VIEW_CONVERSION_SEND_TO = String(
 ).trim();
 
 /**
- * تسمية تحويل «شراء/اشتراك» من Google Ads بالشكل `AW-…/LABEL`.
- * تُضبط بعد إنشاء إجراء التحويل في Ads عبر `VITE_GOOGLE_ADS_PURCHASE_SEND_TO`.
- * حتى لو كانت فارغة: يُدفع `dataLayer` + حدث `purchase` لـ GA4 من صفحة النجاح.
+ * تسمية تحويل «عملية شراء» المعتمدة — Google Ads 185-429-5982.
+ * `VITE_GOOGLE_ADS_PURCHASE_SEND_TO` على Vercel يجب أن تطابق هذه القيمة أو تُحذف.
  */
-export const GOOGLE_ADS_PURCHASE_SEND_TO = String(
-  import.meta.env.VITE_GOOGLE_ADS_PURCHASE_SEND_TO ||
-    'AW-18240041811/lozMCN-MgPAcENPmw_lD',
-).trim();
+export const GOOGLE_ADS_PURCHASE_SEND_TO_CANONICAL = 'AW-18240041811/lozMCN-MgPAcENPmw_lD' as const;
+
+/** تسمية قديمة/خاطئة — تُرفض حتى لو بقيت في متغيرات Vercel */
+export const GOOGLE_ADS_PURCHASE_SEND_TO_DEPRECATED = 'AW-18240041811/bTi4CLfOk-ECENPmw_1D' as const;
+
+function resolveGoogleAdsPurchaseSendTo(): string {
+  const fromEnv = String(import.meta.env.VITE_GOOGLE_ADS_PURCHASE_SEND_TO || '').trim();
+  if (!fromEnv || fromEnv === GOOGLE_ADS_PURCHASE_SEND_TO_DEPRECATED) {
+    return GOOGLE_ADS_PURCHASE_SEND_TO_CANONICAL;
+  }
+  if (fromEnv.startsWith('AW-') && fromEnv.includes('/')) return fromEnv;
+  return GOOGLE_ADS_PURCHASE_SEND_TO_CANONICAL;
+}
+
+/**
+ * تسمية تحويل «شراء/اشتراك» من Google Ads بالشكل `AW-…/LABEL`.
+ * يُدفع `dataLayer` + حدث `purchase` لـ GA4 من صفحة النجاح/بعد ميسر.
+ */
+export const GOOGLE_ADS_PURCHASE_SEND_TO = resolveGoogleAdsPurchaseSendTo();
 
 export const GOOGLE_ADS_PURCHASE_CURRENCY = 'SAR';
 
