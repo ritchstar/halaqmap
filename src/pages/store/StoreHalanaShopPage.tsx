@@ -3,7 +3,7 @@
  *
  * معرض حلانا1 وصفحة الطلب ولوحة المتخصصة. غير معلنة. لا تُستورد إعداداتها من App.
  */
-import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { ImagePlus, Loader2 } from 'lucide-react';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { toast } from '@/components/ui/sonner';
@@ -30,15 +30,13 @@ import { StoreShopLogoMark } from '@/components/store/StoreShopLogoMark';
 import { STORE_SHOP_LOGO_COPY } from '@/config/storeShopLogo';
 import { STORE_HALANA_SUPPORT } from '@/config/storeProductSupport';
 import { ROUTE_PATHS } from '@/lib/routePaths';
-import { splitHalanaYoutubeLines } from '@/lib/storeHalanaShare';
 import { StoreDirectPayDesk } from '@/components/store/StoreDirectPayDesk';
+import { HalanaActivityOrderFlow } from '@/components/store/halana/HalanaActivityOrderFlow';
+import { HalanaActivityShowcase } from '@/components/store/halana/HalanaActivityShowcase';
 import { StoreHalanaShareDesk } from '@/components/store/StoreHalanaShareDesk';
-import { StoreDirectPayGuest, StoreDirectPayPublicMount } from '@/components/store/StoreDirectPayGuest';
-import { DIRECT_PAY_REQUEST_KEY, directPayCopyText } from '@/lib/storeDirectPay';
-import { fetchDirectPay } from '@/lib/storeDirectPayRemote';
-import { HALANA_PAY_REQUEST_KEY } from '@/lib/storeHalanaPay';
+import { directPayCopyText } from '@/lib/storeDirectPay';
 import { fetchHalanaPublic, postHalanaAction } from '@/lib/storeHalanaLiveRemote';
-import { compressImageFile, youtubeEmbedSrc } from '@/lib/storeWeddingLiveLab';
+import { compressImageFile } from '@/lib/storeWeddingLiveLab';
 import { parseShopLogoSrc } from '@/lib/storeShopLogo';
 import { cn } from '@/lib/utils';
 
@@ -193,58 +191,6 @@ function HalanaGalleryMedia({
   );
 }
 
-function ProductGallery({ items, emptyAr, featured }: { items: GalleryItem[]; emptyAr?: string; featured?: boolean }) {
-  const copy = STORE_HALANA_LIVE_COPY;
-  if (items.length === 0) {
-    return emptyAr ? <p className="text-sm leading-7 text-white/60">{emptyAr}</p> : null;
-  }
-  const [lead, ...rest] = items;
-  if (featured && lead) {
-    return (
-      <div className="space-y-6">
-        <figure className="halana-work-card overflow-hidden rounded-[1.75rem]">
-          <HalanaGalleryMedia src={lead.src} alt={lead.caption || copy.galleryTitleAr} size="lead" />
-          {lead.caption ? (
-            <figcaption className="halana-work-caption px-5 py-5 text-lg leading-9">{lead.caption}</figcaption>
-          ) : null}
-        </figure>
-        {rest.length > 0 ? (
-          <div className={cn('grid gap-5', rest.length >= 4 ? 'sm:grid-cols-2 lg:grid-cols-3' : 'sm:grid-cols-2')}>
-            {rest.map((item) => (
-              <figure key={item.id} className="halana-work-card overflow-hidden rounded-[1.6rem]">
-                <HalanaGalleryMedia src={item.src} alt={item.caption || copy.galleryTitleAr} />
-                {item.caption ? (
-                  <figcaption className="halana-work-caption px-4 py-4 text-base leading-8">{item.caption}</figcaption>
-                ) : null}
-              </figure>
-            ))}
-          </div>
-        ) : null}
-      </div>
-    );
-  }
-  return (
-    <div className={cn('grid gap-3', items.length >= 4 ? 'sm:grid-cols-2 lg:grid-cols-3' : 'sm:grid-cols-2')}>
-      {items.map((item) => (
-        <figure key={item.id} className="halana-work-card overflow-hidden rounded-3xl">
-          <HalanaGalleryMedia src={item.src} alt={item.caption || copy.galleryTitleAr} />
-          {item.caption ? <figcaption className="halana-work-caption px-4 py-3 text-sm leading-7">{item.caption}</figcaption> : null}
-        </figure>
-      ))}
-    </div>
-  );
-}
-
-function ShowcaseSection({ kicker, title, children }: { kicker?: string; title: string; children: ReactNode }) {
-  return (
-    <section className="halana-section">
-      {kicker ? <p className="halana-section-kicker">{kicker}</p> : null}
-      <h2 className="halana-title-sm mt-2">{title}</h2>
-      <div className="mt-5">{children}</div>
-    </section>
-  );
-}
-
 export default function StoreHalanaShopPage() {
   const copy = STORE_HALANA_LIVE_COPY;
   useDocumentTitle(copy.documentTitle);
@@ -337,277 +283,11 @@ export default function StoreHalanaShopPage() {
           </div>
         </>
       ) : order ? (
-        <div className="halana-shell mx-auto max-w-3xl px-4 py-8">
-          <OrderPanel token={token} payload={payload} busy={busy} setBusy={setBusy} />
-        </div>
+        <HalanaActivityOrderFlow token={token} payload={payload} busy={busy} setBusy={setBusy} />
       ) : (
-        <ShowcasePanel token={token} payload={payload} />
+        <HalanaActivityShowcase token={token} payload={payload} />
       )}
       {!desk ? <StoreLiveStoreLink /> : null}
-    </div>
-  );
-}
-
-function ShowcasePanel({ token, payload }: { token: string; payload: Payload }) {
-  const copy = STORE_HALANA_LIVE_COPY;
-  const flavors = splitLines(payload.flavorsAr || STORE_HALANA_DEFAULT_FLAVORS_AR);
-  const quotes = splitLines(payload.quotesAr);
-  const youtube = splitHalanaYoutubeLines(payload.youtubeUrls);
-  const clips = youtube.clips
-    .map((url) => ({ url, embed: youtubeEmbedSrc(url, { loop: false, autoplay: false }) }))
-    .filter((item) => item.embed);
-  const promo = splitLines(payload.promoAr);
-  const ready = splitLines(payload.readyLines);
-  const hero = payload.gallery[0]?.src || STORE_HALANA_ATMOSPHERE.hero;
-  const heroCaption = payload.gallery[0]?.caption || '';
-  const works = payload.gallery;
-
-  return (
-    <div>
-      <header className="halana-hero-stage relative overflow-hidden">
-        <img src={hero} alt={heroCaption || payload.shopName || copy.titleAr} className="h-[30rem] w-full object-cover sm:h-[38rem]" />
-        <div className="halana-hero-frame" />
-        <div className="halana-hero-veil absolute inset-0" />
-        <div className="absolute inset-x-0 bottom-0 z-[2] mx-auto max-w-3xl px-5 pb-12">
-          <p className="halana-section-kicker">{copy.showcaseKickerAr}</p>
-          <h1 className="halana-title mt-3 flex items-center gap-3">
-            <StoreShopLogoMark src={payload.logoSrc} />
-            <span>{payload.shopName || copy.titleAr}</span>
-          </h1>
-          <p className="halana-lead mt-4 max-w-xl font-extrabold">
-            {payload.promoTitleAr || copy.showcaseLeadAr}
-          </p>
-          {heroCaption ? <p className="mt-3 max-w-xl text-base leading-8 text-[#ffe8c4]/80">{heroCaption}</p> : null}
-        </div>
-      </header>
-      <div className="mx-auto max-w-3xl space-y-14 px-4 py-12">
-        {promo.length > 0 ? (
-          <ShowcaseSection kicker={copy.promoSectionAr} title={payload.promoTitleAr || copy.promoSectionAr}>
-            <div className="halana-promo-card space-y-4">
-              {promo.map((line) => (
-                <p key={line} className="text-lg leading-9 text-[#fff6e6]/90">
-                  {line}
-                </p>
-              ))}
-            </div>
-          </ShowcaseSection>
-        ) : (
-          <p className="text-sm leading-8 text-white/65">{copy.showcaseLeadAr}</p>
-        )}
-        <ShowcaseSection kicker={copy.worksLeadAr} title={copy.galleryTitleAr}>
-          <ProductGallery items={works} emptyAr={copy.galleryEmptyAr} featured />
-        </ShowcaseSection>
-        {youtube.channels.length > 0 ? (
-          <ShowcaseSection title={copy.youtubeChannelAr}>
-            <div className="flex flex-col gap-2">
-              {youtube.channels.map((url) => (
-                <a
-                  key={url}
-                  href={url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center rounded-full border border-[#ffe2b4]/35 px-5 py-3 text-sm font-extrabold text-[#ffe8c4]"
-                >
-                  {copy.youtubeChannelAr}
-                </a>
-              ))}
-            </div>
-          </ShowcaseSection>
-        ) : null}
-        {clips.length > 0 ? (
-          <ShowcaseSection title={copy.youtubeTitleAr}>
-            <div className="space-y-6">
-              {clips.map((item) => (
-                <div key={item.url} className="halana-youtube-frame overflow-hidden rounded-[1.6rem] p-1.5">
-                  <iframe
-                    title={copy.youtubeTitleAr}
-                    src={item.embed || ''}
-                    className="aspect-video w-full"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  />
-                </div>
-              ))}
-            </div>
-          </ShowcaseSection>
-        ) : null}
-        {quotes.length > 0 ? (
-          <ShowcaseSection title={copy.quotesTitleAr}>
-            <ul className="space-y-3">
-              {quotes.map((line) => (
-                <li key={line} className="halana-quote rounded-2xl px-5 py-4 text-base leading-8 text-[#fff6e6]/88">
-                  {line}
-                </li>
-              ))}
-            </ul>
-          </ShowcaseSection>
-        ) : null}
-        {flavors.length > 0 ? (
-          <ShowcaseSection title={copy.flavorsTitleAr}>
-            <div className="flex flex-wrap gap-2">
-              {flavors.map((line) => (
-                <span key={line} className="halana-flavor-chip">
-                  {line}
-                </span>
-              ))}
-            </div>
-          </ShowcaseSection>
-        ) : null}
-        {ready.length > 0 ? (
-          <ShowcaseSection title={copy.readyTitleAr}>
-            <ul className="halana-promo-card space-y-2 text-sm leading-8 text-white/78">
-              {ready.map((line) => (
-                <li key={line}>{line}</li>
-              ))}
-            </ul>
-          </ShowcaseSection>
-        ) : null}
-        <ShowcaseSection title={copy.policyTitleAr}>
-          <p className="halana-lead">{payload.policyAr || STORE_HALANA_DEFAULT_POLICY_AR}</p>
-        </ShowcaseSection>
-        <ShowcaseSection title={copy.payInstructionsTitleAr}>
-          <StoreDirectPayPublicMount product="store_halana_live" token={token} accent={STORE_HALANA_LIVE_ACCENT} />
-        </ShowcaseSection>
-        <Link to={`/h/${encodeURIComponent(token)}/order`} className="halana-order-cta">
-          <span className="halana-order-cta__mark" aria-hidden>
-            ح
-          </span>
-          <span>{copy.orderCtaAr}</span>
-        </Link>
-      </div>
-    </div>
-  );
-}
-
-function OrderPanel({
-  token,
-  payload,
-  busy,
-  setBusy,
-}: {
-  token: string;
-  payload: Payload;
-  busy: boolean;
-  setBusy: (v: boolean) => void;
-}) {
-  const copy = STORE_HALANA_LIVE_COPY;
-  const [deliverAt, setDeliverAt] = useState('');
-  const [quantity, setQuantity] = useState('');
-  const [sweetType, setSweetType] = useState('');
-  const [fillings, setFillings] = useState('');
-  const [refNote, setRefNote] = useState('');
-  const [guestName, setGuestName] = useState('');
-  const [guestWhatsapp, setGuestWhatsapp] = useState('');
-  const [payTick, setPayTick] = useState(0);
-
-  async function onSubmit(event: FormEvent) {
-    event.preventDefault();
-    if (busy) return;
-    setBusy(true);
-    const res = await postHalanaAction({
-      action: 'add_request',
-      token,
-      deliverAt,
-      quantity,
-      sweetType,
-      fillings,
-      refNote,
-      guestName,
-      guestWhatsapp,
-    });
-    setBusy(false);
-    if (!res.ok) {
-      toast.error(res.error);
-      return;
-    }
-    if (res.requestId) {
-      sessionStorage.setItem(`${HALANA_PAY_REQUEST_KEY}:${token}`, res.requestId);
-      sessionStorage.setItem(`${DIRECT_PAY_REQUEST_KEY}:store_halana_live:${token}`, res.requestId);
-      setPayTick((n) => n + 1);
-    }
-    toast.success(copy.sentAr);
-    setDeliverAt('');
-    setQuantity('');
-    setSweetType('');
-    setFillings('');
-    setRefNote('');
-    setGuestName('');
-    setGuestWhatsapp('');
-  }
-
-  const ready = splitLines(payload.readyLines);
-
-  return (
-    <div className="space-y-8">
-      <Link to={`/h/${encodeURIComponent(token)}`} className="text-sm font-bold text-[#ffe8c4] underline">
-        {copy.orderBackAr}
-      </Link>
-      <div className="halana-ornament overflow-hidden rounded-[1.6rem]">
-        <HalanaGalleryMedia
-          src={payload.gallery[0]?.src || STORE_HALANA_ATMOSPHERE.cake}
-          alt=""
-          size="lead"
-        />
-      </div>
-      <p className="halana-section-kicker">{copy.orderKickerAr}</p>
-      <h1 className="halana-title">{payload.shopName || copy.titleAr}</h1>
-      <p className="halana-lead">{copy.shopLeadAr}</p>
-      {ready.length > 0 ? (
-        <section>
-          <h2 className="halana-title-sm">{copy.readyTitleAr}</h2>
-          <ul className="mt-3 space-y-1 text-base leading-8 text-[#ffe8c4]/85">
-            {ready.map((line) => (
-              <li key={line}>{line}</li>
-            ))}
-          </ul>
-        </section>
-      ) : null}
-      <section>
-        <h2 className="halana-title-sm">{copy.policyTitleAr}</h2>
-        <p className="halana-lead mt-3">{payload.policyAr || STORE_HALANA_DEFAULT_POLICY_AR}</p>
-      </section>
-      <p className="text-base leading-8 text-amber-100/85">{copy.refWarnAr}</p>
-      <p className="text-base leading-8 text-amber-100/85">{copy.depositWarnAr}</p>
-      <p className="text-base leading-8 text-[#ffe8c4]/70">{copy.pickupWarnAr}</p>
-      <form onSubmit={(event) => void onSubmit(event)} className="halana-form-card space-y-4 rounded-2xl p-5">
-        <p className="halana-title-sm">{copy.formTitleAr}</p>
-        <input type="text" name="website" tabIndex={-1} autoComplete="off" className="hidden" />
-        <HalanaField label={copy.deliverAtAr}>
-          <input className="halana-field" value={deliverAt} onChange={(event) => setDeliverAt(event.target.value)} />
-        </HalanaField>
-        <HalanaField label={copy.quantityAr}>
-          <input className="halana-field" value={quantity} onChange={(event) => setQuantity(event.target.value)} />
-        </HalanaField>
-        <HalanaField label={copy.sweetTypeAr}>
-          <input className="halana-field" value={sweetType} onChange={(event) => setSweetType(event.target.value)} />
-        </HalanaField>
-        <HalanaField label={copy.fillingsAr}>
-          <input className="halana-field" value={fillings} onChange={(event) => setFillings(event.target.value)} />
-        </HalanaField>
-        <HalanaField label={copy.refNoteAr}>
-          <textarea className="halana-field min-h-24" value={refNote} onChange={(event) => setRefNote(event.target.value)} />
-        </HalanaField>
-        <HalanaField label={copy.guestNameAr}>
-          <input className="halana-field" value={guestName} onChange={(event) => setGuestName(event.target.value)} />
-        </HalanaField>
-        <HalanaField label={copy.guestWhatsappAr}>
-          <input className="halana-field" dir="ltr" value={guestWhatsapp} onChange={(event) => setGuestWhatsapp(event.target.value)} />
-        </HalanaField>
-        <p className="text-xs leading-6 text-white/50">{copy.changeWarnAr}</p>
-        <button
-          type="submit"
-          disabled={busy}
-          className="halana-action w-full rounded-full px-5 py-3 text-sm font-extrabold disabled:opacity-60"
-        >
-          {copy.submitAr}
-        </button>
-      </form>
-      <StoreDirectPayGuest
-        key={`${token}-${payTick}`}
-        product="store_halana_live"
-        token={token}
-        accent={STORE_HALANA_LIVE_ACCENT}
-      />
     </div>
   );
 }
