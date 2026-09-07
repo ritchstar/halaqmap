@@ -45,7 +45,12 @@ export function PartnerLandingFaqAccordion({
         </p>
       </div>
       <div className="flex flex-col gap-3">
-        {items.map((item, i) => (
+        {items.map((item, i) => {
+          const panelId = `partner-faq-panel-${i}`;
+          const triggerId = `partner-faq-trigger-${i}`;
+          const isOpen = openFaq === i;
+
+          return (
           <motion.div
             key={item.q}
             initial={{ opacity: 0, y: 10 }}
@@ -61,24 +66,31 @@ export function PartnerLandingFaqAccordion({
           >
             <button
               type="button"
+              id={triggerId}
+              aria-expanded={isOpen}
+              aria-controls={panelId}
               className={cn(
                 'flex w-full items-center justify-between gap-3 px-5 py-4 text-right text-sm font-semibold',
                 isDark ? 'text-slate-100 hover:text-amber-200' : 'text-foreground hover:text-primary',
               )}
-              onClick={() => setOpenFaq(openFaq === i ? null : i)}
+              onClick={() => setOpenFaq(isOpen ? null : i)}
             >
               {item.q}
               <ChevronDown
                 className={cn(
                   'h-4 w-4 shrink-0 transition-transform',
                   isDark ? 'text-amber-400' : 'text-primary',
-                  openFaq === i && 'rotate-180',
+                  isOpen && 'rotate-180',
                 )}
+                aria-hidden
               />
             </button>
             <AnimatePresence>
-              {openFaq === i && (
+              {isOpen && (
                 <motion.div
+                  id={panelId}
+                  role="region"
+                  aria-labelledby={triggerId}
                   initial={{ height: 0, opacity: 0 }}
                   animate={{ height: 'auto', opacity: 1 }}
                   exit={{ height: 0, opacity: 0 }}
@@ -107,7 +119,8 @@ export function PartnerLandingFaqAccordion({
               )}
             </AnimatePresence>
           </motion.div>
-        ))}
+          );
+        })}
       </div>
     </section>
   );
