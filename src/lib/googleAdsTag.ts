@@ -141,6 +141,88 @@ function markPurchaseConversionFired(transactionId: string): void {
   }
 }
 
+export type GoogleAdsStorePurchaseInput = {
+  transactionId: string;
+  valueHalalas: number;
+  currency?: string;
+  product?: string;
+};
+
+/**
+ * تحويل شراء منتج متجر بعد تأكيد ميسر فقط.
+ * `transaction_id` = معرّف الدفع؛ يمنع الازدواج عند إعادة تحميل صفحة الدفع.
+ */
+export function trackGoogleAdsStorePurchase(input: GoogleAdsStorePurchaseInput): boolean {
+  if (typeof window === 'undefined') return false;
+  const transactionId = input.transactionId.trim();
+  if (!transactionId || transactionId.toLowerCase() === 'paid') return false;
+  const value = Math.round(Number(input.valueHalalas)) / 100;
+  if (!Number.isFinite(value) || value <= 0) return false;
+  if (hasFiredPurchaseConversion(transactionId)) return false;
+
+  const currency = (input.currency || GOOGLE_ADS_PURCHASE_CURRENCY).trim() || GOOGLE_ADS_PURCHASE_CURRENCY;
+  const product = (input.product || 'store_product').trim() || 'store_product';
+  const items = [
+    {
+      item_id: product,
+      item_name: product,
+      item_category: 'store_product',
+      price: value,
+      quantity: 1,
+    },
+  ];
+
+  markPurchaseConversionFired(transactionId);
+
+  try {
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({ ecommerce: null });
+    window.dataLayer.push({
+      event: 'store_purchase',
+      value,
+      currency,
+      transaction_id: transactionId,
+      ecommerce: {
+        transaction_id: transactionId,
+        value,
+        currency,
+        items,
+      },
+    });
+
+    if (typeof window.gtag === 'function') {
+      window.gtag('event', 'purchase', {
+        transaction_id: transactionId,
+        value,
+        currency,
+        items,
+      });
+      const sendTo = GOOGLE_ADS_PURCHASE_SEND_TO;
+      if (sendTo.startsWith('AW-') && sendTo.includes('/')) {
+        trackGoogleAdsConversion({
+          sendTo,
+          value,
+          currency,
+          transactionId,
+          detail: `store_purchase:${product}:${transactionId}:${value}${currency}`,
+        });
+      }
+    }
+
+    appendEvent({
+      name: 'store_purchase',
+      path:
+        typeof window.location.hash === 'string'
+          ? window.location.hash.replace(/^#/, '')
+          : undefined,
+      detail: `${transactionId} · ${value} ${currency} · ${product}`,
+    });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export type GoogleAdsSubscriptionPurchaseInput = {
   transactionId: string;
   value: number;

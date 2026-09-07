@@ -23,7 +23,7 @@ export const GOOGLE_ADS_PAGE_VIEW_CONVERSION_SEND_TO = String(
  */
 export const GOOGLE_ADS_PURCHASE_SEND_TO = String(
   import.meta.env.VITE_GOOGLE_ADS_PURCHASE_SEND_TO ||
-    'AW-18240041811/bTi4CLfOk-ECENPmw_1D',
+    'AW-18240041811/lozMCN-MgPAcENPmw_lD',
 ).trim();
 
 export const GOOGLE_ADS_PURCHASE_CURRENCY = 'SAR';

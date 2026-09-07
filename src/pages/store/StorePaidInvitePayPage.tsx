@@ -21,6 +21,7 @@ import {
   MOYASAR_APPLE_PAY_VALIDATE_URL,
 } from '@/lib/moyasarFormLoader';
 import { persistMoyasarLastPaymentId } from '@/lib/moyasarPaymentReturn';
+import { completeStoreLivePaymentAndGo } from '@/lib/storeLivePaymentGoogleAds';
 import {
   buildOccasionCardCallbackUrl,
   isAllowedMoyasarInvoiceUrl,
@@ -97,12 +98,17 @@ export default function StorePaidInvitePayPage() {
     const run = paymentId ? activatePaidInvite(token, paymentId) : syncPaidInvite(token);
     void run.then((result) => {
       if (cancelled) return;
-      const finishOk = () => {
+      const finishOk = (confirmedPaymentId?: string) => {
         activateOnceRef.current = true;
-        window.location.replace(occasionCardViewHref(token));
+        completeStoreLivePaymentAndGo({
+          paymentId: confirmedPaymentId || paymentId || '',
+          priceHalalas,
+          product: STORE_OCCASION_CARD_PRODUCT,
+          href: occasionCardViewHref(token),
+        });
       };
       if (result.ok) {
-        finishOk();
+        finishOk(paymentId || undefined);
         return;
       }
       if (paymentId && hasInvoice) {
@@ -198,7 +204,12 @@ export default function StorePaidInvitePayPage() {
             setActivating(true);
             void activatePaidInvite(token, id).then((result) => {
               if (result.ok) {
-                window.location.replace(occasionCardViewHref(token));
+                completeStoreLivePaymentAndGo({
+                  paymentId: id,
+                  priceHalalas,
+                  product: STORE_OCCASION_CARD_PRODUCT,
+                  href: occasionCardViewHref(token),
+                });
                 return;
               }
               setActivating(false);

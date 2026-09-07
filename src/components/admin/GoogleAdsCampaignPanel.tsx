@@ -190,11 +190,12 @@ export function GoogleAdsCampaignPanel() {
                 لا تستخدم الروابط التي تحتوي <code className="font-mono">#/</code> — تُرفض من Ads.
               </p>
               <p className="mt-2 text-muted-foreground">
-                تحويل الشراء يُطلق فقط من صفحة النجاح بعد تأكيد الدفع، بحدث{' '}
+                تحويل الشراء يُطلق بعد تأكيد الدفع فقط: اشتراك الشركاء من صفحة النجاح،
+                ومنتجات المتجر من صفحات الدفع بعد `activate_paid`، بحدث{' '}
                 <code className="font-mono" dir="ltr">subscription_purchase</code>
-                {' '}في `dataLayer` مع `value` و`currency=SAR` و`transaction_id`. لإنهاء ربط Ads:
-                أنشئ إجراء تحويل شراء ثم ضع `send_to` في{' '}
-                <code className="font-mono" dir="ltr">VITE_GOOGLE_ADS_PURCHASE_SEND_TO</code>.
+                {' '}أو{' '}
+                <code className="font-mono" dir="ltr">store_purchase</code>
+                {' '}في `dataLayer` مع `value` و`currency=SAR` و`transaction_id` (معرّف ميسر).
               </p>
             </div>
           </div>

@@ -23,6 +23,7 @@ import {
   MOYASAR_APPLE_PAY_VALIDATE_URL,
 } from '@/lib/moyasarFormLoader';
 import { persistMoyasarLastPaymentId } from '@/lib/moyasarPaymentReturn';
+import { completeStoreLivePaymentAndGo } from '@/lib/storeLivePaymentGoogleAds';
 import {
   buildGrocersLiveCallbackUrl,
   grocersLiveLivePaymentsEnabled,
@@ -113,12 +114,17 @@ export default function StoreGrocersPayPage() {
     const run = paymentId ? activateGrocersLive(token, paymentId) : syncGrocersLive(token);
     void run.then((result) => {
       if (cancelled) return;
-      const finishOk = () => {
+      const finishOk = (confirmedPaymentId?: string) => {
         activateOnceRef.current = true;
-        window.location.replace(grocersLiveViewHref(token));
+        completeStoreLivePaymentAndGo({
+          paymentId: confirmedPaymentId || paymentId || '',
+          priceHalalas,
+          product: STORE_GROCERS_LIVE_PRODUCT,
+          href: grocersLiveViewHref(token),
+        });
       };
       if (result.ok) {
-        finishOk();
+        finishOk(paymentId || undefined);
         return;
       }
       if (paymentId && hasInvoice) {
@@ -212,7 +218,12 @@ export default function StoreGrocersPayPage() {
             setActivating(true);
             void activateGrocersLive(token, id).then((result) => {
               if (result.ok) {
-                window.location.replace(grocersLiveViewHref(token));
+                completeStoreLivePaymentAndGo({
+                  paymentId: id,
+                  priceHalalas,
+                  product: STORE_GROCERS_LIVE_PRODUCT,
+                  href: grocersLiveViewHref(token),
+                });
                 return;
               }
               setActivating(false);

@@ -21,6 +21,7 @@ import {
   MOYASAR_APPLE_PAY_VALIDATE_URL,
 } from '@/lib/moyasarFormLoader';
 import { persistMoyasarLastPaymentId } from '@/lib/moyasarPaymentReturn';
+import { completeStoreLivePaymentAndGo } from '@/lib/storeLivePaymentGoogleAds';
 import {
   buildRestaurantLiveCallbackUrl,
   isAllowedMoyasarInvoiceUrl,
@@ -100,12 +101,17 @@ export default function StoreRestaurantPayPage() {
     const run = paymentId ? activateRestaurantLive(token, paymentId) : syncRestaurantLive(token);
     void run.then((result) => {
       if (cancelled) return;
-      const finishOk = () => {
+      const finishOk = (confirmedPaymentId?: string) => {
         activateOnceRef.current = true;
-        window.location.replace(restaurantLiveViewHref(token));
+        completeStoreLivePaymentAndGo({
+          paymentId: confirmedPaymentId || paymentId || '',
+          priceHalalas,
+          product: STORE_RESTAURANT_LIVE_PRODUCT,
+          href: restaurantLiveViewHref(token),
+        });
       };
       if (result.ok) {
-        finishOk();
+        finishOk(paymentId || undefined);
         return;
       }
       if (paymentId && hasInvoice) {
@@ -198,7 +204,12 @@ export default function StoreRestaurantPayPage() {
             setActivating(true);
             void activateRestaurantLive(token, id).then((result) => {
               if (result.ok) {
-                window.location.replace(restaurantLiveViewHref(token));
+                completeStoreLivePaymentAndGo({
+                  paymentId: id,
+                  priceHalalas,
+                  product: STORE_RESTAURANT_LIVE_PRODUCT,
+                  href: restaurantLiveViewHref(token),
+                });
                 return;
               }
               setActivating(false);

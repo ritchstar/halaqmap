@@ -21,6 +21,7 @@ import {
   MOYASAR_APPLE_PAY_VALIDATE_URL,
 } from '@/lib/moyasarFormLoader';
 import { persistMoyasarLastPaymentId } from '@/lib/moyasarPaymentReturn';
+import { completeStoreLivePaymentAndGo } from '@/lib/storeLivePaymentGoogleAds';
 import {
   buildKitchenLiveCallbackUrl,
   isAllowedMoyasarInvoiceUrl,
@@ -100,12 +101,17 @@ export default function StoreKitchenPayPage() {
     const run = paymentId ? activateKitchenLive(token, paymentId) : syncKitchenLive(token);
     void run.then((result) => {
       if (cancelled) return;
-      const finishOk = () => {
+      const finishOk = (confirmedPaymentId?: string) => {
         activateOnceRef.current = true;
-        window.location.replace(kitchenLiveViewHref(token));
+        completeStoreLivePaymentAndGo({
+          paymentId: confirmedPaymentId || paymentId || '',
+          priceHalalas,
+          product: STORE_KITCHEN_LIVE_PRODUCT,
+          href: kitchenLiveViewHref(token),
+        });
       };
       if (result.ok) {
-        finishOk();
+        finishOk(paymentId || undefined);
         return;
       }
       if (paymentId && hasInvoice) {
@@ -198,7 +204,12 @@ export default function StoreKitchenPayPage() {
             setActivating(true);
             void activateKitchenLive(token, id).then((result) => {
               if (result.ok) {
-                window.location.replace(kitchenLiveViewHref(token));
+                completeStoreLivePaymentAndGo({
+                  paymentId: id,
+                  priceHalalas,
+                  product: STORE_KITCHEN_LIVE_PRODUCT,
+                  href: kitchenLiveViewHref(token),
+                });
                 return;
               }
               setActivating(false);

@@ -21,6 +21,7 @@ import {
   MOYASAR_APPLE_PAY_VALIDATE_URL,
 } from '@/lib/moyasarFormLoader';
 import { persistMoyasarLastPaymentId } from '@/lib/moyasarPaymentReturn';
+import { completeStoreLivePaymentAndGo } from '@/lib/storeLivePaymentGoogleAds';
 import {
   buildProduceLiveCallbackUrl,
   isAllowedMoyasarInvoiceUrl,
@@ -100,12 +101,17 @@ export default function StoreProducePayPage() {
     const run = paymentId ? activateProduceLive(token, paymentId) : syncProduceLive(token);
     void run.then((result) => {
       if (cancelled) return;
-      const finishOk = () => {
+      const finishOk = (confirmedPaymentId?: string) => {
         activateOnceRef.current = true;
-        window.location.replace(produceLiveViewHref(token));
+        completeStoreLivePaymentAndGo({
+          paymentId: confirmedPaymentId || paymentId || '',
+          priceHalalas,
+          product: STORE_PRODUCE_LIVE_PRODUCT,
+          href: produceLiveViewHref(token),
+        });
       };
       if (result.ok) {
-        finishOk();
+        finishOk(paymentId || undefined);
         return;
       }
       if (paymentId && hasInvoice) {
@@ -198,7 +204,12 @@ export default function StoreProducePayPage() {
             setActivating(true);
             void activateProduceLive(token, id).then((result) => {
               if (result.ok) {
-                window.location.replace(produceLiveViewHref(token));
+                completeStoreLivePaymentAndGo({
+                  paymentId: id,
+                  priceHalalas,
+                  product: STORE_PRODUCE_LIVE_PRODUCT,
+                  href: produceLiveViewHref(token),
+                });
                 return;
               }
               setActivating(false);

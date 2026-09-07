@@ -21,6 +21,7 @@ import {
   MOYASAR_APPLE_PAY_VALIDATE_URL,
 } from '@/lib/moyasarFormLoader';
 import { persistMoyasarLastPaymentId } from '@/lib/moyasarPaymentReturn';
+import { completeStoreLivePaymentAndGo } from '@/lib/storeLivePaymentGoogleAds';
 import {
   buildWeddingLiveCallbackUrl,
   isAllowedMoyasarInvoiceUrl,
@@ -85,12 +86,17 @@ export default function StoreWeddingPayPage() {
     const run = paymentId ? activateWeddingLive(token, paymentId) : syncWeddingLive(token);
     void run.then((result) => {
       if (cancelled) return;
-      const finishOk = () => {
+      const finishOk = (confirmedPaymentId?: string) => {
         activateOnceRef.current = true;
-        window.location.replace(weddingLiveViewHref(token));
+        completeStoreLivePaymentAndGo({
+          paymentId: confirmedPaymentId || paymentId || '',
+          priceHalalas,
+          product: STORE_WEDDING_LIVE_PRODUCT,
+          href: weddingLiveViewHref(token),
+        });
       };
       if (result.ok) {
-        finishOk();
+        finishOk(paymentId || undefined);
         return;
       }
       if (paymentId && hasInvoice) {
@@ -183,7 +189,12 @@ export default function StoreWeddingPayPage() {
             setActivating(true);
             void activateWeddingLive(token, id).then((result) => {
               if (result.ok) {
-                window.location.replace(weddingLiveViewHref(token));
+                completeStoreLivePaymentAndGo({
+                  paymentId: id,
+                  priceHalalas,
+                  product: STORE_WEDDING_LIVE_PRODUCT,
+                  href: weddingLiveViewHref(token),
+                });
                 return;
               }
               setActivating(false);

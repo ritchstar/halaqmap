@@ -21,6 +21,7 @@ import {
   MOYASAR_APPLE_PAY_VALIDATE_URL,
 } from '@/lib/moyasarFormLoader';
 import { persistMoyasarLastPaymentId } from '@/lib/moyasarPaymentReturn';
+import { completeStoreLivePaymentAndGo } from '@/lib/storeLivePaymentGoogleAds';
 import {
   buildHalanaLiveCallbackUrl,
   isAllowedMoyasarInvoiceUrl,
@@ -100,12 +101,17 @@ export default function StoreHalanaPayPage() {
     const run = paymentId ? activateHalanaLive(token, paymentId) : syncHalanaLive(token);
     void run.then((result) => {
       if (cancelled) return;
-      const finishOk = () => {
+      const finishOk = (confirmedPaymentId?: string) => {
         activateOnceRef.current = true;
-        window.location.replace(halanaLiveViewHref(token));
+        completeStoreLivePaymentAndGo({
+          paymentId: confirmedPaymentId || paymentId || '',
+          priceHalalas,
+          product: STORE_HALANA_LIVE_PRODUCT,
+          href: halanaLiveViewHref(token),
+        });
       };
       if (result.ok) {
-        finishOk();
+        finishOk(paymentId || undefined);
         return;
       }
       if (paymentId && hasInvoice) {
@@ -198,7 +204,12 @@ export default function StoreHalanaPayPage() {
             setActivating(true);
             void activateHalanaLive(token, id).then((result) => {
               if (result.ok) {
-                window.location.replace(halanaLiveViewHref(token));
+                completeStoreLivePaymentAndGo({
+                  paymentId: id,
+                  priceHalalas,
+                  product: STORE_HALANA_LIVE_PRODUCT,
+                  href: halanaLiveViewHref(token),
+                });
                 return;
               }
               setActivating(false);
