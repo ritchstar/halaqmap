@@ -25,6 +25,7 @@ import {
   payDeskFromCopy,
   publicCopyPayload,
   removeHalanaGallery,
+  resolveHalanaPublicCopy,
   saveHalanaHost,
   saveHalanaPay,
   updateHalanaGalleryCaption,
@@ -88,7 +89,10 @@ export async function GET(request: Request): Promise<Response> {
     if (!pay.ok) return json(pay, pay.status || 404, headers);
     return json(pay, 200, headers);
   }
-  const copy = await findHalanaCopy(db, token, role);
+  const copy =
+    role === 'desk'
+      ? await findHalanaCopy(db, token, 'desk')
+      : await resolveHalanaPublicCopy(db, token);
   if (!copy) return json({ ok: false, error: 'النسخة غير موجودة.' }, 404, headers);
   const clock = await applyStoreTrialClock(db, copy, STORE_HALANA_COPIES_TABLE);
   if (clock.expired) {
@@ -172,7 +176,7 @@ export async function POST(request: Request): Promise<Response> {
   if (token.length < 16) return json({ ok: false, error: 'رابط غير صالح.' }, 400, headers);
 
   if (action === 'add_request') {
-    const copy = await findHalanaCopy(db, token, 'shop');
+    const copy = await resolveHalanaPublicCopy(db, token);
     if (!copy || !isHalanaCopyOperable(copy)) return json({ ok: false, error: 'النسخة غير موجودة.' }, 404, headers);
     const added = await addHalanaRequest(db, String(copy.id), body);
     if (!added.ok) return json(added, 400, headers);
@@ -180,7 +184,7 @@ export async function POST(request: Request): Promise<Response> {
   }
 
   if (action === 'add_pay_proof') {
-    const copy = await findHalanaCopy(db, token, 'shop');
+    const copy = await resolveHalanaPublicCopy(db, token);
     if (!copy) return json({ ok: false, error: 'النسخة غير موجودة.' }, 404, headers);
     const added = await addHalanaPayProof(db, String(copy.id), String(body.requestId || ''), body.imageSrc);
     if (!added.ok) return json(added, 400, headers);

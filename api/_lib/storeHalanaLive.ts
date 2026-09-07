@@ -164,8 +164,12 @@ export function publicCopyPayload(
 ) {
   const uploaded = gallery.filter((item) => parseHalanaImageSrc(item.src));
   const merged = uploaded.length > 0 ? uploaded : galleryFromLegacyUrls(String(row.gallery_urls || ''));
+  const shopToken = String(row.shop_token || '').trim();
   return {
     shopName: String(row.shop_name || row.specialist_name || 'حلانا1'),
+    shopToken,
+    shopUrl: shopToken ? halanaShopUrl(shopToken) : '',
+    orderUrl: shopToken ? halanaOrderUrl(shopToken) : '',
     logoSrc: parseShopLogoSrc(row.logo_src),
     specialistName: String(row.specialist_name || ''),
     flavorsAr: String(row.flavors_ar || ''),
@@ -269,6 +273,16 @@ export async function findHalanaCopy(
     .in('status', ['issued', 'live', 'pending_payment', 'pending_renewal', 'expired'])
     .maybeSingle();
   return (data as Record<string, unknown> | null) || null;
+}
+
+/** صفحة الزبون/الطلب: shop_token فقط. لو وُجد desk_token في رابط قديم يُحلّ إلى نفس النسخة. */
+export async function resolveHalanaPublicCopy(
+  db: Db,
+  token: string,
+): Promise<Record<string, unknown> | null> {
+  const shop = await findHalanaCopy(db, token, 'shop');
+  if (shop) return shop;
+  return findHalanaCopy(db, token, 'desk');
 }
 
 export function isHalanaCopyOperable(row: Record<string, unknown> | null): boolean {

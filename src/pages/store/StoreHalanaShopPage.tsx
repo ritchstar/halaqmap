@@ -71,6 +71,9 @@ type HalanaPayDesk = {
 
 type Payload = {
   shopName: string;
+  shopToken: string;
+  shopUrl: string;
+  orderUrl: string;
   logoSrc: string;
   flavorsAr: string;
   policyAr: string;
@@ -264,6 +267,9 @@ export default function StoreHalanaShopPage() {
     setError('');
     setPayload({
       ...raw,
+      shopToken: String(raw.shopToken || '').trim(),
+      shopUrl: String(raw.shopUrl || '').trim(),
+      orderUrl: String(raw.orderUrl || '').trim(),
       logoSrc: parseShopLogoSrc(raw.logoSrc, ''),
       gallery: Array.isArray(raw.gallery) ? raw.gallery : [],
       promoTitleAr: raw.promoTitleAr || '',
@@ -1082,7 +1088,12 @@ function DeskPanel({ token, payload, onSaved }: { token: string; payload: Payloa
         </button>
       </section>
       <StoreDirectPayDesk product="store_halana_live" token={token} accent={STORE_HALANA_LIVE_ACCENT} onSaved={onSaved} />
-      <StoreHalanaShareDesk token={token} shopName={shopName} />
+      <StoreHalanaShareDesk
+        shopToken={payload.shopToken}
+        shopUrl={payload.shopUrl}
+        orderUrl={payload.orderUrl}
+        shopName={shopName}
+      />
       <section className="space-y-3">
         <h2 className="halana-title-sm">الطلبات</h2>
         {(payload.requests || []).length === 0 ? (

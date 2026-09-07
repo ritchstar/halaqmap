@@ -58,6 +58,6 @@ assert.match(lib, /og:title/);
 assert.match(api, /noindex, nofollow/);
 assert.match(grocersApi, /storeLiveShopShareHref\('grocers'/);
 assert.match(cafeApi, /storeLiveShopShareHref\('cafe'/);
-assert.match(grocersApi, /function shopUrl\(token: string\): string \{\s*\r?\n\s*return storeLiveShopShareHref\('grocers', token\);/);
+assert.match(lib, /findHalanaCopy\(db, token, 'shop'\)\) \|\| \(await findHalanaCopy\(db, token, 'desk'\)\)/);
 
 console.log('store-live-shop-share: ok');

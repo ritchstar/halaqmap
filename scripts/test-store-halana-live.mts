@@ -185,8 +185,15 @@ const halanaShareDesk = readFileSync(join(root, 'src/components/store/StoreHalan
 assert.match(shareDesk, /copyThenOpen/);
 assert.match(shareDesk, /liveShopWhatsappShareHref/);
 assert.match(api, /logo_src/);
+assert.match(api, /resolveHalanaPublicCopy/);
+assert.match(api, /shopUrl/);
 assert.match(page, /StoreShopLogoDesk/);
-assert.match(page, /logoSrc/);
+assert.match(page, /shopToken/);
+assert.match(page, /shopUrl/);
+assert.match(halanaShareDesk, /shopToken/);
+assert.match(halanaShareDesk, /shopUrl/);
+assert.match(halanaShareDesk, /orderUrl/);
+assert.doesNotMatch(halanaShareDesk, /halanaShowcaseAbsoluteUrl\(token\)/);
 assert.ok(existsSync(join(root, 'supabase/migrations/202_store_halana_logo.sql')));
 for (const rel of [
   'src/components/store/StoreGrocersDesk.tsx',

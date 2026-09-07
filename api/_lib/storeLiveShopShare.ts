@@ -124,7 +124,7 @@ export async function readStoreLiveShopMeta(
   if (!db) return { shopName: '', live: false };
 
   if (kind === 'halana') {
-    const row = await findHalanaCopy(db, token, 'shop');
+    const row = (await findHalanaCopy(db, token, 'shop')) || (await findHalanaCopy(db, token, 'desk'));
     if (!row || !isHalanaCopyOperable(row)) return { shopName: '', live: false };
     return {
       shopName: String(row.shop_name || row.specialist_name || '').trim(),
