@@ -12,10 +12,12 @@ export function StoreShopLogoDesk({
   logoSrc,
   onChange,
   accent,
+  leadAr,
 }: {
   logoSrc: string;
   onChange: (next: string) => void;
   accent: string;
+  leadAr?: string;
 }) {
   const [error, setError] = useState('');
 
@@ -41,7 +43,7 @@ export function StoreShopLogoDesk({
   return (
     <div className="sm:col-span-2">
       <p className="text-sm">{STORE_SHOP_LOGO_COPY.labelAr}</p>
-      <p className="mt-1 text-xs leading-6 text-white/55">{STORE_SHOP_LOGO_COPY.leadAr}</p>
+      <p className="mt-1 text-xs leading-6 text-white/55">{leadAr ?? STORE_SHOP_LOGO_COPY.leadAr}</p>
       <div className="mt-2 flex flex-wrap items-center gap-3">
         {logoSrc ? (
           <img src={logoSrc} alt="" width={48} height={48} className="h-12 w-12 rounded-full border border-white/20 object-cover" />

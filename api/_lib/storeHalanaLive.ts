@@ -6,6 +6,7 @@
 import { randomBytes } from 'node:crypto';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { openHalanaIban, sealHalanaIban } from './storeHalanaPay.js';
+import { parseShopLogoSrc } from './storeShopLogo.js';
 import { storeLiveShopShareHref } from './storeLiveShopShare.js';
 
 export const STORE_HALANA_LIVE_PRODUCT = 'store_halana_live' as const;
@@ -165,6 +166,7 @@ export function publicCopyPayload(
   const merged = uploaded.length > 0 ? uploaded : galleryFromLegacyUrls(String(row.gallery_urls || ''));
   return {
     shopName: String(row.shop_name || row.specialist_name || 'حلانا1'),
+    logoSrc: parseShopLogoSrc(row.logo_src),
     specialistName: String(row.specialist_name || ''),
     flavorsAr: String(row.flavors_ar || ''),
     policyAr: String(row.policy_ar || ''),
@@ -350,6 +352,7 @@ export async function saveHalanaHost(
     .from(STORE_HALANA_COPIES_TABLE)
     .update({
       shop_name: clip(input.shopName, 80),
+      logo_src: parseShopLogoSrc(input.logoSrc),
       flavors_ar: String(input.flavorsAr || '').slice(0, 800),
       policy_ar: String(input.policyAr || '').slice(0, 1200),
       quotes_ar: String(input.quotesAr || '').slice(0, 1200),

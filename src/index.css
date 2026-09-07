@@ -4437,6 +4437,15 @@ html.platform-radar-fullscreen #root {
   isolation: isolate;
 }
 
+.halana-form-card--desk-gallery {
+  overflow: visible;
+}
+
+.halana-gallery-add-tile {
+  position: relative;
+  isolation: isolate;
+}
+
 .halana-work-caption {
   color: #fff6e6;
   font-weight: 700;

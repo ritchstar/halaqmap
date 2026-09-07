@@ -184,7 +184,10 @@ const shareDesk = readFileSync(join(root, 'src/components/store/StoreLiveShopSha
 const halanaShareDesk = readFileSync(join(root, 'src/components/store/StoreHalanaShareDesk.tsx'), 'utf8');
 assert.match(shareDesk, /copyThenOpen/);
 assert.match(shareDesk, /liveShopWhatsappShareHref/);
-assert.match(halanaShareDesk, /StoreLiveShopShareDesk/);
+assert.match(api, /logo_src/);
+assert.match(page, /StoreShopLogoDesk/);
+assert.match(page, /logoSrc/);
+assert.ok(existsSync(join(root, 'supabase/migrations/202_store_halana_logo.sql')));
 for (const rel of [
   'src/components/store/StoreGrocersDesk.tsx',
   'src/components/store/StoreCafeDesk.tsx',

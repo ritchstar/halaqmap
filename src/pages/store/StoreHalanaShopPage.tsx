@@ -24,17 +24,22 @@ import { StoreLiveStoreLink } from '@/components/store/StoreLiveStoreLink';
 import { StoreDeskGuideLink } from '@/components/store/StoreDeskGuideLink';
 import { StoreDeskCornerDock } from '@/components/store/StoreDeskCornerNav';
 import { StoreDeskHelpSupport } from '@/components/store/StoreDeskHelpSupport';
-import { StoreHalanaShareDesk } from '@/components/store/StoreHalanaShareDesk';
+import { StoreOpsSection } from '@/components/store/StoreOpsSection';
+import { StoreShopLogoDesk } from '@/components/store/StoreShopLogoDesk';
+import { StoreShopLogoMark } from '@/components/store/StoreShopLogoMark';
+import { STORE_SHOP_LOGO_COPY } from '@/config/storeShopLogo';
 import { STORE_HALANA_SUPPORT } from '@/config/storeProductSupport';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { splitHalanaYoutubeLines } from '@/lib/storeHalanaShare';
 import { StoreDirectPayDesk } from '@/components/store/StoreDirectPayDesk';
+import { StoreHalanaShareDesk } from '@/components/store/StoreHalanaShareDesk';
 import { StoreDirectPayGuest, StoreDirectPayPublicMount } from '@/components/store/StoreDirectPayGuest';
 import { DIRECT_PAY_REQUEST_KEY, directPayCopyText } from '@/lib/storeDirectPay';
 import { fetchDirectPay } from '@/lib/storeDirectPayRemote';
 import { HALANA_PAY_REQUEST_KEY } from '@/lib/storeHalanaPay';
 import { fetchHalanaPublic, postHalanaAction } from '@/lib/storeHalanaLiveRemote';
 import { compressImageFile, youtubeEmbedSrc } from '@/lib/storeWeddingLiveLab';
+import { parseShopLogoSrc } from '@/lib/storeShopLogo';
 import { cn } from '@/lib/utils';
 
 type RequestRow = {
@@ -66,6 +71,7 @@ type HalanaPayDesk = {
 
 type Payload = {
   shopName: string;
+  logoSrc: string;
   flavorsAr: string;
   policyAr: string;
   quotesAr: string;
@@ -170,11 +176,16 @@ function HalanaGalleryMedia({
   return (
     <div
       className={cn(
-        'halana-work-media flex w-full items-center justify-center overflow-hidden rounded-[1.15rem]',
+        'halana-work-media relative w-full overflow-hidden rounded-[1.15rem]',
         size === 'lead' ? 'aspect-[5/4] min-h-[14rem] sm:aspect-[16/10] sm:min-h-[18rem]' : 'aspect-square min-h-[11rem]',
       )}
     >
-      <img src={src} alt={alt} className="max-h-full max-w-full object-contain object-center" loading="lazy" />
+      <img
+        src={src}
+        alt={alt}
+        className="absolute inset-0 h-full w-full object-contain object-center p-3"
+        loading="lazy"
+      />
     </div>
   );
 }
@@ -253,6 +264,7 @@ export default function StoreHalanaShopPage() {
     setError('');
     setPayload({
       ...raw,
+      logoSrc: parseShopLogoSrc(raw.logoSrc, ''),
       gallery: Array.isArray(raw.gallery) ? raw.gallery : [],
       promoTitleAr: raw.promoTitleAr || '',
       promoAr: raw.promoAr || '',
@@ -308,7 +320,10 @@ export default function StoreHalanaShopPage() {
             <div className="halana-hero-veil absolute inset-0" />
             <div className="halana-desk-hero__copy">
               <p className="halana-section-kicker">{copy.deskTitleAr}</p>
-              <h1 className="halana-title mt-3">{payload.shopName || copy.titleAr}</h1>
+              <h1 className="halana-title mt-3 flex items-center gap-3">
+                <StoreShopLogoMark src={payload.logoSrc} />
+                <span>{payload.shopName || copy.titleAr}</span>
+              </h1>
             </div>
           </header>
           <div className="halana-shell mx-auto max-w-3xl px-4 py-8">
@@ -349,7 +364,10 @@ function ShowcasePanel({ token, payload }: { token: string; payload: Payload }) 
         <div className="halana-hero-veil absolute inset-0" />
         <div className="absolute inset-x-0 bottom-0 z-[2] mx-auto max-w-3xl px-5 pb-12">
           <p className="halana-section-kicker">{copy.showcaseKickerAr}</p>
-          <h1 className="halana-title mt-3">{payload.shopName || copy.titleAr}</h1>
+          <h1 className="halana-title mt-3 flex items-center gap-3">
+            <StoreShopLogoMark src={payload.logoSrc} />
+            <span>{payload.shopName || copy.titleAr}</span>
+          </h1>
           <p className="halana-lead mt-4 max-w-xl font-extrabold">
             {payload.promoTitleAr || copy.showcaseLeadAr}
           </p>
@@ -594,11 +612,13 @@ function HalanaGalleryUploadButton({
   busy,
   label,
   compact = false,
+  fullWidth = false,
   onPick,
 }: {
   busy: boolean;
   label: string;
   compact?: boolean;
+  fullWidth?: boolean;
   onPick: (file: File) => void;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -610,11 +630,12 @@ function HalanaGalleryUploadButton({
         disabled={busy}
         onClick={() => inputRef.current?.click()}
         className={cn(
-          'halana-action inline-flex cursor-pointer items-center justify-center gap-2 rounded-full font-extrabold shadow-lg ring-2 ring-[#f3c48a]/45 transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60',
-          compact ? 'px-4 py-2 text-sm' : 'min-h-[3rem] px-6 py-3 text-base',
+          'halana-action relative z-10 inline-flex cursor-pointer items-center justify-center gap-2 rounded-full font-extrabold shadow-lg ring-2 ring-[#f3c48a]/55 transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60',
+          fullWidth && 'w-full',
+          compact ? 'px-4 py-2 text-sm' : 'min-h-[3.25rem] px-6 py-3 text-base sm:text-lg',
         )}
       >
-        {busy ? <Loader2 className="h-5 w-5 animate-spin" aria-hidden /> : <ImagePlus className="h-5 w-5" aria-hidden />}
+        {busy ? <Loader2 className="h-5 w-5 animate-spin" aria-hidden /> : <ImagePlus className="h-6 w-6 shrink-0" aria-hidden />}
         {label}
       </button>
       <input
@@ -630,6 +651,89 @@ function HalanaGalleryUploadButton({
         }}
       />
     </>
+  );
+}
+
+function DeskGalleryUploadTile({
+  busy,
+  onPick,
+}: {
+  busy: boolean;
+  onPick: (file: File) => void;
+}) {
+  const copy = STORE_HALANA_LIVE_COPY;
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  return (
+    <button
+      type="button"
+      disabled={busy}
+      aria-label={copy.galleryUploadAr}
+      onClick={() => inputRef.current?.click()}
+      className="halana-gallery-add-tile relative z-10 flex aspect-square min-h-[11rem] w-full flex-col items-center justify-center gap-2 rounded-3xl border-2 border-dashed border-[#f3c48a] bg-gradient-to-b from-[#f3c48a]/28 to-[#c45c7a]/18 p-4 text-[#14080c] shadow-[0_0_28px_rgba(243,196,138,0.35)] transition hover:from-[#f3c48a]/38 hover:to-[#c45c7a]/24 disabled:opacity-60"
+    >
+      {busy ? (
+        <Loader2 className="h-14 w-14 animate-spin text-[#14080c]" aria-hidden />
+      ) : (
+        <span className="flex h-16 w-16 items-center justify-center rounded-full bg-[#14080c]/12 ring-2 ring-[#14080c]/10">
+          <ImagePlus className="h-10 w-10 text-[#14080c]" strokeWidth={2.25} aria-hidden />
+        </span>
+      )}
+      <span className="text-base font-black">{copy.galleryUploadAr}</span>
+      <span className="text-xs font-bold text-[#14080c]/75">اضغطي لاختيار صورة</span>
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/jpeg,image/png,image/webp"
+        className="sr-only"
+        disabled={busy}
+        onChange={(event) => {
+          const file = event.target.files?.[0];
+          event.target.value = '';
+          if (file) onPick(file);
+        }}
+      />
+    </button>
+  );
+}
+
+function DeskGalleryGrid({
+  items,
+  busy,
+  galleryCount,
+  onUpload,
+}: {
+  items: GalleryItem[];
+  busy: boolean;
+  galleryCount: number;
+  onUpload: (caption: string, file: File) => Promise<boolean>;
+}) {
+  const copy = STORE_HALANA_LIVE_COPY;
+  const slotsLeft = Math.max(0, STORE_HALANA_GALLERY_MAX - galleryCount);
+  const cellCount = items.length + (slotsLeft > 0 ? 1 : 0);
+
+  async function pick(file: File) {
+    await onUpload('', file);
+  }
+
+  if (items.length === 0 && slotsLeft <= 0) {
+    return <p className="text-sm text-amber-100/80">{copy.galleryFullAr}</p>;
+  }
+
+  if (items.length === 0 && slotsLeft > 0) {
+    return <DeskGalleryUploadTile busy={busy} onPick={(file) => void pick(file)} />;
+  }
+
+  return (
+    <div className={cn('grid gap-3', cellCount >= 4 ? 'sm:grid-cols-2 lg:grid-cols-3' : 'sm:grid-cols-2')}>
+      {slotsLeft > 0 ? <DeskGalleryUploadTile busy={busy} onPick={(file) => void pick(file)} /> : null}
+      {items.map((item) => (
+        <figure key={item.id} className="halana-work-card overflow-hidden rounded-3xl">
+          <HalanaGalleryMedia src={item.src} alt={item.caption || copy.galleryTitleAr} />
+          {item.caption ? <figcaption className="halana-work-caption px-4 py-3 text-sm leading-7">{item.caption}</figcaption> : null}
+        </figure>
+      ))}
+    </div>
   );
 }
 
@@ -650,15 +754,16 @@ function GalleryUploadProminent({
   }
 
   return (
-    <div className="halana-gallery-upload-bar rounded-2xl border border-[#f3c48a]/40 bg-[#12060a]/90 p-4 shadow-[0_0_28px_rgba(243,196,138,0.14)]">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="halana-gallery-upload-bar relative z-10 rounded-2xl border-2 border-[#f3c48a]/55 bg-gradient-to-l from-[#f3c48a]/22 via-[#c45c7a]/16 to-[#14080c]/88 p-4 shadow-[0_0_32px_rgba(243,196,138,0.28)]">
+      <div className="space-y-3">
         <div className="space-y-1">
-          <p className="text-base font-black text-[#ffe8c4]">{copy.galleryUploadAr}</p>
-          <p className="text-sm text-white/65">{copy.galleryCountAr(galleryCount, STORE_HALANA_GALLERY_MAX)}</p>
+          <p className="text-lg font-black text-[#ffe8c4]">{copy.galleryUploadAr}</p>
+          <p className="text-sm text-white/75">{copy.galleryCountAr(galleryCount, STORE_HALANA_GALLERY_MAX)}</p>
         </div>
         <HalanaGalleryUploadButton
           busy={busy}
-          label="اختيار صورة من الجوال"
+          fullWidth
+          label="رفع صورة — اضغطي هنا"
           onPick={(file) => {
             void onUpload('', file);
           }}
@@ -768,6 +873,7 @@ function GalleryUploadRows({
 function DeskPanel({ token, payload, onSaved }: { token: string; payload: Payload; onSaved: () => void }) {
   const copy = STORE_HALANA_LIVE_COPY;
   const [shopName, setShopName] = useState(payload.shopName);
+  const [logoSrc, setLogoSrc] = useState(payload.logoSrc);
   const [flavorsAr, setFlavorsAr] = useState(payload.flavorsAr || STORE_HALANA_DEFAULT_FLAVORS_AR);
   const [policyAr, setPolicyAr] = useState(payload.policyAr || STORE_HALANA_DEFAULT_POLICY_AR);
   const [quotesAr, setQuotesAr] = useState(payload.quotesAr);
@@ -779,12 +885,18 @@ function DeskPanel({ token, payload, onSaved }: { token: string; payload: Payloa
   const [busy, setBusy] = useState(false);
   const gallery = payload.gallery || [];
 
+  useEffect(() => {
+    setShopName(payload.shopName);
+    setLogoSrc(payload.logoSrc);
+  }, [payload.shopName, payload.logoSrc]);
+
   async function saveHost() {
     setBusy(true);
     const res = await postHalanaAction({
       action: 'save_host',
       token,
       shopName,
+      logoSrc,
       flavorsAr,
       policyAr,
       quotesAr,
@@ -892,11 +1004,32 @@ function DeskPanel({ token, payload, onSaved }: { token: string; payload: Payloa
       <p className="halana-lead">
         الصفحة التي توجّهين إليها العميلات هي المعرض. الطلب في صفحة مستقلة أسفل المعرض.
       </p>
-      <section className="halana-form-card space-y-4 rounded-2xl p-5">
+      <StoreOpsSection titleAr={STORE_SHOP_LOGO_COPY.sectionAr} accent={STORE_HALANA_LIVE_ACCENT} defaultOpen>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <HalanaField label={copy.shopNameLabelAr}>
+            <input className="halana-field" value={shopName} onChange={(event) => setShopName(event.target.value)} />
+          </HalanaField>
+          <StoreShopLogoDesk
+            logoSrc={logoSrc}
+            onChange={setLogoSrc}
+            accent={STORE_HALANA_LIVE_ACCENT}
+            leadAr={copy.logoLeadAr}
+          />
+        </div>
+        <button
+          type="button"
+          disabled={busy}
+          onClick={() => void saveHost()}
+          className="halana-action rounded-full px-5 py-2.5 text-sm font-extrabold disabled:opacity-60"
+        >
+          {copy.identitySaveAr}
+        </button>
+      </StoreOpsSection>
+      <section className="halana-form-card halana-form-card--desk-gallery relative space-y-4 rounded-2xl p-5">
         <h2 className="halana-title-sm">{copy.galleryDeskTitleAr}</h2>
         <p className="text-base leading-8 text-[#ffe8c4]/80">{copy.galleryDeskLeadAr}</p>
         <GalleryUploadProminent busy={busy} galleryCount={gallery.length} onUpload={onUpload} />
-        <ProductGallery items={gallery} emptyAr={copy.galleryEmptyAr} />
+        <DeskGalleryGrid items={gallery} busy={busy} galleryCount={gallery.length} onUpload={onUpload} />
         {gallery.length > 0 ? (
           <div className="space-y-3">
             <p className="text-sm font-bold text-[#ffe8c4]/85">وصف الأعمال الحالية</p>
@@ -915,9 +1048,6 @@ function DeskPanel({ token, payload, onSaved }: { token: string; payload: Payloa
       </section>
       <section className="halana-form-card space-y-4 rounded-2xl p-5">
         <h2 className="halana-title-sm">نصوص المعرض ولقطاته</h2>
-        <HalanaField label="اسم الصفحة">
-          <input className="halana-field" value={shopName} onChange={(event) => setShopName(event.target.value)} />
-        </HalanaField>
         <HalanaField label={copy.promoTitleLabelAr}>
           <input className="halana-field" value={promoTitleAr} onChange={(event) => setPromoTitleAr(event.target.value)} />
         </HalanaField>
