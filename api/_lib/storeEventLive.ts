@@ -111,6 +111,8 @@ export type EventLiveOrderPayload = {
   announcement: string;
   photoSrc: string;
   panoramaSrc: string;
+  shopHeaderBg?: string;
+  shopPageBg?: string;
   blessings: Array<{
     id: string;
     name: string;

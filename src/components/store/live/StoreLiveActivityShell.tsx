@@ -3,9 +3,10 @@
  *
  * غلاف واجهة النشاط الحيّة — مشترك بين حلانا1 ومنتجات الحي.
  */
-import type { ReactNode } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { StoreShopLogoMark } from '@/components/store/StoreShopLogoMark';
+import { resolveShopHeaderCoverStyle } from '@/lib/storeShopBackground';
 import { cn } from '@/lib/utils';
 
 export type LiveActivityShellTab = { id: string; labelAr: string };
@@ -14,6 +15,7 @@ export type LiveActivityShellOccasion = { id: string; labelAr: string };
 
 export function StoreLiveActivityShell({
   coverSrc,
+  headerCoverStyle,
   logoSrc,
   shopName,
   leadLine,
@@ -38,6 +40,7 @@ export function StoreLiveActivityShell({
   overlay,
 }: {
   coverSrc?: string;
+  headerCoverStyle?: CSSProperties;
   logoSrc: string;
   shopName: string;
   leadLine: string;
@@ -88,6 +91,10 @@ export function StoreLiveActivityShell({
         {coverSrc ? (
           <div className="halana-activity-header__cover">
             <img src={coverSrc} alt="" className="halana-activity-header__cover-img" />
+            <div className="halana-activity-header__veil" />
+          </div>
+        ) : headerCoverStyle ? (
+          <div className="halana-activity-header__cover" style={headerCoverStyle}>
             <div className="halana-activity-header__veil" />
           </div>
         ) : null}

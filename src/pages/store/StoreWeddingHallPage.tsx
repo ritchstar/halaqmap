@@ -28,6 +28,7 @@ import {
   type WeddingLiveLabState,
 } from '@/lib/storeWeddingLiveLab';
 import { liveHostText, useStoreLiveDeskSync } from '@/lib/storeLiveDeskSync';
+import { parseShopBackgroundFields } from '@/lib/storeShopBackground';
 import { addWeddingLiveBlessing, fetchWeddingLivePublic, saveWeddingLiveHost } from '@/lib/storeWeddingLiveRemote';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { StoreGuestDeviceBlocked } from '@/components/store/StoreGuestDeviceBlocked';
@@ -63,6 +64,7 @@ function payloadToState(payload: Record<string, unknown>, fallback: WeddingLiveL
     youtubeUrl: liveHostText(payload.youtubeUrl, fallback.host.youtubeUrl),
     venueMapsUrl: liveHostText(payload.venueMapsUrl, fallback.host.venueMapsUrl),
     welcomeLinesAr: normalizeWeddingWelcomeLinesAr((payload as Partial<WeddingLiveHostState>).welcomeLinesAr),
+    ...parseShopBackgroundFields(payload, fallback.host),
   };
   const blessings = Array.isArray(payload.blessings) ? payload.blessings : fallback.blessings;
   return { host, blessings: blessings as WeddingLiveLabState['blessings'] };

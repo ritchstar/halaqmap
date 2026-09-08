@@ -66,6 +66,8 @@ export type ProduceHostState = {
   customFields: string[];
   flashAr: string;
   packId: StoreProduceLivePackId;
+  shopHeaderBg: string;
+  shopPageBg: string;
 } & StoreShopHoursState & ShopPickupPlace;
 
 export type ProduceChatMsg = {
@@ -126,6 +128,8 @@ export function defaultProduceLabState(): ProduceLabState {
       customFields: [...STORE_PRODUCE_LIVE_DEMO.customFields],
       flashAr: STORE_PRODUCE_LIVE_DEMO.flashAr,
       packId: 'm6',
+      shopHeaderBg: '',
+      shopPageBg: '',
       ...DEFAULT_SHOP_PICKUP,
       ...DEFAULT_STORE_SHOP_HOURS,
     },

@@ -34,6 +34,7 @@ import { nextStoreLivePublicGate, pickStoreLiveShelf } from '@/lib/storeLivePubl
 import { isShopClosedNow, parseStoreShopHours } from '@/lib/storeShopHours';
 import { liveActivityCoverSrc, liveActivityTodayName, toLiveActivityShelf } from '@/lib/storeLiveActivityShelf';
 import { parseShopLogoSrc } from '@/lib/storeShopLogo';
+import { parseShopBackgroundFields } from '@/lib/storeShopBackground';
 import { parseShopPickupPlace } from '@/lib/storeShopPlace';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { storeLiveShopShareHref } from '@/lib/storeHostRedirect';
@@ -54,6 +55,7 @@ function payloadToState(payload: Record<string, unknown>, fallback: ProduceLabSt
     packId: payload.packId === 'm12' ? ('m12' as const) : ('m6' as const),
     ...parseStoreShopHours(payload, fallback.host),
     ...parseShopPickupPlace(payload, fallback.host),
+    ...parseShopBackgroundFields(payload, fallback.host),
   };
   return {
     host,
@@ -171,6 +173,7 @@ export default function StoreProduceShopPage() {
       skyLng={state.host.pickupLng}
       life
       showStoreLink={!desk}
+      pageBg={state.host.shopPageBg}
     >
       <div className={desk ? 'mx-auto max-w-3xl px-3 py-5' : undefined}>
         {gate === 'loading' ? <p className="pt-[30svh] text-center text-sm text-white/60">جاري فتح المتجر…</p> : null}

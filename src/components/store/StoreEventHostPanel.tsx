@@ -31,6 +31,7 @@ import { StoreHostGuestInviteIssuance } from '@/components/store/StoreHostGuestI
 import { StoreTrialOpsNote } from '@/components/store/StoreTrialOpsNote';
 import { StoreDeskGuideLink } from '@/components/store/StoreDeskGuideLink';
 import { StoreDeskCornerDock } from '@/components/store/StoreDeskCornerNav';
+import { StoreShopBackgroundDesk } from '@/components/store/StoreShopBackgroundDesk';
 import { STORE_HALLS_SUPPORT } from '@/config/storeProductSupport';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { cn } from '@/lib/utils';
@@ -145,6 +146,12 @@ export function StoreEventHostPanel({
             ctaAr={copy.hostInviteCtaAr}
           />
         ) : null}
+        <StoreShopBackgroundDesk
+          value={{ shopHeaderBg: host.shopHeaderBg, shopPageBg: host.shopPageBg }}
+          onChange={(bg) => patchHost(bg)}
+          accent={voice === 'women' ? '#e4b7c5' : '#e8c547'}
+          fieldClassName={fieldClass}
+        />
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
           <label className="block text-base">
             {copy.hostRoleLabelAr}

@@ -23,6 +23,10 @@ import {
   safeMapsHref,
   youtubeEmbedSrc,
 } from '@/lib/storeWeddingLiveLab';
+import {
+  STORE_EVENT_SPECIALTY_HEADER_BG,
+  STORE_EVENT_SPECIALTY_PAGE_BG,
+} from '@/lib/storeShopBackground';
 
 export { compressImageFile, parseYoutubeVideoId, playWeddingLiveChime, safeMapsHref, youtubeEmbedSrc };
 
@@ -59,6 +63,8 @@ export type EventLiveHostState = {
   photoSrc: string;
   panoramaSrc: string;
   cardStyleId: EventLiveStyleId;
+  shopHeaderBg: string;
+  shopPageBg: string;
 };
 
 export type EventLiveLabState = {
@@ -142,6 +148,8 @@ export function defaultEventLiveLabState(voice: StoreEventLiveVoice = 'men'): Ev
       photoSrc: demo.photoSrc,
       panoramaSrc: demo.panoramaSrc,
       cardStyleId: eventLiveDefaultStyle(voice),
+      shopHeaderBg: STORE_EVENT_SPECIALTY_HEADER_BG[voice],
+      shopPageBg: STORE_EVENT_SPECIALTY_PAGE_BG[voice],
     },
     blessings: [
       {

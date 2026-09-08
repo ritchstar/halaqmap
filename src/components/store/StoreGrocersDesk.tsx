@@ -20,6 +20,7 @@ import { StoreDeskHelpSupport } from '@/components/store/StoreDeskHelpSupport';
 import { StoreDeskGuideLink } from '@/components/store/StoreDeskGuideLink';
 import { StoreDeskCornerDock } from '@/components/store/StoreDeskCornerNav';
 import { StoreShopIdentityDesk } from '@/components/store/StoreShopIdentityDesk';
+import { StoreShopBackgroundDesk } from '@/components/store/StoreShopBackgroundDesk';
 import { STORE_GROCERS_SUPPORT } from '@/config/storeProductSupport';
 import { StoreOpsSection } from '@/components/store/StoreOpsSection';
 import { StoreDirectPayDesk } from '@/components/store/StoreDirectPayDesk';
@@ -99,6 +100,12 @@ export function StoreGrocersDesk({
           customFields[index] = value;
           onChange({ ...state, host: { ...state.host, customFields } });
         }}
+        accent="#8fbf7a"
+        fieldClassName="grocers-field"
+      />
+      <StoreShopBackgroundDesk
+        value={{ shopHeaderBg: state.host.shopHeaderBg, shopPageBg: state.host.shopPageBg }}
+        onChange={(bg) => onChange({ ...state, host: { ...state.host, ...bg } })}
         accent="#8fbf7a"
         fieldClassName="grocers-field"
       />

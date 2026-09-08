@@ -39,6 +39,7 @@ import {
 import { isShopClosedNow, parseStoreShopHours } from '@/lib/storeShopHours';
 import { liveActivityCoverSrc, liveActivityTodayName, toLiveActivityShelf } from '@/lib/storeLiveActivityShelf';
 import { parseShopLogoSrc } from '@/lib/storeShopLogo';
+import { parseShopBackgroundFields } from '@/lib/storeShopBackground';
 import { parseShopPickupPlace } from '@/lib/storeShopPlace';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { storeLiveShopShareHref } from '@/lib/storeHostRedirect';
@@ -60,6 +61,7 @@ function payloadToState(payload: Record<string, unknown>, fallback: RestaurantLa
     nextTicket: Number(payload.nextTicket) > 0 ? Number(payload.nextTicket) : fallback.host.nextTicket,
     ...parseStoreShopHours(payload, fallback.host),
     ...parseShopPickupPlace(payload, fallback.host),
+    ...parseShopBackgroundFields(payload, fallback.host),
   };
   return {
     host,
@@ -169,7 +171,7 @@ export default function StoreRestaurantShopPage() {
   };
 
   return (
-    <StorePurchasedShell life showStoreLink={!desk}>
+    <StorePurchasedShell life showStoreLink={!desk} pageBg={state.host.shopPageBg}>
       <div className={desk ? 'mx-auto max-w-3xl px-3 py-5' : undefined}>
         {gate === 'loading' ? <p className="pt-[30svh] text-center text-sm text-white/60">جاري فتح الصفحة…</p> : null}
         {gate === 'missing' ? <p className="pt-[30svh] text-center text-sm text-white/70">الرابط غير صالح.</p> : null}

@@ -135,7 +135,10 @@ export type ProduceLiveOrderPayload = {
   orderArchive?: unknown[];
   chatIncluded: boolean;
   chats: unknown[];
-} & StoreShopHoursState & ShopPickupPlace;
+} & StoreShopHoursState & ShopPickupPlace & {
+  shopHeaderBg?: string;
+  shopPageBg?: string;
+};
 
 export function parseProduceLiveOrderBody(body: Record<string, unknown>):
   | { ok: true; email: string; buyerName: string; packId: 'm6' | 'm12'; vendorMode: StoreVendorMode; payload: ProduceLiveOrderPayload }

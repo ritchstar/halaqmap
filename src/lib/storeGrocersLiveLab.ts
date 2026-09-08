@@ -58,6 +58,8 @@ export type GrocersHostState = {
   customFields: string[];
   flashAr: string;
   packId: StoreGrocersLivePackId;
+  shopHeaderBg: string;
+  shopPageBg: string;
 } & StoreShopHoursState & ShopPickupPlace;
 
 export type GrocersChatMsg = {
@@ -121,6 +123,8 @@ export function defaultGrocersLabState(): GrocersLabState {
       customFields: [...STORE_GROCERS_LIVE_DEMO.customFields],
       flashAr: STORE_GROCERS_LIVE_DEMO.flashAr,
       packId: 'm6',
+      shopHeaderBg: '',
+      shopPageBg: '',
       ...DEFAULT_SHOP_PICKUP,
       ...DEFAULT_STORE_SHOP_HOURS,
     },

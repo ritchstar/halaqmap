@@ -44,6 +44,7 @@ import { StoreWeddingInviteCard } from '@/components/store/StoreWeddingInviteCar
 import { StoreGuestResentLinkPreview } from '@/components/store/StoreGuestResentLinkPreview';
 import { StoreDeskGuideLink } from '@/components/store/StoreDeskGuideLink';
 import { StoreDeskCornerDock } from '@/components/store/StoreDeskCornerNav';
+import { StoreShopBackgroundDesk } from '@/components/store/StoreShopBackgroundDesk';
 import { STORE_HALLS_SUPPORT } from '@/config/storeProductSupport';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { StoreHostGuestInviteIssuance } from '@/components/store/StoreHostGuestInviteIssuance';
@@ -396,6 +397,12 @@ export function StoreWeddingHostPanel({
         {isLab ? null : <div className="mt-3"><StoreTrialOpsNote productKey="wedding" /></div>}
         {isLab ? <p className="mt-2 text-sm leading-7 text-white/70">{copy.hostLabCoreLeadAr}</p> : null}
         {!isLab ? issuance : null}
+        <StoreShopBackgroundDesk
+          value={{ shopHeaderBg: host.shopHeaderBg, shopPageBg: host.shopPageBg }}
+          onChange={(bg) => patchHost(bg)}
+          accent={voice === 'women' ? '#e4b7c5' : '#e8c547'}
+          fieldClassName={fieldClass}
+        />
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
           <label className="block text-base">
             {copy.hostRoleLabelAr}

@@ -40,6 +40,7 @@ import {
   type CafeLiveOrderPayload,
 } from './_lib/storeCafeLive.js';
 import { parseStoreShopHours } from './_lib/storeShopHours.js';
+import { parseShopBackgroundSave } from './_lib/storeShopBackground.js';
 import { parseShopLogoSrc } from './_lib/storeShopLogo.js';
 import { lockPaidVendorMode, parseVendorMode } from './_lib/storeMobileVendor.js';
 import { parseShopPickupPlace } from './_lib/storeShopPlace.js';
@@ -692,6 +693,10 @@ async function saveHost(db: Db, body: Record<string, unknown>, headers: Record<s
     blessings: Array.isArray(body.blessings) ? (body.blessings as CafeLiveOrderPayload['blessings']) : current.blessings || [],
     ...parseStoreShopHours(body, parseStoreShopHours(current)),
     ...lockPaidVendorMode(parseShopPickupPlace(body, parseShopPickupPlace(current)), parseShopPickupPlace(current)),
+    ...parseShopBackgroundSave(body, {
+      shopHeaderBg: String(current.shopHeaderBg || ''),
+      shopPageBg: String(current.shopPageBg || ''),
+    }),
   };
   await db
     .from(STORE_CAFE_LIVE_TABLE)

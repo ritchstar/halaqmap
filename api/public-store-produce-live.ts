@@ -40,6 +40,7 @@ import {
   type ProduceLiveOrderPayload,
 } from './_lib/storeProduceLive.js';
 import { parseStoreShopHours } from './_lib/storeShopHours.js';
+import { parseShopBackgroundSave } from './_lib/storeShopBackground.js';
 import { parseShopLogoSrc } from './_lib/storeShopLogo.js';
 import { lockPaidVendorMode, parseVendorMode } from './_lib/storeMobileVendor.js';
 import { parseShopPickupPlace } from './_lib/storeShopPlace.js';
@@ -630,6 +631,10 @@ async function saveHost(db: Db, body: Record<string, unknown>, headers: Record<s
     chats: Array.isArray(body.chats) ? parseProduceChats(body.chats) : parseProduceChats(current.chats),
     ...parseStoreShopHours(body, parseStoreShopHours(current)),
     ...lockPaidVendorMode(parseShopPickupPlace(body, parseShopPickupPlace(current)), parseShopPickupPlace(current)),
+    ...parseShopBackgroundSave(body, {
+      shopHeaderBg: String(current.shopHeaderBg || ''),
+      shopPageBg: String(current.shopPageBg || ''),
+    }),
   };
   await db
     .from(STORE_PRODUCE_LIVE_TABLE)

@@ -193,6 +193,8 @@ export type KitchenLiveOrderPayload = {
   giftClockFromFirstVisit?: boolean;
   giftStartedAt?: string;
   giftConvertedAt?: string;
+  shopHeaderBg?: string;
+  shopPageBg?: string;
 } & StoreShopHoursState;
 
 export function isKitchenGiftPayload(payload: Record<string, unknown> | KitchenLiveOrderPayload | null | undefined): boolean {

@@ -67,6 +67,8 @@ export type RestaurantHostState = {
   flashAr: string;
   packId: StoreRestaurantLivePackId;
   nextTicket: number;
+  shopHeaderBg: string;
+  shopPageBg: string;
 } & StoreShopHoursState & ShopPickupPlace;
 
 export type RestaurantChatMsg = {
@@ -129,6 +131,8 @@ export function defaultRestaurantLabState(): RestaurantLabState {
       flashAr: STORE_RESTAURANT_LIVE_DEMO.flashAr,
       packId: 'm6',
       nextTicket: 1,
+      shopHeaderBg: '',
+      shopPageBg: '',
       ...DEFAULT_SHOP_PICKUP,
       ...DEFAULT_STORE_SHOP_HOURS,
     },

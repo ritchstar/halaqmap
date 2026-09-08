@@ -22,6 +22,10 @@ import {
   weddingWelcomeSetAt,
   type WeddingWelcomeLine,
 } from '@/config/storeWeddingWelcomeSets';
+import {
+  STORE_WEDDING_SPECIALTY_HEADER_BG,
+  STORE_WEDDING_SPECIALTY_PAGE_BG,
+} from '@/lib/storeShopBackground';
 
 export type WeddingLiveAudioId = (typeof STORE_WEDDING_LIVE_AUDIO)[number]['id'];
 export type WeddingLiveStyleId = (typeof STORE_WEDDING_LIVE_STYLES)[number]['id'];
@@ -182,6 +186,8 @@ export type WeddingLiveHostState = {
   photoSrc: string;
   panoramaSrc: string;
   cardStyleId: WeddingLiveStyleId;
+  shopHeaderBg: string;
+  shopPageBg: string;
 };
 
 export type WeddingLiveLabState = {
@@ -365,6 +371,8 @@ export function defaultWeddingLiveLabState(voice: StoreWeddingLiveVoice = 'men')
       photoSrc: demo.photoSrc,
       panoramaSrc: demo.panoramaSrc,
       cardStyleId: weddingLiveDefaultStyle(voice),
+      shopHeaderBg: STORE_WEDDING_SPECIALTY_HEADER_BG[voice],
+      shopPageBg: STORE_WEDDING_SPECIALTY_PAGE_BG[voice],
     },
     blessings: [
       {

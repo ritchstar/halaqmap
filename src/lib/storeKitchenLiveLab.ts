@@ -79,6 +79,8 @@ export type KitchenHostState = {
   pickupLng: number;
   pickupMapsUrl: string;
   pickupPlaceVisible: boolean;
+  shopHeaderBg: string;
+  shopPageBg: string;
 } & StoreShopHoursState;
 
 export const DEFAULT_KITCHEN_PICKUP = {
@@ -152,6 +154,8 @@ export function defaultKitchenLabState(): KitchenLabState {
       qrActive: true,
       nextTicket: 1,
       ...DEFAULT_KITCHEN_PICKUP,
+      shopHeaderBg: '',
+      shopPageBg: '',
       ...DEFAULT_STORE_SHOP_HOURS,
     },
     shelf,

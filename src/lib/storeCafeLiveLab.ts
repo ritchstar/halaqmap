@@ -86,6 +86,8 @@ export type CafeHostState = {
   reviewBeforeShow: boolean;
   activeEventId: StoreCafeLiveEventId;
   customEventTitle: string;
+  shopHeaderBg: string;
+  shopPageBg: string;
 } & StoreShopHoursState & ShopPickupPlace;
 
 export type CafeChatMsg = {
@@ -167,6 +169,8 @@ export function defaultCafeLabState(): CafeLabState {
       reviewBeforeShow: STORE_CAFE_LIVE_DEMO.reviewBeforeShow,
       activeEventId: STORE_CAFE_LIVE_DEMO.activeEventId,
       customEventTitle: STORE_CAFE_LIVE_DEMO.customEventTitle,
+      shopHeaderBg: '',
+      shopPageBg: '',
       ...DEFAULT_SHOP_PICKUP,
       ...DEFAULT_STORE_SHOP_HOURS,
     },

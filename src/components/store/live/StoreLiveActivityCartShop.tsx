@@ -7,6 +7,7 @@ import { useMemo, useState, type ReactNode } from 'react';
 import { liveActivityCopy, type LiveActivityKind } from '@/config/storeLiveActivity';
 import { loadLiveActivityDraft, saveLiveActivityDraft } from '@/lib/storeLiveActivityDraft';
 import { isShopClosedNow, type StoreShopHoursState } from '@/lib/storeShopHours';
+import { resolveShopHeaderCover, resolveShopHeaderCoverStyle } from '@/lib/storeShopBackground';
 import { StoreLiveActivityShell } from '@/components/store/live/StoreLiveActivityShell';
 import {
   StoreLiveActivityAboutTab,
@@ -22,6 +23,7 @@ type HostLike = StoreShopHoursState & {
   customFields: string[];
   flashAr: string;
   acceptingOrders?: boolean;
+  shopHeaderBg?: string;
 };
 
 export function StoreLiveActivityCartShop({
@@ -85,11 +87,13 @@ export function StoreLiveActivityCartShop({
     saveLiveActivityDraft(kind, token, { occasion: id });
   }
 
-  const heroPhoto = coverSrc || shelf.find((item) => item.photoSrc)?.photoSrc || '';
+  const heroPhoto = resolveShopHeaderCover(host.shopHeaderBg || '', coverSrc || shelf.find((item) => item.photoSrc)?.photoSrc || '') || '';
+  const headerCoverStyle = resolveShopHeaderCoverStyle(host.shopHeaderBg || '');
 
   return (
     <StoreLiveActivityShell
       coverSrc={heroPhoto || undefined}
+      headerCoverStyle={headerCoverStyle}
       logoSrc={host.logoSrc}
       shopName={host.shopName}
       leadLine={leadLine}

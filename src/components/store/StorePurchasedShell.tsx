@@ -10,6 +10,7 @@ import { StoreLiveStoreLink } from '@/components/store/StoreLiveStoreLink';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { lockPartnerDarkCanvas } from '@/lib/partnerDarkCanvas';
 import { STORE_LIVE_MARK_AR } from '@/config/storeLiveAtmosphere';
+import { shopBackgroundStyle } from '@/lib/storeShopBackground';
 import type { StoreShopSkyProduct, StoreShopSkySurface } from '@/config/storeShopSky';
 
 export function StorePurchasedShell({
@@ -20,6 +21,7 @@ export function StorePurchasedShell({
   skyLng,
   life = false,
   showStoreLink = false,
+  pageBg,
 }: {
   children: ReactNode;
   sky?: StoreShopSkyProduct;
@@ -28,14 +30,17 @@ export function StorePurchasedShell({
   skyLng?: number;
   life?: boolean;
   showStoreLink?: boolean;
+  pageBg?: string;
 }) {
   useEffect(() => lockPartnerDarkCanvas(), []);
   const isMobile = useIsMobile();
-  const showSky = Boolean(sky) && !(life && isMobile);
-  const canvas = showSky || life;
+  const customPageBg = Boolean(pageBg?.trim());
+  const showSky = Boolean(sky) && !(life && isMobile) && !customPageBg;
+  const canvas = showSky || life || customPageBg;
+  const pageStyle = shopBackgroundStyle(pageBg || '');
 
   return (
-    <div dir="rtl" className="store-purchased-shell relative min-h-[100svh] bg-[#050308] text-[#f7edd8]">
+    <div dir="rtl" className="store-purchased-shell relative min-h-[100svh] bg-[#050308] text-[#f7edd8]" style={pageStyle}>
       {sky && showSky ? <StoreShopSky product={sky} surface={skySurface} lat={skyLat} lng={skyLng} hideChip={life} /> : null}
       {life ? <StoreShopLife /> : null}
       {canvas ? <div className="store-purchased-shell__body relative z-10">{children}</div> : children}

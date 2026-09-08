@@ -13,6 +13,7 @@ import { StoreWeddingMapsPin } from '@/components/store/StoreWeddingMapsPin';
 import { STORE_EVENT_MARKETING_FRAMES, STORE_EVENT_WOMEN_MARKETING_FRAMES } from '@/config/storeMarketingReels';
 import type { EventLiveLabState } from '@/lib/storeEventLiveLab';
 import { eventHostInviteLine, eventPlaceLine, safeMapsHref, youtubeEmbedSrc } from '@/lib/storeEventLiveLab';
+import { resolveShopHeaderCoverStyle, shopBackgroundStyle } from '@/lib/storeShopBackground';
 import { cn } from '@/lib/utils';
 
 export function StoreEventHallStage({
@@ -34,6 +35,9 @@ export function StoreEventHallStage({
   const voice = state.host.voice === 'women' ? 'women' : 'men';
   const accent = eventLiveAccent(voice);
   const reel = voice === 'women' ? 'event-women' : 'event';
+  const customPageBg = state.host.shopPageBg.trim();
+  const pageStyle = shopBackgroundStyle(customPageBg);
+  const headerCoverStyle = resolveShopHeaderCoverStyle(state.host.shopHeaderBg);
 
   return (
     <div
@@ -48,10 +52,13 @@ export function StoreEventHallStage({
             ),
         className,
       )}
+      style={pageStyle}
     >
-      <StoreLivePanoramaCycle
-        frames={voice === 'women' ? STORE_EVENT_WOMEN_MARKETING_FRAMES : STORE_EVENT_MARKETING_FRAMES}
-      />
+      {!customPageBg ? (
+        <StoreLivePanoramaCycle
+          frames={voice === 'women' ? STORE_EVENT_WOMEN_MARKETING_FRAMES : STORE_EVENT_MARKETING_FRAMES}
+        />
+      ) : null}
       <div className="absolute inset-0 bg-gradient-to-b from-black/28 via-black/18 to-black/58" />
       <StoreHallAtmosphere voice={voice} />
 
@@ -60,7 +67,11 @@ export function StoreEventHallStage({
           <StoreHallNoticePlaque text={state.host.announcement.trim()} accent={accent} />
         ) : null}
 
-        <header className="wedding-hall-masthead">
+        <header className="wedding-hall-masthead relative overflow-hidden rounded-[24px]">
+          {headerCoverStyle ? (
+            <div className="pointer-events-none absolute inset-0" style={headerCoverStyle} aria-hidden />
+          ) : null}
+          <div className="relative z-[1]">
           <div className="hall-masthead-kicker invite-luminous" data-bidi="off" style={{ color: accent }}>
             {STORE_EVENT_LIVE.hallKickerAr}
           </div>
@@ -79,6 +90,7 @@ export function StoreEventHallStage({
           </div>
           <div className="text-base text-white/70" data-bidi="off">
             {eventPlaceLine(state.host)}
+          </div>
           </div>
         </header>
         {maps ? (

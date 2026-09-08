@@ -41,6 +41,7 @@ import {
   type KitchenLiveOrderPayload,
 } from './_lib/storeKitchenLive.js';
 import { parseStoreShopHours } from './_lib/storeShopHours.js';
+import { parseShopBackgroundSave } from './_lib/storeShopBackground.js';
 import { parseShopLogoSrc } from './_lib/storeShopLogo.js';
 import { sendKitchenLiveLinksEmail } from './_lib/storeKitchenLiveMail.js';
 import { applyStoreTrialClock, markStoreTrialConverted } from './_lib/storeProductTrial.js';
@@ -663,6 +664,10 @@ async function saveHost(db: Db, body: Record<string, unknown>, headers: Record<s
     nextTicket: Number.isFinite(nextTicket) && nextTicket > 0 ? nextTicket : current.nextTicket || 1,
     ...parseKitchenPickupPlace(body, parseKitchenPickupPlace(current)),
     ...parseStoreShopHours(body, parseStoreShopHours(current)),
+    ...parseShopBackgroundSave(body, {
+      shopHeaderBg: String(current.shopHeaderBg || ''),
+      shopPageBg: String(current.shopPageBg || ''),
+    }),
   };
   await db
     .from(STORE_KITCHEN_LIVE_TABLE)

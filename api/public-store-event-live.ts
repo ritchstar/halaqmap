@@ -50,6 +50,7 @@ import {
   summarizeGuestInvites,
 } from './_lib/storeGuestDeviceLock.js';
 import { sendEventLiveLinksEmail } from './_lib/storeEventLiveMail.js';
+import { parseShopBackgroundSave } from './_lib/storeShopBackground.js';
 import { applyStoreTrialClock, markStoreTrialConverted } from './_lib/storeProductTrial.js';
 
 export const config = { maxDuration: 20 };
@@ -638,6 +639,10 @@ async function saveHost(db: Db, body: Record<string, unknown>, headers: Record<s
     photoSrc: String(body.photoSrc ?? current.photoSrc).slice(0, 350000),
     panoramaSrc: String(body.panoramaSrc ?? current.panoramaSrc).slice(0, 350000),
     blessings: Array.isArray(body.blessings) ? (body.blessings as EventLiveOrderPayload['blessings']) : current.blessings,
+    ...parseShopBackgroundSave(body, {
+      shopHeaderBg: String(current.shopHeaderBg || ''),
+      shopPageBg: String(current.shopPageBg || ''),
+    }),
   };
   await db
     .from(STORE_EVENT_LIVE_TABLE)

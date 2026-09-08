@@ -143,7 +143,10 @@ export type RestaurantLiveOrderPayload = {
   chatIncluded: true;
   chats: unknown[];
   nextTicket: number;
-} & StoreShopHoursState & ShopPickupPlace;
+} & StoreShopHoursState & ShopPickupPlace & {
+  shopHeaderBg?: string;
+  shopPageBg?: string;
+};
 
 export function parseRestaurantLiveOrderBody(body: Record<string, unknown>):
   | { ok: true; email: string; buyerName: string; packId: 'm6' | 'm12'; vendorMode: StoreVendorMode; payload: RestaurantLiveOrderPayload }

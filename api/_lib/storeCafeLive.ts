@@ -165,7 +165,10 @@ export type CafeLiveOrderPayload = {
   activeEventId: string;
   customEventTitle: string;
   blessings: CafeLiveBlessing[];
-} & StoreShopHoursState & ShopPickupPlace;
+} & StoreShopHoursState & ShopPickupPlace & {
+  shopHeaderBg?: string;
+  shopPageBg?: string;
+};
 
 export function parseCafeLiveOrderBody(body: Record<string, unknown>):
   | { ok: true; email: string; buyerName: string; packId: 'm6' | 'm12'; vendorMode: StoreVendorMode; payload: CafeLiveOrderPayload }

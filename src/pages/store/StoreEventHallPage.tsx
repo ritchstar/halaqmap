@@ -26,6 +26,7 @@ import {
   type EventLiveLabState,
 } from '@/lib/storeEventLiveLab';
 import { liveHostText, useStoreLiveDeskSync } from '@/lib/storeLiveDeskSync';
+import { parseShopBackgroundFields } from '@/lib/storeShopBackground';
 import { addEventLiveBlessing, fetchEventLivePublic, saveEventLiveHost } from '@/lib/storeEventLiveRemote';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { StoreGuestDeviceBlocked } from '@/components/store/StoreGuestDeviceBlocked';
@@ -55,6 +56,7 @@ function payloadToState(payload: Record<string, unknown>, fallback: EventLiveLab
     welcomeAr: liveHostText(payload.welcomeAr, fallback.host.welcomeAr),
     youtubeUrl: liveHostText(payload.youtubeUrl, fallback.host.youtubeUrl),
     venueMapsUrl: liveHostText(payload.venueMapsUrl, fallback.host.venueMapsUrl),
+    ...parseShopBackgroundFields(payload, fallback.host),
   };
   const blessings = Array.isArray(payload.blessings) ? payload.blessings : fallback.blessings;
   return { host, blessings: blessings as EventLiveLabState['blessings'] };

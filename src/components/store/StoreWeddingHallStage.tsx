@@ -29,6 +29,7 @@ import {
   weddingWelcomeLines,
   youtubeEmbedSrc,
 } from '@/lib/storeWeddingLiveLab';
+import { resolveShopHeaderCoverStyle, shopBackgroundStyle } from '@/lib/storeShopBackground';
 import { cn } from '@/lib/utils';
 
 function welcomeSizeClass(weight: 'hero' | 'support' | 'caption', displayTone: boolean): string {
@@ -96,6 +97,9 @@ export function StoreWeddingHallStage({
   const displayTone = welcomeSet.id === 'display';
   const heroLine = resolvedLines.find((line) => line.weight === 'hero') ?? resolvedLines[0];
   const restLines = resolvedLines.filter((line) => line.id !== heroLine.id);
+  const customPageBg = state.host.shopPageBg.trim();
+  const pageStyle = shopBackgroundStyle(customPageBg);
+  const headerCoverStyle = resolveShopHeaderCoverStyle(state.host.shopHeaderBg);
 
   return (
     <div
@@ -110,10 +114,13 @@ export function StoreWeddingHallStage({
             ),
         className,
       )}
+      style={pageStyle}
     >
-      <StoreLivePanoramaCycle
-        frames={voice === 'women' ? STORE_WEDDING_WOMEN_MARKETING_FRAMES : STORE_WEDDING_MARKETING_FRAMES}
-      />
+      {!customPageBg ? (
+        <StoreLivePanoramaCycle
+          frames={voice === 'women' ? STORE_WEDDING_WOMEN_MARKETING_FRAMES : STORE_WEDDING_MARKETING_FRAMES}
+        />
+      ) : null}
       <div className="absolute inset-0 bg-gradient-to-b from-black/28 via-black/18 to-black/58" />
       <StoreHallAtmosphere voice={voice} />
 
@@ -129,7 +136,11 @@ export function StoreWeddingHallStage({
           <StoreHallNoticePlaque text={state.host.announcement.trim()} accent={accent} />
         ) : null}
 
-        <header className="wedding-hall-masthead">
+        <header className="wedding-hall-masthead relative overflow-hidden rounded-[24px]">
+          {headerCoverStyle ? (
+            <div className="pointer-events-none absolute inset-0" style={headerCoverStyle} aria-hidden />
+          ) : null}
+          <div className="relative z-[1]">
           <div
             className={cn('hall-masthead-kicker invite-luminous', compact && 'line-clamp-1 lg:line-clamp-none')}
             data-bidi="off"
@@ -164,6 +175,7 @@ export function StoreWeddingHallStage({
           ) : null}
           <div className={cn('text-base text-white/70', compact && 'hidden lg:block')} data-bidi="off">
             {state.host.eventTime}
+          </div>
           </div>
         </header>
         {maps ? (
