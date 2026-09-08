@@ -3,10 +3,12 @@
  *
  * صفحة هبوط اليوم الوطني — احتفال بأصحاب الأنشطة واكتشاف المنتجات.
  */
-import { Navigate, Link } from 'react-router-dom';
+import { useEffect } from 'react';
+import { Navigate, Link, useLocation } from 'react-router-dom';
 import { PlatformContinuousDevelopmentNotice } from '@/components/platform/PlatformContinuousDevelopmentNotice';
 import { StoreNationalDayExplorer } from '@/components/store/StoreNationalDayExplorer';
 import {
+  NATIONAL_DAY_EXPLORER_SCROLL_QUERY,
   STORE_NATIONAL_DAY_CARDS_HREF,
   STORE_NATIONAL_DAY_COPY,
   STORE_NATIONAL_DAY_PUBLIC_ENABLED,
@@ -15,12 +17,20 @@ import {
 } from '@/config/storeNationalDay';
 import { STORE_GENERAL_TRIAL_PUBLIC_ENABLED } from '@/config/storeProductTrial';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
+import { scrollToNationalDayExplorer } from '@/lib/storeNationalDayScroll';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 
 export default function StoreNationalDayLandingPage() {
   const copy = STORE_NATIONAL_DAY_COPY;
   const phase = nationalDayCampaignPhase();
+  const location = useLocation();
   useDocumentTitle(copy.documentTitle);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get('scroll') !== NATIONAL_DAY_EXPLORER_SCROLL_QUERY) return;
+    requestAnimationFrame(() => scrollToNationalDayExplorer());
+  }, [location.search]);
 
   if (!STORE_NATIONAL_DAY_PUBLIC_ENABLED) {
     return <Navigate to={ROUTE_PATHS.STORE_LANDING} replace />;
@@ -55,9 +65,13 @@ export default function StoreNationalDayLandingPage() {
           </p>
           {phase === 'active' ? <p className="store-national-day__brand-line">{copy.brandLineAr}</p> : null}
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-            <a href="#national-day-explorer" className="store-national-day__btn store-national-day__btn--primary">
+            <button
+              type="button"
+              onClick={() => scrollToNationalDayExplorer()}
+              className="store-national-day__btn store-national-day__btn--primary"
+            >
               {copy.heroCtaAr}
-            </a>
+            </button>
             {showTrial ? (
               <Link to={ROUTE_PATHS.STORE_GENERAL_TRIAL} className="store-national-day__btn store-national-day__btn--ghost">
                 {copy.trialCtaAr}
@@ -159,9 +173,13 @@ export default function StoreNationalDayLandingPage() {
           <h2 className="store-national-day__section-title">{copy.closingTitleAr}</h2>
           <p className="store-national-day__section-lead">{copy.closingLeadAr}</p>
           <div className="mt-6 flex flex-wrap gap-3">
-            <a href="#national-day-explorer" className="store-national-day__btn store-national-day__btn--primary">
+            <button
+              type="button"
+              onClick={() => scrollToNationalDayExplorer()}
+              className="store-national-day__btn store-national-day__btn--primary"
+            >
               {copy.closingPrimaryCtaAr}
-            </a>
+            </button>
             {showTrial ? (
               <Link to={ROUTE_PATHS.STORE_GENERAL_TRIAL} className="store-national-day__btn store-national-day__btn--ghost">
                 {copy.closingSecondaryCtaAr}

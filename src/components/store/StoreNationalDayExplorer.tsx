@@ -4,6 +4,7 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
+  NATIONAL_DAY_EXPLORER_SECTION_ID,
   NATIONAL_DAY_SEGMENTS,
   STORE_NATIONAL_DAY_COPY,
   nationalDayProductsForSegment,
@@ -17,8 +18,8 @@ export function StoreNationalDayExplorer() {
   const products = useMemo(() => nationalDayProductsForSegment(segment), [segment]);
 
   return (
-    <section className="store-national-day__section" aria-labelledby="national-day-explorer">
-      <h2 id="national-day-explorer" className="store-national-day__section-title">
+    <section className="store-national-day__section" aria-labelledby={NATIONAL_DAY_EXPLORER_SECTION_ID}>
+      <h2 id={NATIONAL_DAY_EXPLORER_SECTION_ID} className="store-national-day__section-title">
         {copy.explorerTitleAr}
       </h2>
       <p className="store-national-day__section-lead">{copy.explorerLeadAr}</p>

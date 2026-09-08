@@ -7,6 +7,10 @@ import { ROUTE_PATHS } from '@/lib/routePaths';
 
 export const STORE_NATIONAL_DAY_PUBLIC_ENABLED = true as const;
 
+/** معرّف قسم المستكشف — لا يُستخدم كهاش مسار (HashRouter). */
+export const NATIONAL_DAY_EXPLORER_SECTION_ID = 'national-day-explorer' as const;
+export const NATIONAL_DAY_EXPLORER_SCROLL_QUERY = 'explorer' as const;
+
 /** نهاية الحملة الرئيسية — بعدها تظهر خاتمة الشكر */
 export const STORE_NATIONAL_DAY_CAMPAIGN_END_ISO = '2026-09-26';
 

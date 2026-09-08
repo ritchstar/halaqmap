@@ -12,6 +12,7 @@ import { PlatformAmbientProvider } from "@/context/PlatformAmbientContext";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { AnalyticsRouteTracker } from "@/components/AnalyticsRouteTracker";
 import { PolicySectionHashRedirect } from "@/components/PolicySectionHashRedirect";
+import { StoreNationalDayHashRedirect } from "@/components/store/StoreNationalDayHashRedirect";
 import { MoyasarPaymentReturnGate } from "@/components/MoyasarPaymentReturnGate";
 import { ConsumerNativeShellGate } from "@/components/consumer/ConsumerNativeShellGate";
 import { RouteScopedErrorBoundary } from "@/components/RouteScopedErrorBoundary";
@@ -661,6 +662,12 @@ function StoreDomainRedirect() {
     return null;
   }
 
+  const legacyExplorerPath = pathOnly.replace(/^\/+/, '');
+  if (legacyExplorerPath === 'national-day-explorer') {
+    window.location.replace(`/#${STORE_NATIONAL_DAY_PATH}?scroll=explorer`);
+    return null;
+  }
+
   if (!window.location.hash || pathOnly === '/' || pathOnly === '') {
     window.location.replace(`/#${STORE_LANDING_PATH}`);
   }
@@ -759,6 +766,7 @@ export function App() {
         <ScrollToTop />
         <AnalyticsRouteTracker />
         <PolicySectionHashRedirect />
+        <StoreNationalDayHashRedirect />
         <MoyasarPaymentReturnGate />
         <ConsumerNativeShellGate />
         <Routes>
@@ -912,6 +920,10 @@ export function App() {
           <Route path={STORE_GENERAL_TRIAL_TERMS_PATH} element={<LazyRoute><StoreGeneralTrialTermsPage /></LazyRoute>} />
           <Route path={STORE_GENERAL_TRIAL_PATH} element={<LazyRoute><StoreGeneralTrialLandingPage /></LazyRoute>} />
           <Route path={STORE_NATIONAL_DAY_PATH} element={<LazyRoute><StoreNationalDayLandingPage /></LazyRoute>} />
+          <Route
+            path="/national-day-explorer"
+            element={<Navigate to={`${STORE_NATIONAL_DAY_PATH}?scroll=explorer`} replace />}
+          />
           <Route path={STORE_REVIEWS_PATH} element={<LazyRoute><StoreReviewsPage /></LazyRoute>} />
           <Route path={STORE_PRODUCT_PASS_PATH} element={<LazyRoute><StoreProductPassPage /></LazyRoute>} />
           <Route path={STORE_TRUST_PATH} element={<LazyRoute><StoreTrustPage /></LazyRoute>} />
