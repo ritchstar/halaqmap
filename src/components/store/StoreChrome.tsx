@@ -21,6 +21,7 @@ import { rememberStoreAffiliateRef } from '@/lib/storeAffiliateRef';
 import { isStoreProductLandingPath } from '@/lib/storeHmTube';
 import { cn } from '@/lib/utils';
 import { useEffect, type ReactNode } from 'react';
+import { PlatformContinuousDevelopmentNotice } from '@/components/platform/PlatformContinuousDevelopmentNotice';
 
 export function StoreVisitorShell({ children }: { children: ReactNode }) {
   useEffect(() => {
@@ -29,6 +30,9 @@ export function StoreVisitorShell({ children }: { children: ReactNode }) {
   }, []);
   return (
     <div dir="rtl" className="store-product-shell min-h-[100svh] overflow-x-clip bg-[#061018] text-[#f4efe4]">
+      <div className="mx-auto max-w-5xl px-3 pt-2 sm:px-4">
+        <PlatformContinuousDevelopmentNotice variant="store" />
+      </div>
       {children}
     </div>
   );

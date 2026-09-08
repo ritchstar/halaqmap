@@ -7,6 +7,7 @@ import { useEffect, type ReactNode } from 'react';
 import { StoreShopLife } from '@/components/store/StoreShopLife';
 import { StoreShopSky } from '@/components/store/StoreShopSky';
 import { StoreLiveStoreLink } from '@/components/store/StoreLiveStoreLink';
+import { PlatformContinuousDevelopmentNotice } from '@/components/platform/PlatformContinuousDevelopmentNotice';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { lockPartnerDarkCanvas } from '@/lib/partnerDarkCanvas';
 import { STORE_LIVE_MARK_AR } from '@/config/storeLiveAtmosphere';
@@ -43,7 +44,17 @@ export function StorePurchasedShell({
     <div dir="rtl" className="store-purchased-shell relative min-h-[100svh] bg-[#050308] text-[#f7edd8]" style={pageStyle}>
       {sky && showSky ? <StoreShopSky product={sky} surface={skySurface} lat={skyLat} lng={skyLng} hideChip={life} /> : null}
       {life ? <StoreShopLife /> : null}
-      {canvas ? <div className="store-purchased-shell__body relative z-10">{children}</div> : children}
+      {canvas ? (
+        <div className="store-purchased-shell__body relative z-10">
+          <PlatformContinuousDevelopmentNotice variant="shop" className="mx-auto max-w-3xl px-3 pt-2 sm:px-4" />
+          {children}
+        </div>
+      ) : (
+        <>
+          <PlatformContinuousDevelopmentNotice variant="shop" className="mx-auto max-w-3xl px-3 pt-2 sm:px-4" />
+          {children}
+        </>
+      )}
       {showStoreLink ? <StoreLiveStoreLink /> : null}
       <p className="store-live-mark pointer-events-none fixed bottom-1 left-1/2 z-30 -translate-x-1/2">
         {STORE_LIVE_MARK_AR}

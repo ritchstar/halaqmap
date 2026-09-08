@@ -11,6 +11,7 @@ import { StoreLiveStoreLink } from '@/components/store/StoreLiveStoreLink';
 import { HalanaActivityOrderFlow } from '@/components/store/halana/HalanaActivityOrderFlow';
 import { HalanaActivityShowcase } from '@/components/store/halana/HalanaActivityShowcase';
 import { HalanaDeskStudio, type HalanaDeskPayload } from '@/components/store/halana/HalanaDeskStudio';
+import { PlatformContinuousDevelopmentNotice } from '@/components/platform/PlatformContinuousDevelopmentNotice';
 import { fetchHalanaPublic } from '@/lib/storeHalanaLiveRemote';
 import { normalizeHalanaGalleryKind } from '@/lib/storeHalanaGalleryKind';
 import { parseShopLogoSrc } from '@/lib/storeShopLogo';
@@ -161,6 +162,9 @@ export default function StoreHalanaShopPage() {
   if (desk) {
     return (
       <div dir="rtl" className="halana-desk-page min-h-svh">
+        <div className="mx-auto max-w-6xl px-3 pt-2 sm:px-4">
+          <PlatformContinuousDevelopmentNotice variant="desk" />
+        </div>
         <HalanaDeskStudio token={token} payload={payload} onSaved={() => void load()} />
       </div>
     );
@@ -168,6 +172,9 @@ export default function StoreHalanaShopPage() {
 
   return (
     <div dir="rtl" className="halana-page min-h-svh text-[#f4efe4]">
+      <div className="mx-auto max-w-3xl px-3 pt-2 sm:px-4">
+        <PlatformContinuousDevelopmentNotice variant="shop" />
+      </div>
       <HalanaSparkLayer />
       {order ? (
         <HalanaActivityOrderFlow token={token} payload={payload} busy={busy} setBusy={setBusy} />

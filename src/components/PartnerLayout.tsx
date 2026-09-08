@@ -33,6 +33,7 @@ import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { LicenseRechargeWidget } from '@/components/billing/LicenseRechargeWidget';
 import { DIGITAL_SOFTWARE_PACKAGES_POLICY_TITLE_AR } from '@/config/partnerLegal';
 import { PlatformAmbientBackground } from '@/components/PlatformAmbientBackground';
+import { PlatformContinuousDevelopmentNotice } from '@/components/platform/PlatformContinuousDevelopmentNotice';
 import { PlatformAmbientToggle } from '@/components/PlatformAmbientToggle';
 import { usePlatformAmbient } from '@/context/PlatformAmbientContext';
 // PartnerDigitalBarberAssistant مُحال للتقاعد — موجود في مركز الوكلاء فقط
@@ -573,6 +574,9 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
           !isMapCommunityPage && `${MOBILE_PARTNER_NAV_CLEARANCE} md:pb-0`,
         )}
       >
+        <div className="mx-auto w-full max-w-5xl px-4 pt-3">
+          <PlatformContinuousDevelopmentNotice variant="partner" />
+        </div>
         {children}
       </main>
 

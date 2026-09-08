@@ -5523,3 +5523,44 @@ html.platform-radar-fullscreen #root {
     position: static;
   }
 }
+
+.platform-continuous-dev-notice {
+  border-radius: 0.85rem;
+  border-width: 1px;
+  border-style: solid;
+  padding: 0.55rem 0.85rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1.75rem;
+  text-align: center;
+}
+
+.platform-continuous-dev-notice--platform {
+  border-color: rgba(45, 212, 191, 0.22);
+  background: rgba(20, 184, 166, 0.08);
+  color: rgba(204, 251, 241, 0.88);
+}
+
+.platform-continuous-dev-notice--store {
+  border-color: rgba(232, 197, 71, 0.22);
+  background: rgba(232, 197, 71, 0.06);
+  color: rgba(244, 239, 228, 0.82);
+}
+
+.platform-continuous-dev-notice--shop {
+  border-color: rgba(232, 197, 71, 0.18);
+  background: rgba(0, 0, 0, 0.28);
+  color: rgba(247, 237, 216, 0.78);
+}
+
+.platform-continuous-dev-notice--desk {
+  border-color: rgba(58, 42, 34, 0.12);
+  background: rgba(255, 255, 255, 0.62);
+  color: rgba(58, 42, 34, 0.78);
+}
+
+.platform-continuous-dev-notice--partner {
+  border-color: rgba(232, 197, 71, 0.2);
+  background: rgba(7, 20, 38, 0.55);
+  color: rgba(244, 239, 228, 0.78);
+}

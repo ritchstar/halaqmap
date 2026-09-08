@@ -21,6 +21,7 @@ import { LicenseRechargeWidget } from '@/components/billing/LicenseRechargeWidge
 import { KSACityClocksBar } from '@/components/KSACityClocksBar';
 import { FloatingPlatformActions } from '@/components/FloatingPlatformActions';
 import { PlatformVoluntaryEngagementStrip } from '@/components/platformEngagement/PlatformVoluntaryEngagementStrip';
+import { PlatformContinuousDevelopmentNotice } from '@/components/platform/PlatformContinuousDevelopmentNotice';
 import { PlatformAmbientBackground } from '@/components/PlatformAmbientBackground';
 import { PlatformAmbientToggle } from '@/components/PlatformAmbientToggle';
 import { usePlatformAmbient } from '@/context/PlatformAmbientContext';
@@ -210,7 +211,12 @@ export function Layout({ children }: LayoutProps) {
         </div>
       </header>
 
-      <main className="relative z-10 flex-1 md:pb-0">{children}</main>
+      <main className="relative z-10 flex-1 md:pb-0">
+        <div className="container mx-auto px-4 pt-3">
+          <PlatformContinuousDevelopmentNotice variant="platform" />
+        </div>
+        {children}
+      </main>
 
       {/* أزرار عائمة: مشاركة + تقييم + آراء */}
       {deferMobileExtras ? <FloatingPlatformActions /> : null}
