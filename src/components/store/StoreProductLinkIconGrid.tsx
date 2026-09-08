@@ -23,7 +23,7 @@ export function StoreProductLinkIconGrid({
           aria-label={`نسخ رابط ${item.titleAr}`}
         >
           <span
-            className="flex h-[4.5rem] w-[4.5rem] items-center justify-center rounded-[1.4rem] text-2xl font-black shadow-[0_0_0_2px_rgba(255,255,255,0.08)] transition group-hover:scale-[1.04]"
+            className="flex h-[4.5rem] w-[4.5rem] items-center justify-center rounded-[1.4rem] text-3xl shadow-[0_0_0_2px_rgba(255,255,255,0.08)] transition group-hover:scale-[1.04]"
             style={{
               background: item.accent,
               color: item.ink,

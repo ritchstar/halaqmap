@@ -2,6 +2,7 @@
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
 import { buildStoreMailHtml, sendStoreResendEmail } from './storeMailIconLayout.js';
+import { STORE_LINK_ROLE_EMOJI } from '../../src/config/storeLinkIcons.js';
 
 export async function sendHalanaLiveLinksEmail(input: {
   to: string;
@@ -21,14 +22,14 @@ export async function sendHalanaLiveLinksEmail(input: {
         [
           {
             href: input.shopUrl,
-            markAr: 'ح',
+            markAr: STORE_LINK_ROLE_EMOJI.gallery,
             titleAr: 'حلانا1',
             captionAr: 'معرض الأعمال',
             theme: 'halana',
           },
           {
             href: input.deskUrl,
-            markAr: 'ل',
+            markAr: STORE_LINK_ROLE_EMOJI.desk,
             titleAr: 'حلانا1',
             captionAr: 'لوحة التشغيل',
             theme: 'halana',

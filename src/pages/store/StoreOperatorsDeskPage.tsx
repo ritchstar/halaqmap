@@ -11,6 +11,7 @@ import {
   STORE_OPERATORS_STORE_HOME,
   type StoreOperatorProductId,
 } from '@/config/storeOperatorsDesk';
+import { STORE_LINK_ROLE_EMOJI } from '@/config/storeLinkIcons';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import {
@@ -25,7 +26,7 @@ import { readStoreOperatorsSession } from '@/lib/storeOperatorsSession';
 function productVisual(productId: string) {
   return STORE_OPERATOR_PRODUCTS[productId as StoreOperatorProductId] || {
     titleAr: '',
-    markAr: 'خ',
+    markAr: STORE_LINK_ROLE_EMOJI.storeHome,
     accent: '#e8c547',
     openAr: 'افتح اللوحة',
   };
@@ -211,7 +212,7 @@ export default function StoreOperatorsDeskPage() {
                           className="flex h-full items-center gap-3 rounded-2xl border border-white/10 bg-[#0f0f14]/95 p-4 hover:border-white/30"
                         >
                           <span
-                            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-lg font-black text-[#061018]"
+                            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-2xl text-[#061018]"
                             style={{ background: visual.accent }}
                           >
                             {visual.markAr}
@@ -227,7 +228,7 @@ export default function StoreOperatorsDeskPage() {
                       ) : (
                         <div className="flex h-full items-center gap-3 rounded-2xl border border-white/10 bg-[#0f0f14]/60 p-4 opacity-70">
                           <span
-                            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-lg font-black text-[#061018]"
+                            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-2xl text-[#061018]"
                             style={{ background: visual.accent }}
                           >
                             {visual.markAr}
@@ -248,8 +249,8 @@ export default function StoreOperatorsDeskPage() {
               to={STORE_OPERATORS_STORE_HOME}
               className="flex items-center gap-3 rounded-2xl border border-[#e8c547]/40 bg-[#e8c547]/10 p-4 hover:border-[#e8c547]"
             >
-              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#e8c547] text-lg font-black text-[#061018]">
-                خ
+              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#e8c547] text-2xl text-[#061018]">
+                {STORE_LINK_ROLE_EMOJI.storeHome}
               </span>
               <span>
                 <span className="block text-sm font-extrabold text-[#e8c547]">{STORE_OPERATORS_DESK_COPY.storeHomeAr}</span>

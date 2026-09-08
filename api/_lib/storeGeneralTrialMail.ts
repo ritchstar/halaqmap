@@ -2,6 +2,7 @@
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
 import { buildStoreMailHtml, sendStoreResendEmail } from './storeMailIconLayout.js';
+import { STORE_LINK_ROLE_EMOJI } from '../../src/config/storeLinkIcons.js';
 
 export async function sendGeneralTrialConfirmEmail(input: { to: string; confirmUrl: string }): Promise<boolean> {
   const html = buildStoreMailHtml({
@@ -13,7 +14,7 @@ export async function sendGeneralTrialConfirmEmail(input: { to: string; confirmU
       [
         {
           href: input.confirmUrl,
-          markAr: 'ت',
+          markAr: STORE_LINK_ROLE_EMOJI.emailConfirm,
           titleAr: 'تأكيد البريد',
           captionAr: 'التجربة العامة · ستون يوماً',
           theme: 'grocers',

@@ -18,6 +18,7 @@ import {
 } from '../api/_lib/storeMailIconLayout.ts';
 import { storeAffiliateCheckoutLinks } from '../api/_lib/storeAffiliateCode.ts';
 import { STORE_MAIL_AFFILIATE_ICON, STORE_MAIL_PRODUCT_ICONS } from '../src/config/storeMailIcons.ts';
+import { STORE_LINK_ROLE_EMOJI, STORE_PRODUCT_EMOJI } from '../src/config/storeLinkIcons.ts';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const app = readFileSync(join(root, 'src/App.tsx'), 'utf8');
@@ -65,6 +66,12 @@ assert.match(restaurant, /مطعمنا1/);
 assert.match(kitchen, /طبختنا1/);
 assert.match(kitchen, /صفحة الزبون/);
 assert.match(kitchen, /لوحة النشاط/);
+assert.ok(restaurant.includes(STORE_LINK_ROLE_EMOJI.shop));
+assert.ok(restaurant.includes(STORE_LINK_ROLE_EMOJI.desk));
+assert.ok(kitchen.includes(STORE_LINK_ROLE_EMOJI.shop));
+assert.ok(kitchen.includes(STORE_LINK_ROLE_EMOJI.desk));
+assert.ok(affiliate.includes(STORE_PRODUCT_EMOJI.wedding));
+assert.ok(affiliate.includes(STORE_LINK_ROLE_EMOJI.affiliateLogin));
 assert.doesNotMatch(kitchen, /أكلنا1/);
 assert.match(affiliate, /لوحة المسوّق/);
 assert.ok(affiliate.includes(products.wedding));

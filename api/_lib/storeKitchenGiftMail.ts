@@ -2,6 +2,7 @@
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
 import { buildStoreMailHtml, sendStoreResendEmail } from './storeMailIconLayout.js';
+import { STORE_LINK_ROLE_EMOJI } from '../../src/config/storeLinkIcons.js';
 
 export async function sendKitchenGiftConfirmEmail(input: { to: string; confirmUrl: string }): Promise<boolean> {
   const html = buildStoreMailHtml({
@@ -13,7 +14,7 @@ export async function sendKitchenGiftConfirmEmail(input: { to: string; confirmUr
       [
         {
           href: input.confirmUrl,
-          markAr: 'ه',
+          markAr: STORE_LINK_ROLE_EMOJI.gift,
           titleAr: 'تأكيد البريد',
           captionAr: 'هدية طبختنا1',
           theme: 'kitchen',

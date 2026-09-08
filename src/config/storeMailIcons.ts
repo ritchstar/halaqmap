@@ -4,7 +4,9 @@
  * هوية أيقونات روابط المتجر — اللوحة والإيميل يتبعان المصدر نفسه.
  * لا يُستورد من App.
  */
-export type StoreMailProductId = 'wedding' | 'event' | 'lounge' | 'grocers' | 'restaurant' | 'cafe' | 'kitchen' | 'produce' | 'halana';
+import { STORE_PRODUCT_EMOJI, type StoreProductIconId } from '@/config/storeLinkIcons';
+
+export type StoreMailProductId = Exclude<StoreProductIconId, 'affiliate'>;
 
 export type StoreMailIconTheme = {
   id: StoreMailProductId | 'affiliate';
@@ -19,7 +21,7 @@ export type StoreMailIconTheme = {
 export const STORE_MAIL_PRODUCT_ICONS: readonly StoreMailIconTheme[] = [
   {
     id: 'wedding',
-    markAr: 'أ',
+    markAr: STORE_PRODUCT_EMOJI.wedding,
     titleAr: 'أفراحي1',
     accent: '#e8c547',
     ink: '#061018',
@@ -28,7 +30,7 @@ export const STORE_MAIL_PRODUCT_ICONS: readonly StoreMailIconTheme[] = [
   },
   {
     id: 'event',
-    markAr: 'ج',
+    markAr: STORE_PRODUCT_EMOJI.event,
     titleAr: 'اجواء1',
     accent: '#14b8a6',
     ink: '#042f2e',
@@ -37,7 +39,7 @@ export const STORE_MAIL_PRODUCT_ICONS: readonly StoreMailIconTheme[] = [
   },
   {
     id: 'lounge',
-    markAr: 'ل',
+    markAr: STORE_PRODUCT_EMOJI.lounge,
     titleAr: 'لاونجا1',
     accent: '#d4a574',
     ink: '#1a1208',
@@ -46,7 +48,7 @@ export const STORE_MAIL_PRODUCT_ICONS: readonly StoreMailIconTheme[] = [
   },
   {
     id: 'grocers',
-    markAr: 'ت',
+    markAr: STORE_PRODUCT_EMOJI.grocers,
     titleAr: 'تمويناتا1',
     accent: '#8fbf7a',
     ink: '#102010',
@@ -55,7 +57,7 @@ export const STORE_MAIL_PRODUCT_ICONS: readonly StoreMailIconTheme[] = [
   },
   {
     id: 'restaurant',
-    markAr: 'م',
+    markAr: STORE_PRODUCT_EMOJI.restaurant,
     titleAr: 'مطعمنا1',
     accent: '#e08a3c',
     ink: '#1a0e08',
@@ -64,7 +66,7 @@ export const STORE_MAIL_PRODUCT_ICONS: readonly StoreMailIconTheme[] = [
   },
   {
     id: 'cafe',
-    markAr: 'ك',
+    markAr: STORE_PRODUCT_EMOJI.cafe,
     titleAr: 'كافينا1',
     accent: '#c48a4a',
     ink: '#1a1008',
@@ -73,7 +75,7 @@ export const STORE_MAIL_PRODUCT_ICONS: readonly StoreMailIconTheme[] = [
   },
   {
     id: 'kitchen',
-    markAr: 'ط',
+    markAr: STORE_PRODUCT_EMOJI.kitchen,
     titleAr: 'طبختنا1',
     accent: '#b45a3c',
     ink: '#1a0c08',
@@ -82,7 +84,7 @@ export const STORE_MAIL_PRODUCT_ICONS: readonly StoreMailIconTheme[] = [
   },
   {
     id: 'produce',
-    markAr: 'خ',
+    markAr: STORE_PRODUCT_EMOJI.produce,
     titleAr: 'خضارنا1',
     accent: '#3d8b4a',
     ink: '#061018',
@@ -91,7 +93,7 @@ export const STORE_MAIL_PRODUCT_ICONS: readonly StoreMailIconTheme[] = [
   },
   {
     id: 'halana',
-    markAr: 'ح',
+    markAr: STORE_PRODUCT_EMOJI.halana,
     titleAr: 'حلانا1',
     accent: '#c45c7a',
     ink: '#1a0c10',
@@ -102,7 +104,7 @@ export const STORE_MAIL_PRODUCT_ICONS: readonly StoreMailIconTheme[] = [
 
 export const STORE_MAIL_AFFILIATE_ICON: StoreMailIconTheme = {
   id: 'affiliate',
-  markAr: 'س',
+  markAr: STORE_PRODUCT_EMOJI.affiliate,
   titleAr: 'المجموعة التسويقية للمتجر الإلكتروني',
   accent: '#e8c547',
   ink: '#061018',

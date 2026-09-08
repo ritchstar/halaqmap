@@ -7,6 +7,7 @@
 import { resolveResendFromAddress } from './resendFrom.js';
 import { storeAffiliateCheckoutLinks, type StoreAffiliateCheckoutLinks } from './storeAffiliateCode.js';
 import { STORE_LIVE_INVITE_MARK } from './storeLiveInviteShare.js';
+import { STORE_LINK_ROLE_EMOJI, STORE_PRODUCT_EMOJI } from '../../src/config/storeLinkIcons.js';
 
 export type StoreMailThemeId = 'wedding' | 'event' | 'lounge' | 'grocers' | 'restaurant' | 'cafe' | 'kitchen' | 'produce' | 'halana' | 'affiliate';
 
@@ -31,7 +32,7 @@ export type StoreMailIconTile = {
 const THEMES: Record<StoreMailThemeId, StoreMailTheme> = {
   wedding: {
     id: 'wedding',
-    markAr: 'أ',
+    markAr: STORE_PRODUCT_EMOJI.wedding,
     titleAr: 'أفراحي1',
     accent: '#e8c547',
     ink: '#061018',
@@ -40,7 +41,7 @@ const THEMES: Record<StoreMailThemeId, StoreMailTheme> = {
   },
   event: {
     id: 'event',
-    markAr: 'ج',
+    markAr: STORE_PRODUCT_EMOJI.event,
     titleAr: 'اجواء1',
     accent: '#14b8a6',
     ink: '#042f2e',
@@ -49,7 +50,7 @@ const THEMES: Record<StoreMailThemeId, StoreMailTheme> = {
   },
   lounge: {
     id: 'lounge',
-    markAr: 'ل',
+    markAr: STORE_PRODUCT_EMOJI.lounge,
     titleAr: 'لاونجا1',
     accent: '#d4a574',
     ink: '#1a1208',
@@ -58,7 +59,7 @@ const THEMES: Record<StoreMailThemeId, StoreMailTheme> = {
   },
   grocers: {
     id: 'grocers',
-    markAr: 'ت',
+    markAr: STORE_PRODUCT_EMOJI.grocers,
     titleAr: 'تمويناتا1',
     accent: '#8fbf7a',
     ink: '#102010',
@@ -67,7 +68,7 @@ const THEMES: Record<StoreMailThemeId, StoreMailTheme> = {
   },
   restaurant: {
     id: 'restaurant',
-    markAr: 'م',
+    markAr: STORE_PRODUCT_EMOJI.restaurant,
     titleAr: 'مطعمنا1',
     accent: '#e08a3c',
     ink: '#1a0e08',
@@ -76,7 +77,7 @@ const THEMES: Record<StoreMailThemeId, StoreMailTheme> = {
   },
   cafe: {
     id: 'cafe',
-    markAr: 'ك',
+    markAr: STORE_PRODUCT_EMOJI.cafe,
     titleAr: 'كافينا1',
     accent: '#c48a4a',
     ink: '#1a1008',
@@ -85,7 +86,7 @@ const THEMES: Record<StoreMailThemeId, StoreMailTheme> = {
   },
   kitchen: {
     id: 'kitchen',
-    markAr: 'ط',
+    markAr: STORE_PRODUCT_EMOJI.kitchen,
     titleAr: 'طبختنا1',
     accent: '#b45a3c',
     ink: '#1a0c08',
@@ -94,7 +95,7 @@ const THEMES: Record<StoreMailThemeId, StoreMailTheme> = {
   },
   produce: {
     id: 'produce',
-    markAr: 'خ',
+    markAr: STORE_PRODUCT_EMOJI.produce,
     titleAr: 'خضارنا1',
     accent: '#3d8b4a',
     ink: '#061018',
@@ -103,7 +104,7 @@ const THEMES: Record<StoreMailThemeId, StoreMailTheme> = {
   },
   halana: {
     id: 'halana',
-    markAr: 'ح',
+    markAr: STORE_PRODUCT_EMOJI.halana,
     titleAr: 'حلانا1',
     accent: '#c45c7a',
     ink: '#1a0c10',
@@ -112,7 +113,7 @@ const THEMES: Record<StoreMailThemeId, StoreMailTheme> = {
   },
   affiliate: {
     id: 'affiliate',
-    markAr: 'س',
+    markAr: STORE_PRODUCT_EMOJI.affiliate,
     titleAr: 'المجموعة التسويقية للمتجر الإلكتروني',
     accent: '#e8c547',
     ink: '#061018',
@@ -150,7 +151,7 @@ function iconTileHtml(tile: StoreMailIconTile): string {
 <a href="${href}" target="_blank" rel="noopener noreferrer" style="text-decoration:none;display:inline-block">
 <table role="presentation" cellpadding="0" cellspacing="0" align="center">
 <tr>
-<td align="center" valign="middle" width="72" height="72" style="width:72px;height:72px;border-radius:24px;background:${theme.accent};border:2px solid ${theme.ring};color:${theme.ink};font-size:28px;font-weight:800;font-family:Tajawal,Arial,sans-serif;line-height:72px">${mark}</td>
+<td align="center" valign="middle" width="72" height="72" style="width:72px;height:72px;border-radius:24px;background:${theme.accent};border:2px solid ${theme.ring};font-size:34px;line-height:72px">${mark}</td>
 </tr>
 <tr>
 <td align="center" style="padding-top:8px;color:${theme.accent};font-size:13px;font-weight:800;font-family:Tajawal,Arial,sans-serif;line-height:1.45">${title}</td>
@@ -270,14 +271,14 @@ export function buildWeddingLiveLinksHtml(input: {
       [
         {
           href: input.displayUrl,
-          markAr: theme.markAr,
+          markAr: STORE_LINK_ROLE_EMOJI.display,
           titleAr: theme.titleAr,
           captionAr: 'معاينة الدعوة',
           theme: 'wedding',
         },
         {
           href: input.hostUrl,
-          markAr: 'ل',
+          markAr: STORE_LINK_ROLE_EMOJI.host,
           titleAr: theme.titleAr,
           captionAr: 'لوحة التعديل والمدعوين',
           theme: 'wedding',
@@ -306,14 +307,14 @@ export function buildEventLiveLinksHtml(input: {
       [
         {
           href: input.displayUrl,
-          markAr: theme.markAr,
+          markAr: STORE_LINK_ROLE_EMOJI.display,
           titleAr: theme.titleAr,
           captionAr: 'شاشة القاعة',
           theme: 'event',
         },
         {
           href: input.hostUrl,
-          markAr: 'ل',
+          markAr: STORE_LINK_ROLE_EMOJI.host,
           titleAr: theme.titleAr,
           captionAr: 'لوحة المضيف',
           theme: 'event',
@@ -346,21 +347,21 @@ export function buildLoungeLiveLinksHtml(input: {
       [
         {
           href: input.displayUrl,
-          markAr: theme.markAr,
+          markAr: STORE_LINK_ROLE_EMOJI.display,
           titleAr: theme.titleAr,
           captionAr: 'شاشة اللاونج',
           theme: 'lounge',
         },
         {
           href: input.guestUrl,
-          markAr: 'ز',
+          markAr: STORE_LINK_ROLE_EMOJI.loungeGuest,
           titleAr: theme.titleAr,
           captionAr: 'رابط الزبون',
           theme: 'lounge',
         },
         {
           href: input.hostUrl,
-          markAr: 'ل',
+          markAr: STORE_LINK_ROLE_EMOJI.host,
           titleAr: theme.titleAr,
           captionAr: 'لوحة المضيف',
           theme: 'lounge',
@@ -391,14 +392,14 @@ export function buildGrocersLiveLinksHtml(input: {
       [
         {
           href: input.shopUrl,
-          markAr: theme.markAr,
+          markAr: STORE_LINK_ROLE_EMOJI.shop,
           titleAr: theme.titleAr,
           captionAr: 'متجر الزبون',
           theme: 'grocers',
         },
         {
           href: input.deskUrl,
-          markAr: 'ك',
+          markAr: STORE_LINK_ROLE_EMOJI.desk,
           titleAr: theme.titleAr,
           captionAr: 'لوحة الكاشير',
           theme: 'grocers',
@@ -429,14 +430,14 @@ export function buildRestaurantLiveLinksHtml(input: {
       [
         {
           href: input.shopUrl,
-          markAr: theme.markAr,
+          markAr: STORE_LINK_ROLE_EMOJI.shop,
           titleAr: theme.titleAr,
           captionAr: 'صفحة ضيف الحي',
           theme: 'restaurant',
         },
         {
           href: input.deskUrl,
-          markAr: 'ط',
+          markAr: STORE_LINK_ROLE_EMOJI.desk,
           titleAr: theme.titleAr,
           captionAr: 'لوحة المطبخ',
           theme: 'restaurant',
@@ -474,14 +475,14 @@ export function buildKitchenLiveLinksHtml(input: {
       [
         {
           href: input.shopUrl,
-          markAr: theme.markAr,
+          markAr: STORE_LINK_ROLE_EMOJI.shop,
           titleAr: theme.titleAr,
           captionAr: 'صفحة الزبون',
           theme: 'kitchen',
         },
         {
           href: input.deskUrl,
-          markAr: 'ط',
+          markAr: STORE_LINK_ROLE_EMOJI.desk,
           titleAr: theme.titleAr,
           captionAr: 'لوحة النشاط',
           theme: 'kitchen',
@@ -514,14 +515,14 @@ export function buildProduceLiveLinksHtml(input: {
       [
         {
           href: input.shopUrl,
-          markAr: theme.markAr,
+          markAr: STORE_LINK_ROLE_EMOJI.shop,
           titleAr: theme.titleAr,
           captionAr: 'جار الحي',
           theme: 'produce',
         },
         {
           href: input.deskUrl,
-          markAr: 'ص',
+          markAr: STORE_LINK_ROLE_EMOJI.desk,
           titleAr: theme.titleAr,
           captionAr: 'لوحة الصندوق',
           theme: 'produce',
@@ -557,21 +558,21 @@ export function buildCafeLiveLinksHtml(input: {
       [
         {
           href: input.shopUrl,
-          markAr: theme.markAr,
+          markAr: STORE_LINK_ROLE_EMOJI.shop,
           titleAr: theme.titleAr,
           captionAr: 'صفحة جار الحي',
           theme: 'cafe',
         },
         {
           href: input.deskUrl,
-          markAr: 'ك',
+          markAr: STORE_LINK_ROLE_EMOJI.desk,
           titleAr: theme.titleAr,
           captionAr: 'لوحة الكاشير',
           theme: 'cafe',
         },
         {
           href: input.hostUrl,
-          markAr: 'ش',
+          markAr: STORE_LINK_ROLE_EMOJI.screenHost,
           titleAr: theme.titleAr,
           captionAr: 'لوحة الشاشات',
           theme: 'cafe',
@@ -580,21 +581,21 @@ export function buildCafeLiveLinksHtml(input: {
       [
         {
           href: input.displayUrl,
-          markAr: 'ر',
+          markAr: STORE_LINK_ROLE_EMOJI.display,
           titleAr: theme.titleAr,
           captionAr: 'الشاشة الرئيسية',
           theme: 'cafe',
         },
         {
           href: input.quietUrl,
-          markAr: 'ه',
+          markAr: STORE_LINK_ROLE_EMOJI.screenQuiet,
           titleAr: theme.titleAr,
           captionAr: 'الشاشة الهادئة',
           theme: 'cafe',
         },
         {
           href: input.menuUrl,
-          markAr: 'ق',
+          markAr: STORE_LINK_ROLE_EMOJI.screenMenu,
           titleAr: theme.titleAr,
           captionAr: 'شاشة القائمة',
           theme: 'cafe',
@@ -603,7 +604,7 @@ export function buildCafeLiveLinksHtml(input: {
       [
         {
           href: input.guestUrl,
-          markAr: 'ض',
+          markAr: STORE_LINK_ROLE_EMOJI.guestShare,
           titleAr: theme.titleAr,
           captionAr: 'رابط المشاركة',
           theme: 'cafe',
@@ -695,7 +696,7 @@ export function buildStoreAffiliateMagicHtml(input: {
       [
         {
           href: input.loginUrl,
-          markAr: group.markAr,
+          markAr: STORE_LINK_ROLE_EMOJI.affiliateLogin,
           titleAr: 'لوحة المسوّق',
           captionAr: 'دخول سري',
           theme: 'affiliate',

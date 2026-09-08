@@ -5,6 +5,7 @@
  * بلا شراء وبلا أسعار وبلا تجربة في النصوص.
  */
 import { ROUTE_PATHS } from '@/lib/routePaths';
+import { STORE_PRODUCT_EMOJI } from '@/config/storeLinkIcons';
 
 export const STORE_OPERATORS_DESK_PUBLIC_ENABLED = true as const;
 
@@ -31,13 +32,13 @@ export const STORE_OPERATOR_PRODUCTS: Record<
   StoreOperatorProductId,
   { titleAr: string; markAr: string; accent: string; openAr: string }
 > = {
-  kitchen: { titleAr: 'طبختنا1', markAr: 'ط', accent: '#b45a3c', openAr: 'افتح لوحة النشاط' },
-  grocers: { titleAr: 'تمويناتا1', markAr: 'ت', accent: '#8fbf7a', openAr: 'افتح لوحة الكاشير' },
-  produce: { titleAr: 'خضارنا1', markAr: 'خ', accent: '#3d8b4a', openAr: 'افتح لوحة الصندوق' },
-  restaurant: { titleAr: 'مطعمنا1', markAr: 'م', accent: '#e08a3c', openAr: 'افتح لوحة المطبخ' },
-  cafe: { titleAr: 'كافينا1', markAr: 'ك', accent: '#c48a4a', openAr: 'افتح لوحة الكاشير' },
-  halana: { titleAr: 'حلانا1', markAr: 'ح', accent: '#c45c7a', openAr: 'افتح لوحة المتخصصة' },
-  lounge: { titleAr: 'لاونجا1', markAr: 'ل', accent: '#d4a574', openAr: 'افتح لوحة المضيف' },
+  kitchen: { titleAr: 'طبختنا1', markAr: STORE_PRODUCT_EMOJI.kitchen, accent: '#b45a3c', openAr: 'افتح لوحة النشاط' },
+  grocers: { titleAr: 'تمويناتا1', markAr: STORE_PRODUCT_EMOJI.grocers, accent: '#8fbf7a', openAr: 'افتح لوحة الكاشير' },
+  produce: { titleAr: 'خضارنا1', markAr: STORE_PRODUCT_EMOJI.produce, accent: '#3d8b4a', openAr: 'افتح لوحة الصندوق' },
+  restaurant: { titleAr: 'مطعمنا1', markAr: STORE_PRODUCT_EMOJI.restaurant, accent: '#e08a3c', openAr: 'افتح لوحة المطبخ' },
+  cafe: { titleAr: 'كافينا1', markAr: STORE_PRODUCT_EMOJI.cafe, accent: '#c48a4a', openAr: 'افتح لوحة الكاشير' },
+  halana: { titleAr: 'حلانا1', markAr: STORE_PRODUCT_EMOJI.halana, accent: '#c45c7a', openAr: 'افتح لوحة المتخصصة' },
+  lounge: { titleAr: 'لاونجا1', markAr: STORE_PRODUCT_EMOJI.lounge, accent: '#d4a574', openAr: 'افتح لوحة المضيف' },
 };
 
 export const STORE_OPERATORS_DESK_COPY = {
