@@ -32,6 +32,7 @@ type OrderPayload = {
   policyAr: string;
   readyLines: string;
   gallery: GalleryItem[];
+  acceptingOrders?: boolean;
 };
 
 type StepId = 'intent' | 'customize' | 'schedule' | 'review';
@@ -171,6 +172,19 @@ export function HalanaActivityOrderFlow({
   }
 
   const heroSrc = refSrc || payload.gallery[0]?.src || STORE_HALANA_ATMOSPHERE.cake;
+  const showcaseHref = `/h/${encodeURIComponent(token)}`;
+
+  if (payload.acceptingOrders === false) {
+    return (
+      <div className="halana-activity-order halana-shell mx-auto max-w-3xl space-y-6 px-4 py-16 pb-24 text-center">
+        <p className="halana-activity-status halana-activity-status--paused mx-auto">{activity.statusPausedAr}</p>
+        <p className="mt-4 text-base leading-8 text-[#ffe8c4]/85">عُدّي إلى المعرض للاطلاع على الأعمال.</p>
+        <Link to={showcaseHref} className="halana-activity-secondary mt-6 inline-flex min-h-[2.75rem] items-center rounded-full px-6 text-sm font-bold">
+          {copy.orderBackAr}
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="halana-activity-order halana-shell mx-auto max-w-3xl space-y-6 px-4 py-8 pb-24">

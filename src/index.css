@@ -5176,3 +5176,350 @@ html.platform-radar-fullscreen #root {
     animation: none;
   }
 }
+
+/* حلانا1 — استوديو اللوحة (خلفية محايدة + معاينة) */
+.halana-desk-page {
+  background: linear-gradient(180deg, #f7f3ef 0%, #efe8e0 100%);
+  color: #3a2a22;
+}
+
+.halana-desk-studio {
+  max-width: 72rem;
+  margin-inline: auto;
+  padding: 0 1rem 2rem;
+}
+
+.halana-desk-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  margin-inline: -1rem;
+  padding: 0.85rem 1rem 0.75rem;
+  border-bottom: 1px solid rgba(58, 42, 34, 0.08);
+  background: rgba(247, 243, 239, 0.94);
+  backdrop-filter: blur(10px);
+}
+
+.halana-desk-header__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.halana-desk-header__brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.halana-desk-header__logo {
+  height: 2.5rem;
+  width: 2.5rem;
+  flex-shrink: 0;
+  border-radius: 999px;
+  border: 1px solid rgba(58, 42, 34, 0.12);
+  object-fit: cover;
+}
+
+.halana-desk-header__kicker {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: rgba(58, 42, 34, 0.55);
+}
+
+.halana-desk-header__title {
+  font-size: 1.15rem;
+  font-weight: 900;
+  line-height: 1.45;
+  color: #3a2a22;
+}
+
+.halana-desk-header__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.halana-desk-header__availability {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem;
+  margin-top: 0.75rem;
+}
+
+.halana-desk-header__hint {
+  font-size: 0.78rem;
+  line-height: 1.5rem;
+  color: rgba(58, 42, 34, 0.62);
+}
+
+.halana-desk-availability {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  border-radius: 999px;
+  border: 1px solid rgba(58, 42, 34, 0.14);
+  padding: 0.35rem 0.85rem;
+  font-size: 0.78rem;
+  font-weight: 800;
+  transition: background 0.15s ease;
+}
+
+.halana-desk-availability__dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+}
+
+.halana-desk-availability--open {
+  background: rgba(40, 120, 80, 0.1);
+  color: #1f6b45;
+}
+
+.halana-desk-availability--open .halana-desk-availability__dot {
+  background: #28a86a;
+}
+
+.halana-desk-availability--paused {
+  background: rgba(180, 120, 20, 0.1);
+  color: #8a5a10;
+}
+
+.halana-desk-availability--paused .halana-desk-availability__dot {
+  background: #c48820;
+}
+
+.halana-desk-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.35rem;
+  border-radius: 999px;
+  padding: 0.45rem 1rem;
+  font-size: 0.82rem;
+  font-weight: 800;
+  transition: opacity 0.15s ease;
+}
+
+.halana-desk-btn:disabled {
+  opacity: 0.55;
+}
+
+.halana-desk-btn--primary {
+  background: linear-gradient(135deg, #f3c48a, #c45c7a 62%, #a43d5c);
+  color: #14080c;
+}
+
+.halana-desk-btn--ghost {
+  border: 1px solid rgba(58, 42, 34, 0.16);
+  background: rgba(255, 255, 255, 0.55);
+  color: #3a2a22;
+}
+
+.halana-desk-tabs {
+  display: flex;
+  gap: 0.35rem;
+  margin-top: 0.85rem;
+  padding: 0.25rem;
+  border-radius: 999px;
+  background: rgba(58, 42, 34, 0.06);
+}
+
+.halana-desk-tabs__btn {
+  flex: 1;
+  min-height: 2.35rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: rgba(58, 42, 34, 0.65);
+}
+
+.halana-desk-tabs__btn--active {
+  background: #fff;
+  color: #3a2a22;
+  box-shadow: 0 1px 4px rgba(58, 42, 34, 0.08);
+}
+
+.halana-desk-studio__grid {
+  display: grid;
+  gap: 1.25rem;
+  margin-top: 1rem;
+}
+
+@media (min-width: 1024px) {
+  .halana-desk-studio__grid {
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+    align-items: start;
+  }
+}
+
+.halana-desk-lead {
+  font-size: 0.95rem;
+  line-height: 1.85rem;
+  color: rgba(58, 42, 34, 0.78);
+}
+
+.halana-desk-progress {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+@media (min-width: 640px) {
+  .halana-desk-progress {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.halana-desk-progress__step {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  border-radius: 0.85rem;
+  border: 1px solid rgba(58, 42, 34, 0.08);
+  background: rgba(255, 255, 255, 0.45);
+  padding: 0.45rem 0.55rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: rgba(58, 42, 34, 0.55);
+}
+
+.halana-desk-progress__step--done {
+  border-color: rgba(40, 120, 80, 0.18);
+  color: #1f6b45;
+}
+
+.halana-desk-progress__dot {
+  width: 0.45rem;
+  height: 0.45rem;
+  flex-shrink: 0;
+  border-radius: 999px;
+  background: rgba(58, 42, 34, 0.18);
+}
+
+.halana-desk-progress__step--done .halana-desk-progress__dot {
+  background: #28a86a;
+}
+
+.halana-desk-field__label {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: rgba(58, 42, 34, 0.72);
+}
+
+.halana-desk-input {
+  width: 100%;
+  border-radius: 0.85rem;
+  border: 1px solid rgba(58, 42, 34, 0.14);
+  background: rgba(255, 255, 255, 0.72);
+  padding: 0.55rem 0.75rem;
+  font-size: 0.88rem;
+  line-height: 1.55rem;
+  color: #3a2a22;
+}
+
+.halana-desk-input:focus {
+  outline: 2px solid rgba(196, 92, 122, 0.35);
+  outline-offset: 1px;
+}
+
+.halana-desk-card {
+  border: 1px solid rgba(58, 42, 34, 0.1);
+  background: rgba(255, 255, 255, 0.55);
+}
+
+.halana-desk-upload-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 2.5rem;
+  border-radius: 999px;
+  border: 1px dashed rgba(196, 92, 122, 0.45);
+  background: rgba(243, 196, 138, 0.18);
+  padding: 0.45rem 1rem;
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: #3a2a22;
+}
+
+.halana-desk-gallery-card {
+  overflow: hidden;
+  border-radius: 1rem;
+  border: 1px solid rgba(58, 42, 34, 0.1);
+  background: rgba(255, 255, 255, 0.62);
+  padding: 0.65rem;
+}
+
+.halana-desk-gallery-card__media {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.75rem;
+  aspect-ratio: 1;
+}
+
+.halana-desk-gallery-card__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.halana-desk-gallery-card__badge {
+  position: absolute;
+  top: 0.45rem;
+  inset-inline-start: 0.45rem;
+  border-radius: 999px;
+  background: rgba(20, 8, 12, 0.72);
+  padding: 0.2rem 0.55rem;
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: #ffe8c4;
+}
+
+.halana-desk-preview {
+  position: sticky;
+  top: 5.5rem;
+}
+
+.halana-desk-preview__label {
+  margin-bottom: 0.5rem;
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: rgba(58, 42, 34, 0.62);
+}
+
+.halana-desk-preview__frame {
+  border-radius: 1.75rem;
+  border: 3px solid rgba(58, 42, 34, 0.14);
+  background: #14080c;
+  padding: 0.65rem;
+  box-shadow: 0 12px 40px rgba(58, 42, 34, 0.12);
+}
+
+.halana-desk-preview__screen {
+  overflow: hidden;
+  border-radius: 1.25rem;
+  max-height: min(78vh, 52rem);
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.halana-desk-preview__screen .halana-activity-sticky {
+  position: sticky;
+}
+
+.halana-desk-preview__screen .halana-activity {
+  min-height: 0;
+}
+
+@media (max-width: 1023px) {
+  .halana-desk-preview {
+    position: static;
+  }
+}

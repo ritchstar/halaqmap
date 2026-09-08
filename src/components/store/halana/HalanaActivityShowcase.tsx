@@ -25,9 +25,10 @@ import {
   type HalanaOccasionId,
 } from '@/lib/storeHalanaActivityDraft';
 import { youtubeEmbedSrc } from '@/lib/storeWeddingLiveLab';
+import { normalizeHalanaGalleryKind, type HalanaGalleryKind } from '@/lib/storeHalanaGalleryKind';
 import { cn } from '@/lib/utils';
 
-type GalleryItem = { id: string; caption: string; src: string };
+type GalleryItem = { id: string; caption: string; src: string; itemKind?: HalanaGalleryKind };
 
 type ShowcasePayload = {
   shopName: string;
@@ -40,7 +41,16 @@ type ShowcasePayload = {
   gallery: GalleryItem[];
   readyLines: string;
   youtubeUrls: string;
+  acceptingOrders?: boolean;
 };
+
+function sortGalleryFeaturedFirst(items: GalleryItem[]): GalleryItem[] {
+  return [...items].sort((left, right) => {
+    const leftFeatured = normalizeHalanaGalleryKind(left.itemKind) === 'featured' ? 0 : 1;
+    const rightFeatured = normalizeHalanaGalleryKind(right.itemKind) === 'featured' ? 0 : 1;
+    return leftFeatured - rightFeatured;
+  });
+}
 
 type TabId = keyof typeof STORE_HALANA_ACTIVITY_COPY.tabs;
 
@@ -69,10 +79,14 @@ function WorkThumb({ item, onOpen }: { item: GalleryItem; onOpen: () => void }) 
 function WorkSheet({
   item,
   token,
+  preview = false,
+  ordersOpen = true,
   onClose,
 }: {
   item: GalleryItem;
   token: string;
+  preview?: boolean;
+  ordersOpen?: boolean;
   onClose: () => void;
 }) {
   const activity = STORE_HALANA_ACTIVITY_COPY;
@@ -101,13 +115,21 @@ function WorkSheet({
           <h2 className="halana-title-sm">{item.caption || activity.worksTitleAr}</h2>
           <p className="mt-2 text-sm leading-7 text-white/70">{activity.workSheetIncludesAr}</p>
           <p className="mt-3 text-sm leading-7 text-[#ffe8c4]/85">{STORE_HALANA_LIVE_COPY.refDisclaimerAr}</p>
-          <Link
-            to={orderHref}
-            onClick={startInspired}
-            className="halana-activity-primary mt-6 flex min-h-[3rem] items-center justify-center rounded-full px-5 text-sm font-extrabold"
-          >
-            {activity.orderInspiredAr}
-          </Link>
+          {ordersOpen ? (
+            preview ? (
+              <span className="halana-activity-primary mt-6 flex min-h-[3rem] items-center justify-center rounded-full px-5 text-sm font-extrabold">
+                {activity.orderInspiredAr}
+              </span>
+            ) : (
+              <Link
+                to={orderHref}
+                onClick={startInspired}
+                className="halana-activity-primary mt-6 flex min-h-[3rem] items-center justify-center rounded-full px-5 text-sm font-extrabold"
+              >
+                {activity.orderInspiredAr}
+              </Link>
+            )
+          ) : null}
         </div>
       </div>
     </div>
@@ -153,10 +175,21 @@ function TabPanel({ title, lead, children }: { title: string; lead?: string; chi
   );
 }
 
-export function HalanaActivityShowcase({ token, payload }: { token: string; payload: ShowcasePayload }) {
+export function HalanaActivityShowcase({
+  token,
+  payload,
+  preview = false,
+  acceptingOrders = true,
+}: {
+  token: string;
+  payload: ShowcasePayload;
+  preview?: boolean;
+  acceptingOrders?: boolean;
+}) {
   const copy = STORE_HALANA_LIVE_COPY;
   const activity = STORE_HALANA_ACTIVITY_COPY;
   const orderHref = `/h/${encodeURIComponent(token)}/order`;
+  const ordersOpen = acceptingOrders !== false;
 
   const [tab, setTab] = useState<TabId>('home');
   const [occasion, setOccasion] = useState<HalanaOccasionId>(() => loadHalanaActivityDraft(token).occasion);
@@ -166,7 +199,7 @@ export function HalanaActivityShowcase({ token, payload }: { token: string; payl
   const flavors = splitLines(payload.flavorsAr);
   const quotes = splitLines(payload.quotesAr);
   const ready = splitLines(payload.readyLines);
-  const works = payload.gallery;
+  const works = useMemo(() => sortGalleryFeaturedFirst(payload.gallery), [payload.gallery]);
   const filteredWorks = useMemo(() => filterGallery(works, occasion), [works, occasion]);
   const featured = filteredWorks.slice(0, 3);
   const draft = loadHalanaActivityDraft(token);
@@ -196,18 +229,32 @@ export function HalanaActivityShowcase({ token, payload }: { token: string; payl
           <div className="flex items-start gap-3">
             <StoreShopLogoMark src={payload.logoSrc} />
             <div className="min-w-0 flex-1">
-              <p className="halana-activity-status">{activity.statusOpenAr}</p>
+              <p className={cn('halana-activity-status', !ordersOpen && 'halana-activity-status--paused')}>
+                {ordersOpen ? activity.statusOpenAr : activity.statusPausedAr}
+              </p>
               <h1 className="halana-title mt-1 text-2xl sm:text-3xl">{payload.shopName || copy.titleAr}</h1>
               <p className="halana-activity-header__lead">{leadLine}</p>
             </div>
           </div>
           <div className="mt-5 flex flex-wrap gap-2">
-            <Link
-              to={orderHref}
-              className="halana-activity-primary min-h-[2.75rem] flex-1 rounded-full px-4 py-2.5 text-center text-sm font-extrabold sm:flex-none sm:px-6"
-            >
-              {activity.startOrderAr}
-            </Link>
+            {ordersOpen ? (
+              preview ? (
+                <span className="halana-activity-primary min-h-[2.75rem] flex-1 rounded-full px-4 py-2.5 text-center text-sm font-extrabold sm:flex-none sm:px-6">
+                  {activity.startOrderAr}
+                </span>
+              ) : (
+                <Link
+                  to={orderHref}
+                  className="halana-activity-primary min-h-[2.75rem] flex-1 rounded-full px-4 py-2.5 text-center text-sm font-extrabold sm:flex-none sm:px-6"
+                >
+                  {activity.startOrderAr}
+                </Link>
+              )
+            ) : (
+              <span className="halana-activity-secondary min-h-[2.75rem] flex-1 rounded-full px-4 py-2.5 text-center text-sm font-bold sm:flex-none sm:px-6 opacity-90">
+                {activity.statusPausedAr}
+              </span>
+            )}
             <button
               type="button"
               onClick={() => {
@@ -305,18 +352,26 @@ export function HalanaActivityShowcase({ token, payload }: { token: string; payl
                         {parsed.detail ? <p className="mt-1 text-sm leading-7 text-white/75">{parsed.detail}</p> : null}
                         <p className="mt-2 text-xs font-bold text-[#f3c48a]/90">{activity.readyPricingAr}</p>
                       </div>
-                      <Link
-                        to={orderHref}
-                        onClick={() =>
-                          saveHalanaActivityDraft(token, {
-                            sweetType: parsed.title,
-                            refWorkCaption: parsed.detail,
-                          })
-                        }
-                        className="halana-activity-primary mt-3 inline-flex min-h-[2.75rem] w-full items-center justify-center rounded-full px-4 text-sm font-extrabold"
-                      >
-                        {activity.orderThisAr}
-                      </Link>
+                      {ordersOpen ? (
+                        preview ? (
+                          <span className="halana-activity-primary mt-3 inline-flex min-h-[2.75rem] w-full items-center justify-center rounded-full px-4 text-sm font-extrabold">
+                            {activity.orderThisAr}
+                          </span>
+                        ) : (
+                          <Link
+                            to={orderHref}
+                            onClick={() =>
+                              saveHalanaActivityDraft(token, {
+                                sweetType: parsed.title,
+                                refWorkCaption: parsed.detail,
+                              })
+                            }
+                            className="halana-activity-primary mt-3 inline-flex min-h-[2.75rem] w-full items-center justify-center rounded-full px-4 text-sm font-extrabold"
+                          >
+                            {activity.orderThisAr}
+                          </Link>
+                        )
+                      ) : null}
                     </li>
                   );
                 })}
@@ -363,12 +418,20 @@ export function HalanaActivityShowcase({ token, payload }: { token: string; payl
                     </span>
                   ))}
                 </div>
-                <Link
-                  to={orderHref}
-                  className="halana-activity-secondary mt-4 inline-flex min-h-[2.75rem] items-center rounded-full px-5 text-sm font-bold"
-                >
-                  {activity.startOrderAr}
-                </Link>
+                {ordersOpen ? (
+                  preview ? (
+                    <span className="halana-activity-secondary mt-4 inline-flex min-h-[2.75rem] items-center rounded-full px-5 text-sm font-bold">
+                      {activity.startOrderAr}
+                    </span>
+                  ) : (
+                    <Link
+                      to={orderHref}
+                      className="halana-activity-secondary mt-4 inline-flex min-h-[2.75rem] items-center rounded-full px-5 text-sm font-bold"
+                    >
+                      {activity.startOrderAr}
+                    </Link>
+                  )
+                ) : null}
               </TabPanel>
             ) : null}
             {clips.length > 0 ? (
@@ -400,16 +463,32 @@ export function HalanaActivityShowcase({ token, payload }: { token: string; payl
         ) : null}
       </div>
 
-      <div className="halana-activity-sticky">
-        <Link
-          to={orderHref}
-          className="halana-activity-primary flex min-h-[3rem] flex-1 items-center justify-center rounded-full px-4 text-sm font-extrabold"
-        >
-          {stickyLabel}
-        </Link>
-      </div>
+      {ordersOpen ? (
+        <div className="halana-activity-sticky">
+          {preview ? (
+            <span className="halana-activity-primary flex min-h-[3rem] flex-1 items-center justify-center rounded-full px-4 text-sm font-extrabold">
+              {stickyLabel}
+            </span>
+          ) : (
+            <Link
+              to={orderHref}
+              className="halana-activity-primary flex min-h-[3rem] flex-1 items-center justify-center rounded-full px-4 text-sm font-extrabold"
+            >
+              {stickyLabel}
+            </Link>
+          )}
+        </div>
+      ) : null}
 
-      {activeWork ? <WorkSheet item={activeWork} token={token} onClose={() => setActiveWork(null)} /> : null}
+      {activeWork ? (
+        <WorkSheet
+          item={activeWork}
+          token={token}
+          preview={preview}
+          ordersOpen={ordersOpen}
+          onClose={() => setActiveWork(null)}
+        />
+      ) : null}
     </div>
   );
 }

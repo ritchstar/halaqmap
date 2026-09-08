@@ -115,7 +115,13 @@ function clip(raw: unknown, max: number): string {
     .slice(0, max);
 }
 
-export type HalanaGalleryItem = { id: string; caption: string; src: string };
+export type HalanaGalleryItem = { id: string; caption: string; src: string; itemKind: HalanaGalleryKind };
+
+export type HalanaGalleryKind = 'inspire' | 'featured';
+
+function normalizeHalanaGalleryKind(raw: unknown): HalanaGalleryKind {
+  return String(raw || '').trim() === 'featured' ? 'featured' : 'inspire';
+}
 
 export function parseHalanaImageSrc(raw: unknown): string {
   const src = String(raw ?? '').trim();
@@ -132,7 +138,7 @@ function galleryFromLegacyUrls(raw: string): HalanaGalleryItem[] {
     .map((line) => parseHalanaImageSrc(line))
     .filter(Boolean)
     .slice(0, STORE_HALANA_GALLERY_MAX)
-    .map((src, index) => ({ id: `url-${index}`, caption: '', src }));
+    .map((src, index) => ({ id: `url-${index}`, caption: '', src, itemKind: 'inspire' as HalanaGalleryKind }));
 }
 
 export function halanaShopUrl(token: string): string {
@@ -181,6 +187,7 @@ export function publicCopyPayload(
     promoTitleAr: String(row.promo_title_ar || ''),
     promoAr: String(row.promo_ar || ''),
     youtubeUrls: parseHalanaYoutubeLines(row.youtube_urls),
+    acceptingOrders: row.accepting_orders !== false,
     requests,
     payPublic: payPublicFromCopy(row),
     status: String(row.status || ''),
@@ -193,7 +200,7 @@ export function publicCopyPayload(
 export async function listHalanaGallery(db: Db, copyId: string): Promise<HalanaGalleryItem[]> {
   const { data } = await db
     .from(STORE_HALANA_GALLERY_TABLE)
-    .select('id, caption, image_src, sort_order, created_at')
+    .select('id, caption, image_src, item_kind, sort_order, created_at')
     .eq('copy_id', copyId)
     .order('sort_order', { ascending: true })
     .order('created_at', { ascending: true })
@@ -203,6 +210,7 @@ export async function listHalanaGallery(db: Db, copyId: string): Promise<HalanaG
       id: String(row.id || ''),
       caption: clip(row.caption, STORE_HALANA_CAPTION_MAX),
       src: parseHalanaImageSrc(row.image_src),
+      itemKind: normalizeHalanaGalleryKind(row.item_kind),
     }))
     .filter((item) => item.id && item.src);
 }
@@ -225,6 +233,7 @@ export async function addHalanaGallery(
     copy_id: copyId,
     caption: clip(input.caption, STORE_HALANA_CAPTION_MAX),
     image_src: src,
+    item_kind: normalizeHalanaGalleryKind(input.itemKind),
     sort_order: count || 0,
   });
   if (error) return { ok: false, error: 'تعذر حفظ الصورة.' };
@@ -236,12 +245,15 @@ export async function updateHalanaGalleryCaption(
   copyId: string,
   imageId: string,
   caption: unknown,
+  itemKind?: unknown,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   const id = String(imageId || '').trim();
   if (!/^[0-9a-f-]{16,40}$/i.test(id)) return { ok: false, error: 'صورة غير صالحة.' };
+  const patch: Record<string, unknown> = { caption: clip(caption, STORE_HALANA_CAPTION_MAX) };
+  if (itemKind !== undefined) patch.item_kind = normalizeHalanaGalleryKind(itemKind);
   const { error } = await db
     .from(STORE_HALANA_GALLERY_TABLE)
-    .update({ caption: clip(caption, STORE_HALANA_CAPTION_MAX) })
+    .update(patch)
     .eq('id', id)
     .eq('copy_id', copyId);
   if (error) return { ok: false, error: 'تعذر حفظ الوصف.' };
@@ -375,6 +387,7 @@ export async function saveHalanaHost(
       promo_title_ar: clip(input.promoTitleAr, 80),
       promo_ar: String(input.promoAr || '').slice(0, 1600),
       youtube_urls: parseHalanaYoutubeLines(input.youtubeUrls),
+      accepting_orders: input.acceptingOrders !== false,
       updated_at: new Date().toISOString(),
     })
     .eq('id', copyId);

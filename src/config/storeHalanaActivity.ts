@@ -7,6 +7,7 @@
 export const STORE_HALANA_ACTIVITY_COPY = {
   doctrineAr: 'واجهة النشاط الحيّة',
   statusOpenAr: 'تستقبل الطلبات',
+  statusPausedAr: 'اعتذار مؤقت عن استقبال الطلبات',
   statusLimitedAr: 'مواعيد محدودة',
   browseWorksAr: 'استعرضي الأعمال',
   startOrderAr: 'ابدئي طلباً',

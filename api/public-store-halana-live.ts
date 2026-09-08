@@ -219,7 +219,13 @@ export async function POST(request: Request): Promise<Response> {
   }
 
   if (action === 'update_gallery') {
-    const updated = await updateHalanaGalleryCaption(db, String(desk.id), String(body.imageId || ''), body.caption);
+    const updated = await updateHalanaGalleryCaption(
+      db,
+      String(desk.id),
+      String(body.imageId || ''),
+      body.caption,
+      body.itemKind,
+    );
     if (!updated.ok) return json(updated, 400, headers);
     return json({ ok: true }, 200, headers);
   }
