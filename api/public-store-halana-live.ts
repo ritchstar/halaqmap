@@ -201,6 +201,7 @@ export async function POST(request: Request): Promise<Response> {
       {
         ok: true,
         acceptingOrdersSaved: saved.acceptingOrdersSaved !== false,
+        occasionsVisibleSaved: saved.occasionsVisibleSaved !== false,
       },
       200,
       headers,

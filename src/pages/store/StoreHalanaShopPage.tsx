@@ -122,6 +122,7 @@ export default function StoreHalanaShopPage() {
       promoAr: raw.promoAr || '',
       youtubeUrls: raw.youtubeUrls || '',
       acceptingOrders: raw.acceptingOrders !== false,
+      occasionsVisible: Array.isArray(raw.occasionsVisible) ? raw.occasionsVisible : undefined,
       payPublic: raw.payPublic || EMPTY_PAY_PUBLIC,
       payDesk: raw.payDesk || EMPTY_PAY_DESK,
     });

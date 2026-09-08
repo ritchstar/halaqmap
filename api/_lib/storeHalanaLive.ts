@@ -141,6 +141,34 @@ export function isHalanaSchemaColumnMissing(
   return message.includes(column.toLowerCase());
 }
 
+const HALANA_OCCASION_IDS = ['all', 'hospitality', 'gift', 'occasion', 'daily', 'custom'] as const;
+const HALANA_OCCASION_ID_SET = new Set<string>(HALANA_OCCASION_IDS);
+
+function parseHalanaOccasionsVisible(raw: unknown): string[] | null {
+  if (raw === undefined || raw === null) return null;
+  if (Array.isArray(raw)) {
+    const ids = raw
+      .map((item) => String(item || '').trim())
+      .filter((id) => HALANA_OCCASION_ID_SET.has(id));
+    return ids.length > 0 ? ids : null;
+  }
+  const text = String(raw || '').trim();
+  if (!text) return null;
+  const ids = text
+    .split(/[,|\s]+/)
+    .map((item) => item.trim())
+    .filter((id) => HALANA_OCCASION_ID_SET.has(id));
+  return ids.length > 0 ? ids : null;
+}
+
+function serializeHalanaOccasionsVisible(raw: unknown): string {
+  const parsed = parseHalanaOccasionsVisible(raw);
+  if (!parsed) return '';
+  const unique = HALANA_OCCASION_IDS.filter((id) => parsed.includes(id));
+  if (unique.length >= HALANA_OCCASION_IDS.length) return '';
+  return unique.join(',');
+}
+
 function mapHalanaGalleryRows(rows: Record<string, unknown>[]): HalanaGalleryItem[] {
   return rows
     .map((row) => ({
@@ -217,6 +245,7 @@ export function publicCopyPayload(
     promoAr: String(row.promo_ar || ''),
     youtubeUrls: parseHalanaYoutubeLines(row.youtube_urls),
     acceptingOrders: row.accepting_orders !== false,
+    occasionsVisible: parseHalanaOccasionsVisible(row.occasions_visible) ?? [...HALANA_OCCASION_IDS],
     requests,
     payPublic: payPublicFromCopy(row),
     status: String(row.status || ''),
@@ -426,7 +455,7 @@ export async function saveHalanaHost(
   db: Db,
   copyId: string,
   input: Record<string, unknown>,
-): Promise<{ ok: true; acceptingOrdersSaved?: boolean } | { ok: false; error: string }> {
+): Promise<{ ok: true; acceptingOrdersSaved?: boolean; occasionsVisibleSaved?: boolean } | { ok: false; error: string }> {
   const basePatch = {
     shop_name: clip(input.shopName, 80),
     logo_src: parseShopLogoSrc(input.logoSrc),
@@ -443,18 +472,39 @@ export async function saveHalanaHost(
   const { error } = await db.from(STORE_HALANA_COPIES_TABLE).update(basePatch).eq('id', copyId);
   if (error) return { ok: false, error: 'تعذر حفظ اللوحة.' };
 
-  if (input.acceptingOrders === undefined) return { ok: true, acceptingOrdersSaved: true };
-
-  const acceptingOrders = input.acceptingOrders !== false;
-  const toggle = await db
-    .from(STORE_HALANA_COPIES_TABLE)
-    .update({ accepting_orders: acceptingOrders, updated_at: new Date().toISOString() })
-    .eq('id', copyId);
-  if (!toggle.error) return { ok: true, acceptingOrdersSaved: true };
-  if (isHalanaSchemaColumnMissing(toggle.error, 'accepting_orders')) {
-    return { ok: true, acceptingOrdersSaved: false };
+  let acceptingOrdersSaved = true;
+  if (input.acceptingOrders !== undefined) {
+    const acceptingOrders = input.acceptingOrders !== false;
+    const toggle = await db
+      .from(STORE_HALANA_COPIES_TABLE)
+      .update({ accepting_orders: acceptingOrders, updated_at: new Date().toISOString() })
+      .eq('id', copyId);
+    if (toggle.error) {
+      if (isHalanaSchemaColumnMissing(toggle.error, 'accepting_orders')) {
+        acceptingOrdersSaved = false;
+      } else {
+        return { ok: false, error: 'تعذر حفظ اللوحة.' };
+      }
+    }
   }
-  return { ok: false, error: 'تعذر حفظ اللوحة.' };
+
+  let occasionsVisibleSaved = true;
+  if (input.occasionsVisible !== undefined) {
+    const occasions_visible = serializeHalanaOccasionsVisible(input.occasionsVisible);
+    const occ = await db
+      .from(STORE_HALANA_COPIES_TABLE)
+      .update({ occasions_visible, updated_at: new Date().toISOString() })
+      .eq('id', copyId);
+    if (occ.error) {
+      if (isHalanaSchemaColumnMissing(occ.error, 'occasions_visible')) {
+        occasionsVisibleSaved = false;
+      } else {
+        return { ok: false, error: 'تعذر حفظ اللوحة.' };
+      }
+    }
+  }
+
+  return { ok: true, acceptingOrdersSaved, occasionsVisibleSaved };
 }
 
 export async function updateHalanaRequest(

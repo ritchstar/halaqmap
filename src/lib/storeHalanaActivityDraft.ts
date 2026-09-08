@@ -25,6 +25,45 @@ export const HALANA_OCCASIONS: ReadonlyArray<{ id: HalanaOccasionId; labelAr: st
   { id: 'custom', labelAr: 'تصميم خاص', keywords: ['خاص', 'مخص', 'تصميم', 'حسب'] },
 ];
 
+export const HALANA_OCCASION_IDS: readonly HalanaOccasionId[] = HALANA_OCCASIONS.map((item) => item.id);
+
+const HALANA_OCCASION_ID_SET = new Set<string>(HALANA_OCCASION_IDS);
+
+export function defaultHalanaOccasionsVisible(): HalanaOccasionId[] {
+  return [...HALANA_OCCASION_IDS];
+}
+
+export function parseHalanaOccasionsVisible(raw: unknown): HalanaOccasionId[] | null {
+  if (raw === undefined || raw === null) return null;
+  if (Array.isArray(raw)) {
+    const ids = raw
+      .map((item) => String(item || '').trim())
+      .filter((id): id is HalanaOccasionId => HALANA_OCCASION_ID_SET.has(id));
+    return ids.length > 0 ? ids : null;
+  }
+  const text = String(raw || '').trim();
+  if (!text) return null;
+  const ids = text
+    .split(/[,|\s]+/)
+    .map((item) => item.trim())
+    .filter((id): id is HalanaOccasionId => HALANA_OCCASION_ID_SET.has(id));
+  return ids.length > 0 ? ids : null;
+}
+
+export function resolveHalanaVisibleOccasions(raw: unknown): ReadonlyArray<(typeof HALANA_OCCASIONS)[number]> {
+  const parsed = parseHalanaOccasionsVisible(raw);
+  if (!parsed) return HALANA_OCCASIONS;
+  const visible = new Set(parsed);
+  const filtered = HALANA_OCCASIONS.filter((item) => visible.has(item.id));
+  return filtered.length > 0 ? filtered : HALANA_OCCASIONS;
+}
+
+export function serializeHalanaOccasionsVisible(ids: readonly HalanaOccasionId[]): string {
+  const unique = HALANA_OCCASION_IDS.filter((id) => ids.includes(id));
+  if (unique.length >= HALANA_OCCASION_IDS.length) return '';
+  return unique.join(',');
+}
+
 const DRAFT_PREFIX = 'halana-activity-draft:';
 
 export function emptyHalanaActivityDraft(): HalanaActivityDraft {

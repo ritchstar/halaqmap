@@ -3,7 +3,7 @@
  *
  * واجهة النشاط الحيّة — صفحة العميلة في حلانا1 (مرحلة 1).
  */
-import { useMemo, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { Play, X } from 'lucide-react';
 import {
@@ -17,10 +17,10 @@ import { StoreDirectPayPublicMount } from '@/components/store/StoreDirectPayGues
 import { StoreShopLogoMark } from '@/components/store/StoreShopLogoMark';
 import { splitHalanaYoutubeLines } from '@/lib/storeHalanaShare';
 import {
-  HALANA_OCCASIONS,
   loadHalanaActivityDraft,
   matchesHalanaOccasion,
   parseReadyLine,
+  resolveHalanaVisibleOccasions,
   saveHalanaActivityDraft,
   type HalanaOccasionId,
 } from '@/lib/storeHalanaActivityDraft';
@@ -42,6 +42,7 @@ type ShowcasePayload = {
   readyLines: string;
   youtubeUrls: string;
   acceptingOrders?: boolean;
+  occasionsVisible?: HalanaOccasionId[];
 };
 
 function sortGalleryFeaturedFirst(items: GalleryItem[]): GalleryItem[] {
@@ -191,9 +192,21 @@ export function HalanaActivityShowcase({
   const orderHref = `/h/${encodeURIComponent(token)}/order`;
   const ordersOpen = acceptingOrders !== false;
 
+  const visibleOccasions = useMemo(
+    () => resolveHalanaVisibleOccasions(payload.occasionsVisible),
+    [payload.occasionsVisible],
+  );
+
   const [tab, setTab] = useState<TabId>('home');
   const [occasion, setOccasion] = useState<HalanaOccasionId>(() => loadHalanaActivityDraft(token).occasion);
   const [activeWork, setActiveWork] = useState<GalleryItem | null>(null);
+
+  useEffect(() => {
+    if (visibleOccasions.some((item) => item.id === occasion)) return;
+    const next = visibleOccasions[0]?.id ?? 'all';
+    setOccasion(next);
+    saveHalanaActivityDraft(token, { occasion: next });
+  }, [visibleOccasions, occasion, token]);
 
   const promo = splitLines(payload.promoAr);
   const flavors = splitLines(payload.flavorsAr);
@@ -283,21 +296,23 @@ export function HalanaActivityShowcase({
         ))}
       </div>
 
-      <section className="halana-activity-explorer">
-        <h2 className="halana-activity-explorer__title">{activity.explorerTitleAr}</h2>
-        <div className="halana-activity-explorer__row">
-          {HALANA_OCCASIONS.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() => pickOccasion(item.id)}
-              className={cn('halana-activity-occasion', occasion === item.id && 'halana-activity-occasion--active')}
-            >
-              {item.labelAr}
-            </button>
-          ))}
-        </div>
-      </section>
+      {visibleOccasions.length > 1 ? (
+        <section className="halana-activity-explorer">
+          <h2 className="halana-activity-explorer__title">{activity.explorerTitleAr}</h2>
+          <div className="halana-activity-explorer__row">
+            {visibleOccasions.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => pickOccasion(item.id)}
+                className={cn('halana-activity-occasion', occasion === item.id && 'halana-activity-occasion--active')}
+              >
+                {item.labelAr}
+              </button>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       <nav id="halana-activity-tabs" className="halana-activity-tabs" aria-label="أقسام الصفحة">
         {(Object.keys(activity.tabs) as TabId[]).map((id) => (

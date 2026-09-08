@@ -36,6 +36,12 @@ import {
   normalizeHalanaGalleryKind,
   type HalanaGalleryKind,
 } from '@/lib/storeHalanaGalleryKind';
+import {
+  HALANA_OCCASIONS,
+  defaultHalanaOccasionsVisible,
+  parseHalanaOccasionsVisible,
+  type HalanaOccasionId,
+} from '@/lib/storeHalanaActivityDraft';
 import { postHalanaAction } from '@/lib/storeHalanaLiveRemote';
 import { compressImageFile } from '@/lib/storeWeddingLiveLab';
 import { ROUTE_PATHS } from '@/lib/routePaths';
@@ -83,6 +89,7 @@ export type HalanaDeskPayload = {
   promoAr: string;
   youtubeUrls: string;
   acceptingOrders?: boolean;
+  occasionsVisible?: HalanaOccasionId[];
   requests: RequestRow[];
   payDesk: HalanaPayDesk;
 };
@@ -315,6 +322,9 @@ export function HalanaDeskStudio({
   const [shopName, setShopName] = useState(payload.shopName);
   const [logoSrc, setLogoSrc] = useState(payload.logoSrc);
   const [acceptingOrders, setAcceptingOrders] = useState(payload.acceptingOrders !== false);
+  const [occasionsVisible, setOccasionsVisible] = useState<HalanaOccasionId[]>(
+    () => parseHalanaOccasionsVisible(payload.occasionsVisible) ?? defaultHalanaOccasionsVisible(),
+  );
   const [flavorsAr, setFlavorsAr] = useState(payload.flavorsAr || STORE_HALANA_DEFAULT_FLAVORS_AR);
   const [policyAr, setPolicyAr] = useState(payload.policyAr || STORE_HALANA_DEFAULT_POLICY_AR);
   const [quotesAr, setQuotesAr] = useState(payload.quotesAr);
@@ -331,7 +341,8 @@ export function HalanaDeskStudio({
     setShopName(payload.shopName);
     setLogoSrc(payload.logoSrc);
     setAcceptingOrders(payload.acceptingOrders !== false);
-  }, [payload.shopName, payload.logoSrc, payload.acceptingOrders]);
+    setOccasionsVisible(parseHalanaOccasionsVisible(payload.occasionsVisible) ?? defaultHalanaOccasionsVisible());
+  }, [payload.shopName, payload.logoSrc, payload.acceptingOrders, payload.occasionsVisible]);
 
   const previewPayload = useMemo(
     () => ({
@@ -346,13 +357,27 @@ export function HalanaDeskStudio({
       readyLines,
       youtubeUrls,
       acceptingOrders,
+      occasionsVisible,
     }),
-    [shopName, logoSrc, promoTitleAr, promoAr, flavorsAr, policyAr, quotesAr, gallery, readyLines, youtubeUrls, acceptingOrders],
+    [shopName, logoSrc, promoTitleAr, promoAr, flavorsAr, policyAr, quotesAr, gallery, readyLines, youtubeUrls, acceptingOrders, occasionsVisible],
   );
 
   const previewUrl = payload.shopUrl || (payload.shopToken ? `https://store.halaqmap.com/#/h/${encodeURIComponent(payload.shopToken)}` : '#');
   const previewToken = payload.shopToken || token;
   const textsReady = Boolean(promoTitleAr.trim() || promoAr.trim() || policyAr.trim());
+
+  function toggleOccasionVisible(id: HalanaOccasionId) {
+    setOccasionsVisible((prev) => {
+      if (prev.includes(id)) {
+        if (prev.length <= 1) {
+          toast.message(copy.deskOccasionsMinAr);
+          return prev;
+        }
+        return prev.filter((item) => item !== id);
+      }
+      return HALANA_OCCASIONS.filter((item) => prev.includes(item.id) || item.id === id).map((item) => item.id);
+    });
+  }
 
   async function saveHost(patch: Record<string, unknown> = {}) {
     setBusy(true);
@@ -370,6 +395,7 @@ export function HalanaDeskStudio({
       promoAr,
       youtubeUrls,
       acceptingOrders,
+      occasionsVisible,
       ...patch,
     });
     setBusy(false);
@@ -379,6 +405,8 @@ export function HalanaDeskStudio({
     }
     if (res.acceptingOrdersSaved === false) {
       toast.message(copy.deskAcceptingPendingAr);
+    } else if (res.occasionsVisibleSaved === false) {
+      toast.message(copy.deskOccasionsPendingAr);
     } else {
       toast.success('حُفظت التغييرات.');
     }
@@ -501,6 +529,32 @@ export function HalanaDeskStudio({
         ) : (
           <p className="mt-4 text-sm text-[#4a3a32]/70">{copy.galleryEmptyAr}</p>
         )}
+      </StoreOpsSection>
+
+      <StoreOpsSection titleAr={copy.deskOccasionsTitleAr} accent={STORE_HALANA_LIVE_ACCENT}>
+        <p className="mb-4 text-sm leading-7 text-[#4a3a32]/85">{copy.deskOccasionsLeadAr}</p>
+        <div className="flex flex-wrap gap-2">
+          {HALANA_OCCASIONS.map((item) => {
+            const active = occasionsVisible.includes(item.id);
+            return (
+              <button
+                key={item.id}
+                type="button"
+                aria-pressed={active}
+                disabled={busy}
+                onClick={() => toggleOccasionVisible(item.id)}
+                className={cn(
+                  'halana-desk-occasion-toggle rounded-full border px-3 py-2 text-sm font-bold transition',
+                  active
+                    ? 'border-[#c45c7a] bg-[#c45c7a]/10 text-[#4a3a32]'
+                    : 'border-[#4a3a32]/20 bg-white/60 text-[#4a3a32]/55',
+                )}
+              >
+                {item.labelAr}
+              </button>
+            );
+          })}
+        </div>
       </StoreOpsSection>
 
       <StoreOpsSection titleAr="نصوص المعرض والتوفر" accent={STORE_HALANA_LIVE_ACCENT}>
