@@ -167,6 +167,8 @@ export default function StoreProduceShopPage() {
 
   return (
     <StorePurchasedShell
+      sector="produce"
+      surface={desk ? 'workspace' : 'storefront'}
       sky="produce"
       skySurface={desk ? 'desk' : 'shop'}
       skyLat={state.host.pickupLat}

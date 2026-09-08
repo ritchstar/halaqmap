@@ -171,7 +171,13 @@ export default function StoreRestaurantShopPage() {
   };
 
   return (
-    <StorePurchasedShell life showStoreLink={!desk} pageBg={state.host.shopPageBg}>
+    <StorePurchasedShell
+      sector="restaurant"
+      surface={desk ? 'workspace' : 'storefront'}
+      life
+      showStoreLink={!desk}
+      pageBg={state.host.shopPageBg}
+    >
       <div className={desk ? 'mx-auto max-w-3xl px-3 py-5' : undefined}>
         {gate === 'loading' ? <p className="pt-[30svh] text-center text-sm text-white/60">جاري فتح الصفحة…</p> : null}
         {gate === 'missing' ? <p className="pt-[30svh] text-center text-sm text-white/70">الرابط غير صالح.</p> : null}

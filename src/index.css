@@ -3664,6 +3664,94 @@ html.platform-radar-fullscreen #root {
   overflow-x: clip;
 }
 
+/* لوحة التشغيل وجار الحي — هوية قطاعية */
+.store-live-workspace {
+  background: #070a0d;
+  color: #f4efe6;
+}
+
+.store-live-workspace::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background: radial-gradient(ellipse 82% 46% at 50% -4%, var(--sector-glow, transparent), transparent 68%);
+}
+
+.store-live-workspace .store-purchased-shell__body,
+.store-live-workspace > .store-purchased-shell__body {
+  position: relative;
+  z-index: 1;
+}
+
+.store-live-workspace .store-ops-tool {
+  border-color: rgba(255, 255, 255, 0.14);
+  background: #11181d;
+}
+
+.store-live-workspace .store-desk-control-title {
+  border-color: color-mix(in srgb, var(--sector-accent, #e8c547) 32%, transparent);
+  background: color-mix(in srgb, var(--sector-accent, #e8c547) 8%, #11181d);
+}
+
+.store-live-workspace .store-desk-control-title h1 {
+  color: #f4efe6;
+}
+
+.store-live-storefront .halana-activity {
+  background: var(--storefront-surface, #14080c);
+}
+
+.store-live-storefront .halana-activity-header__cover {
+  height: 11rem;
+}
+
+.store-live-storefront .halana-activity-header__cover-img {
+  opacity: 0.72;
+  object-position: center 42%;
+}
+
+.store-live-storefront .halana-activity-header__veil {
+  background: var(
+    --storefront-hero-veil,
+    linear-gradient(180deg, rgba(20, 8, 12, 0.15), rgba(20, 8, 12, 0.88))
+  );
+}
+
+.store-live-storefront .halana-activity-content {
+  background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--storefront-surface, #14080c) 88%, #050308));
+}
+
+.store-shop-life-bar.store-shop-life-bar {
+  opacity: 0.88;
+}
+
+.store-live-storefront .store-shop-life-bar {
+  border-bottom-color: rgba(255, 255, 255, 0.06);
+  background: rgba(5, 3, 8, 0.62);
+}
+
+.halana-activity[data-live-sector]:not([data-live-sector='halana']) .halana-activity-primary {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--live-accent, #c45c7a) 28%, #f4efe6),
+    var(--live-accent, #c45c7a) 58%,
+    color-mix(in srgb, var(--live-accent, #c45c7a) 78%, #050308)
+  );
+  color: #050308;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--live-accent, #c45c7a) 24%, transparent);
+}
+
+.halana-desk-page.store-live-workspace {
+  background: linear-gradient(180deg, #f7f3ef 0%, #efe8e0 100%);
+  color: #4a3a32;
+}
+
+.halana-desk-page.store-live-workspace::before {
+  background: radial-gradient(ellipse 70% 36% at 50% 0%, var(--sector-glow, transparent), transparent 72%);
+}
+
 .store-product-shell {
   -webkit-tap-highlight-color: transparent;
   max-width: 100%;

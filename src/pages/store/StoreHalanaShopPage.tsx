@@ -16,6 +16,7 @@ import { fetchHalanaPublic } from '@/lib/storeHalanaLiveRemote';
 import { normalizeHalanaGalleryKind } from '@/lib/storeHalanaGalleryKind';
 import { parseShopLogoSrc } from '@/lib/storeShopLogo';
 import { ROUTE_PATHS } from '@/lib/routePaths';
+import { resolveStoreLivePageStyle, sectorIdentityCssVars, storeSectorIdentity } from '@/lib/storeSectorIdentity';
 
 type PayPublic = { bankTransfer: boolean; cashOnPickup: boolean; networkOnPickup: boolean };
 type HalanaPayDesk = {
@@ -161,8 +162,13 @@ export default function StoreHalanaShopPage() {
   }
 
   if (desk) {
+    const halanaSector = storeSectorIdentity('halana');
     return (
-      <div dir="rtl" className="halana-desk-page min-h-svh">
+      <div
+        dir="rtl"
+        className="halana-desk-page store-live-workspace store-live-sector--halana min-h-svh"
+        style={sectorIdentityCssVars(halanaSector)}
+      >
         <div className="mx-auto max-w-6xl px-3 pt-2 sm:px-4">
           <PlatformContinuousDevelopmentNotice variant="desk" />
         </div>
@@ -171,8 +177,14 @@ export default function StoreHalanaShopPage() {
     );
   }
 
+  const halanaStorefrontStyle = resolveStoreLivePageStyle({ sector: 'halana', surface: 'storefront' });
+
   return (
-    <div dir="rtl" className="halana-page min-h-svh text-[#f4efe4]">
+    <div
+      dir="rtl"
+      className="halana-page store-live-storefront store-live-sector--halana min-h-svh text-[#f4efe4]"
+      style={halanaStorefrontStyle}
+    >
       <div className="mx-auto max-w-3xl px-3 pt-2 sm:px-4">
         <PlatformContinuousDevelopmentNotice variant="shop" />
       </div>

@@ -38,6 +38,8 @@ export function StoreLiveActivityShell({
   stickyOnClick,
   children,
   overlay,
+  accent,
+  sector,
 }: {
   coverSrc?: string;
   headerCoverStyle?: CSSProperties;
@@ -63,6 +65,8 @@ export function StoreLiveActivityShell({
   stickyOnClick?: () => void;
   children: ReactNode;
   overlay?: ReactNode;
+  accent?: string;
+  sector?: string;
 }) {
   const statusClass =
     statusTone === 'closed'
@@ -86,7 +90,18 @@ export function StoreLiveActivityShell({
   );
 
   return (
-    <div className="halana-activity">
+    <div
+      className="halana-activity"
+      data-live-sector={sector || undefined}
+      style={
+        accent
+          ? ({
+              '--live-accent': accent,
+              '--live-accent-deep': `color-mix(in srgb, ${accent} 72%, #14080c)`,
+            } as CSSProperties)
+          : undefined
+      }
+    >
       <header className="halana-activity-header">
         {coverSrc ? (
           <div className="halana-activity-header__cover">

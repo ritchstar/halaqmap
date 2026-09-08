@@ -11,11 +11,15 @@ import { PlatformContinuousDevelopmentNotice } from '@/components/platform/Platf
 import { useIsMobile } from '@/hooks/use-mobile';
 import { lockPartnerDarkCanvas } from '@/lib/partnerDarkCanvas';
 import { STORE_LIVE_MARK_AR } from '@/config/storeLiveAtmosphere';
-import { shopBackgroundStyle } from '@/lib/storeShopBackground';
+import type { StoreLiveSectorId } from '@/config/storeSectorIdentity';
+import { resolveStoreLivePageStyle, type StoreLiveSurface } from '@/lib/storeSectorIdentity';
 import type { StoreShopSkyProduct, StoreShopSkySurface } from '@/config/storeShopSky';
+import { cn } from '@/lib/utils';
 
 export function StorePurchasedShell({
   children,
+  sector,
+  surface = 'storefront',
   sky,
   skySurface = 'shop',
   skyLat,
@@ -25,6 +29,8 @@ export function StorePurchasedShell({
   pageBg,
 }: {
   children: ReactNode;
+  sector?: StoreLiveSectorId;
+  surface?: StoreLiveSurface;
   sky?: StoreShopSkyProduct;
   skySurface?: StoreShopSkySurface;
   skyLat?: number;
@@ -35,15 +41,28 @@ export function StorePurchasedShell({
 }) {
   useEffect(() => lockPartnerDarkCanvas(), []);
   const isMobile = useIsMobile();
-  const customPageBg = Boolean(pageBg?.trim());
-  const showSky = Boolean(sky) && !(life && isMobile) && !customPageBg;
-  const canvas = showSky || life || customPageBg;
-  const pageStyle = shopBackgroundStyle(pageBg || '');
+  const isWorkspace = surface === 'workspace';
+  const operatorPageBg = isWorkspace ? '' : pageBg;
+  const pageStyle = resolveStoreLivePageStyle({ sector, surface, operatorPageBg });
+  const customPageBg = Boolean(String(operatorPageBg || '').trim());
+  const showSky = Boolean(sky) && !isWorkspace && !(life && isMobile) && !customPageBg;
+  const showLife = life && !isWorkspace;
+  const canvas = showSky || showLife || customPageBg || Boolean(sector);
 
   return (
-    <div dir="rtl" className="store-purchased-shell relative min-h-[100svh] bg-[#050308] text-[#f7edd8]" style={pageStyle}>
-      {sky && showSky ? <StoreShopSky product={sky} surface={skySurface} lat={skyLat} lng={skyLng} hideChip={life} /> : null}
-      {life ? <StoreShopLife /> : null}
+    <div
+      dir="rtl"
+      className={cn(
+        'store-purchased-shell relative min-h-[100svh] text-[#f4efe6]',
+        isWorkspace ? 'store-live-workspace' : 'store-live-storefront',
+        sector ? `store-live-sector--${sector}` : null,
+      )}
+      data-store-sector={sector || undefined}
+      data-store-surface={surface}
+      style={pageStyle}
+    >
+      {sky && showSky ? <StoreShopSky product={sky} surface={skySurface} lat={skyLat} lng={skyLng} hideChip={showLife} /> : null}
+      {showLife ? <StoreShopLife compact={surface === 'storefront'} /> : null}
       {canvas ? (
         <div className="store-purchased-shell__body relative z-10">
           <PlatformContinuousDevelopmentNotice variant="shop" className="mx-auto max-w-3xl px-3 pt-2 sm:px-4" />

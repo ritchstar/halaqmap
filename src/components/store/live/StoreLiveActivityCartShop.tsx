@@ -112,6 +112,8 @@ export function StoreLiveActivityCartShop({
       onTabChange={setTab}
       stickyLabel={copy.stickyOrderAr}
       stickyOnClick={goOrder}
+      accent={copy.accent}
+      sector={kind}
     >
       {tab === 'home' ? (
         <StoreLiveActivityHomeTab

@@ -257,9 +257,11 @@ export default function StoreCafeShopPage() {
 
   return (
     <StorePurchasedShell
-      life={neighborhoodShop || mode === 'desk'}
+      sector="cafe"
+      surface={mode === 'desk' ? 'workspace' : 'storefront'}
+      life={neighborhoodShop}
       showStoreLink={mode === 'shop'}
-      pageBg={neighborhoodShop || mode === 'desk' ? state.host.shopPageBg : undefined}
+      pageBg={state.host.shopPageBg}
     >
       {gate === 'loading' ? <p className="pt-[30svh] text-center text-sm text-white/60">جاري فتح الصفحة…</p> : null}
       {gate === 'missing' ? <p className="pt-[30svh] text-center text-sm text-white/70">الرابط غير صالح.</p> : null}

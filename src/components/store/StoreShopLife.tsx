@@ -30,7 +30,7 @@ function LightWash({ zone }: { zone: StoreShopLightZone }) {
   );
 }
 
-export function StoreShopLife() {
+export function StoreShopLife({ compact = false }: { compact?: boolean }) {
   const [zone, setZone] = useState<StoreShopLightZone>(() => readStoreShopLightZone());
   const temps = useKsaCityTemps();
   const [active, setActive] = useState(0);
@@ -49,7 +49,12 @@ export function StoreShopLife() {
   return (
     <>
       <LightWash zone={zone} />
-      <div className="relative z-20 space-y-2 border-b border-white/10 bg-[#050308]/80 px-3 py-2 backdrop-blur-sm">
+      <div
+        className={cn(
+          'store-shop-life-bar relative z-20 border-b border-white/10 bg-[#050308]/80 backdrop-blur-sm',
+          compact ? 'px-2 py-1' : 'space-y-2 px-3 py-2',
+        )}
+      >
         <div
           className="flex gap-2 overflow-x-auto scrollbar-none"
           role="list"
