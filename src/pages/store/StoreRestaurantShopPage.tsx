@@ -172,7 +172,7 @@ export default function StoreRestaurantShopPage() {
 
   return (
     <StorePurchasedShell
-      sector="restaurant"
+      product="restaurant"
       surface={desk ? 'workspace' : 'storefront'}
       life
       showStoreLink={!desk}

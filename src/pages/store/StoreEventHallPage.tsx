@@ -165,14 +165,14 @@ export default function StoreEventHallPage() {
   }
   if (giftEnded) {
     return (
-      <StorePurchasedShell showStoreLink={false}>
+      <StorePurchasedShell product="event" surface="storefront" showStoreLink={false}>
         <StoreTrialGiftEnded titleAr={copy.titleAr} />
       </StorePurchasedShell>
     );
   }
 
   return (
-    <StorePurchasedShell showStoreLink={mode === 'guest'}>
+    <StorePurchasedShell product="event" surface={mode === 'host' ? 'workspace' : 'storefront'} showStoreLink={mode === 'guest'}>
       <StoreEventHallStage state={state} immersive />
       {mode === 'guest' && gate.status === 'ok' ? <StoreEventGuestForm state={state} onChange={commit} /> : null}
       {mode === 'host' ? (

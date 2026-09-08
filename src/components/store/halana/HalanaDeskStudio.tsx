@@ -21,6 +21,7 @@ import { STORE_HALANA_SUPPORT } from '@/config/storeProductSupport';
 import { STORE_DIRECT_PAY_COPY } from '@/config/storeDirectPay';
 import { STORE_SHOP_LOGO_COPY } from '@/config/storeShopLogo';
 import { HalanaActivityShowcase } from '@/components/store/halana/HalanaActivityShowcase';
+import { StoreProductThemeRoot } from '@/components/store/StoreProductThemeRoot';
 import { StoreDeskCornerDock } from '@/components/store/StoreDeskCornerNav';
 import { StoreDeskGuideLink } from '@/components/store/StoreDeskGuideLink';
 import { StoreDeskHelpSupport } from '@/components/store/StoreDeskHelpSupport';
@@ -648,7 +649,9 @@ export function HalanaDeskStudio({
         <div className={cn('halana-desk-studio__editor', tab !== 'edit' && 'hidden lg:block')}>{editor}</div>
         <div className={cn('halana-desk-studio__preview-pane', tab !== 'preview' && 'hidden lg:block')}>
           <PreviewPhone>
-            <HalanaActivityShowcase token={previewToken} payload={previewPayload} preview />
+            <StoreProductThemeRoot product="halana" context="storefront" className="min-h-0">
+              <HalanaActivityShowcase token={previewToken} payload={previewPayload} preview />
+            </StoreProductThemeRoot>
           </PreviewPhone>
         </div>
       </div>

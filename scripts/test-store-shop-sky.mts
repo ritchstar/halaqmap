@@ -37,17 +37,20 @@ const weddingPage = readFileSync(join(root, 'src/pages/store/StoreWeddingHallPag
 const eventPage = readFileSync(join(root, 'src/pages/store/StoreEventHallPage.tsx'), 'utf8');
 const sky = readFileSync(join(root, 'src/components/store/StoreShopSky.tsx'), 'utf8');
 
+const shell = readFileSync(join(root, 'src/components/store/StorePurchasedShell.tsx'), 'utf8');
+
 assert.doesNotMatch(app, /from ['"]@\/config\/storeShopSky['"]/);
 assert.doesNotMatch(app, /from ['"]@\/lib\/storeShopSky['"]/);
 assert.doesNotMatch(app, /from ['"]@\/components\/store\/StoreShopSky['"]/);
+assert.doesNotMatch(shell, /StoreShopSky/);
 
-assert.match(grocersPage, /sky="grocers"/);
-assert.match(producePage, /sky="produce"/);
-assert.match(kitchenPage, /sky="kitchen"/);
-assert.doesNotMatch(grocersPage, /sky="produce"/);
-assert.doesNotMatch(producePage, /sky="grocers"/);
-assert.doesNotMatch(kitchenPage, /sky="grocers"/);
-assert.doesNotMatch(kitchenPage, /sky="produce"/);
+assert.match(grocersPage, /product="grocers"/);
+assert.match(producePage, /product="produce"/);
+assert.match(kitchenPage, /product="kitchen"/);
+assert.match(shell, /StoreProductThemeRoot/);
+assert.doesNotMatch(grocersPage, /sky=/);
+assert.doesNotMatch(producePage, /sky=/);
+assert.doesNotMatch(kitchenPage, /sky=/);
 assert.doesNotMatch(restaurantPage, /sky=/);
 assert.doesNotMatch(cafePage, /sky=/);
 assert.doesNotMatch(loungePage, /sky=/);
@@ -60,15 +63,15 @@ assert.match(sky, /fetchTemperatureCelsius/);
 assert.match(sky, /store-shop-sky-chip/);
 assert.doesNotMatch(sky, /STORE_LIVE_PANORAMAS/);
 assert.doesNotMatch(sky, /geolocation|getCurrentPosition|readStoredUserCoords|requestShopGeo/);
-assert.match(grocersPage, /skyLat=\{state\.host\.pickupLat\}/);
-assert.match(producePage, /skyLat=\{state\.host\.pickupLat\}/);
-assert.match(kitchenPage, /skyLat=\{state\.host\.pickupLat\}/);
 assert.doesNotMatch(readFileSync(join(root, 'src/components/store/StoreGrocersShop.tsx'), 'utf8'), /store-shop-sky-chip|fetchTemperatureCelsius/);
 assert.doesNotMatch(readFileSync(join(root, 'src/components/store/StoreProduceShop.tsx'), 'utf8'), /store-shop-sky-chip|fetchTemperatureCelsius/);
 assert.doesNotMatch(readFileSync(join(root, 'src/components/store/StoreKitchenShop.tsx'), 'utf8'), /store-shop-sky-chip|fetchTemperatureCelsius/);
 assert.doesNotMatch(readFileSync(join(root, 'src/components/store/StoreGrocersDesk.tsx'), 'utf8'), /store-shop-sky-chip/);
 assert.doesNotMatch(readFileSync(join(root, 'src/components/store/StoreProduceDesk.tsx'), 'utf8'), /store-shop-sky-chip/);
 assert.doesNotMatch(readFileSync(join(root, 'src/components/store/StoreKitchenDesk.tsx'), 'utf8'), /store-shop-sky-chip/);
+assert.doesNotMatch(grocersPage, /skyLat=/);
+assert.doesNotMatch(producePage, /skyLat=/);
+assert.doesNotMatch(kitchenPage, /skyLat=/);
 
 const grocersFajr = storeShopSkyFrames('grocers', 'fajr');
 const produceFajr = storeShopSkyFrames('produce', 'fajr');

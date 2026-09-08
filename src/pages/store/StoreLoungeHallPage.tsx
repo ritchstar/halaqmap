@@ -161,7 +161,7 @@ export default function StoreLoungeHallPage() {
   }
 
   return (
-    <StorePurchasedShell showStoreLink={mode === 'guest'}>
+    <StorePurchasedShell product="lounge" surface={mode === 'host' ? 'workspace' : 'storefront'} showStoreLink={mode === 'guest'}>
       {gate === 'loading' ? (
         <p className="px-4 pt-[40svh] text-center text-sm text-white/60">جاري فتح الشاشة…</p>
       ) : null}

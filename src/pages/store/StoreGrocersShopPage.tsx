@@ -167,12 +167,8 @@ export default function StoreGrocersShopPage() {
 
   return (
     <StorePurchasedShell
-      sector="grocers"
+      product="grocers"
       surface={desk ? 'workspace' : 'storefront'}
-      sky="grocers"
-      skySurface={desk ? 'desk' : 'shop'}
-      skyLat={state.host.pickupLat}
-      skyLng={state.host.pickupLng}
       life
       showStoreLink={!desk}
       pageBg={state.host.shopPageBg}

@@ -257,7 +257,7 @@ export default function StoreCafeShopPage() {
 
   return (
     <StorePurchasedShell
-      sector="cafe"
+      product="cafe"
       surface={mode === 'desk' ? 'workspace' : 'storefront'}
       life={neighborhoodShop}
       showStoreLink={mode === 'shop'}

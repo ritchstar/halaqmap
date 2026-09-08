@@ -8,6 +8,7 @@ import { Link, useLocation, useParams } from 'react-router-dom';
 import { STORE_HALANA_LIVE_COPY } from '@/config/storeHalanaLive';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { StoreLiveStoreLink } from '@/components/store/StoreLiveStoreLink';
+import { StoreProductThemeRoot } from '@/components/store/StoreProductThemeRoot';
 import { HalanaActivityOrderFlow } from '@/components/store/halana/HalanaActivityOrderFlow';
 import { HalanaActivityShowcase } from '@/components/store/halana/HalanaActivityShowcase';
 import { HalanaDeskStudio, type HalanaDeskPayload } from '@/components/store/halana/HalanaDeskStudio';
@@ -16,7 +17,6 @@ import { fetchHalanaPublic } from '@/lib/storeHalanaLiveRemote';
 import { normalizeHalanaGalleryKind } from '@/lib/storeHalanaGalleryKind';
 import { parseShopLogoSrc } from '@/lib/storeShopLogo';
 import { ROUTE_PATHS } from '@/lib/routePaths';
-import { resolveStoreLivePageStyle, sectorIdentityCssVars, storeSectorIdentity } from '@/lib/storeSectorIdentity';
 
 type PayPublic = { bankTransfer: boolean; cashOnPickup: boolean; networkOnPickup: boolean };
 type HalanaPayDesk = {
@@ -143,49 +143,42 @@ export default function StoreHalanaShopPage() {
 
   if (error && !payload) {
     return (
-      <div className="flex min-h-svh flex-col items-center justify-center gap-4 bg-[#14080c] px-6 text-center text-[#f4efe4]" dir="rtl">
-        <p>{error}</p>
-        {error.includes('انتهت مدة التشغيل') ? (
-          <Link className="text-[#c45c7a] underline" to={`${ROUTE_PATHS.STORE_HALANA}?renew=${encodeURIComponent(token)}`}>
-            إعادة الشراء على نفس الصفحة
-          </Link>
-        ) : null}
-      </div>
+      <StoreProductThemeRoot product="halana" context="storefront" className="min-h-svh">
+        <div className="flex min-h-svh flex-col items-center justify-center gap-4 px-6 text-center" dir="rtl">
+          <p style={{ color: 'var(--storefront-text)' }}>{error}</p>
+          {error.includes('انتهت مدة التشغيل') ? (
+            <Link className="underline" style={{ color: 'var(--storefront-accent)' }} to={`${ROUTE_PATHS.STORE_HALANA}?renew=${encodeURIComponent(token)}`}>
+              إعادة الشراء على نفس الصفحة
+            </Link>
+          ) : null}
+        </div>
+      </StoreProductThemeRoot>
     );
   }
   if (!payload) {
     return (
-      <div className="flex min-h-svh items-center justify-center bg-[#14080c] text-[#f4efe4]/70" dir="rtl">
-        يجري فتح حلانا1…
-      </div>
+      <StoreProductThemeRoot product="halana" context="storefront" className="min-h-svh">
+        <div className="flex min-h-svh items-center justify-center" dir="rtl" style={{ color: 'var(--storefront-muted)' }}>
+          يجري فتح حلانا1…
+        </div>
+      </StoreProductThemeRoot>
     );
   }
 
   if (desk) {
-    const halanaSector = storeSectorIdentity('halana');
     return (
-      <div
-        dir="rtl"
-        className="halana-desk-page store-live-workspace store-live-sector--halana min-h-svh"
-        style={sectorIdentityCssVars(halanaSector)}
-      >
+      <StoreProductThemeRoot product="halana" context="operator" className="halana-desk-page min-h-svh">
         <div className="mx-auto max-w-6xl px-3 pt-2 sm:px-4">
           <PlatformContinuousDevelopmentNotice variant="desk" />
         </div>
         <HalanaDeskStudio token={token} payload={payload} onSaved={() => void load()} />
-      </div>
+      </StoreProductThemeRoot>
     );
   }
 
-  const halanaStorefrontStyle = resolveStoreLivePageStyle({ sector: 'halana', surface: 'storefront' });
-
   return (
-    <div
-      dir="rtl"
-      className="halana-page store-live-storefront store-live-sector--halana min-h-svh text-[#f4efe4]"
-      style={halanaStorefrontStyle}
-    >
-      <div className="mx-auto max-w-3xl px-3 pt-2 sm:px-4">
+    <StoreProductThemeRoot product="halana" context="storefront" className="halana-page min-h-svh">
+      <div className="store-product-theme__frame mx-auto max-w-[1240px] px-3 pt-2 sm:px-4">
         <PlatformContinuousDevelopmentNotice variant="shop" />
       </div>
       <HalanaSparkLayer />
@@ -195,6 +188,6 @@ export default function StoreHalanaShopPage() {
         <HalanaActivityShowcase token={token} payload={payload} acceptingOrders={payload.acceptingOrders !== false} />
       )}
       <StoreLiveStoreLink />
-    </div>
+    </StoreProductThemeRoot>
   );
 }

@@ -30,7 +30,7 @@ function LightWash({ zone }: { zone: StoreShopLightZone }) {
   );
 }
 
-export function StoreShopLife({ compact = false }: { compact?: boolean }) {
+export function StoreShopLife({ compact = false, themed = false }: { compact?: boolean; themed?: boolean }) {
   const [zone, setZone] = useState<StoreShopLightZone>(() => readStoreShopLightZone());
   const temps = useKsaCityTemps();
   const [active, setActive] = useState(0);
@@ -48,10 +48,13 @@ export function StoreShopLife({ compact = false }: { compact?: boolean }) {
 
   return (
     <>
-      <LightWash zone={zone} />
+      {themed ? null : <LightWash zone={zone} />}
       <div
         className={cn(
-          'store-shop-life-bar relative z-20 border-b border-white/10 bg-[#050308]/80 backdrop-blur-sm',
+          'store-shop-life-bar relative z-20 border-b backdrop-blur-sm',
+          themed
+            ? 'border-[color-mix(in_srgb,var(--storefront-text)_8%,transparent)] bg-[color-mix(in_srgb,var(--storefront-surface)_92%,transparent)]'
+            : 'border-white/10 bg-[#050308]/80',
           compact ? 'px-2 py-1' : 'space-y-2 px-3 py-2',
         )}
       >
@@ -75,10 +78,10 @@ export function StoreShopLife({ compact = false }: { compact?: boolean }) {
                 }}
                 className={cn(
                   'flex shrink-0 flex-col items-center rounded-xl px-2 py-1',
-                  lit ? 'bg-white/8' : 'bg-transparent',
+                  lit ? (themed ? 'bg-[color-mix(in_srgb,var(--storefront-accent)_12%,transparent)]' : 'bg-white/8') : 'bg-transparent',
                 )}
               >
-                <span className="text-[0.62rem] text-white/70">{city.nameAr}</span>
+                <span className={cn('text-[0.62rem]', themed ? 'text-[var(--storefront-muted)]' : 'text-white/70')}>{city.nameAr}</span>
                 <span className="font-mono text-sm font-black tabular-nums" style={{ color }} dir="ltr">
                   {temp}°
                 </span>
@@ -97,7 +100,13 @@ export function StoreShopLife({ compact = false }: { compact?: boolean }) {
               }}
               className={cn(
                 'rounded-full px-3 py-1 text-xs',
-                zone === item ? 'bg-[#e8c547] font-bold text-[#061018]' : 'border border-white/20 text-white/75',
+                zone === item
+                  ? themed
+                    ? 'bg-[var(--storefront-accent)] font-bold text-white'
+                    : 'bg-[#e8c547] font-bold text-[#061018]'
+                  : themed
+                    ? 'border border-[color-mix(in_srgb,var(--storefront-text)_14%,transparent)] text-[var(--storefront-text)]'
+                    : 'border border-white/20 text-white/75',
               )}
             >
               {STORE_SHOP_LIGHT_LABEL[item]}

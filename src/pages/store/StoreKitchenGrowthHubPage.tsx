@@ -71,7 +71,7 @@ export default function StoreKitchenGrowthHubPage() {
   const deskPath = ROUTE_PATHS.STORE_KITCHEN_DESK.replace(':token', encodeURIComponent(safeToken));
 
   return (
-    <StorePurchasedShell life>
+    <StorePurchasedShell product="kitchen" life>
       <div className="mx-auto max-w-3xl space-y-6 px-3 py-5">
         <header className="flex items-start justify-between gap-3">
           <div>

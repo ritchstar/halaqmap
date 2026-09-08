@@ -97,7 +97,7 @@ export function StoreLiveActivityShell({
         accent
           ? ({
               '--live-accent': accent,
-              '--live-accent-deep': `color-mix(in srgb, ${accent} 72%, #14080c)`,
+              '--live-accent-deep': `color-mix(in srgb, ${accent} 78%, var(--storefront-text, #30231b))`,
             } as CSSProperties)
           : undefined
       }
@@ -201,7 +201,7 @@ export function StoreLiveActivityShell({
         ))}
       </nav>
 
-      <div className="halana-activity-content halana-shell mx-auto max-w-3xl px-4 pb-28 pt-6">{children}</div>
+      <div className="halana-activity-content halana-shell store-product-theme__frame mx-auto w-full max-w-[1240px] px-4 pb-28 pt-6">{children}</div>
 
       <div className="halana-activity-sticky">{stickyInner}</div>
 

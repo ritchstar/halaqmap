@@ -3,7 +3,6 @@
  *
  * واجهة النشاط الحيّة — صفحة العميلة في حلانا1 (مرحلة 1).
  */
-import type { CSSProperties } from 'react';
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { Play, X } from 'lucide-react';
@@ -231,13 +230,9 @@ export function HalanaActivityShowcase({
   }
 
   const stickyLabel = draft.refWorkId ? activity.stickyInspiredAr : activity.stickyOrderAr;
-  const activityStyle = {
-    '--live-accent': STORE_HALANA_LIVE_ACCENT,
-    '--live-accent-deep': '#a43d5c',
-  } as CSSProperties;
 
   return (
-    <div className="halana-activity" data-live-sector="halana" style={activityStyle}>
+    <div className="halana-activity mx-auto w-full max-w-[1240px]" data-live-sector="halana">
       <header className="halana-activity-header">
         <div className="halana-activity-header__cover">
           <img src={coverSrc} alt="" className="halana-activity-header__cover-img" />
@@ -333,7 +328,7 @@ export function HalanaActivityShowcase({
         ))}
       </nav>
 
-      <div className="halana-activity-content halana-shell mx-auto max-w-3xl px-4 pb-28 pt-6">
+      <div className="halana-activity-content halana-shell store-product-theme__frame mx-auto w-full max-w-[1240px] px-4 pb-28 pt-6">
         {tab === 'home' ? (
           <div className="space-y-8">
             <TabPanel title={activity.featuredTitleAr} lead={activity.featuredLeadAr}>

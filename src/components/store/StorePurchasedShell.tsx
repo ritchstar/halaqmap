@@ -3,81 +3,56 @@
  *
  * صفحة خام للمناسبة المشتراة — بلا هيدر أو تذييل أو توثيق.
  */
-import { useEffect, type ReactNode } from 'react';
+import { type ReactNode } from 'react';
 import { StoreShopLife } from '@/components/store/StoreShopLife';
-import { StoreShopSky } from '@/components/store/StoreShopSky';
+import { StoreProductThemeRoot } from '@/components/store/StoreProductThemeRoot';
 import { StoreLiveStoreLink } from '@/components/store/StoreLiveStoreLink';
 import { PlatformContinuousDevelopmentNotice } from '@/components/platform/PlatformContinuousDevelopmentNotice';
-import { useIsMobile } from '@/hooks/use-mobile';
-import { lockPartnerDarkCanvas } from '@/lib/partnerDarkCanvas';
 import { STORE_LIVE_MARK_AR } from '@/config/storeLiveAtmosphere';
-import type { StoreLiveSectorId } from '@/config/storeSectorIdentity';
-import { resolveStoreLivePageStyle, type StoreLiveSurface } from '@/lib/storeSectorIdentity';
-import type { StoreShopSkyProduct, StoreShopSkySurface } from '@/config/storeShopSky';
+import type { StoreProductId } from '@/config/storeProductThemes';
+import { normalizeStoreLiveSurface } from '@/lib/storeProductThemes';
 import { cn } from '@/lib/utils';
 
 export function StorePurchasedShell({
   children,
+  product,
   sector,
   surface = 'storefront',
-  sky,
-  skySurface = 'shop',
-  skyLat,
-  skyLng,
   life = false,
   showStoreLink = false,
   pageBg,
 }: {
   children: ReactNode;
-  sector?: StoreLiveSectorId;
-  surface?: StoreLiveSurface;
-  sky?: StoreShopSkyProduct;
-  skySurface?: StoreShopSkySurface;
-  skyLat?: number;
-  skyLng?: number;
+  product?: StoreProductId;
+  /** @deprecated استخدم product */
+  sector?: StoreProductId;
+  surface?: 'storefront' | 'workspace';
   life?: boolean;
   showStoreLink?: boolean;
   pageBg?: string;
 }) {
-  useEffect(() => lockPartnerDarkCanvas(), []);
-  const isMobile = useIsMobile();
-  const isWorkspace = surface === 'workspace';
-  const operatorPageBg = isWorkspace ? '' : pageBg;
-  const pageStyle = resolveStoreLivePageStyle({ sector, surface, operatorPageBg });
-  const customPageBg = Boolean(String(operatorPageBg || '').trim());
-  const showSky = Boolean(sky) && !isWorkspace && !(life && isMobile) && !customPageBg;
-  const showLife = life && !isWorkspace;
-  const canvas = showSky || showLife || customPageBg || Boolean(sector);
+  const resolvedProduct = product ?? sector;
+  const context = normalizeStoreLiveSurface(surface);
+  const isOperator = context === 'operator';
+  const customStorefrontBg = isOperator ? undefined : pageBg;
+  const showLife = life && !isOperator;
 
   return (
-    <div
-      dir="rtl"
-      className={cn(
-        'store-purchased-shell relative min-h-[100svh] text-[#f4efe6]',
-        isWorkspace ? 'store-live-workspace' : 'store-live-storefront',
-        sector ? `store-live-sector--${sector}` : null,
-      )}
-      data-store-sector={sector || undefined}
-      data-store-surface={surface}
-      style={pageStyle}
+    <StoreProductThemeRoot
+      product={resolvedProduct}
+      context={context}
+      customStorefrontPageBg={customStorefrontBg}
+      className={cn('store-purchased-shell relative min-h-[100svh]')}
     >
-      {sky && showSky ? <StoreShopSky product={sky} surface={skySurface} lat={skyLat} lng={skyLng} hideChip={showLife} /> : null}
-      {showLife ? <StoreShopLife compact={surface === 'storefront'} /> : null}
-      {canvas ? (
-        <div className="store-purchased-shell__body relative z-10">
-          <PlatformContinuousDevelopmentNotice variant="shop" className="mx-auto max-w-3xl px-3 pt-2 sm:px-4" />
+      {showLife ? <StoreShopLife compact themed /> : null}
+      <div className="store-purchased-shell__body store-product-theme__body relative z-10">
+        <PlatformContinuousDevelopmentNotice variant="shop" className="mx-auto max-w-[1240px] px-3 pt-2 sm:px-4" />
+        <div className="store-product-theme__frame mx-auto w-full max-w-[1240px] px-3 sm:px-4">
           {children}
         </div>
-      ) : (
-        <>
-          <PlatformContinuousDevelopmentNotice variant="shop" className="mx-auto max-w-3xl px-3 pt-2 sm:px-4" />
-          {children}
-        </>
-      )}
+      </div>
       {showStoreLink ? <StoreLiveStoreLink /> : null}
-      <p className="store-live-mark pointer-events-none fixed bottom-1 left-1/2 z-30 -translate-x-1/2">
-        {STORE_LIVE_MARK_AR}
-      </p>
-    </div>
+      <p className="store-live-mark pointer-events-none fixed bottom-1 left-1/2 z-30 -translate-x-1/2">{STORE_LIVE_MARK_AR}</p>
+    </StoreProductThemeRoot>
   );
 }

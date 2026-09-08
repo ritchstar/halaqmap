@@ -1,0 +1,372 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ *
+ * ثيمات منتجات المتجر — خلفيات فاتحة قطاعية.
+ */
+
+.store-product-theme {
+  color: var(--storefront-text, #1f292d);
+  background: var(--storefront-page-bg, #f3eee6);
+}
+
+.store-product-theme[data-context='operator'] {
+  color: var(--operator-text, #1f292d);
+  background: var(--operator-page-bg, #eeeae4);
+}
+
+.store-product-theme__body {
+  min-height: inherit;
+}
+
+.store-product-theme__frame {
+  width: min(100%, 1240px);
+}
+
+.store-product-theme .halana-activity {
+  background: var(--storefront-page-bg);
+  color: var(--storefront-text);
+}
+
+.store-product-theme .halana-activity-header {
+  border-bottom: 1px solid color-mix(in srgb, var(--storefront-text) 8%, transparent);
+  background: var(--storefront-surface);
+}
+
+.store-product-theme .halana-activity-header__cover {
+  height: 12rem;
+  max-height: 40vh;
+}
+
+.store-product-theme .halana-activity-header__cover-img {
+  opacity: 1;
+  object-position: center 42%;
+}
+
+.store-product-theme .halana-activity-header__veil {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--storefront-surface) 10%, transparent),
+    color-mix(in srgb, var(--storefront-surface-alt) 72%, transparent)
+  );
+}
+
+.store-product-theme .halana-activity-header__body {
+  margin-top: -2rem;
+}
+
+.store-product-theme .halana-activity-header__lead {
+  color: var(--storefront-muted);
+}
+
+.store-product-theme .halana-activity-status {
+  border-color: color-mix(in srgb, var(--storefront-accent-secondary, var(--storefront-accent)) 35%, transparent);
+  background: color-mix(in srgb, var(--storefront-accent-secondary, var(--storefront-accent)) 10%, var(--storefront-surface));
+  color: color-mix(in srgb, var(--storefront-accent-secondary, var(--storefront-accent)) 82%, #000);
+}
+
+.store-product-theme .halana-activity-status--closed,
+.store-product-theme .halana-activity-status--paused {
+  border-color: color-mix(in srgb, var(--storefront-accent-warm, var(--storefront-accent)) 35%, transparent);
+  background: color-mix(in srgb, var(--storefront-accent-warm, var(--storefront-accent)) 12%, var(--storefront-surface));
+  color: color-mix(in srgb, var(--storefront-accent-warm, var(--storefront-accent)) 78%, #000);
+}
+
+.store-product-theme .halana-activity-primary {
+  background: var(--storefront-accent);
+  color: #fff;
+  box-shadow: 0 1px 0 color-mix(in srgb, var(--storefront-text) 8%, transparent);
+}
+
+.store-product-theme[data-product='kitchen'] .halana-activity-primary {
+  background: var(--storefront-accent);
+  color: var(--storefront-text);
+}
+
+.store-product-theme .halana-activity-secondary {
+  border: 1px solid color-mix(in srgb, var(--storefront-text) 12%, transparent);
+  background: var(--storefront-surface);
+  color: var(--storefront-text);
+}
+
+.store-product-theme .halana-activity-live-banner {
+  border-color: color-mix(in srgb, var(--storefront-accent-secondary, var(--storefront-accent)) 28%, transparent);
+  background: color-mix(in srgb, var(--storefront-accent-secondary, var(--storefront-accent)) 8%, var(--storefront-surface));
+  color: var(--storefront-text);
+}
+
+.store-product-theme .halana-activity-trust__chip {
+  border-color: color-mix(in srgb, var(--storefront-text) 10%, transparent);
+  background: var(--storefront-surface);
+  color: var(--storefront-muted);
+}
+
+.store-product-theme .halana-activity-explorer__title {
+  color: var(--storefront-text);
+}
+
+.store-product-theme .halana-activity-occasion {
+  border-color: color-mix(in srgb, var(--storefront-text) 12%, transparent);
+  background: var(--storefront-surface);
+  color: var(--storefront-text);
+}
+
+.store-product-theme .halana-activity-occasion--active {
+  border-color: color-mix(in srgb, var(--storefront-accent) 45%, transparent);
+  background: color-mix(in srgb, var(--storefront-accent) 12%, var(--storefront-surface));
+  color: var(--storefront-text);
+}
+
+.store-product-theme .halana-activity-tabs {
+  border-bottom-color: color-mix(in srgb, var(--storefront-text) 8%, transparent);
+  background: color-mix(in srgb, var(--storefront-surface) 94%, transparent);
+}
+
+.store-product-theme .halana-activity-tabs__btn {
+  color: var(--storefront-muted);
+}
+
+.store-product-theme .halana-activity-tabs__btn--active {
+  border-color: color-mix(in srgb, var(--storefront-accent) 35%, transparent);
+  background: color-mix(in srgb, var(--storefront-accent) 10%, var(--storefront-surface));
+  color: var(--storefront-text);
+}
+
+.store-product-theme .halana-activity-content {
+  background: var(--storefront-page-bg);
+}
+
+.store-product-theme .halana-activity-surface,
+.store-product-theme .halana-activity-work,
+.store-product-theme .halana-activity-ready-card {
+  border-color: color-mix(in srgb, var(--storefront-text) 10%, transparent);
+  background: var(--storefront-surface);
+}
+
+.store-product-theme .halana-activity-panel__lead,
+.store-product-theme .halana-activity-work__caption {
+  color: var(--storefront-muted);
+}
+
+.store-product-theme .halana-activity-work__media {
+  background: var(--storefront-surface-alt);
+}
+
+.store-product-theme .halana-activity-sticky {
+  border-top: 1px solid color-mix(in srgb, var(--storefront-text) 8%, transparent);
+  background: color-mix(in srgb, var(--storefront-surface) 94%, transparent);
+}
+
+.store-product-theme .halana-title,
+.store-product-theme .halana-title-sm {
+  color: var(--storefront-text);
+}
+
+.store-product-theme[data-context='operator'] .store-ops-tool {
+  border-color: color-mix(in srgb, var(--operator-text) 10%, transparent);
+  background: var(--operator-surface);
+  color: var(--operator-text);
+}
+
+.store-product-theme[data-context='operator'] .store-desk-control-title {
+  border-color: color-mix(in srgb, var(--operator-accent) 24%, transparent);
+  background: color-mix(in srgb, var(--operator-accent) 6%, var(--operator-surface));
+}
+
+.store-product-theme[data-context='operator'] .store-desk-control-title h1 {
+  color: var(--operator-text);
+}
+
+.store-product-theme[data-context='operator'] .halana-desk-input {
+  background: var(--operator-field);
+  color: var(--operator-text);
+  border-color: color-mix(in srgb, var(--operator-text) 12%, transparent);
+}
+
+.store-product-theme[data-context='operator'] .halana-desk-field__label {
+  color: var(--operator-muted);
+}
+
+.store-product-theme[data-context='operator'] .halana-desk-card,
+.store-product-theme[data-context='operator'] .halana-desk-gallery-card {
+  background: var(--operator-surface);
+  border-color: color-mix(in srgb, var(--operator-text) 10%, transparent);
+}
+
+.store-product-theme[data-context='operator'] .halana-desk-lead,
+.store-product-theme[data-context='operator'] .halana-desk-header__kicker {
+  color: var(--operator-muted);
+}
+
+.store-product-theme[data-context='operator'] .halana-desk-header__title {
+  color: var(--operator-text);
+}
+
+.halana-page.store-product-theme {
+  background: var(--storefront-page-bg);
+  background-image: none;
+}
+
+.halana-page.store-product-theme::before,
+.halana-page.store-product-theme::after {
+  display: none;
+}
+
+.halana-page.store-product-theme .halana-spark-layer {
+  opacity: 0.35;
+}
+
+.store-product-theme .store-shop-light-wash {
+  display: none;
+}
+
+html.hm-app-product-canvas,
+html.hm-app-product-canvas body {
+  background: var(--storefront-page-bg, #f3eee6) !important;
+}
+
+html.hm-app-product-canvas #root {
+  background: transparent !important;
+  min-height: 100%;
+}
+
+.store-product-theme :where(.text-white\/60, .text-white\/70, .text-white\/75, .text-white\/80, .text-white\/85) {
+  color: var(--storefront-muted) !important;
+}
+
+.store-product-theme[data-context='operator'] :where(.text-white\/60, .text-white\/70, .text-white\/75, .text-white\/80, .text-white\/85) {
+  color: var(--operator-muted) !important;
+}
+
+.store-product-theme .halana-activity-content.halana-shell {
+  max-width: min(100%, 1240px);
+}
+
+.store-product-theme .halana-activity-work__caption {
+  color: var(--storefront-text);
+}
+
+.store-product-theme .halana-activity-ready-card {
+  border-color: color-mix(in srgb, var(--storefront-text) 10%, transparent);
+  background: var(--storefront-surface);
+  color: var(--storefront-text);
+}
+
+.store-product-theme .halana-activity[data-live-sector]:not([data-live-sector='halana']) .halana-activity-primary {
+  background: var(--storefront-accent);
+  color: var(--storefront-text);
+  box-shadow: 0 1px 0 color-mix(in srgb, var(--storefront-text) 8%, transparent);
+}
+
+.store-product-theme[data-product='kitchen'] .halana-activity[data-live-sector='kitchen'] .halana-activity-primary,
+.store-product-theme[data-product='kitchen'] .halana-activity-sticky .halana-activity-primary {
+  background: var(--storefront-accent);
+  color: var(--storefront-text);
+}
+
+.store-product-theme[data-product='produce'] .halana-activity-status {
+  border-color: color-mix(in srgb, var(--storefront-accent) 35%, transparent);
+  background: color-mix(in srgb, var(--storefront-accent) 10%, var(--storefront-surface));
+  color: color-mix(in srgb, var(--storefront-accent) 82%, #000);
+}
+
+.store-product-theme .halana-activity-order {
+  color: var(--storefront-text);
+}
+
+.store-product-theme .halana-activity-steps__label {
+  color: var(--storefront-muted);
+}
+
+.store-product-theme .halana-activity-steps__item--done .halana-activity-steps__label {
+  color: var(--storefront-text);
+}
+
+.store-product-theme .halana-title-sm {
+  color: var(--storefront-text);
+}
+
+.store-product-theme .halana-activity-sheet__panel {
+  background: var(--storefront-surface);
+  color: var(--storefront-text);
+}
+
+.store-product-theme .halana-activity-sheet__backdrop {
+  background: color-mix(in srgb, var(--storefront-text) 28%, transparent);
+}
+
+.store-product-theme[data-context='operator'] .halana-desk-page,
+.store-product-theme[data-context='operator'].halana-desk-page {
+  background: var(--operator-page-bg);
+  color: var(--operator-text);
+}
+
+.store-product-theme[data-context='operator'] .halana-desk-header {
+  border-bottom-color: color-mix(in srgb, var(--operator-text) 8%, transparent);
+  background: color-mix(in srgb, var(--operator-surface) 94%, transparent);
+}
+
+.store-product-theme[data-context='operator'] .halana-desk-tabs {
+  border-bottom-color: color-mix(in srgb, var(--operator-text) 8%, transparent);
+  background: color-mix(in srgb, var(--operator-surface) 96%, transparent);
+}
+
+.store-product-theme[data-context='operator'] .halana-desk-tabs__btn {
+  color: var(--operator-muted);
+}
+
+.store-product-theme[data-context='operator'] .halana-desk-tabs__btn--active {
+  border-color: color-mix(in srgb, var(--operator-accent) 30%, transparent);
+  background: color-mix(in srgb, var(--operator-accent) 8%, var(--operator-surface));
+  color: var(--operator-text);
+}
+
+.store-product-theme[data-context='operator'] .halana-desk-preview__label {
+  color: var(--operator-muted);
+}
+
+.store-product-theme[data-context='operator'] .halana-desk-preview__frame {
+  border-color: color-mix(in srgb, var(--operator-text) 10%, transparent);
+  background: var(--operator-surface);
+}
+
+.store-product-theme[data-context='operator'] .halana-desk-preview__screen {
+  background: var(--storefront-page-bg);
+}
+
+.store-product-theme[data-context='operator'] .store-desk-control-title h1,
+.store-product-theme[data-context='operator'] .store-ops-tool {
+  color: var(--operator-text);
+}
+
+.store-product-theme[data-context='operator'] :where(input, textarea, select).halana-desk-input,
+.store-product-theme[data-context='operator'] :where(input, textarea, select):not([type='checkbox']):not([type='radio']) {
+  background: var(--operator-field);
+  color: var(--operator-text);
+  border-color: color-mix(in srgb, var(--operator-text) 12%, transparent);
+}
+
+.store-product-theme[data-context='operator'] li.rounded-xl.border {
+  border-color: color-mix(in srgb, var(--operator-text) 10%, transparent) !important;
+  background: var(--operator-surface) !important;
+  color: var(--operator-text);
+}
+
+.store-product-theme[data-context='operator'] .rounded-2xl.border.border-white\/10,
+.store-product-theme[data-context='operator'] .rounded-xl.border.border-white\/10 {
+  border-color: color-mix(in srgb, var(--operator-text) 10%, transparent) !important;
+  background: var(--operator-surface) !important;
+  color: var(--operator-text);
+}
+
+.store-live-mark {
+  color: color-mix(in srgb, var(--storefront-muted, #667176) 80%, transparent);
+}
+
+.store-product-theme[data-context='operator'] .store-purchased-shell__body {
+  color: var(--operator-text);
+}
+
+.store-product-theme .store-purchased-shell {
+  background: inherit;
+  color: inherit;
+}
