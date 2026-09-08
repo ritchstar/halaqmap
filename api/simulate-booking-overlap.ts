@@ -148,8 +148,6 @@ export async function POST(request: Request): Promise<Response> {
   const barberId = String(barberRow.id);
   await cleanupTestBookings(service, barberId);
 
-  const anon = createClient(url, anonKey, { auth: { persistSession: false, autoRefreshToken: false } });
-
   const baseArgs = {
     p_barber_id: barberId,
     p_customer_name: MARKER,
@@ -164,7 +162,7 @@ export async function POST(request: Request): Promise<Response> {
   };
 
   try {
-    const first = await anon.rpc('create_booking_safe', baseArgs);
+    const first = await service.rpc('create_booking_safe', baseArgs);
     if (first.error) {
       return corsJson(
         request,
@@ -177,7 +175,7 @@ export async function POST(request: Request): Promise<Response> {
       );
     }
 
-    const second = await anon.rpc('create_booking_safe', {
+    const second = await service.rpc('create_booking_safe', {
       ...baseArgs,
       p_customer_phone: '+966500000002',
       p_booking_time: '10:30:00',

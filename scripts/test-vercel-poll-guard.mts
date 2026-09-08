@@ -11,7 +11,7 @@ import { POLL_MS } from '../src/lib/pollingPolicy.ts';
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const policy = readFileSync(join(root, 'src/lib/pollingPolicy.ts'), 'utf8');
 const sql = readFileSync(
-  join(root, 'supabase/migrations/191_private_chat_maintenance_service_role.sql'),
+  join(root, 'supabase/migrations/205_security_advisor_rpc_hardening.sql'),
   'utf8',
 );
 const cron = readFileSync(join(root, 'api/cron-private-chat-maintenance.ts'), 'utf8');
@@ -42,7 +42,7 @@ assert.equal(POLL_MS.ADMIN_HIVE, 60_000);
 assert.match(policy, /export function scheduleVisiblePoll/);
 assert.match(policy, /isPollingTabActive\(\)/);
 
-assert.match(sql, /CREATE OR REPLACE FUNCTION public\.run_private_chat_maintenance\(\)/);
+assert.match(sql, /REVOKE ALL ON FUNCTION public\.run_private_chat_maintenance\(\) FROM PUBLIC, anon, authenticated/);
 assert.match(sql, /GRANT EXECUTE ON FUNCTION public\.run_private_chat_maintenance\(\) TO service_role/);
 assert.match(cron, /run_private_chat_maintenance/);
 

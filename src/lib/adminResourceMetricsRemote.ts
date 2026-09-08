@@ -30,6 +30,33 @@ export type PlatformResourceSnapshot = {
   };
 };
 
+const API = '/api/admin-platform-resources';
+
+function apiOrigin(): string {
+  return String(import.meta.env.VITE_VERCEL_API_ORIGIN || '').trim().replace(/\/$/, '');
+}
+
+function endpoint(): string {
+  const base = apiOrigin();
+  return base ? `${base}${API}` : API;
+}
+
+function clientSupabaseUrl(): string {
+  return String(import.meta.env.VITE_SUPABASE_URL || '').trim();
+}
+
+async function adminAuthHeaders(): Promise<Record<string, string> | null> {
+  const client = getSupabaseClient();
+  const token = (await client?.auth.getSession())?.data.session?.access_token?.trim();
+  if (!token) return null;
+  const headers: Record<string, string> = {
+    Authorization: `Bearer ${token}`,
+  };
+  const url = clientSupabaseUrl();
+  if (url) headers['x-client-supabase-url'] = url;
+  return headers;
+}
+
 function num(v: unknown, fallback = 0): number {
   if (typeof v === 'number' && Number.isFinite(v)) return v;
   if (typeof v === 'string' && v.trim() && Number.isFinite(Number(v))) return Number(v);
@@ -65,54 +92,81 @@ function parseSnapshot(raw: unknown): PlatformResourceSnapshot | null {
   };
 }
 
+async function postPurge(
+  op: 'purge_registration' | 'purge_promo' | 'purge_logs',
+  days?: number,
+): Promise<{ ok: true; result: Record<string, unknown> } | { ok: false; error: string }> {
+  const headers = await adminAuthHeaders();
+  if (!headers) return { ok: false, error: 'يجب تسجيل الدخول كمدير' };
+
+  try {
+    const resp = await fetch(endpoint(), {
+      method: 'POST',
+      headers: { ...headers, 'Content-Type': 'application/json' },
+      body: JSON.stringify(days != null ? { op, days } : { op }),
+    });
+    const json = (await resp.json().catch(() => ({}))) as {
+      ok?: boolean;
+      error?: string;
+      data?: Record<string, unknown>;
+    };
+    if (!resp.ok || json.ok === false) {
+      return { ok: false, error: json.error || `HTTP ${resp.status}` };
+    }
+    return { ok: true, result: (json.data ?? {}) as Record<string, unknown> };
+  } catch {
+    return { ok: false, error: 'تعذر الاتصال بالخادم' };
+  }
+}
+
 export async function fetchPlatformResourceSnapshot(): Promise<
   { ok: true; data: PlatformResourceSnapshot } | { ok: false; error: string }
 > {
-  const client = getSupabaseClient();
-  if (!client) return { ok: false, error: 'Supabase غير مهيأ' };
+  const headers = await adminAuthHeaders();
+  if (!headers) return { ok: false, error: 'يجب تسجيل الدخول كمدير' };
 
-  const { data, error } = await client.rpc('get_platform_resource_snapshot');
-  if (error) {
-    return {
-      ok: false,
-      error:
-        error.message +
-        ' — إن ظهرت لأول مرة، نفّذ ترحيلات 66 و 67 (لقطة الموارد + معرض الحلاقين) عبر supabase db push.',
+  try {
+    const resp = await fetch(endpoint(), {
+      method: 'GET',
+      headers,
+    });
+    const json = (await resp.json().catch(() => ({}))) as {
+      ok?: boolean;
+      error?: string;
+      data?: unknown;
     };
+    if (!resp.ok || json.ok === false) {
+      return {
+        ok: false,
+        error:
+          (json.error || `HTTP ${resp.status}`) +
+          ' — تأكد من نشر ترحيل 205 ومسار /api/admin-platform-resources.',
+      };
+    }
+    const parsed = parseSnapshot(json.data);
+    if (!parsed) return { ok: false, error: 'استجابة غير متوقعة من get_platform_resource_snapshot' };
+    return { ok: true, data: parsed };
+  } catch {
+    return { ok: false, error: 'تعذر الاتصال بالخادم' };
   }
-  const parsed = parseSnapshot(data);
-  if (!parsed) return { ok: false, error: 'استجابة غير متوقعة من get_platform_resource_snapshot' };
-  return { ok: true, data: parsed };
 }
 
 export async function adminPurgeRegistrationStorageRemote(): Promise<
   { ok: true; result: Record<string, unknown> } | { ok: false; error: string }
 > {
-  const client = getSupabaseClient();
-  if (!client) return { ok: false, error: 'Supabase غير مهيأ' };
-  const { data, error } = await client.rpc('admin_purge_registration_storage_objects');
-  if (error) return { ok: false, error: error.message };
-  return { ok: true, result: (data ?? {}) as Record<string, unknown> };
+  return postPurge('purge_registration');
 }
 
 export async function adminPurgePartnerPromoStorageRemote(): Promise<
   { ok: true; result: Record<string, unknown> } | { ok: false; error: string }
 > {
-  const client = getSupabaseClient();
-  if (!client) return { ok: false, error: 'Supabase غير مهيأ' };
-  const { data, error } = await client.rpc('admin_purge_partner_promo_storage_objects');
-  if (error) return { ok: false, error: error.message };
-  return { ok: true, result: (data ?? {}) as Record<string, unknown> };
+  return postPurge('purge_promo');
 }
 
 export async function adminPurgeOldPlatformLogsRemote(
-  days: number
+  days: number,
 ): Promise<{ ok: true; result: Record<string, unknown> } | { ok: false; error: string }> {
-  const client = getSupabaseClient();
-  if (!client) return { ok: false, error: 'Supabase غير مهيأ' };
-  const { data, error } = await client.rpc('admin_purge_old_platform_logs', { p_days: days });
-  if (error) return { ok: false, error: error.message };
-  return { ok: true, result: (data ?? {}) as Record<string, unknown> };
+  return postPurge('purge_logs', days);
 }
 
 /** حصة تخزين افتراضية للعرض (غيّرها عبر VITE_SUPABASE_STORAGE_QUOTA_GB في البناء) */
