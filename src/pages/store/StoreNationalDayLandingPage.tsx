@@ -11,6 +11,8 @@ import {
   NATIONAL_DAY_EXPLORER_SCROLL_QUERY,
   STORE_NATIONAL_DAY_CARDS_HREF,
   STORE_NATIONAL_DAY_COPY,
+  STORE_NATIONAL_DAY_IDENTITY_MARK_ALT,
+  STORE_NATIONAL_DAY_IDENTITY_MARK_SRC,
   STORE_NATIONAL_DAY_PUBLIC_ENABLED,
   nationalDayCampaignPhase,
   nationalDayTrialProductLabels,
@@ -57,13 +59,30 @@ export default function StoreNationalDayLandingPage() {
       <section className="store-national-day__hero">
         <div className="store-national-day__hero-inner">
           <p className="store-national-day__kicker">{copy.kickerAr}</p>
-          <h1 className="store-national-day__hero-title">
-            {phase === 'thanks' ? copy.thanksTitleAr : copy.heroTitleAr}
-          </h1>
-          <p className="store-national-day__hero-lead">
+          <figure className="store-national-day__identity-figure">
+            <img
+              src={STORE_NATIONAL_DAY_IDENTITY_MARK_SRC}
+              alt={STORE_NATIONAL_DAY_IDENTITY_MARK_ALT}
+              className="store-national-day__identity-mark"
+              width={360}
+              height={360}
+              decoding="async"
+              fetchPriority="high"
+            />
+          </figure>
+          {phase === 'thanks' ? (
+            <h1 className="store-national-day__hero-title store-national-day__hero-title--on-dark">
+              {copy.thanksTitleAr}
+            </h1>
+          ) : (
+            <h1 className="sr-only">{copy.heroTitleAr}</h1>
+          )}
+          <p className="store-national-day__hero-lead store-national-day__hero-lead--on-dark">
             {phase === 'thanks' ? copy.thanksLeadAr : copy.heroLeadAr}
           </p>
-          {phase === 'active' ? <p className="store-national-day__brand-line">{copy.brandLineAr}</p> : null}
+          {phase === 'active' ? (
+            <p className="store-national-day__brand-line store-national-day__brand-line--on-dark">{copy.brandLineAr}</p>
+          ) : null}
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <button
               type="button"
@@ -78,7 +97,7 @@ export default function StoreNationalDayLandingPage() {
               </Link>
             ) : null}
           </div>
-          <p className="store-national-day__footnote mt-6">{copy.identityNoteAr}</p>
+          <p className="store-national-day__footnote store-national-day__footnote--on-dark mt-6">{copy.identityNoteAr}</p>
         </div>
       </section>
 

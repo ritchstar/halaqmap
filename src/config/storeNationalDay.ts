@@ -14,6 +14,12 @@ export const NATIONAL_DAY_EXPLORER_SCROLL_QUERY = 'explorer' as const;
 /** نهاية الحملة الرئيسية — بعدها تظهر خاتمة الشكر */
 export const STORE_NATIONAL_DAY_CAMPAIGN_END_ISO = '2026-09-26';
 
+/** شعار الهوية الوطنية الرسمية — يُعرض كما هو دون تعديل أو دمج. */
+export const STORE_NATIONAL_DAY_IDENTITY_MARK_SRC =
+  '/images/store/national-day/official-identity-mark.png' as const;
+export const STORE_NATIONAL_DAY_IDENTITY_MARK_ALT =
+  'عزّنا بطبعنا — الهوية الوطنية الرسمية لليوم الوطني السعودي' as const;
+
 export type NationalDaySegmentId =
   | 'daily_retail'
   | 'home_made'
