@@ -17,6 +17,7 @@ import { StoreDeskChatCard } from '@/components/store/StoreDeskChatCard';
 import { StoreLaterServicesSection } from '@/components/store/StoreLaterServicesSection';
 import { StoreGiftPromoBanner } from '@/components/store/StoreGiftPromoBanner';
 import { StoreGeneralTrialPromoBanner } from '@/components/store/StoreGeneralTrialPromoBanner';
+import { StoreNationalDayPromoBanner } from '@/components/store/StoreNationalDayPromoBanner';
 import { StoreLiveOpsBanner } from '@/components/store/StoreLiveOpsBanner';
 import { StoreProductBenefitsLink } from '@/components/store/StoreProductBenefitsLink';
 import { StoreInViewMount } from '@/components/store/StoreInViewMount';
@@ -375,6 +376,8 @@ export default function StoreLanding() {
       </section>
 
       <StoreGiftPromoBanner />
+
+      <StoreNationalDayPromoBanner />
 
       <StoreGeneralTrialPromoBanner />
 

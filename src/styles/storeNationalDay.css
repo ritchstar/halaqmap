@@ -1,0 +1,339 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ * صفحة اليوم الوطني — خلفية فاتحة، أخضر في أقسام محددة.
+ */
+
+.store-national-day {
+  --nd-page: #f5f0e6;
+  --nd-surface: #fffdf8;
+  --nd-green: #006c35;
+  --nd-green-deep: #004d27;
+  --nd-gold: #b8860b;
+  --nd-text: #1f292d;
+  --nd-muted: #5c6b65;
+  --nd-border: color-mix(in srgb, var(--nd-text) 10%, transparent);
+  color: var(--nd-text);
+  background: var(--nd-page);
+  min-height: 100svh;
+}
+
+.store-national-day__header {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  border-bottom: 1px solid var(--nd-border);
+  background: color-mix(in srgb, var(--nd-surface) 92%, transparent);
+  backdrop-filter: blur(10px);
+}
+
+.store-national-day__header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  max-width: 72rem;
+  margin-inline: auto;
+  padding: 0.75rem 1rem;
+}
+
+.store-national-day__brand {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--nd-green-deep);
+}
+
+.store-national-day__nav-link {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--nd-muted);
+}
+
+.store-national-day__hero {
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 0%, color-mix(in srgb, var(--nd-green) 12%, transparent), transparent 70%),
+    linear-gradient(180deg, var(--nd-surface), var(--nd-page));
+  padding: 2.5rem 1rem 3rem;
+}
+
+.store-national-day__hero-inner {
+  max-width: 42rem;
+  margin-inline: auto;
+  text-align: center;
+}
+
+.store-national-day__kicker {
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: var(--nd-green);
+}
+
+.store-national-day__hero-title {
+  margin-top: 0.5rem;
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 900;
+  line-height: 1.25;
+  color: var(--nd-green-deep);
+}
+
+.store-national-day__hero-lead {
+  margin-top: 1rem;
+  font-size: 1.05rem;
+  line-height: 1.9;
+  color: var(--nd-muted);
+}
+
+.store-national-day__brand-line {
+  margin-top: 1.25rem;
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--nd-text);
+}
+
+.store-national-day__btn {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 0.55rem 1.25rem;
+  font-size: 0.9rem;
+  font-weight: 800;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.store-national-day__btn:active {
+  transform: scale(0.98);
+}
+
+.store-national-day__btn--primary {
+  background: var(--nd-green);
+  color: #fff;
+  box-shadow: 0 1px 0 color-mix(in srgb, #000 12%, transparent);
+}
+
+.store-national-day__btn--ghost {
+  border: 1px solid color-mix(in srgb, var(--nd-green) 28%, transparent);
+  background: var(--nd-surface);
+  color: var(--nd-green-deep);
+}
+
+.store-national-day__main {
+  max-width: 72rem;
+  margin-inline: auto;
+  padding: 0 1rem 3rem;
+}
+
+.store-national-day__section {
+  margin-top: 2.5rem;
+  padding: 1.5rem;
+  border: 1px solid var(--nd-border);
+  border-radius: 1.25rem;
+  background: var(--nd-surface);
+}
+
+.store-national-day__section--green {
+  border-color: color-mix(in srgb, var(--nd-green) 18%, transparent);
+  background: linear-gradient(165deg, color-mix(in srgb, var(--nd-green) 8%, #fff), var(--nd-surface));
+}
+
+.store-national-day__section-title {
+  font-size: 1.35rem;
+  font-weight: 900;
+  color: var(--nd-green-deep);
+}
+
+.store-national-day__section-lead {
+  margin-top: 0.65rem;
+  font-size: 0.95rem;
+  line-height: 1.85;
+  color: var(--nd-muted);
+}
+
+.store-national-day__tiles {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.55rem;
+  margin-top: 1rem;
+}
+
+@media (min-width: 640px) {
+  .store-national-day__tiles {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.store-national-day__tile {
+  border-radius: 0.85rem;
+  border: 1px solid var(--nd-border);
+  background: color-mix(in srgb, var(--nd-page) 60%, #fff);
+  padding: 0.75rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1.55;
+  text-align: center;
+}
+
+.store-national-day__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 1rem;
+}
+
+.store-national-day__chip {
+  min-height: 2.65rem;
+  border-radius: 999px;
+  border: 1px solid var(--nd-border);
+  background: color-mix(in srgb, var(--nd-page) 50%, #fff);
+  padding: 0.4rem 0.85rem;
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--nd-muted);
+}
+
+.store-national-day__chip--active {
+  border-color: color-mix(in srgb, var(--nd-green) 35%, transparent);
+  background: color-mix(in srgb, var(--nd-green) 10%, #fff);
+  color: var(--nd-green-deep);
+}
+
+.store-national-day__product-list {
+  display: grid;
+  gap: 0.85rem;
+  margin-top: 1.25rem;
+}
+
+@media (min-width: 768px) {
+  .store-national-day__product-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.store-national-day__product-card {
+  border-radius: 1rem;
+  border: 1px solid var(--nd-border);
+  background: #fff;
+  padding: 1rem;
+}
+
+.store-national-day__product-label {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--nd-green);
+}
+
+.store-national-day__product-headline {
+  margin-top: 0.35rem;
+  font-size: 1rem;
+  font-weight: 900;
+  line-height: 1.6;
+}
+
+.store-national-day__product-story {
+  margin-top: 0.45rem;
+  font-size: 0.88rem;
+  line-height: 1.75;
+  color: var(--nd-muted);
+}
+
+.store-national-day__journey {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+@media (min-width: 640px) {
+  .store-national-day__journey {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.store-national-day__journey-step {
+  border-radius: 0.85rem;
+  border: 1px solid color-mix(in srgb, var(--nd-green) 20%, transparent);
+  background: #fff;
+  padding: 0.75rem;
+  text-align: center;
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: var(--nd-green-deep);
+}
+
+.store-national-day__tagline {
+  margin-top: 1rem;
+  font-size: 1rem;
+  font-weight: 900;
+  color: var(--nd-green-deep);
+  text-align: center;
+}
+
+.store-national-day__list {
+  margin-top: 0.85rem;
+  padding-inline-start: 1.25rem;
+  font-size: 0.9rem;
+  line-height: 1.85;
+  color: var(--nd-muted);
+}
+
+.store-national-day__trial-products {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.85rem;
+}
+
+.store-national-day__trial-pill {
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--nd-green) 22%, transparent);
+  background: #fff;
+  padding: 0.25rem 0.65rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--nd-green-deep);
+}
+
+.store-national-day__quote {
+  border-radius: 0.85rem;
+  border: 1px solid var(--nd-border);
+  background: color-mix(in srgb, var(--nd-page) 40%, #fff);
+  padding: 0.85rem;
+  font-size: 0.88rem;
+  line-height: 1.75;
+}
+
+.store-national-day__quote-shop {
+  font-weight: 800;
+  color: var(--nd-text);
+}
+
+.store-national-day__footnote {
+  margin-top: 0.75rem;
+  font-size: 0.78rem;
+  line-height: 1.65;
+  color: var(--nd-muted);
+}
+
+.store-national-day__footer {
+  border-top: 1px solid var(--nd-border);
+  background: color-mix(in srgb, var(--nd-green-deep) 6%, var(--nd-page));
+  padding: 1.5rem 1rem 2rem;
+  font-size: 0.82rem;
+  line-height: 1.75;
+  color: var(--nd-muted);
+}
+
+.store-national-day__footer-inner {
+  max-width: 72rem;
+  margin-inline: auto;
+}
+
+.store-national-day__footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.25rem;
+  margin-top: 0.75rem;
+  font-weight: 700;
+  color: var(--nd-green-deep);
+}

@@ -67,6 +67,8 @@ const STORE_GENERAL_TRIAL_TERMS_PATH =
   (ROUTE_PATHS as { STORE_GENERAL_TRIAL_TERMS?: string }).STORE_GENERAL_TRIAL_TERMS || "/store/try/terms";
 const STORE_GENERAL_TRIAL_CONFIRM_PATH =
   (ROUTE_PATHS as { STORE_GENERAL_TRIAL_CONFIRM?: string }).STORE_GENERAL_TRIAL_CONFIRM || "/store/try/confirm";
+const STORE_NATIONAL_DAY_PATH =
+  (ROUTE_PATHS as { STORE_NATIONAL_DAY?: string }).STORE_NATIONAL_DAY || "/store/national-day";
 const STORE_REVIEWS_PATH =
   (ROUTE_PATHS as { STORE_REVIEWS?: string }).STORE_REVIEWS || "/store/reviews";
 const STORE_TRUST_PATH =
@@ -346,6 +348,7 @@ const StoreGiftConfirmPage = lazy(() => import("@/pages/store/StoreGiftConfirmPa
 const StoreGeneralTrialLandingPage = lazy(() => import("@/pages/store/StoreGeneralTrialLandingPage"));
 const StoreGeneralTrialTermsPage = lazy(() => import("@/pages/store/StoreGeneralTrialTermsPage"));
 const StoreGeneralTrialConfirmPage = lazy(() => import("@/pages/store/StoreGeneralTrialConfirmPage"));
+const StoreNationalDayLandingPage = lazy(() => import("@/pages/store/StoreNationalDayLandingPage"));
 const StoreReviewsPage = lazy(() => import("@/pages/store/StoreReviewsPage"));
 const StoreProductPassPage = lazy(() => import("@/pages/store/StoreProductPassPage"));
 const StoreTrustPage = lazy(() => import("@/pages/store/StoreTrustPage"));
@@ -739,7 +742,7 @@ function PartnersDomainRedirect() {
 
 export function App() {
   return (
-    <QueryClientProvider client={queryClient}>
+  <QueryClientProvider client={queryClient}>
     <PlatformAmbientProvider>
     <TooltipProvider>
       <Toaster />
@@ -908,6 +911,7 @@ export function App() {
           <Route path={STORE_GENERAL_TRIAL_CONFIRM_PATH} element={<LazyRoute><StoreGeneralTrialConfirmPage /></LazyRoute>} />
           <Route path={STORE_GENERAL_TRIAL_TERMS_PATH} element={<LazyRoute><StoreGeneralTrialTermsPage /></LazyRoute>} />
           <Route path={STORE_GENERAL_TRIAL_PATH} element={<LazyRoute><StoreGeneralTrialLandingPage /></LazyRoute>} />
+          <Route path={STORE_NATIONAL_DAY_PATH} element={<LazyRoute><StoreNationalDayLandingPage /></LazyRoute>} />
           <Route path={STORE_REVIEWS_PATH} element={<LazyRoute><StoreReviewsPage /></LazyRoute>} />
           <Route path={STORE_PRODUCT_PASS_PATH} element={<LazyRoute><StoreProductPassPage /></LazyRoute>} />
           <Route path={STORE_TRUST_PATH} element={<LazyRoute><StoreTrustPage /></LazyRoute>} />
@@ -1189,8 +1193,8 @@ export function App() {
       <DeferredVercelInsights />
     </TooltipProvider>
     </PlatformAmbientProvider>
-    </QueryClientProvider>
-  );
+  </QueryClientProvider>
+);
 }
 
 export default App;
