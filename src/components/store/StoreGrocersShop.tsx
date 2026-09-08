@@ -32,10 +32,12 @@ export function StoreGrocersShop({
   state,
   onChange,
   token,
+  activityShell,
 }: {
   state: GrocersLabState;
   onChange: (next: GrocersLabState) => void;
   token: string;
+  activityShell?: boolean;
 }) {
   const isLab = token === STORE_GROCERS_LIVE_LAB_TOKEN;
   const saved = useMemo(() => (isLab ? null : readSavedGrocersBuyer()), [isLab]);
@@ -117,13 +119,17 @@ export function StoreGrocersShop({
     setSent(true);
   }
 
+  const shelfList = activityShell ? visible : rest;
+
   return (
     <div className="space-y-6">
-      {state.host.flashAr.trim() ? (
+      {!activityShell && state.host.flashAr.trim() ? (
         <p className="grocers-flash overflow-hidden rounded-full border border-[#8fbf7a]/40 bg-[#8fbf7a]/15 px-4 py-2 text-sm text-[#d8f0cc]">
           {state.host.flashAr}
         </p>
       ) : null}
+      {!activityShell ? (
+      <>
       <header>
         <p className="text-xs tracking-[0.3em] text-[#8fbf7a]">{STORE_GROCERS_LIVE.shopKickerAr}</p>
         <h2 className="mt-1 flex flex-wrap items-center gap-2 text-2xl font-black md:text-3xl">
@@ -146,7 +152,10 @@ export function StoreGrocersShop({
       </header>
       <StoreShopHoursBanner hours={state.host} accent="#8fbf7a" />
       <StoreMobileVendorBanner place={state.host} closed={closed} accent="#8fbf7a" />
+      </>
+      ) : null}
 
+      {!activityShell ? (
       <section>
         <h3 className="text-lg font-extrabold">{STORE_GROCERS_LIVE.featuredTitleAr}</h3>
         <div className="mt-3 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
@@ -167,11 +176,12 @@ export function StoreGrocersShop({
           ))}
         </div>
       </section>
+      ) : null}
 
       <section>
         <h3 className="text-lg font-extrabold">{STORE_GROCERS_LIVE.shelfTitleAr}</h3>
         <ul className="mt-3 divide-y divide-white/8 rounded-2xl border border-white/10">
-          {rest.map((item) => (
+          {shelfList.map((item) => (
             <li key={item.catalogId} className="flex items-center justify-between gap-3 px-3 py-2.5">
               <span>
                 <p className="text-sm font-bold">{item.nameAr}</p>
@@ -288,7 +298,9 @@ export function StoreGrocersShop({
           </button>
         </div>
         <div className="mt-3">
+          {!activityShell ? (
           <StoreDirectPayPublicMount product="store_grocers_live" token={token} accent="#8fbf7a" />
+          ) : null}
         </div>
         {!isLab ? (
           <label className="mt-4 flex items-start gap-2 text-sm leading-7">

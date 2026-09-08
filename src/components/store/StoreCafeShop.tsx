@@ -30,10 +30,12 @@ export function StoreCafeShop({
   state,
   onChange,
   token,
+  activityShell,
 }: {
   state: CafeLabState;
   onChange: (next: CafeLabState) => void;
   token: string;
+  activityShell?: boolean;
 }) {
   const saved = useMemo(() => readSavedCafeBuyer(), []);
   const [qty, setQty] = useState<Record<string, number>>({});
@@ -101,13 +103,17 @@ export function StoreCafeShop({
     setSent(`وصلت تذكرة الكاشير رقم ${ticketNo}.`);
   }
 
+  const shelfList = activityShell ? visible : rest;
+
   return (
     <div className="space-y-6">
-      {state.host.flashAr.trim() ? (
+      {!activityShell && state.host.flashAr.trim() ? (
         <p className="restaurant-flash overflow-hidden rounded-full border border-[#c48a4a]/40 bg-[#c48a4a]/15 px-4 py-2 text-sm text-[#f3d2b0]">
           {state.host.flashAr}
         </p>
       ) : null}
+      {!activityShell ? (
+      <>
       <header>
         <p className="text-xs tracking-[0.3em] text-[#c48a4a]">{STORE_CAFE_LIVE.shopKickerAr}</p>
         <h2 className="mt-1 flex items-center gap-2 text-3xl font-black">
@@ -130,8 +136,10 @@ export function StoreCafeShop({
       </header>
       <StoreShopHoursBanner hours={state.host} accent="#c48a4a" />
       <StoreMobileVendorBanner place={state.host} closed={closed} accent="#c48a4a" />
+      </>
+      ) : null}
 
-      {today ? (
+      {!activityShell && today ? (
         <section className="overflow-hidden rounded-2xl border border-[#c48a4a]/40 bg-[#1a1008]">
           <p className="px-4 pt-3 text-xs font-bold tracking-wide text-[#c48a4a]">{STORE_CAFE_LIVE.todayTitleAr}</p>
           {today.photoSrc ? (
@@ -148,6 +156,7 @@ export function StoreCafeShop({
         </section>
       ) : null}
 
+      {!activityShell ? (
       <section>
         <h3 className="text-lg font-extrabold">{STORE_CAFE_LIVE.featuredTitleAr}</h3>
         <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
@@ -169,11 +178,12 @@ export function StoreCafeShop({
           ))}
         </div>
       </section>
+      ) : null}
 
       <section>
         <h3 className="text-lg font-extrabold">{STORE_CAFE_LIVE.shelfTitleAr}</h3>
         <ul className="mt-3 divide-y divide-white/8 rounded-2xl border border-white/10">
-          {rest.map((item) => (
+          {shelfList.map((item) => (
             <li key={item.catalogId} className="flex items-center justify-between gap-3 px-3 py-2.5">
               <span className="flex min-w-0 items-center gap-3">
                 {item.photoSrc ? <img src={item.photoSrc} alt="" className="h-12 w-12 rounded-lg object-cover" /> : null}
@@ -247,7 +257,9 @@ export function StoreCafeShop({
           </button>
         </div>
         <div className="mt-3">
+          {!activityShell ? (
           <StoreDirectPayPublicMount product="store_cafe_live" token={token} accent="#c48a4a" />
+          ) : null}
         </div>
         <label className="mt-4 flex items-start gap-2 text-sm leading-7">
           <input type="checkbox" checked={saveBuyer} onChange={(e) => setSaveBuyer(e.target.checked)} className="mt-1" />

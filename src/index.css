@@ -4831,6 +4831,18 @@ html.platform-radar-fullscreen #root {
   color: #b8f0cf;
 }
 
+.halana-activity-status--closed {
+  border-color: rgba(255, 180, 120, 0.35);
+  background: rgba(120, 60, 20, 0.2);
+  color: #ffd4a8;
+}
+
+.halana-activity-status--paused {
+  border-color: rgba(255, 220, 140, 0.35);
+  background: rgba(120, 90, 20, 0.18);
+  color: #ffe8a8;
+}
+
 .halana-activity-primary {
   background: linear-gradient(135deg, #f3c48a, #c45c7a 62%, #a43d5c);
   color: #14080c;

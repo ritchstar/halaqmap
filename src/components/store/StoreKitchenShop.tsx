@@ -27,10 +27,12 @@ export function StoreKitchenShop({
   state,
   onChange,
   token,
+  activityShell,
 }: {
   state: KitchenLabState;
   onChange: (next: KitchenLabState) => void;
   token: string;
+  activityShell?: boolean;
 }) {
   const saved = useMemo(() => readSavedKitchenBuyer(), []);
   const [qty, setQty] = useState<Record<string, number>>({});
@@ -107,13 +109,17 @@ export function StoreKitchenShop({
   const myTicket = lastKey ? state.orders.find((item) => item.idempotencyKey === lastKey) : undefined;
   const pickupMaps = state.host.pickupPlaceVisible ? state.host.pickupMapsUrl : '';
 
+  const shelfList = activityShell ? orderable : rest;
+
   return (
     <div className="space-y-6">
-      {state.host.flashAr.trim() ? (
+      {!activityShell && state.host.flashAr.trim() ? (
         <p className="restaurant-flash overflow-hidden rounded-full border border-[#b45a3c]/40 bg-[#b45a3c]/15 px-4 py-2 text-sm text-[#f3d2b0]">
           {state.host.flashAr}
         </p>
       ) : null}
+      {!activityShell ? (
+      <>
       <header>
         <p className="text-xs tracking-[0.3em] text-[#b45a3c]">{STORE_KITCHEN_LIVE.shopKickerAr}</p>
         <h2 className="mt-1 flex items-center gap-2 text-3xl font-black">
@@ -128,8 +134,10 @@ export function StoreKitchenShop({
         </ul>
       </header>
       <StoreShopHoursBanner hours={state.host} accent="#b45a3c" />
+      </>
+      ) : null}
 
-      {today ? (
+      {!activityShell && today ? (
         <section className="overflow-hidden rounded-2xl border border-[#b45a3c]/40 bg-[#1a0c08]">
           <p className="px-4 pt-3 text-xs font-bold tracking-wide text-[#b45a3c]">{STORE_KITCHEN_LIVE.todayTitleAr}</p>
           {today.photoSrc ? (
@@ -146,6 +154,7 @@ export function StoreKitchenShop({
         </section>
       ) : null}
 
+      {!activityShell ? (
       <section>
         <h3 className="text-lg font-extrabold">{STORE_KITCHEN_LIVE.featuredTitleAr}</h3>
         <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
@@ -167,11 +176,12 @@ export function StoreKitchenShop({
           ))}
         </div>
       </section>
+      ) : null}
 
       <section>
         <h3 className="text-lg font-extrabold">{STORE_KITCHEN_LIVE.shelfTitleAr}</h3>
         <ul className="mt-3 divide-y divide-white/8 rounded-2xl border border-white/10">
-          {rest.map((item) => (
+          {shelfList.map((item) => (
             <li key={item.catalogId} className="flex items-center justify-between gap-3 px-3 py-2.5">
               <span className="flex min-w-0 items-center gap-3">
                 {item.photoSrc ? <img src={item.photoSrc} alt="" className="h-12 w-12 rounded-lg object-cover" /> : null}
@@ -308,7 +318,9 @@ export function StoreKitchenShop({
             </button>
           </div>
           <div className="mt-3">
+            {!activityShell ? (
             <StoreDirectPayPublicMount product="store_kitchen_live" token={token} accent="#b45a3c" />
+            ) : null}
           </div>
           <label className="mt-4 flex items-start gap-2 text-sm leading-7">
             <input type="checkbox" checked={saveBuyer} onChange={(e) => setSaveBuyer(e.target.checked)} className="mt-1" />

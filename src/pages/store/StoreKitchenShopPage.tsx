@@ -7,9 +7,13 @@ import { useEffect, useState } from 'react';
 import { Navigate, useLocation, useParams } from 'react-router-dom';
 import { StoreKitchenDesk } from '@/components/store/StoreKitchenDesk';
 import { StoreKitchenShop } from '@/components/store/StoreKitchenShop';
+import { StoreLiveActivityCartShop } from '@/components/store/live/StoreLiveActivityCartShop';
+import { StoreShopHoursBanner } from '@/components/store/StoreShopHoursBanner';
+import { StoreDirectPayPublicMount } from '@/components/store/StoreDirectPayGuest';
 import { StorePurchasedShell } from '@/components/store/StorePurchasedShell';
 import {
   STORE_KITCHEN_LIVE,
+  STORE_KITCHEN_LIVE_ACCENT,
   STORE_KITCHEN_LIVE_LAB_TOKEN,
   STORE_KITCHEN_LIVE_PRODUCT,
   STORE_KITCHEN_LIVE_PUBLIC_ENABLED,
@@ -30,7 +34,8 @@ import { hydrateDeskTickets } from '@/lib/storeDeskOrderTicket';
 import { POLL_MS, scheduleVisiblePoll } from '@/lib/pollingPolicy';
 import { liveHostText, useStoreLiveDeskSync } from '@/lib/storeLiveDeskSync';
 import { nextStoreLivePublicGate, pickStoreLiveShelf } from '@/lib/storeLivePublicRead';
-import { parseStoreShopHours } from '@/lib/storeShopHours';
+import { isShopClosedNow, parseStoreShopHours } from '@/lib/storeShopHours';
+import { liveActivityCoverSrc, liveActivityTodayName, toLiveActivityShelf } from '@/lib/storeLiveActivityShelf';
 import { parseShopLogoSrc } from '@/lib/storeShopLogo';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { storeLiveShopShareHref } from '@/lib/storeHostRedirect';
@@ -185,7 +190,7 @@ export default function StoreKitchenShopPage() {
       life
       showStoreLink={!desk}
     >
-      <div className="mx-auto max-w-3xl px-3 py-5">
+      <div className={desk ? 'mx-auto max-w-3xl px-3 py-5' : undefined}>
         {gate === 'loading' ? <p className="pt-[30svh] text-center text-sm text-white/60">جاري فتح الصفحة…</p> : null}
         {gate === 'missing' ? <p className="pt-[30svh] text-center text-sm text-white/70">الرابط غير صالح.</p> : null}
         {gate === 'ok' ? (
@@ -201,7 +206,22 @@ export default function StoreKitchenShopPage() {
               showTrialNote={isTrial}
             />
           ) : (
-            <StoreKitchenShop state={state} onChange={commit} token={safeToken} />
+            <StoreLiveActivityCartShop
+              kind="kitchen"
+              token={safeToken}
+              host={state.host}
+              shelf={toLiveActivityShelf(state.shelf)}
+              closed={isShopClosedNow(state.host)}
+              acceptingOrders={state.host.acceptingOrders}
+              todayName={liveActivityTodayName(state.shelf)}
+              coverSrc={liveActivityCoverSrc(state.shelf)}
+              hoursBanner={<StoreShopHoursBanner hours={state.host} accent={STORE_KITCHEN_LIVE_ACCENT} />}
+              directPay={
+                <StoreDirectPayPublicMount product="store_kitchen_live" token={safeToken} accent={STORE_KITCHEN_LIVE_ACCENT} />
+              }
+            >
+              <StoreKitchenShop activityShell state={state} onChange={commit} token={safeToken} />
+            </StoreLiveActivityCartShop>
           )
         ) : null}
       </div>

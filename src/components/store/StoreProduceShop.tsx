@@ -37,10 +37,12 @@ export function StoreProduceShop({
   state,
   onChange,
   token,
+  activityShell,
 }: {
   state: ProduceLabState;
   onChange: (next: ProduceLabState) => void;
   token: string;
+  activityShell?: boolean;
 }) {
   const isLab = token === STORE_PRODUCE_LIVE_LAB_TOKEN;
   const saved = useMemo(() => (isLab ? null : readSavedProduceBuyer()), [isLab]);
@@ -146,13 +148,17 @@ export function StoreProduceShop({
     return `${item.price} ر.س / ${STORE_PRODUCE_UNIT_AR[item.unit]}`;
   }
 
+  const shelfList = activityShell ? visible : rest;
+
   return (
     <div className="space-y-6">
-      {state.host.flashAr.trim() ? (
+      {!activityShell && state.host.flashAr.trim() ? (
         <p className="produce-flash overflow-hidden rounded-full border border-[#3d8b4a]/40 bg-[#3d8b4a]/15 px-4 py-2 text-sm text-[#d8f0cc]">
           {state.host.flashAr}
         </p>
       ) : null}
+      {!activityShell ? (
+      <>
       <header>
         <p className="text-xs tracking-[0.3em] text-[#3d8b4a]">{STORE_PRODUCE_LIVE.shopKickerAr}</p>
         <h2 className="mt-1 flex items-center gap-2 text-3xl font-black">
@@ -175,8 +181,10 @@ export function StoreProduceShop({
       </header>
       <StoreShopHoursBanner hours={state.host} accent="#3d8b4a" />
       <StoreMobileVendorBanner place={state.host} closed={closed} accent="#3d8b4a" />
+      </>
+      ) : null}
 
-      {arrived.length ? (
+      {!activityShell && arrived.length ? (
         <section>
           <h3 className="text-lg font-extrabold">{STORE_PRODUCE_LIVE.todayTitleAr}</h3>
           <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
@@ -195,7 +203,7 @@ export function StoreProduceShop({
         </section>
       ) : null}
 
-      {featured.length ? (
+      {!activityShell && featured.length ? (
         <section>
           <h3 className="text-lg font-extrabold">{STORE_PRODUCE_LIVE.featuredTitleAr}</h3>
           <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
@@ -214,11 +222,11 @@ export function StoreProduceShop({
         </section>
       ) : null}
 
-      {rest.length ? (
+      {(activityShell ? shelfList.length : rest.length) ? (
         <section>
           <h3 className="text-lg font-extrabold">{STORE_PRODUCE_LIVE.shelfTitleAr}</h3>
           <ul className="mt-3 divide-y divide-white/8 rounded-2xl border border-white/10">
-            {rest.map((item) => (
+            {shelfList.map((item) => (
               <li key={item.catalogId} className="flex items-center justify-between gap-3 px-3 py-2.5">
                 <span>
                   <p className="text-sm font-bold">{item.nameAr}</p>
@@ -317,7 +325,9 @@ export function StoreProduceShop({
           </button>
         </div>
         <div className="mt-3">
+          {!activityShell ? (
           <StoreDirectPayPublicMount product="store_produce_live" token={token} accent="#3d8b4a" />
+          ) : null}
         </div>
         <label className="mt-4 flex items-start gap-2 text-sm leading-7">
           <input type="checkbox" checked={saveBuyer} onChange={(e) => setSaveBuyer(e.target.checked)} className="mt-1" />

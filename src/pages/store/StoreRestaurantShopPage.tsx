@@ -7,9 +7,13 @@ import { useEffect, useState } from 'react';
 import { Navigate, useLocation, useParams } from 'react-router-dom';
 import { StoreRestaurantDesk } from '@/components/store/StoreRestaurantDesk';
 import { StoreRestaurantShop } from '@/components/store/StoreRestaurantShop';
+import { StoreLiveActivityCartShop } from '@/components/store/live/StoreLiveActivityCartShop';
+import { StoreShopHoursBanner } from '@/components/store/StoreShopHoursBanner';
+import { StoreDirectPayPublicMount } from '@/components/store/StoreDirectPayGuest';
 import { StorePurchasedShell } from '@/components/store/StorePurchasedShell';
 import {
   STORE_RESTAURANT_LIVE,
+  STORE_RESTAURANT_LIVE_ACCENT,
   STORE_RESTAURANT_LIVE_LAB_TOKEN,
   STORE_RESTAURANT_LIVE_PRODUCT,
   STORE_RESTAURANT_LIVE_PUBLIC_ENABLED,
@@ -32,7 +36,8 @@ import {
   fetchRestaurantLivePublic,
   saveRestaurantLiveHost,
 } from '@/lib/storeRestaurantLiveRemote';
-import { parseStoreShopHours } from '@/lib/storeShopHours';
+import { isShopClosedNow, parseStoreShopHours } from '@/lib/storeShopHours';
+import { liveActivityCoverSrc, liveActivityTodayName, toLiveActivityShelf } from '@/lib/storeLiveActivityShelf';
 import { parseShopLogoSrc } from '@/lib/storeShopLogo';
 import { parseShopPickupPlace } from '@/lib/storeShopPlace';
 import { ROUTE_PATHS } from '@/lib/routePaths';
@@ -165,7 +170,7 @@ export default function StoreRestaurantShopPage() {
 
   return (
     <StorePurchasedShell life showStoreLink={!desk}>
-      <div className="mx-auto max-w-3xl px-3 py-5">
+      <div className={desk ? 'mx-auto max-w-3xl px-3 py-5' : undefined}>
         {gate === 'loading' ? <p className="pt-[30svh] text-center text-sm text-white/60">جاري فتح الصفحة…</p> : null}
         {gate === 'missing' ? <p className="pt-[30svh] text-center text-sm text-white/70">الرابط غير صالح.</p> : null}
         {gate === 'ok' ? (
@@ -178,7 +183,22 @@ export default function StoreRestaurantShopPage() {
               showTrialNote={isTrial}
             />
           ) : (
-            <StoreRestaurantShop state={state} onChange={commit} token={safeToken} />
+            <StoreLiveActivityCartShop
+              kind="restaurant"
+              token={safeToken}
+              host={state.host}
+              shelf={toLiveActivityShelf(state.shelf)}
+              closed={isShopClosedNow(state.host)}
+              acceptingOrders={state.host.acceptingOrders}
+              todayName={liveActivityTodayName(state.shelf)}
+              coverSrc={liveActivityCoverSrc(state.shelf)}
+              hoursBanner={<StoreShopHoursBanner hours={state.host} accent={STORE_RESTAURANT_LIVE_ACCENT} />}
+              directPay={
+                <StoreDirectPayPublicMount product="store_restaurant_live" token={safeToken} accent={STORE_RESTAURANT_LIVE_ACCENT} />
+              }
+            >
+              <StoreRestaurantShop activityShell state={state} onChange={commit} token={safeToken} />
+            </StoreLiveActivityCartShop>
           )
         ) : null}
       </div>
