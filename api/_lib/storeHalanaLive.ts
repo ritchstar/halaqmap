@@ -123,6 +123,35 @@ function normalizeHalanaGalleryKind(raw: unknown): HalanaGalleryKind {
   return String(raw || '').trim() === 'featured' ? 'featured' : 'inspire';
 }
 
+export function isHalanaSchemaColumnMissing(
+  error: { code?: string; message?: string } | null | undefined,
+  column?: string,
+): boolean {
+  if (!error) return false;
+  const code = String(error.code || '').trim();
+  const message = String(error.message || '').toLowerCase();
+  const missing =
+    code === '42703' ||
+    code === 'PGRST204' ||
+    message.includes('schema cache') ||
+    message.includes('does not exist') ||
+    message.includes('could not find');
+  if (!missing) return false;
+  if (!column) return true;
+  return message.includes(column.toLowerCase());
+}
+
+function mapHalanaGalleryRows(rows: Record<string, unknown>[]): HalanaGalleryItem[] {
+  return rows
+    .map((row) => ({
+      id: String(row.id || ''),
+      caption: clip(row.caption, STORE_HALANA_CAPTION_MAX),
+      src: parseHalanaImageSrc(row.image_src),
+      itemKind: normalizeHalanaGalleryKind(row.item_kind),
+    }))
+    .filter((item) => item.id && item.src);
+}
+
 export function parseHalanaImageSrc(raw: unknown): string {
   const src = String(raw ?? '').trim();
   if (src.length < 12 || src.length > STORE_HALANA_IMAGE_MAX_CHARS) return '';
@@ -198,21 +227,28 @@ export function publicCopyPayload(
 }
 
 export async function listHalanaGallery(db: Db, copyId: string): Promise<HalanaGalleryItem[]> {
-  const { data } = await db
+  const withKind = await db
     .from(STORE_HALANA_GALLERY_TABLE)
     .select('id, caption, image_src, item_kind, sort_order, created_at')
     .eq('copy_id', copyId)
     .order('sort_order', { ascending: true })
     .order('created_at', { ascending: true })
     .limit(STORE_HALANA_GALLERY_MAX);
-  return ((data || []) as Record<string, unknown>[])
-    .map((row) => ({
-      id: String(row.id || ''),
-      caption: clip(row.caption, STORE_HALANA_CAPTION_MAX),
-      src: parseHalanaImageSrc(row.image_src),
-      itemKind: normalizeHalanaGalleryKind(row.item_kind),
-    }))
-    .filter((item) => item.id && item.src);
+  if (!withKind.error) {
+    return mapHalanaGalleryRows((withKind.data || []) as Record<string, unknown>[]);
+  }
+  if (!isHalanaSchemaColumnMissing(withKind.error, 'item_kind')) {
+    return [];
+  }
+  const legacy = await db
+    .from(STORE_HALANA_GALLERY_TABLE)
+    .select('id, caption, image_src, sort_order, created_at')
+    .eq('copy_id', copyId)
+    .order('sort_order', { ascending: true })
+    .order('created_at', { ascending: true })
+    .limit(STORE_HALANA_GALLERY_MAX);
+  if (legacy.error) return [];
+  return mapHalanaGalleryRows((legacy.data || []) as Record<string, unknown>[]);
 }
 
 export async function addHalanaGallery(
@@ -236,7 +272,15 @@ export async function addHalanaGallery(
     item_kind: normalizeHalanaGalleryKind(input.itemKind),
     sort_order: count || 0,
   });
-  if (error) return { ok: false, error: 'تعذر حفظ الصورة.' };
+  if (!error) return { ok: true };
+  if (!isHalanaSchemaColumnMissing(error, 'item_kind')) return { ok: false, error: 'تعذر حفظ الصورة.' };
+  const legacy = await db.from(STORE_HALANA_GALLERY_TABLE).insert({
+    copy_id: copyId,
+    caption: clip(input.caption, STORE_HALANA_CAPTION_MAX),
+    image_src: src,
+    sort_order: count || 0,
+  });
+  if (legacy.error) return { ok: false, error: 'تعذر حفظ الصورة.' };
   return { ok: true };
 }
 
@@ -256,7 +300,16 @@ export async function updateHalanaGalleryCaption(
     .update(patch)
     .eq('id', id)
     .eq('copy_id', copyId);
-  if (error) return { ok: false, error: 'تعذر حفظ الوصف.' };
+  if (!error) return { ok: true };
+  if (!itemKind || !isHalanaSchemaColumnMissing(error, 'item_kind')) {
+    return { ok: false, error: 'تعذر حفظ الوصف.' };
+  }
+  const legacy = await db
+    .from(STORE_HALANA_GALLERY_TABLE)
+    .update({ caption: clip(caption, STORE_HALANA_CAPTION_MAX) })
+    .eq('id', id)
+    .eq('copy_id', copyId);
+  if (legacy.error) return { ok: false, error: 'تعذر حفظ الوصف.' };
   return { ok: true };
 }
 
@@ -373,26 +426,35 @@ export async function saveHalanaHost(
   db: Db,
   copyId: string,
   input: Record<string, unknown>,
-): Promise<{ ok: true } | { ok: false; error: string }> {
-  const { error } = await db
-    .from(STORE_HALANA_COPIES_TABLE)
-    .update({
-      shop_name: clip(input.shopName, 80),
-      logo_src: parseShopLogoSrc(input.logoSrc),
-      flavors_ar: String(input.flavorsAr || '').slice(0, 800),
-      policy_ar: String(input.policyAr || '').slice(0, 1200),
-      quotes_ar: String(input.quotesAr || '').slice(0, 1200),
-      whatsapp: String(input.whatsapp || '').replace(/\D/g, '').slice(0, 15),
-      ready_lines: String(input.readyLines || '').slice(0, 800),
-      promo_title_ar: clip(input.promoTitleAr, 80),
-      promo_ar: String(input.promoAr || '').slice(0, 1600),
-      youtube_urls: parseHalanaYoutubeLines(input.youtubeUrls),
-      accepting_orders: input.acceptingOrders !== false,
-      updated_at: new Date().toISOString(),
-    })
-    .eq('id', copyId);
+): Promise<{ ok: true; acceptingOrdersSaved?: boolean } | { ok: false; error: string }> {
+  const basePatch = {
+    shop_name: clip(input.shopName, 80),
+    logo_src: parseShopLogoSrc(input.logoSrc),
+    flavors_ar: String(input.flavorsAr || '').slice(0, 800),
+    policy_ar: String(input.policyAr || '').slice(0, 1200),
+    quotes_ar: String(input.quotesAr || '').slice(0, 1200),
+    whatsapp: String(input.whatsapp || '').replace(/\D/g, '').slice(0, 15),
+    ready_lines: String(input.readyLines || '').slice(0, 800),
+    promo_title_ar: clip(input.promoTitleAr, 80),
+    promo_ar: String(input.promoAr || '').slice(0, 1600),
+    youtube_urls: parseHalanaYoutubeLines(input.youtubeUrls),
+    updated_at: new Date().toISOString(),
+  };
+  const { error } = await db.from(STORE_HALANA_COPIES_TABLE).update(basePatch).eq('id', copyId);
   if (error) return { ok: false, error: 'تعذر حفظ اللوحة.' };
-  return { ok: true };
+
+  if (input.acceptingOrders === undefined) return { ok: true, acceptingOrdersSaved: true };
+
+  const acceptingOrders = input.acceptingOrders !== false;
+  const toggle = await db
+    .from(STORE_HALANA_COPIES_TABLE)
+    .update({ accepting_orders: acceptingOrders, updated_at: new Date().toISOString() })
+    .eq('id', copyId);
+  if (!toggle.error) return { ok: true, acceptingOrdersSaved: true };
+  if (isHalanaSchemaColumnMissing(toggle.error, 'accepting_orders')) {
+    return { ok: true, acceptingOrdersSaved: false };
+  }
+  return { ok: false, error: 'تعذر حفظ اللوحة.' };
 }
 
 export async function updateHalanaRequest(

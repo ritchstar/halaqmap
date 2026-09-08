@@ -18,6 +18,7 @@ import {
   type StoreHalanaRequestStatus,
 } from '@/config/storeHalanaLive';
 import { STORE_HALANA_SUPPORT } from '@/config/storeProductSupport';
+import { STORE_DIRECT_PAY_COPY } from '@/config/storeDirectPay';
 import { STORE_SHOP_LOGO_COPY } from '@/config/storeShopLogo';
 import { HalanaActivityShowcase } from '@/components/store/halana/HalanaActivityShowcase';
 import { StoreDeskCornerDock } from '@/components/store/StoreDeskCornerNav';
@@ -376,7 +377,11 @@ export function HalanaDeskStudio({
       toast.error(res.error);
       return false;
     }
-    toast.success('حُفظت التغييرات.');
+    if (res.acceptingOrdersSaved === false) {
+      toast.message(copy.deskAcceptingPendingAr);
+    } else {
+      toast.success('حُفظت التغييرات.');
+    }
     onSaved();
     return true;
   }
@@ -525,8 +530,19 @@ export function HalanaDeskStudio({
         </HalanaField>
       </StoreOpsSection>
 
-      <StoreDirectPayDesk product="store_halana_live" token={token} accent={STORE_HALANA_LIVE_ACCENT} onSaved={onSaved} />
-      <StoreHalanaShareDesk shopToken={payload.shopToken} shopUrl={payload.shopUrl} orderUrl={payload.orderUrl} shopName={shopName} />
+      <StoreOpsSection titleAr={STORE_DIRECT_PAY_COPY.titleAr} accent={STORE_HALANA_LIVE_ACCENT}>
+        <StoreDirectPayDesk product="store_halana_live" token={token} accent={STORE_HALANA_LIVE_ACCENT} onSaved={onSaved} />
+      </StoreOpsSection>
+
+      <StoreOpsSection titleAr={copy.shareTitleAr} accent={STORE_HALANA_LIVE_ACCENT}>
+        <StoreHalanaShareDesk
+          shopToken={payload.shopToken}
+          shopUrl={payload.shopUrl}
+          orderUrl={payload.orderUrl}
+          shopName={shopName}
+          variant="desk"
+        />
+      </StoreOpsSection>
 
       <StoreOpsSection titleAr="الطلبات" accent={STORE_HALANA_LIVE_ACCENT}>
         {(payload.requests || []).length === 0 ? (

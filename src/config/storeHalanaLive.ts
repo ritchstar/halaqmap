@@ -288,6 +288,7 @@ export const STORE_HALANA_LIVE_COPY = {
   deskAcceptingOnAr: 'تستقبل الطلبات',
   deskAcceptingOffAr: 'اعتذار مؤقت عن استقبال الطلبات',
   deskAcceptingHintAr: 'يظهر للعميلات في المعرض دون تعديل النصوص يدوياً.',
+  deskAcceptingPendingAr: 'حُفظت بقية اللوحة. مفتاح الجاهزية يُفعَّل بعد اكتمال الترقية التقنية.',
   deskProgressIdentityAr: 'الهوية',
   deskProgressContentAr: 'المعرض',
   deskProgressTextsAr: 'النصوص',

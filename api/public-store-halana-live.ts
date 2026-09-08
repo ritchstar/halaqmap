@@ -197,7 +197,14 @@ export async function POST(request: Request): Promise<Response> {
   if (action === 'save_host') {
     const saved = await saveHalanaHost(db, String(desk.id), body);
     if (!saved.ok) return json(saved, 400, headers);
-    return json({ ok: true }, 200, headers);
+    return json(
+      {
+        ok: true,
+        acceptingOrdersSaved: saved.acceptingOrdersSaved !== false,
+      },
+      200,
+      headers,
+    );
   }
 
   if (action === 'save_pay') {
