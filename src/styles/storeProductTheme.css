@@ -267,16 +267,61 @@ html.hm-app-product-canvas #root {
   min-height: 100%;
 }
 
-.store-product-theme :where(.text-white\/60, .text-white\/70, .text-white\/75, .text-white\/80, .text-white\/85) {
+/* ── خلفية فاتحة: أي text-white* → نص غامق قابل للقراءة ── */
+.store-product-theme :where(
+  .text-white,
+  .text-white\/35,
+  .text-white\/40,
+  .text-white\/45,
+  .text-white\/50,
+  .text-white\/55,
+  .text-white\/60,
+  .text-white\/65,
+  .text-white\/70,
+  .text-white\/75,
+  .text-white\/78,
+  .text-white\/80,
+  .text-white\/85,
+  .text-white\/90
+) {
   color: var(--storefront-read-muted) !important;
+  font-weight: 700;
+  line-height: 1.75;
+  text-shadow: var(--storefront-read-glow);
+}
+
+.store-product-theme :where(.text-white, .text-white\/78, .text-white\/80, .text-white\/85, .text-white\/90) {
+  color: var(--storefront-read-text) !important;
+  font-weight: 800;
+}
+
+.store-product-theme .store-read-hint {
+  color: var(--storefront-read-muted);
+  font-size: 0.9375rem;
+  line-height: 1.75;
   font-weight: 700;
   text-shadow: var(--storefront-read-glow);
 }
 
-.store-product-theme[data-context='operator'] :where(.text-white\/60, .text-white\/70, .text-white\/75, .text-white\/80, .text-white\/85) {
-  color: var(--storefront-read-muted) !important;
-  font-weight: 700;
-  text-shadow: var(--storefront-read-glow);
+.store-product-theme .store-ops-section,
+.store-product-theme .store-purchased-shell__body,
+.store-product-theme .store-ops-tool + * {
+  color: var(--storefront-read-text);
+}
+
+.store-product-theme .store-ops-tool {
+  border-color: color-mix(in srgb, var(--storefront-read-text) 12%, transparent) !important;
+  background: color-mix(in srgb, var(--storefront-surface, var(--operator-surface)) 96%, transparent) !important;
+}
+
+.store-product-theme :where(
+  .border-white\/10,
+  .border-white\/12,
+  .border-white\/15,
+  .border-white\/20,
+  .border-white\/25
+) {
+  border-color: color-mix(in srgb, var(--storefront-read-text) 14%, transparent) !important;
 }
 
 .store-product-theme .halana-activity-content.halana-shell {
@@ -533,9 +578,35 @@ html.hm-app-product-canvas #root {
   text-shadow: var(--storefront-read-glow);
 }
 
-/* قاعات المناسبات — خلفية داكنة: نص أفتح وأكبر مع إشعاع */
-.store-product-theme :is(.wedding-hall-masthead, .wedding-hall-center, .wedding-hall-glow, .hall-notice-plaque)
-  :where(.text-white\/55, .text-white\/60, .text-white\/70, .text-white\/75, .text-white\/80, .text-white\/85, .text-white\/90) {
+/* سطوح داكنة متداخلة — أعد النص الفاتح (قاعات، بطاقات، خلفيات سوداء شفافة) */
+.store-product-theme :is(
+  .wedding-hall-masthead,
+  .wedding-hall-center,
+  .wedding-hall-glow,
+  .hall-notice-plaque,
+  .halana-promo-card,
+  .halana-work-card,
+  .halana-ornament,
+  .bg-black\/20,
+  .bg-black\/28,
+  .bg-black\/40,
+  .bg-black\/55
+) :where(
+  .text-white,
+  .text-white\/35,
+  .text-white\/40,
+  .text-white\/45,
+  .text-white\/50,
+  .text-white\/55,
+  .text-white\/60,
+  .text-white\/65,
+  .text-white\/70,
+  .text-white\/75,
+  .text-white\/78,
+  .text-white\/80,
+  .text-white\/85,
+  .text-white\/90
+) {
   color: rgba(255, 251, 245, 0.96) !important;
   font-size: 1.0625rem;
   line-height: 1.85;
@@ -544,6 +615,28 @@ html.hm-app-product-canvas #root {
     0 0 14px rgba(255, 236, 200, 0.55),
     0 0 28px rgba(232, 197, 71, 0.28),
     0 1px 2px rgba(0, 0, 0, 0.45);
+}
+
+.store-product-theme :is(
+  .wedding-hall-masthead,
+  .wedding-hall-center,
+  .wedding-hall-glow,
+  .hall-notice-plaque,
+  .halana-promo-card,
+  .halana-work-card,
+  .halana-ornament,
+  .bg-black\/20,
+  .bg-black\/28,
+  .bg-black\/40,
+  .bg-black\/55
+) :where(
+  .border-white\/10,
+  .border-white\/12,
+  .border-white\/15,
+  .border-white\/20,
+  .border-white\/25
+) {
+  border-color: rgba(255, 255, 255, 0.18) !important;
 }
 
 .store-product-theme .hall-masthead-names {

@@ -42,13 +42,13 @@ export function StoreShopLogoDesk({
 
   return (
     <div className="sm:col-span-2">
-      <p className="text-sm">{STORE_SHOP_LOGO_COPY.labelAr}</p>
-      <p className="mt-1 text-xs leading-6 text-white/55">{leadAr ?? STORE_SHOP_LOGO_COPY.leadAr}</p>
+      <p className="text-sm font-extrabold">{STORE_SHOP_LOGO_COPY.labelAr}</p>
+      <p className="store-read-hint mt-1">{leadAr ?? STORE_SHOP_LOGO_COPY.leadAr}</p>
       <div className="mt-2 flex flex-wrap items-center gap-3">
         {logoSrc ? (
           <img src={logoSrc} alt="" width={48} height={48} className="h-12 w-12 rounded-full border border-white/20 object-cover" />
         ) : (
-          <span className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-dashed border-white/25 text-xs text-white/40">
+          <span className="store-read-hint inline-flex h-12 w-12 items-center justify-center rounded-full border border-dashed text-xs">
             شعار
           </span>
         )}
@@ -66,7 +66,7 @@ export function StoreShopLogoDesk({
           />
         </label>
         {logoSrc ? (
-          <button type="button" className="text-sm text-white/60 underline" onClick={() => onChange('')}>
+          <button type="button" className="store-read-hint text-sm underline" onClick={() => onChange('')}>
             {STORE_SHOP_LOGO_COPY.removeAr}
           </button>
         ) : null}

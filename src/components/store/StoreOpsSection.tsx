@@ -25,7 +25,7 @@ export function StoreOpsSection({
     <Collapsible open={open} onOpenChange={setOpen} className="store-ops-section">
       <CollapsibleTrigger
         type="button"
-        className="store-ops-tool flex w-full items-center justify-between gap-3 rounded-2xl border border-white/12 bg-white/[0.03] px-4 py-3 text-right"
+        className="store-ops-tool flex w-full items-center justify-between gap-3 rounded-2xl border px-4 py-3 text-right"
       >
         <span className="text-sm font-extrabold" style={{ color: accent }}>
           {titleAr}
