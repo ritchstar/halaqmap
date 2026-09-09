@@ -52,9 +52,8 @@ export const EMPTY_DIRECT_PAY_DESK: DirectPayDesk = {
   enabledExternal: false,
 };
 
-function fieldClass(accent: string) {
-  return `mt-1 w-full rounded-xl border border-white/15 bg-black/20 px-3 py-2 text-sm text-[#f4efe4] focus:border-[${accent}]`;
-}
+const DIRECT_PAY_SECTION_CLASS = 'store-direct-pay-desk space-y-4 rounded-2xl border p-5';
+const DIRECT_PAY_FIELD_CLASS = 'halana-desk-input mt-1 w-full rounded-xl px-3 py-2 text-sm';
 
 export function StoreDirectPayDesk({
   product,
@@ -154,55 +153,55 @@ export function StoreDirectPayDesk({
   }
 
   return (
-    <section className="space-y-4 rounded-2xl border border-white/10 bg-black/20 p-5">
+    <section className={DIRECT_PAY_SECTION_CLASS}>
       <h2 className="text-lg font-extrabold" style={{ color: accent }}>
         {copy.titleAr}
       </h2>
-      <p className="text-sm leading-7 text-white/75">{copy.leadAr}</p>
-      <p className="text-sm leading-7 text-white/70">{copy.deskLeadAr}</p>
+      <p className="store-read-hint">{copy.leadAr}</p>
+      <p className="store-read-hint">{copy.deskLeadAr}</p>
       <Link to={STORE_DIRECT_PAY_POLICY_PATH} className="inline-block text-sm underline" style={{ color: accent }}>
         {copy.policyCtaAr}
       </Link>
-      <label className="block text-sm">
+      <label className="block text-sm font-extrabold">
         {copy.beneficiaryAr}
-        <input className={fieldClass(accent)} value={form.beneficiaryName} onChange={(e) => toggle('beneficiaryName', e.target.value)} />
+        <input className={DIRECT_PAY_FIELD_CLASS} value={form.beneficiaryName} onChange={(e) => toggle('beneficiaryName', e.target.value)} />
       </label>
-      <label className="flex items-center gap-2 text-sm font-bold">
+      <label className="flex items-center gap-2 text-sm font-extrabold">
         <input type="checkbox" checked={form.enabledIban} onChange={(e) => toggle('enabledIban', e.target.checked)} />
         {copy.enableIbanAr}
       </label>
       {form.enabledIban ? (
         <>
-          <label className="block text-sm">
+          <label className="block text-sm font-extrabold">
             {copy.bankAr}
-            <input className={fieldClass(accent)} value={form.bankName} onChange={(e) => toggle('bankName', e.target.value)} />
+            <input className={DIRECT_PAY_FIELD_CLASS} value={form.bankName} onChange={(e) => toggle('bankName', e.target.value)} />
           </label>
-          <label className="block text-sm">
+          <label className="block text-sm font-extrabold">
             {copy.ibanAr}
-            <input className={fieldClass(accent)} dir="ltr" value={form.iban} onChange={(e) => toggle('iban', e.target.value)} autoComplete="off" />
+            <input className={DIRECT_PAY_FIELD_CLASS} dir="ltr" value={form.iban} onChange={(e) => toggle('iban', e.target.value)} autoComplete="off" />
           </label>
         </>
       ) : null}
-      <label className="flex items-center gap-2 text-sm font-bold">
+      <label className="flex items-center gap-2 text-sm font-extrabold">
         <input type="checkbox" checked={form.enabledStc} onChange={(e) => toggle('enabledStc', e.target.checked)} />
         {copy.enableStcAr}
       </label>
       {form.enabledStc ? (
-        <label className="block text-sm">
+        <label className="block text-sm font-extrabold">
           {copy.stcMobileAr}
-          <input className={fieldClass(accent)} dir="ltr" value={form.stcMobile} onChange={(e) => toggle('stcMobile', e.target.value)} autoComplete="off" />
+          <input className={DIRECT_PAY_FIELD_CLASS} dir="ltr" value={form.stcMobile} onChange={(e) => toggle('stcMobile', e.target.value)} autoComplete="off" />
         </label>
       ) : null}
-      <label className="flex items-center gap-2 text-sm font-bold">
+      <label className="flex items-center gap-2 text-sm font-extrabold">
         <input type="checkbox" checked={form.enabledSarie} onChange={(e) => toggle('enabledSarie', e.target.checked)} />
         {copy.enableSarieAr}
       </label>
       {form.enabledSarie ? (
         <>
-          <label className="block text-sm">
+          <label className="block text-sm font-extrabold">
             {copy.sarieKindAr}
             <select
-              className={fieldClass(accent)}
+              className={DIRECT_PAY_FIELD_CLASS}
               value={form.sarieKind}
               onChange={(e) => toggle('sarieKind', e.target.value as DirectPayDesk['sarieKind'])}
             >
@@ -212,28 +211,28 @@ export function StoreDirectPayDesk({
               <option value="entity">{copy.sarieEntityAr}</option>
             </select>
           </label>
-          <label className="block text-sm">
+          <label className="block text-sm font-extrabold">
             {copy.sarieAr}
-            <input className={fieldClass(accent)} dir="ltr" value={form.sarieAlias} onChange={(e) => toggle('sarieAlias', e.target.value)} autoComplete="off" />
+            <input className={DIRECT_PAY_FIELD_CLASS} dir="ltr" value={form.sarieAlias} onChange={(e) => toggle('sarieAlias', e.target.value)} autoComplete="off" />
           </label>
         </>
       ) : null}
-      <label className="flex items-center gap-2 text-sm font-bold">
+      <label className="flex items-center gap-2 text-sm font-extrabold">
         <input type="checkbox" checked={form.enabledExternal} onChange={(e) => toggle('enabledExternal', e.target.checked)} />
         {copy.enableExternalAr}
       </label>
       {form.enabledExternal ? (
-        <label className="block text-sm">
+        <label className="block text-sm font-extrabold">
           {copy.externalAr}
-          <input className={fieldClass(accent)} dir="ltr" value={form.externalUrl} onChange={(e) => toggle('externalUrl', e.target.value)} />
-          <span className="mt-1 block text-xs leading-6 text-white/55">{copy.externalHintAr}</span>
+          <input className={DIRECT_PAY_FIELD_CLASS} dir="ltr" value={form.externalUrl} onChange={(e) => toggle('externalUrl', e.target.value)} />
+          <span className="store-read-hint mt-1 block text-xs">{copy.externalHintAr}</span>
         </label>
       ) : null}
-      <label className="flex items-center gap-2 text-sm font-bold">
+      <label className="flex items-center gap-2 text-sm font-extrabold">
         <input type="checkbox" checked={form.cashRemainder} onChange={(e) => toggle('cashRemainder', e.target.checked)} />
         {copy.cashAr}
       </label>
-      <label className="flex items-center gap-2 text-sm font-bold">
+      <label className="flex items-center gap-2 text-sm font-extrabold">
         <input type="checkbox" checked={form.networkRemainder} onChange={(e) => toggle('networkRemainder', e.target.checked)} />
         {copy.networkAr}
       </label>

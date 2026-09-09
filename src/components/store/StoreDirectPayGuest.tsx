@@ -241,12 +241,12 @@ export function StoreDirectPayGuest({
 
   if (!ref) {
     return (
-      <section className="space-y-3 rounded-2xl border border-white/10 bg-black/20 p-5">
+      <section className="store-direct-pay-desk space-y-3 rounded-2xl border p-5">
         <h2 className="text-lg font-extrabold" style={{ color: accent }}>
           {copy.titleAr}
         </h2>
         <StoreDirectPayChips payPublic={payPublic} accent={accent} />
-        <p className="text-sm leading-7 text-white/75">{copy.waitAr}</p>
+        <p className="store-read-hint">{copy.waitAr}</p>
         <Link to={STORE_DIRECT_PAY_POLICY_PATH} className="inline-block text-sm underline" style={{ color: accent }}>
           {copy.policyCtaAr}
         </Link>
@@ -256,22 +256,22 @@ export function StoreDirectPayGuest({
 
   if (!pay) {
     return (
-      <section className="space-y-3 rounded-2xl border border-white/10 bg-black/20 p-5">
+      <section className="store-direct-pay-desk space-y-3 rounded-2xl border p-5">
         <h2 className="text-lg font-extrabold" style={{ color: accent }}>
           {copy.titleAr}
         </h2>
         <StoreDirectPayChips payPublic={payPublic} accent={accent} />
-        <p className="text-sm leading-7 text-white/75">{waiting ? copy.waitAr : copy.leadAr}</p>
+        <p className="store-read-hint">{waiting ? copy.waitAr : copy.leadAr}</p>
       </section>
     );
   }
 
   return (
-    <section className="space-y-4 rounded-2xl border border-white/10 bg-black/20 p-5">
+    <section className="store-direct-pay-desk space-y-4 rounded-2xl border p-5">
       <h2 className="text-lg font-extrabold" style={{ color: accent }}>
         {copy.titleAr}
       </h2>
-      <p className="text-sm leading-7 text-white/80">{copy.leadAr}</p>
+      <p className="store-read-hint">{copy.leadAr}</p>
       {amountSar ? <p className="text-base font-extrabold">المبلغ: {amountSar} ر.س</p> : null}
       {pay.beneficiaryName ? (
         <p className="text-sm leading-7">
@@ -321,7 +321,7 @@ export function StoreDirectPayGuest({
       </div>
       {pay.cashRemainder ? <p className="text-sm font-bold">{copy.cashAr}</p> : null}
       {pay.networkRemainder ? <p className="text-sm font-bold">{copy.networkAr}</p> : null}
-      <p className="text-sm leading-7 text-amber-100/85">{copy.proofHintAr}</p>
+      <p className="store-direct-pay-warn">{copy.proofHintAr}</p>
       <label className="inline-flex cursor-pointer rounded-full px-4 py-2 text-sm font-extrabold" style={{ background: accent, color: '#061018' }}>
         {copy.proofCtaAr}
         <input
@@ -336,7 +336,7 @@ export function StoreDirectPayGuest({
           }}
         />
       </label>
-      {pay.proofUploaded ? <p className="text-sm leading-7 text-white/85">{copy.proofSavedAr}</p> : null}
+      {pay.proofUploaded ? <p className="store-read-hint font-extrabold">{copy.proofSavedAr}</p> : null}
       <Link to={STORE_DIRECT_PAY_POLICY_PATH} className="block text-sm underline" style={{ color: accent }}>
         {copy.policyCtaAr}
       </Link>

@@ -303,6 +303,25 @@ html.hm-app-product-canvas #root {
   text-shadow: var(--storefront-read-glow);
 }
 
+.store-product-theme .store-direct-pay-desk {
+  border-color: color-mix(in srgb, var(--storefront-read-text) 12%, transparent);
+  background: var(--storefront-surface);
+  color: var(--storefront-read-text);
+}
+
+.store-product-theme .store-direct-pay-desk label,
+.store-product-theme .store-direct-pay-desk p {
+  color: inherit;
+}
+
+.store-product-theme .store-direct-pay-warn {
+  color: color-mix(in srgb, var(--storefront-accent-warm, var(--storefront-accent)) 78%, #000);
+  font-size: 1rem;
+  line-height: 1.75;
+  font-weight: 800;
+  text-shadow: var(--storefront-read-glow);
+}
+
 .store-product-theme .store-ops-section,
 .store-product-theme .store-purchased-shell__body,
 .store-product-theme .store-ops-tool + * {
@@ -587,8 +606,6 @@ html.hm-app-product-canvas #root {
   .halana-promo-card,
   .halana-work-card,
   .halana-ornament,
-  .bg-black\/20,
-  .bg-black\/28,
   .bg-black\/40,
   .bg-black\/55
 ) :where(
@@ -625,8 +642,6 @@ html.hm-app-product-canvas #root {
   .halana-promo-card,
   .halana-work-card,
   .halana-ornament,
-  .bg-black\/20,
-  .bg-black\/28,
   .bg-black\/40,
   .bg-black\/55
 ) :where(
