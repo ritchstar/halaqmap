@@ -23,6 +23,11 @@ import {
 import { ROUTE_PATHS } from '../src/lib/routePaths.ts';
 import { isHalanaYoutubeChannelUrl, splitHalanaYoutubeLines } from '../src/lib/storeHalanaShare.ts';
 import { halanaPayCopyText, isHalanaIban, maskHalanaIban, normalizeHalanaIban } from '../src/lib/storeHalanaPay.ts';
+import {
+  isDisallowedStoreProductImage,
+  pickStoreProductCover,
+  sanitizeStoreProductImageSrc,
+} from '../src/lib/storeDisallowedImagery.ts';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const app = readFileSync(join(root, 'src/App.tsx'), 'utf8');
@@ -135,22 +140,31 @@ assert.match(STORE_HALANA_LIVE_COPY.deskAcceptingPendingAr, /الترقية/);
 assert.match(deskStudio, /variant="desk"/);
 assert.match(STORE_HALANA_ATMOSPHERE.hero, /halana-hero-table/);
 assert.match(STORE_HALANA_ATMOSPHERE.atelier, /halana-atelier-clear/);
-assert.match(STORE_HALANA_ATMOSPHERE.frame, /halana-ornate-frame/);
+assert.match(STORE_HALANA_ATMOSPHERE.cake, /halana-cake-light/);
 assert.match(STORE_HALANA_ATMOSPHERE.goldDust, /halana-gold-dust/);
-for (const file of ['halana-atelier-clear.jpg', 'halana-ornate-frame.jpg', 'halana-gold-dust.jpg']) {
+assert.equal('frame' in STORE_HALANA_ATMOSPHERE, false);
+for (const file of ['halana-atelier-clear.jpg', 'halana-cake-light.jpg', 'halana-gold-dust.jpg']) {
   assert.ok(existsSync(join(root, 'public/images/store/halana', file)), file);
 }
+assert.ok(!existsSync(join(root, 'public/images/store/halana/halana-ornate-frame.jpg')));
+assert.ok(isDisallowedStoreProductImage('/images/store/halana/halana-ornate-frame.jpg'));
+assert.equal(sanitizeStoreProductImageSrc('/images/store/halana/halana-ornate-frame.jpg'), '');
+assert.equal(
+  pickStoreProductCover(STORE_HALANA_ATMOSPHERE.cake, '/images/store/halana/halana-ornate-frame.jpg'),
+  STORE_HALANA_ATMOSPHERE.cake,
+);
 assert.match(page, /HalanaSparkLayer/);
 assert.match(activityShowcase, /halana-title/);
 const css = readFileSync(join(root, 'src/index.css'), 'utf8');
 assert.match(css, /halana-atelier-clear/);
-assert.match(css, /halana-ornate-frame/);
+assert.doesNotMatch(css, /halana-ornate-frame/);
 assert.match(css, /halana-gold-dust/);
 assert.match(css, /halana-title/);
 assert.match(css, /halana-ornament/);
 assert.match(api, /halanaShopUrl/);
 assert.match(api, /addHalanaGallery/);
 assert.match(api, /parseHalanaImageSrc/);
+assert.match(api, /storeDisallowedImagery/);
 assert.match(publicApi, /add_request/);
 assert.match(publicApi, /add_gallery/);
 assert.match(publicApi, /create_pending/);

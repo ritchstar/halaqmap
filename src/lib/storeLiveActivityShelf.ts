@@ -2,6 +2,7 @@
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
 import type { LiveActivityShelfPreview } from '@/components/store/live/StoreLiveActivityPanels';
+import { sanitizeStoreProductImageSrc } from '@/lib/storeDisallowedImagery';
 
 type ShelfRow = {
   catalogId: string;
@@ -39,6 +40,11 @@ export function liveActivityTodayName(shelf: ShelfRow[]): string | undefined {
 export function liveActivityCoverSrc(shelf: ShelfRow[]): string | undefined {
   const visible = shelf.filter((item) => item.inStock);
   const today = visible.find((item) => item.catalogId === 'today-board' && item.photoSrc);
-  if (today?.photoSrc) return today.photoSrc;
-  return visible.find((item) => item.photoSrc)?.photoSrc;
+  const todaySrc = sanitizeStoreProductImageSrc(today?.photoSrc);
+  if (todaySrc) return todaySrc;
+  for (const item of visible) {
+    const src = sanitizeStoreProductImageSrc(item.photoSrc);
+    if (src) return src;
+  }
+  return undefined;
 }

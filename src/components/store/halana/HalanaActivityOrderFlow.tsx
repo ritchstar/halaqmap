@@ -22,6 +22,7 @@ import {
   loadHalanaActivityDraft,
   saveHalanaActivityDraft,
 } from '@/lib/storeHalanaActivityDraft';
+import { filterAllowedGalleryItems, pickStoreProductCover } from '@/lib/storeDisallowedImagery';
 import { cn } from '@/lib/utils';
 
 type GalleryItem = { id: string; caption: string; src: string };
@@ -171,7 +172,11 @@ export function HalanaActivityOrderFlow({
     setRefSrc('');
   }
 
-  const heroSrc = refSrc || payload.gallery[0]?.src || STORE_HALANA_ATMOSPHERE.cake;
+  const allowedGallery = useMemo(
+    () => filterAllowedGalleryItems(payload.gallery),
+    [payload.gallery],
+  );
+  const heroSrc = pickStoreProductCover(STORE_HALANA_ATMOSPHERE.cake, refSrc, allowedGallery[0]?.src);
   const showcaseHref = `/h/${encodeURIComponent(token)}`;
 
   if (payload.acceptingOrders === false) {

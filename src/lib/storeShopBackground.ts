@@ -6,6 +6,7 @@
 import type { CSSProperties } from 'react';
 import type { StoreEventLiveVoice } from '@/config/storeEventLive';
 import type { StoreWeddingLiveVoice } from '@/config/storeWeddingLive';
+import { sanitizeStoreProductImageSrc } from '@/lib/storeDisallowedImagery';
 
 export type ShopBackgroundFields = {
   shopHeaderBg: string;
@@ -80,9 +81,11 @@ export function resolveShopHeaderCover(headerBg: string, fallbackCover?: string)
     if (safe.startsWith('#') || safe.startsWith('linear-gradient') || safe.startsWith('radial-gradient')) {
       return undefined;
     }
-    return safe;
+    const image = sanitizeStoreProductImageSrc(safe);
+    return image || undefined;
   }
-  return fallbackCover?.trim() || undefined;
+  const fallback = sanitizeStoreProductImageSrc(fallbackCover);
+  return fallback || undefined;
 }
 
 export function resolveShopHeaderCoverStyle(headerBg: string): CSSProperties | undefined {

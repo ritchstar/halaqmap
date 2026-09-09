@@ -6,6 +6,7 @@
 import { randomBytes } from 'node:crypto';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { openHalanaIban, sealHalanaIban } from './storeHalanaPay.js';
+import { sanitizeStoreProductImageSrc } from './storeDisallowedImagery.js';
 import { parseShopLogoSrc } from './storeShopLogo.js';
 import { storeLiveShopShareHref } from './storeLiveShopShare.js';
 
@@ -184,9 +185,11 @@ export function parseHalanaImageSrc(raw: unknown): string {
   const src = String(raw ?? '').trim();
   if (src.length < 12 || src.length > STORE_HALANA_IMAGE_MAX_CHARS) return '';
   if (/[<>]/.test(src) || /javascript:/i.test(src) || /data:image\/svg/i.test(src)) return '';
-  if (/^https:\/\/[^\s]+$/i.test(src) && src.length <= 500) return src;
-  if (/^data:image\/(jpeg|jpg|png|webp);base64,[A-Za-z0-9+/=\s]+$/i.test(src)) return src;
-  return '';
+  let validated = '';
+  if (/^https:\/\/[^\s]+$/i.test(src) && src.length <= 500) validated = src;
+  else if (/^data:image\/(jpeg|jpg|png|webp);base64,[A-Za-z0-9+/=\s]+$/i.test(src)) validated = src;
+  else return '';
+  return sanitizeStoreProductImageSrc(validated);
 }
 
 function galleryFromLegacyUrls(raw: string): HalanaGalleryItem[] {

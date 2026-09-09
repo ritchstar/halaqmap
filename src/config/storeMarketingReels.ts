@@ -219,7 +219,6 @@ export const STORE_HALANA_MARKETING_FRAMES = [
   '/images/store/halana/halana-hero-table.jpg',
   '/images/store/halana/halana-atelier-clear.jpg',
   '/images/store/halana/halana-cake-light.jpg',
-  '/images/store/halana/halana-ornate-frame.jpg',
 ] as const;
 
 export const STORE_LANDING_MARKETING_FRAMES = [

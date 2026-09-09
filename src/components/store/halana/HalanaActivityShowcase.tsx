@@ -15,6 +15,7 @@ import {
 import { STORE_HALANA_ACTIVITY_COPY } from '@/config/storeHalanaActivity';
 import { StoreDirectPayPublicMount } from '@/components/store/StoreDirectPayGuest';
 import { StoreShopLogoMark } from '@/components/store/StoreShopLogoMark';
+import { filterAllowedGalleryItems, pickStoreProductCover } from '@/lib/storeDisallowedImagery';
 import { splitHalanaYoutubeLines } from '@/lib/storeHalanaShare';
 import {
   loadHalanaActivityDraft,
@@ -212,7 +213,10 @@ export function HalanaActivityShowcase({
   const flavors = splitLines(payload.flavorsAr);
   const quotes = splitLines(payload.quotesAr);
   const ready = splitLines(payload.readyLines);
-  const works = useMemo(() => sortGalleryFeaturedFirst(payload.gallery), [payload.gallery]);
+  const works = useMemo(
+    () => sortGalleryFeaturedFirst(filterAllowedGalleryItems(payload.gallery)),
+    [payload.gallery],
+  );
   const filteredWorks = useMemo(() => filterGallery(works, occasion), [works, occasion]);
   const featured = filteredWorks.slice(0, 3);
   const draft = loadHalanaActivityDraft(token);
@@ -221,7 +225,7 @@ export function HalanaActivityShowcase({
   const clips = youtube.clips.slice(0, 3);
 
   const leadLine = payload.promoTitleAr || promo[0] || copy.showcaseLeadAr;
-  const coverSrc = works[0]?.src || STORE_HALANA_ATMOSPHERE.cake;
+  const coverSrc = pickStoreProductCover(STORE_HALANA_ATMOSPHERE.cake, works[0]?.src);
 
   function pickOccasion(id: HalanaOccasionId) {
     setOccasion(id);
