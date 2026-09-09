@@ -5,13 +5,30 @@
  */
 
 .store-product-theme {
-  color: var(--storefront-text, #1f292d);
+  --storefront-read-text: color-mix(in srgb, var(--storefront-text) 88%, #000);
+  --storefront-read-muted: color-mix(in srgb, var(--storefront-muted) 68%, var(--storefront-text));
+  --storefront-read-glow: 0 0 16px color-mix(in srgb, var(--storefront-accent) 24%, transparent),
+    0 1px 0 color-mix(in srgb, var(--storefront-text) 18%, transparent);
+  --storefront-read-glow-strong: 0 0 24px color-mix(in srgb, var(--storefront-accent) 34%, transparent),
+    0 0 10px color-mix(in srgb, var(--storefront-accent-warm, var(--storefront-accent)) 22%, transparent),
+    0 2px 0 color-mix(in srgb, var(--storefront-text) 22%, transparent);
+  color: var(--storefront-read-text, #1f292d);
   background: var(--storefront-page-bg, #f3eee6);
+  font-size: 1.0625rem;
+  line-height: 1.78;
 }
 
 .store-product-theme[data-context='operator'] {
-  color: var(--operator-text, #1f292d);
+  --storefront-read-text: color-mix(in srgb, var(--operator-text) 88%, #000);
+  --storefront-read-muted: color-mix(in srgb, var(--operator-muted) 68%, var(--operator-text));
+  --storefront-read-glow: 0 0 16px color-mix(in srgb, var(--operator-accent) 24%, transparent),
+    0 1px 0 color-mix(in srgb, var(--operator-text) 18%, transparent);
+  --storefront-read-glow-strong: 0 0 24px color-mix(in srgb, var(--operator-accent) 34%, transparent),
+    0 2px 0 color-mix(in srgb, var(--operator-text) 22%, transparent);
+  color: var(--storefront-read-text, #1f292d);
   background: var(--operator-page-bg, #eeeae4);
+  font-size: 1.0625rem;
+  line-height: 1.78;
 }
 
 .store-product-theme__body {
@@ -24,7 +41,7 @@
 
 .store-product-theme .halana-activity {
   background: var(--storefront-page-bg);
-  color: var(--storefront-text);
+  color: var(--storefront-read-text);
 }
 
 .store-product-theme .halana-activity-header {
@@ -156,9 +173,30 @@
   background: color-mix(in srgb, var(--storefront-surface) 94%, transparent);
 }
 
-.store-product-theme .halana-title,
+.store-product-theme .halana-title {
+  color: var(--storefront-read-text);
+  font-size: clamp(2.35rem, 7.8vw, 4.15rem);
+  font-weight: 900;
+  line-height: 1.26;
+  text-shadow: var(--storefront-read-glow-strong);
+}
+
 .store-product-theme .halana-title-sm {
-  color: var(--storefront-text);
+  color: var(--storefront-read-text);
+  font-size: clamp(1.48rem, 4.2vw, 2.15rem);
+  font-weight: 900;
+  line-height: 1.38;
+  text-shadow: var(--storefront-read-glow);
+}
+
+.store-product-theme .halana-title-sm::after {
+  background: linear-gradient(
+    270deg,
+    color-mix(in srgb, var(--storefront-accent) 8%, transparent),
+    var(--storefront-accent) 42%,
+    color-mix(in srgb, var(--storefront-accent-warm, var(--storefront-accent)) 72%, #000)
+  );
+  box-shadow: 0 0 14px color-mix(in srgb, var(--storefront-accent) 38%, transparent);
 }
 
 .store-product-theme[data-context='operator'] .store-ops-tool {
@@ -230,11 +268,15 @@ html.hm-app-product-canvas #root {
 }
 
 .store-product-theme :where(.text-white\/60, .text-white\/70, .text-white\/75, .text-white\/80, .text-white\/85) {
-  color: var(--storefront-muted) !important;
+  color: var(--storefront-read-muted) !important;
+  font-weight: 700;
+  text-shadow: var(--storefront-read-glow);
 }
 
 .store-product-theme[data-context='operator'] :where(.text-white\/60, .text-white\/70, .text-white\/75, .text-white\/80, .text-white\/85) {
-  color: var(--operator-muted) !important;
+  color: var(--storefront-read-muted) !important;
+  font-weight: 700;
+  text-shadow: var(--storefront-read-glow);
 }
 
 .store-product-theme .halana-activity-content.halana-shell {
@@ -278,10 +320,6 @@ html.hm-app-product-canvas #root {
 }
 
 .store-product-theme .halana-activity-steps__item--done .halana-activity-steps__label {
-  color: var(--storefront-text);
-}
-
-.store-product-theme .halana-title-sm {
   color: var(--storefront-text);
 }
 
@@ -369,4 +407,160 @@ html.hm-app-product-canvas #root {
 .store-product-theme .store-purchased-shell {
   background: inherit;
   color: inherit;
+}
+
+/* ── وضوح القراءة — نص أغمق وأكبر مع إشعاع ── */
+.store-product-theme .halana-activity-header__lead,
+.store-product-theme .halana-activity-panel__lead {
+  color: var(--storefront-read-muted);
+  font-size: 1.05rem;
+  line-height: 1.85;
+  font-weight: 700;
+  text-shadow: var(--storefront-read-glow);
+}
+
+.store-product-theme .halana-activity-explorer__title {
+  color: var(--storefront-read-text);
+  font-size: clamp(1.12rem, 3.2vw, 1.35rem);
+  font-weight: 900;
+  text-shadow: var(--storefront-read-glow);
+}
+
+.store-product-theme .halana-activity-tabs__btn {
+  color: var(--storefront-read-muted);
+  font-size: 0.9375rem;
+  font-weight: 800;
+}
+
+.store-product-theme .halana-activity-tabs__btn--active {
+  color: var(--storefront-read-text);
+  font-weight: 900;
+  text-shadow: var(--storefront-read-glow);
+}
+
+.store-product-theme .halana-activity-trust__chip,
+.store-product-theme .halana-activity-occasion {
+  color: var(--storefront-read-text);
+  font-size: 0.875rem;
+  font-weight: 800;
+}
+
+.store-product-theme .halana-activity-work__caption,
+.store-product-theme .halana-activity-ready-card,
+.store-product-theme .halana-activity-order,
+.store-product-theme .halana-activity-live-banner {
+  color: var(--storefront-read-text);
+  font-size: 1rem;
+  font-weight: 800;
+  text-shadow: var(--storefront-read-glow);
+}
+
+.store-product-theme .halana-activity-steps__label {
+  color: var(--storefront-read-muted);
+  font-size: 0.9375rem;
+  font-weight: 700;
+}
+
+.store-product-theme .halana-activity-steps__item--done .halana-activity-steps__label {
+  color: var(--storefront-read-text);
+  font-weight: 900;
+  text-shadow: var(--storefront-read-glow);
+}
+
+.store-product-theme .halana-activity-primary,
+.store-product-theme .halana-activity-secondary {
+  font-size: 1rem;
+  font-weight: 900;
+}
+
+.store-product-theme .halana-activity-status {
+  font-size: 0.8125rem;
+  font-weight: 900;
+}
+
+.store-product-theme :where(.text-xs) {
+  font-size: 0.875rem !important;
+  line-height: 1.55 !important;
+}
+
+.store-product-theme :where(.text-sm) {
+  font-size: 1.03125rem !important;
+  line-height: 1.75 !important;
+  font-weight: 700;
+}
+
+.store-product-theme :where(.text-base) {
+  font-size: 1.125rem !important;
+  line-height: 1.85 !important;
+}
+
+.store-product-theme :where(.text-lg) {
+  font-size: 1.3125rem !important;
+  line-height: 1.85 !important;
+}
+
+.store-product-theme :where(.text-xl, .text-2xl, .text-3xl) {
+  color: var(--storefront-read-text);
+  text-shadow: var(--storefront-read-glow);
+}
+
+.store-product-theme[data-context='operator'] .halana-desk-header__title,
+.store-product-theme[data-context='operator'] .store-desk-control-title h1 {
+  color: var(--storefront-read-text);
+  font-size: clamp(1.35rem, 3.5vw, 1.75rem);
+  font-weight: 900;
+  text-shadow: var(--storefront-read-glow-strong);
+}
+
+.store-product-theme[data-context='operator'] .halana-desk-lead,
+.store-product-theme[data-context='operator'] .halana-desk-header__kicker,
+.store-product-theme[data-context='operator'] .halana-desk-field__label,
+.store-product-theme[data-context='operator'] .halana-desk-preview__label {
+  color: var(--storefront-read-muted);
+  font-size: 1rem;
+  font-weight: 700;
+  text-shadow: var(--storefront-read-glow);
+}
+
+.store-product-theme[data-context='operator'] .halana-desk-tabs__btn {
+  font-size: 0.9375rem;
+  font-weight: 800;
+}
+
+.store-product-theme[data-context='operator'] .halana-desk-tabs__btn--active {
+  color: var(--storefront-read-text);
+  font-weight: 900;
+  text-shadow: var(--storefront-read-glow);
+}
+
+/* قاعات المناسبات — خلفية داكنة: نص أفتح وأكبر مع إشعاع */
+.store-product-theme :is(.wedding-hall-masthead, .wedding-hall-center, .wedding-hall-glow, .hall-notice-plaque)
+  :where(.text-white\/55, .text-white\/60, .text-white\/70, .text-white\/75, .text-white\/80, .text-white\/85, .text-white\/90) {
+  color: rgba(255, 251, 245, 0.96) !important;
+  font-size: 1.0625rem;
+  line-height: 1.85;
+  font-weight: 800;
+  text-shadow:
+    0 0 14px rgba(255, 236, 200, 0.55),
+    0 0 28px rgba(232, 197, 71, 0.28),
+    0 1px 2px rgba(0, 0, 0, 0.45);
+}
+
+.store-product-theme .hall-masthead-names {
+  font-size: clamp(2rem, 6vw, 3.35rem);
+  font-weight: 900;
+  text-shadow:
+    0 0 18px rgba(255, 236, 200, 0.62),
+    0 0 36px rgba(232, 197, 71, 0.38),
+    0 2px 4px rgba(0, 0, 0, 0.42);
+}
+
+.store-product-theme .invite-luminous {
+  font-size: clamp(1.0625rem, 2.8vw, 1.25rem);
+  line-height: 1.9;
+  font-weight: 800;
+  text-shadow:
+    0 0 16px rgba(255, 236, 200, 0.72),
+    0 0 32px rgba(212, 175, 103, 0.42),
+    0 1px 2px rgba(0, 0, 0, 0.4);
 }
