@@ -61,6 +61,30 @@ export function StoreProductSupportGuideView({ guide }: { guide: StoreProductSup
                   ))}
                 </ul>
               ) : null}
+              {section.tableRowsAr?.length ? (
+                <div className="mt-4 overflow-x-auto rounded-xl border border-white/10">
+                  <table className="min-w-full text-sm leading-7 text-white/78">
+                    <thead className="bg-white/[0.04] text-right">
+                      <tr>
+                        <th className="px-4 py-3 font-extrabold">
+                          {section.tableHeadAr?.[0] || 'التصنيف'}
+                        </th>
+                        <th className="px-4 py-3 font-extrabold">
+                          {section.tableHeadAr?.[1] || 'أمثلة'}
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {section.tableRowsAr.map((row) => (
+                        <tr key={row.labelAr} className="border-t border-white/10">
+                          <td className="px-4 py-3 font-bold text-white/88">{row.labelAr}</td>
+                          <td className="px-4 py-3">{row.examplesAr}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : null}
             </section>
           ))}
         </div>
