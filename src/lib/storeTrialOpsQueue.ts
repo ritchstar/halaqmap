@@ -31,3 +31,23 @@ export function trialRowReachesAdminInbox(status: string): boolean {
 export function trialRowReachesAdminDesk(status: string): boolean {
   return status === 'pending_confirm' || status === 'pending_review';
 }
+
+export function storeOpsListErrorAr(code: string): string {
+  if (code === 'not_authenticated') return 'انتهت الجلسة. سجّل الدخول بصفة الإدارة.';
+  if (code === 'network_error') return 'تعذر الاتصال بالطابور.';
+  return 'تعذر تحديث الطابور.';
+}
+
+export function storeOpsRefreshSummaryAr(counts: {
+  awaiting: number;
+  inbox: number;
+  issued?: number;
+  paid?: number;
+}): string {
+  const parts: string[] = [];
+  if (counts.awaiting > 0) parts.push(`بانتظار البريد: ${counts.awaiting}`);
+  if (counts.inbox > 0) parts.push(`قيد التشاور: ${counts.inbox}`);
+  if ((counts.issued ?? 0) > 0) parts.push(`مصدر تجريبياً: ${counts.issued}`);
+  if ((counts.paid ?? 0) > 0) parts.push(`مسدد مفعّل: ${counts.paid}`);
+  return parts.length > 0 ? parts.join(' · ') : 'لا طلبات جديدة في الطابور.';
+}

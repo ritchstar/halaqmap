@@ -3,7 +3,7 @@
  *
  * ثلاث قوائم يدوية لإصدار تجارب المتجر. لا يُستورد من App.
  */
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { StoreAffiliateApplicationsPanel } from '@/components/admin/StoreAffiliateApplicationsPanel';
 import { toast } from '@/components/ui/sonner';
 import {
@@ -19,7 +19,7 @@ import {
   type StoreOpsTrialLink,
   type StoreOpsTrialRow,
 } from '@/lib/adminStoreOpsRemote';
-import { groupStoreTrialOpsRows } from '@/lib/storeTrialOpsQueue';
+import { groupStoreTrialOpsRows, storeOpsListErrorAr, storeOpsRefreshSummaryAr } from '@/lib/storeTrialOpsQueue';
 
 function statusLabel(status: string): string {
   const map = STORE_PRODUCT_TRIAL_COPY.statusAr as Record<string, string>;
@@ -98,31 +98,58 @@ function TrialMeta({ row }: { row: StoreOpsTrialRow }) {
 export function StoreTrialOpsBoard({
   accessToken,
   refreshNonce = 0,
+  onRefreshState,
 }: {
   accessToken: string;
   refreshNonce?: number;
+  onRefreshState?: (state: { busy: boolean }) => void;
 }) {
   const [rows, setRows] = useState<StoreOpsTrialRow[]>([]);
   const [issueKey, setIssueKey] = useState<StoreGeneralTrialKey>('grocers');
   const [issueEmail, setIssueEmail] = useState('');
   const [completeEmails, setCompleteEmails] = useState<Record<string, string>>({});
   const [busyKey, setBusyKey] = useState('');
+  const [listBusy, setListBusy] = useState(false);
+  const listBusyRef = useRef(false);
   const [declineId, setDeclineId] = useState('');
   const [declineReason, setDeclineReason] = useState('');
 
-  const refresh = useCallback(async () => {
-    if (!accessToken) return;
-    const res = await adminListStoreTrialsRemote({ accessToken });
-    if (!res.ok) {
-      toast.error(res.error === 'not_authenticated' ? 'انتهت الجلسة. سجّل الدخول بصفة الإدارة.' : res.error);
-      return;
+  useEffect(() => {
+    onRefreshState?.({ busy: listBusy });
+  }, [listBusy, onRefreshState]);
+
+  const refresh = useCallback(async (options?: { silent?: boolean }) => {
+    if (!accessToken || listBusyRef.current) return false;
+    listBusyRef.current = true;
+    setListBusy(true);
+    try {
+      const res = await adminListStoreTrialsRemote({ accessToken });
+      if (!res.ok) {
+        toast.error(storeOpsListErrorAr(res.error));
+        return false;
+      }
+      setRows(res.rows);
+      if (!options?.silent) {
+        const grouped = groupStoreTrialOpsRows(res.rows);
+        toast.success(
+          `${STORE_PRODUCT_TRIAL_COPY.refreshSuccessAr} ${storeOpsRefreshSummaryAr({
+            awaiting: grouped.awaitingConfirm.length,
+            inbox: grouped.inbox.length,
+            issued: grouped.issued.length,
+            paid: grouped.paid.length,
+          })}`,
+        );
+      }
+      return true;
+    } finally {
+      listBusyRef.current = false;
+      setListBusy(false);
     }
-    setRows(res.rows);
   }, [accessToken]);
 
   useEffect(() => {
-    if (accessToken) void refresh();
-  }, [accessToken, refresh, refreshNonce]);
+    if (accessToken) void refresh({ silent: true });
+  }, [accessToken, refreshNonce]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const { awaitingConfirm, inbox, issued, paid, declinedCount } = useMemo(
     () => groupStoreTrialOpsRows(rows),
@@ -145,7 +172,7 @@ export function StoreTrialOpsBoard({
     }
     toast.success(STORE_PRODUCT_TRIAL_COPY.issuedAr);
     setIssueEmail('');
-    void refresh();
+    void refresh({ silent: true });
   }
 
   async function approve(row: StoreOpsTrialRow) {
@@ -168,7 +195,7 @@ export function StoreTrialOpsBoard({
       delete next[row.id];
       return next;
     });
-    void refresh();
+    void refresh({ silent: true });
   }
 
   async function decline(row: StoreOpsTrialRow) {
@@ -187,7 +214,7 @@ export function StoreTrialOpsBoard({
     toast.success('أُرسل الاعتذار.');
     setDeclineId('');
     setDeclineReason('');
-    void refresh();
+    void refresh({ silent: true });
   }
 
   return (
@@ -200,10 +227,11 @@ export function StoreTrialOpsBoard({
           </div>
           <button
             type="button"
+            disabled={listBusy}
             onClick={() => void refresh()}
-            className="rounded-lg border border-teal-300/30 px-3 py-1.5 text-xs font-bold text-teal-100"
+            className="rounded-lg border border-teal-300/30 px-3 py-1.5 text-xs font-bold text-teal-100 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {STORE_PRODUCT_TRIAL_COPY.refreshInboxAr}
+            {listBusy ? STORE_PRODUCT_TRIAL_COPY.refreshBusyAr : STORE_PRODUCT_TRIAL_COPY.refreshInboxAr}
           </button>
         </div>
         <div className="rounded-2xl border border-amber-300/20 bg-amber-400/[0.04] p-4">

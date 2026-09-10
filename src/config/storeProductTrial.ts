@@ -73,6 +73,7 @@ export const STORE_PRODUCT_TRIAL_COPY = {
     'طلب المتصفح محفوظ هنا فور الإرسال. بعد ضغط رابط التأكيد في البريد ينتقل إلى الطابور القابل للإتمام.',
   refreshInboxAr: 'تحديث الطابور',
   refreshBusyAr: 'يجري التحديث…',
+  refreshSuccessAr: 'تم تحديث الطابور.',
   refreshFailAr: 'تعذر تحديث الطابور.',
   generateCtaAr: 'إصدار من الإدارة',
   completeCtaAr: 'إتمام الإصدار',
