@@ -19,6 +19,8 @@ export type StoreOpsFieldSnapshotProps = {
   boardTitleAr: string;
   boardQrCaptionAr: string;
   boardOptionsAr: string;
+  /** بادئة مسار صفحة الزبون — `/k/` لطبختنا1 و`/v/` لخضارنا1 */
+  guestPathPrefix?: string;
   /** رمز صفحة الزبون — يُستخدم لبناء QR حقيقي */
   qrToken?: string | null;
   /** رابط QR مطلق يتجاوز qrToken */
@@ -32,10 +34,16 @@ export type StoreOpsFieldSnapshotProps = {
   className?: string;
 };
 
+function guestShopPath(prefix: string, token: string): string {
+  const normalized = prefix.endsWith('/') ? prefix : `${prefix}/`;
+  return `${normalized}${encodeURIComponent(token.trim())}`;
+}
+
 function resolveQrValue(props: StoreOpsFieldSnapshotProps): string | null {
   if (props.qrHref?.trim()) return props.qrHref.trim();
   if (props.qrToken?.trim()) {
-    return buildAbsoluteHashRoute(`/v/${encodeURIComponent(props.qrToken.trim())}`);
+    const prefix = props.guestPathPrefix?.trim() || '/v/';
+    return buildAbsoluteHashRoute(guestShopPath(prefix, props.qrToken.trim()));
   }
   return null;
 }
@@ -86,9 +94,12 @@ export function StoreOpsFieldSnapshot(props: StoreOpsFieldSnapshotProps) {
       if (hashIdx >= 0) return trimmed.slice(hashIdx + 1) || '/';
       if (trimmed.startsWith('/')) return trimmed;
     }
-    if (props.qrToken?.trim()) return `/v/${encodeURIComponent(props.qrToken.trim())}`;
+    if (props.qrToken?.trim()) {
+      const prefix = props.guestPathPrefix?.trim() || '/v/';
+      return guestShopPath(prefix, props.qrToken.trim());
+    }
     return null;
-  }, [phonePreviewHref, props.qrToken]);
+  }, [phonePreviewHref, props.guestPathPrefix, props.qrToken]);
 
   const [iframeSrc, setIframeSrc] = useState<string | null>(null);
   useEffect(() => {

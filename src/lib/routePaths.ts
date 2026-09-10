@@ -142,6 +142,8 @@ export const ROUTE_PATHS = {
   STORE_KITCHEN: '/store/kitchen',
   STORE_KITCHEN_READ: '/store/kitchen/read',
   STORE_KITCHEN_SUPPORT: '/store/kitchen/support',
+  /** معاينة دليل تشغيل طبختنا1 — بلا فهرسة */
+  STORE_KITCHEN_OPS_PLAN_PREVIEW: '/store/kitchen/ops-plan-preview',
   STORE_KITCHEN_GIFT: '/store/kitchen/gift',
   STORE_KITCHEN_GIFT_TERMS: '/store/kitchen/gift/terms',
   STORE_KITCHEN_GIFT_CONFIRM: '/store/kitchen/gift/confirm',

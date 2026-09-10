@@ -1901,6 +1901,132 @@
   }
 }
 
+.kitchen-ops-title {
+  font-size: clamp(2rem, 4.2vw, 3.25rem);
+}
+
+.kitchen-ops-intro,
+.kitchen-ops-body {
+  font-size: clamp(1rem, 1.6vw, 1.125rem);
+}
+
+.kitchen-ops-central-hook {
+  font-size: clamp(1.625rem, 3.6vw, 2.5rem);
+  line-height: 1.35;
+}
+
+.kitchen-ops-central-support {
+  font-size: clamp(1.125rem, 2.4vw, 1.375rem);
+}
+
+.kitchen-ops-step-title {
+  font-size: clamp(1.375rem, 2.6vw, 2rem);
+}
+
+.kitchen-ops-step-hook {
+  font-size: clamp(1.125rem, 2.2vw, 1.625rem);
+}
+
+.kitchen-ops-timeline::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 1.35rem;
+  width: 2px;
+  background: linear-gradient(180deg, rgb(180 90 60 / 0.55), rgb(180 90 60 / 0.08));
+  pointer-events: none;
+}
+
+.kitchen-ops-visual svg {
+  display: block;
+  border-radius: 1rem;
+}
+
+.store-ops-kitchen-mini {
+  opacity: 0;
+  transform: translateY(12px);
+  transition:
+    opacity 0.55s ease,
+    transform 0.55s ease;
+}
+
+.store-ops-kitchen-mini--revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.store-ops-kitchen-mini__scene {
+  position: relative;
+  background: #061018;
+}
+
+.store-ops-kitchen-mini__scene--qr {
+  min-height: 11rem;
+}
+
+.store-ops-kitchen-mini__card {
+  position: absolute;
+  left: 6%;
+  bottom: 8%;
+  width: min(28%, 8.5rem);
+  pointer-events: none;
+}
+
+.store-ops-kitchen-mini__card-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.4rem 0.35rem 0.45rem;
+  border-radius: 0.35rem;
+  background: rgb(255 255 255 / 0.94);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.18);
+}
+
+.store-ops-kitchen-mini__card-title,
+.store-ops-kitchen-mini__card-caption {
+  margin: 0;
+  font-size: clamp(0.55rem, 1.35vw, 0.68rem);
+  line-height: 1.45;
+  color: #1a2830;
+  text-align: center;
+  font-weight: 800;
+}
+
+.store-ops-kitchen-mini__card-caption {
+  font-weight: 600;
+  color: #334155;
+}
+
+.store-ops-kitchen-mini__qr-pad {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem;
+  background: #fff;
+  border-radius: 0.25rem;
+}
+
+.store-ops-kitchen-mini__qr-pad svg {
+  display: block;
+  width: 100% !important;
+  height: auto !important;
+  max-width: 4.5rem;
+}
+
+.store-ops-kitchen-mini__dual-pack .store-ops-kitchen-mini__pack img {
+  display: block;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .store-ops-kitchen-mini {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
 @keyframes store-hmtube-glow {
   0%,
   100% {
