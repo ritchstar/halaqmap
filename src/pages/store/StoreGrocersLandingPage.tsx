@@ -16,6 +16,7 @@ import { StoreProductReadLink } from '@/components/store/StoreProductReadLink';
 import { StoreShot } from '@/components/store/StoreShot';
 import { StoreGrocersStudio } from '@/components/store/StoreGrocersStudio';
 import { StoreInViewMount } from '@/components/store/StoreInViewMount';
+import { StoreDedicatedPageCallout, StoreDedicatedPageReelCaption } from '@/components/store/StoreDedicatedPageCallout';
 import { StoreLandingFold } from '@/components/store/StoreLandingFold';
 import {
   STORE_GROCERS_EXTENSION_PRICING,
@@ -55,6 +56,13 @@ export default function StoreGrocersLandingPage() {
             <p className={`mt-4 ${prose} font-extrabold text-[#f4efe4]`}>{STORE_GROCERS_LIVE.hookAr}</p>
             <p className={`mt-4 ${prose}`}>{STORE_GROCERS_LIVE.leadAr}</p>
             <p className={`mt-4 ${proseSm} font-bold text-[#d8f0cc]`}>{STORE_GROCERS_LIVE.valueLineAr}</p>
+            <StoreDedicatedPageCallout
+              audience="neighbor"
+              accentClass="text-[#8fbf7a]"
+              borderClass="border-[#8fbf7a]/35"
+              bgClass="bg-[#8fbf7a]/8"
+              className="mt-5"
+            />
             <StoreProductReadLink to={ROUTE_PATHS.STORE_GROCERS_READ} />
             <div className="mt-6 flex flex-wrap gap-3">
               <Link
@@ -97,6 +105,7 @@ export default function StoreGrocersLandingPage() {
             <figcaption className="border-t border-[#8fbf7a]/20 bg-[#07140e] px-5 py-4">
               <p className="text-xl font-black">{STORE_GROCERS_LIVE.heroCaptionAr}</p>
               <p className="mt-2 text-sm leading-7 text-white/70">{STORE_GROCERS_LIVE.qrPhraseAr}</p>
+              <StoreDedicatedPageReelCaption />
             </figcaption>
           </figure>
         </div>

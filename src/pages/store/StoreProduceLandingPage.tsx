@@ -16,6 +16,7 @@ import { StoreProductReadLink } from '@/components/store/StoreProductReadLink';
 import { StoreShot } from '@/components/store/StoreShot';
 import { StoreProduceStudio } from '@/components/store/StoreProduceStudio';
 import { StoreInViewMount } from '@/components/store/StoreInViewMount';
+import { StoreDedicatedPageCallout, StoreDedicatedPageReelCaption } from '@/components/store/StoreDedicatedPageCallout';
 import { StoreLandingFold } from '@/components/store/StoreLandingFold';
 import {
   STORE_PRODUCE_LIVE,
@@ -54,6 +55,13 @@ export default function StoreProduceLandingPage() {
             <p className={`mt-4 ${prose} font-extrabold text-[#f4efe4]`}>{STORE_PRODUCE_LIVE.hookAr}</p>
             <p className={`mt-4 ${prose}`}>{STORE_PRODUCE_LIVE.leadAr}</p>
             <p className={`mt-4 ${proseSm} font-bold text-[#d8f0cc]`}>{STORE_PRODUCE_LIVE.valueLineAr}</p>
+            <StoreDedicatedPageCallout
+              audience="neighbor"
+              accentClass="text-[#3d8b4a]"
+              borderClass="border-[#3d8b4a]/35"
+              bgClass="bg-[#3d8b4a]/8"
+              className="mt-5"
+            />
             <StoreProductReadLink to={ROUTE_PATHS.STORE_PRODUCE_READ} />
             <div className="mt-6 flex flex-wrap gap-3">
               <a
@@ -90,6 +98,7 @@ export default function StoreProduceLandingPage() {
             <figcaption className="border-t border-[#3d8b4a]/20 bg-[#0b1a10] px-5 py-4">
               <p className="text-xl font-black">{STORE_PRODUCE_LIVE.heroCaptionAr}</p>
               <p className="mt-2 text-sm leading-7 text-white/70">{STORE_PRODUCE_LIVE.qrPhraseAr}</p>
+              <StoreDedicatedPageReelCaption />
             </figcaption>
           </figure>
         </div>

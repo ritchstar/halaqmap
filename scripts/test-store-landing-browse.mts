@@ -35,6 +35,7 @@ assert.equal(
 assert.match(STORE_LANDING_COPY.newestLeadAr, /خضارنا1/);
 assert.match(STORE_LANDING_COPY.newestLeadAr, /طبختنا1/);
 assert.match(STORE_LANDING_COPY.newestLeadAr, /كافينا1/);
+assert.match(STORE_LANDING_COPY.newestLeadAr, /مخصصة لك وحدك/);
 
 assert.match(landing, /store-browse-neighborhood/);
 assert.match(landing, /store-browse-hospitality/);
@@ -82,5 +83,7 @@ assert.ok(landing.indexOf('paidInvitesTitleAr') > cardsStart);
 
 assert.match(landing, /overflow-x-clip/);
 assert.match(landing, /overflow-hidden text-center/);
+assert.match(landing, /StoreDedicatedPageCallout/);
+assert.match(landing, /storeBrowseNeighborhoodLeadAr/);
 
 console.log('test-store-landing-browse: ok');

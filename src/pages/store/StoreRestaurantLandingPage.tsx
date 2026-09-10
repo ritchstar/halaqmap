@@ -16,6 +16,7 @@ import { StoreRestaurantOrderForm } from '@/components/store/StoreRestaurantOrde
 import { StoreShot } from '@/components/store/StoreShot';
 import { StoreRestaurantStudio } from '@/components/store/StoreRestaurantStudio';
 import { StoreInViewMount } from '@/components/store/StoreInViewMount';
+import { StoreDedicatedPageCallout, StoreDedicatedPageReelCaption } from '@/components/store/StoreDedicatedPageCallout';
 import { StoreLandingFold } from '@/components/store/StoreLandingFold';
 import { STORE_MOBILE_VENDOR } from '@/config/storeMobileVendor';
 import {
@@ -56,6 +57,13 @@ export default function StoreRestaurantLandingPage() {
             <p className={`mt-4 ${prose}`}>{STORE_RESTAURANT_LIVE.leadAr}</p>
             <p className={`mt-3 ${proseSm} font-bold text-[#f3d2b0]`}>{STORE_RESTAURANT_LIVE.opsLineAr}</p>
             <p className={`mt-2 ${proseSm}`}>{STORE_RESTAURANT_LIVE.financialLineAr}</p>
+            <StoreDedicatedPageCallout
+              audience="districtGuest"
+              accentClass="text-[#e08a3c]"
+              borderClass="border-[#e08a3c]/35"
+              bgClass="bg-[#e08a3c]/8"
+              className="mt-5"
+            />
             <StoreProductReadLink to={ROUTE_PATHS.STORE_RESTAURANT_READ} />
             {renewToken ? (
               <p className="mt-4 rounded-xl border border-[#e08a3c]/35 bg-[#e08a3c]/10 px-4 py-3 text-sm leading-7">
@@ -100,6 +108,7 @@ export default function StoreRestaurantLandingPage() {
             <figcaption className="border-t border-[#e08a3c]/20 bg-[#1a1008] px-5 py-4">
               <p className="text-xl font-black">{STORE_RESTAURANT_LIVE.heroCaptionAr}</p>
               <p className="mt-2 text-sm leading-7 text-white/70">{STORE_RESTAURANT_LIVE.qrPhraseAr}</p>
+              <StoreDedicatedPageReelCaption />
             </figcaption>
           </figure>
         </div>

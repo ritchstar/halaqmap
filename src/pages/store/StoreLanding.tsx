@@ -20,8 +20,10 @@ import { StoreGeneralTrialPromoBanner } from '@/components/store/StoreGeneralTri
 import { StoreNationalDayPromoBanner } from '@/components/store/StoreNationalDayPromoBanner';
 import { StoreLiveOpsBanner } from '@/components/store/StoreLiveOpsBanner';
 import { StoreProductBenefitsLink } from '@/components/store/StoreProductBenefitsLink';
+import { StoreDedicatedPageCallout } from '@/components/store/StoreDedicatedPageCallout';
 import { StoreInViewMount } from '@/components/store/StoreInViewMount';
 import { StoreShot } from '@/components/store/StoreShot';
+import { STORE_DEDICATED_PAGE_COPY } from '@/config/storeDedicatedPageCopy';
 import type { StoreMarketingReelId } from '@/config/storeMarketingReels';
 import {
   STORE_GREETING_OCCASIONS,
@@ -98,6 +100,12 @@ export default function StoreLanding() {
             </button>
           </div>
         </div>
+        <StoreDedicatedPageCallout
+          leadAr={STORE_DEDICATED_PAGE_COPY.storeLandingLeadAr}
+          className="relative mx-auto mt-8 px-4"
+          compact
+          showClosing
+        />
       </section>
 
       <section id="store-newest-products" className="scroll-mt-14 px-4 pb-2 pt-2">
@@ -133,6 +141,9 @@ export default function StoreLanding() {
       <section id="store-browse-neighborhood" className="scroll-mt-14 px-4 pb-6 pt-4">
         <div className="mx-auto max-w-5xl">
           <h2 className="text-lg font-extrabold text-white/90">{STORE_LANDING_COPY.browseNeighborhoodAr}</h2>
+          <p className="mt-2 max-w-3xl text-sm leading-7 text-white/72">
+            {STORE_DEDICATED_PAGE_COPY.storeBrowseNeighborhoodLeadAr}
+          </p>
           <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {STORE_PRODUCE_LIVE_PUBLIC_ENABLED ? (
               <StoreBrowseCard
@@ -167,6 +178,9 @@ export default function StoreLanding() {
           <h2 className="text-lg font-extrabold text-white/90">
             {STORE_LANDING_COPY.browseHospitalitySectionAr}
           </h2>
+          <p className="mt-2 max-w-3xl text-sm leading-7 text-white/72">
+            {STORE_DEDICATED_PAGE_COPY.storeBrowseHospitalityLeadAr}
+          </p>
           <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {STORE_KITCHEN_LIVE_PUBLIC_ENABLED ? (
               <StoreBrowseCard

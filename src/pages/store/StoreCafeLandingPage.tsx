@@ -17,6 +17,7 @@ import { StoreSaipTrustLine } from '@/components/store/StoreSaipTrustLine';
 import { StoreShot } from '@/components/store/StoreShot';
 import { StoreCafeStudio } from '@/components/store/StoreCafeStudio';
 import { StoreInViewMount } from '@/components/store/StoreInViewMount';
+import { StoreDedicatedPageCallout, StoreDedicatedPageReelCaption } from '@/components/store/StoreDedicatedPageCallout';
 import { StoreLandingFold } from '@/components/store/StoreLandingFold';
 import { STORE_BRAND_LATIN } from '@/config/storeFront';
 import { STORE_MOBILE_VENDOR } from '@/config/storeMobileVendor';
@@ -50,6 +51,13 @@ export default function StoreCafeLandingPage() {
             <p className="text-sm font-bold leading-7 tracking-wide text-[#c48a4a]">{STORE_CAFE_LIVE.kickerAr}</p>
             <h1 className="mt-2 text-3xl font-extrabold leading-tight md:text-4xl">{STORE_CAFE_LIVE.titleAr}</h1>
             <p className="mt-4 max-w-xl text-base leading-8 text-white/78">{STORE_CAFE_LIVE.leadAr}</p>
+            <StoreDedicatedPageCallout
+              audience="neighbor"
+              accentClass="text-[#c48a4a]"
+              borderClass="border-[#c48a4a]/35"
+              bgClass="bg-[#c48a4a]/8"
+              className="mt-4"
+            />
             <p className="mt-4 text-2xl font-black text-[#c48a4a]">{STORE_CAFE_LIVE.priceLineAr}</p>
             <StoreProductReadLink to={ROUTE_PATHS.STORE_CAFE_READ} />
             <StoreLandingFold accentClass="text-[#c48a4a]">
@@ -181,6 +189,7 @@ export default function StoreCafeLandingPage() {
             <figcaption className="border-t border-[#c48a4a]/20 bg-[#1a1008] px-5 py-4">
               <p className="text-xl font-black">{STORE_CAFE_LIVE.heroCaptionAr}</p>
               <p className="mt-2 text-sm leading-7 text-white/70">{STORE_CAFE_LIVE.qrPhraseAr}</p>
+              <StoreDedicatedPageReelCaption />
             </figcaption>
           </figure>
         </div>

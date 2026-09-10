@@ -13,6 +13,7 @@ import { StoreHalanaOrderForm } from '@/components/store/StoreHalanaOrderForm';
 import { StoreProductBenefitsLink } from '@/components/store/StoreProductBenefitsLink';
 import { StoreProductSupportLink } from '@/components/store/StoreProductSupportLink';
 import { StoreProductReadLink } from '@/components/store/StoreProductReadLink';
+import { StoreDedicatedPageCallout, StoreDedicatedPageReelCaption } from '@/components/store/StoreDedicatedPageCallout';
 import { StoreLandingFold } from '@/components/store/StoreLandingFold';
 import { StoreShot } from '@/components/store/StoreShot';
 import {
@@ -50,6 +51,13 @@ export default function StoreHalanaLandingPage() {
               <bdi>{STORE_HALANA_LIVE.titleAr}</bdi>
             </h1>
             <p className={`mt-4 ${prose}`}>{STORE_HALANA_LIVE.leadAr}</p>
+            <StoreDedicatedPageCallout
+              audience="clientFeminine"
+              accentClass="text-[#c45c7a]"
+              borderClass="border-[#c45c7a]/35"
+              bgClass="bg-[#c45c7a]/8"
+              className="mt-5"
+            />
             <StoreProductReadLink to={ROUTE_PATHS.STORE_HALANA_READ} />
             <div className="mt-6 flex flex-wrap gap-3">
               <a
@@ -81,6 +89,7 @@ export default function StoreHalanaLandingPage() {
             <figcaption className="border-t border-[#c45c7a]/20 bg-[#1a0c10] px-5 py-4">
               <p className="text-xl font-black">{STORE_HALANA_LIVE.heroCaptionAr}</p>
               <p className="mt-2 text-sm leading-7 text-white/70">{STORE_HALANA_LIVE.qrPhraseAr}</p>
+              <StoreDedicatedPageReelCaption />
             </figcaption>
           </figure>
         </div>

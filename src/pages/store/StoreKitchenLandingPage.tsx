@@ -17,6 +17,7 @@ import { StoreProductReadLink } from '@/components/store/StoreProductReadLink';
 import { StoreSaipTrustLine } from '@/components/store/StoreSaipTrustLine';
 import { StoreKitchenStudio } from '@/components/store/StoreKitchenStudio';
 import { StoreInViewMount } from '@/components/store/StoreInViewMount';
+import { StoreDedicatedPageCallout, StoreDedicatedPageReelCaption } from '@/components/store/StoreDedicatedPageCallout';
 import { StoreLandingFold } from '@/components/store/StoreLandingFold';
 import { StoreShot } from '@/components/store/StoreShot';
 import { STORE_BRAND_LATIN } from '@/config/storeFront';
@@ -51,6 +52,13 @@ export default function StoreKitchenLandingPage() {
             <p className="text-sm font-bold leading-7 tracking-wide text-[#b45a3c]">{STORE_KITCHEN_LIVE.kickerAr}</p>
             <h1 className="mt-2 text-3xl font-extrabold leading-tight md:text-4xl">{STORE_KITCHEN_LIVE.titleAr}</h1>
             <p className="mt-4 max-w-xl text-base leading-8 text-white/78">{STORE_KITCHEN_LIVE.leadAr}</p>
+            <StoreDedicatedPageCallout
+              audience="customer"
+              accentClass="text-[#b45a3c]"
+              borderClass="border-[#b45a3c]/35"
+              bgClass="bg-[#b45a3c]/8"
+              className="mt-4"
+            />
             <p className="mt-4 text-2xl font-black text-[#b45a3c]">{STORE_KITCHEN_LIVE.priceLineAr}</p>
             <StoreProductReadLink to={ROUTE_PATHS.STORE_KITCHEN_READ} />
             <StoreLandingFold accentClass="text-[#b45a3c]">
@@ -176,6 +184,7 @@ export default function StoreKitchenLandingPage() {
             <figcaption className="border-t border-[#b45a3c]/20 bg-[#1a0c08] px-5 py-4">
               <p className="text-xl font-black">{STORE_KITCHEN_LIVE.heroCaptionAr}</p>
               <p className="mt-2 text-sm leading-7 text-white/70">{STORE_KITCHEN_LIVE.qrPhraseAr}</p>
+              <StoreDedicatedPageReelCaption />
             </figcaption>
           </figure>
         </div>
