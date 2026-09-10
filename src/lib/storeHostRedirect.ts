@@ -41,7 +41,9 @@ function isStoreSurfacePath(path: string): boolean {
     path === '/k' ||
     path.startsWith('/k/') ||
     path === '/h' ||
-    path.startsWith('/h/')
+    path.startsWith('/h/') ||
+    path === '/t' ||
+    path.startsWith('/t/')
   );
 }
 
@@ -78,7 +80,8 @@ export function isStoreHostPaymentPath(path: string): boolean {
     normalized.startsWith('/pay/cafe/') ||
     normalized.startsWith('/pay/kitchen/') ||
     normalized.startsWith('/pay/produce/') ||
-    normalized.startsWith('/pay/halana/')
+    normalized.startsWith('/pay/halana/') ||
+    normalized.startsWith('/pay/dates/')
   );
 }
 
@@ -244,6 +247,24 @@ export function produceLiveViewHref(token: string): string {
   return `/#${hashPath}`;
 }
 
+export function datesLivePayHref(token: string): string {
+  const hashPath = `/pay/dates/${encodeURIComponent(token)}`;
+  if (typeof window === 'undefined') return `/#${hashPath}`;
+  if (isHalaqmapStoreHost(window.location.hostname)) {
+    return `https://www.halaqmap.com/#${hashPath}`;
+  }
+  return `/#${hashPath}`;
+}
+
+export function datesLiveViewHref(token: string): string {
+  const hashPath = `/t/${encodeURIComponent(token)}`;
+  if (typeof window === 'undefined') return `/#${hashPath}`;
+  if (isHalaqmapMensHost(window.location.hostname)) {
+    return `https://store.halaqmap.com/#${hashPath}`;
+  }
+  return `/#${hashPath}`;
+}
+
 export function occasionCardPayHref(token: string): string {
   const hashPath = `/pay/occasion-card/${encodeURIComponent(token)}`;
   if (typeof window === 'undefined') return `/#${hashPath}`;
@@ -268,7 +289,7 @@ export function occasionCardShareHref(token: string): string {
   return `${STORE_ORIGIN}/oc/${encodeURIComponent(safe)}`;
 }
 
-export type StoreLiveShopShareKind = 'halana' | 'grocers' | 'restaurant' | 'cafe' | 'kitchen' | 'produce';
+export type StoreLiveShopShareKind = 'halana' | 'grocers' | 'restaurant' | 'cafe' | 'kitchen' | 'produce' | 'dates';
 
 const LIVE_SHOP_SHARE_PREFIX: Record<StoreLiveShopShareKind, string> = {
   halana: '/h',
@@ -277,6 +298,7 @@ const LIVE_SHOP_SHARE_PREFIX: Record<StoreLiveShopShareKind, string> = {
   cafe: '/c',
   kitchen: '/k',
   produce: '/v',
+  dates: '/t',
 };
 
 /** مسار بلا هاش حتى تقرأ واتساب اسم النشاط لا عنوان المتجر العام. */

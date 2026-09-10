@@ -92,6 +92,15 @@ export const STORE_MAIL_PRODUCT_ICONS: readonly StoreMailIconTheme[] = [
     ring: '#7ec98a',
   },
   {
+    id: 'dates',
+    markAr: STORE_PRODUCT_EMOJI.dates,
+    titleAr: 'تمرتنا1',
+    accent: '#8A6239',
+    ink: '#2A2016',
+    canvas: '#1a140c',
+    ring: '#c9a877',
+  },
+  {
     id: 'halana',
     markAr: STORE_PRODUCT_EMOJI.halana,
     titleAr: 'حلانا1',

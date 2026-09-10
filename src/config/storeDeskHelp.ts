@@ -3,7 +3,7 @@
  *
  * صندوق التعليمات والدعم في لوحة الكاشير. لا يُستورد من App.
  */
-export const STORE_DESK_HELP_PRODUCTS = ['grocers', 'restaurant', 'cafe', 'kitchen', 'produce', 'halana'] as const;
+export const STORE_DESK_HELP_PRODUCTS = ['grocers', 'restaurant', 'cafe', 'kitchen', 'produce', 'halana', 'dates'] as const;
 
 export type StoreDeskHelpProduct = (typeof STORE_DESK_HELP_PRODUCTS)[number];
 
@@ -96,6 +96,19 @@ export const STORE_DESK_HELP = {
       'لا يُقفَل الموعد إلا بعد عربون بصورة تحويل ثم تأكيدك.',
       'اطبعي ملصق الرمز أو افتحي كرت الجوال وأرسليه على واتساب.',
       'انشري رابط المعرض من قسم القنوات التسويقية في هذه اللوحة.',
+    ],
+  },
+  dates: {
+    productAr: 'تمرتنا1',
+    accent: '#8A6239',
+    whatsappPrefillAr: 'مرحباً، أكتب من لوحة تمرتنا1 وأحتاج دعماً من الإدارة.',
+    stepsAr: [
+      'فعّل تنبيه الطلبات أعلى اللوحة ليصلك صوت ووميض وإشعار عند الطلب الجديد.',
+      'استقبل طلب جار الحي من لوحة الصندوق.',
+      'اضغط تم الاستلام ثم أرشفة وإنهاء، وحمّل الأرشيف من أسفل اللوحة.',
+      'حدّث ما وصل اليوم وتوفر الأصناف بالكيلو أو الصندوق أو الكيس.',
+      'أرسل المذكرة من جهازك عبر واتساب للتسليم أو الاستلام.',
+      'طلب الجار نقداً أو شبكة عند الصندوق، بلا تحصيل سلّته من هنا.',
     ],
   },
 } as const;

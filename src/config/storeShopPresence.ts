@@ -15,6 +15,7 @@ export const STORE_SHOP_PRESENCE_TAGS = [
   'store_cafe_live',
   'store_kitchen_live',
   'store_produce_live',
+  'store_dates_live',
 ] as const;
 
 export type StoreShopPresenceTag = (typeof STORE_SHOP_PRESENCE_TAGS)[number];
@@ -25,6 +26,7 @@ export const STORE_SHOP_PRESENCE_LAB_TOKENS = [
   'cafe-lab',
   'kitchen-lab',
   'produce-lab',
+  'dates-lab',
 ] as const;
 
 export function isStoreShopPresenceTag(raw: unknown): raw is StoreShopPresenceTag {

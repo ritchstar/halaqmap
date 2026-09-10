@@ -15,6 +15,7 @@ const PRODUCT_LANDING_ROOTS = [
   ROUTE_PATHS.STORE_EVENT,
   ROUTE_PATHS.STORE_LOUNGE,
   ROUTE_PATHS.STORE_INVITES,
+  ROUTE_PATHS.STORE_DATES,
 ] as const;
 
 export function normalizeStorePath(pathname: string): string {

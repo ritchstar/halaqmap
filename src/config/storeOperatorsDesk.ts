@@ -13,6 +13,7 @@ export type StoreOperatorProductId =
   | 'kitchen'
   | 'grocers'
   | 'produce'
+  | 'dates'
   | 'restaurant'
   | 'cafe'
   | 'halana'
@@ -22,6 +23,7 @@ export const STORE_OPERATOR_PRODUCT_IDS: readonly StoreOperatorProductId[] = [
   'kitchen',
   'grocers',
   'produce',
+  'dates',
   'restaurant',
   'cafe',
   'halana',
@@ -35,6 +37,7 @@ export const STORE_OPERATOR_PRODUCTS: Record<
   kitchen: { titleAr: 'طبختنا1', markAr: STORE_PRODUCT_EMOJI.kitchen, accent: '#b45a3c', openAr: 'افتح لوحة النشاط' },
   grocers: { titleAr: 'تمويناتا1', markAr: STORE_PRODUCT_EMOJI.grocers, accent: '#8fbf7a', openAr: 'افتح لوحة الكاشير' },
   produce: { titleAr: 'خضارنا1', markAr: STORE_PRODUCT_EMOJI.produce, accent: '#3d8b4a', openAr: 'افتح لوحة الصندوق' },
+  dates: { titleAr: 'تمرتنا1', markAr: STORE_PRODUCT_EMOJI.dates, accent: '#8A6239', openAr: 'افتح لوحة الصندوق' },
   restaurant: { titleAr: 'مطعمنا1', markAr: STORE_PRODUCT_EMOJI.restaurant, accent: '#e08a3c', openAr: 'افتح لوحة المطبخ' },
   cafe: { titleAr: 'كافينا1', markAr: STORE_PRODUCT_EMOJI.cafe, accent: '#c48a4a', openAr: 'افتح لوحة الكاشير' },
   halana: { titleAr: 'حلانا1', markAr: STORE_PRODUCT_EMOJI.halana, accent: '#c45c7a', openAr: 'افتح لوحة المتخصصة' },

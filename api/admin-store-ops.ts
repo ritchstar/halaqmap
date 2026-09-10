@@ -80,7 +80,7 @@ async function attachTrialLinks(
           }),
         );
       }
-    } else if (key === 'grocers' || key === 'restaurant' || key === 'produce' || key === 'kitchen') {
+    } else if (key === 'grocers' || key === 'restaurant' || key === 'produce' || key === 'dates' || key === 'kitchen') {
       const { data } = await db.from(table).select('id, shop_token, desk_token').in('id', unique);
       for (const order of data || []) {
         const rec = order as { id: string; shop_token?: string; desk_token?: string };

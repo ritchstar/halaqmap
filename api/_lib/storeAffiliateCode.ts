@@ -35,6 +35,7 @@ export type StoreAffiliateCheckoutLinks = {
   kitchen: string;
   produce: string;
   halana: string;
+  dates: string;
 };
 
 /** روابط شراء منتجات المتجر باسم المسوّق — ليست كاردي8. */
@@ -51,5 +52,6 @@ export function storeAffiliateCheckoutLinks(rawCode: unknown): StoreAffiliateChe
     kitchen: `https://www.halaqmap.com/#/store/kitchen${q}`,
     produce: `https://www.halaqmap.com/#/store/produce${q}`,
     halana: `https://www.halaqmap.com/#/store/halana${q}`,
+    dates: `https://www.halaqmap.com/#/store/dates${q}`,
   };
 }

@@ -260,6 +260,49 @@ const PRODUCE: StoreProductReadEntry = {
   }),
 };
 
+/* ── تمرتنا1 — منتج غير مسجّل لدى الهيئة السعودية للملكية الفكرية ── */
+const DATES: StoreProductReadEntry = {
+  id: 'dates',
+  documentTitle: 'تمرتنا1 — دليل ومقارنة — خريطة الحل',
+  accent: '#8A6239',
+  kickerAr: 'صندوق التمر',
+  titleAr: 'تمرتنا1: صندوق اليوم بواجهة حية ولوحة تشغيل للحي',
+  metaDescriptionAr:
+    'تمرتنا1 نظام سحابي لمحلات التمر: بنك أصناف بالكيلو أو الصندوق، شريط ما وصل اليوم، طلب من الجوال، ومذكرة واتساب من جهاز المحل.',
+  buyPath: ROUTE_PATHS.STORE_DATES,
+  buyCtaAr: 'اشترك في تمرتنا1',
+  sections: [
+    {
+      headingAr: 'المشكلة التي يحلّها تمرتنا1',
+      bodyAr:
+        'أصناف التمر ودرجاتها تختلف بين موسم وآخر، وطلبات صناديق الهدايا تتكاثف قبل رمضان والعيد. تمرتنا1 يمنح صاحب الصندوق شريط «ما وصل اليوم» وصفحة طلب حية يفتحها جار الحي من جواله، ويصل الطلب مكتوباً إلى اللوحة خلال ثوانٍ.',
+    },
+    {
+      headingAr: 'كيف يعمل النظام؟',
+      bodyAr:
+        'يُطبع رمز QR على الصندوق أو العربة أو واجهة المحل. يفتح الزبون صفحة الأصناف، يختار كيلو أو صندوق هدية، ويرسل طلبه. يصل الطلب إلى لوحة صاحب المحل خلال ثوانٍ، ومن جهازه تُفتح مذكرة واتساب بنقرة واحدة لعامل التوصيل أو لتأكيد الاستلام.',
+    },
+  ],
+  faqs: [
+    {
+      q: 'هل يفرض تمرتنا1 عمولة على قيمة السلة؟',
+      a: 'لا، الاشتراك بسعر ثابت: 1350 ر.س لمئة وثمانين يوماً أو 2500 ر.س لثلاثمئة وستين يوماً، بدون أي نسبة من قيمة الطلبات.',
+    },
+    {
+      q: 'هل يختلف تمرتنا1 عن خضارنا1؟',
+      a: 'نعم، تمرتنا1 مخصص لمحلات وصناديق التمر وهداياه، وخضارنا1 مخصص لمحلات الخضار والفواكه بأسعار اليوم.',
+    },
+  ],
+  faqJsonLd: JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: [
+      { '@type': 'Question', name: 'هل يفرض تمرتنا1 عمولة على قيمة السلة؟', acceptedAnswer: { '@type': 'Answer', text: 'لا، الاشتراك بسعر ثابت: 1350 ر.س لمئة وثمانين يوماً أو 2500 ر.س لثلاثمئة وستين يوماً، بدون أي نسبة من قيمة الطلبات.' } },
+      { '@type': 'Question', name: 'هل يختلف تمرتنا1 عن خضارنا1؟', acceptedAnswer: { '@type': 'Answer', text: 'نعم، تمرتنا1 مخصص لمحلات وصناديق التمر وهداياه، وخضارنا1 مخصص لمحلات الخضار والفواكه بأسعار اليوم.' } },
+    ],
+  }),
+};
+
 /* ── مطعمنا1 ── */
 const RESTAURANT: StoreProductReadEntry = {
   id: 'restaurant',
@@ -568,6 +611,7 @@ export const STORE_PRODUCT_READ_REGISTRY: Record<string, StoreProductReadEntry> 
   event: EVENT,
   invites: INVITES,
   halana: HALANA,
+  dates: DATES,
 };
 
 /** مطابقة المسار → إدخال القراءة */
@@ -583,5 +627,6 @@ export function storeProductReadByPath(pathname: string): StoreProductReadEntry 
   if (p === ROUTE_PATHS.STORE_EVENT_READ) return EVENT;
   if (p === ROUTE_PATHS.STORE_INVITES_READ) return INVITES;
   if (p === ROUTE_PATHS.STORE_HALANA_READ) return HALANA;
+  if (p === ROUTE_PATHS.STORE_DATES_READ) return DATES;
   return null;
 }

@@ -215,6 +215,18 @@ const STORE_PRODUCE_DESK_PATH =
   (ROUTE_PATHS as { STORE_PRODUCE_DESK?: string }).STORE_PRODUCE_DESK || "/v/:token/desk";
 const STORE_PRODUCE_PAY_PATH =
   (ROUTE_PATHS as { STORE_PRODUCE_PAY?: string }).STORE_PRODUCE_PAY || "/pay/produce/:token";
+const STORE_DATES_PATH =
+  (ROUTE_PATHS as { STORE_DATES?: string }).STORE_DATES || "/store/dates";
+const STORE_DATES_SUPPORT_PATH =
+  (ROUTE_PATHS as { STORE_DATES_SUPPORT?: string }).STORE_DATES_SUPPORT || "/store/dates/support";
+const STORE_DATES_READ_PATH =
+  (ROUTE_PATHS as { STORE_DATES_READ?: string }).STORE_DATES_READ || "/store/dates/read";
+const STORE_DATES_VIEW_PATH =
+  (ROUTE_PATHS as { STORE_DATES_VIEW?: string }).STORE_DATES_VIEW || "/t/:token";
+const STORE_DATES_DESK_PATH =
+  (ROUTE_PATHS as { STORE_DATES_DESK?: string }).STORE_DATES_DESK || "/t/:token/desk";
+const STORE_DATES_PAY_PATH =
+  (ROUTE_PATHS as { STORE_DATES_PAY?: string }).STORE_DATES_PAY || "/pay/dates/:token";
 const STORE_HALANA_PATH =
   (ROUTE_PATHS as { STORE_HALANA?: string }).STORE_HALANA || "/store/halana";
 const STORE_HALANA_READ_PATH =
@@ -396,6 +408,10 @@ const StoreKitchenPayPage = lazy(() => import("@/pages/store/StoreKitchenPayPage
 const StoreProduceLandingPage = lazy(() => import("@/pages/store/StoreProduceLandingPage"));
 const StoreProduceShopPage = lazy(() => import("@/pages/store/StoreProduceShopPage"));
 const StoreProducePayPage = lazy(() => import("@/pages/store/StoreProducePayPage"));
+const StoreDatesLandingPage = lazy(() => import("@/pages/store/StoreDatesLandingPage"));
+const StoreDatesShopPage = lazy(() => import("@/pages/store/StoreDatesShopPage"));
+const StoreDatesPayPage = lazy(() => import("@/pages/store/StoreDatesPayPage"));
+const StoreDatesOpsPlanPreviewPage = lazy(() => import("@/pages/store/StoreDatesOpsPlanPreviewPage"));
 const StoreHalanaLandingPage = lazy(() => import("@/pages/store/StoreHalanaLandingPage"));
 const StoreHalanaShopPage = lazy(() => import("@/pages/store/StoreHalanaShopPage"));
 const StoreHalanaPayPage = lazy(() => import("@/pages/store/StoreHalanaPayPage"));
@@ -1017,6 +1033,16 @@ export function App() {
           <Route path={STORE_PRODUCE_PATH} element={<LazyRoute><StoreProduceLandingPage /></LazyRoute>} />
           <Route path={STORE_PRODUCE_DESK_PATH} element={<LazyRoute><StoreProduceShopPage /></LazyRoute>} />
           <Route path={STORE_PRODUCE_VIEW_PATH} element={<LazyRoute><StoreProduceShopPage /></LazyRoute>} />
+          <Route path={STORE_DATES_PAY_PATH} element={<LazyRoute><StoreDatesPayPage /></LazyRoute>} />
+          <Route path={STORE_DATES_SUPPORT_PATH} element={<LazyRoute><StoreProductSupportPage /></LazyRoute>} />
+          <Route path={STORE_DATES_READ_PATH} element={<LazyRoute><StoreProductReadPage /></LazyRoute>} />
+          <Route
+            path={ROUTE_PATHS.STORE_DATES_OPS_PLAN_PREVIEW}
+            element={<LazyRoute><StoreDatesOpsPlanPreviewPage /></LazyRoute>}
+          />
+          <Route path={STORE_DATES_PATH} element={<LazyRoute><StoreDatesLandingPage /></LazyRoute>} />
+          <Route path={STORE_DATES_DESK_PATH} element={<LazyRoute><StoreDatesShopPage /></LazyRoute>} />
+          <Route path={STORE_DATES_VIEW_PATH} element={<LazyRoute><StoreDatesShopPage /></LazyRoute>} />
           <Route path={STORE_HALANA_PAY_PATH} element={<LazyRoute><StoreHalanaPayPage /></LazyRoute>} />
           <Route path={STORE_HALANA_SUPPORT_PATH} element={<LazyRoute><StoreProductSupportPage /></LazyRoute>} />
           <Route path={STORE_HALANA_PATH} element={<LazyRoute><StoreHalanaLandingPage /></LazyRoute>} />

@@ -16,6 +16,8 @@ import { newCafeToken } from './storeCafeLive.js';
 import { sendCafeLiveLinksEmail } from './storeCafeLiveMail.js';
 import { newProduceToken } from './storeProduceLive.js';
 import { sendProduceLiveLinksEmail } from './storeProduceLiveMail.js';
+import { newDatesToken } from './storeDatesLive.js';
+import { sendDatesLiveLinksEmail } from './storeDatesLiveMail.js';
 import {
   DEFAULT_KITCHEN_PICKUP,
   newKitchenQrStamp,
@@ -35,7 +37,7 @@ export const STORE_PRODUCT_TRIAL_QUOTA = 5 as const;
 export const STORE_PRODUCE_TRIAL_DAYS = STORE_PRODUCT_TRIAL_DAYS;
 export const STORE_KITCHEN_TRIAL_DAYS = STORE_PRODUCT_TRIAL_DAYS;
 
-export const STORE_GENERAL_TRIAL_KEYS = ['lounge', 'grocers', 'restaurant', 'cafe', 'kitchen', 'produce', 'halana'] as const;
+export const STORE_GENERAL_TRIAL_KEYS = ['lounge', 'grocers', 'restaurant', 'cafe', 'kitchen', 'produce', 'dates', 'halana'] as const;
 export type StoreGeneralTrialKey = (typeof STORE_GENERAL_TRIAL_KEYS)[number];
 
 export type StoreProductTrialKey =
@@ -47,6 +49,7 @@ export type StoreProductTrialKey =
   | 'cafe'
   | 'kitchen'
   | 'produce'
+  | 'dates'
   | 'halana';
 
 export type StoreProductTrialRow = {
@@ -82,6 +85,7 @@ const PRODUCT_TAG: Record<StoreProductTrialKey, string> = {
   cafe: 'store_cafe_live',
   kitchen: 'store_kitchen_live',
   produce: 'store_produce_live',
+  dates: 'store_dates_live',
   halana: 'store_halana_live',
 };
 
@@ -94,6 +98,7 @@ const ORDER_TABLE: Record<StoreProductTrialKey, string> = {
   cafe: 'store_cafe_live_orders',
   kitchen: 'store_kitchen_live_orders',
   produce: 'store_produce_live_orders',
+  dates: 'store_dates_live_orders',
   halana: 'store_halana_copies',
 };
 
@@ -109,6 +114,7 @@ export function isStoreProductTrialKey(raw: unknown): raw is StoreProductTrialKe
     raw === 'cafe' ||
     raw === 'kitchen' ||
     raw === 'produce' ||
+    raw === 'dates' ||
     raw === 'halana'
   );
 }
@@ -121,6 +127,7 @@ export function isGeneralTrialProductKey(raw: unknown): raw is StoreGeneralTrial
     raw === 'cafe' ||
     raw === 'kitchen' ||
     raw === 'produce' ||
+    raw === 'dates' ||
     raw === 'halana'
   );
 }
@@ -177,6 +184,12 @@ function productLinks(key: StoreProductTrialKey, tokens: Record<string, string>)
     return {
       a: storeLiveShopShareHref('produce', tokens.shop),
       b: `${storeOrigin()}/#/v/${encodeURIComponent(tokens.desk)}/desk`,
+    };
+  }
+  if (key === 'dates') {
+    return {
+      a: storeLiveShopShareHref('dates', tokens.shop),
+      b: `${storeOrigin()}/#/t/${encodeURIComponent(tokens.desk)}/desk`,
     };
   }
   if (key === 'kitchen') {
@@ -239,6 +252,12 @@ export function publicTrialHrefs(
     ];
   }
   if (key === 'produce') {
+    return [
+      { titleAr: 'جار الحي', href: links.a },
+      { titleAr: 'الصندوق', href: links.b },
+    ];
+  }
+  if (key === 'dates') {
     return [
       { titleAr: 'جار الحي', href: links.a },
       { titleAr: 'الصندوق', href: links.b },
@@ -331,6 +350,20 @@ function trialPayload(
       shopName: 'تجربة خضارنا1',
       hostName: 'الصندوق',
       blurbAr: 'نموذج تجريبي لصندوق الخضار في الحي.',
+      customFields: ['', '', '', '', ''],
+      flashAr: '',
+      shelf: [],
+      orders: [],
+      chatIncluded: true,
+      chats: [],
+    };
+  }
+  if (key === 'dates') {
+    return {
+      packId: 'm6',
+      shopName: 'تجربة تمرتنا1',
+      hostName: 'الصندوق',
+      blurbAr: 'نموذج تجريبي لصندوق التمر في الحي.',
       customFields: ['', '', '', '', ''],
       flashAr: '',
       shelf: [],
@@ -489,6 +522,10 @@ async function sendIssuedMail(key: StoreProductTrialKey, email: string, tokens: 
     await sendProduceLiveLinksEmail({ to: email, shopUrl: links.a, deskUrl: links.b, expiresLabel });
     return;
   }
+  if (key === 'dates') {
+    await sendDatesLiveLinksEmail({ to: email, shopUrl: links.a, deskUrl: links.b, expiresLabel });
+    return;
+  }
   if (key === 'kitchen') {
     await sendKitchenLiveLinksEmail({ to: email, shopUrl: links.a, deskUrl: links.b, expiresLabel });
     return;
@@ -626,6 +663,31 @@ async function insertLiveOrder(
         desk_token: desk,
         buyer_email: email,
         buyer_name: 'تجربة خضارنا1',
+        price_halalas: 0,
+        payload,
+        policy_version: 'trial-60',
+        is_trial: true,
+        trial_id: trialId,
+        expires_at: null,
+        created_at: now,
+        updated_at: now,
+      })
+      .select('id')
+      .maybeSingle();
+    if (error || !data) return { error: 'تعذر إنشاء صفحة الصندوق التجريبية.' };
+    return { orderId: String(data.id), tokens: { shop, desk } };
+  }
+  if (key === 'dates') {
+    const shop = newDatesToken();
+    const desk = newDatesToken();
+    const { data, error } = await db
+      .from(table)
+      .insert({
+        status: 'live',
+        shop_token: shop,
+        desk_token: desk,
+        buyer_email: email,
+        buyer_name: 'تجربة تمرتنا1',
         price_halalas: 0,
         payload,
         policy_version: 'trial-60',

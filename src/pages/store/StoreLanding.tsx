@@ -49,6 +49,7 @@ import { STORE_RESTAURANT_LIVE, STORE_RESTAURANT_LIVE_PUBLIC_ENABLED } from '@/c
 import { STORE_CAFE_LIVE, STORE_CAFE_LIVE_PUBLIC_ENABLED } from '@/config/storeCafeLive';
 import { STORE_KITCHEN_LIVE, STORE_KITCHEN_LIVE_PUBLIC_ENABLED } from '@/config/storeKitchenLive';
 import { STORE_PRODUCE_LIVE, STORE_PRODUCE_LIVE_PUBLIC_ENABLED } from '@/config/storeProduceLive';
+import { STORE_DATES_LIVE, STORE_DATES_LIVE_PUBLIC_ENABLED } from '@/config/storeDatesLive';
 import { STORE_HALANA_LIVE, STORE_HALANA_LIVE_PUBLIC_ENABLED } from '@/config/storeHalanaLive';
 import { storeLiveProductReel, storeSoftwareShotReel } from '@/config/storeMarketingReels';
 
@@ -131,6 +132,18 @@ export default function StoreLanding() {
                 leadAr={STORE_LANDING_COPY.grocersLiveLeadAr}
                 ctaAr={STORE_LANDING_COPY.grocersLiveCtaAr}
                 accent="#8fbf7a"
+                showTrialBadge
+              />
+            ) : null}
+            {STORE_DATES_LIVE_PUBLIC_ENABLED ? (
+              <StoreBrowseCard
+                to={ROUTE_PATHS.STORE_DATES}
+                reel="dates"
+                alt={STORE_DATES_LIVE.heroAltAr}
+                titleAr={STORE_LANDING_COPY.datesLiveTitleAr}
+                leadAr={STORE_LANDING_COPY.datesLiveLeadAr}
+                ctaAr={STORE_LANDING_COPY.datesLiveCtaAr}
+                accent="#8A6239"
                 showTrialBadge
               />
             ) : null}

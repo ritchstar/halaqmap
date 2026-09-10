@@ -14,6 +14,7 @@ export const STORE_DIRECT_PAY_PRODUCTS = [
   'store_wedding_live',
   'store_event_live',
   'store_lounge_live',
+  'store_dates_live',
 ] as const;
 
 export type StoreDirectPayProduct = (typeof STORE_DIRECT_PAY_PRODUCTS)[number];
@@ -26,6 +27,7 @@ export const STORE_DIRECT_PAY_GUEST_PRODUCTS = [
   'store_produce_live',
   'store_restaurant_live',
   'store_cafe_live',
+  'store_dates_live',
 ] as const;
 
 export const STORE_DIRECT_PAY_SARIE_KINDS = ['mobile', 'email', 'entity'] as const;

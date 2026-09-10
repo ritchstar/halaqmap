@@ -55,6 +55,7 @@ export function AffiliateStoreLane({ hideCatalog = false }: { hideCatalog?: bool
     cafe: '',
     kitchen: '',
     produce: '',
+    dates: '',
     halana: '',
   });
 
@@ -178,6 +179,7 @@ export function AffiliateStoreLane({ hideCatalog = false }: { hideCatalog?: bool
               cafe: marketer.links.cafe,
               kitchen: marketer.links.kitchen || '',
               produce: marketer.links.produce || '',
+              dates: marketer.links.dates || '',
               halana: marketer.links.halana || '',
             }}
             onPick={(href) => void copyLink(href)}

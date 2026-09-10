@@ -21,9 +21,10 @@ export type StoreProductTrialKey =
   | 'cafe'
   | 'kitchen'
   | 'produce'
-  | 'halana';
+  | 'halana'
+  | 'dates';
 
-export type StoreGeneralTrialKey = 'lounge' | 'grocers' | 'restaurant' | 'cafe' | 'kitchen' | 'produce' | 'halana';
+export type StoreGeneralTrialKey = 'lounge' | 'grocers' | 'restaurant' | 'cafe' | 'kitchen' | 'produce' | 'halana' | 'dates';
 
 export const STORE_PRODUCT_TRIAL_KEYS: readonly StoreProductTrialKey[] = [
   'wedding',
@@ -35,6 +36,7 @@ export const STORE_PRODUCT_TRIAL_KEYS: readonly StoreProductTrialKey[] = [
   'kitchen',
   'produce',
   'halana',
+  'dates',
 ] as const;
 
 export const STORE_GENERAL_TRIAL_KEYS: readonly StoreGeneralTrialKey[] = [
@@ -45,6 +47,7 @@ export const STORE_GENERAL_TRIAL_KEYS: readonly StoreGeneralTrialKey[] = [
   'kitchen',
   'produce',
   'halana',
+  'dates',
 ] as const;
 
 export function trialDaysFor(_key: StoreProductTrialKey): number {
@@ -154,7 +157,7 @@ export const STORE_GENERAL_TRIAL_COPY = {
   headerShortAr: 'تجربة',
   promoBadgeAr: 'التجربة العامة',
   promoTitleAr: 'ستون يوماً تشغيل كامل قبل الشراء',
-  promoLeadAr: 'لاونجا1 وتمويناتا1 ومطعمنا1 وخضارنا1 وكافينا1 وطبختنا1 وحلانا1. بعد موافقة الإدارة تصل الروابط إلى بريدك.',
+  promoLeadAr: 'لاونجا1 وتمويناتا1 ومطعمنا1 وخضارنا1 وكافينا1 وطبختنا1 وحلانا1 وتمرتنا1. بعد موافقة الإدارة تصل الروابط إلى بريدك.',
   promoCtaAr: 'اطلب التجربة',
   promoAriaAr: 'إعلان نظام التجربة العام',
   clockAr: 'ستون يوماً من أول دخول، ثم تمديد بالشراء على نفس الصفحة.',
@@ -205,7 +208,8 @@ export const STORE_PRODUCT_TRIAL_PRODUCTS: Record<
       | 'store_cafe_live'
       | 'store_kitchen_live'
       | 'store_produce_live'
-      | 'store_halana_live';
+      | 'store_halana_live'
+      | 'store_dates_live';
     opsNoteAr: string;
     deskNoteAr: string;
     howToAr: string;
@@ -310,5 +314,16 @@ export const STORE_PRODUCT_TRIAL_PRODUCTS: Record<
     howToAr:
       'ستون يوماً من أول دخول. بعدها تشتري مئة وثمانين يوماً بـ 894 أو ثلاثمئة وستين بـ 1788 على نفس الصفحة. البيانات محفوظة بالإيميل.',
     cardLeadAr: 'معرض حلويات خاصة وطلب مخصص ولوحة المتخصصة. بعد الستين يوماً: 894 أو 1788 ر.س.',
+  },
+  dates: {
+    titleAr: 'تمرتنا1',
+    productTag: 'store_dates_live',
+    opsNoteAr:
+      'الأتمتة التقنية لصفحة جار الحي ولوحة الصندوق وشريط وصل اليوم وصندوق الملاحظة المدرّج مستوفية. يتبقى ربط جهاز الصندوق وواتساب التسليم وتفعيل العمل اليومي.',
+    deskNoteAr:
+      'الأتمتة التقنية للصندوق والصفحة مستوفية بالكامل. يتبقى الربط التقني والتفعيل لأدوات العمل فعلياً في المحل.',
+    howToAr:
+      'ستون يوماً من أول دخول. بعدها تشتري مئة وثمانين يوماً بـ 1350 أو ثلاثمئة وستين بـ 2500 على نفس الصفحة. الصندوق مدرج. البيانات محفوظة بالإيميل.',
+    cardLeadAr: 'صندوق التمر وجار الحي وشريط وصل اليوم. بعد الستين يوماً: 1350 أو 2500 ر.س.',
   },
 };

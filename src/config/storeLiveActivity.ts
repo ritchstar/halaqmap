@@ -8,8 +8,11 @@ import { STORE_GROCERS_LIVE_ACCENT } from '@/config/storeGrocersLive';
 import { STORE_HALANA_LIVE_ACCENT } from '@/config/storeHalanaLive';
 import { STORE_KITCHEN_LIVE_ACCENT } from '@/config/storeKitchenLive';
 import { STORE_PRODUCE_LIVE_ACCENT } from '@/config/storeProduceLive';
+import { STORE_DATES_LIVE_ACCENT } from '@/config/storeDatesLive';
 import { STORE_RESTAURANT_LIVE_ACCENT } from '@/config/storeRestaurantLive';
-import type { StoreLiveShopKind } from '@/lib/storeHostRedirect';
+import type { StoreLiveShopShareKind } from '@/lib/storeHostRedirect';
+
+type StoreLiveShopKind = StoreLiveShopShareKind;
 
 export type LiveActivityKind = StoreLiveShopKind | 'halana';
 
@@ -239,6 +242,38 @@ export const STORE_LIVE_ACTIVITY: Record<LiveActivityKind, LiveActivityProductCo
     liveBannerFlashAr: (line) => `وصل اليوم · ${line}`,
     liveBannerTodayAr: (line) => `طازج · ${line}`,
     checkoutId: 'produce-checkout',
+  },
+  dates: {
+    accent: STORE_DATES_LIVE_ACCENT,
+    statusOpenAr: 'مفتوح للطلب',
+    statusClosedAr: 'مغلق — طلب مسبق',
+    statusPausedAr: 'الطلبات متوقفة',
+    browseAr: 'تصفح الأصناف',
+    startOrderAr: 'ابدأ الطلب',
+    stickyOrderAr: 'أكمل طلبك',
+    explorerTitleAr: 'وش تحتاج من التمر؟',
+    occasions: [
+      ALL_OCCASION,
+      { id: 'gift', labelAr: 'هدية', keywords: ['هد', 'إهد', 'تغليف'] },
+      { id: 'ramadan', labelAr: 'رمضان', keywords: ['رمضان', 'فطور', 'سلة'] },
+      { id: 'daily', labelAr: 'استهلاك يومي', keywords: ['يوم', 'كيلو', 'بيت'] },
+    ],
+    tabs: { home: 'الرئيسية', order: 'الطلب', about: 'عن الصندوق' },
+    homeFeaturedTitleAr: 'الأكثر طلباً',
+    homeFeaturedLeadAr: 'تمور مختارة — أكمل طلبك من تبويب الطلب.',
+    orderTabTitleAr: 'سلة الطلب',
+    aboutTitleAr: 'عن الصندوق',
+    trustStrip: ['طلب من الجوال', 'توصيل أو استلام', 'الدفع مع الصندوق', 'لا عمولة على السلة'],
+    policySummary: [
+      'اختر الأصناف والوزن أو العدد.',
+      'حدد التوصيل أو الاستلام.',
+      'يراجع الصندوق الطلب.',
+      'الدفع عند التسليم أو حسب تعليمات المحل.',
+    ],
+    policyFullAr: 'تفاصيل أكثر عن المحل',
+    liveBannerFlashAr: (line) => `وصل اليوم · ${line}`,
+    liveBannerTodayAr: (line) => `متوفر · ${line}`,
+    checkoutId: 'dates-checkout',
   },
 };
 

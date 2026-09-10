@@ -18,6 +18,7 @@ export type StoreOperatorProductId =
   | 'kitchen'
   | 'grocers'
   | 'produce'
+  | 'dates'
   | 'restaurant'
   | 'cafe'
   | 'halana'
@@ -60,6 +61,15 @@ const DESKS: readonly DeskSpec[] = [
     tokenColumn: 'desk_token',
     nameColumns: ['buyer_name'],
     deskPath: (token) => `/v/${token}/desk`,
+  },
+  {
+    id: 'dates',
+    titleAr: 'تمرتنا1',
+    table: 'store_dates_live_orders',
+    emailColumns: ['buyer_email'],
+    tokenColumn: 'desk_token',
+    nameColumns: ['buyer_name'],
+    deskPath: (token) => `/t/${token}/desk`,
   },
   {
     id: 'restaurant',

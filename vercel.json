@@ -206,6 +206,16 @@
       "permanent": true
     },
     {
+      "source": "/t",
+      "destination": "https://store.halaqmap.com/store/dates",
+      "permanent": true
+    },
+    {
+      "source": "/t/",
+      "destination": "https://store.halaqmap.com/store/dates",
+      "permanent": true
+    },
+    {
       "source": "/h",
       "destination": "https://store.halaqmap.com/store",
       "permanent": true
@@ -504,6 +514,16 @@
       "destination": "/api/public-store-live-shop-share?kind=produce&token=:token"
     },
     {
+      "source": "/t/:token",
+      "has": [{ "type": "host", "value": "store.halaqmap.com" }],
+      "destination": "/api/public-store-live-shop-share?kind=dates&token=:token"
+    },
+    {
+      "source": "/t/:token/",
+      "has": [{ "type": "host", "value": "store.halaqmap.com" }],
+      "destination": "/api/public-store-live-shop-share?kind=dates&token=:token"
+    },
+    {
       "source": "/pay/:path*",
       "destination": "/index.html"
     },
@@ -601,6 +621,11 @@
     },
     {
       "source": "/v/:path*",
+      "has": [{ "type": "host", "value": "store.halaqmap.com" }],
+      "destination": "/store-index.html"
+    },
+    {
+      "source": "/t/:path*",
       "has": [{ "type": "host", "value": "store.halaqmap.com" }],
       "destination": "/store-index.html"
     },

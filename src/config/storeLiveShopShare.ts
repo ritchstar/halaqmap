@@ -27,6 +27,7 @@ const CAPTION_LINES: Record<StoreLiveShopShareKind, (shop: string) => string> = 
   restaurant: (shop) => `اطلب من ${shop} — قائمة المطعم وطلب ضيف الحي.`,
   cafe: (shop) => `اطلب من ${shop} — مقهى الحي على الجوال.`,
   kitchen: (shop) => `اطلب من ${shop} — أكل منزلي للحي.`,
+  dates: (shop) => `اطلب من ${shop} — تمر الحي على الجوال.`,
 };
 
 export function storeLiveShopShareCaption(kind: StoreLiveShopShareKind, shopName: string, url: string): string {

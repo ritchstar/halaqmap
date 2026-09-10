@@ -252,6 +252,12 @@ export const STORE_PRODUCT_ANNEXES: readonly StoreProductAnnex[] = [
     content:
       'صفحة خضار وفواكه للحي ولوحة صندوق. **الباقات** كما في صفحة `/store/produce` وملخص الطلب. يشمل التجربة العامة.',
   },
+  {
+    id: 'dates',
+    productNameAr: 'تمرتنا1',
+    content:
+      'صفحة تمر للحي ولوحة صندوق. **الباقات** كما في صفحة `/store/dates` وملخص الطلب. يشمل التجربة العامة.',
+  },
 ] as const;
 
 export type StoreIssuedConsentCheckId =

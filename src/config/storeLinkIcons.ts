@@ -13,6 +13,7 @@ export type StoreProductIconId =
   | 'kitchen'
   | 'produce'
   | 'halana'
+  | 'dates'
   | 'affiliate';
 
 /** هوية المنتج — شبكة المسوّقين وعناوين الأيقونات. */
@@ -26,6 +27,7 @@ export const STORE_PRODUCT_EMOJI: Record<StoreProductIconId, string> = {
   kitchen: '🍲',
   produce: '🥬',
   halana: '🎂',
+  dates: '🌴',
   affiliate: '🤝',
 };
 

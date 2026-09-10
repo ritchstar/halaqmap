@@ -162,6 +162,15 @@ export const ROUTE_PATHS = {
   STORE_PRODUCE_VIEW: '/v/:token',
   STORE_PRODUCE_DESK: '/v/:token/desk',
   STORE_PRODUCE_PAY: '/pay/produce/:token',
+  /** تمرتنا1 — صفحة صندوق التمر ولوحة الصندوق. منتج غير مسجّل لدى الهيئة السعودية للملكية الفكرية */
+  STORE_DATES: '/store/dates',
+  STORE_DATES_READ: '/store/dates/read',
+  STORE_DATES_SUPPORT: '/store/dates/support',
+  /** معاينة خطة تشغيل تمرتنا1 — بلا فهرسة */
+  STORE_DATES_OPS_PLAN_PREVIEW: '/store/dates/ops-plan-preview',
+  STORE_DATES_VIEW: '/t/:token',
+  STORE_DATES_DESK: '/t/:token/desk',
+  STORE_DATES_PAY: '/pay/dates/:token',
   /** حلانا1 — معرض المتخصصة وصفحة الطلب ولوحة التشغيل */
   STORE_HALANA: '/store/halana',
   STORE_HALANA_READ: '/store/halana/read',

@@ -14,6 +14,7 @@ export type StoreMarketingReelId =
   | 'lounge'
   | 'grocers'
   | 'produce'
+  | 'dates'
   | 'restaurant'
   | 'kitchen'
   | 'halana'
@@ -77,6 +78,22 @@ const PRODUCE_GENERATED = [
 export const STORE_PRODUCE_MARKETING_FRAMES = [
   '/images/store/produce-hero-marketing.jpg',
   ...PRODUCE_GENERATED,
+] as const;
+
+const DATES_GENERATED = [
+  '/images/store/dates/dates-01.jpg',
+  '/images/store/dates/dates-02.jpg',
+  '/images/store/dates/dates-03.jpg',
+  '/images/store/dates/dates-04.jpg',
+  '/images/store/dates/dates-05.jpg',
+  '/images/store/dates/dates-06.jpg',
+  '/images/store/dates/dates-07.jpg',
+  '/images/store/dates/dates-08.jpg',
+] as const;
+
+export const STORE_DATES_MARKETING_FRAMES = [
+  '/images/store/dates-hero-marketing.jpg',
+  ...DATES_GENERATED,
 ] as const;
 
 export const STORE_RESTAURANT_MARKETING_FRAMES = [
@@ -241,6 +258,7 @@ const REELS: Record<StoreMarketingReelId, readonly string[]> = {
   lounge: STORE_LOUNGE_MARKETING_FRAMES,
   grocers: STORE_GROCERS_MARKETING_FRAMES,
   produce: STORE_PRODUCE_MARKETING_FRAMES,
+  dates: STORE_DATES_MARKETING_FRAMES,
   restaurant: STORE_RESTAURANT_MARKETING_FRAMES,
   kitchen: STORE_KITCHEN_MARKETING_FRAMES,
   halana: STORE_HALANA_MARKETING_FRAMES,
@@ -266,6 +284,7 @@ export function storeLiveProductReel(productId: string): StoreMarketingReelId {
   if (productId === 'restaurant') return 'restaurant';
   if (productId === 'kitchen') return 'kitchen';
   if (productId === 'produce') return 'produce';
+  if (productId === 'dates') return 'dates';
   if (productId === 'halana') return 'halana';
   return 'landing';
 }

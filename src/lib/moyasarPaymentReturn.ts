@@ -475,6 +475,13 @@ function halanaLiveReturnPath(params: URLSearchParams): string | null {
   return `/pay/halana/${encodeURIComponent(token)}`;
 }
 
+function datesLiveReturnPath(params: URLSearchParams): string | null {
+  const purpose = (params.get('purpose') || '').trim();
+  const token = (params.get('store_dates_token') || params.get('token') || '').trim();
+  if (purpose !== 'store_dates_live' || !token) return null;
+  return `/pay/dates/${encodeURIComponent(token)}`;
+}
+
 function storePayReturnPath(params: URLSearchParams | null): string | null {
   if (!params) return null;
   return (
@@ -487,7 +494,8 @@ function storePayReturnPath(params: URLSearchParams | null): string | null {
     cafeLiveReturnPath(params) ||
     kitchenLiveReturnPath(params) ||
     produceLiveReturnPath(params) ||
-    halanaLiveReturnPath(params)
+    halanaLiveReturnPath(params) ||
+    datesLiveReturnPath(params)
   );
 }
 
@@ -553,6 +561,8 @@ export function captureMoyasarReturnInHashRoute(): boolean {
   if (hashPath.startsWith('/pay/restaurant/')) return false;
   if (hashPath.startsWith('/pay/cafe/')) return false;
   if (hashPath.startsWith('/pay/kitchen/')) return false;
+  if (hashPath.startsWith('/pay/halana/')) return false;
+  if (hashPath.startsWith('/pay/dates/')) return false;
   if (hashPath === ROUTE_PATHS.PAYMENT || hashPath === `${ROUTE_PATHS.PAYMENT}/`) return false;
 
   const target = `${window.location.origin}/#${ROUTE_PATHS.PAYMENT}${search}`;

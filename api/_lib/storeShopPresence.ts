@@ -7,6 +7,7 @@ import { cafeLiveIsExpired, STORE_CAFE_LIVE_TABLE } from './storeCafeLive.js';
 import { grocersLiveIsExpired, STORE_GROCERS_LIVE_TABLE } from './storeGrocersLive.js';
 import { kitchenLiveIsExpired, STORE_KITCHEN_LIVE_TABLE } from './storeKitchenLive.js';
 import { produceLiveIsExpired, STORE_PRODUCE_LIVE_TABLE } from './storeProduceLive.js';
+import { datesLiveIsExpired, STORE_DATES_LIVE_TABLE } from './storeDatesLive.js';
 import { restaurantLiveIsExpired, STORE_RESTAURANT_LIVE_TABLE } from './storeRestaurantLive.js';
 
 export const STORE_SHOP_PRESENCE_TABLE = 'store_shop_presence' as const;
@@ -18,6 +19,7 @@ export const STORE_SHOP_PRESENCE_TAGS = [
   'store_cafe_live',
   'store_kitchen_live',
   'store_produce_live',
+  'store_dates_live',
 ] as const;
 
 export type StoreShopPresenceTag = (typeof STORE_SHOP_PRESENCE_TAGS)[number];
@@ -28,6 +30,7 @@ export const STORE_SHOP_PRESENCE_LAB_TOKENS = new Set([
   'cafe-lab',
   'kitchen-lab',
   'produce-lab',
+  'dates-lab',
 ]);
 
 const SHOP: Record<
@@ -42,6 +45,7 @@ const SHOP: Record<
   store_cafe_live: { table: STORE_CAFE_LIVE_TABLE, isExpired: cafeLiveIsExpired },
   store_kitchen_live: { table: STORE_KITCHEN_LIVE_TABLE, isExpired: kitchenLiveIsExpired },
   store_produce_live: { table: STORE_PRODUCE_LIVE_TABLE, isExpired: produceLiveIsExpired },
+  store_dates_live: { table: STORE_DATES_LIVE_TABLE, isExpired: datesLiveIsExpired },
 };
 
 export function parseStoreShopPresenceTag(raw: unknown): StoreShopPresenceTag | null {

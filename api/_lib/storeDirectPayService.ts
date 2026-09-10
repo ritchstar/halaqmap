@@ -16,6 +16,7 @@ const PRODUCTS = new Set([
   'store_wedding_live',
   'store_event_live',
   'store_lounge_live',
+  'store_dates_live',
 ]);
 
 const GUEST_REVEAL = new Set([
@@ -25,6 +26,7 @@ const GUEST_REVEAL = new Set([
   'store_produce_live',
   'store_restaurant_live',
   'store_cafe_live',
+  'store_dates_live',
 ]);
 
 const COPY_TABLE: Record<string, string> = {
@@ -37,6 +39,7 @@ const COPY_TABLE: Record<string, string> = {
   store_wedding_live: 'store_wedding_live_orders',
   store_event_live: 'store_event_live_orders',
   store_lounge_live: 'store_lounge_live_orders',
+  store_dates_live: 'store_dates_live_orders',
 };
 
 const LIVE_STATUS = new Set(['issued', 'live', 'pending_renewal']);

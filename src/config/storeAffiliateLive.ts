@@ -89,6 +89,8 @@ export const STORE_AFFILIATE_COPY = {
     kitchen_12: 'طبختنا1 ثلاثمئة وستون يوماً',
     produce_6: 'خضارنا1 مئة وثمانون يوماً',
     produce_12: 'خضارنا1 ثلاثمئة وستون يوماً',
+    dates_6: 'تمرتنا1 مئة وثمانون يوماً',
+    dates_12: 'تمرتنا1 ثلاثمئة وستون يوماً',
     halana_6: 'حلانا1 مئة وثمانون يوماً',
     halana_12: 'حلانا1 ثلاثمئة وستون يوماً',
   },
@@ -101,6 +103,7 @@ export const STORE_AFFILIATE_COPY = {
     cafe: 'كافينا1',
     kitchen: 'طبختنا1',
     produce: 'خضارنا1',
+    dates: 'تمرتنا1',
     halana: 'حلانا1',
   },
   netLabelAr: 'صافي المنصة',
@@ -132,12 +135,14 @@ export type StoreAffiliateLineId =
   | 'kitchen_12'
   | 'produce_6'
   | 'produce_12'
+  | 'dates_6'
+  | 'dates_12'
   | 'halana_6'
   | 'halana_12';
 
 export type StoreAffiliateLine = {
   id: StoreAffiliateLineId;
-  productTag: 'store_wedding_live' | 'store_event_live' | 'store_lounge_live' | 'store_grocers_live' | 'store_restaurant_live' | 'store_cafe_live' | 'store_kitchen_live' | 'store_produce_live' | 'store_halana_live';
+  productTag: 'store_wedding_live' | 'store_event_live' | 'store_lounge_live' | 'store_grocers_live' | 'store_restaurant_live' | 'store_cafe_live' | 'store_kitchen_live' | 'store_produce_live' | 'store_dates_live' | 'store_halana_live';
   titleAr: string;
   packAr: string;
   priceSar: number;
@@ -330,6 +335,22 @@ export const STORE_AFFILIATE_LINES: readonly StoreAffiliateLine[] = [
     commissionSar: 500,
   },
   {
+    id: 'dates_6',
+    productTag: 'store_dates_live',
+    titleAr: 'تمرتنا1',
+    packAr: 'مئة وثمانون يوماً، صندوق الملاحظة مدرج',
+    priceSar: 1350,
+    commissionSar: 350,
+  },
+  {
+    id: 'dates_12',
+    productTag: 'store_dates_live',
+    titleAr: 'تمرتنا1',
+    packAr: 'ثلاثمئة وستون يوماً، صندوق الملاحظة مدرج',
+    priceSar: 2500,
+    commissionSar: 500,
+  },
+  {
     id: 'halana_6',
     productTag: 'store_halana_live',
     titleAr: 'حلانا1',
@@ -383,6 +404,10 @@ export function kitchenAffiliateCommissionSar(packId: 'm6' | 'm12'): number {
 }
 
 export function produceAffiliateCommissionSar(packId: 'm6' | 'm12'): number {
+  return packId === 'm12' ? 500 : 350;
+}
+
+export function datesAffiliateCommissionSar(packId: 'm6' | 'm12'): number {
   return packId === 'm12' ? 500 : 350;
 }
 
