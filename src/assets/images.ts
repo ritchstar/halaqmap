@@ -72,10 +72,10 @@ export const IMAGES = {
   /** الشعار الرسمي الحالي (refined) — الاسم التاريخي للمفتاح محفوظ للتوافق */
   /** شعار الواجهة المضغوط (~4KB) — الملف الكامل refined للمشاركة/OG فقط */
   HALAQMAP_LOGO_20260409_073322_83: "/images/halaqmap-logo-mark-128.webp",
-  IMAGE_4142826B_43: "/images/image_4142826b.png",
-  IMAGE_4142826B_47: "/images/image_4142826b.png",
-  IMAGE_9BBCC3E5_44: "/images/image_9bbcc3e5.png",
-  IMAGE_9BBCC3E5_48: "/images/image_9bbcc3e5.png",
+  IMAGE_4142826B_43: "/images/image_4142826b.jpg",
+  IMAGE_4142826B_47: "/images/image_4142826b.jpg",
+  IMAGE_9BBCC3E5_44: "/images/image_9bbcc3e5.jpg",
+  IMAGE_9BBCC3E5_48: "/images/image_9bbcc3e5.jpg",
   SCREENSHOT1407_78: "/images/Screenshot1407.png",
   SCREENSHOT1908_82: "/images/Screenshot1908.png",
   SCREENSHOT2099_87: "/images/Screenshot2099.png",
@@ -87,17 +87,17 @@ export const IMAGES = {
   SCREENSHOT3874_46: "/images/Screenshot3874.png",
   SCREENSHOT4144_49: "/images/Screenshot4144.png",
   SCREENSHOT4191_52: "/images/Screenshot4191.png",
-  SCREENSHOT4288_73: "/images/Screenshot4288.png",
+  SCREENSHOT4288_73: "/images/Screenshot4288.jpg",
   SCREENSHOT4414_80: "/images/Screenshot4414.png",
   SCREENSHOT5028_79: "/images/Screenshot5028.png",
   SCREENSHOT6438_89: "/images/Screenshot6438.png",
   SCREENSHOT6659_81: "/images/Screenshot6659.png",
   SCREENSHOT6850_84: "/images/Screenshot6850.png",
   SCREENSHOT8439_85: "/images/Screenshot8439.jpeg",
-  SCREENSHOT8589_74: "/images/Screenshot8589.png",
+  SCREENSHOT8589_74: "/images/Screenshot8589.jpg",
   SCREENSHOT8818_51: "/images/Screenshot8818.png",
   SCREENSHOT9327_90: "/images/Screenshot9327.png",
-  SCREENSHOT9905_75: "/images/Screenshot9905.png",
+  SCREENSHOT9905_75: "/images/Screenshot9905.jpg",
 } as const;
 
 export type ImageKey = keyof typeof IMAGES;

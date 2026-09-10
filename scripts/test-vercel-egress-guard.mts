@@ -3,7 +3,7 @@
  * تشغيل: npx tsx scripts/test-vercel-egress-guard.mts
  */
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -27,5 +27,9 @@ assert.doesNotMatch(app, /from ['"]@\/config\/storeSalesLedger['"]/);
 const reels = readFileSync(join(root, 'src/config/storeMarketingReels.ts'), 'utf8');
 assert.doesNotMatch(reels, /\/images\/store\/lab\/[^'"\s]+\.png/);
 assert.match(reels, /\/images\/halaqmap-hero\.jpg'/);
+
+const kitchenSky = join(root, 'public', 'images', 'store', 'kitchen', 'kitchen-sky-ambient.jpg');
+assert.ok(existsSync(kitchenSky));
+assert.ok(readFileSync(kitchenSky).byteLength < 250_000, 'kitchen-sky-ambient should stay under 250KB');
 
 console.log('vercel-egress-guard: ok');
