@@ -20,7 +20,8 @@ import { StoreGeneralTrialPromoBanner } from '@/components/store/StoreGeneralTri
 import { StoreNationalDayPromoBanner } from '@/components/store/StoreNationalDayPromoBanner';
 import { StoreLiveOpsBanner } from '@/components/store/StoreLiveOpsBanner';
 import { StoreProductBenefitsLink } from '@/components/store/StoreProductBenefitsLink';
-import { StoreDedicatedPageCallout } from '@/components/store/StoreDedicatedPageCallout';
+import { StoreLandingPhilosophySection } from '@/components/store/StoreLandingPhilosophySection';
+import { StoreLandingPitchHero } from '@/components/store/StoreLandingPitchHero';
 import { StoreInViewMount } from '@/components/store/StoreInViewMount';
 import { StoreShot } from '@/components/store/StoreShot';
 import { STORE_DEDICATED_PAGE_COPY } from '@/config/storeDedicatedPageCopy';
@@ -69,44 +70,8 @@ export default function StoreLanding() {
     <StoreVisitorShell>
       <StoreVisitorHeader />
 
-      <section id="store-pitch-hero" className="overflow-x-clip px-4 pb-4 pt-8 md:pt-12">
-        <div className="relative mx-auto max-w-5xl overflow-hidden text-center">
-          <span className="store-pitch-aura" aria-hidden />
-          <p className="relative text-2xl font-black text-[#f4efe4] md:text-3xl">
-            {STORE_LANDING_COPY.shopNameAr}
-          </p>
-          <h1 className="store-pitch-headline relative mx-auto mt-3 max-w-4xl text-[1.65rem] font-black leading-snug text-[#e8c547] sm:text-4xl sm:leading-tight md:text-[2.65rem]">
-            {STORE_LANDING_COPY.pitchH1Ar}
-          </h1>
-          <p className="relative mx-auto mt-5 max-w-3xl text-lg font-bold leading-8 text-white/90 md:text-xl">
-            {STORE_LANDING_COPY.pitchSupportAr}
-          </p>
-          <p className="relative mx-auto mt-4 max-w-3xl text-base font-semibold leading-8 text-white/72 md:text-lg">
-            {STORE_LANDING_COPY.pitchTransformAr}
-          </p>
-          <p className="relative mx-auto mt-3 max-w-3xl text-sm leading-7 text-white/55 md:text-base">
-            {STORE_LANDING_COPY.pitchClosingAr}
-          </p>
-          <p className="store-pitch-flow relative mx-auto mt-5 max-w-md text-xs font-bold tracking-wide text-[#e8c547]/70 md:text-sm">
-            {STORE_LANDING_COPY.pitchFlowAr}
-          </p>
-          <div className="relative mt-7 flex justify-center">
-            <button
-              type="button"
-              onClick={() => scrollStoreBrowse('store-browse-neighborhood')}
-              className="inline-flex rounded-full bg-[#e8c547] px-5 py-2.5 text-sm font-extrabold text-[#061018] shadow-[0_12px_30px_-12px_rgba(232,197,71,0.8)] hover:bg-[#f0d36a]"
-            >
-              {STORE_LANDING_COPY.pitchExploreCtaAr}
-            </button>
-          </div>
-        </div>
-        <StoreDedicatedPageCallout
-          leadAr={STORE_DEDICATED_PAGE_COPY.storeLandingLeadAr}
-          className="relative mx-auto mt-8 px-4"
-          compact
-          showClosing
-        />
-      </section>
+      <StoreLandingPitchHero onExplore={() => scrollStoreBrowse('store-browse-neighborhood')} />
+      <StoreLandingPhilosophySection />
 
       <section id="store-newest-products" className="scroll-mt-14 px-4 pb-2 pt-2">
         <p className="mx-auto max-w-5xl pb-3 text-center text-base font-extrabold text-white/85 md:text-lg">

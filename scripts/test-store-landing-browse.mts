@@ -20,14 +20,20 @@ assert.equal(
   STORE_LANDING_COPY.pitchH1Ar,
   'شغلك ما يحتاج متجر إلكتروني يفرض عليك طريقته.',
 );
-assert.equal(STORE_LANDING_COPY.pitchSupportAr, 'منتجات خريطة الحل مصممة حول سير عملك.');
-assert.equal(STORE_LANDING_COPY.pitchTransformAr, 'منتجاتنا تنقلك من انتظارهم… إلى جوالاتهم.');
 assert.equal(
-  STORE_LANDING_COPY.pitchClosingAr,
-  'وبطريقة تمشي مع شغلك، لا بطريقة يفرضها عليك نظام عام.',
+  STORE_LANDING_COPY.pitchDedicatedLineAr,
+  'صفحة مستقلة باسم نشاطك، تعرض ما تقدمه وتوجّه زبائنك إليك مباشرة.',
 );
-assert.equal(STORE_LANDING_COPY.pitchFlowAr, 'عرضك → طلب العميل → تشغيلك');
-assert.equal(STORE_LANDING_COPY.pitchExploreCtaAr, 'استكشف المنتج المناسب لشغلك');
+assert.equal(
+  STORE_LANDING_COPY.pitchNotMarketplaceAr,
+  'ليست سوقاً مشتركاً، ولا صفحة تجمعك مع أنشطة أخرى.',
+);
+assert.equal(STORE_LANDING_COPY.pitchTransformAr, 'منتجاتنا تنقلك من انتظارهم… إلى جوالاتهم.');
+assert.equal(STORE_LANDING_COPY.pitchExploreCtaAr, 'اكتشف المنتج المناسب لشغلك');
+assert.equal(
+  STORE_LANDING_COPY.philosophyTitleAr,
+  'ليس كل حضور رقمي يقود العميل إلى نشاطك',
+);
 assert.equal(
   STORE_LANDING_COPY.pitchProductsBridgeAr,
   'اختر المسار الرقمي الذي يناسب طريقة شغلك.',
@@ -45,10 +51,10 @@ assert.match(landing, /store-browse-works/);
 assert.match(landing, /scrollStoreBrowse/);
 assert.match(landing, /StoreBrowseCard/);
 assert.match(landing, /StoreProductName/);
-assert.match(landing, /pitchExploreCtaAr/);
+assert.match(landing, /StoreLandingPitchHero/);
+assert.match(landing, /StoreLandingPhilosophySection/);
 assert.match(landing, /pitchProductsBridgeAr/);
-assert.match(landing, /pitchH1Ar/);
-assert.doesNotMatch(landing, /pitchRequestCtaAr/);
+assert.doesNotMatch(landing, /pitchRequestCtaAr|pitchFlowAr|StoreDedicatedPageCallout/);
 assert.match(landing, /sticky/);
 
 const neighborhoodStart = landing.indexOf('id="store-browse-neighborhood"');
@@ -81,9 +87,10 @@ assert.match(landing, /paidInvitesTitleAr/);
 assert.match(STORE_LANDING_COPY.paidInvitesLeadAr, /12 و29 و59/);
 assert.ok(landing.indexOf('paidInvitesTitleAr') > cardsStart);
 
-assert.match(landing, /overflow-x-clip/);
-assert.match(landing, /overflow-hidden text-center/);
-assert.match(landing, /StoreDedicatedPageCallout/);
+const pitchHero = readFileSync(join(root, 'src/components/store/StoreLandingPitchHero.tsx'), 'utf8');
+assert.match(pitchHero, /overflow-x-clip/);
+assert.match(pitchHero, /overflow-hidden text-center/);
+assert.match(pitchHero, /store-pitch-trust/);
 assert.match(landing, /storeBrowseNeighborhoodLeadAr/);
 
 console.log('test-store-landing-browse: ok');

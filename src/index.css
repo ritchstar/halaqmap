@@ -1679,6 +1679,14 @@
   animation: store-pitch-headline-pulse 2.8s ease-in-out infinite;
 }
 
+.store-pitch-trust {
+  max-width: 36rem;
+}
+
+.store-pitch-hook {
+  position: relative;
+}
+
 .store-pitch-flow {
   position: relative;
   padding-inline: 0.5rem;

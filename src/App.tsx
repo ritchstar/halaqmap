@@ -336,6 +336,7 @@ const CoiffeurInterestLanding = lazy(() => import("@/pages/coiffeur/CoiffeurInte
 const CoiffeurCardStudioPage = lazy(() => import("@/pages/coiffeur/CoiffeurCardStudioPage"));
 const CoiffeurCardViewPage = lazy(() => import("@/pages/coiffeur/CoiffeurCardViewPage"));
 const StoreLanding = lazy(() => import("@/pages/store/StoreLanding"));
+const StoreLandingPitchPreviewPage = lazy(() => import("@/pages/store/StoreLandingPitchPreviewPage"));
 const StoreRequestPage = lazy(() => import("@/pages/store/StoreRequestPage"));
 const StoreCardStudioPage = lazy(() => import("@/pages/store/StoreCardStudioPage"));
 const StoreIntroCardStudioPage = lazy(() => import("@/pages/store/StoreIntroCardStudioPage"));
@@ -906,6 +907,10 @@ export function App() {
           <Route path={ROUTE_PATHS.PARTNERS_B2B_LANDING} element={<LazyRoute><PartnersB2BLanding /></LazyRoute>} />
           <Route path={ROUTE_PATHS.BARBERS_LANDING} element={<LazyRoute><PartnerMarketingPreview /></LazyRoute>} />
           <Route path={STORE_LANDING_PATH} element={<LazyRoute><StoreLanding /></LazyRoute>} />
+          <Route
+            path={ROUTE_PATHS.STORE_LANDING_PITCH_PREVIEW}
+            element={<LazyRoute><StoreLandingPitchPreviewPage /></LazyRoute>}
+          />
           <Route path={STORE_REQUEST_PATH} element={<LazyRoute><StoreRequestPage /></LazyRoute>} />
           <Route path={STORE_CARDS_PATH} element={<LazyRoute><StoreCardStudioPage /></LazyRoute>} />
           <Route path={STORE_INTRO_CARDS_PATH} element={<LazyRoute><StoreIntroCardStudioPage /></LazyRoute>} />

@@ -33,6 +33,8 @@ export const ROUTE_PATHS = {
    * هبوط الطلبات والخدمات البرمجية. الدفع يبقى على www.halaqmap.com.
    */
   STORE_LANDING: '/store',
+  /** معاينة تحريرية لواجهة المتجر — بلا فهرسة */
+  STORE_LANDING_PITCH_PREVIEW: '/store/pitch-preview',
   /** مشاهدة مقاطع خريطة الحل داخل الصفحة */
   YOUTUBE_STORE: '/store/videos',
   /** مشاهدة مقاطع حلاق ماب داخل الصفحة */
