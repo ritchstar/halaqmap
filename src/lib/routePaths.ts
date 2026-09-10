@@ -153,6 +153,8 @@ export const ROUTE_PATHS = {
   STORE_PRODUCE: '/store/produce',
   STORE_PRODUCE_READ: '/store/produce/read',
   STORE_PRODUCE_SUPPORT: '/store/produce/support',
+  /** معاينة خطة تشغيل خضارنا1 — بلا فهرسة */
+  STORE_PRODUCE_OPS_PLAN_PREVIEW: '/store/produce/ops-plan-preview',
   STORE_PRODUCE_VIEW: '/v/:token',
   STORE_PRODUCE_DESK: '/v/:token/desk',
   STORE_PRODUCE_PAY: '/pay/produce/:token',
