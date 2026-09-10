@@ -117,6 +117,8 @@ export const ROUTE_PATHS = {
   STORE_GROCERS: '/store/grocers',
   STORE_GROCERS_READ: '/store/grocers/read',
   STORE_GROCERS_SUPPORT: '/store/grocers/support',
+  /** معاينة دليل تشغيل تمويناتا1 — بلا فهرسة */
+  STORE_GROCERS_OPS_PLAN_PREVIEW: '/store/grocers/ops-plan-preview',
   STORE_GROCERS_VIEW: '/g/:token',
   STORE_GROCERS_DESK: '/g/:token/desk',
   STORE_GROCERS_PAY: '/pay/grocers/:token',

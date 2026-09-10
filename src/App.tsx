@@ -339,6 +339,7 @@ const StoreLanding = lazy(() => import("@/pages/store/StoreLanding"));
 const StoreLandingPitchPreviewPage = lazy(() => import("@/pages/store/StoreLandingPitchPreviewPage"));
 const StoreProduceOpsPlanPreviewPage = lazy(() => import("@/pages/store/StoreProduceOpsPlanPreviewPage"));
 const StoreKitchenOpsPlanPreviewPage = lazy(() => import("@/pages/store/StoreKitchenOpsPlanPreviewPage"));
+const StoreGrocersOpsPlanPreviewPage = lazy(() => import("@/pages/store/StoreGrocersOpsPlanPreviewPage"));
 const StoreRequestPage = lazy(() => import("@/pages/store/StoreRequestPage"));
 const StoreCardStudioPage = lazy(() => import("@/pages/store/StoreCardStudioPage"));
 const StoreIntroCardStudioPage = lazy(() => import("@/pages/store/StoreIntroCardStudioPage"));
@@ -962,6 +963,10 @@ export function App() {
           <Route path={STORE_LOUNGE_PAY_PATH} element={<LazyRoute><StoreLoungePayPage /></LazyRoute>} />
           <Route path={STORE_GROCERS_PAY_PATH} element={<LazyRoute><StoreGrocersPayPage /></LazyRoute>} />
           <Route path={STORE_GROCERS_SUPPORT_PATH} element={<LazyRoute><StoreProductSupportPage /></LazyRoute>} />
+          <Route
+            path={ROUTE_PATHS.STORE_GROCERS_OPS_PLAN_PREVIEW}
+            element={<LazyRoute><StoreGrocersOpsPlanPreviewPage /></LazyRoute>}
+          />
           <Route path={STORE_GROCERS_PATH} element={<LazyRoute><StoreGrocersLandingPage /></LazyRoute>} />
           <Route path={STORE_GROCERS_DESK_PATH} element={<LazyRoute><StoreGrocersShopPage /></LazyRoute>} />
           <Route path={STORE_GROCERS_VIEW_PATH} element={<LazyRoute><StoreGrocersShopPage /></LazyRoute>} />

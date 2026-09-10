@@ -5,9 +5,11 @@
  */
 import { Navigate, useLocation } from 'react-router-dom';
 import { StoreVisitorFooter, StoreVisitorHeader, StoreVisitorShell } from '@/components/store/StoreChrome';
+import { StoreGrocersOpsPlanView } from '@/components/store/grocers/StoreGrocersOpsPlanView';
 import { StoreKitchenOpsPlanView } from '@/components/store/kitchen/StoreKitchenOpsPlanView';
 import { StoreProduceOpsPlanView } from '@/components/store/produce/StoreProduceOpsPlanView';
 import { StoreProductSupportGuideView } from '@/components/store/StoreProductSupportGuide';
+import { STORE_GROCERS_OPS_PLAN_COPY } from '@/config/storeGrocersOpsPlanCopy';
 import { STORE_KITCHEN_OPS_PLAN_COPY } from '@/config/storeKitchenOpsPlanCopy';
 import { STORE_PRODUCE_OPS_PLAN_COPY } from '@/config/storeProduceOpsPlanCopy';
 import { storeProductSupportByPath } from '@/config/storeProductSupport';
@@ -19,15 +21,18 @@ export default function StoreProductSupportPage() {
   const guide = storeProductSupportByPath(location.pathname);
   const isProduceOpsPlan = location.pathname === ROUTE_PATHS.STORE_PRODUCE_SUPPORT;
   const isKitchenOpsPlan = location.pathname === ROUTE_PATHS.STORE_KITCHEN_SUPPORT;
+  const isGrocersOpsPlan = location.pathname === ROUTE_PATHS.STORE_GROCERS_SUPPORT;
   useDocumentTitle(
     isProduceOpsPlan
       ? STORE_PRODUCE_OPS_PLAN_COPY.documentTitle
       : isKitchenOpsPlan
         ? STORE_KITCHEN_OPS_PLAN_COPY.documentTitle
-        : guide?.documentTitle || 'halaqmap',
+        : isGrocersOpsPlan
+          ? STORE_GROCERS_OPS_PLAN_COPY.documentTitle
+          : guide?.documentTitle || 'halaqmap',
   );
 
-  if (!guide && !isProduceOpsPlan && !isKitchenOpsPlan) {
+  if (!guide && !isProduceOpsPlan && !isKitchenOpsPlan && !isGrocersOpsPlan) {
     return <Navigate to={ROUTE_PATHS.STORE_LANDING} replace />;
   }
 
@@ -38,6 +43,8 @@ export default function StoreProductSupportPage() {
         <StoreProduceOpsPlanView />
       ) : isKitchenOpsPlan ? (
         <StoreKitchenOpsPlanView />
+      ) : isGrocersOpsPlan ? (
+        <StoreGrocersOpsPlanView />
       ) : guide ? (
         <StoreProductSupportGuideView guide={guide} />
       ) : null}
