@@ -84,6 +84,8 @@ export const ROUTE_PATHS = {
   STORE_INVITES_LAB: '/store/invites/lab',
   /** معاينة أطلس الحلول — داخلية بلا تعميم على المتجر العام */
   STORE_STYLE_LAB: '/store/style-lab',
+  /** معاينة فهرس خريطة الحل (كتالوج شاتلي) — داخلية */
+  STORE_CATALOG_LAB: '/store/catalog-lab',
   /** دعوة زواج تفاعلية — منتج مستقل بلا خلط ببطاقة المناسبة */
   STORE_WEDDING: '/store/wedding',
   STORE_WEDDING_READ: '/store/wedding/read',

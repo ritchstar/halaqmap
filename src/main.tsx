@@ -73,6 +73,7 @@ const LAB_STANDALONE_ROUTES: Record<string, () => Promise<{ default: ComponentTy
   '/lab/silent-star-camp': () => import('./pages/SilentStarCampLanding.tsx'),
   '/lab/desert-light-lock': () => import('./pages/DesertLightLockLanding.tsx'),
   '/store/style-lab': () => import('./pages/store/StoreAtlasStyleLabPage.tsx'),
+  '/store/catalog-lab': () => import('./pages/store/StoreSolutionCatalogLabPage.tsx'),
 };
 
 async function bootstrapLabStandalone(rootEl: HTMLElement): Promise<boolean> {
