@@ -270,7 +270,7 @@
   color: var(--storefront-page-bg, #061018);
 }
 
-.neighbor-shop-lab-pad {
+.neighbor-shop-pad {
   padding-bottom: calc(6.5rem + env(safe-area-inset-bottom, 0px));
 }
 

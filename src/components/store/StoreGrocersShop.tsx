@@ -55,10 +55,10 @@ export function StoreGrocersShop({
   activityShell?: boolean;
 }) {
   const isLab = token === STORE_GROCERS_LIVE_LAB_TOKEN;
-  const neighborLabUx = isLab && Boolean(activityShell);
+  const neighborShopUx = Boolean(activityShell);
   const saved = useMemo(() => (isLab ? null : readSavedGrocersBuyer()), [isLab]);
   const [qty, setQty] = useState<Record<string, number>>(() =>
-    neighborLabUx ? readNeighborCartQty('grocers', token) : {},
+    neighborShopUx ? readNeighborCartQty('grocers', token) : {},
   );
   const [shelfFilter, setShelfFilter] = useState<NeighborShelfFilter>({
     query: '',
@@ -108,21 +108,21 @@ export function StoreGrocersShop({
   const filteredNeighborRows = useNeighborShelfFilter(neighborRows, shelfFilter);
 
   useEffect(() => {
-    if (!neighborLabUx) return;
+    if (!neighborShopUx) return;
     writeNeighborCartQty('grocers', token, qty);
-  }, [neighborLabUx, token, qty]);
+  }, [neighborShopUx, token, qty]);
 
   useEffect(() => {
-    if (!neighborLabUx || viewedRef.current) return;
+    if (!neighborShopUx || viewedRef.current) return;
     viewedRef.current = true;
     NeighborShopEvents.viewStore('grocers', token, isLab);
-  }, [neighborLabUx, token, isLab]);
+  }, [neighborShopUx, token, isLab]);
 
   function bump(id: string, delta: number) {
     setQty((current) => {
       const prev = current[id] || 0;
       const next = Math.max(0, prev + delta);
-      if (neighborLabUx) {
+      if (neighborShopUx) {
         if (delta > 0 && next > prev) NeighborShopEvents.addItem('grocers', token, isLab, id);
         if (delta < 0 && next < prev) NeighborShopEvents.removeItem('grocers', token, isLab, id);
       }
@@ -151,7 +151,7 @@ export function StoreGrocersShop({
     if (!isLab && orderPhone.length < 9) return;
     if (!isLab && needsPlace && orderPlace.length < 3) return;
     if (!lines.length) return;
-    if (neighborLabUx) {
+    if (neighborShopUx) {
       NeighborShopEvents.submitOrder('grocers', token, isLab, cartLineCount);
     }
     const order = {
@@ -172,7 +172,7 @@ export function StoreGrocersShop({
       writeSavedGrocersBuyer(saveBuyer ? { name: order.name, phone: order.phone, place: order.place } : null);
     }
     setQty({});
-    if (neighborLabUx) {
+    if (neighborShopUx) {
       clearNeighborCartQty('grocers', token);
       NeighborShopEvents.orderSubmitted('grocers', token, isLab, cartLineCount);
     }
@@ -182,7 +182,7 @@ export function StoreGrocersShop({
   const shelfList = activityShell ? visible : rest;
 
   return (
-    <div className={cn('space-y-6', neighborLabUx && total > 0 && 'neighbor-shop-lab-pad')}>
+    <div className={cn('space-y-6', neighborShopUx && total > 0 && 'neighbor-shop-pad')}>
       {!activityShell && state.host.flashAr.trim() ? (
         <p className="grocers-flash overflow-hidden rounded-full border border-[#8fbf7a]/40 bg-[#8fbf7a]/15 px-4 py-2 text-sm text-[#d8f0cc]">
           {state.host.flashAr}
@@ -238,7 +238,7 @@ export function StoreGrocersShop({
       </section>
       ) : null}
 
-      {neighborLabUx ? (
+      {neighborShopUx ? (
         <section>
           <h3 className="text-lg font-extrabold">{STORE_GROCERS_LIVE.shelfTitleAr}</h3>
           <div className="mt-3 space-y-3">
@@ -416,7 +416,7 @@ export function StoreGrocersShop({
         ) : null}
       </form>
       <StoreGrocersBuyerChat state={state} onChange={onChange} isLab={isLab} />
-      {neighborLabUx ? (
+      {neighborShopUx ? (
         <NeighborFloatingCart
           visible={total > 0}
           itemCount={cartItemCount}

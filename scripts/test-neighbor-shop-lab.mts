@@ -1,5 +1,5 @@
 /**
- * فحص تجربة جار الحي — مختبر grocers-lab فقط (P0).
+ * فحص تجربة جار الحي — تمويناتا1 (مختبر + tokens الإنتاج).
  * تشغيل: npx tsx scripts/test-neighbor-shop-lab.mts
  */
 import assert from 'node:assert/strict';
@@ -28,7 +28,8 @@ const cartShop = readFileSync(join(root, 'src/components/store/live/StoreLiveAct
 const shell = readFileSync(join(root, 'src/components/store/live/StoreLiveActivityShell.tsx'), 'utf8');
 const indexCss = readFileSync(join(root, 'src/index.css'), 'utf8');
 
-assert.match(grocersShop, /neighborLabUx\s*=\s*isLab\s*&&\s*Boolean\(activityShell\)/);
+assert.match(grocersShop, /neighborShopUx\s*=\s*Boolean\(activityShell\)/);
+assert.doesNotMatch(grocersShop, /neighborLabUx/);
 assert.match(grocersShop, /NeighborShelfExplorer/);
 assert.match(grocersShop, /AdaptiveProductGrid/);
 assert.match(grocersShop, /NeighborFloatingCart/);
@@ -36,15 +37,16 @@ assert.match(grocersShop, /readNeighborCartQty\('grocers'/);
 assert.match(grocersShop, /writeNeighborCartQty\('grocers'/);
 assert.match(grocersShop, /clearNeighborCartQty\('grocers'/);
 assert.match(grocersShop, /NeighborShopEvents/);
-assert.match(grocersShop, /neighbor-shop-lab-pad/);
+assert.match(grocersShop, /neighbor-shop-pad/);
 assert.match(grocersShop, /grocers-checkout/);
 
-const labStart = grocersShop.indexOf('neighborLabUx ? (');
-const labEnd = grocersShop.indexOf(') : (', labStart);
-const labBranch = labStart >= 0 && labEnd > labStart ? grocersShop.slice(labStart, labEnd) : '';
-assert.doesNotMatch(labBranch, /grocersCatalogImage/);
+const shopStart = grocersShop.indexOf('neighborShopUx ? (');
+const shopEnd = grocersShop.indexOf(') : (', shopStart);
+const shopBranch = shopStart >= 0 && shopEnd > shopStart ? grocersShop.slice(shopStart, shopEnd) : '';
+assert.doesNotMatch(shopBranch, /grocersCatalogImage/);
 
-assert.match(grocersPage, /showIndependentStoreIdentity=\{isLab\}/);
+assert.match(grocersPage, /showIndependentStoreIdentity(?!\=\{isLab\})/);
+assert.doesNotMatch(grocersPage, /showIndependentStoreIdentity=\{isLab\}/);
 assert.match(cartShop, /IndependentStoreIdentity/);
 assert.match(cartShop, /afterTrust=/);
 assert.match(shell, /afterTrust\?: ReactNode/);
@@ -52,6 +54,7 @@ assert.match(shell, /\{afterTrust \?/);
 assert.match(indexCss, /neighbor-shop\.css/);
 
 assert.equal(neighborCartStorageKey('grocers', STORE_GROCERS_LIVE_LAB_TOKEN), 'halaqmap-neighbor-cart:grocers:grocers-lab:v1');
+assert.equal(neighborCartStorageKey('grocers', 'live-store-token'), 'halaqmap-neighbor-cart:grocers:live-store-token:v1');
 
 const sample = [
   { catalogId: 'a', nameAr: 'حليب', category: 'ألبان', price: 5, inStock: true },

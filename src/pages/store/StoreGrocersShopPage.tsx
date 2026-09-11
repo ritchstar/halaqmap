@@ -190,7 +190,7 @@ export default function StoreGrocersShopPage() {
             <StoreLiveActivityCartShop
               kind="grocers"
               token={safeToken}
-              showIndependentStoreIdentity={isLab}
+              showIndependentStoreIdentity
               host={state.host}
               shelf={toLiveActivityShelf(state.shelf)}
               closed={isShopClosedNow(state.host)}
