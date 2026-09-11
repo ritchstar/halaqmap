@@ -3,6 +3,7 @@
  */
 import { StoreLiveShopShareDesk } from '@/components/store/StoreLiveShopShareDesk';
 import { STORE_PRODUCE_LIVE } from '@/config/storeProduceLive';
+import { STORE_SHOP_HOURS_COPY } from '@/config/storeShopHours';
 import { produceServiceLabelAr, produceWhatsAppText, type ProduceLabState } from '@/lib/storeProduceLiveLab';
 import { StoreDeskOrderAlert } from '@/components/store/StoreDeskOrderAlert';
 import { StoreDeskControlTitle } from '@/components/store/StoreDeskControlTitle';
@@ -190,6 +191,16 @@ export function StoreProduceDesk({
           placeholder={STORE_PRODUCE_LIVE.flashHintAr}
         />
       </label>
+
+      <div className="flex flex-wrap gap-2">
+        <button
+          type="button"
+          onClick={() => onChange({ ...state, host: { ...state.host, acceptingOrders: !state.host.acceptingOrders } })}
+          className={cn('rounded-full px-4 py-2 text-sm', state.host.acceptingOrders ? 'border border-white/20' : 'bg-[#3d8b4a] font-bold text-[#061018]')}
+        >
+          {state.host.acceptingOrders ? STORE_SHOP_HOURS_COPY.pauseOnAr : STORE_SHOP_HOURS_COPY.pauseOffAr}
+        </button>
+      </div>
 
       <StoreOpsSection titleAr="حالات السلع" accent="#3d8b4a">
       <div className="rounded-2xl border border-white/12 p-4">

@@ -57,6 +57,7 @@ function payloadToState(payload: Record<string, unknown>, fallback: RestaurantLa
       ? (payload.customFields as string[]).slice(0, 6)
       : fallback.host.customFields,
     flashAr: liveHostText(payload.flashAr, fallback.host.flashAr),
+    acceptingOrders: payload.acceptingOrders !== false,
     packId: payload.packId === 'm12' ? 'm12' : 'm6',
     nextTicket: Number(payload.nextTicket) > 0 ? Number(payload.nextTicket) : fallback.host.nextTicket,
     ...parseStoreShopHours(payload, fallback.host),

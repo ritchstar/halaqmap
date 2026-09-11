@@ -629,6 +629,7 @@ async function saveHost(db: Db, body: Record<string, unknown>, headers: Record<s
     blurbAr: String(body.blurbAr ?? current.blurbAr).slice(0, 200),
     customFields: Array.isArray(body.customFields) ? (body.customFields as string[]).slice(0, 6) : current.customFields,
     flashAr: String(body.flashAr ?? current.flashAr).slice(0, 160),
+    acceptingOrders: body.acceptingOrders !== false,
     shelf: Array.isArray(body.shelf) ? body.shelf : current.shelf,
     orders: Array.isArray(body.orders) ? (body.orders as unknown[]).slice(0, 80) : current.orders,
     orderArchive: Array.isArray(body.orderArchive) ? (body.orderArchive as unknown[]).slice(0, 1000) : current.orderArchive || [],

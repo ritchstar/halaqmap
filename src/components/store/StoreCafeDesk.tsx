@@ -3,6 +3,7 @@
  */
 import { StoreLiveShopShareDesk } from '@/components/store/StoreLiveShopShareDesk';
 import { STORE_CAFE_LIVE } from '@/config/storeCafeLive';
+import { STORE_SHOP_HOURS_COPY } from '@/config/storeShopHours';
 import { cafeWhatsAppText, type CafeLabState } from '@/lib/storeCafeLiveLab';
 import { StoreDeskOrderAlert } from '@/components/store/StoreDeskOrderAlert';
 import { StoreDeskControlTitle } from '@/components/store/StoreDeskControlTitle';
@@ -189,6 +190,16 @@ export function StoreCafeDesk({
           placeholder={STORE_CAFE_LIVE.flashHintAr}
         />
       </label>
+
+      <div className="flex flex-wrap gap-2">
+        <button
+          type="button"
+          onClick={() => onChange({ ...state, host: { ...state.host, acceptingOrders: !state.host.acceptingOrders } })}
+          className={cn('rounded-full px-4 py-2 text-sm', state.host.acceptingOrders ? 'border border-white/20' : 'bg-[#c48a4a] font-bold text-[#061018]')}
+        >
+          {state.host.acceptingOrders ? STORE_SHOP_HOURS_COPY.pauseOnAr : STORE_SHOP_HOURS_COPY.pauseOffAr}
+        </button>
+      </div>
 
       <div className="rounded-2xl border border-white/12 p-4">
         <h3 className="font-extrabold">حالة الأصناف</h3>

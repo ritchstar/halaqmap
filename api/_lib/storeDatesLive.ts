@@ -131,6 +131,7 @@ export type DatesLiveOrderPayload = {
   blurbAr: string;
   customFields: string[];
   flashAr: string;
+  acceptingOrders: boolean;
   shelf: unknown[];
   orders: unknown[];
   orderArchive?: unknown[];
@@ -165,6 +166,7 @@ export function parseDatesLiveOrderBody(body: Record<string, unknown>):
       blurbAr: clip(body.blurbAr, 200) || 'تمرتنا1: اطلب أصناف اليوم من جوالك.',
       customFields: Array.from({ length: 5 }, () => ''),
       flashAr: '',
+      acceptingOrders: true,
       shelf: [],
       orders: [],
       orderArchive: [],
@@ -206,6 +208,7 @@ export function publicDatesPayload(payload: DatesLiveOrderPayload, role = 'shop'
     blurbAr: payload.blurbAr,
     customFields: Array.isArray(payload.customFields) ? payload.customFields.slice(0, 5) : [],
     flashAr: payload.flashAr,
+    acceptingOrders: payload.acceptingOrders !== false,
     shelf: Array.isArray(payload.shelf) ? payload.shelf : [],
     orders: Array.isArray(payload.orders) ? payload.orders : [],
     orderArchive: role === 'desk' && Array.isArray(payload.orderArchive) ? payload.orderArchive.slice(0, 1000) : [],

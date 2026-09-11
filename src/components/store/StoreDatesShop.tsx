@@ -3,6 +3,7 @@
  */
 import { useEffect, useMemo, useState } from 'react';
 import { STORE_DATES_LIVE, STORE_DATES_LIVE_LAB_TOKEN, datesCatalogImage } from '@/config/storeDatesLive';
+import { sanitizeStoreProductImageSrc } from '@/lib/storeDisallowedImagery';
 import { STORE_DATES_UNIT_AR } from '@/config/storeDatesCatalog';
 import {
   isDatesComeApproaching,
@@ -363,18 +364,19 @@ function DatesShelfCard({
   onPlus,
   priceLine,
 }: {
-  item: { catalogId: string; nameAr: string };
+  item: { catalogId: string; nameAr: string; photoSrc?: string };
   imageIndex: number;
   qty: number;
   onMinus: () => void;
   onPlus: () => void;
   priceLine: string;
 }) {
+  const coverSrc = sanitizeStoreProductImageSrc(item.photoSrc) || datesCatalogImage(imageIndex);
   return (
     <article className="overflow-hidden rounded-2xl border border-[#8A6239]/35 bg-[#241b10]">
       <div className="aspect-[4/3] overflow-hidden bg-[#061018]">
         <img
-          src={datesCatalogImage(imageIndex)}
+          src={coverSrc}
           alt={item.nameAr}
           className="h-full w-full object-cover"
           loading="lazy"

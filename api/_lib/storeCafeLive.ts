@@ -148,6 +148,7 @@ export type CafeLiveOrderPayload = {
   blurbAr: string;
   customFields: string[];
   flashAr: string;
+  acceptingOrders: boolean;
   shelf: unknown[];
   orders: unknown[];
   orderArchive?: unknown[];
@@ -194,6 +195,7 @@ export function parseCafeLiveOrderBody(body: Record<string, unknown>):
       blurbAr: clip(body.blurbAr, 200) || 'كافينا1: اطلب من جوالك.',
       customFields: Array.from({ length: 5 }, () => ''),
       flashAr: '',
+      acceptingOrders: true,
       shelf: [],
       orders: [],
       orderArchive: [],
@@ -268,6 +270,7 @@ export function publicCafePayload(payload: CafeLiveOrderPayload, role = 'shop') 
     blurbAr: payload.blurbAr,
     customFields: Array.isArray(payload.customFields) ? payload.customFields.slice(0, 5) : [],
     flashAr: payload.flashAr,
+    acceptingOrders: payload.acceptingOrders !== false,
     shelf: Array.isArray(payload.shelf) ? payload.shelf : [],
     orders: Array.isArray(payload.orders) ? payload.orders : [],
     orderArchive: role === 'desk' && Array.isArray(payload.orderArchive) ? payload.orderArchive.slice(0, 1000) : [],

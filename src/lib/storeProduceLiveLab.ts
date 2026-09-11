@@ -65,6 +65,7 @@ export type ProduceHostState = {
   blurbAr: string;
   customFields: string[];
   flashAr: string;
+  acceptingOrders: boolean;
   packId: StoreProduceLivePackId;
   shopHeaderBg: string;
   shopPageBg: string;
@@ -127,6 +128,7 @@ export function defaultProduceLabState(): ProduceLabState {
       blurbAr: STORE_PRODUCE_LIVE_DEMO.blurbAr,
       customFields: [...STORE_PRODUCE_LIVE_DEMO.customFields],
       flashAr: STORE_PRODUCE_LIVE_DEMO.flashAr,
+      acceptingOrders: true,
       packId: 'm6',
       shopHeaderBg: '',
       shopPageBg: '',
@@ -154,6 +156,7 @@ export function readProduceLabState(token: string): ProduceLabState {
         ...(parsed.host || {}),
         customFields: Array.from({ length: 5 }, (_, i) => parsed.host?.customFields?.[i] || fallback.host.customFields[i] || ''),
         logoSrc: parseShopLogoSrc(parsed.host?.logoSrc, fallback.host.logoSrc),
+        acceptingOrders: parsed.host?.acceptingOrders !== false,
         ...parseShopPickupPlace(parsed.host, fallback.host),
       },
       shelf: Array.isArray(parsed.shelf) && parsed.shelf.length ? parsed.shelf : fallback.shelf,

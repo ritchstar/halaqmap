@@ -52,6 +52,7 @@ function payloadToState(payload: Record<string, unknown>, fallback: ProduceLabSt
       ? (payload.customFields as string[]).slice(0, 5)
       : fallback.host.customFields,
     flashAr: liveHostText(payload.flashAr, fallback.host.flashAr),
+    acceptingOrders: payload.acceptingOrders !== false,
     packId: payload.packId === 'm12' ? ('m12' as const) : ('m6' as const),
     ...parseStoreShopHours(payload, fallback.host),
     ...parseShopPickupPlace(payload, fallback.host),

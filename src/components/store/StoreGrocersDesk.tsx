@@ -3,6 +3,7 @@
  */
 import { StoreLiveShopShareDesk } from '@/components/store/StoreLiveShopShareDesk';
 import { STORE_GROCERS_LIVE } from '@/config/storeGrocersLive';
+import { STORE_SHOP_HOURS_COPY } from '@/config/storeShopHours';
 import { grocersWhatsAppText, type GrocersLabState } from '@/lib/storeGrocersLiveLab';
 import { StoreDeskOrderAlert } from '@/components/store/StoreDeskOrderAlert';
 import { StoreDeskControlTitle } from '@/components/store/StoreDeskControlTitle';
@@ -191,6 +192,16 @@ export function StoreGrocersDesk({
           placeholder={STORE_GROCERS_LIVE.flashHintAr}
         />
       </label>
+
+      <div className="flex flex-wrap gap-2">
+        <button
+          type="button"
+          onClick={() => onChange({ ...state, host: { ...state.host, acceptingOrders: !state.host.acceptingOrders } })}
+          className={cn('rounded-full px-4 py-2 text-sm', state.host.acceptingOrders ? 'border border-white/20' : 'bg-[#8fbf7a] font-bold text-[#061018]')}
+        >
+          {state.host.acceptingOrders ? STORE_SHOP_HOURS_COPY.pauseOnAr : STORE_SHOP_HOURS_COPY.pauseOffAr}
+        </button>
+      </div>
 
       <StoreOpsSection titleAr="حالات السلع" accent="#8fbf7a">
       <div className="rounded-2xl border border-white/12 p-4">

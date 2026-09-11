@@ -44,6 +44,8 @@ export const STORE_SHOP_HOURS_COPY = {
   toAr: 'إلى الساعة',
   morningAr: 'الفترة الصباحية',
   eveningAr: 'الفترة المسائية',
+  pauseOnAr: 'إيقاف استقبال الطلبات',
+  pauseOffAr: 'فتح استقبال الطلبات',
   closedBannerAr: 'مغلق الآن. بإمكانك التسوق وفتح مذكرة طلب مسبقة.',
   hoursTitleAr: 'أوقات العمل',
   preorderTitleAr: 'مذكرة طلب مسبقة',

@@ -28,6 +28,7 @@ export type DatesShelfItem = {
   inStock: boolean;
   arrivedToday: boolean;
   featured: boolean;
+  photoSrc?: string;
 };
 
 export type DatesOrderLine = {
@@ -65,6 +66,7 @@ export type DatesHostState = {
   blurbAr: string;
   customFields: string[];
   flashAr: string;
+  acceptingOrders: boolean;
   packId: StoreDatesLivePackId;
   shopHeaderBg: string;
   shopPageBg: string;
@@ -127,6 +129,7 @@ export function defaultDatesLabState(): DatesLabState {
       blurbAr: STORE_DATES_LIVE_DEMO.blurbAr,
       customFields: [...STORE_DATES_LIVE_DEMO.customFields],
       flashAr: STORE_DATES_LIVE_DEMO.flashAr,
+      acceptingOrders: true,
       packId: 'm6',
       shopHeaderBg: '',
       shopPageBg: '',
@@ -154,9 +157,12 @@ export function readDatesLabState(token: string): DatesLabState {
         ...(parsed.host || {}),
         customFields: Array.from({ length: 5 }, (_, i) => parsed.host?.customFields?.[i] || fallback.host.customFields[i] || ''),
         logoSrc: parseShopLogoSrc(parsed.host?.logoSrc, fallback.host.logoSrc),
+        acceptingOrders: parsed.host?.acceptingOrders !== false,
         ...parseShopPickupPlace(parsed.host, fallback.host),
       },
-      shelf: Array.isArray(parsed.shelf) && parsed.shelf.length ? parsed.shelf : fallback.shelf,
+      shelf: Array.isArray(parsed.shelf) && parsed.shelf.length
+        ? parsed.shelf.map((item) => ({ ...item, photoSrc: item.photoSrc || '' }))
+        : fallback.shelf,
       ...hydrateDeskTickets<DatesOrder>(parsed.orders, parsed.orderArchive),
       chatIncluded: parsed.chatIncluded !== false,
       chats: Array.isArray(parsed.chats) ? parsed.chats : [],
@@ -211,6 +217,7 @@ export function activateDatesCatalogItem(
         inStock: true,
         arrivedToday: true,
         featured: featuredCount < 8,
+        photoSrc: '',
       },
     ],
   };

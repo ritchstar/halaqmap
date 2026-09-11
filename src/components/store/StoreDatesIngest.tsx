@@ -4,7 +4,7 @@
 import { useMemo, useState } from 'react';
 import { STORE_DATES_CATALOG, STORE_DATES_CATEGORIES, STORE_DATES_UNIT_AR } from '@/config/storeDatesCatalog';
 import { STORE_DATES_LIVE } from '@/config/storeDatesLive';
-import { activateDatesCatalogItem, parseDatesListText, type DatesLabState } from '@/lib/storeDatesLiveLab';
+import { activateDatesCatalogItem, compressImageFile, parseDatesListText, type DatesLabState } from '@/lib/storeDatesLiveLab';
 import { cn } from '@/lib/utils';
 
 export function StoreDatesIngest({
@@ -24,6 +24,19 @@ export function StoreDatesIngest({
     if (!query.trim()) return true;
     return item.nameAr.includes(query.trim());
   });
+
+  async function setPhoto(catalogId: string, file?: File) {
+    if (!file) return;
+    try {
+      const photoSrc = await compressImageFile(file, 900);
+      onChange({
+        ...state,
+        shelf: state.shelf.map((item) => (item.catalogId === catalogId ? { ...item, photoSrc } : item)),
+      });
+    } catch {
+      /* تجاهل الملف غير الصالح */
+    }
+  }
 
   function applyList() {
     let next = state;
@@ -45,6 +58,7 @@ export function StoreDatesIngest({
               inStock: true,
               arrivedToday: true,
               featured: next.shelf.filter((item) => item.featured).length < 10,
+              photoSrc: '',
             },
           ],
         };
@@ -98,6 +112,23 @@ export function StoreDatesIngest({
         })}
       </ul>
 
+      <div className="rounded-xl border border-white/10 p-3">
+        <h4 className="font-extrabold">{STORE_DATES_LIVE.photoUploadAr}</h4>
+        <ul className="mt-2 space-y-2">
+          {state.shelf.slice(0, 16).map((item) => (
+            <li key={item.catalogId} className="flex items-center justify-between gap-3 text-sm">
+              <span className="min-w-0 truncate">{item.nameAr}</span>
+              <input
+                type="file"
+                accept="image/*"
+                className="max-w-40 text-xs"
+                onChange={(e) => void setPhoto(item.catalogId, e.target.files?.[0])}
+              />
+            </li>
+          ))}
+        </ul>
+      </div>
+
       <div className="border-t border-white/10 pt-4">
         <h4 className="font-extrabold">{STORE_DATES_LIVE.listIngestTitleAr}</h4>
         <p className="mt-1 text-sm text-white/65">{STORE_DATES_LIVE.listIngestLeadAr}</p>
@@ -106,6 +137,7 @@ export function StoreDatesIngest({
           value={listText}
           onChange={(e) => setListText(e.target.value)}
         />
+        <p className="mt-2 text-xs text-white/50">{STORE_DATES_LIVE.listPhotoRefAr}</p>
         <input
           type="file"
           accept="image/*"

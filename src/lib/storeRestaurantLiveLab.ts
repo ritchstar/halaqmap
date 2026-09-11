@@ -65,6 +65,7 @@ export type RestaurantHostState = {
   blurbAr: string;
   customFields: string[];
   flashAr: string;
+  acceptingOrders: boolean;
   packId: StoreRestaurantLivePackId;
   nextTicket: number;
   shopHeaderBg: string;
@@ -129,6 +130,7 @@ export function defaultRestaurantLabState(): RestaurantLabState {
       blurbAr: STORE_RESTAURANT_LIVE_DEMO.blurbAr,
       customFields: [...STORE_RESTAURANT_LIVE_DEMO.customFields],
       flashAr: STORE_RESTAURANT_LIVE_DEMO.flashAr,
+      acceptingOrders: true,
       packId: 'm6',
       nextTicket: 1,
       shopHeaderBg: '',
@@ -157,6 +159,7 @@ export function readRestaurantLabState(token: string): RestaurantLabState {
         customFields: Array.from({ length: 6 }, (_, i) => parsed.host?.customFields?.[i] || fallback.host.customFields[i] || ''),
         logoSrc: parseShopLogoSrc(parsed.host?.logoSrc, fallback.host.logoSrc),
         nextTicket: Number(parsed.host?.nextTicket) > 0 ? Number(parsed.host?.nextTicket) : 1,
+        acceptingOrders: parsed.host?.acceptingOrders !== false,
         ...parseShopPickupPlace(parsed.host, fallback.host),
       },
       shelf: Array.isArray(parsed.shelf) && parsed.shelf.length

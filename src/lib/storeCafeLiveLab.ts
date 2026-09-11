@@ -74,6 +74,7 @@ export type CafeHostState = {
   blurbAr: string;
   customFields: string[];
   flashAr: string;
+  acceptingOrders: boolean;
   packId: StoreCafeLivePackId;
   nextTicket: number;
   welcomeAr: string;
@@ -157,6 +158,7 @@ export function defaultCafeLabState(): CafeLabState {
       blurbAr: STORE_CAFE_LIVE_DEMO.blurbAr,
       customFields: [...STORE_CAFE_LIVE_DEMO.customFields],
       flashAr: STORE_CAFE_LIVE_DEMO.flashAr,
+      acceptingOrders: true,
       packId: 'm6',
       nextTicket: 1,
       welcomeAr: STORE_CAFE_LIVE_DEMO.welcomeAr,
@@ -199,6 +201,7 @@ export function readCafeLabState(token: string): CafeLabState {
         guestPaused: parsed.host?.guestPaused === true,
         reviewBeforeShow: parsed.host?.reviewBeforeShow === true,
         youtubeHidden: parsed.host?.youtubeHidden !== false,
+        acceptingOrders: parsed.host?.acceptingOrders !== false,
         ...parseShopPickupPlace(parsed.host, fallback.host),
       },
       shelf: Array.isArray(parsed.shelf) && parsed.shelf.length
