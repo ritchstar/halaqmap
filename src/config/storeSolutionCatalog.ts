@@ -7,6 +7,11 @@ import { ROUTE_PATHS } from '@/lib/routePaths';
 
 export const STORE_SOLUTION_CATALOG_LAB_ENABLED = true;
 export const STORE_SOLUTION_CATALOG_LAB_PATH = '/store/catalog-lab' as const;
+export const STORE_SOLUTION_CATALOG_MARK_BASE = '/images/store/catalog' as const;
+
+export function solutionCatalogMarkSrc(code: string): string {
+  return `${STORE_SOLUTION_CATALOG_MARK_BASE}/halaqmap-${code.toLowerCase()}.webp`;
+}
 
 export const STORE_SOLUTION_CATALOG_COLORS = {
   bg: '#e9e5dc',
@@ -96,7 +101,7 @@ export const STORE_SOLUTION_CATALOG_PRODUCTS: readonly SolutionCatalogProduct[] 
       'صفحة رقمية تساعد العميل على اكتشاف الصالون والوصول إليه، وتمنحك حضورًا واضحًا وأدوات تشغيل بحسب الخدمة المشتركة.',
     tags: ['اكتشاف', 'تواصل', 'صالونات الرجال'],
     stripe: 'brick',
-    logoSrc: null,
+    logoSrc: solutionCatalogMarkSrc('A-01'),
     href: 'https://www.halaqmap.com',
     external: true,
     pathItems: ['استعلام قرب على الخريطة', 'صفحة صالون واضحة', 'حجز أو تواصل مباشر'],
@@ -112,7 +117,7 @@ export const STORE_SOLUTION_CATALOG_PRODUCTS: readonly SolutionCatalogProduct[] 
       'واجهة قطاعية للصالونات النسائية تساعد العميلة على التعرف على النشاط والوصول إلى القناة المناسبة للتواصل.',
     tags: ['اكتشاف', 'صالونات النساء', 'قطاعي'],
     stripe: 'brick',
-    logoSrc: null,
+    logoSrc: solutionCatalogMarkSrc('A-02'),
     href: 'https://coiffeur.halaqmap.com',
     external: true,
     pathItems: ['استعلام قطاعي', 'بوابة شريكات', 'تغطية متدرجة'],
@@ -128,7 +133,7 @@ export const STORE_SOLUTION_CATALOG_PRODUCTS: readonly SolutionCatalogProduct[] 
       'واجهة للعميل ولوحة للمشغّل وطلبات منظمة بلا عمولة على قيمة السلة، للنشاط الثابت أو المتحرك.',
     tags: ['صندوق اليوم', 'طلب من الجوال', 'لوحة تشغيل'],
     stripe: 'yellow',
-    logoSrc: null,
+    logoSrc: solutionCatalogMarkSrc('B-01'),
     href: ROUTE_PATHS.STORE_PRODUCE,
     pathItems: ['شريط ما وصل اليوم', 'طلب حبة أو كيلو', 'لوحة الصندوق'],
   },
@@ -143,7 +148,7 @@ export const STORE_SOLUTION_CATALOG_PRODUCTS: readonly SolutionCatalogProduct[] 
       'صفحة رقمية تساعد التموينات على عرض المنتجات واستقبال طلبات سكان الحي بطريقة سهلة ومباشرة.',
     tags: ['سلة جار الحي', 'كاشير', 'QR'],
     stripe: 'yellow',
-    logoSrc: null,
+    logoSrc: solutionCatalogMarkSrc('B-02'),
     href: ROUTE_PATHS.STORE_GROCERS,
     pathItems: ['بنك أصناف', 'مذكرة توصيل', 'ملصق QR'],
   },
@@ -157,7 +162,7 @@ export const STORE_SOLUTION_CATALOG_PRODUCTS: readonly SolutionCatalogProduct[] 
     descriptionAr: 'قائمة وطلب وتشغيل بطريقة مصممة لطبيعة المطعم، لا لقالب متجر عام.',
     tags: ['طبق اليوم', 'توصيل', 'لوحة مطبخ'],
     stripe: 'blue',
-    logoSrc: null,
+    logoSrc: solutionCatalogMarkSrc('C-01'),
     href: ROUTE_PATHS.STORE_RESTAURANT,
     pathItems: ['قائمة أطباق', 'طلب ضيف الحي', 'تذكرة مطبخ'],
   },
@@ -171,7 +176,7 @@ export const STORE_SOLUTION_CATALOG_PRODUCTS: readonly SolutionCatalogProduct[] 
     descriptionAr: 'صفحة طلب وأدوات تشغيل وعرض تساعد المقهى على تنظيم تجربة زبائنه قبل الوصول.',
     tags: ['مشروبات', 'شاشات', 'رابط ضيف'],
     stripe: 'blue',
-    logoSrc: null,
+    logoSrc: solutionCatalogMarkSrc('C-02'),
     href: ROUTE_PATHS.STORE_CAFE,
     pathItems: ['قائمة مشروبات', 'ثلاث شاشات', 'لوحة كاشير'],
   },
@@ -185,7 +190,7 @@ export const STORE_SOLUTION_CATALOG_PRODUCTS: readonly SolutionCatalogProduct[] 
     descriptionAr: 'شاشات عرض ولوحة مضيف ورابط ضيف لإدارة فعاليات اللاونج بطريقة واضحة.',
     tags: ['شاشات', 'مضيف', 'فعاليات'],
     stripe: 'blue',
-    logoSrc: null,
+    logoSrc: solutionCatalogMarkSrc('D-01'),
     href: ROUTE_PATHS.STORE_LOUNGE,
     pathItems: ['حزمة فعاليات', 'لوحة مضيف', 'رابط ترحيب'],
   },
@@ -199,7 +204,7 @@ export const STORE_SOLUTION_CATALOG_PRODUCTS: readonly SolutionCatalogProduct[] 
     descriptionAr: 'كرت وقاعة ولوحة مضيف لمناسبة واحدة بروابط منظمة للضيف والعرض.',
     tags: ['زواج', 'قاعة حية', 'دعوة'],
     stripe: 'yellow',
-    logoSrc: null,
+    logoSrc: solutionCatalogMarkSrc('D-02'),
     href: ROUTE_PATHS.STORE_WEDDING,
     pathItems: ['كرت فخم', 'قاعة حية', 'روابط سرية'],
   },
@@ -213,7 +218,7 @@ export const STORE_SOLUTION_CATALOG_PRODUCTS: readonly SolutionCatalogProduct[] 
     descriptionAr: 'دعوة تفاعلية تفتح قاعة حفل حيّة، وتمنح المناسبة مسارًا واضحًا للمشاركة.',
     tags: ['مناسبة حرة', 'تهاني', 'قاعة'],
     stripe: 'yellow',
-    logoSrc: null,
+    logoSrc: solutionCatalogMarkSrc('D-03'),
     href: ROUTE_PATHS.STORE_EVENT,
     pathItems: ['شق رجالي أو نسائي', 'قاعة حية', 'تهاني على الشاشة'],
   },
@@ -227,7 +232,7 @@ export const STORE_SOLUTION_CATALOG_PRODUCTS: readonly SolutionCatalogProduct[] 
     descriptionAr: 'بطاقة مدفوعة خفيفة للتهنئة والمناسبات، مع معاينة ثم مشاركة وتحميل.',
     tags: ['تهنئة', 'مشاركة', 'بطاقة'],
     stripe: 'yellow',
-    logoSrc: null,
+    logoSrc: solutionCatalogMarkSrc('E-01'),
     href: ROUTE_PATHS.STORE_INVITES,
     pathItems: ['معاينة قبل الإرسال', 'مشاركة فورية', 'تحميل للطباعة'],
   },
