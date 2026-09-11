@@ -16,6 +16,7 @@
   --sc-border: #bdb5a7;
   --sc-light: #f7f4ed;
   --sc-stripe: var(--sc-blue);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   font-family: Arial, 'Segoe UI', Tahoma, sans-serif;
   background-color: var(--sc-bg);
   background-image:
@@ -74,7 +75,35 @@
 }
 
 .solution-catalog__main {
+  position: relative;
   padding: 24px 20px 48px;
+}
+
+.solution-catalog__main > .catalog-signal-layer {
+  position: fixed;
+  z-index: 0;
+}
+
+.solution-catalog__main > :not(.catalog-signal-layer) {
+  position: relative;
+  z-index: 1;
+}
+
+.catalog-signal-drawing {
+  transform: translate3d(
+    var(--signal-x),
+    calc(var(--signal-y) - var(--signal-scroll)),
+    0
+  );
+  transition: transform 700ms var(--ease-out);
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .catalog-signal-drawing {
+    transform: none;
+    transition: none;
+  }
 }
 
 .solution-catalog__hero-title {

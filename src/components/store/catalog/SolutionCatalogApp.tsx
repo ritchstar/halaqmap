@@ -24,6 +24,7 @@ import {
   type SolutionCatalogProduct,
 } from '@/config/storeSolutionCatalog';
 import { ROUTE_PATHS } from '@/lib/routePaths';
+import { CatalogSignalLayer } from '@/components/store/catalog/CatalogSignalLayer';
 
 function ProductModal({
   product,
@@ -185,6 +186,7 @@ export function SolutionCatalogApp() {
         </aside>
 
         <main className="solution-catalog__main">
+          <CatalogSignalLayer />
           <section>
             <h1 className="solution-catalog__hero-title">{STORE_SOLUTION_CATALOG_COPY.heroTitleAr}</h1>
             <p className="mt-4 max-w-3xl text-base leading-[1.85] text-[var(--sc-muted)]">{STORE_SOLUTION_CATALOG_COPY.heroLeadAr}</p>
