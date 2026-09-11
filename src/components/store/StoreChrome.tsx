@@ -13,7 +13,6 @@ import { STORE_SAIP_COPY, STORE_SAIP_PUBLIC_WORKS } from '@/config/storeSaipRegi
 import { STORE_OPERATORS_DESK_COPY, STORE_OPERATORS_DESK_PUBLIC_ENABLED } from '@/config/storeOperatorsDesk';
 import { STORE_HMTUBE } from '@/config/storeHmTube';
 import { KSACityClocksBar } from '@/components/KSACityClocksBar';
-import { EcommerceVerifiedFooterBadge } from '@/components/EcommerceVerifiedFooterBadge';
 import { StoreBrandMark } from '@/components/store/StoreBrandMark';
 import { StoreVisitorEngage } from '@/components/store/StoreVisitorEngage';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -242,7 +241,6 @@ export function StoreVisitorFooter() {
             <span dir="ltr">{STORE_CONTACT_X_HANDLE}</span>
           </a>
         </div>
-        <EcommerceVerifiedFooterBadge variant="dark" />
         <p className="text-xs leading-relaxed text-white/45">{STORE_LANDING_COPY.footerLegal}</p>
         <p className="text-xs leading-relaxed text-white/45">{STORE_SAIP_COPY.footerLeadAr}</p>
         <ul className="flex flex-wrap gap-x-4 gap-y-1 text-xs leading-6 text-white/40">

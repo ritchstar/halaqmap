@@ -7,7 +7,6 @@
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { PARTNER_ANDROID_PLAY_STORE_URL } from '@/config/partnerAppShell';
 import {
-  LEGAL_ECOMMERCE_AUTH_FOOTER_LINE_AR,
   LEGAL_ECOMMERCE_STORE_ENGLISH_LINE,
   LEGAL_ECOMMERCE_STORE_NAME,
   LEGAL_ECOMMERCE_STORE_PUBLIC_NAME_AR,
@@ -133,7 +132,8 @@ export const STORE_LANDING_COPY = {
   freeCardsTitle: 'خدمات برمجية مجانية الآن',
   freeCardsLead:
     'أصدر بطاقة تهنئة لنفسك: الاسم ورقم الجوال والبريد ورابط صورة شخصية. يوم وطني، تخرج، أو معايدة. نسخة أولى قابلة للتعديل لاحقاً.',
-  footerLegal: LEGAL_ECOMMERCE_AUTH_FOOTER_LINE_AR,
+  footerLegal:
+    'للاطلاع على بيانات توثيق التجارة الإلكترونية والتحقق الرسمي، راجع صفحة «التوثيق والتحقق».',
   mediaLicenseLineAr: `تراخيص الهيئة العامة لتنظيم الإعلام ${LEGAL_MEDIA_LICENSE_NUMBERS.join(' - ')}`,
   consentLabel: 'أوافق على دراسة الطلب والرد عبر البريد أو الجوال أو واتساب.',
   aboutNavAr: 'من نحن',

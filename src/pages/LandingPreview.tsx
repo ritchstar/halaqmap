@@ -26,7 +26,6 @@ import { PUBLIC_PULSE_EXPERIENCE_ENABLED } from '@/config/publicPulseExperience'
 import { PULSE_MAP_LINK_LABEL_AR } from '@/config/pulseMapConfig';
 import { cn } from '@/lib/utils';
 import { MOBILE_QUERY_DOCK_CLEARANCE, MOBILE_SAFE_BOTTOM_MIN } from '@/lib/mobilePageShell';
-import { LEGAL_ECOMMERCE_AUTH_FOOTER_LINE_AR } from '@/config/partnerLegal';
 import {
   VISITOR_HERO_BADGE_AR,
   VISITOR_HERO_LEAD_DESKTOP_AR,
@@ -50,7 +49,6 @@ import { readHashQueryParam } from '@/lib/hashQueryParams';
 import { LocationStatusBar } from '@/components/LocationStatusBar';
 import { KSACityClocksBar } from '@/components/KSACityClocksBar';
 import { PlatformTlsTrustBadge } from '@/components/PlatformTlsTrustBadge';
-import { EcommerceVerifiedFooterBadge } from '@/components/EcommerceVerifiedFooterBadge';
 import { PlatformAmbientToggle } from '@/components/PlatformAmbientToggle';
 import { usePlatformAmbient } from '@/context/PlatformAmbientContext';
 import { isSupabaseConfigured } from '@/integrations/supabase/client';
@@ -1549,12 +1547,6 @@ export default function LandingPreview() {
           </div>
           <div className="mt-2 text-center text-sm font-bold text-white/85 [text-shadow:0_0_10px_rgba(255,255,255,0.08)] sm:text-base">
             تراخيص الهيئة العامة لتنظيم الإعلام 167220 - 167221 - 167222
-          </div>
-          <div className="mt-2 text-center text-sm font-bold text-white/85 [text-shadow:0_0_10px_rgba(255,255,255,0.08)] sm:text-base">
-            {LEGAL_ECOMMERCE_AUTH_FOOTER_LINE_AR}
-          </div>
-          <div className="mt-5">
-            <EcommerceVerifiedFooterBadge variant="landing" />
           </div>
           <AppBuildStamp variant="dark" className="mt-4 opacity-60" />
         </div>

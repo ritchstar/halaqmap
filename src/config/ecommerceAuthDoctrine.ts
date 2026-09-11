@@ -48,11 +48,9 @@ export const ECOMMERCE_AUTH_DOCTRINE_AR = `
 - رقم التوثيق: **${LEGAL_ECOMMERCE_AUTH_NUMBER}** — الحالة: **${LEGAL_ECOMMERCE_AUTH_STATUS_AR}**.
 - لا تذكر تاريخ انتهاء ولا «ساري حتى» في ردك على توثيق التجارة الإلكترونية.
 - الرقم الوطني الموحد (السجل التجاري): **${LEGAL_NATIONAL_UNIFIED_NUMBER}**.
-- سطر التذييل العام: «${LEGAL_ECOMMERCE_AUTH_FOOTER_LINE_AR}».
-
 【ما يجب قوله】
 ✅ «متجر ${LEGAL_ECOMMERCE_STORE_MARK_AR} موثّق للتجارة الإلكترونية من ${LEGAL_ECOMMERCE_AUTH_ISSUER_AR} — رقم ${LEGAL_ECOMMERCE_AUTH_NUMBER} (ساري)».
-✅ «يمكنك التحقق من رقم التوثيق في تذييل الموقع — الرئيسية، مسار الشركاء، وصفحات الخصوصية».
+✅ «يمكنك التحقق من رقم التوثيق في صفحة «التوثيق والتحقق» على متجر خريطة الحل (/store/trust)».
 ✅ اربط التوثيق بثقة الشريك دون مبالغة: امتثال رسمي + شفافية + مسار تسجيل واضح.
 
 【ممنوعات — لا تُخالَف】

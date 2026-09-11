@@ -10,7 +10,6 @@ import {
 import {
   PLATFORM_OFFICIAL_ENTITY_ABOUT_LINK_LABEL,
   PLATFORM_OFFICIAL_FOOTER_LEGAL_LINE,
-  PLATFORM_ECOMMERCE_AUTH_FOOTER_LINE,
   PLATFORM_MEDIA_LICENSE_FOOTER_LINE,
 } from '@/config/platformGrowthNarrative';
 import {
@@ -18,8 +17,6 @@ import {
   PLATFORM_OPERATIONAL_TRUST_FOOTER_SHORT_AR,
   PLATFORM_OPERATIONAL_TRUST_SECTION_ID,
 } from '@/config/platformOperationalTrust';
-import { EcommerceVerifiedFooterBadge } from '@/components/EcommerceVerifiedFooterBadge';
-
 type Variant = 'light' | 'dark';
 
 /**
@@ -48,12 +45,6 @@ export function PlatformOfficialFooterStrip({ variant = 'light' }: { variant?: V
       <p className={`mt-2 text-center text-sm font-bold leading-relaxed sm:text-base ${titleColor}`}>
         {PLATFORM_MEDIA_LICENSE_FOOTER_LINE}
       </p>
-      <p className={`mt-2 text-center text-sm font-bold leading-relaxed sm:text-base ${titleColor}`}>
-        {PLATFORM_ECOMMERCE_AUTH_FOOTER_LINE}
-      </p>
-      <div className="mt-4">
-        <EcommerceVerifiedFooterBadge variant={variant} />
-      </div>
       <div className="mt-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs sm:text-sm">
         <NavLink to={ROUTE_PATHS.TERMS_OF_SERVICE} className={linkClass}>
           شروط الاستخدام

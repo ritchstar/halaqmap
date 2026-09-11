@@ -36,9 +36,7 @@ import {
   PARTNER_SECTION_INTROS,
 } from '@/config/partnerFieldSalesCopy';
 import { PartnerLandingFaqAccordion } from '@/components/partner/PartnerLandingFaqAccordion';
-import { LEGAL_ECOMMERCE_AUTH_FOOTER_LINE_AR } from '@/config/partnerLegal';
 import { STORE_ORIGIN, STORE_SATELLITE_HOST } from '@/lib/storeHostRedirect';
-import { EcommerceVerifiedFooterBadge } from '@/components/EcommerceVerifiedFooterBadge';
 import { PartnerOrderReceptionTicker } from '@/components/partner/PartnerOrderReceptionTicker';
 import { PartnerPlatformInspectionTicker } from '@/components/partner/PartnerPlatformInspectionTicker';
 import { PartnerPlatformLaunchTicker } from '@/components/partner/PartnerPlatformLaunchTicker';
@@ -527,12 +525,6 @@ export default function PartnersB2BLanding() {
         <p className="text-xs mt-3" style={{ color: "#334155" }}>
           حلاق ماب — حضور رقمي أوضح، ووصول أسرع للعملاء
         </p>
-        <p className="text-xs mt-2 font-semibold" style={{ color: "#64748B" }}>
-          {LEGAL_ECOMMERCE_AUTH_FOOTER_LINE_AR}
-        </p>
-        <div className="mt-4 flex justify-center">
-          <EcommerceVerifiedFooterBadge variant="landing" className="max-w-sm" />
-        </div>
       </footer>
     </div>
   );

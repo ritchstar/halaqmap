@@ -65,7 +65,7 @@ export const LEGAL_ECOMMERCE_AUTH_NUMBER_LABEL_AR = 'رقم توثيق التج�
 export const LEGAL_ECOMMERCE_INQUIRY_COPY_HINT_AR =
   'انسخ الرقم، ثم أدخله في بوابة التحقق الرسمية للاطلاع على بيانات التوثيق.';
 
-/** سطر التذييل — يُعرض في الواجهات العامة ومسار الشركاء وصفحات الخصوصية */
+/** سطر توثيق التجارة — للمرجع الداخلي وصفحة التوثيق والتحقق فقط، لا يُكرَّر في التذييل */
 export const LEGAL_ECOMMERCE_AUTH_FOOTER_LINE_AR =
   `شهادة توثيق التجارة الإلكترونية — رقم التوثيق: ${LEGAL_ECOMMERCE_AUTH_NUMBER} (${LEGAL_ECOMMERCE_AUTH_STATUS_AR})`;
 

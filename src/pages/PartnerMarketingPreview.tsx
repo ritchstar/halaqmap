@@ -67,11 +67,10 @@ import {
 } from '@/config/partnerLandingPageCopy';
 import { ACTIVATION_CERTIFICATE_DEFINITION_AR } from '@/config/platformSoftwareRegistration';
 import { RegisterSalonGlowIcon } from '@/components/partner/RegisterSalonGlowIcon';
-import { LEGAL_ECOMMERCE_AUTH_FOOTER_LINE_AR, PARTNER_SUPPORT_WHATSAPP_URL } from '@/config/partnerLegal';
+import { PARTNER_SUPPORT_WHATSAPP_URL } from '@/config/partnerLegal';
 import { ProductEvents } from '@/lib/analytics/productAnalytics';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { SiWhatsapp } from 'react-icons/si';
-import { EcommerceVerifiedFooterBadge } from '@/components/EcommerceVerifiedFooterBadge';
 import { HalaqmapBrandMark } from '@/components/HalaqmapBrandMark';
 import { PartnerLandingFaqAccordion } from '@/components/partner/PartnerLandingFaqAccordion';
 import { SoftwareRegistrationTrust } from '@/components/partner/SoftwareRegistrationTrust';
@@ -1456,12 +1455,6 @@ export default function PartnerMarketingPreview() {
           </div>
           <div className="mt-2 text-center text-sm font-bold text-slate-200 sm:text-base">
             تراخيص الهيئة العامة لتنظيم الإعلام 167220 - 167221 - 167222
-          </div>
-          <div className="mt-2 text-center text-sm font-bold text-slate-200 sm:text-base">
-            {LEGAL_ECOMMERCE_AUTH_FOOTER_LINE_AR}
-          </div>
-          <div className="mt-5">
-            <EcommerceVerifiedFooterBadge variant="dark" />
           </div>
         </div>
       </footer>
