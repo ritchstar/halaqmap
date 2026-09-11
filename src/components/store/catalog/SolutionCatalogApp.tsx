@@ -26,6 +26,7 @@ import {
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { CatalogSignalLayer } from '@/components/store/catalog/CatalogSignalLayer';
 import { ProductMark } from '@/components/store/catalog/ProductMark';
+import { SolutionCatalogProductCard } from '@/components/store/catalog/SolutionCatalogProductCard';
 
 function ProductModal({
   product,
@@ -220,36 +221,11 @@ export function SolutionCatalogApp() {
             </div>
 
             {filtered.length ? (
-              filtered.map((product) => (
-                <article
-                  key={product.code}
-                  className={`solution-catalog__row solution-catalog__row--${product.stripe}`}
-                >
-                  <ProductMark
-                    logoSrc={product.logoSrc}
-                    name={product.nameAr}
-                    code={product.code}
-                    accent={product.stripe}
-                    compact
-                  />
-                  <div>
-                    <h3 className="solution-catalog__product-name">{product.nameAr}</h3>
-                    <p className="text-sm text-[var(--sc-muted)]">{product.nameEn}</p>
-                    <p className="mt-2 font-bold">{product.summaryAr}</p>
-                    <p className="solution-catalog__product-desc mt-1">{product.descriptionAr}</p>
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      {product.tags.map((tag) => (
-                        <span key={tag} className="solution-catalog__tag">
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                  <button type="button" className="solution-catalog__btn solution-catalog__btn--ghost whitespace-nowrap" onClick={() => openProduct(product)}>
-                    {STORE_SOLUTION_CATALOG_COPY.openCardAr}
-                  </button>
-                </article>
-              ))
+              <div className="solution-catalog__grid">
+                {filtered.map((product) => (
+                  <SolutionCatalogProductCard key={product.code} product={product} onOpen={openProduct} />
+                ))}
+              </div>
             ) : (
               <div className="mt-8 rounded-sm border border-[var(--sc-border)] bg-[var(--sc-surface)] p-8 text-center">
                 <p className="text-lg font-bold">{STORE_SOLUTION_CATALOG_COPY.emptyTitleAr}</p>

@@ -13,6 +13,10 @@ export function solutionCatalogMarkSrc(code: string): string {
   return `${STORE_SOLUTION_CATALOG_MARK_BASE}/halaqmap-${code.toLowerCase()}.webp`;
 }
 
+export function solutionCatalogCardImageSrc(code: string): string {
+  return `${STORE_SOLUTION_CATALOG_MARK_BASE}/cards/${code.toLowerCase()}.webp`;
+}
+
 export const STORE_SOLUTION_CATALOG_COLORS = {
   bg: '#e9e5dc',
   surface: '#fffaf4',
@@ -46,6 +50,7 @@ export type SolutionCatalogProduct = {
   tags: readonly string[];
   stripe: SolutionCatalogStripe;
   logoSrc: string | null;
+  cardImageSrc: string;
   href: string;
   pathItems: readonly string[];
   external?: boolean;
@@ -102,6 +107,7 @@ export const STORE_SOLUTION_CATALOG_PRODUCTS: readonly SolutionCatalogProduct[] 
     tags: ['اكتشاف', 'تواصل', 'صالونات الرجال'],
     stripe: 'brick',
     logoSrc: solutionCatalogMarkSrc('A-01'),
+    cardImageSrc: solutionCatalogCardImageSrc('A-01'),
     href: 'https://www.halaqmap.com',
     external: true,
     pathItems: ['استعلام قرب على الخريطة', 'صفحة صالون واضحة', 'حجز أو تواصل مباشر'],
@@ -118,6 +124,7 @@ export const STORE_SOLUTION_CATALOG_PRODUCTS: readonly SolutionCatalogProduct[] 
     tags: ['اكتشاف', 'صالونات النساء', 'قطاعي'],
     stripe: 'brick',
     logoSrc: solutionCatalogMarkSrc('A-02'),
+    cardImageSrc: solutionCatalogCardImageSrc('A-02'),
     href: 'https://coiffeur.halaqmap.com',
     external: true,
     pathItems: ['استعلام قطاعي', 'بوابة شريكات', 'تغطية متدرجة'],
@@ -134,6 +141,7 @@ export const STORE_SOLUTION_CATALOG_PRODUCTS: readonly SolutionCatalogProduct[] 
     tags: ['صندوق اليوم', 'طلب من الجوال', 'لوحة تشغيل'],
     stripe: 'yellow',
     logoSrc: solutionCatalogMarkSrc('B-01'),
+    cardImageSrc: solutionCatalogCardImageSrc('B-01'),
     href: ROUTE_PATHS.STORE_PRODUCE,
     pathItems: ['شريط ما وصل اليوم', 'طلب حبة أو كيلو', 'لوحة الصندوق'],
   },
@@ -149,6 +157,7 @@ export const STORE_SOLUTION_CATALOG_PRODUCTS: readonly SolutionCatalogProduct[] 
     tags: ['سلة جار الحي', 'كاشير', 'QR'],
     stripe: 'yellow',
     logoSrc: solutionCatalogMarkSrc('B-02'),
+    cardImageSrc: solutionCatalogCardImageSrc('B-02'),
     href: ROUTE_PATHS.STORE_GROCERS,
     pathItems: ['بنك أصناف', 'مذكرة توصيل', 'ملصق QR'],
   },
@@ -163,6 +172,7 @@ export const STORE_SOLUTION_CATALOG_PRODUCTS: readonly SolutionCatalogProduct[] 
     tags: ['طبق اليوم', 'توصيل', 'لوحة مطبخ'],
     stripe: 'blue',
     logoSrc: solutionCatalogMarkSrc('C-01'),
+    cardImageSrc: solutionCatalogCardImageSrc('C-01'),
     href: ROUTE_PATHS.STORE_RESTAURANT,
     pathItems: ['قائمة أطباق', 'طلب ضيف الحي', 'تذكرة مطبخ'],
   },
@@ -177,6 +187,7 @@ export const STORE_SOLUTION_CATALOG_PRODUCTS: readonly SolutionCatalogProduct[] 
     tags: ['مشروبات', 'شاشات', 'رابط ضيف'],
     stripe: 'blue',
     logoSrc: solutionCatalogMarkSrc('C-02'),
+    cardImageSrc: solutionCatalogCardImageSrc('C-02'),
     href: ROUTE_PATHS.STORE_CAFE,
     pathItems: ['قائمة مشروبات', 'ثلاث شاشات', 'لوحة كاشير'],
   },
@@ -191,6 +202,7 @@ export const STORE_SOLUTION_CATALOG_PRODUCTS: readonly SolutionCatalogProduct[] 
     tags: ['شاشات', 'مضيف', 'فعاليات'],
     stripe: 'blue',
     logoSrc: solutionCatalogMarkSrc('D-01'),
+    cardImageSrc: solutionCatalogCardImageSrc('D-01'),
     href: ROUTE_PATHS.STORE_LOUNGE,
     pathItems: ['حزمة فعاليات', 'لوحة مضيف', 'رابط ترحيب'],
   },
@@ -205,6 +217,7 @@ export const STORE_SOLUTION_CATALOG_PRODUCTS: readonly SolutionCatalogProduct[] 
     tags: ['زواج', 'قاعة حية', 'دعوة'],
     stripe: 'yellow',
     logoSrc: solutionCatalogMarkSrc('D-02'),
+    cardImageSrc: solutionCatalogCardImageSrc('D-02'),
     href: ROUTE_PATHS.STORE_WEDDING,
     pathItems: ['كرت فخم', 'قاعة حية', 'روابط سرية'],
   },
@@ -219,6 +232,7 @@ export const STORE_SOLUTION_CATALOG_PRODUCTS: readonly SolutionCatalogProduct[] 
     tags: ['مناسبة حرة', 'تهاني', 'قاعة'],
     stripe: 'yellow',
     logoSrc: solutionCatalogMarkSrc('D-03'),
+    cardImageSrc: solutionCatalogCardImageSrc('D-03'),
     href: ROUTE_PATHS.STORE_EVENT,
     pathItems: ['شق رجالي أو نسائي', 'قاعة حية', 'تهاني على الشاشة'],
   },
@@ -233,6 +247,7 @@ export const STORE_SOLUTION_CATALOG_PRODUCTS: readonly SolutionCatalogProduct[] 
     tags: ['تهنئة', 'مشاركة', 'بطاقة'],
     stripe: 'yellow',
     logoSrc: solutionCatalogMarkSrc('E-01'),
+    cardImageSrc: solutionCatalogCardImageSrc('E-01'),
     href: ROUTE_PATHS.STORE_INVITES,
     pathItems: ['معاينة قبل الإرسال', 'مشاركة فورية', 'تحميل للطباعة'],
   },
