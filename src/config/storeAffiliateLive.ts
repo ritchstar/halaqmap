@@ -51,7 +51,7 @@ export const STORE_AFFILIATE_COPY = {
   applyTitleAr: 'طلب الانضمام والمراجعة المبدئية',
   applyCtaAr: 'إرسال الطلب لمراجعة الإدارة',
   applySentAr: 'وصل الطلب. حالتك قيد المراجعة. لا لوحة ولا روابط شراء قبل الموافقة.',
-  deskGateAr: 'الدخول للوحة بعد موافقة الإدارة فقط.',
+  deskGateAr: 'الدخول للوحة بعد المراجعة الإدارية فقط.',
   storeLoginTitleAr: 'دخول اللوحة',
   storeLoginLeadAr: 'الإيميل مرتكز التحقق. اطلب رابطاً سرياً يصل إلى صندوقك ثم افتح اللوحة منه.',
   storeLoginPlaceholderAr: 'name@example.com',

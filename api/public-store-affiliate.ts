@@ -261,7 +261,7 @@ async function redeemMagic(db: Db, body: Record<string, unknown>, headers: Recor
     .eq('id', row.marketer_id)
     .maybeSingle();
   if (!marketer || String(marketer.status) !== 'approved') {
-    return json({ error: 'يلزم موافقة الإدارة أولاً' }, 403, headers);
+    return json({ error: 'يلزم المراجعة الإدارية أولاً' }, 403, headers);
   }
   const sessionToken = newSecret();
   const { error: sessionErr } = await db.from('store_affiliate_sessions').insert({
@@ -310,7 +310,7 @@ async function requestTrial(
     .eq('id', session.marketer_id)
     .maybeSingle();
   if (!marketer || String(marketer.status) !== 'approved') {
-    return json({ error: 'يلزم موافقة الإدارة أولاً' }, 403, headers);
+    return json({ error: 'يلزم المراجعة الإدارية أولاً' }, 403, headers);
   }
   const productKey = body.productKey;
   if (!isStoreProductTrialKey(productKey)) {
