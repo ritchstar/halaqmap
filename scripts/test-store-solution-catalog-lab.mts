@@ -22,7 +22,11 @@ const landing = readFileSync(join(root, 'src/pages/store/StoreLanding.tsx'), 'ut
 assert.match(routes, /STORE_CATALOG_LAB:\s*'\/store\/catalog-lab'/);
 assert.match(config, /STORE_SOLUTION_CATALOG_LAB_ENABLED = true/);
 assert.match(config, /code: 'A-01'/);
+assert.match(config, /code: 'B-03'/);
+assert.match(config, /code: 'B-04'/);
 assert.match(config, /code: 'E-01'/);
+assert.match(config, /solutionCatalogMarkSrc\('B-03'\)/);
+assert.match(config, /solutionCatalogCardImageSrc\('B-04'\)/);
 assert.match(config, /solutionCatalogMarkSrc\('A-01'\)/);
 assert.match(config, /solutionCatalogMarkSrc\('E-01'\)/);
 assert.doesNotMatch(config, /logoSrc: null/);
@@ -46,9 +50,11 @@ assert.match(ui, /STORE_REQUEST/);
 assert.doesNotMatch(landing, /SolutionCatalogApp/);
 assert.doesNotMatch(landing, /storeSolutionCatalog/);
 
-for (const code of ['A-01', 'A-02', 'B-01', 'B-02', 'C-01', 'C-02', 'D-01', 'D-02', 'D-03', 'E-01']) {
+for (const code of ['A-01', 'A-02', 'B-01', 'B-02', 'B-03', 'B-04', 'C-01', 'C-02', 'D-01', 'D-02', 'D-03', 'E-01']) {
   const markPath = join(root, 'public/images/store/catalog', `halaqmap-${code.toLowerCase()}.webp`);
   assert.ok(existsSync(markPath), `missing catalog mark: ${markPath}`);
+  const cardPath = join(root, 'public/images/store/catalog/cards', `${code.toLowerCase()}.webp`);
+  assert.ok(existsSync(cardPath), `missing catalog card: ${cardPath}`);
 }
 
 console.log('test-store-solution-catalog-lab: ok');
