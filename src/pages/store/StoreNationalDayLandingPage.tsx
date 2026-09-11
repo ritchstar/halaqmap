@@ -52,10 +52,6 @@ export default function StoreNationalDayLandingPage() {
         </div>
       </header>
 
-      <div className="mx-auto max-w-[72rem] px-3 pt-2 sm:px-4">
-        <PlatformContinuousDevelopmentNotice variant="store" />
-      </div>
-
       <section className="store-national-day__hero">
         <div className="store-national-day__hero-inner">
           <p className="store-national-day__kicker">{copy.kickerAr}</p>
@@ -217,6 +213,7 @@ export default function StoreNationalDayLandingPage() {
             <Link to={ROUTE_PATHS.STORE_ABOUT}>تعريف المتجر</Link>
             <Link to={STORE_NATIONAL_DAY_CARDS_HREF}>بطاقة تهنئة</Link>
           </nav>
+          <PlatformContinuousDevelopmentNotice variant="store" placement="footer" />
         </div>
       </footer>
     </div>

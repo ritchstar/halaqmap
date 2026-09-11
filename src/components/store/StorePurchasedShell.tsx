@@ -46,9 +46,9 @@ export function StorePurchasedShell({
     >
       {showLife ? <StoreShopLife compact themed /> : null}
       <div className="store-purchased-shell__body store-product-theme__body relative z-10">
-        <PlatformContinuousDevelopmentNotice variant="shop" className="mx-auto max-w-[1240px] px-3 pt-2 sm:px-4" />
         <div className="store-product-theme__frame mx-auto w-full max-w-[1240px] px-3 sm:px-4">
           {children}
+          <PlatformContinuousDevelopmentNotice variant="shop" placement="footer" className="pb-10 pt-4" />
         </div>
       </div>
       {showStoreLink ? <StoreLiveStoreLink /> : null}

@@ -212,9 +212,6 @@ export function Layout({ children }: LayoutProps) {
       </header>
 
       <main className="relative z-10 flex-1 md:pb-0">
-        <div className="container mx-auto px-4 pt-3">
-          <PlatformContinuousDevelopmentNotice variant="platform" />
-        </div>
         {children}
       </main>
 
@@ -407,6 +404,7 @@ export function Layout({ children }: LayoutProps) {
               <span className="text-slate-700 text-[0.7rem]">© ٢٠٢٦ حلاق ماب · ISIC4 474151</span>
             </div>
             <AppBuildStamp className="opacity-30" />
+            <PlatformContinuousDevelopmentNotice variant="platform" placement="footer" className="text-center" />
           </div>
         </div>
       </footer>

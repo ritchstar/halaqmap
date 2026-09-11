@@ -574,9 +574,6 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
           !isMapCommunityPage && `${MOBILE_PARTNER_NAV_CLEARANCE} md:pb-0`,
         )}
       >
-        <div className="mx-auto w-full max-w-5xl px-4 pt-3">
-          <PlatformContinuousDevelopmentNotice variant="partner" />
-        </div>
         {children}
       </main>
 
@@ -649,6 +646,7 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
             <PlatformOfficialFooterStrip variant="dark" />
           </div>
           <AppBuildStamp variant="dark" className="mt-2 text-center text-[10px] opacity-80" />
+          <PlatformContinuousDevelopmentNotice variant="partner" placement="footer" className="text-center" />
         </div>
 
         <div className="container mx-auto hidden px-4 py-6 md:block">
@@ -701,6 +699,7 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
             <PlatformOfficialFooterStrip variant="dark" />
           </div>
           <AppBuildStamp variant="dark" className="mt-4 border-t border-white/5 pt-3" />
+          <PlatformContinuousDevelopmentNotice variant="partner" placement="footer" />
         </div>
       </footer>
       ) : null}

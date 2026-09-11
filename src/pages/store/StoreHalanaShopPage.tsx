@@ -168,19 +168,16 @@ export default function StoreHalanaShopPage() {
   if (desk) {
     return (
       <StoreProductThemeRoot product="halana" context="operator" className="halana-desk-page min-h-svh">
-        <div className="mx-auto max-w-6xl px-3 pt-2 sm:px-4">
-          <PlatformContinuousDevelopmentNotice variant="desk" />
-        </div>
         <HalanaDeskStudio token={token} payload={payload} onSaved={() => void load()} />
+        <div className="mx-auto max-w-6xl px-3 pb-6 sm:px-4">
+          <PlatformContinuousDevelopmentNotice variant="desk" placement="footer" />
+        </div>
       </StoreProductThemeRoot>
     );
   }
 
   return (
     <StoreProductThemeRoot product="halana" context="storefront" className="halana-page min-h-svh">
-      <div className="store-product-theme__frame mx-auto max-w-[1240px] px-3 pt-2 sm:px-4">
-        <PlatformContinuousDevelopmentNotice variant="shop" />
-      </div>
       <HalanaSparkLayer />
       {order ? (
         <HalanaActivityOrderFlow token={token} payload={payload} busy={busy} setBusy={setBusy} />
@@ -188,6 +185,9 @@ export default function StoreHalanaShopPage() {
         <HalanaActivityShowcase token={token} payload={payload} acceptingOrders={payload.acceptingOrders !== false} />
       )}
       <StoreLiveStoreLink />
+      <div className="store-product-theme__frame mx-auto max-w-[1240px] px-3 pb-8 pt-2 sm:px-4">
+        <PlatformContinuousDevelopmentNotice variant="shop" placement="footer" />
+      </div>
     </StoreProductThemeRoot>
   );
 }

@@ -6104,3 +6104,15 @@ html.platform-radar-fullscreen #root {
   background: rgba(7, 20, 38, 0.55);
   color: rgba(244, 239, 228, 0.78);
 }
+
+.platform-continuous-dev-notice--footer {
+  margin-top: 0.75rem;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  line-height: 1.55;
+  text-align: start;
+  opacity: 0.62;
+}

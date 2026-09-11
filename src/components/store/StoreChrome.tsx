@@ -30,9 +30,6 @@ export function StoreVisitorShell({ children }: { children: ReactNode }) {
   }, []);
   return (
     <div dir="rtl" className="store-product-shell min-h-[100svh] overflow-x-clip bg-[#061018] text-[#f4efe4]">
-      <div className="mx-auto max-w-5xl px-3 pt-2 sm:px-4">
-        <PlatformContinuousDevelopmentNotice variant="store" />
-      </div>
       {children}
     </div>
   );
@@ -259,6 +256,7 @@ export function StoreVisitorFooter() {
             </li>
           ))}
         </ul>
+        <PlatformContinuousDevelopmentNotice variant="store" placement="footer" />
       </div>
     </footer>
   );
