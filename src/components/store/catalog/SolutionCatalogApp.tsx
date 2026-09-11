@@ -25,6 +25,7 @@ import {
 } from '@/config/storeSolutionCatalog';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { CatalogSignalLayer } from '@/components/store/catalog/CatalogSignalLayer';
+import { ProductMark } from '@/components/store/catalog/ProductMark';
 
 function ProductModal({
   product,
@@ -43,12 +44,20 @@ function ProductModal({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between gap-3">
-          <div>
-            <p className="solution-catalog__code text-sm text-[var(--sc-muted)]">{product.code}</p>
-            <h2 id={`catalog-modal-${product.code}`} className="solution-catalog__product-name mt-1">
-              {product.nameAr}
-            </h2>
-            <p className="text-sm text-[var(--sc-muted)]">{product.nameEn}</p>
+          <div className="flex items-start gap-3">
+            <ProductMark
+              logoSrc={product.logoSrc}
+              name={product.nameAr}
+              code={product.code}
+              accent={product.stripe}
+            />
+            <div>
+              <p className="solution-catalog__code text-sm text-[var(--sc-muted)]">{product.code}</p>
+              <h2 id={`catalog-modal-${product.code}`} className="solution-catalog__product-name mt-1">
+                {product.nameAr}
+              </h2>
+              <p className="text-sm text-[var(--sc-muted)]">{product.nameEn}</p>
+            </div>
           </div>
           <button type="button" className="solution-catalog__btn solution-catalog__btn--ghost" onClick={onClose} aria-label={STORE_SOLUTION_CATALOG_COPY.modalCloseAr}>
             <X className="h-5 w-5" />
@@ -216,7 +225,13 @@ export function SolutionCatalogApp() {
                   key={product.code}
                   className={`solution-catalog__row solution-catalog__row--${product.stripe}`}
                 >
-                  <p className="solution-catalog__code text-sm font-bold">{product.code}</p>
+                  <ProductMark
+                    logoSrc={product.logoSrc}
+                    name={product.nameAr}
+                    code={product.code}
+                    accent={product.stripe}
+                    compact
+                  />
                   <div>
                     <h3 className="solution-catalog__product-name">{product.nameAr}</h3>
                     <p className="text-sm text-[var(--sc-muted)]">{product.nameEn}</p>

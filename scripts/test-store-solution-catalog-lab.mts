@@ -15,6 +15,7 @@ const main = readFileSync(join(root, 'src/main.tsx'), 'utf8');
 const page = readFileSync(join(root, 'src/pages/store/StoreSolutionCatalogLabPage.tsx'), 'utf8');
 const ui = readFileSync(join(root, 'src/components/store/catalog/SolutionCatalogApp.tsx'), 'utf8');
 const signal = readFileSync(join(root, 'src/components/store/catalog/CatalogSignalLayer.tsx'), 'utf8');
+const mark = readFileSync(join(root, 'src/components/store/catalog/ProductMark.tsx'), 'utf8');
 const css = readFileSync(join(root, 'src/styles/storeSolutionCatalog.css'), 'utf8');
 const landing = readFileSync(join(root, 'src/pages/store/StoreLanding.tsx'), 'utf8');
 
@@ -31,6 +32,9 @@ assert.match(main, /\/store\/catalog-lab/);
 assert.match(page, /noindex, nofollow/);
 assert.match(ui, /SolutionCatalogApp/);
 assert.match(ui, /CatalogSignalLayer/);
+assert.match(ui, /ProductMark/);
+assert.match(mark, /sanitizeStoreProductImageSrc/);
+assert.doesNotMatch(mark, /next\/image/);
 assert.match(signal, /prefers-reduced-motion/);
 assert.match(css, /catalog-signal-drawing/);
 assert.match(ui, /parseSolutionCatalogProductHash/);
