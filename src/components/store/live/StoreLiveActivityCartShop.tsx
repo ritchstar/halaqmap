@@ -8,6 +8,7 @@ import { liveActivityCopy, type LiveActivityKind } from '@/config/storeLiveActiv
 import { loadLiveActivityDraft, saveLiveActivityDraft } from '@/lib/storeLiveActivityDraft';
 import { isShopClosedNow, type StoreShopHoursState } from '@/lib/storeShopHours';
 import { resolveShopHeaderCover, resolveShopHeaderCoverStyle } from '@/lib/storeShopBackground';
+import { IndependentStoreIdentity } from '@/components/store/neighbor/IndependentStoreIdentity';
 import { StoreLiveActivityShell } from '@/components/store/live/StoreLiveActivityShell';
 import {
   StoreLiveActivityAboutTab,
@@ -37,6 +38,7 @@ export function StoreLiveActivityCartShop({
   coverSrc,
   hoursBanner,
   directPay,
+  showIndependentStoreIdentity = false,
   children,
 }: {
   kind: Exclude<LiveActivityKind, 'halana'>;
@@ -49,6 +51,7 @@ export function StoreLiveActivityCartShop({
   coverSrc?: string;
   hoursBanner?: ReactNode;
   directPay?: ReactNode;
+  showIndependentStoreIdentity?: boolean;
   children: ReactNode;
 }) {
   const copy = liveActivityCopy(kind);
@@ -103,6 +106,9 @@ export function StoreLiveActivityCartShop({
       primaryAction={{ label: copy.startOrderAr, onClick: goOrder }}
       liveBannerLine={liveBannerLine || undefined}
       trustStrip={copy.trustStrip}
+      afterTrust={
+        showIndependentStoreIdentity ? <IndependentStoreIdentity shopName={host.shopName} /> : undefined
+      }
       explorerTitleAr={copy.explorerTitleAr}
       occasions={copy.occasions}
       occasion={occasion}

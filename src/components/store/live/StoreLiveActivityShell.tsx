@@ -26,6 +26,7 @@ export function StoreLiveActivityShell({
   secondaryCta,
   liveBannerLine,
   trustStrip,
+  afterTrust,
   explorerTitleAr,
   occasions,
   occasion,
@@ -53,6 +54,7 @@ export function StoreLiveActivityShell({
   secondaryCta?: { label: string; onClick: () => void };
   liveBannerLine?: string;
   trustStrip: readonly string[];
+  afterTrust?: ReactNode;
   explorerTitleAr: string;
   occasions: readonly LiveActivityShellOccasion[];
   occasion: string;
@@ -168,6 +170,8 @@ export function StoreLiveActivityShell({
           </span>
         ))}
       </div>
+
+      {afterTrust ? <div className="px-4 pt-3">{afterTrust}</div> : null}
 
       {occasions.length > 1 ? (
         <section className="halana-activity-explorer">

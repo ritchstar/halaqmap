@@ -1,8 +1,13 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
-import { useMemo, useState } from 'react';
-import { STORE_GROCERS_LIVE, STORE_GROCERS_LIVE_LAB_TOKEN, grocersCatalogImage } from '@/config/storeGrocersLive';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import {
+  STORE_GROCERS_LIVE,
+  STORE_GROCERS_LIVE_ACCENT,
+  STORE_GROCERS_LIVE_LAB_TOKEN,
+  grocersCatalogImage,
+} from '@/config/storeGrocersLive';
 import {
   compressImageFile,
   grocersCartTotal,
@@ -25,6 +30,16 @@ import { neighborVendorState } from '@/lib/storeMobileVendor';
 import { isShopClosedNow } from '@/lib/storeShopHours';
 import { cn } from '@/lib/utils';
 import { StoreDirectPayGuest, StoreDirectPayPublicMount } from '@/components/store/StoreDirectPayGuest';
+import { AdaptiveProductGrid } from '@/components/store/neighbor/AdaptiveProductGrid';
+import { NeighborFloatingCart } from '@/components/store/neighbor/NeighborFloatingCart';
+import { NeighborShelfExplorer, useNeighborShelfFilter } from '@/components/store/neighbor/NeighborShelfExplorer';
+import {
+  clearNeighborCartQty,
+  readNeighborCartQty,
+  writeNeighborCartQty,
+} from '@/lib/neighborCartStorage';
+import { NEIGHBOR_SHELF_ALL_CATEGORY, type NeighborShelfFilter } from '@/lib/neighborShelfFilter';
+import { NeighborShopEvents } from '@/lib/neighborShopAnalytics';
 
 type GrocersService = 'delivery' | 'pickup';
 
@@ -40,8 +55,16 @@ export function StoreGrocersShop({
   activityShell?: boolean;
 }) {
   const isLab = token === STORE_GROCERS_LIVE_LAB_TOKEN;
+  const neighborLabUx = isLab && Boolean(activityShell);
   const saved = useMemo(() => (isLab ? null : readSavedGrocersBuyer()), [isLab]);
-  const [qty, setQty] = useState<Record<string, number>>({});
+  const [qty, setQty] = useState<Record<string, number>>(() =>
+    neighborLabUx ? readNeighborCartQty('grocers', token) : {},
+  );
+  const [shelfFilter, setShelfFilter] = useState<NeighborShelfFilter>({
+    query: '',
+    category: NEIGHBOR_SHELF_ALL_CATEGORY,
+  });
+  const viewedRef = useRef(false);
   const [name, setName] = useState(saved?.name || '');
   const [phone, setPhone] = useState(saved?.phone || '');
   const [place, setPlace] = useState(saved?.place || '');
@@ -68,11 +91,41 @@ export function StoreGrocersShop({
     }))
     .filter((line) => line.qty > 0);
   const total = grocersCartTotal(lines);
+  const cartItemCount = lines.length;
+  const cartLineCount = lines.reduce((sum, line) => sum + line.qty, 0);
   const needsPlace = service === 'delivery';
+  const neighborRows = useMemo(
+    () =>
+      visible.map((item) => ({
+        catalogId: item.catalogId,
+        nameAr: item.nameAr,
+        category: item.category,
+        price: item.price,
+        inStock: item.inStock,
+      })),
+    [visible],
+  );
+  const filteredNeighborRows = useNeighborShelfFilter(neighborRows, shelfFilter);
+
+  useEffect(() => {
+    if (!neighborLabUx) return;
+    writeNeighborCartQty('grocers', token, qty);
+  }, [neighborLabUx, token, qty]);
+
+  useEffect(() => {
+    if (!neighborLabUx || viewedRef.current) return;
+    viewedRef.current = true;
+    NeighborShopEvents.viewStore('grocers', token, isLab);
+  }, [neighborLabUx, token, isLab]);
 
   function bump(id: string, delta: number) {
     setQty((current) => {
-      const next = Math.max(0, (current[id] || 0) + delta);
+      const prev = current[id] || 0;
+      const next = Math.max(0, prev + delta);
+      if (neighborLabUx) {
+        if (delta > 0 && next > prev) NeighborShopEvents.addItem('grocers', token, isLab, id);
+        if (delta < 0 && next < prev) NeighborShopEvents.removeItem('grocers', token, isLab, id);
+      }
       return { ...current, [id]: next };
     });
   }
@@ -98,6 +151,9 @@ export function StoreGrocersShop({
     if (!isLab && orderPhone.length < 9) return;
     if (!isLab && needsPlace && orderPlace.length < 3) return;
     if (!lines.length) return;
+    if (neighborLabUx) {
+      NeighborShopEvents.submitOrder('grocers', token, isLab, cartLineCount);
+    }
     const order = {
       id: `${Date.now()}`,
       name: orderName,
@@ -116,13 +172,17 @@ export function StoreGrocersShop({
       writeSavedGrocersBuyer(saveBuyer ? { name: order.name, phone: order.phone, place: order.place } : null);
     }
     setQty({});
+    if (neighborLabUx) {
+      clearNeighborCartQty('grocers', token);
+      NeighborShopEvents.orderSubmitted('grocers', token, isLab, cartLineCount);
+    }
     setSent(true);
   }
 
   const shelfList = activityShell ? visible : rest;
 
   return (
-    <div className="space-y-6">
+    <div className={cn('space-y-6', neighborLabUx && total > 0 && 'neighbor-shop-lab-pad')}>
       {!activityShell && state.host.flashAr.trim() ? (
         <p className="grocers-flash overflow-hidden rounded-full border border-[#8fbf7a]/40 bg-[#8fbf7a]/15 px-4 py-2 text-sm text-[#d8f0cc]">
           {state.host.flashAr}
@@ -178,20 +238,51 @@ export function StoreGrocersShop({
       </section>
       ) : null}
 
-      <section>
-        <h3 className="text-lg font-extrabold">{STORE_GROCERS_LIVE.shelfTitleAr}</h3>
-        <ul className="mt-3 divide-y divide-white/8 rounded-2xl border border-white/10">
-          {shelfList.map((item) => (
-            <li key={item.catalogId} className="flex items-center justify-between gap-3 px-3 py-2.5">
-              <span>
-                <p className="text-sm font-bold">{item.nameAr}</p>
-                <p className="text-xs text-[#8fbf7a]">{item.price} ر.س</p>
-              </span>
-              <QtyRow value={qty[item.catalogId] || 0} onMinus={() => bump(item.catalogId, -1)} onPlus={() => bump(item.catalogId, 1)} />
-            </li>
-          ))}
-        </ul>
-      </section>
+      {neighborLabUx ? (
+        <section>
+          <h3 className="text-lg font-extrabold">{STORE_GROCERS_LIVE.shelfTitleAr}</h3>
+          <div className="mt-3 space-y-3">
+            <NeighborShelfExplorer
+              items={neighborRows}
+              accent={STORE_GROCERS_LIVE_ACCENT}
+              onFilterChange={(next) => {
+                setShelfFilter(next);
+                if (next.query.trim()) {
+                  NeighborShopEvents.searchProducts('grocers', token, isLab, next.query.trim().length);
+                }
+                if (next.category !== NEIGHBOR_SHELF_ALL_CATEGORY) {
+                  NeighborShopEvents.applyCategory('grocers', token, isLab, next.category);
+                }
+              }}
+            />
+            <AdaptiveProductGrid
+              items={filteredNeighborRows}
+              qty={qty}
+              accent={STORE_GROCERS_LIVE_ACCENT}
+              onBump={bump}
+            />
+          </div>
+        </section>
+      ) : (
+        <section>
+          <h3 className="text-lg font-extrabold">{STORE_GROCERS_LIVE.shelfTitleAr}</h3>
+          <ul className="mt-3 divide-y divide-white/8 rounded-2xl border border-white/10">
+            {shelfList.map((item) => (
+              <li key={item.catalogId} className="flex items-center justify-between gap-3 px-3 py-2.5">
+                <span>
+                  <p className="text-sm font-bold">{item.nameAr}</p>
+                  <p className="text-xs text-[#8fbf7a]">{item.price} ر.س</p>
+                </span>
+                <QtyRow
+                  value={qty[item.catalogId] || 0}
+                  onMinus={() => bump(item.catalogId, -1)}
+                  onPlus={() => bump(item.catalogId, 1)}
+                />
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       <form
         id="grocers-checkout"
@@ -325,6 +416,22 @@ export function StoreGrocersShop({
         ) : null}
       </form>
       <StoreGrocersBuyerChat state={state} onChange={onChange} isLab={isLab} />
+      {neighborLabUx ? (
+        <NeighborFloatingCart
+          visible={total > 0}
+          itemCount={cartItemCount}
+          lineCount={cartLineCount}
+          totalSar={total}
+          shopName={state.host.shopName}
+          accent={STORE_GROCERS_LIVE_ACCENT}
+          checkoutLabel={STORE_GROCERS_LIVE.submitOrderAr}
+          onCheckout={() => {
+            NeighborShopEvents.viewCart('grocers', token, isLab, cartItemCount);
+            NeighborShopEvents.beginCheckout('grocers', token, isLab);
+            document.getElementById('grocers-checkout')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }}
+        />
+      ) : null}
     </div>
   );
 }
