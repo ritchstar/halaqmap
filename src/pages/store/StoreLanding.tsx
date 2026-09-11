@@ -52,6 +52,7 @@ import { STORE_PRODUCE_LIVE, STORE_PRODUCE_LIVE_PUBLIC_ENABLED } from '@/config/
 import { STORE_DATES_LIVE, STORE_DATES_LIVE_PUBLIC_ENABLED } from '@/config/storeDatesLive';
 import { STORE_HALANA_LIVE, STORE_HALANA_LIVE_PUBLIC_ENABLED } from '@/config/storeHalanaLive';
 import { storeLiveProductReel, storeSoftwareShotReel } from '@/config/storeMarketingReels';
+import { storeGeneralTrialHref, type StoreGeneralTrialKey } from '@/config/storeProductTrial';
 
 export default function StoreLanding() {
   useDocumentTitle(STORE_LANDING_COPY.documentTitle);
@@ -120,7 +121,7 @@ export default function StoreLanding() {
                 leadAr={STORE_LANDING_COPY.produceLiveLeadAr}
                 ctaAr={STORE_LANDING_COPY.produceLiveCtaAr}
                 accent="#3d8b4a"
-                showTrialBadge
+                trialProductKey="produce"
               />
             ) : null}
             {STORE_GROCERS_LIVE_PUBLIC_ENABLED ? (
@@ -132,7 +133,7 @@ export default function StoreLanding() {
                 leadAr={STORE_LANDING_COPY.grocersLiveLeadAr}
                 ctaAr={STORE_LANDING_COPY.grocersLiveCtaAr}
                 accent="#8fbf7a"
-                showTrialBadge
+                trialProductKey="grocers"
               />
             ) : null}
             {STORE_DATES_LIVE_PUBLIC_ENABLED ? (
@@ -144,7 +145,7 @@ export default function StoreLanding() {
                 leadAr={STORE_LANDING_COPY.datesLiveLeadAr}
                 ctaAr={STORE_LANDING_COPY.datesLiveCtaAr}
                 accent="#8A6239"
-                showTrialBadge
+                trialProductKey="dates"
               />
             ) : null}
           </div>
@@ -169,7 +170,7 @@ export default function StoreLanding() {
                 leadAr={STORE_LANDING_COPY.kitchenLiveLeadAr}
                 ctaAr={STORE_LANDING_COPY.kitchenLiveCtaAr}
                 accent="#b45a3c"
-                showTrialBadge
+                trialProductKey="kitchen"
               />
             ) : null}
             {STORE_HALANA_LIVE_PUBLIC_ENABLED ? (
@@ -181,7 +182,7 @@ export default function StoreLanding() {
                 leadAr={STORE_LANDING_COPY.halanaLiveLeadAr}
                 ctaAr={STORE_LANDING_COPY.halanaLiveCtaAr}
                 accent="#c45c7a"
-                showTrialBadge
+                trialProductKey="halana"
               />
             ) : null}
             {STORE_RESTAURANT_LIVE_PUBLIC_ENABLED ? (
@@ -193,7 +194,7 @@ export default function StoreLanding() {
                 leadAr={STORE_LANDING_COPY.restaurantLiveLeadAr}
                 ctaAr={STORE_LANDING_COPY.restaurantLiveCtaAr}
                 accent="#e08a3c"
-                showTrialBadge
+                trialProductKey="restaurant"
               />
             ) : null}
             {STORE_CAFE_LIVE_PUBLIC_ENABLED ? (
@@ -205,7 +206,7 @@ export default function StoreLanding() {
                 leadAr={STORE_LANDING_COPY.cafeLiveLeadAr}
                 ctaAr={STORE_LANDING_COPY.cafeLiveCtaAr}
                 accent="#c48a4a"
-                showTrialBadge
+                trialProductKey="cafe"
               />
             ) : null}
             {STORE_LOUNGE_LIVE_PUBLIC_ENABLED ? (
@@ -217,7 +218,7 @@ export default function StoreLanding() {
                 leadAr={STORE_LANDING_COPY.loungeLiveLeadAr}
                 ctaAr={STORE_LANDING_COPY.loungeLiveCtaAr}
                 accent="#d4a574"
-                showTrialBadge
+                trialProductKey="lounge"
               />
             ) : null}
           </div>
@@ -585,7 +586,7 @@ function StoreBrowseCard({
   leadAr,
   ctaAr,
   accent,
-  showTrialBadge = false,
+  trialProductKey,
 }: {
   to: string;
   reel: StoreMarketingReelId;
@@ -594,33 +595,46 @@ function StoreBrowseCard({
   leadAr: string;
   ctaAr: string;
   accent: string;
-  showTrialBadge?: boolean;
+  trialProductKey?: StoreGeneralTrialKey;
 }) {
+  const trialHref = trialProductKey ? storeGeneralTrialHref(trialProductKey) : null;
+
   return (
-    <Link
-      to={to}
+    <article
       className="overflow-hidden rounded-xl border bg-[#0b1a24]/70 transition hover:border-white/30"
       style={{ borderColor: `${accent}59` }}
     >
-      <StoreInViewMount minHeightClass="min-h-[8.5rem]">
-        <StoreShot reel={reel} alt={alt} className="aspect-[16/10] w-full" />
-      </StoreInViewMount>
+      <Link to={to} className="block">
+        <StoreInViewMount minHeightClass="min-h-[8.5rem]">
+          <StoreShot reel={reel} alt={alt} className="aspect-[16/10] w-full" />
+        </StoreInViewMount>
+      </Link>
       <div className="p-3">
         <div className="flex flex-wrap items-center gap-2">
-          <h3 className="text-base font-extrabold">
+          <Link to={to} className="text-base font-extrabold hover:underline">
             <StoreProductName>{titleAr}</StoreProductName>
-          </h3>
-          {showTrialBadge ? (
-            <span className="rounded-full border border-[#e8c547]/35 bg-[#e8c547]/12 px-2 py-0.5 text-[0.68rem] font-bold text-[#e8c547]">
+          </Link>
+          {trialHref ? (
+            <Link
+              to={trialHref}
+              className="rounded-full border border-[#e8c547]/35 bg-[#e8c547]/12 px-2 py-0.5 text-[0.68rem] font-bold text-[#e8c547] hover:bg-[#e8c547]/20"
+            >
               {STORE_LANDING_COPY.browseTrialBadgeAr}
-            </span>
+            </Link>
           ) : null}
         </div>
         <p className="mt-2 text-sm leading-7 text-white/78">{leadAr}</p>
-        <p className="mt-2 text-sm font-bold" style={{ color: accent }}>
-          {ctaAr}
-        </p>
+        <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
+          <Link to={to} className="text-sm font-bold hover:underline" style={{ color: accent }}>
+            {ctaAr}
+          </Link>
+          {trialHref ? (
+            <Link to={trialHref} className="text-xs font-bold text-[#e8c547] underline-offset-4 hover:underline">
+              {STORE_LANDING_COPY.browseTrialRequestAr}
+            </Link>
+          ) : null}
+        </div>
       </div>
-    </Link>
+    </article>
   );
 }

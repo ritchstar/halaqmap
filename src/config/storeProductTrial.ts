@@ -63,6 +63,10 @@ export function isGeneralTrialProduct(key: string): key is StoreGeneralTrialKey 
   return (STORE_GENERAL_TRIAL_KEYS as readonly string[]).includes(key);
 }
 
+export function storeGeneralTrialHref(productKey: StoreGeneralTrialKey): string {
+  return `/store/try?product=${encodeURIComponent(productKey)}`;
+}
+
 export const STORE_PRODUCT_TRIAL_COPY = {
   opsTitleAr: 'نظام التجربة العام',
   opsKickerAr: 'من لوحة التحكم · ستون يوماً ثم تمديد بالشراء على نفس الصفحة',

@@ -127,6 +127,7 @@ export const STORE_LANDING_COPY = {
   browseWorksAr: 'المهن والخدمات',
   browseWorksSectionAr: 'المهن والخدمات',
   browseTrialBadgeAr: 'تجربة 60 يوماً',
+  browseTrialRequestAr: 'اطلب تجربة مجانية',
   deskChatTitle: 'محادثة مباشرة مع الإدارة',
   deskChatLead: 'من واجهة خريطة الحل. جلسة ستون دقيقة، والرد يصلك هنا.',
   freeCardsTitle: 'خدمات برمجية مجانية الآن',

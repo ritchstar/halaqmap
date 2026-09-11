@@ -11,17 +11,18 @@ import {
   storeAtlasCardGlow,
   type StoreAtlasCard,
 } from '@/config/storeAtlasTokens';
-import { isGeneralTrialProduct } from '@/config/storeProductTrial';
+import { isGeneralTrialProduct, storeGeneralTrialHref } from '@/config/storeProductTrial';
 
 function sectorTitleAr(sector: StoreAtlasCard['sector']): string {
   return STORE_ATLAS_SECTORS.find((item) => item.id === sector)?.titleAr ?? '';
 }
 
 export function ProductShowcaseCard({ card }: { card: StoreAtlasCard }) {
-  const external = card.href.startsWith('http');
   const idle = card.status === 'brief';
   const showTrial = isGeneralTrialProduct(card.id);
-  const ctaAr = showTrial ? STORE_ATLAS_COPY.tryNowAr : `${STORE_ATLAS_COPY.discoverPrefixAr} ${card.nameAr}`;
+  const linkTo = showTrial ? storeGeneralTrialHref(card.id) : card.href;
+  const external = linkTo.startsWith('http');
+  const ctaAr = showTrial ? STORE_ATLAS_COPY.headerTrialAr : `${STORE_ATLAS_COPY.discoverPrefixAr} ${card.nameAr}`;
   const body = (
     <>
       <div className="store-atlas__product-shell">
@@ -83,14 +84,14 @@ export function ProductShowcaseCard({ card }: { card: StoreAtlasCard }) {
 
   if (external) {
     return (
-      <a href={card.href} {...shared} target="_blank" rel="noreferrer">
+      <a href={linkTo} {...shared} target="_blank" rel="noreferrer">
         {body}
       </a>
     );
   }
 
   return (
-    <Link to={card.href} {...shared}>
+    <Link to={linkTo} {...shared}>
       {body}
     </Link>
   );
