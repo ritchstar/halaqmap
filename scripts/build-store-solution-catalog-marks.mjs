@@ -17,6 +17,8 @@ const MARK_SOURCES = [
   { code: 'A-02', src: 'public/images/coiffeur-map-logo-seal-512.webp' },
   { code: 'B-01', src: 'public/images/store/saip/produce-26-12-103276978.png' },
   { code: 'B-02', src: 'public/images/store/saip/grocers-26-12-103276933.png' },
+  { code: 'B-03', src: 'public/images/store/kitchen-hero-marketing.jpg' },
+  { code: 'B-04', src: 'public/images/store/halana/halana-hero-table.jpg' },
   { code: 'C-01', src: 'public/images/store/restaurant-hero-marketing.jpg' },
   { code: 'C-02', src: 'public/images/store/saip/cafe-26-12-103276935.png' },
   { code: 'D-01', src: 'public/images/store/saip/lounge-26-12-103276926.png' },
