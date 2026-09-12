@@ -3,8 +3,8 @@
  */
 import type { ReactNode } from 'react';
 import { Component } from 'react';
-import { getAdminDashboardPath } from '@/config/adminAuth';
 import { forceHardRefresh } from '@/lib/platformBuildSync';
+import { publicErrorRecoveryAction } from '@/lib/publicErrorRecovery';
 
 type Props = { children: ReactNode };
 type State = { error: Error | null };
@@ -172,6 +172,7 @@ export class RootErrorBoundary extends Component<Props, State> {
         : domMismatch
           ? 'يبدو أن نسخة قديمة من التطبيق ما زالت في الكاش بعد تحديث المنصة. اضغط إعادة التحميل للتنظيف والمتابعة.'
           : null;
+      const recovery = publicErrorRecoveryAction();
       return (
         <div
           dir="rtl"
@@ -204,16 +205,15 @@ export class RootErrorBoundary extends Component<Props, State> {
           >
             إعادة التحميل
           </button>
-          <button
-            type="button"
-            className="text-sm font-bold text-teal-200 underline"
-            onClick={() => {
-              window.location.hash = `#${getAdminDashboardPath()}`;
-              window.location.reload();
-            }}
-          >
-            لوحة التحكم
-          </button>
+          {recovery ? (
+            <button
+              type="button"
+              className="text-sm font-bold text-teal-200 underline"
+              onClick={recovery.onClick}
+            >
+              {recovery.labelAr}
+            </button>
+          ) : null}
         </div>
       );
     }

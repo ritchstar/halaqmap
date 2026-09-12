@@ -202,6 +202,7 @@ export default function StoreProduceShopPage() {
             <StoreLiveActivityCartShop
               kind="produce"
               token={safeToken}
+              initialTab={isLab ? 'order' : 'home'}
               showIndependentStoreIdentity
               host={state.host}
               shelf={toLiveActivityShelf(state.shelf)}

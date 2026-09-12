@@ -210,6 +210,7 @@ export default function StoreKitchenShopPage() {
             <StoreLiveActivityCartShop
               kind="kitchen"
               token={safeToken}
+              initialTab={isLab ? 'order' : 'home'}
               showIndependentStoreIdentity
               host={state.host}
               shelf={toLiveActivityShelf(state.shelf)}

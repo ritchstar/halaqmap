@@ -61,13 +61,17 @@ export function NeighborServiceSummary({
   const active = options.find((option) => option.id === value);
   if (!active) return null;
 
+  function scrollToServiceBar() {
+    document.getElementById('neighbor-service-bar')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
   return (
     <p className="neighbor-service-summary">
       طريقة الاستلام: <span className="neighbor-service-summary__value">{active.labelAr}</span>
       {' · '}
-      <a href="#neighbor-service-bar" className="neighbor-service-summary__link">
+      <button type="button" onClick={scrollToServiceBar} className="neighbor-service-summary__link">
         تغيير
-      </a>
+      </button>
     </p>
   );
 }

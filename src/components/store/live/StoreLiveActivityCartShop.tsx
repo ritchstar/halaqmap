@@ -39,6 +39,7 @@ export function StoreLiveActivityCartShop({
   hoursBanner,
   directPay,
   showIndependentStoreIdentity = false,
+  initialTab = 'home',
   children,
 }: {
   kind: Exclude<LiveActivityKind, 'halana'>;
@@ -52,10 +53,11 @@ export function StoreLiveActivityCartShop({
   hoursBanner?: ReactNode;
   directPay?: ReactNode;
   showIndependentStoreIdentity?: boolean;
+  initialTab?: 'home' | 'order' | 'about';
   children: ReactNode;
 }) {
   const copy = liveActivityCopy(kind);
-  const [tab, setTab] = useState('home');
+  const [tab, setTab] = useState(initialTab);
   const [occasion, setOccasion] = useState(() => loadLiveActivityDraft(kind, token).occasion);
 
   const tabs = useMemo(
