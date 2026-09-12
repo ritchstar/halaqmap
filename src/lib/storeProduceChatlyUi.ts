@@ -14,10 +14,11 @@ function envEnabled(name: string, fallback: boolean): boolean {
   return fallback;
 }
 
-/** افتراضياً: معاينة المختبر فقط. `VITE_STORE_PRODUCE_CHATLY_UI_ALL=true` لكل الرموز. */
+/** عند تعطيل التعميم: معاينة المختبر فقط إن كان `VITE_STORE_PRODUCE_CHATLY_UI` مفعّلاً. */
 export const STORE_PRODUCE_CHATLY_UI_LAB_DEFAULT = envEnabled('VITE_STORE_PRODUCE_CHATLY_UI', true);
 
-export const STORE_PRODUCE_CHATLY_UI_ALL = envEnabled('VITE_STORE_PRODUCE_CHATLY_UI_ALL', false);
+/** افتراضياً: كل رموز خضارنا1. `VITE_STORE_PRODUCE_CHATLY_UI_ALL=false` للرجوع الطارئ. */
+export const STORE_PRODUCE_CHATLY_UI_ALL = envEnabled('VITE_STORE_PRODUCE_CHATLY_UI_ALL', true);
 
 export function isProduceChatlyUi(token: string): boolean {
   if (STORE_PRODUCE_CHATLY_UI_ALL) return true;
