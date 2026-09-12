@@ -348,11 +348,47 @@
 }
 
 .solution-catalog__custom {
-  background: var(--sc-brick);
-  color: var(--sc-light);
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  color: var(--sc-ink);
+  border: 1px solid var(--sc-border);
   border-radius: 2px;
   padding: 28px 24px;
   margin-top: 32px;
+  background-color: var(--sc-surface);
+  background-image:
+    linear-gradient(
+      270deg,
+      rgb(255 250 244 / 0.98) 0%,
+      rgb(255 250 244 / 0.92) 36%,
+      rgb(255 250 244 / 0.68) 56%,
+      rgb(255 250 244 / 0.2) 76%,
+      transparent 100%
+    ),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 280 160' fill='none'%3E%3Cpath d='M36 132 140 78 244 132 140 186Z' fill='%23e9e5dc' stroke='%23bdb5a7' stroke-width='1'/%3E%3Cpath d='M52 124 92 104 92 76 52 96Z' fill='%23fffdf8' stroke='%23566269' stroke-width='.75'/%3E%3Cpath d='M52 96 92 76 132 96 92 116Z' fill='%23b84c3a' opacity='.82'/%3E%3Cpath d='M146 116 184 98 184 72 146 90Z' fill='%23fffaf4' stroke='%23566269' stroke-width='.75'/%3E%3Cpath d='M146 90 184 72 222 90 184 108Z' fill='%231d4f69' opacity='.72'/%3E%3Cpath d='M108 126 126 117 126 108 108 117Z' fill='%23d8d2c7' stroke='%23bdb5a7' stroke-width='.6'/%3E%3Cpath d='M108 117 126 108 144 117 126 126Z' fill='%23d1a728' opacity='.55'/%3E%3Ccircle cx='166' cy='88' r='13' fill='%231f2933' opacity='.9'/%3E%3Cpath d='M166 78c-3.5 0-6.2 2.8-6.2 6.2 0 4.2 6.2 10.2 6.2 10.2s6.2-6 6.2-10.2c0-3.4-2.7-6.2-6.2-6.2Z' fill='%23fffaf4'/%3E%3Cpath d='M114 122 166 88' stroke='%23b84c3a' stroke-width='.85' opacity='.4'/%3E%3Cpath d='M178 104 166 88' stroke='%231d4f69' stroke-width='.85' opacity='.4'/%3E%3Cellipse cx='214' cy='106' rx='11' ry='9' fill='%231d4f69' opacity='.28'/%3E%3Crect x='211' y='106' width='5' height='14' rx='1' fill='%23566269' opacity='.45'/%3E%3C/svg%3E"),
+    linear-gradient(180deg, var(--sc-surface) 0%, var(--sc-bg) 100%);
+  background-repeat: no-repeat;
+  background-size: 100% 100%, min(42vw, 320px) auto, 100% 100%;
+  background-position: 0 0, 0 100%, 0 0;
+}
+
+@media (max-width: 640px) {
+  .solution-catalog__custom {
+    background-size: 100% 100%, min(52vw, 220px) auto, 100% 100%;
+  }
+}
+
+.solution-catalog__custom > * {
+  position: relative;
+  z-index: 1;
+}
+
+.solution-catalog__custom-lead {
+  margin-top: 0.75rem;
+  max-width: 42rem;
+  line-height: 1.85;
+  color: var(--sc-muted);
 }
 
 .solution-catalog__journey {
