@@ -7,6 +7,8 @@ import { useEffect, useState } from 'react';
 import { Navigate, useLocation, useParams } from 'react-router-dom';
 import { StoreGrocersDesk } from '@/components/store/StoreGrocersDesk';
 import { StoreGrocersShop } from '@/components/store/StoreGrocersShop';
+import { GrocersChatlyDesk } from '@/components/store/grocers/GrocersChatlyDesk';
+import { GrocersChatlyStorefront } from '@/components/store/grocers/GrocersChatlyStorefront';
 import { StoreLiveActivityCartShop } from '@/components/store/live/StoreLiveActivityCartShop';
 import { StoreShopHoursBanner } from '@/components/store/StoreShopHoursBanner';
 import { StoreDirectPayPublicMount } from '@/components/store/StoreDirectPayGuest';
@@ -38,6 +40,8 @@ import { parseShopBackgroundFields } from '@/lib/storeShopBackground';
 import { parseShopPickupPlace } from '@/lib/storeShopPlace';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { storeLiveShopShareHref } from '@/lib/storeHostRedirect';
+import { isGrocersChatlyUi } from '@/lib/storeGrocersChatlyUi';
+import { cn } from '@/lib/utils';
 
 type Gate = 'loading' | 'ok' | 'expired' | 'missing';
 
@@ -73,6 +77,7 @@ export default function StoreGrocersShopPage() {
   const { token = '' } = useParams<{ token: string }>();
   const safeToken = token.trim() || STORE_GROCERS_LIVE_LAB_TOKEN;
   const isLab = safeToken === STORE_GROCERS_LIVE_LAB_TOKEN;
+  const chatlyUi = isGrocersChatlyUi(safeToken);
   const [state, setState] = useState<GrocersLabState>(() =>
     isLab ? readGrocersLabState(safeToken) : defaultGrocersLabState(),
   );
@@ -166,26 +171,67 @@ export default function StoreGrocersShopPage() {
     }
   };
 
+  const chatlyStorefront = chatlyUi && !desk;
+  const chatlyDesk = chatlyUi && desk;
+
   return (
     <StorePurchasedShell
       product="grocers"
       surface={desk ? 'workspace' : 'storefront'}
-      life
+      life={!chatlyStorefront}
       showStoreLink={!desk}
-      pageBg={state.host.shopPageBg}
+      showDevNotice={!chatlyStorefront}
+      showLiveMark={!chatlyStorefront}
+      pageBg={chatlyStorefront || chatlyDesk ? undefined : state.host.shopPageBg}
     >
-      <div className={desk ? 'mx-auto max-w-3xl px-3 py-5' : undefined}>
-        {gate === 'loading' ? <p className="pt-[30svh] text-center text-sm text-white/60">جاري فتح المتجر…</p> : null}
-        {gate === 'missing' ? <p className="pt-[30svh] text-center text-sm text-white/70">الرابط غير صالح.</p> : null}
+      <div
+        className={cn(
+          desk && !chatlyDesk && 'mx-auto max-w-3xl px-3 py-5',
+          chatlyDesk && '-mx-3 sm:-mx-4',
+          chatlyStorefront && '-mx-3 sm:-mx-4',
+        )}
+      >
+        {gate === 'loading' ? (
+          <p
+            className={cn(
+              'pt-[30svh] text-center text-sm',
+              chatlyStorefront || chatlyDesk ? 'text-[#849284]' : 'text-white/60',
+            )}
+          >
+            جاري فتح المتجر…
+          </p>
+        ) : null}
+        {gate === 'missing' ? (
+          <p
+            className={cn(
+              'pt-[30svh] text-center text-sm',
+              chatlyStorefront || chatlyDesk ? 'text-[#586a5c]' : 'text-white/70',
+            )}
+          >
+            الرابط غير صالح.
+          </p>
+        ) : null}
         {gate === 'ok' ? (
           desk ? (
-            <StoreGrocersDesk
-              state={state}
-              onChange={commit}
-              shopUrl={shopUrl}
-              token={safeToken}
-              showTrialNote={isTrial}
-            />
+            chatlyUi ? (
+              <GrocersChatlyDesk
+                state={state}
+                onChange={commit}
+                shopUrl={shopUrl}
+                token={safeToken}
+                showTrialNote={isTrial}
+              />
+            ) : (
+              <StoreGrocersDesk
+                state={state}
+                onChange={commit}
+                shopUrl={shopUrl}
+                token={safeToken}
+                showTrialNote={isTrial}
+              />
+            )
+          ) : chatlyUi ? (
+            <GrocersChatlyStorefront state={state} onChange={commit} token={safeToken} />
           ) : (
             <StoreLiveActivityCartShop
               kind="grocers"
