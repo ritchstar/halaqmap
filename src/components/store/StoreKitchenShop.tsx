@@ -25,6 +25,7 @@ import { cn } from '@/lib/utils';
 import { AdaptiveProductGrid } from '@/components/store/neighbor/AdaptiveProductGrid';
 import { NeighborFloatingCart } from '@/components/store/neighbor/NeighborFloatingCart';
 import { NeighborShelfExplorer, useNeighborShelfFilter } from '@/components/store/neighbor/NeighborShelfExplorer';
+import { NeighborServiceBar, NeighborServiceSummary } from '@/components/store/neighbor/NeighborServiceBar';
 import {
   clearNeighborCartQty,
   readNeighborCartQty,
@@ -98,6 +99,13 @@ export function StoreKitchenShop({
     [orderable],
   );
   const filteredNeighborRows = useNeighborShelfFilter(neighborRows, shelfFilter);
+  const serviceOptions = useMemo(
+    () => [
+      { id: 'delivery', labelAr: STORE_KITCHEN_LIVE.serviceDeliveryAr },
+      { id: 'pickup', labelAr: STORE_KITCHEN_LIVE.servicePickupAr },
+    ],
+    [],
+  );
 
   useEffect(() => {
     if (!neighborShopUx) return;
@@ -240,8 +248,15 @@ export function StoreKitchenShop({
       {neighborShopUx ? (
         <section>
           <h3 className="text-lg font-extrabold">{STORE_KITCHEN_LIVE.shelfTitleAr}</h3>
+          <NeighborServiceBar
+            value={service}
+            options={serviceOptions}
+            accent={STORE_KITCHEN_LIVE_ACCENT}
+            onChange={(id) => setService(id as KitchenService)}
+          />
           <div className="mt-3 space-y-3">
             <NeighborShelfExplorer
+              sticky
               items={neighborRows}
               accent={STORE_KITCHEN_LIVE_ACCENT}
               onFilterChange={(next) => {
@@ -318,14 +333,18 @@ export function StoreKitchenShop({
             {STORE_KITCHEN_LIVE.buyerPhoneLabelAr}
             <input required value={phone} onChange={(e) => setPhone(e.target.value)} className="restaurant-field" inputMode="tel" maxLength={20} />
           </label>
-          <div className="mt-3 flex flex-wrap gap-2">
-            <button type="button" onClick={() => setService('delivery')} className={cn('rounded-full px-3 py-1.5 text-xs', service === 'delivery' ? 'bg-[#b45a3c] font-bold text-[#061018]' : 'border border-white/20')}>
-              {STORE_KITCHEN_LIVE.serviceDeliveryAr}
-            </button>
-            <button type="button" onClick={() => setService('pickup')} className={cn('rounded-full px-3 py-1.5 text-xs', service === 'pickup' ? 'bg-[#b45a3c] font-bold text-[#061018]' : 'border border-white/20')}>
-              {STORE_KITCHEN_LIVE.servicePickupAr}
-            </button>
-          </div>
+          {neighborShopUx ? (
+            <NeighborServiceSummary value={service} options={serviceOptions} />
+          ) : (
+            <div className="mt-3 flex flex-wrap gap-2">
+              <button type="button" onClick={() => setService('delivery')} className={cn('rounded-full px-3 py-1.5 text-xs', service === 'delivery' ? 'bg-[#b45a3c] font-bold text-[#061018]' : 'border border-white/20')}>
+                {STORE_KITCHEN_LIVE.serviceDeliveryAr}
+              </button>
+              <button type="button" onClick={() => setService('pickup')} className={cn('rounded-full px-3 py-1.5 text-xs', service === 'pickup' ? 'bg-[#b45a3c] font-bold text-[#061018]' : 'border border-white/20')}>
+                {STORE_KITCHEN_LIVE.servicePickupAr}
+              </button>
+            </div>
+          )}
           {service === 'delivery' ? (
             <>
               <label className="mt-3 block text-sm">

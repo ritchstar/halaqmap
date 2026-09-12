@@ -83,8 +83,24 @@ function NeighborQtyControls({
   onMinus: () => void;
   onPlus: () => void;
 }) {
+  const style = { '--neighbor-accent': accent } as CSSProperties;
+
+  if (qty <= 0) {
+    return (
+      <button
+        type="button"
+        className="neighbor-qty__add"
+        style={style}
+        onClick={onPlus}
+        aria-label="إضافة إلى السلة"
+      >
+        + إضافة
+      </button>
+    );
+  }
+
   return (
-    <div className="neighbor-qty" style={{ '--neighbor-accent': accent } as CSSProperties}>
+    <div className="neighbor-qty" style={style}>
       <button type="button" className="neighbor-qty__btn" onClick={onMinus} aria-label="تقليل الكمية">
         −
       </button>

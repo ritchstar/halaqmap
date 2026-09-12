@@ -33,6 +33,7 @@ import { StoreDirectPayGuest, StoreDirectPayPublicMount } from '@/components/sto
 import { AdaptiveProductGrid } from '@/components/store/neighbor/AdaptiveProductGrid';
 import { NeighborFloatingCart } from '@/components/store/neighbor/NeighborFloatingCart';
 import { NeighborShelfExplorer, useNeighborShelfFilter } from '@/components/store/neighbor/NeighborShelfExplorer';
+import { NeighborServiceBar, NeighborServiceSummary } from '@/components/store/neighbor/NeighborServiceBar';
 import {
   clearNeighborCartQty,
   readNeighborCartQty,
@@ -106,6 +107,13 @@ export function StoreGrocersShop({
     [visible],
   );
   const filteredNeighborRows = useNeighborShelfFilter(neighborRows, shelfFilter);
+  const serviceOptions = useMemo(
+    () => [
+      { id: 'delivery', labelAr: STORE_GROCERS_LIVE.serviceDeliveryAr },
+      { id: 'pickup', labelAr: STORE_GROCERS_LIVE.servicePickupAr },
+    ],
+    [],
+  );
 
   useEffect(() => {
     if (!neighborShopUx) return;
@@ -241,8 +249,19 @@ export function StoreGrocersShop({
       {neighborShopUx ? (
         <section>
           <h3 className="text-lg font-extrabold">{STORE_GROCERS_LIVE.shelfTitleAr}</h3>
+          <NeighborServiceBar
+            value={service}
+            options={serviceOptions}
+            accent={STORE_GROCERS_LIVE_ACCENT}
+            onChange={(id) => {
+              const next = id as GrocersService;
+              setService(next);
+              if (next === 'pickup') setPlaceConfirmed(false);
+            }}
+          />
           <div className="mt-3 space-y-3">
             <NeighborShelfExplorer
+              sticky
               items={neighborRows}
               accent={STORE_GROCERS_LIVE_ACCENT}
               onFilterChange={(next) => {
@@ -297,26 +316,32 @@ export function StoreGrocersShop({
         </h3>
         <p className="mt-1 text-sm text-[#8fbf7a]">الإجمالي الآن: {total} ر.س</p>
 
-        <p className="mt-4 text-sm font-bold">طريقة الاستلام</p>
-        <div className="mt-2 flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={() => setService('delivery')}
-            className={cn('rounded-full px-3 py-1.5 text-xs', service === 'delivery' ? 'bg-[#8fbf7a] font-bold text-[#061018]' : 'border border-white/20')}
-          >
-            {STORE_GROCERS_LIVE.serviceDeliveryAr}
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setService('pickup');
-              setPlaceConfirmed(false);
-            }}
-            className={cn('rounded-full px-3 py-1.5 text-xs', service === 'pickup' ? 'bg-[#8fbf7a] font-bold text-[#061018]' : 'border border-white/20')}
-          >
-            {STORE_GROCERS_LIVE.servicePickupAr}
-          </button>
-        </div>
+        {neighborShopUx ? (
+          <NeighborServiceSummary value={service} options={serviceOptions} />
+        ) : (
+          <>
+            <p className="mt-4 text-sm font-bold">طريقة الاستلام</p>
+            <div className="mt-2 flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => setService('delivery')}
+                className={cn('rounded-full px-3 py-1.5 text-xs', service === 'delivery' ? 'bg-[#8fbf7a] font-bold text-[#061018]' : 'border border-white/20')}
+              >
+                {STORE_GROCERS_LIVE.serviceDeliveryAr}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setService('pickup');
+                  setPlaceConfirmed(false);
+                }}
+                className={cn('rounded-full px-3 py-1.5 text-xs', service === 'pickup' ? 'bg-[#8fbf7a] font-bold text-[#061018]' : 'border border-white/20')}
+              >
+                {STORE_GROCERS_LIVE.servicePickupAr}
+              </button>
+            </div>
+          </>
+        )}
 
         <label className="mt-3 block text-sm">
           {STORE_GROCERS_LIVE.buyerNameLabelAr}

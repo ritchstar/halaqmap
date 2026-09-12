@@ -40,6 +40,7 @@ import { StoreDirectPayGuest, StoreDirectPayPublicMount } from '@/components/sto
 import { AdaptiveProductGrid } from '@/components/store/neighbor/AdaptiveProductGrid';
 import { NeighborFloatingCart } from '@/components/store/neighbor/NeighborFloatingCart';
 import { NeighborShelfExplorer, useNeighborShelfFilter } from '@/components/store/neighbor/NeighborShelfExplorer';
+import { NeighborServiceBar, NeighborServiceSummary } from '@/components/store/neighbor/NeighborServiceBar';
 import {
   clearNeighborCartQty,
   readNeighborCartQty,
@@ -122,6 +123,14 @@ export function StoreProduceShop({
     [visible],
   );
   const filteredNeighborRows = useNeighborShelfFilter(neighborRows, shelfFilter);
+  const serviceOptions = useMemo(() => {
+    const options = [
+      { id: 'delivery', labelAr: STORE_PRODUCE_LIVE.serviceDeliveryAr },
+      { id: 'pickup', labelAr: STORE_PRODUCE_LIVE.servicePickupAr },
+    ];
+    if (mobile) options.push({ id: 'come', labelAr: STORE_PRODUCE_LIVE.serviceComeAr });
+    return options;
+  }, [mobile]);
 
   useEffect(() => {
     if (!neighborShopUx) return;
@@ -295,8 +304,16 @@ export function StoreProduceShop({
       {neighborShopUx ? (
         <section>
           <h3 className="text-lg font-extrabold">{STORE_PRODUCE_LIVE.shelfTitleAr}</h3>
+          <NeighborServiceBar
+            value={service}
+            options={serviceOptions}
+            accent={STORE_PRODUCE_LIVE_ACCENT}
+            hint={service === 'come' ? STORE_PRODUCE_LIVE.serviceComeLeadAr : undefined}
+            onChange={(id) => setService(id as ProduceService)}
+          />
           <div className="mt-3 space-y-3">
             <NeighborShelfExplorer
+              sticky
               items={neighborRows}
               accent={STORE_PRODUCE_LIVE_ACCENT}
               onFilterChange={(next) => {
@@ -370,22 +387,28 @@ export function StoreProduceShop({
             placeholder={isLab ? STORE_PRODUCE_LIVE.labDemoPhoneAr : undefined}
           />
         </label>
-        <div className="mt-3 flex flex-wrap gap-2">
-          <button type="button" onClick={() => setService('delivery')} className={cn('rounded-full px-3 py-1.5 text-xs', service === 'delivery' ? 'bg-[#3d8b4a] font-bold text-[#061018]' : 'border border-white/20')}>
-            {STORE_PRODUCE_LIVE.serviceDeliveryAr}
-          </button>
-          <button type="button" onClick={() => setService('pickup')} className={cn('rounded-full px-3 py-1.5 text-xs', service === 'pickup' ? 'bg-[#3d8b4a] font-bold text-[#061018]' : 'border border-white/20')}>
-            {STORE_PRODUCE_LIVE.servicePickupAr}
-          </button>
-          {mobile ? (
-            <button type="button" onClick={() => setService('come')} className={cn('rounded-full px-3 py-1.5 text-xs', service === 'come' ? 'bg-[#3d8b4a] font-bold text-[#061018]' : 'border border-white/20')}>
-              {STORE_PRODUCE_LIVE.serviceComeAr}
-            </button>
-          ) : null}
-        </div>
-        {service === 'come' ? (
-          <p className="mt-2 text-sm leading-7 text-white/75">{STORE_PRODUCE_LIVE.serviceComeLeadAr}</p>
-        ) : null}
+        {neighborShopUx ? (
+          <NeighborServiceSummary value={service} options={serviceOptions} />
+        ) : (
+          <>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <button type="button" onClick={() => setService('delivery')} className={cn('rounded-full px-3 py-1.5 text-xs', service === 'delivery' ? 'bg-[#3d8b4a] font-bold text-[#061018]' : 'border border-white/20')}>
+                {STORE_PRODUCE_LIVE.serviceDeliveryAr}
+              </button>
+              <button type="button" onClick={() => setService('pickup')} className={cn('rounded-full px-3 py-1.5 text-xs', service === 'pickup' ? 'bg-[#3d8b4a] font-bold text-[#061018]' : 'border border-white/20')}>
+                {STORE_PRODUCE_LIVE.servicePickupAr}
+              </button>
+              {mobile ? (
+                <button type="button" onClick={() => setService('come')} className={cn('rounded-full px-3 py-1.5 text-xs', service === 'come' ? 'bg-[#3d8b4a] font-bold text-[#061018]' : 'border border-white/20')}>
+                  {STORE_PRODUCE_LIVE.serviceComeAr}
+                </button>
+              ) : null}
+            </div>
+            {service === 'come' ? (
+              <p className="mt-2 text-sm leading-7 text-white/75">{STORE_PRODUCE_LIVE.serviceComeLeadAr}</p>
+            ) : null}
+          </>
+        )}
         {service === 'delivery' || service === 'come' ? (
           <>
             <label className="mt-3 block text-sm">
