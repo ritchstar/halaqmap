@@ -27,6 +27,7 @@ import { StoreLiveShopShareDesk } from '@/components/store/StoreLiveShopShareDes
 import { STORE_CAFE_LIVE, STORE_CAFE_LIVE_ACCENT } from '@/config/storeCafeLive';
 import { STORE_MOBILE_VENDOR } from '@/config/storeMobileVendor';
 import { STORE_SHOP_HOURS_COPY } from '@/config/storeShopHours';
+import { STORE_SHOP_PRESENCE_LABEL_AR } from '@/config/storeShopPresence';
 import {
   cafeWhatsAppText,
   type CafeLabState,
@@ -75,14 +76,12 @@ export function CafeChatlyDesk({
   shopUrl,
   token,
   showTrialNote = false,
-  maskPii = false,
 }: {
   state: CafeLabState;
   onChange: (next: CafeLabState) => void;
   shopUrl: string;
   token: string;
   showTrialNote?: boolean;
-  maskPii?: boolean;
 }) {
   const [section, setSection] = useState<DeskSection>('overview');
   const [mobileNav, setMobileNav] = useState(false);
@@ -123,12 +122,6 @@ export function CafeChatlyDesk({
       shelf: state.shelf.map((item) => (item.catalogId === catalogId ? { ...item, inStock: !item.inStock } : item)),
     });
   }
-
-  function clearArchive() {
-    if (!window.confirm('حذف أرشيف التذاكر؟')) return;
-    onChange({ ...state, orderArchive: [] });
-  }
-
 
   function toggleAcceptingOrders() {
     onChange({ ...state, host: { ...state.host, acceptingOrders: !state.host.acceptingOrders } });
@@ -326,7 +319,6 @@ export function CafeChatlyDesk({
             <div className="mx-auto max-w-[1420px]">
               {section === 'overview' ? (
                 <OverviewSection
-                  maskPii={maskPii}
                   fresh={fresh}
                   working={working}
                   todayBoardCount={todayBoardCount}
@@ -357,7 +349,6 @@ export function CafeChatlyDesk({
 
               {section === 'orders' ? (
                 <OrdersSection
-                  maskPii={maskPii}
                   fresh={fresh}
                   working={working}
                   onReceive={receiveOrder}
@@ -370,8 +361,6 @@ export function CafeChatlyDesk({
                       tickets={state.orderArchive}
                       accent={STORE_CAFE_LIVE_ACCENT}
                       filename="cafe-archive.json"
-                      onClear={clearArchive}
-                      clearLabelAr="حذف الأرشيف"
                     />
                   }
                 />
@@ -531,7 +520,6 @@ function OrderTicketCard({
   shopName,
   mapsUrl,
   compact = false,
-  maskPii = false,
 }: {
   order: CafeOrder;
   onReceive: () => void;
@@ -539,16 +527,14 @@ function OrderTicketCard({
   shopName: string;
   mapsUrl: string;
   compact?: boolean;
-  maskPii?: boolean;
 }) {
   function displayName(order: { name: string; ticketNo?: number }) {
-    return maskPii ? STORE_CAFE_LIVE.labDeskMaskedNameAr : order.name;
+    return order.name;
   }
   function displayPhone(order: { phone: string }) {
-    return maskPii ? STORE_CAFE_LIVE.labDeskMaskedPhoneAr : order.phone;
+    return order.phone;
   }
   function displayPlace(order: { place: string }) {
-    if (maskPii) return STORE_CAFE_LIVE.labDeskMaskedPlaceAr;
     if (order.place.startsWith('http')) return 'تم تحديد الموقع';
     return order.place || 'بلا موقع مكتوب';
   }
@@ -605,7 +591,6 @@ function OverviewSection({
   working,
   todayBoardCount,
   presenceCount,
-  maskPii,
   todaySalesTotal,
   vendorLabel,
   flashAr,
@@ -624,7 +609,6 @@ function OverviewSection({
   working: CafeOrder[];
   todayBoardCount: number;
   presenceCount: number;
-  maskPii: boolean;
   todaySalesTotal: number;
   vendorLabel: string;
   flashAr: string;
@@ -664,7 +648,7 @@ function OverviewSection({
 
       <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <Metric label="طلبات جديدة" value={String(fresh.length)} hint="تحتاج استلام" tone="green" />
-        <Metric label={STORE_CAFE_LIVE.presenceDeskLabelAr} value={String(presenceCount)} hint="متصفحون الآن" tone="blue" />
+        <Metric label={STORE_SHOP_PRESENCE_LABEL_AR} value={String(presenceCount)} hint="متصفحون الآن" tone="blue" />
         <Metric label={STORE_CAFE_LIVE.todayTitleAr} value={String(todayBoardCount)} hint="طبق اليوم" tone="gold" />
         <Metric label="إجمالي اليوم" value={`${todaySalesTotal} ر.س`} hint="طلبات اليوم" tone="olive" />
       </div>
@@ -690,7 +674,6 @@ function OverviewSection({
               <OrderTicketCard
                 key={order.id}
                 order={order}
-                maskPii={maskPii}
                 compact
                 shopName={shopName}
                 mapsUrl={mapsUrl}
@@ -768,7 +751,6 @@ function OverviewSection({
 function OrdersSection({
   fresh,
   working,
-  maskPii,
   onReceive,
   onFinish,
   shopName,
@@ -778,7 +760,6 @@ function OrdersSection({
 }: {
   fresh: CafeOrder[];
   working: CafeOrder[];
-  maskPii: boolean;
   onReceive: (id: string) => void;
   onFinish: (id: string) => void;
   shopName: string;
@@ -796,7 +777,6 @@ function OrdersSection({
 
       <div className="mt-7 grid gap-5 lg:grid-cols-2">
         <OrderLane
-          maskPii={maskPii}
           title={STORE_DESK_ORDER_TICKET_COPY.newLaneAr}
           items={fresh}
           shopName={shopName}
@@ -805,7 +785,6 @@ function OrdersSection({
           onFinish={onFinish}
         />
         <OrderLane
-          maskPii={maskPii}
           title={STORE_DESK_ORDER_TICKET_COPY.receivedLaneAr}
           items={working}
           shopName={shopName}
@@ -825,7 +804,6 @@ function OrdersSection({
 function OrderLane({
   title,
   items,
-  maskPii,
   shopName,
   mapsUrl,
   onReceive,
@@ -833,7 +811,6 @@ function OrderLane({
 }: {
   title: string;
   items: CafeOrder[];
-  maskPii: boolean;
   shopName: string;
   mapsUrl: string;
   onReceive: (id: string) => void;
@@ -850,7 +827,6 @@ function OrderLane({
           <OrderTicketCard
             key={order.id}
             order={order}
-            maskPii={maskPii}
             shopName={shopName}
             mapsUrl={mapsUrl}
             onReceive={() => onReceive(order.id)}
