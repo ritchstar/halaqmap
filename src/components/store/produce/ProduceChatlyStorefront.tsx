@@ -322,12 +322,12 @@ export function ProduceChatlyStorefront({
           <div>
             <div className="mb-4 flex items-center gap-2 text-xs font-bold text-[#5b7d48]">
               <span className="h-px w-8 bg-[#9ab17e]" />
-              جار الحي
+              {STORE_PRODUCE_LIVE.shopKickerAr}
             </div>
             <h1 className="max-w-xl text-4xl font-black leading-[1.08] tracking-[-0.06em] text-[#20352b] sm:text-5xl">
               {state.host.shopName}
               <br />
-              <span className="text-[#4c813d]">خضار طازجة من حيك.</span>
+              <span className="text-[#4c813d]">{STORE_PRODUCE_LIVE.shopHeroTaglineAr}</span>
             </h1>
             <p className="mt-5 max-w-lg text-base leading-8 text-[#667564]">{state.host.blurbAr}</p>
             {state.host.customFields.some((line) => line.trim()) ? (

@@ -170,23 +170,45 @@ export default function StoreProduceShopPage() {
     }
   };
 
+  const chatlyStorefront = chatlyUi && !desk;
+
   return (
     <StorePurchasedShell
       product="produce"
       surface={desk ? 'workspace' : 'storefront'}
-      life
+      life={!chatlyStorefront}
       showStoreLink={!desk}
-      pageBg={state.host.shopPageBg}
+      showDevNotice={!chatlyStorefront}
+      showLiveMark={!chatlyStorefront}
+      pageBg={chatlyStorefront ? undefined : state.host.shopPageBg}
     >
       <div
         className={cn(
           desk && 'mx-auto max-w-3xl px-3 py-5',
           desk && chatlyUi && 'produce-chatly-desk rounded-2xl',
-          chatlyUi && !desk && '-mx-3 sm:-mx-4',
+          chatlyStorefront && '-mx-3 sm:-mx-4',
         )}
       >
-        {gate === 'loading' ? <p className="pt-[30svh] text-center text-sm text-white/60">جاري فتح المتجر…</p> : null}
-        {gate === 'missing' ? <p className="pt-[30svh] text-center text-sm text-white/70">الرابط غير صالح.</p> : null}
+        {gate === 'loading' ? (
+          <p
+            className={cn(
+              'pt-[30svh] text-center text-sm',
+              chatlyStorefront ? 'text-[#758374]' : 'text-white/60',
+            )}
+          >
+            جاري فتح المتجر…
+          </p>
+        ) : null}
+        {gate === 'missing' ? (
+          <p
+            className={cn(
+              'pt-[30svh] text-center text-sm',
+              chatlyStorefront ? 'text-[#586a5c]' : 'text-white/70',
+            )}
+          >
+            الرابط غير صالح.
+          </p>
+        ) : null}
         {gate === 'ok' ? (
           desk ? (
             <StoreProduceDesk

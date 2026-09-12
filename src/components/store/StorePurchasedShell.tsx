@@ -20,6 +20,8 @@ export function StorePurchasedShell({
   surface = 'storefront',
   life = false,
   showStoreLink = false,
+  showDevNotice = true,
+  showLiveMark = true,
   pageBg,
 }: {
   children: ReactNode;
@@ -29,6 +31,10 @@ export function StorePurchasedShell({
   surface?: 'storefront' | 'workspace';
   life?: boolean;
   showStoreLink?: boolean;
+  /** إشعار «التطوير المستمر» أسفل المحتوى — يُخفى على واجهات Chatly المكتملة */
+  showDevNotice?: boolean;
+  /** شارة «خريطة الحل» الثابتة أسفل الشاشة */
+  showLiveMark?: boolean;
   pageBg?: string;
 }) {
   const resolvedProduct = product ?? sector;
@@ -48,11 +54,15 @@ export function StorePurchasedShell({
       <div className="store-purchased-shell__body store-product-theme__body relative z-10">
         <div className="store-product-theme__frame mx-auto w-full max-w-[1240px] px-3 sm:px-4">
           {children}
-          <PlatformContinuousDevelopmentNotice variant="shop" placement="footer" className="pb-10 pt-4" />
+          {showDevNotice ? (
+            <PlatformContinuousDevelopmentNotice variant="shop" placement="footer" className="pb-10 pt-4" />
+          ) : null}
         </div>
       </div>
       {showStoreLink ? <StoreLiveStoreLink /> : null}
-      <p className="store-live-mark pointer-events-none fixed bottom-1 left-1/2 z-30 -translate-x-1/2">{STORE_LIVE_MARK_AR}</p>
+      {showLiveMark ? (
+        <p className="store-live-mark pointer-events-none fixed bottom-1 left-1/2 z-30 -translate-x-1/2">{STORE_LIVE_MARK_AR}</p>
+      ) : null}
     </StoreProductThemeRoot>
   );
 }
