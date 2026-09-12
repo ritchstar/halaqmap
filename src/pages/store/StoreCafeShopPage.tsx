@@ -6,6 +6,8 @@
 import { useEffect, useState } from 'react';
 import { Navigate, useLocation, useParams } from 'react-router-dom';
 import { StoreCafeDesk } from '@/components/store/StoreCafeDesk';
+import { CafeChatlyDesk } from '@/components/store/cafe/CafeChatlyDesk';
+import { CafeChatlyStorefront } from '@/components/store/cafe/CafeChatlyStorefront';
 import { StoreCafeGuestForm } from '@/components/store/StoreCafeGuestForm';
 import { StoreCafeHallStage, type CafeScreenMode } from '@/components/store/StoreCafeHallStage';
 import { StoreCafeHostPanel } from '@/components/store/StoreCafeHostPanel';
@@ -49,6 +51,8 @@ import { parseShopBackgroundFields } from '@/lib/storeShopBackground';
 import { parseShopPickupPlace } from '@/lib/storeShopPlace';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { storeLiveShopShareHref } from '@/lib/storeHostRedirect';
+import { isCafeChatlyUi } from '@/lib/storeCafeChatlyUi';
+import { cn } from '@/lib/utils';
 
 type Gate = 'loading' | 'ok' | 'expired' | 'missing';
 type CafePageMode = 'shop' | 'desk' | 'host' | 'guest' | CafeScreenMode;
@@ -118,6 +122,7 @@ export default function StoreCafeShopPage() {
   const { token = '' } = useParams<{ token: string }>();
   const safeToken = token.trim() || STORE_CAFE_LIVE_LAB_TOKEN;
   const isLab = safeToken === STORE_CAFE_LIVE_LAB_TOKEN;
+  const chatlyUi = isCafeChatlyUi(safeToken);
   const [state, setState] = useState<CafeLabState>(() =>
     isLab ? readCafeLabState(safeToken) : defaultCafeLabState(),
   );
@@ -255,17 +260,39 @@ export default function StoreCafeShopPage() {
 
   const screen: CafeScreenMode | null =
     displayMode || (asDisplay && mode === 'shop' ? 'main' : null);
+  const chatlyStorefront = chatlyUi && mode === 'shop' && !screen;
+  const chatlyDesk = chatlyUi && mode === 'desk';
 
   return (
     <StorePurchasedShell
       product="cafe"
       surface={mode === 'desk' ? 'workspace' : 'storefront'}
-      life={neighborhoodShop}
+      life={neighborhoodShop && !chatlyStorefront}
       showStoreLink={mode === 'shop'}
-      pageBg={state.host.shopPageBg}
+      showDevNotice={mode === 'shop' && !chatlyStorefront}
+      showLiveMark={mode === 'shop' && !chatlyStorefront}
+      pageBg={chatlyStorefront || chatlyDesk ? undefined : state.host.shopPageBg}
     >
-      {gate === 'loading' ? <p className="pt-[30svh] text-center text-sm text-white/60">جاري فتح الصفحة…</p> : null}
-      {gate === 'missing' ? <p className="pt-[30svh] text-center text-sm text-white/70">الرابط غير صالح.</p> : null}
+      {gate === 'loading' ? (
+        <p
+          className={cn(
+            'pt-[30svh] text-center text-sm',
+            chatlyStorefront || chatlyDesk ? 'text-[#849284]' : 'text-white/60',
+          )}
+        >
+          جاري فتح الصفحة…
+        </p>
+      ) : null}
+      {gate === 'missing' ? (
+        <p
+          className={cn(
+            'pt-[30svh] text-center text-sm',
+            chatlyStorefront || chatlyDesk ? 'text-[#586a5c]' : 'text-white/70',
+          )}
+        >
+          الرابط غير صالح.
+        </p>
+      ) : null}
       {gate === 'ok' && screen ? (
         <StoreCafeHallStage
           state={state}
@@ -277,26 +304,42 @@ export default function StoreCafeShopPage() {
       ) : null}
       {gate === 'ok' && !screen ? (
         mode === 'shop' ? (
-          <StoreLiveActivityCartShop
-            kind="cafe"
-            token={safeToken}
-            host={state.host}
-            shelf={toLiveActivityShelf(state.shelf)}
-            closed={isShopClosedNow(state.host)}
-            acceptingOrders={state.host.acceptingOrders}
-            todayName={liveActivityTodayName(state.shelf)}
-            coverSrc={liveActivityCoverSrc(state.shelf)}
-            hoursBanner={<StoreShopHoursBanner hours={state.host} accent={STORE_CAFE_LIVE_ACCENT} />}
-            directPay={
-              <StoreDirectPayPublicMount product="store_cafe_live" token={safeToken} accent={STORE_CAFE_LIVE_ACCENT} />
-            }
-          >
-            <StoreCafeShop activityShell state={state} onChange={commit} token={safeToken} />
-          </StoreLiveActivityCartShop>
+          chatlyUi ? (
+            <div className="-mx-3 sm:-mx-4">
+              <CafeChatlyStorefront state={state} onChange={commit} token={safeToken} />
+            </div>
+          ) : (
+            <StoreLiveActivityCartShop
+              kind="cafe"
+              token={safeToken}
+              host={state.host}
+              shelf={toLiveActivityShelf(state.shelf)}
+              closed={isShopClosedNow(state.host)}
+              acceptingOrders={state.host.acceptingOrders}
+              todayName={liveActivityTodayName(state.shelf)}
+              coverSrc={liveActivityCoverSrc(state.shelf)}
+              hoursBanner={<StoreShopHoursBanner hours={state.host} accent={STORE_CAFE_LIVE_ACCENT} />}
+              directPay={
+                <StoreDirectPayPublicMount product="store_cafe_live" token={safeToken} accent={STORE_CAFE_LIVE_ACCENT} />
+              }
+            >
+              <StoreCafeShop activityShell state={state} onChange={commit} token={safeToken} />
+            </StoreLiveActivityCartShop>
+          )
         ) : (
-          <div className="mx-auto max-w-3xl px-3 py-5">
+          <div className={cn(!chatlyDesk && 'mx-auto max-w-3xl px-3 py-5', chatlyDesk && '-mx-3 sm:-mx-4')}>
             {mode === 'desk' ? (
-              <StoreCafeDesk state={state} onChange={commit} shopUrl={shopUrl} showTrialNote={isTrial} token={safeToken} />
+              chatlyUi ? (
+                <CafeChatlyDesk
+                  state={state}
+                  onChange={commit}
+                  shopUrl={shopUrl}
+                  showTrialNote={isTrial}
+                  token={safeToken}
+                />
+              ) : (
+                <StoreCafeDesk state={state} onChange={commit} shopUrl={shopUrl} showTrialNote={isTrial} token={safeToken} />
+              )
             ) : null}
             {mode === 'host' ? (
               <StoreCafeHostPanel
