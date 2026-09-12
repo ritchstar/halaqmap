@@ -204,12 +204,6 @@ export function SolutionCatalogApp() {
         </div>
       </header>
 
-      {hoodProducts.length === SOLUTION_CATALOG_HOOD_CODES.length ? (
-        <div className="solution-catalog__hood-wrap">
-          <SolutionCatalogHoodScene products={hoodProducts} onOpen={openProduct} />
-        </div>
-      ) : null}
-
       <div className="solution-catalog__layout">
         <aside className="solution-catalog__sidebar">
           <p className="mb-3 hidden px-2 text-xs font-bold text-[var(--sc-muted)] md:block">التصنيف</p>
@@ -295,6 +289,12 @@ export function SolutionCatalogApp() {
               ))}
             </div>
           </section>
+
+          {hoodProducts.length === SOLUTION_CATALOG_HOOD_CODES.length ? (
+            <div className="solution-catalog__hood-wrap">
+              <SolutionCatalogHoodScene products={hoodProducts} onOpen={openProduct} />
+            </div>
+          ) : null}
         </main>
       </div>
 

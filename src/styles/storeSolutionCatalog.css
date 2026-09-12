@@ -28,10 +28,26 @@
 }
 
 .solution-catalog__header {
-  background: var(--sc-header);
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
   color: var(--sc-light);
   min-height: 74px;
   border-bottom: 1px solid #111820;
+  background-color: var(--sc-header);
+  background-image:
+    radial-gradient(ellipse 110% 200% at 88% 48%, rgb(13 148 136 / 0.24) 0%, transparent 58%),
+    radial-gradient(ellipse 80% 160% at 14% 52%, rgb(232 197 71 / 0.12) 0%, transparent 52%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 74' fill='none'%3E%3Ccircle cx='338' cy='37' r='22' stroke='%230d9488' stroke-opacity='.22' stroke-width='.6'/%3E%3Ccircle cx='338' cy='37' r='38' stroke='%230d9488' stroke-opacity='.14' stroke-width='.55'/%3E%3Ccircle cx='338' cy='37' r='54' stroke='%23e8c547' stroke-opacity='.11' stroke-width='.5'/%3E%3Ccircle cx='338' cy='37' r='72' stroke='%230d9488' stroke-opacity='.07' stroke-width='.45'/%3E%3Ccircle cx='338' cy='37' r='92' stroke='%23e8c547' stroke-opacity='.05' stroke-width='.4'/%3E%3C/svg%3E"),
+    linear-gradient(180deg, #24313d 0%, var(--sc-header) 100%);
+  background-repeat: no-repeat;
+  background-size: 100% 100%, 100% 100%, cover, 100% 100%;
+  background-position: center, center, 100% center, center;
+}
+
+.solution-catalog__header > * {
+  position: relative;
+  z-index: 1;
 }
 
 .solution-catalog__code {
@@ -108,16 +124,9 @@
 
 .solution-catalog__hood-wrap {
   width: 100%;
-  max-width: 1440px;
-  margin: 0 auto;
-  padding: 1rem 1rem 0;
+  max-width: 100%;
+  margin-top: 1.5rem;
   box-sizing: border-box;
-}
-
-@media (min-width: 640px) {
-  .solution-catalog__hood-wrap {
-    padding-inline: 1.25rem;
-  }
 }
 
 .solution-catalog__hood {
