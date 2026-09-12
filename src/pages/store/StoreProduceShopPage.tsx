@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import { Navigate, useLocation, useParams } from 'react-router-dom';
 import { StoreProduceDesk } from '@/components/store/StoreProduceDesk';
 import { StoreProduceShop } from '@/components/store/StoreProduceShop';
+import { ProduceChatlyStorefront } from '@/components/store/produce/ProduceChatlyStorefront';
 import { StoreLiveActivityCartShop } from '@/components/store/live/StoreLiveActivityCartShop';
 import { StoreShopHoursBanner } from '@/components/store/StoreShopHoursBanner';
 import { StoreDirectPayPublicMount } from '@/components/store/StoreDirectPayGuest';
@@ -38,6 +39,8 @@ import { parseShopBackgroundFields } from '@/lib/storeShopBackground';
 import { parseShopPickupPlace } from '@/lib/storeShopPlace';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { storeLiveShopShareHref } from '@/lib/storeHostRedirect';
+import { isProduceChatlyUi } from '@/lib/storeProduceChatlyUi';
+import { cn } from '@/lib/utils';
 
 type Gate = 'loading' | 'ok' | 'expired' | 'missing';
 
@@ -73,6 +76,7 @@ export default function StoreProduceShopPage() {
   const { token = '' } = useParams<{ token: string }>();
   const safeToken = token.trim() || STORE_PRODUCE_LIVE_LAB_TOKEN;
   const isLab = safeToken === STORE_PRODUCE_LIVE_LAB_TOKEN;
+  const chatlyUi = isProduceChatlyUi(safeToken);
   const [state, setState] = useState<ProduceLabState>(() =>
     isLab ? readProduceLabState(safeToken) : defaultProduceLabState(),
   );
@@ -174,7 +178,13 @@ export default function StoreProduceShopPage() {
       showStoreLink={!desk}
       pageBg={state.host.shopPageBg}
     >
-      <div className={desk ? 'mx-auto max-w-3xl px-3 py-5' : undefined}>
+      <div
+        className={cn(
+          desk && 'mx-auto max-w-3xl px-3 py-5',
+          desk && chatlyUi && 'produce-chatly-desk rounded-2xl',
+          chatlyUi && !desk && '-mx-3 sm:-mx-4',
+        )}
+      >
         {gate === 'loading' ? <p className="pt-[30svh] text-center text-sm text-white/60">جاري فتح المتجر…</p> : null}
         {gate === 'missing' ? <p className="pt-[30svh] text-center text-sm text-white/70">الرابط غير صالح.</p> : null}
         {gate === 'ok' ? (
@@ -186,6 +196,8 @@ export default function StoreProduceShopPage() {
               token={safeToken}
               showTrialNote={isTrial}
             />
+          ) : chatlyUi ? (
+            <ProduceChatlyStorefront state={state} onChange={commit} token={safeToken} />
           ) : (
             <StoreLiveActivityCartShop
               kind="produce"

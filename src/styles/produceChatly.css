@@ -1,0 +1,95 @@
+/**
+ * خضارنا1 — طبقة Chatly (هيكل بصري فقط).
+ */
+
+.produce-chatly-root {
+  --pc-bg: #f4f1e8;
+  --pc-surface: #fffdf5;
+  --pc-border: #dfe4d6;
+  --pc-text: #20352b;
+  --pc-muted: #758374;
+  --pc-accent: #3f7440;
+  --pc-accent-soft: #eaf1e4;
+  --pc-ink: #20352b;
+}
+
+.produce-chatly-desk {
+  --pc-bg: #f4f1e8;
+  --pc-surface: #fffdf5;
+  --pc-border: #dfe4d6;
+  --pc-text: #20352b;
+  --pc-muted: #849284;
+  --pc-accent: #3f7440;
+  --pc-accent-soft: #eaf1e4;
+  --pc-ink: #20352b;
+  background: var(--pc-bg);
+  color: var(--pc-text);
+}
+
+.produce-chatly-desk .produce-field,
+.produce-chatly-desk input.produce-field,
+.produce-chatly-desk textarea.produce-field {
+  background: #fff;
+  border: 1px solid #d4dfcc;
+  color: var(--pc-text);
+}
+
+.produce-chatly-desk .store-desk-ticket-card {
+  background: #fff;
+  border-color: #dfe7d9 !important;
+  color: var(--pc-text);
+}
+
+.produce-chatly-desk .store-desk-ticket-card .text-white\/70,
+.produce-chatly-desk .store-desk-ticket-card .text-white\/60,
+.produce-chatly-desk .store-desk-ticket-card .text-white\/75 {
+  color: var(--pc-muted) !important;
+}
+
+.produce-chatly-desk .store-desk-accent-text {
+  color: var(--pc-accent) !important;
+}
+
+.produce-chatly-desk .border-white\/12,
+.produce-chatly-desk .border-white\/10,
+.produce-chatly-desk .border-white\/20 {
+  border-color: #dfe4d6 !important;
+}
+
+.produce-chatly-desk .text-white\/60,
+.produce-chatly-desk .text-white\/70,
+.produce-chatly-desk .text-white\/75,
+.produce-chatly-desk .text-white\/35 {
+  color: var(--pc-muted) !important;
+}
+
+.produce-chatly-desk h2,
+.produce-chatly-desk h3,
+.produce-chatly-desk .font-extrabold {
+  color: var(--pc-text);
+}
+
+.produce-chatly-desk .store-ops-section {
+  background: var(--pc-surface);
+  border-color: var(--pc-border);
+}
+
+.produce-chatly-btn-primary {
+  background: var(--pc-accent) !important;
+  color: #fff !important;
+}
+
+.produce-chatly-btn-primary:hover {
+  background: #356436 !important;
+}
+
+.produce-chatly-btn-ghost {
+  background: var(--pc-surface) !important;
+  border: 1px solid #d4dfcc !important;
+  color: #647463 !important;
+  box-shadow: none !important;
+}
+
+.produce-chatly-btn-ghost:hover {
+  background: #eef4e9 !important;
+}
