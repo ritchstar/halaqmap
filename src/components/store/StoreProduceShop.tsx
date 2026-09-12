@@ -1,8 +1,13 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
-import { useEffect, useMemo, useState } from 'react';
-import { STORE_PRODUCE_LIVE, STORE_PRODUCE_LIVE_LAB_TOKEN, produceCatalogImage } from '@/config/storeProduceLive';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import {
+  STORE_PRODUCE_LIVE,
+  STORE_PRODUCE_LIVE_ACCENT,
+  STORE_PRODUCE_LIVE_LAB_TOKEN,
+  produceCatalogImage,
+} from '@/config/storeProduceLive';
 import { STORE_PRODUCE_UNIT_AR } from '@/config/storeProduceCatalog';
 import {
   isProduceComeApproaching,
@@ -32,6 +37,16 @@ import { neighborVendorState } from '@/lib/storeMobileVendor';
 import { isShopClosedNow } from '@/lib/storeShopHours';
 import { cn } from '@/lib/utils';
 import { StoreDirectPayGuest, StoreDirectPayPublicMount } from '@/components/store/StoreDirectPayGuest';
+import { AdaptiveProductGrid } from '@/components/store/neighbor/AdaptiveProductGrid';
+import { NeighborFloatingCart } from '@/components/store/neighbor/NeighborFloatingCart';
+import { NeighborShelfExplorer, useNeighborShelfFilter } from '@/components/store/neighbor/NeighborShelfExplorer';
+import {
+  clearNeighborCartQty,
+  readNeighborCartQty,
+  writeNeighborCartQty,
+} from '@/lib/neighborCartStorage';
+import { NEIGHBOR_SHELF_ALL_CATEGORY, type NeighborShelfFilter } from '@/lib/neighborShelfFilter';
+import { NeighborShopEvents } from '@/lib/neighborShopAnalytics';
 
 export function StoreProduceShop({
   state,
@@ -45,8 +60,16 @@ export function StoreProduceShop({
   activityShell?: boolean;
 }) {
   const isLab = token === STORE_PRODUCE_LIVE_LAB_TOKEN;
+  const neighborShopUx = Boolean(activityShell);
   const saved = useMemo(() => (isLab ? null : readSavedProduceBuyer()), [isLab]);
-  const [qty, setQty] = useState<Record<string, number>>({});
+  const [qty, setQty] = useState<Record<string, number>>(() =>
+    neighborShopUx ? readNeighborCartQty('produce', token) : {},
+  );
+  const [shelfFilter, setShelfFilter] = useState<NeighborShelfFilter>({
+    query: '',
+    category: NEIGHBOR_SHELF_ALL_CATEGORY,
+  });
+  const viewedRef = useRef(false);
   const [name, setName] = useState(saved?.name || '');
   const [phone, setPhone] = useState(saved?.phone || '');
   const [place, setPlace] = useState(saved?.place || '');
@@ -83,10 +106,42 @@ export function StoreProduceShop({
     }))
     .filter((line) => line.qty > 0);
   const total = produceCartTotal(lines);
+  const cartItemCount = lines.length;
+  const cartLineCount = lines.reduce((sum, line) => sum + line.qty, 0);
+  const neighborRows = useMemo(
+    () =>
+      visible.map((item) => ({
+        catalogId: item.catalogId,
+        nameAr: item.nameAr,
+        category: [item.arrivedToday ? 'وصل اليوم' : '', item.category, STORE_PRODUCE_UNIT_AR[item.unit]]
+          .filter(Boolean)
+          .join(' · '),
+        price: item.price,
+        inStock: item.inStock,
+      })),
+    [visible],
+  );
+  const filteredNeighborRows = useNeighborShelfFilter(neighborRows, shelfFilter);
+
+  useEffect(() => {
+    if (!neighborShopUx) return;
+    writeNeighborCartQty('produce', token, qty);
+  }, [neighborShopUx, token, qty]);
+
+  useEffect(() => {
+    if (!neighborShopUx || viewedRef.current) return;
+    viewedRef.current = true;
+    NeighborShopEvents.viewStore('produce', token, isLab);
+  }, [neighborShopUx, token, isLab]);
 
   function bump(id: string, delta: number) {
     setQty((current) => {
-      const next = Math.max(0, (current[id] || 0) + delta);
+      const prev = current[id] || 0;
+      const next = Math.max(0, prev + delta);
+      if (neighborShopUx) {
+        if (delta > 0 && next > prev) NeighborShopEvents.addItem('produce', token, isLab, id);
+        if (delta < 0 && next < prev) NeighborShopEvents.removeItem('produce', token, isLab, id);
+      }
       return { ...current, [id]: next };
     });
   }
@@ -104,11 +159,20 @@ export function StoreProduceShop({
   }, [watchingCome, buyerLat, buyerLng, state.host.pickupLat, state.host.pickupLng, state.host.shopName]);
 
   async function submit() {
-    if (name.trim().length < 2 || phone.trim().length < 9) return;
+    const orderName = isLab ? STORE_PRODUCE_LIVE.labDemoNameAr : name.trim().slice(0, 40);
+    const orderPhone = isLab ? STORE_PRODUCE_LIVE.labDemoPhoneAr : phone.trim().slice(0, 20);
+    const orderPlace = isLab ? STORE_PRODUCE_LIVE.labDemoPlaceAr : place.trim().slice(0, 240);
+    if (!isLab && orderName.length < 2) return;
+    if (!isLab && orderPhone.length < 9) return;
     const come = mobile && service === 'come';
     if (!come && !lines.length) return;
+    if (neighborShopUx) {
+      NeighborShopEvents.submitOrder('produce', token, isLab, cartLineCount);
+    }
     setComeHint('');
-    const coords = come ? parseMapsQueryCoords(place) || (buyerLat && buyerLng ? { lat: buyerLat, lng: buyerLng } : null) : null;
+    const coords = come
+      ? parseMapsQueryCoords(orderPlace) || (buyerLat && buyerLng ? { lat: buyerLat, lng: buyerLng } : null)
+      : null;
     if (come && !coords) {
       setComeHint(STORE_PRODUCE_LIVE.comeNeedPlaceAr);
       return;
@@ -122,9 +186,9 @@ export function StoreProduceShop({
     }
     const order = {
       id: `${Date.now()}`,
-      name: name.trim().slice(0, 40),
-      phone: phone.trim().slice(0, 20),
-      place: place.trim().slice(0, 240),
+      name: orderName,
+      phone: orderPhone,
+      place: orderPlace,
       service: come ? ('come' as const) : service,
       pay,
       lines,
@@ -135,8 +199,14 @@ export function StoreProduceShop({
       buyerLng: coords?.lng,
     };
     onChange({ ...state, orders: [order, ...state.orders].slice(0, 200) });
-    writeSavedProduceBuyer(saveBuyer ? { name: order.name, phone: order.phone, place: order.place } : null);
+    if (!isLab) {
+      writeSavedProduceBuyer(saveBuyer ? { name: order.name, phone: order.phone, place: order.place } : null);
+    }
     setQty({});
+    if (neighborShopUx) {
+      clearNeighborCartQty('produce', token);
+      NeighborShopEvents.orderSubmitted('produce', token, isLab, cartLineCount);
+    }
     setSent(true);
     if (come) {
       setWatchingCome(true);
@@ -151,7 +221,7 @@ export function StoreProduceShop({
   const shelfList = activityShell ? visible : rest;
 
   return (
-    <div className="space-y-6">
+    <div className={cn('space-y-6', neighborShopUx && total > 0 && 'neighbor-shop-pad')}>
       {!activityShell && state.host.flashAr.trim() ? (
         <p className="produce-flash overflow-hidden rounded-full border border-[#3d8b4a]/40 bg-[#3d8b4a]/15 px-4 py-2 text-sm text-[#d8f0cc]">
           {state.host.flashAr}
@@ -222,7 +292,32 @@ export function StoreProduceShop({
         </section>
       ) : null}
 
-      {(activityShell ? shelfList.length : rest.length) ? (
+      {neighborShopUx ? (
+        <section>
+          <h3 className="text-lg font-extrabold">{STORE_PRODUCE_LIVE.shelfTitleAr}</h3>
+          <div className="mt-3 space-y-3">
+            <NeighborShelfExplorer
+              items={neighborRows}
+              accent={STORE_PRODUCE_LIVE_ACCENT}
+              onFilterChange={(next) => {
+                setShelfFilter(next);
+                if (next.query.trim()) {
+                  NeighborShopEvents.searchProducts('produce', token, isLab, next.query.trim().length);
+                }
+                if (next.category !== NEIGHBOR_SHELF_ALL_CATEGORY) {
+                  NeighborShopEvents.applyCategory('produce', token, isLab, next.category);
+                }
+              }}
+            />
+            <AdaptiveProductGrid
+              items={filteredNeighborRows}
+              qty={qty}
+              accent={STORE_PRODUCE_LIVE_ACCENT}
+              onBump={bump}
+            />
+          </div>
+        </section>
+      ) : (activityShell ? shelfList.length : rest.length) ? (
         <section>
           <h3 className="text-lg font-extrabold">{STORE_PRODUCE_LIVE.shelfTitleAr}</h3>
           <ul className="mt-3 divide-y divide-white/8 rounded-2xl border border-white/10">
@@ -255,7 +350,7 @@ export function StoreProduceShop({
         <label className="mt-3 block text-sm">
           {STORE_PRODUCE_LIVE.buyerNameLabelAr}
           <input
-            required
+            required={!isLab}
             value={name}
             onChange={(e) => setName(e.target.value)}
             className="produce-field"
@@ -266,7 +361,7 @@ export function StoreProduceShop({
         <label className="mt-3 block text-sm">
           {STORE_PRODUCE_LIVE.buyerPhoneLabelAr}
           <input
-            required
+            required={!isLab}
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
             className="produce-field"
@@ -329,10 +424,12 @@ export function StoreProduceShop({
           <StoreDirectPayPublicMount product="store_produce_live" token={token} accent="#3d8b4a" />
           ) : null}
         </div>
-        <label className="mt-4 flex items-start gap-2 text-sm leading-7">
-          <input type="checkbox" checked={saveBuyer} onChange={(e) => setSaveBuyer(e.target.checked)} className="mt-1" />
-          <span>{STORE_PRODUCE_LIVE.saveBuyerAr}</span>
-        </label>
+        {!isLab ? (
+          <label className="mt-4 flex items-start gap-2 text-sm leading-7">
+            <input type="checkbox" checked={saveBuyer} onChange={(e) => setSaveBuyer(e.target.checked)} className="mt-1" />
+            <span>{STORE_PRODUCE_LIVE.saveBuyerAr}</span>
+          </label>
+        ) : null}
         <button type="submit" className="mt-4 min-h-12 w-full rounded-full bg-[#3d8b4a] text-sm font-bold text-[#061018]">
           {service === 'come' ? STORE_PRODUCE_LIVE.comeSubmitAr : STORE_PRODUCE_LIVE.submitOrderAr}
         </button>
@@ -351,6 +448,22 @@ export function StoreProduceShop({
         ) : null}
       </form>
       <StoreProduceBuyerChat state={state} onChange={onChange} />
+      {neighborShopUx ? (
+        <NeighborFloatingCart
+          visible={total > 0}
+          itemCount={cartItemCount}
+          lineCount={cartLineCount}
+          totalSar={total}
+          shopName={state.host.shopName}
+          accent={STORE_PRODUCE_LIVE_ACCENT}
+          checkoutLabel={service === 'come' ? STORE_PRODUCE_LIVE.comeSubmitAr : STORE_PRODUCE_LIVE.submitOrderAr}
+          onCheckout={() => {
+            NeighborShopEvents.viewCart('produce', token, isLab, cartItemCount);
+            NeighborShopEvents.beginCheckout('produce', token, isLab);
+            document.getElementById('produce-checkout')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }}
+        />
+      ) : null}
     </div>
   );
 }

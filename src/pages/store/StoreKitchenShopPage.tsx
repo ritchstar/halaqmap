@@ -210,6 +210,7 @@ export default function StoreKitchenShopPage() {
             <StoreLiveActivityCartShop
               kind="kitchen"
               token={safeToken}
+              showIndependentStoreIdentity
               host={state.host}
               shelf={toLiveActivityShelf(state.shelf)}
               closed={isShopClosedNow(state.host)}

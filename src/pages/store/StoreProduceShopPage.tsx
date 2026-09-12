@@ -190,6 +190,7 @@ export default function StoreProduceShopPage() {
             <StoreLiveActivityCartShop
               kind="produce"
               token={safeToken}
+              showIndependentStoreIdentity
               host={state.host}
               shelf={toLiveActivityShelf(state.shelf)}
               closed={isShopClosedNow(state.host)}

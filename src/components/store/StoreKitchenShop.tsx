@@ -1,8 +1,8 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
-import { useMemo, useState } from 'react';
-import { STORE_KITCHEN_LIVE } from '@/config/storeKitchenLive';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { STORE_KITCHEN_LIVE, STORE_KITCHEN_LIVE_ACCENT, STORE_KITCHEN_LIVE_LAB_TOKEN } from '@/config/storeKitchenLive';
 import { STORE_SHOP_HOURS_COPY } from '@/config/storeShopHours';
 import { StoreShopHoursBanner } from '@/components/store/StoreShopHoursBanner';
 import { StoreShopLogoMark } from '@/components/store/StoreShopLogoMark';
@@ -22,6 +22,16 @@ import { StoreBuyerLocateButtons } from '@/components/store/StoreBuyerLocateButt
 import { StoreDirectPayGuest, StoreDirectPayPublicMount } from '@/components/store/StoreDirectPayGuest';
 import { isShopClosedNow } from '@/lib/storeShopHours';
 import { cn } from '@/lib/utils';
+import { AdaptiveProductGrid } from '@/components/store/neighbor/AdaptiveProductGrid';
+import { NeighborFloatingCart } from '@/components/store/neighbor/NeighborFloatingCart';
+import { NeighborShelfExplorer, useNeighborShelfFilter } from '@/components/store/neighbor/NeighborShelfExplorer';
+import {
+  clearNeighborCartQty,
+  readNeighborCartQty,
+  writeNeighborCartQty,
+} from '@/lib/neighborCartStorage';
+import { NEIGHBOR_SHELF_ALL_CATEGORY, type NeighborShelfFilter } from '@/lib/neighborShelfFilter';
+import { NeighborShopEvents } from '@/lib/neighborShopAnalytics';
 
 export function StoreKitchenShop({
   state,
@@ -34,8 +44,17 @@ export function StoreKitchenShop({
   token: string;
   activityShell?: boolean;
 }) {
-  const saved = useMemo(() => readSavedKitchenBuyer(), []);
-  const [qty, setQty] = useState<Record<string, number>>({});
+  const isLab = token === STORE_KITCHEN_LIVE_LAB_TOKEN;
+  const neighborShopUx = Boolean(activityShell);
+  const saved = useMemo(() => (isLab ? null : readSavedKitchenBuyer()), [isLab]);
+  const [qty, setQty] = useState<Record<string, number>>(() =>
+    neighborShopUx ? readNeighborCartQty('kitchen', token) : {},
+  );
+  const [shelfFilter, setShelfFilter] = useState<NeighborShelfFilter>({
+    query: '',
+    category: NEIGHBOR_SHELF_ALL_CATEGORY,
+  });
+  const viewedRef = useRef(false);
   const [name, setName] = useState(saved?.name || '');
   const [phone, setPhone] = useState(saved?.phone || '');
   const [place, setPlace] = useState(saved?.place || '');
@@ -64,10 +83,41 @@ export function StoreKitchenShop({
     .filter((line) => line.qty > 0);
   const deliveryFee = service === 'delivery' ? Math.max(0, state.host.deliveryFee) : 0;
   const total = kitchenCartTotal(lines, service, state.host.deliveryFee);
+  const cartItemCount = lines.length;
+  const cartLineCount = lines.reduce((sum, line) => sum + line.qty, 0);
+  const neighborRows = useMemo(
+    () =>
+      orderable.map((item) => ({
+        catalogId: item.catalogId,
+        nameAr: item.nameAr,
+        category: item.category,
+        price: item.price,
+        inStock: item.inStock,
+        photoSrc: item.photoSrc,
+      })),
+    [orderable],
+  );
+  const filteredNeighborRows = useNeighborShelfFilter(neighborRows, shelfFilter);
+
+  useEffect(() => {
+    if (!neighborShopUx) return;
+    writeNeighborCartQty('kitchen', token, qty);
+  }, [neighborShopUx, token, qty]);
+
+  useEffect(() => {
+    if (!neighborShopUx || viewedRef.current) return;
+    viewedRef.current = true;
+    NeighborShopEvents.viewStore('kitchen', token, isLab);
+  }, [neighborShopUx, token, isLab]);
 
   function bump(id: string, delta: number) {
     setQty((current) => {
-      const next = Math.max(0, (current[id] || 0) + delta);
+      const prev = current[id] || 0;
+      const next = Math.max(0, prev + delta);
+      if (neighborShopUx) {
+        if (delta > 0 && next > prev) NeighborShopEvents.addItem('kitchen', token, isLab, id);
+        if (delta < 0 && next < prev) NeighborShopEvents.removeItem('kitchen', token, isLab, id);
+      }
       return { ...current, [id]: next };
     });
   }
@@ -76,6 +126,9 @@ export function StoreKitchenShop({
     if (!state.host.acceptingOrders) return;
     if (name.trim().length < 2 || phone.trim().length < 9 || !lines.length) return;
     if (service === 'delivery' && place.trim().length < 3) return;
+    if (neighborShopUx) {
+      NeighborShopEvents.submitOrder('kitchen', token, isLab, cartLineCount);
+    }
     const ticketNo = state.host.nextTicket || 1;
     const order = {
       id: `${Date.now()}`,
@@ -96,8 +149,14 @@ export function StoreKitchenShop({
       seen: false,
     };
     onChange(addKitchenOrder(state, order));
-    writeSavedKitchenBuyer(saveBuyer ? { name: order.name, phone: order.phone, place: order.place } : null);
+    if (!isLab) {
+      writeSavedKitchenBuyer(saveBuyer ? { name: order.name, phone: order.phone, place: order.place } : null);
+    }
     setQty({});
+    if (neighborShopUx) {
+      clearNeighborCartQty('kitchen', token);
+      NeighborShopEvents.orderSubmitted('kitchen', token, isLab, cartLineCount);
+    }
     setNote('');
     setScheduledAt('');
     setDeliveryPhotoSrc('');
@@ -112,7 +171,7 @@ export function StoreKitchenShop({
   const shelfList = activityShell ? orderable : rest;
 
   return (
-    <div className="space-y-6">
+    <div className={cn('space-y-6', neighborShopUx && total > 0 && 'neighbor-shop-pad')}>
       {!activityShell && state.host.flashAr.trim() ? (
         <p className="restaurant-flash overflow-hidden rounded-full border border-[#b45a3c]/40 bg-[#b45a3c]/15 px-4 py-2 text-sm text-[#f3d2b0]">
           {state.host.flashAr}
@@ -178,23 +237,50 @@ export function StoreKitchenShop({
       </section>
       ) : null}
 
-      <section>
-        <h3 className="text-lg font-extrabold">{STORE_KITCHEN_LIVE.shelfTitleAr}</h3>
-        <ul className="mt-3 divide-y divide-white/8 rounded-2xl border border-white/10">
-          {shelfList.map((item) => (
-            <li key={item.catalogId} className="flex items-center justify-between gap-3 px-3 py-2.5">
-              <span className="flex min-w-0 items-center gap-3">
-                {item.photoSrc ? <img src={item.photoSrc} alt="" className="h-12 w-12 rounded-lg object-cover" /> : null}
-                <span>
-                  <p className="text-sm font-bold">{item.nameAr}</p>
-                  <p className="text-xs text-[#b45a3c]">{item.price} ر.س</p>
+      {neighborShopUx ? (
+        <section>
+          <h3 className="text-lg font-extrabold">{STORE_KITCHEN_LIVE.shelfTitleAr}</h3>
+          <div className="mt-3 space-y-3">
+            <NeighborShelfExplorer
+              items={neighborRows}
+              accent={STORE_KITCHEN_LIVE_ACCENT}
+              onFilterChange={(next) => {
+                setShelfFilter(next);
+                if (next.query.trim()) {
+                  NeighborShopEvents.searchProducts('kitchen', token, isLab, next.query.trim().length);
+                }
+                if (next.category !== NEIGHBOR_SHELF_ALL_CATEGORY) {
+                  NeighborShopEvents.applyCategory('kitchen', token, isLab, next.category);
+                }
+              }}
+            />
+            <AdaptiveProductGrid
+              items={filteredNeighborRows}
+              qty={qty}
+              accent={STORE_KITCHEN_LIVE_ACCENT}
+              onBump={bump}
+            />
+          </div>
+        </section>
+      ) : (
+        <section>
+          <h3 className="text-lg font-extrabold">{STORE_KITCHEN_LIVE.shelfTitleAr}</h3>
+          <ul className="mt-3 divide-y divide-white/8 rounded-2xl border border-white/10">
+            {shelfList.map((item) => (
+              <li key={item.catalogId} className="flex items-center justify-between gap-3 px-3 py-2.5">
+                <span className="flex min-w-0 items-center gap-3">
+                  {item.photoSrc ? <img src={item.photoSrc} alt="" className="h-12 w-12 rounded-lg object-cover" /> : null}
+                  <span>
+                    <p className="text-sm font-bold">{item.nameAr}</p>
+                    <p className="text-xs text-[#b45a3c]">{item.price} ر.س</p>
+                  </span>
                 </span>
-              </span>
-              <QtyRow value={qty[item.catalogId] || 0} onMinus={() => bump(item.catalogId, -1)} onPlus={() => bump(item.catalogId, 1)} />
-            </li>
-          ))}
-        </ul>
-      </section>
+                <QtyRow value={qty[item.catalogId] || 0} onMinus={() => bump(item.catalogId, -1)} onPlus={() => bump(item.catalogId, 1)} />
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {soldOut.length ? (
         <ul className="space-y-2 text-sm text-white/45">
@@ -322,10 +408,12 @@ export function StoreKitchenShop({
             <StoreDirectPayPublicMount product="store_kitchen_live" token={token} accent="#b45a3c" />
             ) : null}
           </div>
-          <label className="mt-4 flex items-start gap-2 text-sm leading-7">
-            <input type="checkbox" checked={saveBuyer} onChange={(e) => setSaveBuyer(e.target.checked)} className="mt-1" />
-            <span>{STORE_KITCHEN_LIVE.saveBuyerAr}</span>
-          </label>
+          {!isLab ? (
+            <label className="mt-4 flex items-start gap-2 text-sm leading-7">
+              <input type="checkbox" checked={saveBuyer} onChange={(e) => setSaveBuyer(e.target.checked)} className="mt-1" />
+              <span>{STORE_KITCHEN_LIVE.saveBuyerAr}</span>
+            </label>
+          ) : null}
           <button type="submit" className="mt-4 min-h-12 w-full rounded-full bg-[#b45a3c] text-sm font-bold text-[#061018]">
             {STORE_KITCHEN_LIVE.submitOrderAr}
           </button>
@@ -358,6 +446,22 @@ export function StoreKitchenShop({
           ) : null}
         </form>
       )}
+      {neighborShopUx ? (
+        <NeighborFloatingCart
+          visible={total > 0}
+          itemCount={cartItemCount}
+          lineCount={cartLineCount}
+          totalSar={total}
+          shopName={state.host.shopName}
+          accent={STORE_KITCHEN_LIVE_ACCENT}
+          checkoutLabel={STORE_KITCHEN_LIVE.submitOrderAr}
+          onCheckout={() => {
+            NeighborShopEvents.viewCart('kitchen', token, isLab, cartItemCount);
+            NeighborShopEvents.beginCheckout('kitchen', token, isLab);
+            document.getElementById('kitchen-checkout')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }}
+        />
+      ) : null}
     </div>
   );
 }
