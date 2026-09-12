@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import { Navigate, useLocation, useParams } from 'react-router-dom';
 import { StoreProduceDesk } from '@/components/store/StoreProduceDesk';
 import { StoreProduceShop } from '@/components/store/StoreProduceShop';
+import { ProduceChatlyDesk } from '@/components/store/produce/ProduceChatlyDesk';
 import { ProduceChatlyStorefront } from '@/components/store/produce/ProduceChatlyStorefront';
 import { StoreLiveActivityCartShop } from '@/components/store/live/StoreLiveActivityCartShop';
 import { StoreShopHoursBanner } from '@/components/store/StoreShopHoursBanner';
@@ -171,6 +172,7 @@ export default function StoreProduceShopPage() {
   };
 
   const chatlyStorefront = chatlyUi && !desk;
+  const chatlyDesk = chatlyUi && desk;
 
   return (
     <StorePurchasedShell
@@ -180,12 +182,12 @@ export default function StoreProduceShopPage() {
       showStoreLink={!desk}
       showDevNotice={!chatlyStorefront}
       showLiveMark={!chatlyStorefront}
-      pageBg={chatlyStorefront ? undefined : state.host.shopPageBg}
+      pageBg={chatlyStorefront || chatlyDesk ? undefined : state.host.shopPageBg}
     >
       <div
         className={cn(
-          desk && 'mx-auto max-w-3xl px-3 py-5',
-          desk && chatlyUi && 'produce-chatly-desk rounded-2xl',
+          desk && !chatlyDesk && 'mx-auto max-w-3xl px-3 py-5',
+          chatlyDesk && '-mx-3 sm:-mx-4',
           chatlyStorefront && '-mx-3 sm:-mx-4',
         )}
       >
@@ -193,7 +195,7 @@ export default function StoreProduceShopPage() {
           <p
             className={cn(
               'pt-[30svh] text-center text-sm',
-              chatlyStorefront ? 'text-[#758374]' : 'text-white/60',
+              chatlyStorefront || chatlyDesk ? 'text-[#758374]' : 'text-white/60',
             )}
           >
             جاري فتح المتجر…
@@ -203,7 +205,7 @@ export default function StoreProduceShopPage() {
           <p
             className={cn(
               'pt-[30svh] text-center text-sm',
-              chatlyStorefront ? 'text-[#586a5c]' : 'text-white/70',
+              chatlyStorefront || chatlyDesk ? 'text-[#586a5c]' : 'text-white/70',
             )}
           >
             الرابط غير صالح.
@@ -211,13 +213,23 @@ export default function StoreProduceShopPage() {
         ) : null}
         {gate === 'ok' ? (
           desk ? (
-            <StoreProduceDesk
-              state={state}
-              onChange={commit}
-              shopUrl={shopUrl}
-              token={safeToken}
-              showTrialNote={isTrial}
-            />
+            chatlyUi ? (
+              <ProduceChatlyDesk
+                state={state}
+                onChange={commit}
+                shopUrl={shopUrl}
+                token={safeToken}
+                showTrialNote={isTrial}
+              />
+            ) : (
+              <StoreProduceDesk
+                state={state}
+                onChange={commit}
+                shopUrl={shopUrl}
+                token={safeToken}
+                showTrialNote={isTrial}
+              />
+            )
           ) : chatlyUi ? (
             <ProduceChatlyStorefront state={state} onChange={commit} token={safeToken} />
           ) : (
