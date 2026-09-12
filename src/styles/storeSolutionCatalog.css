@@ -106,6 +106,241 @@
   }
 }
 
+.solution-catalog__hood-wrap {
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 1rem 1rem 0;
+  box-sizing: border-box;
+}
+
+@media (min-width: 640px) {
+  .solution-catalog__hood-wrap {
+    padding-inline: 1.25rem;
+  }
+}
+
+.solution-catalog__hood {
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  border: 1px solid var(--sc-border);
+  border-radius: 2px;
+  background: var(--sc-surface);
+  padding: 1rem 0.85rem 1.15rem;
+  box-sizing: border-box;
+}
+
+.solution-catalog__hood-title {
+  font-family: 'El Messiri', 'Tajawal', system-ui, sans-serif;
+  font-size: clamp(1.2rem, 3.2vw, 1.75rem);
+  font-weight: 700;
+  line-height: 1.35;
+  text-align: center;
+  color: var(--sc-ink);
+  margin: 0 0 0.85rem;
+}
+
+.solution-catalog__hood-stage {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  aspect-ratio: 5 / 3;
+  margin-inline: auto;
+}
+
+.solution-catalog__hood-stage::before {
+  content: '';
+  position: absolute;
+  inset: 10% 6% 14%;
+  z-index: 0;
+  opacity: 0.38;
+  border: 1px solid var(--sc-border);
+  background: linear-gradient(180deg, var(--sc-index) 0%, var(--sc-bg) 100%);
+  clip-path: polygon(50% 6%, 94% 36%, 94% 70%, 50% 94%, 6% 70%, 6% 36%);
+}
+
+.solution-catalog__hood-lines {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.solution-catalog__hood-center {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  transform: translate(-50%, -50%);
+}
+
+.solution-catalog__hood-brand.store-brand-mark {
+  height: clamp(2.5rem, 8vw, 3.5rem);
+  width: clamp(2.5rem, 8vw, 3.5rem);
+}
+
+.solution-catalog__hood-center-label {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--sc-ink);
+  background: var(--sc-card);
+  border: 1px solid var(--sc-border);
+  border-radius: 999px;
+  padding: 0.18rem 0.55rem;
+}
+
+.solution-catalog__hood-nodes {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+}
+
+.solution-catalog__hood-node {
+  position: absolute;
+  left: var(--hood-x);
+  top: var(--hood-y);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  width: min(36vw, 8.5rem);
+  max-width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: center;
+  cursor: pointer;
+  transform: translate(-50%, -50%);
+  transition: transform 180ms var(--ease-out);
+}
+
+.solution-catalog__hood-node:hover,
+.solution-catalog__hood-node:focus-visible {
+  transform: translate(-50%, -50%) scale(1.05);
+}
+
+.solution-catalog__hood-node:focus-visible {
+  outline: 2px solid var(--sc-blue);
+  outline-offset: 3px;
+}
+
+.solution-catalog__hood-node-mark {
+  display: block;
+  transform: scale(0.68);
+  transform-origin: center;
+}
+
+.solution-catalog__hood-node-name {
+  width: 100%;
+  border: 1px solid var(--sc-border);
+  border-radius: 999px;
+  background: var(--sc-card);
+  padding: 0.22rem 0.45rem;
+  font-size: clamp(0.62rem, 2.4vw, 0.72rem);
+  font-weight: 800;
+  line-height: 1.35;
+  color: var(--sc-ink);
+}
+
+.solution-catalog__hood-node[data-stripe='yellow'] .solution-catalog__hood-node-name {
+  border-color: color-mix(in srgb, var(--sc-yellow) 50%, var(--sc-border));
+}
+
+.solution-catalog__hood-node[data-stripe='blue'] .solution-catalog__hood-node-name {
+  border-color: color-mix(in srgb, var(--sc-blue) 50%, var(--sc-border));
+}
+
+.solution-catalog__hood-node-summary {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  font-size: 0.62rem;
+  line-height: 1.45;
+  color: var(--sc-muted);
+  transition: opacity 180ms ease, max-height 180ms ease;
+}
+
+.solution-catalog__hood-node:hover .solution-catalog__hood-node-summary,
+.solution-catalog__hood-node:focus-visible .solution-catalog__hood-node-summary {
+  max-height: 3.5rem;
+  opacity: 1;
+}
+
+@media (max-width: 640px) {
+  .solution-catalog__hood-stage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.85rem;
+    aspect-ratio: auto;
+    padding-bottom: 0.25rem;
+  }
+
+  .solution-catalog__hood-stage::before {
+    display: none;
+  }
+
+  .solution-catalog__hood-lines {
+    display: none;
+  }
+
+  .solution-catalog__hood-center {
+    position: static;
+    transform: none;
+  }
+
+  .solution-catalog__hood-nodes {
+    position: static;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.6rem;
+    width: 100%;
+  }
+
+  .solution-catalog__hood-node {
+    position: static;
+    width: 100%;
+    transform: none;
+  }
+
+  .solution-catalog__hood-node:hover,
+  .solution-catalog__hood-node:focus-visible {
+    transform: scale(1.02);
+  }
+
+  .solution-catalog__hood-node-summary {
+    max-height: none;
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .solution-catalog__hood-node {
+    transition: none;
+  }
+
+  .solution-catalog__hood-node:hover,
+  .solution-catalog__hood-node:focus-visible {
+    transform: translate(-50%, -50%);
+  }
+
+  @media (max-width: 640px) {
+    .solution-catalog__hood-node:hover,
+    .solution-catalog__hood-node:focus-visible {
+      transform: none;
+    }
+  }
+}
+
 .solution-catalog__hero-title {
   font-family: 'El Messiri', 'Tajawal', system-ui, sans-serif;
   font-size: clamp(2rem, 5vw, 3.75rem);

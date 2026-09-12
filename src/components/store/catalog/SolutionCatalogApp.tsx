@@ -33,6 +33,10 @@ import { ROUTE_PATHS } from '@/lib/routePaths';
 import { CatalogSignalLayer } from '@/components/store/catalog/CatalogSignalLayer';
 import { ProductMark } from '@/components/store/catalog/ProductMark';
 import { SolutionCatalogProductCard } from '@/components/store/catalog/SolutionCatalogProductCard';
+import {
+  SOLUTION_CATALOG_HOOD_CODES,
+  SolutionCatalogHoodScene,
+} from '@/components/store/catalog/SolutionCatalogHoodScene';
 import { StoreBrandMark } from '@/components/store/StoreBrandMark';
 
 const SOLUTION_CATALOG_CATEGORY_ICONS: Record<string, LucideIcon> = {
@@ -148,6 +152,14 @@ export function SolutionCatalogApp() {
     });
   }, [query, categoryId]);
 
+  const hoodProducts = useMemo(
+    () =>
+      SOLUTION_CATALOG_HOOD_CODES.map((code) =>
+        STORE_SOLUTION_CATALOG_PRODUCTS.find((product) => product.code === code),
+      ).filter((product): product is SolutionCatalogProduct => Boolean(product)),
+    [],
+  );
+
   useEffect(() => {
     const openFromHash = () => {
       const code = parseSolutionCatalogProductHash(window.location.hash);
@@ -191,6 +203,12 @@ export function SolutionCatalogApp() {
           </Link>
         </div>
       </header>
+
+      {hoodProducts.length === SOLUTION_CATALOG_HOOD_CODES.length ? (
+        <div className="solution-catalog__hood-wrap">
+          <SolutionCatalogHoodScene products={hoodProducts} onOpen={openProduct} />
+        </div>
+      ) : null}
 
       <div className="solution-catalog__layout">
         <aside className="solution-catalog__sidebar">
