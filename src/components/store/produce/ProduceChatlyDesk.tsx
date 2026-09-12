@@ -53,6 +53,7 @@ import { StoreShopBackgroundDesk } from '@/components/store/StoreShopBackgroundD
 import { STORE_PRODUCE_SUPPORT } from '@/config/storeProductSupport';
 import { StoreDirectPayDesk } from '@/components/store/StoreDirectPayDesk';
 import { ProduceKhudaranaMark } from '@/components/store/produce/ProduceKhudaranaMark';
+import { StoreBrandMark } from '@/components/store/StoreBrandMark';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { useStoreShopPresence } from '@/hooks/useStoreShopPresence';
 import { cn } from '@/lib/utils';
@@ -263,56 +264,62 @@ export function ProduceChatlyDesk({
         ) : null}
 
         <section className="min-w-0">
-          <header className="flex min-h-[78px] items-center justify-between border-b border-[#dfe4d6] bg-[#fffdf5]/90 px-4 backdrop-blur-sm sm:px-8">
-            <div className="flex min-w-0 items-center gap-3">
-              <Button
-                type="button"
-                onClick={() => setMobileNav(true)}
-                className="size-10 rounded-full bg-[#eaf1e4] p-0 text-[#426d42] shadow-none lg:hidden"
-                aria-label="فتح القائمة"
-              >
-                <Menu size={18} />
-              </Button>
-              <div className="min-w-0">
-                <p className="text-xs font-bold text-[#849284]">ملخص اليوم</p>
-                <StoreDeskControlTitle
-                  trialNote={showTrialNote ? STORE_PRODUCT_TRIAL_PRODUCTS.produce.deskNoteAr : ''}
-                />
+          <header className="produce-chatly-desk-header">
+            <div className="produce-chatly-desk-header__top">
+              <div className="produce-chatly-desk-header__start">
+                <Button
+                  type="button"
+                  onClick={() => setMobileNav(true)}
+                  className="size-10 shrink-0 rounded-full bg-[#eaf1e4] p-0 text-[#426d42] shadow-none lg:hidden"
+                  aria-label="فتح القائمة"
+                >
+                  <Menu size={18} />
+                </Button>
+                <StoreBrandMark className="produce-chatly-desk-header__brand" />
+                <div className="produce-chatly-desk-header__title-block min-w-0">
+                  <p className="text-xs font-bold text-[#849284]">ملخص اليوم</p>
+                  <StoreDeskControlTitle trialNote="" />
+                </div>
+              </div>
+              <div className="produce-chatly-desk-header__actions">
+                <Button
+                  type="button"
+                  onClick={toggleAcceptingOrders}
+                  className={cn(
+                    'inline-flex h-10 max-w-[11rem] items-center gap-2 rounded-full border px-3 text-xs font-bold shadow-none sm:max-w-none',
+                    state.host.acceptingOrders
+                      ? 'border-[#d4dfcc] bg-white text-[#3f7440] hover:bg-[#f0f5ec]'
+                      : 'border-[#e8c4bc] bg-[#fdf0ed] text-[#9f554c] hover:bg-[#fae4df]',
+                  )}
+                >
+                  <span
+                    className={cn('size-2 rounded-full', state.host.acceptingOrders ? 'bg-[#3d9a6c]' : 'bg-[#c56c5c]')}
+                  />
+                  {state.host.acceptingOrders ? STORE_SHOP_HOURS_COPY.pauseOnAr : STORE_SHOP_HOURS_COPY.pauseOffAr}
+                </Button>
+                <Button
+                  type="button"
+                  onClick={goOverviewAlert}
+                  aria-label={STORE_DESK_ORDER_TICKET_COPY.newLaneAr}
+                  className="relative size-10 rounded-full border border-[#dfe4d6] bg-white p-0 text-[#637263] shadow-none hover:bg-[#f0f5ec]"
+                >
+                  <Bell size={17} />
+                  {fresh.length ? (
+                    <span className="absolute -left-0.5 -top-0.5 flex size-4 items-center justify-center rounded-full bg-[#4f813f] text-[9px] font-black text-white">
+                      {fresh.length}
+                    </span>
+                  ) : null}
+                </Button>
+                <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#3f7440] text-sm font-black text-white">
+                  <ProduceKhudaranaMark inverse size="sm" />
+                </div>
               </div>
             </div>
-            <div className="flex shrink-0 items-center gap-2">
-              <Button
-                type="button"
-                onClick={toggleAcceptingOrders}
-                className={cn(
-                  'inline-flex h-10 max-w-[11rem] items-center gap-2 rounded-full border px-3 text-xs font-bold shadow-none sm:max-w-none',
-                  state.host.acceptingOrders
-                    ? 'border-[#d4dfcc] bg-white text-[#3f7440] hover:bg-[#f0f5ec]'
-                    : 'border-[#e8c4bc] bg-[#fdf0ed] text-[#9f554c] hover:bg-[#fae4df]',
-                )}
-              >
-                <span
-                  className={cn('size-2 rounded-full', state.host.acceptingOrders ? 'bg-[#3d9a6c]' : 'bg-[#c56c5c]')}
-                />
-                {state.host.acceptingOrders ? STORE_SHOP_HOURS_COPY.pauseOnAr : STORE_SHOP_HOURS_COPY.pauseOffAr}
-              </Button>
-              <Button
-                type="button"
-                onClick={goOverviewAlert}
-                aria-label={STORE_DESK_ORDER_TICKET_COPY.newLaneAr}
-                className="relative size-10 rounded-full border border-[#dfe4d6] bg-white p-0 text-[#637263] shadow-none hover:bg-[#f0f5ec]"
-              >
-                <Bell size={17} />
-                {fresh.length ? (
-                  <span className="absolute -left-0.5 -top-0.5 flex size-4 items-center justify-center rounded-full bg-[#4f813f] text-[9px] font-black text-white">
-                    {fresh.length}
-                  </span>
-                ) : null}
-              </Button>
-              <div className="flex size-10 items-center justify-center rounded-full bg-[#3f7440] text-sm font-black text-white">
-                <ProduceKhudaranaMark inverse size="sm" />
-              </div>
-            </div>
+            {showTrialNote ? (
+              <p className="produce-chatly-desk-header__trial-note" role="note">
+                {STORE_PRODUCT_TRIAL_PRODUCTS.produce.deskNoteAr}
+              </p>
+            ) : null}
           </header>
 
           <div className="p-4 sm:p-8 lg:p-10">
