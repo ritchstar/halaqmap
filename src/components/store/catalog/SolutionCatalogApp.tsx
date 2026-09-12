@@ -3,14 +3,20 @@
  */
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import type { LucideIcon } from 'lucide-react';
 import {
   ArrowUpLeft,
+  Briefcase,
   Check,
   ClipboardList,
-  Compass,
+  CreditCard,
+  LayoutGrid,
+  PartyPopper,
   Search,
   Send,
   Sparkles,
+  Store,
+  UtensilsCrossed,
   X,
 } from 'lucide-react';
 import {
@@ -27,6 +33,16 @@ import { ROUTE_PATHS } from '@/lib/routePaths';
 import { CatalogSignalLayer } from '@/components/store/catalog/CatalogSignalLayer';
 import { ProductMark } from '@/components/store/catalog/ProductMark';
 import { SolutionCatalogProductCard } from '@/components/store/catalog/SolutionCatalogProductCard';
+import { StoreBrandMark } from '@/components/store/StoreBrandMark';
+
+const SOLUTION_CATALOG_CATEGORY_ICONS: Record<string, LucideIcon> = {
+  all: LayoutGrid,
+  trades: Briefcase,
+  neighbor: Store,
+  food: UtensilsCrossed,
+  events: PartyPopper,
+  cards: CreditCard,
+};
 
 function ProductModal({
   product,
@@ -167,7 +183,7 @@ export function SolutionCatalogApp() {
       <header className="solution-catalog__header px-4 py-4">
         <div className="mx-auto flex max-w-[1440px] items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <Compass className="h-6 w-6" />
+            <StoreBrandMark className="h-9 w-9" />
             <span className="text-lg font-bold">{STORE_SOLUTION_CATALOG_COPY.brandAr}</span>
           </div>
           <Link to={ROUTE_PATHS.STORE_LANDING} className="text-sm underline underline-offset-4 opacity-90">
@@ -180,18 +196,22 @@ export function SolutionCatalogApp() {
         <aside className="solution-catalog__sidebar">
           <p className="mb-3 hidden px-2 text-xs font-bold text-[var(--sc-muted)] md:block">التصنيف</p>
           <ul>
-            {STORE_SOLUTION_CATALOG_CATEGORIES.map((cat) => (
-              <li key={cat.id}>
-                <button
-                  type="button"
-                  className="solution-catalog__cat-btn"
-                  aria-pressed={categoryId === cat.id}
-                  onClick={() => setCategoryId(cat.id)}
-                >
-                  {cat.titleAr}
-                </button>
-              </li>
-            ))}
+            {STORE_SOLUTION_CATALOG_CATEGORIES.map((cat) => {
+              const CatIcon = SOLUTION_CATALOG_CATEGORY_ICONS[cat.id];
+              return (
+                <li key={cat.id}>
+                  <button
+                    type="button"
+                    className="solution-catalog__cat-btn"
+                    aria-pressed={categoryId === cat.id}
+                    onClick={() => setCategoryId(cat.id)}
+                  >
+                    {CatIcon ? <CatIcon className="solution-catalog__cat-icon" aria-hidden /> : null}
+                    {cat.titleAr}
+                  </button>
+                </li>
+              );
+            })}
           </ul>
         </aside>
 

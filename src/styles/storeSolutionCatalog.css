@@ -17,7 +17,7 @@
   --sc-light: #f7f4ed;
   --sc-stripe: var(--sc-blue);
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-  font-family: Arial, 'Segoe UI', Tahoma, sans-serif;
+  font-family: 'Tajawal', system-ui, sans-serif;
   background-color: var(--sc-bg);
   background-image:
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.12  0 0 0 0 0.10  0 0 0 0 0.08  0 0 0 0.025 0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E"),
@@ -35,7 +35,7 @@
 }
 
 .solution-catalog__code {
-  font-family: ui-monospace, 'Cascadia Code', Consolas, monospace;
+  font-family: 'Tajawal', ui-monospace, monospace;
 }
 
 .solution-catalog__layout {
@@ -107,12 +107,14 @@
 }
 
 .solution-catalog__hero-title {
+  font-family: 'El Messiri', 'Tajawal', system-ui, sans-serif;
   font-size: clamp(2rem, 5vw, 3.75rem);
   font-weight: 700;
   line-height: 1.15;
 }
 
 .solution-catalog__section-title {
+  font-family: 'El Messiri', 'Tajawal', system-ui, sans-serif;
   font-size: clamp(1.5rem, 3vw, 2.25rem);
   font-weight: 700;
 }
@@ -195,7 +197,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: Georgia, 'Times New Roman', serif;
+  font-family: 'El Messiri', 'Tajawal', system-ui, sans-serif;
   font-size: clamp(3rem, 12vw, 5rem);
   font-weight: 700;
   color: rgba(255, 250, 244, 0.92);
@@ -247,7 +249,7 @@
   display: block;
   margin-bottom: 0.45rem;
   color: rgba(255, 250, 244, 0.7);
-  font-family: ui-monospace, 'Cascadia Code', Consolas, monospace;
+  font-family: 'Syne', 'Tajawal', system-ui, sans-serif;
   font-size: 0.67rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -264,13 +266,13 @@
 }
 
 .solution-catalog__card-title-classic {
-  font-family: Georgia, 'Times New Roman', serif;
+  font-family: 'El Messiri', 'Tajawal', system-ui, sans-serif;
   font-weight: 700;
 }
 
 .solution-catalog__card-title-modern {
   color: var(--sc-card-accent, #f0b4a4);
-  font-family: Arial, 'Segoe UI', sans-serif;
+  font-family: 'Tajawal', system-ui, sans-serif;
   font-size: 0.68em;
   font-weight: 800;
   letter-spacing: -0.04em;
@@ -306,6 +308,7 @@
 }
 
 .solution-catalog__product-name {
+  font-family: 'El Messiri', 'Tajawal', system-ui, sans-serif;
   font-size: 24px;
   font-weight: 700;
 }
@@ -383,7 +386,9 @@
 }
 
 .solution-catalog__cat-btn {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   width: 100%;
   text-align: start;
   border-radius: 2px;
@@ -397,6 +402,17 @@
 .solution-catalog__cat-btn[aria-pressed='true'] {
   background: var(--sc-card);
   border-color: var(--sc-border);
+}
+
+.solution-catalog__cat-icon {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  opacity: 0.85;
+}
+
+.solution-catalog__cat-btn[aria-pressed='true'] .solution-catalog__cat-icon {
+  opacity: 1;
 }
 
 .solution-catalog__lab-note {
