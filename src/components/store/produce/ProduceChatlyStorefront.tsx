@@ -63,7 +63,7 @@ import {
   type ProduceService,
 } from '@/lib/storeProduceLiveLab';
 import { neighborVendorState } from '@/lib/storeMobileVendor';
-import { isShopClosedNow, shopHoursSummaryAr } from '@/lib/storeShopHours';
+import { isShopClosedNow, shopHoursLinesAr } from '@/lib/storeShopHours';
 import { liveActivityCoverSrc } from '@/lib/storeLiveActivityShelf';
 import {
   clearNeighborCartQty,
@@ -146,7 +146,7 @@ export function ProduceChatlyStorefront({
   }, [visible, category, search]);
 
   const heroSrc = liveActivityCoverSrc(state.shelf) || produceCatalogImage(0);
-  const hoursLine = shopHoursSummaryAr(state.host);
+  const hoursLine = shopHoursLinesAr(state.host).join(' · ');
 
   useEffect(() => {
     writeNeighborCartQty('produce', token, qty);
