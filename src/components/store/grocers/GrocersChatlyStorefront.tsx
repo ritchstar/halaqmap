@@ -572,7 +572,10 @@ export function GrocersChatlyStorefront({
               <Button
                 key={id}
                 type="button"
-                onClick={() => setService(id)}
+                onClick={() => {
+                  setService(id);
+                  if (id === 'pickup') setPlaceConfirmed(false);
+                }}
                 className={cn(
                   'h-auto min-w-0 flex-col items-start gap-3 rounded-xl border p-4 text-right shadow-none',
                   service === id
@@ -597,7 +600,7 @@ export function GrocersChatlyStorefront({
               <p className="mt-2 text-sm leading-6 text-[#586a5c]">{state.host.pickupPlaceAr}</p>
             </div>
           ) : null}
-                    <Button
+          <Button
             type="button"
             onClick={() => {
               setServiceOpen(false);
@@ -656,7 +659,10 @@ export function GrocersChatlyStorefront({
                 <Button
                   key={id}
                   type="button"
-                  onClick={() => setService(id)}
+                  onClick={() => {
+                    setService(id);
+                    if (id === 'pickup') setPlaceConfirmed(false);
+                  }}
                   className={cn(
                     'h-9 rounded-full px-3 text-xs font-bold shadow-none',
                     service === id ? 'grocers-chatly-btn-primary' : 'grocers-chatly-btn-ghost',
