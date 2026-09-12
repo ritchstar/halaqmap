@@ -10,7 +10,7 @@ import { cn } from '@/lib/utils';
 
 export function StoreOpsSection({
   titleAr,
-  accent = '#e8c547',
+  accent = 'var(--live-accent, #167e78)',
   defaultOpen = false,
   children,
 }: {

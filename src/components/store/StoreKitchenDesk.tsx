@@ -9,7 +9,7 @@ import { StoreDeskTicketActions } from '@/components/store/StoreDeskTicketAction
 import { Link } from 'react-router-dom';
 import { StoreLiveShopShareDesk } from '@/components/store/StoreLiveShopShareDesk';
 import { STORE_KITCHEN_GIFT_COPY } from '@/config/storeKitchenGiftCampaign';
-import { STORE_KITCHEN_LIVE } from '@/config/storeKitchenLive';
+import { STORE_KITCHEN_LIVE, STORE_KITCHEN_LIVE_ACCENT } from '@/config/storeKitchenLive';
 import { STORE_PRODUCT_TRIAL_PRODUCTS } from '@/config/storeProductTrial';
 import { STORE_DESK_ORDER_TICKET_COPY } from '@/config/storeDeskOrderTicket';
 import { applyDeskFinish, deskOrderPhase, isLiveDeskTicket, receiveDeskTicket } from '@/lib/storeDeskOrderTicket';
@@ -83,8 +83,8 @@ export function StoreKitchenDesk({
 
   function renderTicket(order: KitchenOrder) {
     return (
-      <li key={order.id} className="rounded-xl border border-white/10 bg-black/30 p-3 text-sm">
-        <p className="font-extrabold text-[#b45a3c]">
+      <li key={order.id} className="store-desk-ticket-card rounded-xl border p-3 text-sm">
+        <p className="store-desk-accent-text font-extrabold">
           تذكرة {order.ticketNo} · {order.name} · {order.phone}
         </p>
         <p className="mt-1 text-white/70">
@@ -92,11 +92,11 @@ export function StoreKitchenDesk({
           {order.place && !isKitchenMapsUrl(order.place) ? ` · ${order.place}` : ''}
         </p>
         {order.place && isKitchenMapsUrl(order.place) ? (
-          <a className="mt-1 inline-block text-xs text-[#b45a3c]" href={order.place} target="_blank" rel="noreferrer">
+          <a className="store-desk-accent-text mt-1 inline-block text-xs" href={order.place} target="_blank" rel="noreferrer">
             {STORE_KITCHEN_LIVE.pickupPlaceOpenAr}
           </a>
         ) : null}
-        {order.readyAt ? <p className="mt-1 text-[#b45a3c]">{STORE_KITCHEN_LIVE.readyMarkedAr}</p> : null}
+        {order.readyAt ? <p className="store-desk-accent-text mt-1">{STORE_KITCHEN_LIVE.readyMarkedAr}</p> : null}
         {order.scheduledAt ? <p className="mt-1 text-white/60">الموعد: {order.scheduledAt}</p> : null}
         {order.note ? <p className="mt-1 text-white/60">{order.note}</p> : null}
         {order.deliveryPhotoSrc ? (
@@ -108,7 +108,7 @@ export function StoreKitchenDesk({
         </p>
         <div className="mt-2 flex flex-wrap gap-2">
           <a
-            className="rounded-full bg-[#b45a3c] px-3 py-1.5 text-xs font-bold text-[#061018]"
+            className="store-desk-accent-bg rounded-full px-3 py-1.5 text-xs font-bold"
             href={kitchenWhatsAppHref(order, state.host.shopName, state.host.opsPhone)}
             target="_blank"
             rel="noreferrer"
@@ -118,14 +118,14 @@ export function StoreKitchenDesk({
           {order.service === 'pickup' && !order.readyAt ? (
             <button
               type="button"
-              className="rounded-full border border-[#b45a3c]/50 px-3 py-1.5 text-xs font-bold text-[#b45a3c]"
+              className="store-desk-accent-border store-desk-accent-text rounded-full border px-3 py-1.5 text-xs font-bold"
               onClick={() => markReady(order.id)}
             >
               {STORE_KITCHEN_LIVE.markReadyAr}
             </button>
           ) : null}
         </div>
-        <StoreDeskTicketActions order={order} accent="#b45a3c" onReceive={() => receiveOrder(order.id)} onFinish={() => finishOrder(order.id)} />
+        <StoreDeskTicketActions order={order} accent={STORE_KITCHEN_LIVE_ACCENT} onReceive={() => receiveOrder(order.id)} onFinish={() => finishOrder(order.id)} />
       </li>
     );
   }
@@ -150,8 +150,8 @@ export function StoreKitchenDesk({
         trialNote={showTrialNote && !gift ? STORE_PRODUCT_TRIAL_PRODUCTS.kitchen.deskNoteAr : ''}
       />
       {gift ? (
-        <section className="rounded-2xl border border-[#b45a3c] bg-[#1a0c08] p-4" aria-label={giftCopy.deskBadgeAr}>
-          <p className="inline-flex rounded-full border border-[#b45a3c]/50 bg-[#b45a3c]/20 px-2.5 py-0.5 text-[0.7rem] font-extrabold text-[#b45a3c]">
+        <section className="store-desk-panel store-desk-accent-border rounded-2xl border p-4" aria-label={giftCopy.deskBadgeAr}>
+          <p className="store-desk-accent-text inline-flex rounded-full border px-2.5 py-0.5 text-[0.7rem] font-extrabold">
             {giftCopy.deskBadgeAr}
           </p>
           <p className="mt-3 text-sm leading-7 text-white/80">
@@ -162,7 +162,7 @@ export function StoreKitchenDesk({
               <p className="mt-2 text-sm leading-7 text-white/70">{giftCopy.deskRenewHintAr}</p>
               <Link
                 to={renewHref}
-                className="mt-3 inline-flex rounded-full bg-[#b45a3c] px-4 py-2 text-sm font-extrabold text-[#061018]"
+                className="store-desk-accent-bg mt-3 inline-flex rounded-full px-4 py-2 text-sm font-extrabold"
               >
                 {giftCopy.deskRenewCtaAr}
               </Link>
@@ -184,7 +184,7 @@ export function StoreKitchenDesk({
           customFields[index] = value;
           onChange({ ...state, host: { ...state.host, customFields } });
         }}
-        accent="#b45a3c"
+        accent={STORE_KITCHEN_LIVE_ACCENT}
         fieldClassName="restaurant-field"
         extraFields={
           <label className="block text-sm">
@@ -203,16 +203,16 @@ export function StoreKitchenDesk({
       <StoreShopBackgroundDesk
         value={{ shopHeaderBg: state.host.shopHeaderBg, shopPageBg: state.host.shopPageBg }}
         onChange={(bg) => onChange({ ...state, host: { ...state.host, ...bg } })}
-        accent="#b45a3c"
+        accent={STORE_KITCHEN_LIVE_ACCENT}
         fieldClassName="restaurant-field"
       />
-      <div className={cn('rounded-2xl border p-4', fresh.length ? 'restaurant-alert border-[#b45a3c]' : 'border-white/12')}>
+      <div className={cn('rounded-2xl border p-4', fresh.length ? 'restaurant-alert store-desk-accent-border' : 'border-white/12')}>
         <h2 className="text-lg font-extrabold">{STORE_KITCHEN_LIVE.liveOrdersAr}</h2>
         <p className="mt-1 text-sm text-white/60">{fresh.length ? `${fresh.length} تذكرة جديدة` : 'لا تذاكر جديدة الآن.'}</p>
         <StoreShopPresenceCount productTag="store_kitchen_live" token={token} />
         {fresh.length ? (
           <>
-            <p className="mt-3 text-xs font-extrabold text-[#b45a3c]">{STORE_DESK_ORDER_TICKET_COPY.newLaneAr}</p>
+            <p className="store-desk-accent-text mt-3 text-xs font-extrabold">{STORE_DESK_ORDER_TICKET_COPY.newLaneAr}</p>
             <ul className="mt-2 space-y-3">{fresh.map(renderTicket)}</ul>
           </>
         ) : null}
@@ -229,7 +229,7 @@ export function StoreKitchenDesk({
         <p className="mt-2 text-sm leading-7 text-white/65">{STORE_KITCHEN_LIVE.deskPickupLeadAr}</p>
         {state.host.pickupMapsUrl ? (
           <a
-            className="mt-3 inline-flex rounded-full border border-[#b45a3c]/40 px-3 py-1.5 text-xs text-[#b45a3c]"
+            className="store-desk-accent-border store-desk-accent-text mt-3 inline-flex rounded-full border px-3 py-1.5 text-xs"
             href={state.host.pickupMapsUrl}
             target="_blank"
             rel="noreferrer"
@@ -249,26 +249,26 @@ export function StoreKitchenDesk({
           <button
             type="button"
             onClick={() => onChange({ ...state, host: { ...state.host, pickupPlaceVisible: true } })}
-            className={cn('rounded-full px-4 py-2 text-sm font-bold', state.host.pickupPlaceVisible ? 'bg-[#b45a3c] text-[#061018]' : 'border border-white/20')}
+            className={cn('rounded-full px-4 py-2 text-sm font-bold', state.host.pickupPlaceVisible ? 'store-desk-accent-bg' : 'border border-white/20')}
           >
             {STORE_KITCHEN_LIVE.pickupShowAr}
           </button>
           <button
             type="button"
             onClick={() => onChange({ ...state, host: { ...state.host, pickupPlaceVisible: false } })}
-            className={cn('rounded-full px-4 py-2 text-sm font-bold', !state.host.pickupPlaceVisible ? 'bg-[#b45a3c] text-[#061018]' : 'border border-white/20')}
+            className={cn('rounded-full px-4 py-2 text-sm font-bold', !state.host.pickupPlaceVisible ? 'store-desk-accent-bg' : 'border border-white/20')}
           >
             {STORE_KITCHEN_LIVE.pickupHideAr}
           </button>
         </div>
       </section>
 
-      <StoreDirectPayDesk product="store_kitchen_live" token={token} accent="#b45a3c" />
-      <StoreOpsSection titleAr="ساعات العمل" accent="#b45a3c">
+      <StoreDirectPayDesk product="store_kitchen_live" token={token} accent={STORE_KITCHEN_LIVE_ACCENT} />
+      <StoreOpsSection titleAr="ساعات العمل">
       <StoreShopHoursDesk
         value={state.host}
         onChange={(nextHours) => onChange({ ...state, host: { ...state.host, ...nextHours } })}
-        accent="#b45a3c"
+        accent={STORE_KITCHEN_LIVE_ACCENT}
       />
       </StoreOpsSection>
 
@@ -297,21 +297,21 @@ export function StoreKitchenDesk({
         <button
           type="button"
           onClick={() => onChange({ ...state, host: { ...state.host, acceptingOrders: !state.host.acceptingOrders } })}
-          className={cn('rounded-full px-4 py-2 text-sm', state.host.acceptingOrders ? 'border border-white/20' : 'bg-[#b45a3c] font-bold text-[#061018]')}
+          className={cn('rounded-full px-4 py-2 text-sm', state.host.acceptingOrders ? 'border border-white/20' : 'store-desk-accent-bg font-bold')}
         >
           {state.host.acceptingOrders ? STORE_KITCHEN_LIVE.pauseOnAr : STORE_KITCHEN_LIVE.pauseOffAr}
         </button>
         <button
           type="button"
           onClick={() => onChange({ ...state, host: { ...state.host, showSoldOut: !state.host.showSoldOut } })}
-          className={cn('rounded-full px-4 py-2 text-sm', state.host.showSoldOut ? 'bg-[#b45a3c] font-bold text-[#061018]' : 'border border-white/20')}
+          className={cn('rounded-full px-4 py-2 text-sm', state.host.showSoldOut ? 'store-desk-accent-bg font-bold' : 'border border-white/20')}
         >
           {STORE_KITCHEN_LIVE.showSoldOutAr}
         </button>
         <button
           type="button"
           onClick={() => onChange({ ...state, host: { ...state.host, scheduleEnabled: !state.host.scheduleEnabled } })}
-          className={cn('rounded-full px-4 py-2 text-sm', state.host.scheduleEnabled ? 'bg-[#b45a3c] font-bold text-[#061018]' : 'border border-white/20')}
+          className={cn('rounded-full px-4 py-2 text-sm', state.host.scheduleEnabled ? 'store-desk-accent-bg font-bold' : 'border border-white/20')}
         >
           {STORE_KITCHEN_LIVE.scheduleOnAr}
         </button>
@@ -326,7 +326,7 @@ export function StoreKitchenDesk({
               <button
                 type="button"
                 onClick={() => toggleStock(item.catalogId)}
-                className={cn('rounded-full px-3 py-1 text-xs', item.inStock ? 'bg-[#b45a3c] font-bold text-[#061018]' : 'border border-white/20')}
+                className={cn('rounded-full px-3 py-1 text-xs', item.inStock ? 'store-desk-accent-bg font-bold' : 'border border-white/20')}
               >
                 {item.inStock ? STORE_KITCHEN_LIVE.stockOnAr : STORE_KITCHEN_LIVE.stockOffAr}
               </button>
@@ -337,7 +337,7 @@ export function StoreKitchenDesk({
 
       <StoreKitchenMenuBoard state={state} onChange={onChange} />
 
-      <StoreOpsSection titleAr="ملصق العرض" accent="#b45a3c">
+      <StoreOpsSection titleAr="ملصق العرض">
         <StoreLiveShopShareDesk
           kind="kitchen"
           token={token}
@@ -346,7 +346,7 @@ export function StoreKitchenDesk({
           qrValue={state.host.qrActive ? shopUrl : 'رمز أُبطل'}
           qrPhraseAr={STORE_KITCHEN_LIVE.qrPhraseAr}
           qrPrintAr={STORE_KITCHEN_LIVE.qrPrintAr}
-          accent="#b45a3c"
+          accent={STORE_KITCHEN_LIVE_ACCENT}
           qrStamp={state.host.qrActive ? state.host.qrStamp : ''}
           showTitle={false}
           afterPrint={
@@ -361,7 +361,7 @@ export function StoreKitchenDesk({
               <button
                 type="button"
                 onClick={() => onChange({ ...state, host: { ...state.host, qrStamp: newKitchenQrStamp(), qrActive: true } })}
-                className="sm:col-span-2 rounded-full border border-[#b45a3c]/40 py-2 text-sm text-[#b45a3c]"
+                className="store-desk-accent-border store-desk-accent-text sm:col-span-2 rounded-full border py-2 text-sm"
               >
                 {STORE_KITCHEN_LIVE.qrRenewAr}
               </button>
@@ -370,7 +370,7 @@ export function StoreKitchenDesk({
         />
       </StoreOpsSection>
 
-      <StoreDeskArchiveDock tickets={state.orderArchive} accent="#b45a3c" filename="kitchen-archive.json" />
+      <StoreDeskArchiveDock tickets={state.orderArchive} accent={STORE_KITCHEN_LIVE_ACCENT} filename="kitchen-archive.json" />
       <StoreDeskCornerDock>
         <StoreKitchenGrowthHubButton token={token} />
         <StoreDeskGuideLink

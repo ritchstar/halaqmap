@@ -95,11 +95,11 @@ export function StoreGrocersDeskChat({
   }
 
   return (
-    <section className="rounded-2xl border border-[#8fbf7a]/25 bg-[#07140e]/80 p-4">
+    <section className="store-desk-panel store-desk-accent-border rounded-2xl border p-4">
       <h3 className="font-extrabold">{STORE_GROCERS_LIVE.chatDeskTitleAr}</h3>
       <ul className="mt-3 space-y-2 text-sm">
         {visible.map((item) => (
-          <li key={item.id} className="rounded-xl border border-white/10 bg-black/30 p-3">
+          <li key={item.id} className="store-desk-ticket-card rounded-xl border p-3">
             <p className="text-xs text-white/50">{item.from === 'desk' ? 'الكاشير' : 'جار الحي'} · {item.name}</p>
             <p className="mt-1 leading-7">{item.text}</p>
             <button type="button" className="mt-2 text-xs text-white/45 underline" onClick={() => hide(item.id)}>
@@ -112,11 +112,7 @@ export function StoreGrocersDeskChat({
         {STORE_GROCERS_LIVE.chatDeskReplyAr}
         <textarea className="grocers-field min-h-20 py-2" value={reply} onChange={(e) => setReply(e.target.value)} />
       </label>
-      <button
-        type="button"
-        onClick={sendReply}
-        className="mt-3 rounded-full bg-[#8fbf7a] px-4 py-2 text-sm font-bold text-[#061018]"
-      >
+      <button type="button" onClick={sendReply} className="store-desk-accent-bg mt-3 rounded-full px-4 py-2 text-sm font-bold">
         إرسال الرد
       </button>
     </section>

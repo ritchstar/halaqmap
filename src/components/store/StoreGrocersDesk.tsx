@@ -2,7 +2,7 @@
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
 import { StoreLiveShopShareDesk } from '@/components/store/StoreLiveShopShareDesk';
-import { STORE_GROCERS_LIVE } from '@/config/storeGrocersLive';
+import { STORE_GROCERS_LIVE, STORE_GROCERS_LIVE_ACCENT } from '@/config/storeGrocersLive';
 import { STORE_SHOP_HOURS_COPY } from '@/config/storeShopHours';
 import { grocersWhatsAppText, type GrocersLabState } from '@/lib/storeGrocersLiveLab';
 import { StoreDeskOrderAlert } from '@/components/store/StoreDeskOrderAlert';
@@ -101,39 +101,39 @@ export function StoreGrocersDesk({
           customFields[index] = value;
           onChange({ ...state, host: { ...state.host, customFields } });
         }}
-        accent="#8fbf7a"
+        accent={STORE_GROCERS_LIVE_ACCENT}
         fieldClassName="grocers-field"
       />
       <StoreShopBackgroundDesk
         value={{ shopHeaderBg: state.host.shopHeaderBg, shopPageBg: state.host.shopPageBg }}
         onChange={(bg) => onChange({ ...state, host: { ...state.host, ...bg } })}
-        accent="#8fbf7a"
+        accent={STORE_GROCERS_LIVE_ACCENT}
         fieldClassName="grocers-field"
       />
-      <div className={cn('rounded-2xl border p-4', fresh.length ? 'grocers-alert border-[#8fbf7a]' : 'border-white/12')}>
+      <div className={cn('rounded-2xl border p-4', fresh.length ? 'grocers-alert store-desk-accent-border' : 'border-white/12')}>
         <h2 className="text-lg font-extrabold">{STORE_GROCERS_LIVE.liveOrdersAr}</h2>
         <p className="mt-1 text-sm text-white/60">{fresh.length ? `${fresh.length} طلب جديد` : 'لا طلبات جديدة الآن.'}</p>
         <StoreShopPresenceCount productTag="store_grocers_live" token={token} labelAr={STORE_GROCERS_LIVE.presenceDeskLabelAr} />
         {fresh.length ? (
           <>
-            <p className="mt-3 text-xs font-extrabold text-[#8fbf7a]">{STORE_DESK_ORDER_TICKET_COPY.newLaneAr}</p>
+            <p className="store-desk-accent-text mt-3 text-xs font-extrabold">{STORE_DESK_ORDER_TICKET_COPY.newLaneAr}</p>
             <ul className="mt-2 space-y-3">
               {fresh.map((order) => (
-                <li key={order.id} className="rounded-xl border border-white/10 bg-black/30 p-3 text-sm">
-                  <p className="font-extrabold text-[#8fbf7a]">{displayName(order)} · {displayPhone(order)}</p>
+                <li key={order.id} className="store-desk-ticket-card rounded-xl border p-3 text-sm">
+                  <p className="store-desk-accent-text font-extrabold">{displayName(order)} · {displayPhone(order)}</p>
                   <p className="mt-1 text-white/70">{displayPlace(order)}</p>
                   <p className="mt-1">{order.lines.map((line) => `${line.nameAr}×${line.qty}`).join(' · ')}</p>
                   <p className="mt-1 font-black">{order.total} ر.س · {order.pay === 'card' ? STORE_GROCERS_LIVE.payCardAr : STORE_GROCERS_LIVE.payCashAr}</p>
                   {!maskPii && order.facadeSrc ? <img src={order.facadeSrc} alt="" className="mt-2 h-20 w-28 rounded-lg object-cover" /> : null}
                   <a
-                    className="mt-2 inline-flex rounded-full bg-[#8fbf7a] px-3 py-1.5 text-xs font-bold text-[#061018]"
+                    className="store-desk-accent-bg mt-2 inline-flex rounded-full px-3 py-1.5 text-xs font-bold"
                     href={`https://wa.me/?text=${encodeURIComponent(grocersWhatsAppText(order, state.host.shopName, state.host.vendorMode === 'mobile' ? state.host.pickupMapsUrl : ''))}`}
                     target="_blank"
                     rel="noreferrer"
                   >
                     {STORE_GROCERS_LIVE.whatsappReceiptAr}
                   </a>
-                  <StoreDeskTicketActions order={order} accent="#8fbf7a" onReceive={() => receiveOrder(order.id)} onFinish={() => finishOrder(order.id)} />
+                  <StoreDeskTicketActions order={order} accent={STORE_GROCERS_LIVE_ACCENT} onReceive={() => receiveOrder(order.id)} onFinish={() => finishOrder(order.id)} />
                 </li>
               ))}
             </ul>
@@ -144,21 +144,21 @@ export function StoreGrocersDesk({
             <p className="mt-4 text-xs font-extrabold text-white/70">{STORE_DESK_ORDER_TICKET_COPY.receivedLaneAr}</p>
             <ul className="mt-2 space-y-3">
               {working.map((order) => (
-                <li key={order.id} className="rounded-xl border border-white/10 bg-black/30 p-3 text-sm">
-                  <p className="font-extrabold text-[#8fbf7a]">{displayName(order)} · {displayPhone(order)}</p>
+                <li key={order.id} className="store-desk-ticket-card rounded-xl border p-3 text-sm">
+                  <p className="store-desk-accent-text font-extrabold">{displayName(order)} · {displayPhone(order)}</p>
                   <p className="mt-1 text-white/70">{displayPlace(order)}</p>
                   <p className="mt-1">{order.lines.map((line) => `${line.nameAr}×${line.qty}`).join(' · ')}</p>
                   <p className="mt-1 font-black">{order.total} ر.س · {order.pay === 'card' ? STORE_GROCERS_LIVE.payCardAr : STORE_GROCERS_LIVE.payCashAr}</p>
                   {!maskPii && order.facadeSrc ? <img src={order.facadeSrc} alt="" className="mt-2 h-20 w-28 rounded-lg object-cover" /> : null}
                   <a
-                    className="mt-2 inline-flex rounded-full bg-[#8fbf7a] px-3 py-1.5 text-xs font-bold text-[#061018]"
+                    className="store-desk-accent-bg mt-2 inline-flex rounded-full px-3 py-1.5 text-xs font-bold"
                     href={`https://wa.me/?text=${encodeURIComponent(grocersWhatsAppText(order, state.host.shopName, state.host.vendorMode === 'mobile' ? state.host.pickupMapsUrl : ''))}`}
                     target="_blank"
                     rel="noreferrer"
                   >
                     {STORE_GROCERS_LIVE.whatsappReceiptAr}
                   </a>
-                  <StoreDeskTicketActions order={order} accent="#8fbf7a" onReceive={() => receiveOrder(order.id)} onFinish={() => finishOrder(order.id)} />
+                  <StoreDeskTicketActions order={order} accent={STORE_GROCERS_LIVE_ACCENT} onReceive={() => receiveOrder(order.id)} onFinish={() => finishOrder(order.id)} />
                 </li>
               ))}
             </ul>
@@ -166,20 +166,20 @@ export function StoreGrocersDesk({
         ) : null}
       </div>
       <StoreGrocersDeskChat state={state} onChange={onChange} />
-      <StoreDirectPayDesk product="store_grocers_live" token={token} accent="#8fbf7a" />
+      <StoreDirectPayDesk product="store_grocers_live" token={token} accent={STORE_GROCERS_LIVE_ACCENT} />
 
-      <StoreOpsSection titleAr="الموقع وساعات العمل" accent="#8fbf7a">
+      <StoreOpsSection titleAr="الموقع وساعات العمل">
       <StoreShopPlaceDesk
         value={state.host}
         onChange={(place) => onChange({ ...state, host: { ...state.host, ...place } })}
         copy={STORE_GROCERS_LIVE}
-        accent="#8fbf7a"
+        accent={STORE_GROCERS_LIVE_ACCENT}
       />
 
       <StoreShopHoursDesk
         value={state.host}
         onChange={(nextHours) => onChange({ ...state, host: { ...state.host, ...nextHours } })}
-        accent="#8fbf7a"
+        accent={STORE_GROCERS_LIVE_ACCENT}
       />
       </StoreOpsSection>
 
@@ -197,13 +197,13 @@ export function StoreGrocersDesk({
         <button
           type="button"
           onClick={() => onChange({ ...state, host: { ...state.host, acceptingOrders: !state.host.acceptingOrders } })}
-          className={cn('rounded-full px-4 py-2 text-sm', state.host.acceptingOrders ? 'border border-white/20' : 'bg-[#8fbf7a] font-bold text-[#061018]')}
+          className={cn('rounded-full px-4 py-2 text-sm', state.host.acceptingOrders ? 'border border-white/20' : 'store-desk-accent-bg font-bold')}
         >
           {state.host.acceptingOrders ? STORE_SHOP_HOURS_COPY.pauseOnAr : STORE_SHOP_HOURS_COPY.pauseOffAr}
         </button>
       </div>
 
-      <StoreOpsSection titleAr="حالات السلع" accent="#8fbf7a">
+      <StoreOpsSection titleAr="حالات السلع">
       <div className="rounded-2xl border border-white/12 p-4">
         <h3 className="font-extrabold">حالات السلع</h3>
         <ul className="mt-3 space-y-2">
@@ -213,7 +213,7 @@ export function StoreGrocersDesk({
               <button
                 type="button"
                 onClick={() => toggleStock(item.catalogId)}
-                className={cn('rounded-full px-3 py-1 text-xs', item.inStock ? 'bg-[#8fbf7a] font-bold text-[#061018]' : 'border border-white/20')}
+                className={cn('rounded-full px-3 py-1 text-xs', item.inStock ? 'store-desk-accent-bg font-bold' : 'border border-white/20')}
               >
                 {item.inStock ? STORE_GROCERS_LIVE.stockOnAr : STORE_GROCERS_LIVE.stockOffAr}
               </button>
@@ -225,7 +225,7 @@ export function StoreGrocersDesk({
 
       <StoreGrocersIngest state={state} onChange={onChange} />
 
-      <StoreOpsSection titleAr="ملصق العرض" accent="#8fbf7a">
+      <StoreOpsSection titleAr="ملصق العرض">
         <StoreLiveShopShareDesk
           kind="grocers"
           token={token}
@@ -233,12 +233,12 @@ export function StoreGrocersDesk({
           shopUrl={shopUrl}
           qrPhraseAr={STORE_GROCERS_LIVE.qrPhraseAr}
           qrPrintAr={STORE_GROCERS_LIVE.qrPrintAr}
-          accent="#8fbf7a"
+          accent={STORE_GROCERS_LIVE_ACCENT}
           showTitle={false}
         />
       </StoreOpsSection>
 
-      <StoreDeskArchiveDock tickets={state.orderArchive} accent="#8fbf7a" filename="grocers-archive.json" />
+      <StoreDeskArchiveDock tickets={state.orderArchive} accent={STORE_GROCERS_LIVE_ACCENT} filename="grocers-archive.json" />
       <StoreDeskCornerDock>
         <StoreDeskGuideLink
           to={ROUTE_PATHS.STORE_GROCERS_SUPPORT}

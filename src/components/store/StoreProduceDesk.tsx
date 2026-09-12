@@ -2,7 +2,7 @@
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
 import { StoreLiveShopShareDesk } from '@/components/store/StoreLiveShopShareDesk';
-import { STORE_PRODUCE_LIVE } from '@/config/storeProduceLive';
+import { STORE_PRODUCE_LIVE, STORE_PRODUCE_LIVE_ACCENT } from '@/config/storeProduceLive';
 import { STORE_SHOP_HOURS_COPY } from '@/config/storeShopHours';
 import { produceServiceLabelAr, produceWhatsAppText, type ProduceLabState } from '@/lib/storeProduceLiveLab';
 import { StoreDeskOrderAlert } from '@/components/store/StoreDeskOrderAlert';
@@ -92,26 +92,26 @@ export function StoreProduceDesk({
           customFields[index] = value;
           onChange({ ...state, host: { ...state.host, customFields } });
         }}
-        accent="#3d8b4a"
+        accent={STORE_PRODUCE_LIVE_ACCENT}
         fieldClassName="produce-field"
       />
       <StoreShopBackgroundDesk
         value={{ shopHeaderBg: state.host.shopHeaderBg, shopPageBg: state.host.shopPageBg }}
         onChange={(bg) => onChange({ ...state, host: { ...state.host, ...bg } })}
-        accent="#3d8b4a"
+        accent={STORE_PRODUCE_LIVE_ACCENT}
         fieldClassName="produce-field"
       />
-      <div className={cn('rounded-2xl border p-4', fresh.length ? 'produce-alert border-[#3d8b4a]' : 'border-white/12')}>
+      <div className={cn('rounded-2xl border p-4', fresh.length ? 'produce-alert store-desk-accent-border' : 'border-white/12')}>
         <h2 className="text-lg font-extrabold">{STORE_PRODUCE_LIVE.liveOrdersAr}</h2>
         <p className="mt-1 text-sm text-white/60">{fresh.length ? `${fresh.length} طلب جديد` : 'لا طلبات جديدة الآن.'}</p>
         <StoreShopPresenceCount productTag="store_produce_live" token={token} />
         {fresh.length ? (
           <>
-            <p className="mt-3 text-xs font-extrabold text-[#3d8b4a]">{STORE_DESK_ORDER_TICKET_COPY.newLaneAr}</p>
+            <p className="store-desk-accent-text mt-3 text-xs font-extrabold">{STORE_DESK_ORDER_TICKET_COPY.newLaneAr}</p>
             <ul className="mt-2 space-y-3">
               {fresh.map((order) => (
-                <li key={order.id} className="rounded-xl border border-white/10 bg-black/30 p-3 text-sm">
-                  <p className="font-extrabold text-[#3d8b4a]">
+                <li key={order.id} className="store-desk-ticket-card rounded-xl border p-3 text-sm">
+                  <p className="store-desk-accent-text font-extrabold">
                     {order.name} · {order.phone}
                   </p>
                   <p className="mt-1 text-white/70">
@@ -121,14 +121,14 @@ export function StoreProduceDesk({
                   <p className="mt-1">{order.lines.map((line) => `${line.nameAr}×${line.qty}`).join(' · ')}</p>
                   <p className="mt-1 font-black">{order.total} ر.س · {order.pay === 'card' ? STORE_PRODUCE_LIVE.payCardAr : STORE_PRODUCE_LIVE.payCashAr}</p>
                   <a
-                    className="mt-2 inline-flex rounded-full bg-[#3d8b4a] px-3 py-1.5 text-xs font-bold text-[#061018]"
+                    className="store-desk-accent-bg mt-2 inline-flex rounded-full px-3 py-1.5 text-xs font-bold"
                     href={`https://wa.me/?text=${encodeURIComponent(produceWhatsAppText(order, state.host.shopName, state.host.vendorMode === 'mobile' ? state.host.pickupMapsUrl : ''))}`}
                     target="_blank"
                     rel="noreferrer"
                   >
                     {STORE_PRODUCE_LIVE.whatsappReceiptAr}
                   </a>
-                  <StoreDeskTicketActions order={order} accent="#3d8b4a" onReceive={() => receiveOrder(order.id)} onFinish={() => finishOrder(order.id)} />
+                  <StoreDeskTicketActions order={order} accent={STORE_PRODUCE_LIVE_ACCENT} onReceive={() => receiveOrder(order.id)} onFinish={() => finishOrder(order.id)} />
                 </li>
               ))}
             </ul>
@@ -139,8 +139,8 @@ export function StoreProduceDesk({
             <p className="mt-4 text-xs font-extrabold text-white/70">{STORE_DESK_ORDER_TICKET_COPY.receivedLaneAr}</p>
             <ul className="mt-2 space-y-3">
               {working.map((order) => (
-                <li key={order.id} className="rounded-xl border border-white/10 bg-black/30 p-3 text-sm">
-                  <p className="font-extrabold text-[#3d8b4a]">
+                <li key={order.id} className="store-desk-ticket-card rounded-xl border p-3 text-sm">
+                  <p className="store-desk-accent-text font-extrabold">
                     {order.name} · {order.phone}
                   </p>
                   <p className="mt-1 text-white/70">
@@ -150,14 +150,14 @@ export function StoreProduceDesk({
                   <p className="mt-1">{order.lines.map((line) => `${line.nameAr}×${line.qty}`).join(' · ')}</p>
                   <p className="mt-1 font-black">{order.total} ر.س · {order.pay === 'card' ? STORE_PRODUCE_LIVE.payCardAr : STORE_PRODUCE_LIVE.payCashAr}</p>
                   <a
-                    className="mt-2 inline-flex rounded-full bg-[#3d8b4a] px-3 py-1.5 text-xs font-bold text-[#061018]"
+                    className="store-desk-accent-bg mt-2 inline-flex rounded-full px-3 py-1.5 text-xs font-bold"
                     href={`https://wa.me/?text=${encodeURIComponent(produceWhatsAppText(order, state.host.shopName, state.host.vendorMode === 'mobile' ? state.host.pickupMapsUrl : ''))}`}
                     target="_blank"
                     rel="noreferrer"
                   >
                     {STORE_PRODUCE_LIVE.whatsappReceiptAr}
                   </a>
-                  <StoreDeskTicketActions order={order} accent="#3d8b4a" onReceive={() => receiveOrder(order.id)} onFinish={() => finishOrder(order.id)} />
+                  <StoreDeskTicketActions order={order} accent={STORE_PRODUCE_LIVE_ACCENT} onReceive={() => receiveOrder(order.id)} onFinish={() => finishOrder(order.id)} />
                 </li>
               ))}
             </ul>
@@ -165,20 +165,20 @@ export function StoreProduceDesk({
         ) : null}
       </div>
       <StoreProduceDeskChat state={state} onChange={onChange} />
-      <StoreDirectPayDesk product="store_produce_live" token={token} accent="#3d8b4a" />
+      <StoreDirectPayDesk product="store_produce_live" token={token} accent={STORE_PRODUCE_LIVE_ACCENT} />
 
-      <StoreOpsSection titleAr="الموقع وساعات العمل" accent="#3d8b4a">
+      <StoreOpsSection titleAr="الموقع وساعات العمل">
       <StoreShopPlaceDesk
         value={state.host}
         onChange={(place) => onChange({ ...state, host: { ...state.host, ...place } })}
         copy={STORE_PRODUCE_LIVE}
-        accent="#3d8b4a"
+        accent={STORE_PRODUCE_LIVE_ACCENT}
       />
 
       <StoreShopHoursDesk
         value={state.host}
         onChange={(nextHours) => onChange({ ...state, host: { ...state.host, ...nextHours } })}
-        accent="#3d8b4a"
+        accent={STORE_PRODUCE_LIVE_ACCENT}
       />
       </StoreOpsSection>
 
@@ -196,13 +196,13 @@ export function StoreProduceDesk({
         <button
           type="button"
           onClick={() => onChange({ ...state, host: { ...state.host, acceptingOrders: !state.host.acceptingOrders } })}
-          className={cn('rounded-full px-4 py-2 text-sm', state.host.acceptingOrders ? 'border border-white/20' : 'bg-[#3d8b4a] font-bold text-[#061018]')}
+          className={cn('rounded-full px-4 py-2 text-sm', state.host.acceptingOrders ? 'border border-white/20' : 'store-desk-accent-bg font-bold')}
         >
           {state.host.acceptingOrders ? STORE_SHOP_HOURS_COPY.pauseOnAr : STORE_SHOP_HOURS_COPY.pauseOffAr}
         </button>
       </div>
 
-      <StoreOpsSection titleAr="حالات السلع" accent="#3d8b4a">
+      <StoreOpsSection titleAr="حالات السلع">
       <div className="rounded-2xl border border-white/12 p-4">
         <h3 className="font-extrabold">حالات السلع</h3>
         <ul className="mt-3 max-h-72 space-y-2 overflow-auto">
@@ -213,14 +213,14 @@ export function StoreProduceDesk({
                 <button
                   type="button"
                   onClick={() => toggleArrived(item.catalogId)}
-                  className={cn('rounded-full px-3 py-1 text-xs', item.arrivedToday ? 'bg-[#3d8b4a] font-bold text-[#061018]' : 'border border-white/20')}
+                  className={cn('rounded-full px-3 py-1 text-xs', item.arrivedToday ? 'store-desk-accent-bg font-bold' : 'border border-white/20')}
                 >
                   {item.arrivedToday ? STORE_PRODUCE_LIVE.arrivedOnAr : STORE_PRODUCE_LIVE.arrivedOffAr}
                 </button>
                 <button
                   type="button"
                   onClick={() => toggleStock(item.catalogId)}
-                  className={cn('rounded-full px-3 py-1 text-xs', item.inStock ? 'bg-[#3d8b4a] font-bold text-[#061018]' : 'border border-white/20')}
+                  className={cn('rounded-full px-3 py-1 text-xs', item.inStock ? 'store-desk-accent-bg font-bold' : 'border border-white/20')}
                 >
                   {item.inStock ? STORE_PRODUCE_LIVE.stockOnAr : STORE_PRODUCE_LIVE.stockOffAr}
                 </button>
@@ -231,11 +231,11 @@ export function StoreProduceDesk({
       </div>
       </StoreOpsSection>
 
-      <StoreOpsSection titleAr={STORE_PRODUCE_LIVE.ingestTitleAr} accent="#3d8b4a">
+      <StoreOpsSection titleAr={STORE_PRODUCE_LIVE.ingestTitleAr}>
         <StoreProduceIngest state={state} onChange={onChange} />
       </StoreOpsSection>
 
-      <StoreOpsSection titleAr="ملصق العرض" accent="#3d8b4a">
+      <StoreOpsSection titleAr="ملصق العرض">
         <StoreLiveShopShareDesk
           kind="produce"
           token={token}
@@ -243,12 +243,12 @@ export function StoreProduceDesk({
           shopUrl={shopUrl}
           qrPhraseAr={STORE_PRODUCE_LIVE.qrPhraseAr}
           qrPrintAr={STORE_PRODUCE_LIVE.qrPrintAr}
-          accent="#3d8b4a"
+          accent={STORE_PRODUCE_LIVE_ACCENT}
           showTitle={false}
         />
       </StoreOpsSection>
 
-      <StoreDeskArchiveDock tickets={state.orderArchive} accent="#3d8b4a" filename="produce-archive.json" />
+      <StoreDeskArchiveDock tickets={state.orderArchive} accent={STORE_PRODUCE_LIVE_ACCENT} filename="produce-archive.json" />
       <StoreDeskCornerDock>
         <StoreDeskGuideLink
           to={ROUTE_PATHS.STORE_PRODUCE_SUPPORT}

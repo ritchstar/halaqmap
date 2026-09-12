@@ -220,6 +220,50 @@
   border-color: color-mix(in srgb, var(--operator-text) 12%, transparent);
 }
 
+.store-product-theme[data-context='operator'] :where(
+  .grocers-field,
+  .produce-field,
+  .restaurant-field,
+  .kitchen-field
+) {
+  background: var(--operator-field);
+  color: var(--operator-text);
+  border-color: color-mix(in srgb, var(--operator-text) 12%, transparent);
+}
+
+.store-product-theme[data-context='operator'] :where(.grocers-alert, .produce-alert, .restaurant-alert) {
+  box-shadow: 0 0 28px color-mix(in srgb, var(--operator-accent) 35%, transparent);
+}
+
+.store-product-theme[data-context='operator'] .store-desk-accent-bg {
+  background: var(--operator-accent) !important;
+  color: #fff !important;
+}
+
+.store-product-theme[data-context='operator'] .store-desk-accent-text {
+  color: var(--operator-accent) !important;
+}
+
+.store-product-theme[data-context='operator'] .store-desk-accent-border {
+  border-color: color-mix(in srgb, var(--operator-accent) 45%, transparent) !important;
+}
+
+.store-product-theme[data-context='operator'] .store-desk-ticket-card {
+  border-color: color-mix(in srgb, var(--operator-text) 10%, transparent) !important;
+  background: var(--operator-surface) !important;
+}
+
+.store-product-theme[data-context='operator'] .store-desk-panel {
+  border-color: color-mix(in srgb, var(--operator-text) 12%, transparent) !important;
+  background: var(--operator-surface) !important;
+}
+
+.store-product-theme[data-context='operator'] .store-desk-textarea {
+  border-color: color-mix(in srgb, var(--operator-text) 12%, transparent);
+  background: var(--operator-field);
+  color: var(--operator-text);
+}
+
 .store-product-theme[data-context='operator'] .halana-desk-field__label {
   color: var(--operator-muted);
 }

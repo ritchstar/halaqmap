@@ -3,6 +3,7 @@
  *
  * تنبيه وصول الطلب في لوحات الكاشير. لا يُستورد من App.
  */
+import { productThemeTokens } from '@/lib/storeProductThemes';
 export const STORE_DESK_ORDER_ALERT_PRODUCTS = ['grocers', 'restaurant', 'cafe', 'kitchen', 'produce', 'dates'] as const;
 
 export type StoreDeskOrderAlertProduct = (typeof STORE_DESK_ORDER_ALERT_PRODUCTS)[number];
@@ -48,10 +49,10 @@ export const STORE_DESK_ORDER_ALERT_VOLUME_AR: Record<StoreDeskOrderAlertVolume,
 };
 
 export const STORE_DESK_ORDER_ALERT_ACCENT: Record<StoreDeskOrderAlertProduct, string> = {
-  grocers: '#8fbf7a',
-  restaurant: '#e08a3c',
-  cafe: '#c48a4a',
-  kitchen: '#b45a3c',
-  produce: '#3d8b4a',
-  dates: '#8A6239',
+  grocers: productThemeTokens('grocers', 'operator').accent,
+  restaurant: productThemeTokens('restaurant', 'operator').accent,
+  cafe: productThemeTokens('cafe', 'operator').accent,
+  kitchen: productThemeTokens('kitchen', 'operator').accent,
+  produce: productThemeTokens('produce', 'operator').accent,
+  dates: productThemeTokens('dates', 'operator').accent,
 };

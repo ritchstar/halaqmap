@@ -6,6 +6,7 @@
  * التحصيل عبر ميسر على www.halaqmap.com بوسم store_produce_live.
  */
 import { ROUTE_PATHS } from '@/lib/routePaths';
+import { productThemeTokens } from '@/lib/storeProductThemes';
 
 export const STORE_PRODUCE_LIVE_PUBLIC_ENABLED = true;
 
@@ -35,7 +36,7 @@ export const STORE_PRODUCE_LIVE_CHECKOUT_ENABLED = envEnabled(
   true,
 );
 
-export const STORE_PRODUCE_LIVE_ACCENT = '#3d8b4a' as const;
+export const STORE_PRODUCE_LIVE_ACCENT = productThemeTokens('produce', 'storefront').accent;
 
 export const STORE_PRODUCE_LIVE_PACKS = [
   {

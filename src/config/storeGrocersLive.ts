@@ -5,6 +5,7 @@
  * باقتان ثابت: 599/180 يوماً و899/365 يوماً. متحرك: 799/1250.
  */
 import { ROUTE_PATHS } from '@/lib/routePaths';
+import { productThemeTokens } from '@/lib/storeProductThemes';
 
 export const STORE_GROCERS_LIVE_PUBLIC_ENABLED = true;
 
@@ -43,7 +44,8 @@ export const STORE_GROCERS_LIVE_CHECKOUT_ENABLED = envEnabled(
   true,
 );
 
-export const STORE_GROCERS_LIVE_ACCENT = '#8fbf7a' as const;
+/** يُقرأ من سجل الثيمات — لا يُثبَّت لوناً قديماً هنا */
+export const STORE_GROCERS_LIVE_ACCENT = productThemeTokens('grocers', 'storefront').accent;
 
 export const STORE_GROCERS_LIVE_PACKS = [
   {

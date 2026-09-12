@@ -54,7 +54,7 @@ export function StoreProduceIngest({
   }
 
   return (
-    <div className="space-y-5 rounded-2xl border border-white/12 p-4">
+    <div className="store-desk-panel space-y-5 rounded-2xl border p-4">
       <div>
         <h3 className="font-extrabold">{STORE_PRODUCE_LIVE.ingestTitleAr}</h3>
         <p className="mt-1 text-sm text-white/65">{STORE_PRODUCE_LIVE.catalogLeadAr}</p>
@@ -65,7 +65,7 @@ export function StoreProduceIngest({
             key={item}
             type="button"
             onClick={() => setCategory(item)}
-            className={cn('rounded-full px-3 py-1 text-xs', category === item ? 'bg-[#3d8b4a] font-bold text-[#061018]' : 'border border-white/20')}
+            className={cn('rounded-full px-3 py-1 text-xs', category === item ? 'store-desk-accent-bg font-bold' : 'border border-white/20')}
           >
             {item}
           </button>
@@ -81,7 +81,7 @@ export function StoreProduceIngest({
         {filtered.map((item) => {
           const active = state.shelf.find((row) => row.catalogId === item.id);
           return (
-            <li key={item.id} className="flex items-center justify-between gap-3 rounded-xl border border-white/10 px-3 py-2 text-sm">
+            <li key={item.id} className="store-desk-ticket-card flex items-center justify-between gap-3 rounded-xl border px-3 py-2 text-sm">
               <span>
                 <p className="font-bold">{item.nameAr}</p>
                 <p className="text-xs text-white/50">{item.defaultPrice} ر.س / {item.unit === 'piece' ? 'حبة' : item.unit === 'bunch' ? 'حزمة' : item.unit === 'crate' ? 'صندوق' : 'كيلو'}</p>
@@ -89,7 +89,10 @@ export function StoreProduceIngest({
               <button
                 type="button"
                 onClick={() => onChange(activateProduceCatalogItem(state, item.id))}
-                className={cn('rounded-full px-3 py-1 text-xs', active ? 'border border-[#3d8b4a]/50 text-[#3d8b4a]' : 'bg-[#3d8b4a] font-bold text-[#061018]')}
+                className={cn(
+                  'rounded-full px-3 py-1 text-xs',
+                  active ? 'store-desk-accent-border store-desk-accent-text border font-bold' : 'store-desk-accent-bg font-bold',
+                )}
               >
                 {active ? 'محدّث' : STORE_PRODUCE_LIVE.activateAr}
               </button>
@@ -102,7 +105,7 @@ export function StoreProduceIngest({
         <h4 className="font-extrabold">{STORE_PRODUCE_LIVE.listIngestTitleAr}</h4>
         <p className="mt-1 text-sm text-white/65">{STORE_PRODUCE_LIVE.listIngestLeadAr}</p>
         <textarea
-          className="mt-2 h-28 w-full rounded-xl border border-white/15 bg-black/40 px-3 py-2 text-sm"
+          className="store-desk-textarea mt-2 h-28 w-full rounded-xl border px-3 py-2 text-sm"
           value={listText}
           onChange={(e) => setListText(e.target.value)}
         />
@@ -126,7 +129,7 @@ export function StoreProduceIngest({
             </li>
           ))}
         </ul>
-        <button type="button" onClick={applyList} className="mt-3 rounded-full bg-[#3d8b4a] px-4 py-2 text-sm font-bold text-[#061018]">
+        <button type="button" onClick={applyList} className="store-desk-accent-bg mt-3 rounded-full px-4 py-2 text-sm font-bold">
           احفظ الصفوف بعد المراجعة
         </button>
       </div>

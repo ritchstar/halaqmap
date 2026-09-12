@@ -9,6 +9,7 @@ import {
   LEGAL_ECOMMERCE_AUTH_NUMBER,
   LEGAL_NATIONAL_UNIFIED_NUMBER,
 } from '@/config/partnerLegal';
+import { productThemeTokens } from '@/lib/storeProductThemes';
 
 export const STORE_KITCHEN_LIVE_PUBLIC_ENABLED = true;
 
@@ -41,7 +42,7 @@ export const STORE_KITCHEN_LIVE_CHECKOUT_ENABLED = envEnabled(
   true,
 );
 
-export const STORE_KITCHEN_LIVE_ACCENT = '#b45a3c' as const;
+export const STORE_KITCHEN_LIVE_ACCENT = productThemeTokens('kitchen', 'storefront').accent;
 
 export const STORE_KITCHEN_LIVE_PACKS = [
   {
