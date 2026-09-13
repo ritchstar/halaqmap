@@ -270,7 +270,7 @@ export function SolutionCatalogApp() {
           </section>
 
           <section className="solution-catalog__custom">
-            <h2 className="solution-catalog__section-title text-2xl">{STORE_SOLUTION_CATALOG_COPY.customTitleAr}</h2>
+            <h2 className="solution-catalog__custom-title">{STORE_SOLUTION_CATALOG_COPY.customTitleAr}</h2>
             <p className="solution-catalog__custom-lead">{STORE_SOLUTION_CATALOG_COPY.customLeadAr}</p>
             <Link to={ROUTE_PATHS.STORE_REQUEST} className="solution-catalog__btn solution-catalog__btn--primary mt-5 inline-flex">
               {STORE_SOLUTION_CATALOG_COPY.customCtaAr}
