@@ -4,9 +4,12 @@
  * الشاشة الأولى — تسلسل العنوان والصفحة المستقلة والركيزة التسويقية.
  */
 import { PanelTop } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { StoreInViewMount } from '@/components/store/StoreInViewMount';
 import { StoreShot } from '@/components/store/StoreShot';
 import { STORE_LANDING_COPY } from '@/config/storeFront';
+import { ROUTE_PATHS } from '@/lib/routePaths';
+import { StorePathEvents } from '@/lib/storePathAnalytics';
 
 export function StoreLandingPitchHero({ onExplore }: { onExplore: () => void }) {
   return (
@@ -29,7 +32,7 @@ export function StoreLandingPitchHero({ onExplore }: { onExplore: () => void }) 
         <p className="store-pitch-hook relative mx-auto mt-5 max-w-3xl text-base font-extrabold leading-8 text-[#e8c547] md:text-lg">
           {STORE_LANDING_COPY.pitchTransformAr}
         </p>
-        <div className="relative mt-7 flex justify-center">
+        <div className="relative mt-7 flex flex-wrap items-center justify-center gap-3">
           <button
             type="button"
             onClick={onExplore}
@@ -37,6 +40,13 @@ export function StoreLandingPitchHero({ onExplore }: { onExplore: () => void }) 
           >
             {STORE_LANDING_COPY.pitchExploreCtaAr}
           </button>
+          <Link
+            to={ROUTE_PATHS.STORE_PATHS_LAB}
+            onClick={() => StorePathEvents.homeEntryClick()}
+            className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full border-2 border-white/25 bg-white/[0.04] px-5 py-2.5 text-base font-extrabold text-white/90 transition hover:border-[#e8c547]/60 hover:text-[#e8c547] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e8c547]"
+          >
+            {STORE_LANDING_COPY.pitchPathsCtaAr}
+          </Link>
         </div>
       </div>
       <div className="relative mx-auto mt-8 max-w-3xl px-2">
