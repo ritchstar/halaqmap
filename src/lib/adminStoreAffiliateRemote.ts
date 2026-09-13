@@ -2,6 +2,7 @@
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
 import { getSupabaseClient } from '@/integrations/supabase/client';
+import { adminOpsHttpErrorAr } from '@/lib/adminOpsHttpError';
 
 export type StoreAffiliateAdminRow = {
   id: string;
@@ -36,6 +37,8 @@ async function adminBearer(accessToken: string): Promise<string | null> {
 }
 
 export function storeAffiliateAdminErrorAr(code: string): string {
+  const httpMessage = adminOpsHttpErrorAr(code);
+  if (httpMessage) return httpMessage;
   switch (code) {
     case 'not_authenticated':
       return 'انتهت جلسة الأدمن — أعد تسجيل الدخول.';

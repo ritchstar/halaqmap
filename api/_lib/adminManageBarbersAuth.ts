@@ -3,6 +3,56 @@
  */
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
+/**
+ * ذاكرة تخزين مؤقتة قصيرة العمر لنتيجة supabase.auth.getUser(accessToken)
+ * داخل نفس نسخة الدالة الدافئة (warm lambda). لوحات المتجر الإدارية (طلبات
+ * التجربة، مسوّقو المتجر، نسخ حلانا1...) تستدعي عدة مسارات API مختلفة تتحقق
+ * كلها من نفس رمز الجلسة في وقت متقارب جداً (تحميل الصفحة، ثم زر «تحديث»)،
+ * وكل تحقق يستدعي GoTrue عبر الشبكة — ما قد يستنزف حصة Supabase من طلبات
+ * auth ويُرجع 429. هذا التخزين المؤقت يمنع إعادة التحقق من نفس الرمز الصالح
+ * أكثر من مرة كل 45 ثانية على نفس نسخة الدالة، دون التأثير على أمان التحقق
+ * من الصلاحيات (التي تُقرأ من قاعدة البيانات في كل مرة كالمعتاد).
+ */
+const AUTH_USER_CACHE_TTL_MS = 45_000;
+const authUserCache = new Map<string, { email: string; expiresAt: number }>();
+
+function getCachedAuthEmail(accessToken: string): string | null {
+  const hit = authUserCache.get(accessToken);
+  if (!hit) return null;
+  if (hit.expiresAt < Date.now()) {
+    authUserCache.delete(accessToken);
+    return null;
+  }
+  return hit.email;
+}
+
+function setCachedAuthEmail(accessToken: string, email: string): void {
+  authUserCache.set(accessToken, { email, expiresAt: Date.now() + AUTH_USER_CACHE_TTL_MS });
+  if (authUserCache.size > 500) {
+    const now = Date.now();
+    for (const [key, value] of authUserCache) {
+      if (value.expiresAt < now) authUserCache.delete(key);
+    }
+  }
+}
+
+/** يتحقق من الرمز عبر GoTrue مرة واحدة فقط لكل نافذة 45 ثانية، ويعيد الإيميل عند النجاح. */
+async function resolveAuthedEmail(
+  supabase: SupabaseClient,
+  accessToken: string,
+): Promise<{ ok: true; email: string } | { ok: false; message: string }> {
+  const cached = getCachedAuthEmail(accessToken);
+  if (cached) return { ok: true, email: cached };
+  const { data: userData, error: userErr } = await supabase.auth.getUser(accessToken);
+  const user = userData?.user;
+  if (userErr || !user?.email?.trim()) {
+    return { ok: false, message: userErr?.message || 'Invalid or expired session token' };
+  }
+  const email = user.email.trim();
+  setCachedAuthEmail(accessToken, email);
+  return { ok: true, email };
+}
+
 const EXTRA_BOOTSTRAP_ADMIN_EMAILS = ['admin@halaqmap.com'];
 
 function parseExtraBootstrapFromProcessEnv(): string[] {
@@ -180,25 +230,21 @@ export async function verifyPlatformAdminFromRequest(
     auth: { persistSession: false, autoRefreshToken: false },
   });
 
-  const { data: userData, error: userErr } = await supabase.auth.getUser(accessToken);
-  const user = userData?.user;
-  if (userErr || !user?.email?.trim()) {
+  const authed = await resolveAuthedEmail(supabase, accessToken);
+  if (authed.ok === false) {
     return {
       ok: false,
       status: 401,
-      json: {
-        error: 'Unauthorized',
-        hint: userErr?.message || 'Invalid or expired session token',
-      },
+      json: { error: 'Unauthorized', hint: authed.message },
     };
   }
 
-  const gate = await assertPlatformAdminHasPermission(supabase, user.email, requiredPermission);
+  const gate = await assertPlatformAdminHasPermission(supabase, authed.email, requiredPermission);
   if (gate.ok === false) {
     return { ok: false, status: 403, json: { error: gate.message } };
   }
 
-  return { ok: true, supabase, actorEmail: normalizeEmail(user.email) };
+  return { ok: true, supabase, actorEmail: normalizeEmail(authed.email) };
 }
 
 /**
@@ -243,20 +289,16 @@ export async function verifyActivePlatformAdminFromRequest(
     auth: { persistSession: false, autoRefreshToken: false },
   });
 
-  const { data: userData, error: userErr } = await supabase.auth.getUser(accessToken);
-  const user = userData?.user;
-  if (userErr || !user?.email?.trim()) {
+  const authed = await resolveAuthedEmail(supabase, accessToken);
+  if (authed.ok === false) {
     return {
       ok: false,
       status: 401,
-      json: {
-        error: 'Unauthorized',
-        hint: userErr?.message || 'Invalid or expired session token',
-      },
+      json: { error: 'Unauthorized', hint: authed.message },
     };
   }
 
-  const email = normalizeEmail(user.email);
+  const email = normalizeEmail(authed.email);
   if (isBootstrapAdminEmail(email)) {
     return { ok: true, supabase, actorEmail: email };
   }
@@ -311,25 +353,21 @@ export async function verifyPlatformAdminFromRequestAny(
     auth: { persistSession: false, autoRefreshToken: false },
   });
 
-  const { data: userData, error: userErr } = await supabase.auth.getUser(accessToken);
-  const user = userData?.user;
-  if (userErr || !user?.email?.trim()) {
+  const authed = await resolveAuthedEmail(supabase, accessToken);
+  if (authed.ok === false) {
     return {
       ok: false,
       status: 401,
-      json: {
-        error: 'Unauthorized',
-        hint: userErr?.message || 'Invalid or expired session token',
-      },
+      json: { error: 'Unauthorized', hint: authed.message },
     };
   }
 
-  const gate = await assertPlatformAdminHasAnyPermission(supabase, user.email, requiredAny);
+  const gate = await assertPlatformAdminHasAnyPermission(supabase, authed.email, requiredAny);
   if (gate.ok === false) {
     return { ok: false, status: 403, json: { error: gate.message } };
   }
 
-  return { ok: true, supabase, actorEmail: normalizeEmail(user.email) };
+  return { ok: true, supabase, actorEmail: normalizeEmail(authed.email) };
 }
 
 /**

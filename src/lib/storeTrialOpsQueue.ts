@@ -4,6 +4,8 @@
  * تجميع طابور التجربة العامة كما تراه لوحة التحكم.
  * طلب المتصفح يظهر فور الحفظ (بانتظار البريد)، ثم ينتقل إلى قيد التشاور بعد التأكيد.
  */
+import { adminOpsHttpErrorAr } from '@/lib/adminOpsHttpError';
+
 export type StoreTrialOpsQueueRow = { status: string };
 
 export function groupStoreTrialOpsRows<T extends StoreTrialOpsQueueRow>(rows: T[]) {
@@ -33,9 +35,17 @@ export function trialRowReachesAdminDesk(status: string): boolean {
 }
 
 export function storeOpsListErrorAr(code: string): string {
-  if (code === 'not_authenticated') return 'انتهت الجلسة. سجّل الدخول بصفة الإدارة.';
+  const httpMessage = adminOpsHttpErrorAr(code);
+  if (httpMessage) return httpMessage;
   if (code === 'network_error') return 'تعذر الاتصال بالطابور.';
   return 'تعذر تحديث الطابور.';
+}
+
+/** لأزرار الإصدار/الإتمام/الاعتذار — تُظهر كود الخادم الخام حين لا توجد ترجمة محددة. */
+export function storeOpsActionErrorAr(code: string): string {
+  const httpMessage = adminOpsHttpErrorAr(code);
+  if (httpMessage) return httpMessage;
+  return String(code || '').trim() || 'تعذر تنفيذ الإجراء.';
 }
 
 export function storeOpsRefreshSummaryAr(counts: {

@@ -19,7 +19,12 @@ import {
   type StoreOpsTrialLink,
   type StoreOpsTrialRow,
 } from '@/lib/adminStoreOpsRemote';
-import { groupStoreTrialOpsRows, storeOpsListErrorAr, storeOpsRefreshSummaryAr } from '@/lib/storeTrialOpsQueue';
+import {
+  groupStoreTrialOpsRows,
+  storeOpsActionErrorAr,
+  storeOpsListErrorAr,
+  storeOpsRefreshSummaryAr,
+} from '@/lib/storeTrialOpsQueue';
 
 function statusLabel(status: string): string {
   const map = STORE_PRODUCT_TRIAL_COPY.statusAr as Record<string, string>;
@@ -167,7 +172,7 @@ export function StoreTrialOpsBoard({
     });
     setBusyKey('');
     if (!res.ok) {
-      toast.error(res.error);
+      toast.error(storeOpsActionErrorAr(res.error));
       return;
     }
     toast.success(STORE_PRODUCT_TRIAL_COPY.issuedAr);
@@ -186,7 +191,7 @@ export function StoreTrialOpsBoard({
     });
     setBusyKey('');
     if (!res.ok) {
-      toast.error(res.error);
+      toast.error(storeOpsActionErrorAr(res.error));
       return;
     }
     toast.success(STORE_PRODUCT_TRIAL_COPY.issuedAr);
@@ -208,7 +213,7 @@ export function StoreTrialOpsBoard({
     });
     setBusyKey('');
     if (!res.ok) {
-      toast.error(res.error);
+      toast.error(storeOpsActionErrorAr(res.error));
       return;
     }
     toast.success('أُرسل الاعتذار.');

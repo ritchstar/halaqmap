@@ -7,6 +7,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { toast } from '@/components/ui/sonner';
 import { STORE_HALANA_LIVE_COPY } from '@/config/storeHalanaLive';
 import { adminIssueHalanaCopy, adminListHalanaCopies, type StoreHalanaCopyRow } from '@/lib/adminStoreHalanaRemote';
+import { adminOpsHttpErrorAr } from '@/lib/adminOpsHttpError';
 
 export function StoreHalanaIssueBoard({ accessToken }: { accessToken: string }) {
   const copy = STORE_HALANA_LIVE_COPY;
@@ -19,7 +20,7 @@ export function StoreHalanaIssueBoard({ accessToken }: { accessToken: string }) 
     if (!accessToken) return;
     const res = await adminListHalanaCopies(accessToken);
     if (!res.ok) {
-      toast.error(res.error === 'not_authenticated' ? 'انتهت الجلسة.' : res.error);
+      toast.error(adminOpsHttpErrorAr(res.error) || (res.error === 'not_authenticated' ? 'انتهت الجلسة.' : res.error));
       return;
     }
     setRows(res.rows);
@@ -34,7 +35,7 @@ export function StoreHalanaIssueBoard({ accessToken }: { accessToken: string }) 
     const res = await adminIssueHalanaCopy({ accessToken, name, email });
     setBusy(false);
     if (!res.ok) {
-      toast.error(res.error);
+      toast.error(adminOpsHttpErrorAr(res.error) || res.error);
       return;
     }
     toast.success(copy.issuedAr);
