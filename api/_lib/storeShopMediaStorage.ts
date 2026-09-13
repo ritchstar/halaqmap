@@ -29,20 +29,21 @@ export async function persistShopImageIfBase64(
   supabase: SupabaseClient,
   scopeKey: string,
   field: string,
-  value: string,
+  value: string | undefined | null,
 ): Promise<string> {
-  if (!value || !value.startsWith('data:image/')) return value;
-  const match = DATA_IMAGE_RE.exec(value.replace(/\s+/g, ''));
-  if (!match) return value;
+  const v = String(value ?? '');
+  if (!v || !v.startsWith('data:image/')) return v;
+  const match = DATA_IMAGE_RE.exec(v.replace(/\s+/g, ''));
+  if (!match) return v;
   const ext = match[1] === 'png' ? 'png' : 'jpg';
   const contentType = match[1] === 'png' ? 'image/png' : 'image/jpeg';
   let bytes: Buffer;
   try {
     bytes = Buffer.from(match[2], 'base64');
   } catch {
-    return value;
+    return v;
   }
-  if (bytes.byteLength === 0) return value;
+  if (bytes.byteLength === 0) return v;
   const safeScope = scopeKey.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 80) || 'shop';
   const path = `${safeScope}/${field}-${Date.now()}-${randomSuffix()}.${ext}`;
   try {
@@ -51,10 +52,10 @@ export async function persistShopImageIfBase64(
       upsert: false,
       cacheControl: '31536000',
     });
-    if (error) return value;
+    if (error) return v;
     const { data } = supabase.storage.from(STORE_SHOP_MEDIA_BUCKET).getPublicUrl(path);
-    return data?.publicUrl || value;
+    return data?.publicUrl || v;
   } catch {
-    return value;
+    return v;
   }
 }
