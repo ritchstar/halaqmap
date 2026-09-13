@@ -13,6 +13,9 @@ export function parseShopLogoSrc(raw: unknown, fallback = ''): string {
   if (raw == null) return fallback;
   const value = String(raw).replace(/\s+/g, '');
   if (!value) return '';
+  // رابط ملف حقيقي (بعد نقل الشعار إلى التخزين) — أخف بكثير من base64 ولا
+  // داعي لإعادة إرساله كاملاً مع كل استطلاع.
+  if (value.startsWith('https://')) return value.length <= 500 ? value : fallback;
   if (value.length > STORE_SHOP_LOGO_MAX_CHARS) return fallback;
   const prefix = value.startsWith(JPEG) ? JPEG : value.startsWith(PNG) ? PNG : '';
   if (!prefix) return fallback;

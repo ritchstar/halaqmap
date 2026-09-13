@@ -43,6 +43,7 @@ import { parseStoreShopHours } from './_lib/storeShopHours.js';
 import { parseShopBackgroundSave } from './_lib/storeShopBackground.js';
 import { parseShopLogoSrc } from './_lib/storeShopLogo.js';
 import { logoSrcIfChanged } from './_lib/storeLogoPollCache.js';
+import { persistShopImageIfBase64 } from './_lib/storeShopMediaStorage.js';
 import { lockPaidVendorMode, parseVendorMode } from './_lib/storeMobileVendor.js';
 import { parseShopPickupPlace } from './_lib/storeShopPlace.js';
 import { sendDatesLiveLinksEmail } from './_lib/storeDatesLiveMail.js';
@@ -641,6 +642,14 @@ async function saveHost(db: Db, body: Record<string, unknown>, headers: Record<s
       shopPageBg: String(current.shopPageBg || ''),
     }),
   };
+  const [nextLogoSrc, nextShopHeaderBg, nextShopPageBg] = await Promise.all([
+    persistShopImageIfBase64(db, String(row.id), 'logo', next.logoSrc),
+    persistShopImageIfBase64(db, String(row.id), 'header-bg', next.shopHeaderBg),
+    persistShopImageIfBase64(db, String(row.id), 'page-bg', next.shopPageBg),
+  ]);
+  next.logoSrc = nextLogoSrc;
+  next.shopHeaderBg = nextShopHeaderBg;
+  next.shopPageBg = nextShopPageBg;
   await db
     .from(STORE_DATES_LIVE_TABLE)
     .update({ payload: next, last_public_change_at: new Date().toISOString(), updated_at: new Date().toISOString() })
