@@ -467,14 +467,13 @@ export function GrocersChatlyStorefront({
         </section>
 
         <div className="mt-6">
-          <StoreGrocersBuyerChat state={state} onChange={onChange} isLab={isLab} />
+          <StoreGrocersBuyerChat state={state} onChange={onChange} isLab={isLab} theme="light" />
         </div>
 
         <footer className="flex flex-col gap-3 border-t border-[#dfe4d6] py-7 text-sm text-[#758374] sm:flex-row sm:items-center sm:justify-between">
           <p>تمويناتا1 — مقاضيك للبيت.</p>
           <div className="flex flex-wrap gap-5 font-bold">
             <span>الدفع عند الاستلام أو التحويل المباشر</span>
-            <span>لا تحصيل سلة عبر ميسر</span>
           </div>
         </footer>
       </div>

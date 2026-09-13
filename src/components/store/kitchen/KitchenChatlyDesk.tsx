@@ -513,6 +513,7 @@ export function KitchenChatlyDesk({
                       accent={STORE_KITCHEN_LIVE_ACCENT}
                       qrStamp={state.host.qrActive ? state.host.qrStamp : ''}
                       showTitle={false}
+                      variant="desk"
                       afterPrint={
                         <div className="grid gap-2 sm:grid-cols-2">
                           <Button

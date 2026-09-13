@@ -385,7 +385,7 @@ export function RestaurantChatlyDesk({
                   onFinish={finishOrder}
                   shopName={state.host.shopName}
                   mapsUrl={state.host.vendorMode === 'mobile' ? state.host.pickupMapsUrl : ''}
-                  chatSlot={<StoreRestaurantDeskChat state={state} onChange={onChange} />}
+                  chatSlot={<StoreRestaurantDeskChat state={state} onChange={onChange} theme="light" />}
                   archiveSlot={
                     <StoreDeskArchiveDock
                       tickets={state.orderArchive}
@@ -473,6 +473,7 @@ export function RestaurantChatlyDesk({
                       qrPrintAr={STORE_RESTAURANT_LIVE.qrPrintAr}
                       accent={STORE_RESTAURANT_LIVE_ACCENT}
                       showTitle={false}
+                      variant="desk"
                     />
                   }
                 />

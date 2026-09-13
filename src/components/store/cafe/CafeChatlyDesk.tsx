@@ -446,6 +446,7 @@ export function CafeChatlyDesk({
                       qrPrintAr={STORE_CAFE_LIVE.qrPrintAr}
                       accent={STORE_CAFE_LIVE_ACCENT}
                       showTitle={false}
+                      variant="desk"
                     />
                   }
                 />

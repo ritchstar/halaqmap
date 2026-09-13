@@ -457,14 +457,13 @@ export function RestaurantChatlyStorefront({
         </section>
 
         <div className="mt-6">
-          <StoreRestaurantBuyerChat state={state} onChange={onChange} isLab={isLab} />
+          <StoreRestaurantBuyerChat state={state} onChange={onChange} isLab={isLab} theme="light" />
         </div>
 
         <footer className="flex flex-col gap-3 border-t border-[#dfe4d6] py-7 text-sm text-[#758374] sm:flex-row sm:items-center sm:justify-between">
           <p>مطعمنا1 — من مطبخ الحي إلى بابك.</p>
           <div className="flex flex-wrap gap-5 font-bold">
             <span>الدفع عند الاستلام أو التحويل المباشر</span>
-            <span>لا تحصيل سلة عبر ميسر</span>
           </div>
         </footer>
       </div>

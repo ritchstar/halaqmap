@@ -443,6 +443,7 @@ export function DatesChatlyDesk({
                       qrPrintAr={STORE_DATES_LIVE.qrPrintAr}
                       accent={STORE_DATES_LIVE_ACCENT}
                       showTitle={false}
+                      variant="desk"
                     />
                   }
                 />

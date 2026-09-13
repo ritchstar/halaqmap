@@ -367,7 +367,7 @@ export function ProduceChatlyDesk({
                   onFinish={finishOrder}
                   shopName={state.host.shopName}
                   mapsUrl={state.host.vendorMode === 'mobile' ? state.host.pickupMapsUrl : ''}
-                  chatSlot={<StoreProduceDeskChat state={state} onChange={onChange} />}
+                  chatSlot={<StoreProduceDeskChat state={state} onChange={onChange} theme="light" />}
                   archiveSlot={
                     <StoreDeskArchiveDock
                       tickets={state.orderArchive}
@@ -454,6 +454,7 @@ export function ProduceChatlyDesk({
                       qrPrintAr={STORE_PRODUCE_LIVE.qrPrintAr}
                       accent={STORE_PRODUCE_LIVE_ACCENT}
                       showTitle={false}
+                      variant="desk"
                     />
                   }
                 />

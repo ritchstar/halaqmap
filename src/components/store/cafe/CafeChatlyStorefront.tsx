@@ -446,7 +446,6 @@ export function CafeChatlyStorefront({
           <p>مطعمنا1 — من مطبخ الحي إلى بابك.</p>
           <div className="flex flex-wrap gap-5 font-bold">
             <span>الدفع عند الاستلام أو التحويل المباشر</span>
-            <span>لا تحصيل سلة عبر ميسر</span>
           </div>
         </footer>
       </div>

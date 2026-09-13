@@ -364,7 +364,7 @@ export function GrocersChatlyDesk({
                   onFinish={finishOrder}
                   shopName={state.host.shopName}
                   mapsUrl={state.host.vendorMode === 'mobile' ? state.host.pickupMapsUrl : ''}
-                  chatSlot={<StoreGrocersDeskChat state={state} onChange={onChange} />}
+                  chatSlot={<StoreGrocersDeskChat state={state} onChange={onChange} theme="light" />}
                   archiveSlot={
                     <StoreDeskArchiveDock
                       tickets={state.orderArchive}
@@ -450,6 +450,7 @@ export function GrocersChatlyDesk({
                       qrPrintAr={STORE_GROCERS_LIVE.qrPrintAr}
                       accent={STORE_GROCERS_LIVE_ACCENT}
                       showTitle={false}
+                      variant="desk"
                     />
                   }
                 />

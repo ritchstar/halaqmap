@@ -498,7 +498,6 @@ export function DatesChatlyStorefront({
           <p>تمرتنا1 — من المحل إلى جوال الحي.</p>
           <div className="flex flex-wrap gap-5 font-bold">
             <span>الدفع عند الاستلام أو التحويل المباشر</span>
-            <span>لا تحصيل سلة عبر ميسر</span>
           </div>
         </footer>
       </div>

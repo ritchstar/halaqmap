@@ -89,17 +89,27 @@ export function StoreLiveShopShareDesk({
     variant === 'desk' ? 'text-sm leading-7 text-[#4a3a32]/70' : variant === 'halana' ? 'text-sm leading-7 text-white/70' : 'text-sm leading-7 text-white/55';
   const captionClass =
     variant === 'desk'
-      ? 'halana-desk-input whitespace-pre-wrap text-sm leading-7'
+      ? 'halana-desk-input whitespace-pre-wrap break-all text-sm leading-7'
       : variant === 'halana'
-        ? 'halana-promo-card whitespace-pre-wrap text-sm leading-7 text-white/80'
-        : 'rounded-xl border border-white/10 bg-black/20 p-3 text-sm leading-7 text-white/75';
+        ? 'halana-promo-card whitespace-pre-wrap break-all text-sm leading-7 text-white/80'
+        : 'rounded-xl border border-white/10 bg-black/20 p-3 text-sm leading-7 text-white/75 whitespace-pre-wrap break-all';
 
   function printQr() {
     const node = document.getElementById(printId);
     if (!node) return;
     const win = window.open('', '_blank', 'noopener,noreferrer');
     if (!win) return;
-    win.document.write(`<html lang="ar" dir="rtl"><head><title>ملصق QR</title></head><body>${node.innerHTML}</body></html>`);
+    // نافذة الطباعة لا تحمّل ستايلات الموقع (Tailwind)، فبدون CSS مستقل هنا
+    // يظهر رمز QR بلا حجم أو خلفية ثابتة — ستايل مكتفٍ بذاته يضمن ظهوره كاملاً وبنفس الشكل.
+    win.document.write(`<html lang="ar" dir="rtl"><head><title>ملصق QR</title><style>
+      * { box-sizing: border-box; }
+      body { margin: 0; padding: 24px; min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #fff; font-family: Tahoma, Arial, sans-serif; }
+      .qr-print-card { width: 256px; max-width: 100%; border-radius: 16px; background: #fff; padding: 16px; text-align: center; color: #14080c; }
+      .qr-print-card p:first-child { font-size: 14px; font-weight: 900; margin: 0 0 12px; }
+      .qr-print-card > div { width: 160px; margin: 12px auto; }
+      .qr-print-card svg { display: block; width: 100% !important; height: auto !important; }
+      .qr-print-card p:last-child { font-size: 12px; line-height: 1.6; margin: 12px 0 0; }
+    </style></head><body><div class="qr-print-card">${node.innerHTML}</div></body></html>`);
     win.document.close();
     win.focus();
     win.print();
