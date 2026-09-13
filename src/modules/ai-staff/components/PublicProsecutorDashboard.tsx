@@ -13,6 +13,8 @@ import {
   repairPublicProsecutorCompliance,
   syncPublicProsecutorRadar,
 } from '@/lib/publicProsecutorDashboardRemote';
+import { AdminPanelFetchErrorNote } from '@/components/admin/AdminPanelFetchErrorNote';
+import { reportAdminPanelFetchFailure } from '@/lib/adminFetchFeedback';
 import { PublicProsecutorWorkingPapers } from '@/modules/ai-staff/components/PublicProsecutorWorkingPapers';
 import type { PublicProsecutorDashboardSnapshot } from '@/modules/ai-staff/types';
 import { toast } from '@/components/ui/sonner';
@@ -20,34 +22,38 @@ import { toast } from '@/components/ui/sonner';
 type Props = {
   compact?: boolean;
   onOpenLab?: () => void;
+  bootDelayMs?: number;
 };
 
-export function PublicProsecutorDashboard({ compact = false, onOpenLab }: Props) {
+export function PublicProsecutorDashboard({ compact = false, onOpenLab, bootDelayMs = 0 }: Props) {
   const [snapshot, setSnapshot] = useState<PublicProsecutorDashboardSnapshot | null>(null);
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
-  const refresh = useCallback(async () => {
+  const refresh = useCallback(async (userInitiated = false) => {
     setLoading(true);
     const result = await fetchPublicProsecutorDashboard();
     setLoading(false);
     if (!result.ok) {
-      toast.error(result.error);
+      setFetchError(reportAdminPanelFetchFailure(result.error, { background: !userInitiated }));
       return;
     }
+    setFetchError(null);
     setSnapshot(result.snapshot);
   }, []);
 
   useEffect(() => {
-    void refresh();
-  }, [refresh]);
+    const boot = window.setTimeout(() => void refresh(false), bootDelayMs);
+    return () => window.clearTimeout(boot);
+  }, [refresh, bootDelayMs]);
 
   const handleRadarSync = async () => {
     setSyncing(true);
     const result = await syncPublicProsecutorRadar();
     setSyncing(false);
     if (!result.ok) {
-      toast.error(result.error);
+      reportAdminPanelFetchFailure(result.error, { userInitiated: true });
       return;
     }
     if (result.drafted) {
@@ -67,7 +73,7 @@ export function PublicProsecutorDashboard({ compact = false, onOpenLab }: Props)
     const result = await auditPublicProsecutorCompliance();
     setSyncing(false);
     if (!result.ok) {
-      toast.error(result.error);
+      reportAdminPanelFetchFailure(result.error, { userInitiated: true });
       return;
     }
     toast.message(
@@ -85,7 +91,7 @@ export function PublicProsecutorDashboard({ compact = false, onOpenLab }: Props)
     const result = await repairPublicProsecutorCompliance();
     setSyncing(false);
     if (!result.ok) {
-      toast.error(result.error);
+      reportAdminPanelFetchFailure(result.error, { userInitiated: true });
       return;
     }
     if (result.repaired > 0) {
@@ -171,6 +177,8 @@ export function PublicProsecutorDashboard({ compact = false, onOpenLab }: Props)
           </p>
         </div>
       </div>
+
+      <AdminPanelFetchErrorNote message={fetchError} />
 
       {loading ? (
         <div className="flex items-center justify-center gap-2 py-8 text-slate-400">

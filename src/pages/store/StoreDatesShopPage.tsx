@@ -7,6 +7,8 @@ import { useEffect, useState } from 'react';
 import { Navigate, useLocation, useParams } from 'react-router-dom';
 import { StoreDatesDesk } from '@/components/store/StoreDatesDesk';
 import { StoreDatesShop } from '@/components/store/StoreDatesShop';
+import { DatesChatlyDesk } from '@/components/store/dates/DatesChatlyDesk';
+import { DatesChatlyStorefront } from '@/components/store/dates/DatesChatlyStorefront';
 import { StoreLiveActivityCartShop } from '@/components/store/live/StoreLiveActivityCartShop';
 import { StoreShopHoursBanner } from '@/components/store/StoreShopHoursBanner';
 import { StoreDirectPayPublicMount } from '@/components/store/StoreDirectPayGuest';
@@ -18,6 +20,7 @@ import {
   STORE_DATES_LIVE_PRODUCT,
   STORE_DATES_LIVE_PUBLIC_ENABLED,
 } from '@/config/storeDatesLive';
+import { isDatesChatlyUi } from '@/lib/storeDatesChatlyUi';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { useStoreShopPresence } from '@/hooks/useStoreShopPresence';
 import {
@@ -38,6 +41,7 @@ import { parseShopBackgroundFields } from '@/lib/storeShopBackground';
 import { parseShopPickupPlace } from '@/lib/storeShopPlace';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { storeLiveShopShareHref } from '@/lib/storeHostRedirect';
+import { cn } from '@/lib/utils';
 
 type Gate = 'loading' | 'ok' | 'expired' | 'missing';
 
@@ -166,26 +170,54 @@ export default function StoreDatesShopPage() {
     }
   };
 
+  const chatlyUi = isDatesChatlyUi(safeToken);
+  const chatlyStorefront = chatlyUi && !desk;
+  const chatlyDesk = chatlyUi && desk;
+
   return (
     <StorePurchasedShell
       product="dates"
       surface={desk ? 'workspace' : 'storefront'}
-      life
+      life={!chatlyStorefront}
       showStoreLink={!desk}
-      pageBg={state.host.shopPageBg}
+      showDevNotice={!chatlyStorefront && !chatlyDesk}
+      showLiveMark={!chatlyStorefront && !chatlyDesk}
+      pageBg={chatlyStorefront || chatlyDesk ? undefined : state.host.shopPageBg}
     >
-      <div className={desk ? 'mx-auto max-w-3xl px-3 py-5' : undefined}>
-        {gate === 'loading' ? <p className="pt-[30svh] text-center text-sm text-white/60">جاري فتح المتجر…</p> : null}
-        {gate === 'missing' ? <p className="pt-[30svh] text-center text-sm text-white/70">الرابط غير صالح.</p> : null}
+      <div className={chatlyDesk ? '-mx-3 sm:-mx-4' : desk ? 'mx-auto max-w-3xl px-3 py-5' : undefined}>
+        {gate === 'loading' ? (
+          <p className={cn('pt-[30svh] text-center text-sm', chatlyStorefront || chatlyDesk ? 'text-[#6f6250]' : 'text-white/60')}>
+            جاري فتح المتجر…
+          </p>
+        ) : null}
+        {gate === 'missing' ? (
+          <p className={cn('pt-[30svh] text-center text-sm', chatlyStorefront || chatlyDesk ? 'text-[#6f6250]' : 'text-white/70')}>
+            الرابط غير صالح.
+          </p>
+        ) : null}
         {gate === 'ok' ? (
           desk ? (
-            <StoreDatesDesk
-              state={state}
-              onChange={commit}
-              shopUrl={shopUrl}
-              token={safeToken}
-              showTrialNote={isTrial}
-            />
+            chatlyUi ? (
+              <DatesChatlyDesk
+                state={state}
+                onChange={commit}
+                shopUrl={shopUrl}
+                token={safeToken}
+                showTrialNote={isTrial}
+              />
+            ) : (
+              <StoreDatesDesk
+                state={state}
+                onChange={commit}
+                shopUrl={shopUrl}
+                token={safeToken}
+                showTrialNote={isTrial}
+              />
+            )
+          ) : chatlyUi ? (
+            <div className="-mx-3 sm:-mx-4">
+              <DatesChatlyStorefront state={state} onChange={commit} token={safeToken} />
+            </div>
           ) : (
             <StoreLiveActivityCartShop
               kind="dates"

@@ -812,12 +812,12 @@ export default function Payment() {
             retryDelayMs: 1500,
           });
           if (cancelled) return;
-          if (certResult.ok) {
-            setActivationCertificate(certResult.certificate);
-          } else {
-            setActivationCertificateError(
+        if (certResult.ok) {
+          setActivationCertificate(certResult.certificate);
+        } else {
+          setActivationCertificateError(
               'تعذّر إصدار شهادة التفعيل تلقائياً. أعد المحاولة أو راجع بريدك بعد دقائق.',
-            );
+          );
           }
         }
       } else {
@@ -1171,14 +1171,14 @@ export default function Payment() {
               isWalletTopup
                 ? 'border-primary/40 bg-primary/10 text-primary'
                 : purchasePurpose === 'recharge'
-                  ? 'border-emerald-400/40 bg-emerald-500/10 text-emerald-300'
-                  : 'border-amber-400/40 bg-amber-500/10 text-amber-300'
+                ? 'border-emerald-400/40 bg-emerald-500/10 text-emerald-300'
+                : 'border-amber-400/40 bg-amber-500/10 text-amber-300'
             }`}>
               {isWalletTopup
                 ? '🌙 شحن رصيد المناوب الرقمي'
                 : purchasePurpose === 'recharge'
-                  ? '🔄 شحن حزمة جديدة لحسابك المسجَّل'
-                  : '🆕 شراؤك الأول — تأكيد البيانات والدفع'
+                ? '🔄 شحن حزمة جديدة لحسابك المسجَّل'
+                : '🆕 شراؤك الأول — تأكيد البيانات والدفع'
               }
             </div>
 
@@ -1431,19 +1431,19 @@ export default function Payment() {
                 <CardContent className="space-y-5">
                   {isWalletTopup ? (
                     <div className="space-y-4 rounded-xl border-2 border-primary/40 bg-gradient-to-b from-primary/12 to-background p-4 sm:p-6">
-                      <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-4">
                         <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-cyan-600 text-2xl text-white">
                           🌙
-                        </div>
-                        <div>
+                      </div>
+                      <div>
                           <h3 className="text-xl font-black sm:text-2xl">
                             {walletPkg?.labelAr ?? 'باقة شحن المحفظة'}
                           </h3>
                           <p className="text-base text-foreground/90 sm:text-lg">
                             شحن رصيد ردود المناوب الآلي (كل رد ≈ 1.50 ر.س)
                           </p>
-                        </div>
                       </div>
+                    </div>
                       <dl className="space-y-2 text-base sm:text-lg">
                         {walletVatHalalas > 0 ? (
                           <>
@@ -1477,8 +1477,8 @@ export default function Payment() {
                         </p>
                       </div>
                     </div>
-                  ) : (
-                    <>
+                      ) : (
+                        <>
                       <div className="flex items-center gap-3">
                         <div
                           className={`flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br ${tierColor} text-lg font-bold text-white`}
@@ -1543,8 +1543,8 @@ export default function Payment() {
                       <p className="rounded-lg border border-amber-600/25 bg-amber-500/10 px-3 py-3 text-sm font-medium leading-relaxed text-foreground sm:text-base">
                         {PAYMENT_PRE_CHECKOUT_ADMIN_GRANT_HINT_AR}
                       </p>
-                    </>
-                  )}
+                        </>
+                      )}
                 </CardContent>
               </Card>
               ) : null}
@@ -1598,7 +1598,7 @@ export default function Payment() {
                         dir="ltr"
                         autoComplete="email"
                       />
-                    </div>
+                  </div>
                     <Button
                       type="button"
                       variant="secondary"
@@ -1618,8 +1618,8 @@ export default function Payment() {
                         'تفعيل التجربة المجانية'
                       )}
                     </Button>
-                  </CardContent>
-                </Card>
+                </CardContent>
+              </Card>
               ) : null}
 
               {/* Payment Methods — تُخفى بعد نجاح الدفع لتفادي الارتباك */}
@@ -1639,11 +1639,11 @@ export default function Payment() {
                     }}
                   >
                     {enableMoyasarCard ? (
-                      <label
+                    <label
                         className={`flex items-center gap-3 p-4 border-2 rounded-lg cursor-pointer transition-all sm:gap-4 ${
-                          paymentMethod === 'moyasar'
-                            ? 'border-primary bg-primary/5'
-                            : 'border-border hover:border-primary/50'
+                        paymentMethod === 'moyasar'
+                          ? 'border-primary bg-primary/5'
+                          : 'border-border hover:border-primary/50'
                         }`}
                       >
                         <RadioGroupItem value="moyasar" id="moyasar" />
@@ -1682,21 +1682,21 @@ export default function Payment() {
                         }`}
                       >
                         <RadioGroupItem value="sab" id="sab" />
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <CreditCard className="w-5 h-5 text-primary" />
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <CreditCard className="w-5 h-5 text-primary" />
                             <h3 className="font-semibold">بنك الأول — دفع بالبطاقة (SAB)</h3>
                             {preferredGatewayCode === 'SAB' && availablePaymentChannels.length > 1 ? (
                               <Badge variant="secondary" className="text-xs">افتراضي</Badge>
-                            ) : (
-                              <Badge variant="outline" className="text-xs">SAB</Badge>
-                            )}
-                          </div>
-                          <p className="text-sm text-muted-foreground">
+                          ) : (
+                            <Badge variant="outline" className="text-xs">SAB</Badge>
+                          )}
+                        </div>
+                        <p className="text-sm text-muted-foreground">
                             مسار البطاقة عبر بنك الأول — يُكمل بعد ربط البوابة والتحقق من الـ webhook.
                           </p>
-                        </div>
-                      </label>
+                      </div>
+                    </label>
                     ) : null}
                   </RadioGroup>
 
@@ -1811,8 +1811,8 @@ export default function Payment() {
                               <Alert variant="destructive">
                                 <AlertCircle className="h-4 w-4" />
                                 <AlertDescription>{sabFormError}</AlertDescription>
-                              </Alert>
-                            )}
+                    </Alert>
+                  )}
                             <div
                               ref={sabHostRef}
                               className="min-h-[280px] w-full max-w-full overflow-x-auto rounded-md border border-border bg-background p-2"
@@ -1822,15 +1822,15 @@ export default function Payment() {
                               يتطلب الإنتاج <strong>HTTPS</strong> وتسجيل النطاق لدى البنك. webhook الخادم:{' '}
                               <span dir="ltr">/api/sab-webhook</span>
                             </p>
-                          </CardContent>
-                        </Card>
+                </CardContent>
+              </Card>
                       )}
                     </div>
                   )}
                 </CardContent>
               </Card>
               ) : null}
-          </div>
+            </div>
 
           {/* مربّعات ثانوية مختصرة — أسفل المنتج وصندوق الدفع مباشرةً */}
           <div className="mx-auto mt-10 max-w-5xl space-y-6">

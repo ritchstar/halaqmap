@@ -21,11 +21,14 @@ import {
   type EngineeringHandshakeSnapshot,
   type HandshakeServicePing,
 } from '@/lib/engineeringHandshakeRemote';
+import { AdminPanelFetchErrorNote } from '@/components/admin/AdminPanelFetchErrorNote';
+import { reportAdminPanelFetchFailure } from '@/lib/adminFetchFeedback';
 import { toast } from '@/components/ui/sonner';
 import { forceHardRefresh } from '@/lib/platformBuildSync';
 
 type Props = {
   onOpsControllerEnabledChange?: (enabled: boolean) => void;
+  bootDelayMs?: number;
 };
 
 function statusBadge(systemStatus: EngineeringHandshakeSnapshot['systemStatus']) {
@@ -67,33 +70,36 @@ function ServiceRow({ service }: { service: HandshakeServicePing }) {
   );
 }
 
-export function FounderSystemStatusPanel({ onOpsControllerEnabledChange }: Props) {
+export function FounderSystemStatusPanel({ onOpsControllerEnabledChange, bootDelayMs = 0 }: Props) {
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [snapshot, setSnapshot] = useState<EngineeringHandshakeSnapshot | null>(null);
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
-  const refresh = useCallback(async () => {
+  const refresh = useCallback(async (userInitiated = false) => {
     setLoading(true);
     const result = await fetchEngineeringHandshakeStatus();
     setLoading(false);
     if (!result.ok) {
-      toast.error(result.error);
+      setFetchError(reportAdminPanelFetchFailure(result.error, { background: !userInitiated }));
       return;
     }
+    setFetchError(null);
     setSnapshot(result.snapshot);
     onOpsControllerEnabledChange?.(result.snapshot.opsControllerEnabled);
   }, [onOpsControllerEnabledChange]);
 
   useEffect(() => {
-    void refresh();
-  }, [refresh]);
+    const boot = window.setTimeout(() => void refresh(false), bootDelayMs);
+    return () => window.clearTimeout(boot);
+  }, [refresh, bootDelayMs]);
 
   const runHandshake = async () => {
     setBusy(true);
     const result = await runEngineeringHandshakeRemote();
     setBusy(false);
     if (!result.ok) {
-      toast.error(result.error);
+      reportAdminPanelFetchFailure(result.error, { userInitiated: true });
       return;
     }
     setSnapshot(result.snapshot);
@@ -124,6 +130,8 @@ export function FounderSystemStatusPanel({ onOpsControllerEnabledChange }: Props
           </p>
         </div>
       </div>
+
+      <AdminPanelFetchErrorNote message={fetchError} />
 
       {loading ? (
         <div className="flex items-center justify-center gap-2 py-8 text-slate-400">
@@ -156,7 +164,7 @@ export function FounderSystemStatusPanel({ onOpsControllerEnabledChange }: Props
                 variant="outline"
                 className="border-slate-600"
                 disabled={busy}
-                onClick={() => void refresh()}
+                onClick={() => void refresh(true)}
               >
                 <RefreshCw className="ml-2 h-4 w-4" />
                 تحديث

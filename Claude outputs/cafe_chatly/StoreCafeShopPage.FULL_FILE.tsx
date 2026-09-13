@@ -1,0 +1,355 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ *
+ * صفحة جار الحي ولوحة الكاشير وشاشات المقهى.
+ */
+import { useEffect, useState } from 'react';
+import { Navigate, useLocation, useParams } from 'react-router-dom';
+import { StoreCafeDesk } from '@/components/store/StoreCafeDesk';
+import { StoreCafeGuestForm } from '@/components/store/StoreCafeGuestForm';
+import { StoreCafeHallStage, type CafeScreenMode } from '@/components/store/StoreCafeHallStage';
+import { StoreCafeHostPanel } from '@/components/store/StoreCafeHostPanel';
+import { StoreCafeShop } from '@/components/store/StoreCafeShop';
+import { CafeChatlyDesk } from '@/components/store/cafe/CafeChatlyDesk';
+import { CafeChatlyStorefront } from '@/components/store/cafe/CafeChatlyStorefront';
+import { StoreLiveActivityCartShop } from '@/components/store/live/StoreLiveActivityCartShop';
+import { StoreShopHoursBanner } from '@/components/store/StoreShopHoursBanner';
+import { StoreDirectPayPublicMount } from '@/components/store/StoreDirectPayGuest';
+import { StorePurchasedShell } from '@/components/store/StorePurchasedShell';
+import {
+  STORE_CAFE_LIVE,
+  STORE_CAFE_LIVE_ACCENT,
+  STORE_CAFE_LIVE_LAB_TOKEN,
+  STORE_CAFE_LIVE_PRODUCT,
+  STORE_CAFE_LIVE_PUBLIC_ENABLED,
+} from '@/config/storeCafeLive';
+import { useDocumentTitle } from '@/hooks/useDocumentTitle';
+import { useStoreShopPresence } from '@/hooks/useStoreShopPresence';
+import {
+  cafeLabRaw,
+  defaultCafeLabState,
+  readCafeLabState,
+  writeCafeLabState,
+  type CafeLabState,
+} from '@/lib/storeCafeLiveLab';
+import { hydrateDeskTickets } from '@/lib/storeDeskOrderTicket';
+import { POLL_MS, scheduleVisiblePoll } from '@/lib/pollingPolicy';
+import { liveHostText, useStoreLiveDeskSync } from '@/lib/storeLiveDeskSync';
+import { nextStoreLivePublicGate, pickStoreLiveShelf } from '@/lib/storeLivePublicRead';
+import {
+  addCafeLiveBlessing,
+  addCafeLiveChat,
+  addCafeLiveOrder,
+  fetchCafeLivePublic,
+  saveCafeLiveHost,
+  type CafeLiveRole,
+} from '@/lib/storeCafeLiveRemote';
+import { isShopClosedNow, parseStoreShopHours } from '@/lib/storeShopHours';
+import { liveActivityCoverSrc, liveActivityTodayName, toLiveActivityShelf } from '@/lib/storeLiveActivityShelf';
+import { parseShopLogoSrc } from '@/lib/storeShopLogo';
+import { parseShopBackgroundFields } from '@/lib/storeShopBackground';
+import { parseShopPickupPlace } from '@/lib/storeShopPlace';
+import { ROUTE_PATHS } from '@/lib/routePaths';
+import { storeLiveShopShareHref } from '@/lib/storeHostRedirect';
+import { isCafeChatlyUi } from '@/lib/storeCafeChatlyUi';
+import { cn } from '@/lib/utils';
+
+type Gate = 'loading' | 'ok' | 'expired' | 'missing';
+type CafePageMode = 'shop' | 'desk' | 'host' | 'guest' | CafeScreenMode;
+
+function payloadToState(payload: Record<string, unknown>, fallback: CafeLabState): CafeLabState {
+  const host = {
+    ...fallback.host,
+    shopName: liveHostText(payload.shopName, fallback.host.shopName),
+    logoSrc: parseShopLogoSrc(payload.logoSrc, fallback.host.logoSrc),
+    hostName: liveHostText(payload.hostName, fallback.host.hostName),
+    blurbAr: liveHostText(payload.blurbAr, fallback.host.blurbAr),
+    customFields: Array.isArray(payload.customFields)
+      ? (payload.customFields as string[]).slice(0, 5)
+      : fallback.host.customFields,
+    flashAr: liveHostText(payload.flashAr, fallback.host.flashAr),
+    acceptingOrders: payload.acceptingOrders !== false,
+    packId: payload.packId === 'm12' ? 'm12' : 'm6',
+    nextTicket: Number(payload.nextTicket) > 0 ? Number(payload.nextTicket) : fallback.host.nextTicket,
+    welcomeAr: liveHostText(payload.welcomeAr, fallback.host.welcomeAr),
+    youtubeUrl: liveHostText(payload.youtubeUrl, fallback.host.youtubeUrl),
+    youtubeHidden: payload.youtubeHidden !== false,
+    announcement: liveHostText(payload.announcement, fallback.host.announcement),
+    photoSrc: String(payload.photoSrc ?? fallback.host.photoSrc),
+    panoramaSrc: String(payload.panoramaSrc ?? fallback.host.panoramaSrc),
+    guestPaused: payload.guestPaused === true,
+    reviewBeforeShow: payload.reviewBeforeShow === true,
+    activeEventId:
+      payload.activeEventId === 'evening' || payload.activeEventId === 'offer' || payload.activeEventId === 'custom'
+        ? payload.activeEventId
+        : 'welcome',
+    customEventTitle: liveHostText(payload.customEventTitle, fallback.host.customEventTitle),
+    ...parseStoreShopHours(payload, fallback.host),
+    ...parseShopPickupPlace(payload, fallback.host),
+    ...parseShopBackgroundFields(payload, fallback.host),
+  };
+  return {
+    host,
+    shelf: pickStoreLiveShelf(payload.shelf, fallback.shelf),
+    ...hydrateDeskTickets<CafeLabState['orders'][number]>(payload.orders, payload.orderArchive),
+    chats: Array.isArray(payload.chats) ? (payload.chats as CafeLabState['chats']) : [],
+    blessings: Array.isArray(payload.blessings) ? (payload.blessings as CafeLabState['blessings']) : [],
+  };
+}
+
+function pageMode(pathname: string): CafePageMode {
+  if (pathname.endsWith('/desk')) return 'desk';
+  if (pathname.endsWith('/host')) return 'host';
+  if (pathname.endsWith('/guest')) return 'guest';
+  if (pathname.endsWith('/quiet')) return 'quiet';
+  if (pathname.endsWith('/menu')) return 'menu';
+  return 'shop';
+}
+
+function apiRole(mode: CafePageMode): CafeLiveRole {
+  if (mode === 'desk') return 'desk';
+  if (mode === 'host') return 'host';
+  if (mode === 'guest') return 'guest';
+  if (mode === 'quiet' || mode === 'menu' || mode === 'main') return 'display';
+  return 'shop';
+}
+
+export default function StoreCafeShopPage() {
+  const location = useLocation();
+  const mode = pageMode(location.pathname);
+  const displayMode: CafeScreenMode | null =
+    mode === 'quiet' || mode === 'menu' ? mode : mode === 'shop' ? null : mode === 'main' ? 'main' : null;
+  const { token = '' } = useParams<{ token: string }>();
+  const safeToken = token.trim() || STORE_CAFE_LIVE_LAB_TOKEN;
+  const isLab = safeToken === STORE_CAFE_LIVE_LAB_TOKEN;
+  const [state, setState] = useState<CafeLabState>(() =>
+    isLab ? readCafeLabState(safeToken) : defaultCafeLabState(),
+  );
+  const [gate, setGate] = useState<Gate>(isLab ? 'ok' : 'loading');
+  const [renewToken, setRenewToken] = useState('');
+  const [shopUrl, setShopUrl] = useState(storeLiveShopShareHref('cafe', safeToken));
+  const [guestUrl, setGuestUrl] = useState('');
+  const [displayUrl, setDisplayUrl] = useState('');
+  const [quietUrl, setQuietUrl] = useState('');
+  const [menuUrl, setMenuUrl] = useState('');
+  const [screenLive, setScreenLive] = useState(true);
+  const [asDisplay, setAsDisplay] = useState(false);
+  const [isTrial, setIsTrial] = useState(false);
+  const deskSync = useStoreLiveDeskSync((mode === 'desk' || mode === 'host') && !isLab);
+  const neighborhoodShop = mode === 'shop' && !displayMode && !asDisplay;
+  useDocumentTitle(STORE_CAFE_LIVE.documentTitle);
+  useStoreShopPresence({
+    role: 'shop',
+    productTag: STORE_CAFE_LIVE_PRODUCT,
+    token: safeToken,
+    enabled: gate === 'ok' && neighborhoodShop,
+  });
+
+  useEffect(() => {
+    if (isLab) {
+      let raw = cafeLabRaw(safeToken);
+      setState(readCafeLabState(safeToken));
+      const origin = window.location.origin;
+      setShopUrl(storeLiveShopShareHref('cafe', safeToken));
+      setGuestUrl(`${origin}/#/c/${encodeURIComponent(safeToken)}/guest`);
+      setDisplayUrl(`${origin}/#/c/${encodeURIComponent(safeToken)}`);
+      setQuietUrl(`${origin}/#/c/${encodeURIComponent(safeToken)}/quiet`);
+      setMenuUrl(`${origin}/#/c/${encodeURIComponent(safeToken)}/menu`);
+      setScreenLive(true);
+      setAsDisplay(false);
+      setIsTrial(false);
+      if (mode === 'desk' || mode === 'host') return undefined;
+      const refresh = () => {
+        const next = cafeLabRaw(safeToken);
+        if (next === raw) return;
+        raw = next;
+        setState(readCafeLabState(safeToken));
+      };
+      const stop = scheduleVisiblePoll(refresh, POLL_MS.STORE_LIVE_LAB);
+      window.addEventListener('storage', refresh);
+      return () => {
+        stop();
+        window.removeEventListener('storage', refresh);
+      };
+    }
+    let cancelled = false;
+    const role = apiRole(mode === 'shop' ? 'shop' : mode);
+    const load = () => {
+      void fetchCafeLivePublic(safeToken, role).then((result) => {
+        if (cancelled) return;
+        if (result.expired === true) {
+          setRenewToken(String(result.renewToken || safeToken));
+          setGate('expired');
+          return;
+        }
+        if (!result.ok || !result.payload || typeof result.payload !== 'object') {
+          setGate((current) => nextStoreLivePublicGate(current, result).gate);
+          return;
+        }
+        setState((current) =>
+          deskSync.applyPoll(current, payloadToState(result.payload as Record<string, unknown>, current)),
+        );
+        if (typeof result.shopUrl === 'string' && result.shopUrl) setShopUrl(result.shopUrl);
+        if (typeof result.guestUrl === 'string') setGuestUrl(result.guestUrl);
+        if (typeof result.displayUrl === 'string') setDisplayUrl(result.displayUrl);
+        if (typeof result.quietUrl === 'string') setQuietUrl(result.quietUrl);
+        if (typeof result.menuUrl === 'string') setMenuUrl(result.menuUrl);
+        setAsDisplay(result.role === 'display' && mode === 'shop');
+        setIsTrial(result.isTrial === true);
+        setScreenLive(true);
+        setGate('ok');
+      });
+    };
+    load();
+    const stop = scheduleVisiblePoll(
+      load,
+      mode === 'desk' || mode === 'host' ? POLL_MS.STORE_LIVE_DESK : POLL_MS.STORE_LIVE_SHOP,
+    );
+    return () => {
+      cancelled = true;
+      stop();
+    };
+  }, [safeToken, mode, isLab]);
+
+  if (!STORE_CAFE_LIVE_PUBLIC_ENABLED) {
+    return <Navigate to={ROUTE_PATHS.STORE_LANDING} replace />;
+  }
+  if (gate === 'expired' && renewToken) {
+    return <Navigate to={`${ROUTE_PATHS.STORE_CAFE}?renew=${encodeURIComponent(renewToken)}`} replace />;
+  }
+
+  const commit = (next: CafeLabState) => {
+    if (isLab) writeCafeLabState(safeToken, next);
+    const prev = state;
+    setState(next);
+    if (isLab) return;
+    if (mode === 'desk' || mode === 'host') {
+      deskSync.scheduleSave(next, (saved) =>
+        saveCafeLiveHost({
+          token: safeToken,
+          ...saved.host,
+          shelf: saved.shelf,
+          orders: saved.orders,
+          orderArchive: saved.orderArchive,
+          chats: saved.chats,
+          blessings: saved.blessings,
+        }),
+      );
+      return;
+    }
+    if (mode === 'guest') {
+      const last = next.blessings[next.blessings.length - 1];
+      const prevIds = new Set(prev.blessings.map((item) => item.id));
+      if (last && !prevIds.has(last.id)) {
+        void addCafeLiveBlessing({ token: safeToken, ...last });
+      }
+      return;
+    }
+    const last = next.orders[0];
+    const prevIds = new Set(prev.orders.map((item) => item.id));
+    if (last && !prevIds.has(last.id)) {
+      void addCafeLiveOrder(safeToken, last as unknown as Record<string, unknown>);
+    }
+    const lastChat = next.chats[0];
+    const prevChat = new Set(prev.chats.map((item) => item.id));
+    if (lastChat && lastChat.from === 'buyer' && !prevChat.has(lastChat.id)) {
+      void addCafeLiveChat(safeToken, lastChat as unknown as Record<string, unknown>);
+    }
+  };
+
+  const screen: CafeScreenMode | null =
+    displayMode || (asDisplay && mode === 'shop' ? 'main' : null);
+
+  const chatlyUi = isCafeChatlyUi(safeToken);
+  const chatlyStorefront = chatlyUi && neighborhoodShop;
+  const chatlyDesk = chatlyUi && mode === 'desk';
+
+  return (
+    <StorePurchasedShell
+      product="cafe"
+      surface={mode === 'desk' ? 'workspace' : 'storefront'}
+      life={neighborhoodShop && !chatlyStorefront}
+      showStoreLink={mode === 'shop'}
+      showDevNotice={!chatlyStorefront}
+      showLiveMark={!chatlyStorefront}
+      pageBg={chatlyStorefront || chatlyDesk ? undefined : state.host.shopPageBg}
+    >
+      {gate === 'loading' ? (
+        <p
+          className={cn(
+            'pt-[30svh] text-center text-sm',
+            chatlyStorefront || chatlyDesk ? 'text-[#849284]' : 'text-white/60',
+          )}
+        >
+          جاري فتح الصفحة…
+        </p>
+      ) : null}
+      {gate === 'missing' ? (
+        <p
+          className={cn(
+            'pt-[30svh] text-center text-sm',
+            chatlyStorefront || chatlyDesk ? 'text-[#586a5c]' : 'text-white/70',
+          )}
+        >
+          الرابط غير صالح.
+        </p>
+      ) : null}
+      {gate === 'ok' && screen ? (
+        <StoreCafeHallStage
+          state={state}
+          mode={screen}
+          immersive
+          guestUrl={guestUrl}
+          screenLive={screenLive}
+        />
+      ) : null}
+      {gate === 'ok' && !screen ? (
+        mode === 'shop' ? (
+          chatlyUi ? (
+            <div className="-mx-3 sm:-mx-4">
+              <CafeChatlyStorefront state={state} onChange={commit} token={safeToken} />
+            </div>
+          ) : (
+            <StoreLiveActivityCartShop
+              kind="cafe"
+              token={safeToken}
+              host={state.host}
+              shelf={toLiveActivityShelf(state.shelf)}
+              closed={isShopClosedNow(state.host)}
+              acceptingOrders={state.host.acceptingOrders}
+              todayName={liveActivityTodayName(state.shelf)}
+              coverSrc={liveActivityCoverSrc(state.shelf)}
+              hoursBanner={<StoreShopHoursBanner hours={state.host} accent={STORE_CAFE_LIVE_ACCENT} />}
+              directPay={
+                <StoreDirectPayPublicMount product="store_cafe_live" token={safeToken} accent={STORE_CAFE_LIVE_ACCENT} />
+              }
+            >
+              <StoreCafeShop activityShell state={state} onChange={commit} token={safeToken} />
+            </StoreLiveActivityCartShop>
+          )
+        ) : (
+          <div className={cn(!chatlyDesk && 'mx-auto max-w-3xl px-3 py-5', chatlyDesk && '-mx-3 sm:-mx-4')}>
+            {mode === 'desk' ? (
+              chatlyUi ? (
+                <CafeChatlyDesk state={state} onChange={commit} shopUrl={shopUrl} showTrialNote={isTrial} token={safeToken} />
+              ) : (
+                <StoreCafeDesk state={state} onChange={commit} shopUrl={shopUrl} showTrialNote={isTrial} token={safeToken} />
+              )
+            ) : null}
+            {mode === 'host' ? (
+              <StoreCafeHostPanel
+                state={state}
+                onChange={commit}
+                guestUrl={guestUrl}
+                displayUrl={displayUrl || shopUrl}
+                quietUrl={quietUrl}
+                menuUrl={menuUrl}
+              />
+            ) : null}
+            {mode === 'guest' ? <StoreCafeGuestForm state={state} onChange={commit} rateKey={safeToken} /> : null}
+          </div>
+        )
+      ) : null}
+    </StorePurchasedShell>
+  );
+}

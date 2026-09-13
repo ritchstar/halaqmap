@@ -13,41 +13,55 @@ import {
   rejectEngineeringExecutionRemote,
 } from '@/lib/engineeringCouncilRemote';
 import type { EngineeringExecution } from '@/modules/ai-staff/types';
+import { AdminPanelFetchErrorNote } from '@/components/admin/AdminPanelFetchErrorNote';
+import { reportAdminPanelFetchFailure } from '@/lib/adminFetchFeedback';
 import { POLL_MS, scheduleVisiblePoll } from '@/lib/pollingPolicy';
 import { toast } from '@/components/ui/sonner';
 
-export function EngineeringPendingApprovalsPanel() {
+type Props = {
+  bootDelayMs?: number;
+};
+
+export function EngineeringPendingApprovalsPanel({ bootDelayMs = 0 }: Props) {
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [pending, setPending] = useState<EngineeringExecution[]>([]);
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
-  const refresh = useCallback(async () => {
+  const refresh = useCallback(async (userInitiated = false) => {
     setLoading(true);
     const result = await fetchPendingEngineeringApprovals();
     setLoading(false);
     if (!result.ok) {
-      toast.error(result.error);
+      setFetchError(reportAdminPanelFetchFailure(result.error, { background: !userInitiated }));
       return;
     }
+    setFetchError(null);
     setPending(result.pendingApprovals);
   }, []);
 
   useEffect(() => {
-    void refresh();
-    const stop = scheduleVisiblePoll(() => void refresh(), POLL_MS.ADMIN_HIVE);
-    return () => stop();
-  }, [refresh]);
+    let stopPoll: (() => void) | undefined;
+    const boot = window.setTimeout(() => {
+      void refresh(false);
+      stopPoll = scheduleVisiblePoll(() => void refresh(false), POLL_MS.ADMIN_HIVE);
+    }, bootDelayMs);
+    return () => {
+      window.clearTimeout(boot);
+      stopPoll?.();
+    };
+  }, [refresh, bootDelayMs]);
 
   const handleApprove = async (executionId: string) => {
     setBusyId(executionId);
     const result = await approveEngineeringExecutionRemote(executionId);
     setBusyId(null);
     if (!result.ok) {
-      toast.error(result.error);
+      reportAdminPanelFetchFailure(result.error, { userInitiated: true });
       return;
     }
     toast.success(result.messageAr);
-    void refresh();
+    void refresh(true);
   };
 
   const handleReject = async (executionId: string) => {
@@ -55,11 +69,11 @@ export function EngineeringPendingApprovalsPanel() {
     const result = await rejectEngineeringExecutionRemote(executionId, 'Founder rejected execution');
     setBusyId(null);
     if (!result.ok) {
-      toast.error(result.error);
+      reportAdminPanelFetchFailure(result.error, { userInitiated: true });
       return;
     }
     toast.message('تم رفض التنفيذ.');
-    void refresh();
+    void refresh(true);
   };
 
   return (
@@ -76,6 +90,8 @@ export function EngineeringPendingApprovalsPanel() {
           </p>
         </div>
       </div>
+
+      <AdminPanelFetchErrorNote message={fetchError} />
 
       {loading ? (
         <div className="flex items-center justify-center gap-2 py-8 text-slate-400">

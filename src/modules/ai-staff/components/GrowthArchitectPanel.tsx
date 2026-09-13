@@ -7,7 +7,8 @@ import { FounderGlassCard } from '@/components/admin/founder/FounderGlassCard';
 import { founderTheme } from '@/components/admin/founder/founderTheme';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { toast } from '@/components/ui/sonner';
+import { AdminPanelFetchErrorNote } from '@/components/admin/AdminPanelFetchErrorNote';
+import { reportAdminPanelFetchFailure } from '@/lib/adminFetchFeedback';
 import {
   fetchGrowthArchitectSnapshot,
   type GrowthArchitectSnapshot,
@@ -17,6 +18,7 @@ import {
 type Props = {
   /** Activated once the Engineering Wing handshake is OK. */
   opsControllerEnabled: boolean;
+  bootDelayMs?: number;
 };
 
 function priorityBadge(priority: GrowthRecommendation['priority']) {
@@ -70,18 +72,20 @@ function RecommendationCard({ rec }: { rec: GrowthRecommendation }) {
   );
 }
 
-export function GrowthArchitectPanel({ opsControllerEnabled }: Props) {
+export function GrowthArchitectPanel({ opsControllerEnabled, bootDelayMs = 0 }: Props) {
   const [loading, setLoading] = useState(false);
   const [snapshot, setSnapshot] = useState<GrowthArchitectSnapshot | null>(null);
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
-  const refresh = useCallback(async () => {
+  const refresh = useCallback(async (userInitiated = false) => {
     setLoading(true);
     const result = await fetchGrowthArchitectSnapshot();
     setLoading(false);
     if (!result.ok) {
-      toast.error(result.error);
+      setFetchError(reportAdminPanelFetchFailure(result.error, { background: !userInitiated }));
       return;
     }
+    setFetchError(null);
     setSnapshot(result.snapshot);
   }, []);
 
@@ -89,10 +93,12 @@ export function GrowthArchitectPanel({ opsControllerEnabled }: Props) {
   useEffect(() => {
     if (!opsControllerEnabled) {
       setSnapshot(null);
+      setFetchError(null);
       return;
     }
-    void refresh();
-  }, [opsControllerEnabled, refresh]);
+    const boot = window.setTimeout(() => void refresh(false), bootDelayMs);
+    return () => window.clearTimeout(boot);
+  }, [opsControllerEnabled, refresh, bootDelayMs]);
 
   return (
     <FounderGlassCard className="p-5 md:p-6">
@@ -126,7 +132,10 @@ export function GrowthArchitectPanel({ opsControllerEnabled }: Props) {
         <div className="rounded-lg border border-slate-700/60 bg-slate-950/40 px-3 py-4 text-right text-sm text-slate-400">
           مهندس النمو معطّل — يفعّل تلقائياً عند نجاح Handshake الجناح الهندسي.
         </div>
-      ) : loading ? (
+      ) : (
+        <>
+      <AdminPanelFetchErrorNote message={fetchError} />
+      {loading ? (
         <div className="flex items-center justify-center gap-2 py-8 text-slate-400">
           <Loader2 className="h-5 w-5 animate-spin" />
           <span className="text-sm">جاري تحليل سجل البحث…</span>
@@ -140,7 +149,7 @@ export function GrowthArchitectPanel({ opsControllerEnabled }: Props) {
               variant="outline"
               className="border-slate-600"
               disabled={loading}
-              onClick={() => void refresh()}
+              onClick={() => void refresh(true)}
             >
               <RefreshCw className="ml-2 h-4 w-4" />
               تحديث التوصيات
@@ -167,6 +176,8 @@ export function GrowthArchitectPanel({ opsControllerEnabled }: Props) {
         <div className="rounded-lg border border-slate-700/60 bg-slate-950/40 px-3 py-4 text-right text-sm text-slate-400">
           لم تُحمَّل التوصيات بعد — اضغط تحديث.
         </div>
+      )}
+        </>
       )}
     </FounderGlassCard>
   );

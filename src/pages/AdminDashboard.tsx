@@ -191,7 +191,7 @@ import { FounderSystemStatusPanel } from '@/modules/ai-staff/components/FounderS
 import { GrowthArchitectPanel } from '@/modules/ai-staff/components/GrowthArchitectPanel';
 import { SuperIntelligenceFeedPanel } from '@/modules/ai-staff/components/SuperIntelligenceFeedPanel';
 import { PublicProsecutorDashboard } from '@/modules/ai-staff/components/PublicProsecutorDashboard';
-import { fetchEngineeringHandshakeStatus } from '@/lib/engineeringHandshakeRemote';
+import { adminOverviewBootDelayMs } from '@/lib/adminFetchFeedback';
 import {
   FounderCommandShell,
   FounderCrest,
@@ -672,15 +672,6 @@ export default function AdminDashboard() {
       setActiveTab(allowedTabs[0] ?? 'overview');
     }
   }, [adminData, activeTab, allowedTabs]);
-
-  useEffect(() => {
-    if (!adminData?.bootstrap) return;
-    void fetchEngineeringHandshakeStatus().then((result) => {
-      if (result.ok) {
-        setEngineeringWingOpsEnabled(result.snapshot.opsControllerEnabled);
-      }
-    });
-  }, [adminData?.bootstrap]);
 
   if (!adminData) {
     return (
@@ -1176,6 +1167,7 @@ export default function AdminDashboard() {
               showOperationalFeed={isFounderView}
               onOpsControllerEnabledChange={setEngineeringWingOpsEnabled}
               opsControllerEnabled={engineeringWingOpsEnabled}
+              overviewBootStagger
             />
           </TabsContent>}
 
@@ -1745,12 +1737,14 @@ function OverviewSection({
   showOperationalFeed = false,
   onOpsControllerEnabledChange,
   opsControllerEnabled = false,
+  overviewBootStagger = false,
 }: {
   stats: AdminStats;
   isFounderView: boolean;
   showOperationalFeed?: boolean;
   onOpsControllerEnabledChange?: (enabled: boolean) => void;
   opsControllerEnabled?: boolean;
+  overviewBootStagger?: boolean;
 }) {
   if (!isFounderView) {
     return (
@@ -1847,15 +1841,23 @@ function OverviewSection({
   return (
     <FounderStaggerGrid className="space-y-8">
       <FounderStaggerItem>
-        <SuperIntelligenceFeedPanel />
+        <SuperIntelligenceFeedPanel
+          bootDelayMs={overviewBootStagger ? adminOverviewBootDelayMs(0) : 0}
+        />
       </FounderStaggerItem>
 
       <FounderStaggerItem>
-        <FounderSystemStatusPanel onOpsControllerEnabledChange={onOpsControllerEnabledChange} />
+        <FounderSystemStatusPanel
+          onOpsControllerEnabledChange={onOpsControllerEnabledChange}
+          bootDelayMs={overviewBootStagger ? adminOverviewBootDelayMs(1) : 0}
+        />
       </FounderStaggerItem>
 
       <FounderStaggerItem>
-        <GrowthArchitectPanel opsControllerEnabled={opsControllerEnabled} />
+        <GrowthArchitectPanel
+          opsControllerEnabled={opsControllerEnabled}
+          bootDelayMs={overviewBootStagger ? adminOverviewBootDelayMs(2) : 0}
+        />
       </FounderStaggerItem>
 
       <FounderStaggerItem>
@@ -1975,19 +1977,28 @@ function OverviewSection({
 
       {showOperationalFeed ? (
         <FounderStaggerItem>
-          <FounderOperationalFeedPanel compact titleAr="التغذية التشغيلية — OPS_MANAGER" />
+          <FounderOperationalFeedPanel
+            compact
+            titleAr="التغذية التشغيلية — OPS_MANAGER"
+            bootDelayMs={overviewBootStagger ? adminOverviewBootDelayMs(3) : 0}
+          />
         </FounderStaggerItem>
       ) : null}
 
       {showOperationalFeed ? (
         <FounderStaggerItem>
-          <PublicProsecutorDashboard compact />
+          <PublicProsecutorDashboard
+            compact
+            bootDelayMs={overviewBootStagger ? adminOverviewBootDelayMs(4) : 0}
+          />
         </FounderStaggerItem>
       ) : null}
 
       {showOperationalFeed ? (
         <FounderStaggerItem>
-          <EngineeringPendingApprovalsPanel />
+          <EngineeringPendingApprovalsPanel
+            bootDelayMs={overviewBootStagger ? adminOverviewBootDelayMs(5) : 0}
+          />
         </FounderStaggerItem>
       ) : null}
     </FounderStaggerGrid>

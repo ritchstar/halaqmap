@@ -6,6 +6,7 @@ import { Activity, Loader2, RefreshCw, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { StaffProfessionalCard } from '@/components/admin/staff/StaffProfessionalCard';
 import { staffTheme } from '@/components/admin/staff/staffTheme';
+import { formatAdminFetchError } from '@/lib/adminFetchFeedback';
 import { fetchOpsControllerFeed } from '@/lib/opsControllerRemote';
 import { POLL_MS, scheduleVisiblePoll } from '@/lib/pollingPolicy';
 import {
@@ -110,6 +111,7 @@ type Props = {
   compact?: boolean;
   titleAr?: string;
   subtitleAr?: string;
+  bootDelayMs?: number;
 };
 
 export function FounderOperationalFeedPanel({
@@ -118,6 +120,7 @@ export function FounderOperationalFeedPanel({
   compact = false,
   titleAr = 'التغذية التشغيلية',
   subtitleAr = 'تقارير OPS_MANAGER — مُوسَمة بـ client_id والوقت.',
+  bootDelayMs = 0,
 }: Props) {
   const [reports, setReports] = useState<OpsControllerReport[]>([]);
   const [loading, setLoading] = useState(true);
@@ -126,7 +129,7 @@ export function FounderOperationalFeedPanel({
   const load = useCallback(async () => {
     const result = await fetchOpsControllerFeed(compact ? 12 : 30);
     if (!result.ok) {
-      setError(result.error);
+      setError(formatAdminFetchError(result.error));
       setLoading(false);
       return;
     }
@@ -145,8 +148,9 @@ export function FounderOperationalFeedPanel({
   useEffect(() => {
     if (!isActive) return;
     setLoading(true);
-    void load();
-  }, [isActive, load]);
+    const boot = window.setTimeout(() => void load(), bootDelayMs);
+    return () => window.clearTimeout(boot);
+  }, [isActive, load, bootDelayMs]);
 
   useEffect(() => {
     if (!isActive || pollMs <= 0) return;

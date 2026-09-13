@@ -11,29 +11,42 @@ import {
   SUPER_INTELLIGENCE_PROTOCOL_LABELS_AR,
 } from '@/config/superIntelligenceFeed';
 import { fetchSuperIntelligenceFeed, type SuperIntelligenceFeedSnapshot } from '@/lib/superIntelligenceFeedRemote';
+import { AdminPanelFetchErrorNote } from '@/components/admin/AdminPanelFetchErrorNote';
+import { reportAdminPanelFetchFailure } from '@/lib/adminFetchFeedback';
 import { POLL_MS, scheduleVisiblePoll } from '@/lib/pollingPolicy';
-import { toast } from '@/components/ui/sonner';
 
-export function SuperIntelligenceFeedPanel() {
+type Props = {
+  bootDelayMs?: number;
+};
+
+export function SuperIntelligenceFeedPanel({ bootDelayMs = 0 }: Props) {
   const [loading, setLoading] = useState(true);
   const [snapshot, setSnapshot] = useState<SuperIntelligenceFeedSnapshot | null>(null);
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
-  const refresh = useCallback(async () => {
+  const refresh = useCallback(async (userInitiated = false) => {
     setLoading(true);
     const result = await fetchSuperIntelligenceFeed();
     setLoading(false);
     if (!result.ok) {
-      toast.error(result.error);
+      setFetchError(reportAdminPanelFetchFailure(result.error, { background: !userInitiated }));
       return;
     }
+    setFetchError(null);
     setSnapshot(result.snapshot);
   }, []);
 
   useEffect(() => {
-    void refresh();
-    const stop = scheduleVisiblePoll(() => void refresh(), POLL_MS.ADMIN_HIVE);
-    return () => stop();
-  }, [refresh]);
+    let stopPoll: (() => void) | undefined;
+    const boot = window.setTimeout(() => {
+      void refresh(false);
+      stopPoll = scheduleVisiblePoll(() => void refresh(false), POLL_MS.ADMIN_HIVE);
+    }, bootDelayMs);
+    return () => {
+      window.clearTimeout(boot);
+      stopPoll?.();
+    };
+  }, [refresh, bootDelayMs]);
 
   return (
     <FounderGlassCard className="p-5 md:p-6">
@@ -59,6 +72,8 @@ export function SuperIntelligenceFeedPanel() {
           </Badge>
         ))}
       </div>
+
+      <AdminPanelFetchErrorNote message={fetchError} />
 
       {loading ? (
         <div className="flex items-center justify-center gap-2 py-8 text-slate-400">
