@@ -8,6 +8,8 @@
 import { trackProductEvent } from '@/lib/analytics/productAnalytics';
 
 export const StorePathEvents = {
+  /** ضغط زر "اختر مسارك" من الشاشة الأولى للمتجر (StoreLandingPitchHero) — مدخل تجريبي، لقياس الاهتمام قبل أي دمج. */
+  homeEntryClick: () => trackProductEvent('store_paths_home_entry_click'),
   labView: () => trackProductEvent('store_paths_lab_view'),
   search: (queryLen: number) => trackProductEvent('store_paths_search', { query_len: queryLen }),
   filterApply: (model: string) => trackProductEvent('store_paths_filter_apply', { model }),
