@@ -108,8 +108,7 @@ export const STORE_SOLUTION_CATALOG_PRODUCTS: readonly SolutionCatalogProduct[] 
     stripe: 'brick',
     logoSrc: solutionCatalogMarkSrc('A-01'),
     cardImageSrc: solutionCatalogCardImageSrc('A-01'),
-    href: 'https://www.halaqmap.com',
-    external: true,
+    href: ROUTE_PATHS.BARBERS_LANDING,
     pathItems: ['استعلام قرب على الخريطة', 'صفحة صالون واضحة', 'حجز أو تواصل مباشر'],
   },
   {
