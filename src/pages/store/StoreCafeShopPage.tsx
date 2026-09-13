@@ -336,6 +336,7 @@ export default function StoreCafeShopPage() {
                   shopUrl={shopUrl}
                   showTrialNote={isTrial}
                   token={safeToken}
+                  saveStatus={deskSync.saveStatus}
                 />
               ) : (
                 <StoreCafeDesk state={state} onChange={commit} shopUrl={shopUrl} showTrialNote={isTrial} token={safeToken} />

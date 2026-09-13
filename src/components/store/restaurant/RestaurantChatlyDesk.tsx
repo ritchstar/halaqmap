@@ -53,6 +53,8 @@ import { StoreDeskHelpSupport } from '@/components/store/StoreDeskHelpSupport';
 import { StoreDeskGuideLink } from '@/components/store/StoreDeskGuideLink';
 import { StoreDeskCornerDock } from '@/components/store/StoreDeskCornerNav';
 import { StoreShopIdentityDesk } from '@/components/store/StoreShopIdentityDesk';
+import { StoreDeskSaveStatusLine } from '@/components/store/StoreDeskSaveStatusLine';
+import type { StoreLiveDeskSaveStatus } from '@/lib/storeLiveDeskSync';
 import { StoreShopBackgroundDesk } from '@/components/store/StoreShopBackgroundDesk';
 import { STORE_RESTAURANT_SUPPORT } from '@/config/storeProductSupport';
 import { StoreDirectPayDesk } from '@/components/store/StoreDirectPayDesk';
@@ -82,6 +84,7 @@ export function RestaurantChatlyDesk({
   token,
   showTrialNote = false,
   maskPii = false,
+  saveStatus = 'idle',
 }: {
   state: RestaurantLabState;
   onChange: (next: RestaurantLabState) => void;
@@ -89,6 +92,7 @@ export function RestaurantChatlyDesk({
   token: string;
   showTrialNote?: boolean;
   maskPii?: boolean;
+  saveStatus?: StoreLiveDeskSaveStatus;
 }) {
   const [section, setSection] = useState<DeskSection>('overview');
   const [mobileNav, setMobileNav] = useState(false);
@@ -205,6 +209,7 @@ export function RestaurantChatlyDesk({
             <p className="mt-2 inline-flex rounded-full bg-white/10 px-2 py-1 text-[10px] font-bold text-[#fdeee0]">
               {vendorLabel}
             </p>
+            <StoreDeskSaveStatusLine status={saveStatus} />
           </div>
 
           <nav className="mt-7 flex flex-1 flex-col gap-1 overflow-y-auto">

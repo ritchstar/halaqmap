@@ -224,6 +224,7 @@ export default function StoreKitchenShopPage() {
                 token={safeToken}
                 gift={giftNotice}
                 showTrialNote={isTrial}
+                saveStatus={deskSync.saveStatus}
               />
             ) : (
               <StoreKitchenDesk

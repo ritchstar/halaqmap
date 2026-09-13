@@ -220,6 +220,7 @@ export default function StoreProduceShopPage() {
                 shopUrl={shopUrl}
                 token={safeToken}
                 showTrialNote={isTrial}
+                saveStatus={deskSync.saveStatus}
               />
             ) : (
               <StoreProduceDesk

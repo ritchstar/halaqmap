@@ -52,6 +52,8 @@ import { StoreDeskHelpSupport } from '@/components/store/StoreDeskHelpSupport';
 import { StoreDeskGuideLink } from '@/components/store/StoreDeskGuideLink';
 import { StoreDeskCornerDock } from '@/components/store/StoreDeskCornerNav';
 import { StoreShopIdentityDesk } from '@/components/store/StoreShopIdentityDesk';
+import { StoreDeskSaveStatusLine } from '@/components/store/StoreDeskSaveStatusLine';
+import type { StoreLiveDeskSaveStatus } from '@/lib/storeLiveDeskSync';
 import { StoreShopBackgroundDesk } from '@/components/store/StoreShopBackgroundDesk';
 import { STORE_KITCHEN_SUPPORT } from '@/config/storeProductSupport';
 import { StoreDirectPayDesk } from '@/components/store/StoreDirectPayDesk';
@@ -81,6 +83,7 @@ export function KitchenChatlyDesk({
   token,
   gift,
   showTrialNote = false,
+  saveStatus = 'idle',
 }: {
   state: KitchenLabState;
   onChange: (next: KitchenLabState) => void;
@@ -88,6 +91,7 @@ export function KitchenChatlyDesk({
   token: string;
   gift?: { expiresAt: string; shopToken: string } | null;
   showTrialNote?: boolean;
+  saveStatus?: StoreLiveDeskSaveStatus;
 }) {
   const [section, setSection] = useState<DeskSection>('overview');
   const [mobileNav, setMobileNav] = useState(false);
@@ -197,6 +201,7 @@ export function KitchenChatlyDesk({
             <p className="mt-1 text-[11px] text-[#f0dcc0]">
               {state.host.acceptingOrders ? 'يستقبل الطلبات الآن' : 'الاستقبال متوقف'}
             </p>
+            <StoreDeskSaveStatusLine status={saveStatus} />
           </div>
 
           <nav className="mt-7 flex flex-1 flex-col gap-1 overflow-y-auto">

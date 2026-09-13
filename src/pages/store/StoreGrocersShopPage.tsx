@@ -220,6 +220,7 @@ export default function StoreGrocersShopPage() {
                 shopUrl={shopUrl}
                 token={safeToken}
                 showTrialNote={isTrial}
+                saveStatus={deskSync.saveStatus}
               />
             ) : (
               <StoreGrocersDesk

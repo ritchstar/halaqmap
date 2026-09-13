@@ -204,6 +204,7 @@ export default function StoreDatesShopPage() {
                 shopUrl={shopUrl}
                 token={safeToken}
                 showTrialNote={isTrial}
+                saveStatus={deskSync.saveStatus}
               />
             ) : (
               <StoreDatesDesk

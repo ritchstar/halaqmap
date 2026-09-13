@@ -41,6 +41,8 @@ import { StoreDeskHelpSupport } from '@/components/store/StoreDeskHelpSupport';
 import { StoreDeskGuideLink } from '@/components/store/StoreDeskGuideLink';
 import { StoreDeskCornerDock } from '@/components/store/StoreDeskCornerNav';
 import { StoreShopIdentityDesk } from '@/components/store/StoreShopIdentityDesk';
+import { StoreDeskSaveStatusLine } from '@/components/store/StoreDeskSaveStatusLine';
+import type { StoreLiveDeskSaveStatus } from '@/lib/storeLiveDeskSync';
 import { StoreShopBackgroundDesk } from '@/components/store/StoreShopBackgroundDesk';
 import { STORE_DATES_SUPPORT } from '@/config/storeProductSupport';
 import { StoreDirectPayDesk } from '@/components/store/StoreDirectPayDesk';
@@ -69,12 +71,14 @@ export function DatesChatlyDesk({
   shopUrl,
   token,
   showTrialNote = false,
+  saveStatus = 'idle',
 }: {
   state: DatesLabState;
   onChange: (next: DatesLabState) => void;
   shopUrl: string;
   token: string;
   showTrialNote?: boolean;
+  saveStatus?: StoreLiveDeskSaveStatus;
 }) {
   const [section, setSection] = useState<DeskSection>('overview');
   const [mobileNav, setMobileNav] = useState(false);
@@ -176,6 +180,7 @@ export function DatesChatlyDesk({
             <p className="mt-1 text-[11px] text-[#e9dcc0]">
               {state.host.acceptingOrders ? 'يستقبل الطلبات الآن' : 'الاستقبال متوقف'}
             </p>
+            <StoreDeskSaveStatusLine status={saveStatus} />
           </div>
 
           <nav className="mt-7 flex flex-1 flex-col gap-1 overflow-y-auto">

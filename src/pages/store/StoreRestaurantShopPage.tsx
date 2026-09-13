@@ -225,6 +225,7 @@ export default function StoreRestaurantShopPage() {
                 shopUrl={shopUrl}
                 token={safeToken}
                 showTrialNote={isTrial}
+                saveStatus={deskSync.saveStatus}
               />
             ) : (
               <StoreRestaurantDesk

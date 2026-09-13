@@ -4,10 +4,13 @@
  * مزامنة لوحة الكاشير والمضيف: لا يُكتب النبض فوق الحقول أثناء التعديل،
  * والحفظ مؤجّل حتى يستقر النص حتى لا تتسابق الأحرف.
  */
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 export const STORE_LIVE_DESK_SAVE_DELAY_MS = 700;
 export const STORE_LIVE_DESK_HOLD_AFTER_SAVE_MS = 4000;
+
+/** حالة الحفظ التلقائي كما تُعرض لصاحب النشاط: لا حفظ صريح، فلازم إشعار مرئي بدله. */
+export type StoreLiveDeskSaveStatus = 'idle' | 'saving' | 'saved' | 'error';
 
 export function liveHostText(raw: unknown, fallback: string): string {
   return typeof raw === 'string' ? raw : fallback;
@@ -47,6 +50,7 @@ export function useStoreLiveDeskSync(enabled: boolean) {
   const latest = useRef<unknown>(null);
   const saveFn = useRef<((state: unknown) => Promise<{ ok?: boolean } | void>) | null>(null);
   const holdUntil = useRef(0);
+  const [status, setStatus] = useState<StoreLiveDeskSaveStatus>('idle');
 
   useEffect(() => {
     return () => {
@@ -67,6 +71,7 @@ export function useStoreLiveDeskSync(enabled: boolean) {
     dirty.current = true;
     latest.current = next;
     saveFn.current = save as (state: unknown) => Promise<{ ok?: boolean } | void>;
+    setStatus('saving');
     window.clearTimeout(timer.current);
     const my = ++gen.current;
     timer.current = window.setTimeout(() => {
@@ -74,11 +79,18 @@ export function useStoreLiveDeskSync(enabled: boolean) {
       void Promise.resolve(save(payload))
         .then((res) => {
           if (my !== gen.current) return;
-          if (res && typeof res === 'object' && res.ok === false) return;
+          if (res && typeof res === 'object' && res.ok === false) {
+            setStatus('error');
+            return;
+          }
           dirty.current = false;
           holdUntil.current = Date.now() + STORE_LIVE_DESK_HOLD_AFTER_SAVE_MS;
+          setStatus('saved');
         })
-        .catch(() => undefined);
+        .catch(() => {
+          if (my !== gen.current) return;
+          setStatus('error');
+        });
     }, STORE_LIVE_DESK_SAVE_DELAY_MS);
   }
 
@@ -86,5 +98,6 @@ export function useStoreLiveDeskSync(enabled: boolean) {
     applyPoll,
     scheduleSave,
     isDirty: () => dirty.current,
+    saveStatus: status,
   };
 }
