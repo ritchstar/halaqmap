@@ -51,6 +51,8 @@ dist-electron/
 out/
 bin/
 .tmp/
+.tmp-app-shell.js
+.tmp-*.js
 tmp/
 temp/
 .cache/
