@@ -440,6 +440,7 @@ export function KitchenChatlyDesk({
                       value={state.host}
                       onChange={(nextHours) => onChange({ ...state, host: { ...state.host, ...nextHours } })}
                       accent={STORE_KITCHEN_LIVE_ACCENT}
+                      theme="light"
                     />
                   }
                 />

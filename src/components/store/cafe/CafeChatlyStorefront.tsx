@@ -439,7 +439,7 @@ export function CafeChatlyStorefront({
         </section>
 
         <div className="mt-6">
-          <StoreCafeBuyerChat state={state} onChange={onChange} />
+          <StoreCafeBuyerChat state={state} onChange={onChange} theme="light" />
         </div>
 
         <footer className="flex flex-col gap-3 border-t border-[#dfe4d6] py-7 text-sm text-[#758374] sm:flex-row sm:items-center sm:justify-between">

@@ -398,6 +398,7 @@ export function ProduceChatlyDesk({
                       value={state.host}
                       onChange={(nextHours) => onChange({ ...state, host: { ...state.host, ...nextHours } })}
                       accent={STORE_PRODUCE_LIVE_ACCENT}
+                      theme="light"
                     />
                   }
                 />

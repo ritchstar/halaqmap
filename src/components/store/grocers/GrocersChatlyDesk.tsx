@@ -394,6 +394,7 @@ export function GrocersChatlyDesk({
                       value={state.host}
                       onChange={(nextHours) => onChange({ ...state, host: { ...state.host, ...nextHours } })}
                       accent={STORE_GROCERS_LIVE_ACCENT}
+                      theme="light"
                     />
                   }
                 />

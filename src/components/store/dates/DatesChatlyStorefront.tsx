@@ -491,7 +491,7 @@ export function DatesChatlyStorefront({
         </section>
 
         <div className="mt-6">
-          <StoreDatesBuyerChat state={state} onChange={onChange} />
+          <StoreDatesBuyerChat state={state} onChange={onChange} theme="light" />
         </div>
 
         <footer className="flex flex-col gap-3 border-t border-[#e2d2b4] py-7 text-sm text-[#79674f] sm:flex-row sm:items-center sm:justify-between">

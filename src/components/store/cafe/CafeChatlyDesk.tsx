@@ -355,7 +355,7 @@ export function CafeChatlyDesk({
                   onFinish={finishOrder}
                   shopName={state.host.shopName}
                   mapsUrl={state.host.vendorMode === 'mobile' ? state.host.pickupMapsUrl : ''}
-                  chatSlot={<StoreCafeDeskChat state={state} onChange={onChange} />}
+                  chatSlot={<StoreCafeDeskChat state={state} onChange={onChange} theme="light" />}
                   archiveSlot={
                     <StoreDeskArchiveDock
                       tickets={state.orderArchive}
@@ -390,6 +390,7 @@ export function CafeChatlyDesk({
                       value={state.host}
                       onChange={(nextHours) => onChange({ ...state, host: { ...state.host, ...nextHours } })}
                       accent={STORE_CAFE_LIVE_ACCENT}
+                      theme="light"
                     />
                   }
                 />

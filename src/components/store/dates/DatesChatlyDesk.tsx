@@ -338,7 +338,7 @@ export function DatesChatlyDesk({
                       unreadCount={fresh.length}
                     />
                   }
-                  chatSlot={<StoreDatesDeskChat state={state} onChange={onChange} />}
+                  chatSlot={<StoreDatesDeskChat state={state} onChange={onChange} theme="light" />}
                 />
               ) : null}
 
@@ -385,6 +385,7 @@ export function DatesChatlyDesk({
                       value={state.host}
                       onChange={(nextHours) => onChange({ ...state, host: { ...state.host, ...nextHours } })}
                       accent={STORE_DATES_LIVE_ACCENT}
+                      theme="light"
                     />
                   }
                 />

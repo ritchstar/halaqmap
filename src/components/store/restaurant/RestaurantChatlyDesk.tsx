@@ -417,6 +417,7 @@ export function RestaurantChatlyDesk({
                       value={state.host}
                       onChange={(nextHours) => onChange({ ...state, host: { ...state.host, ...nextHours } })}
                       accent={STORE_RESTAURANT_LIVE_ACCENT}
+                      theme="light"
                     />
                   }
                 />

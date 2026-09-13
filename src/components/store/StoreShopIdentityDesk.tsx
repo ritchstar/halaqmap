@@ -7,6 +7,7 @@ import type { ReactNode } from 'react';
 import { StoreOpsSection } from '@/components/store/StoreOpsSection';
 import { StoreShopLogoDesk } from '@/components/store/StoreShopLogoDesk';
 import { STORE_SHOP_LOGO_COPY } from '@/config/storeShopLogo';
+import { cn } from '@/lib/utils';
 
 export function StoreShopIdentityDesk({
   shopNameLabel,
@@ -47,8 +48,14 @@ export function StoreShopIdentityDesk({
         <StoreShopLogoDesk logoSrc={logoSrc} onChange={onLogoChange} accent={accent} />
         {extraFields}
         <label className="block text-sm sm:col-span-2">
-          خانة تعريفية
-          <input className={fieldClassName} value={blurbAr} onChange={(e) => onBlurbChange(e.target.value)} />
+          وصف النشاط
+          <textarea
+            className={cn(fieldClassName, 'min-h-20 py-2')}
+            value={blurbAr}
+            maxLength={220}
+            rows={3}
+            onChange={(e) => onBlurbChange(e.target.value)}
+          />
         </label>
         {customFields.map((line, index) => (
           <label key={index} className="block text-sm sm:col-span-2">
