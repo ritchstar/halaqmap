@@ -86,6 +86,9 @@ export const ROUTE_PATHS = {
   STORE_STYLE_LAB: '/store/style-lab',
   /** معاينة فهرس خريطة الحل (كتالوج شاتلي) — داخلية */
   STORE_CATALOG_LAB: '/store/catalog-lab',
+  /** معاينة صفحة المسارات — تعيد تقديم كتالوج الحلول كمسارات مهنية، معزولة بلا لمس الفهرس أو الدفع */
+  STORE_PATHS_LAB: '/store/paths-lab',
+  STORE_PATHS_LAB_PRODUCT: '/store/paths-lab/:slug',
   /** دعوة زواج تفاعلية — منتج مستقل بلا خلط ببطاقة المناسبة */
   STORE_WEDDING: '/store/wedding',
   STORE_WEDDING_READ: '/store/wedding/read',

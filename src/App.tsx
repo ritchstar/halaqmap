@@ -90,6 +90,10 @@ const STORE_STYLE_LAB_PATH =
   (ROUTE_PATHS as { STORE_STYLE_LAB?: string }).STORE_STYLE_LAB || "/store/style-lab";
 const STORE_CATALOG_LAB_PATH =
   (ROUTE_PATHS as { STORE_CATALOG_LAB?: string }).STORE_CATALOG_LAB || "/store/catalog-lab";
+const STORE_PATHS_LAB_PATH =
+  (ROUTE_PATHS as { STORE_PATHS_LAB?: string }).STORE_PATHS_LAB || "/store/paths-lab";
+const STORE_PATHS_LAB_PRODUCT_PATH =
+  (ROUTE_PATHS as { STORE_PATHS_LAB_PRODUCT?: string }).STORE_PATHS_LAB_PRODUCT || "/store/paths-lab/:slug";
 const STORE_WEDDING_PATH =
   (ROUTE_PATHS as { STORE_WEDDING?: string }).STORE_WEDDING || "/store/wedding";
 const STORE_WEDDING_WOMEN_PATH =
@@ -379,6 +383,8 @@ const StorePaidInvitePayPage = lazy(() => import("@/pages/store/StorePaidInviteP
 const StoreOccasionCardLabPage = lazy(() => import("@/pages/store/StoreOccasionCardLabPage"));
 const StoreAtlasStyleLabPage = lazy(() => import("@/pages/store/StoreAtlasStyleLabPage"));
 const StoreSolutionCatalogLabPage = lazy(() => import("@/pages/store/StoreSolutionCatalogLabPage"));
+const StorePathsLabPage = lazy(() => import("@/pages/store/StorePathsLabPage"));
+const StoreProductPathPage = lazy(() => import("@/pages/store/StoreProductPathPage"));
 const StoreWeddingLandingPage = lazy(() => import("@/pages/store/StoreWeddingLandingPage"));
 const StoreWeddingLabPage = lazy(() => import("@/pages/store/StoreWeddingLabPage"));
 const StoreWeddingHallPage = lazy(() => import("@/pages/store/StoreWeddingHallPage"));
@@ -960,6 +966,8 @@ export function App() {
           <Route path={STORE_INVITES_LAB_PATH} element={<LazyRoute><StoreOccasionCardLabPage /></LazyRoute>} />
           <Route path={STORE_STYLE_LAB_PATH} element={<LazyRoute><StoreAtlasStyleLabPage /></LazyRoute>} />
           <Route path={STORE_CATALOG_LAB_PATH} element={<LazyRoute><StoreSolutionCatalogLabPage /></LazyRoute>} />
+          <Route path={STORE_PATHS_LAB_PATH} element={<LazyRoute><StorePathsLabPage /></LazyRoute>} />
+          <Route path={STORE_PATHS_LAB_PRODUCT_PATH} element={<LazyRoute><StoreProductPathPage /></LazyRoute>} />
           <Route path={STORE_HALLS_SUPPORT_PATH} element={<LazyRoute><StoreProductSupportPage /></LazyRoute>} />
           <Route path={STORE_WEDDING_LAB_PATH} element={<LazyRoute><StoreWeddingLabPage /></LazyRoute>} />
           <Route path={STORE_WEDDING_WOMEN_PATH} element={<LazyRoute><StoreWeddingLandingPage /></LazyRoute>} />
