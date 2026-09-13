@@ -40,6 +40,7 @@ import {
 import { parseStoreShopHours } from './_lib/storeShopHours.js';
 import { parseShopBackgroundSave } from './_lib/storeShopBackground.js';
 import { parseShopLogoSrc } from './_lib/storeShopLogo.js';
+import { logoSrcIfChanged } from './_lib/storeLogoPollCache.js';
 import { lockPaidVendorMode, parseVendorMode } from './_lib/storeMobileVendor.js';
 import { parseShopPickupPlace } from './_lib/storeShopPlace.js';
 import { sendRestaurantLiveLinksEmail } from './_lib/storeRestaurantLiveMail.js';
@@ -236,7 +237,10 @@ async function readRow(db: Db, row: RestaurantRow, role: string, headers: Record
       ok: true,
       status: row.status,
       role,
-      payload: publicRestaurantPayload(payload, role),
+      payload: (() => {
+        const built = publicRestaurantPayload(payload, role);
+        return { ...built, logoSrc: logoSrcIfChanged(`${row.id}:${role}`, built.logoSrc) };
+      })(),
       expiresAt: clock.expiresAt,
       isTrial: clock.isTrial,
       shopUrl: shopUrl(row.shop_token),

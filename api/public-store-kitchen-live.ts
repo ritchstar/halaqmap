@@ -43,6 +43,7 @@ import {
 import { parseStoreShopHours } from './_lib/storeShopHours.js';
 import { parseShopBackgroundSave } from './_lib/storeShopBackground.js';
 import { parseShopLogoSrc } from './_lib/storeShopLogo.js';
+import { logoSrcIfChanged } from './_lib/storeLogoPollCache.js';
 import { sendKitchenLiveLinksEmail } from './_lib/storeKitchenLiveMail.js';
 import { applyStoreTrialClock, markStoreTrialConverted } from './_lib/storeProductTrial.js';
 import { storeLiveShopShareHref } from './_lib/storeLiveShopShare.js';
@@ -273,7 +274,10 @@ async function readRow(db: Db, row: KitchenRow, role: string, headers: Record<st
       ok: true,
       status: row.status,
       role,
-      payload: publicKitchenPayload(payload, role),
+      payload: (() => {
+        const built = publicKitchenPayload(payload, role);
+        return { ...built, logoSrc: logoSrcIfChanged(`${row.id}:${role}`, built.logoSrc) };
+      })(),
       expiresAt: clock.expiresAt,
       isTrial: clock.isTrial,
       shopUrl: shopUrlFromPayload(row.shop_token, payload),
