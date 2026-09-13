@@ -11,7 +11,7 @@ import {
   Bell,
   Clipboard,
   FileText,
-  Grid2X2,
+  Settings,
   MapPin,
   Menu,
   Package,
@@ -138,7 +138,7 @@ export function DatesChatlyDesk({
     { key: 'products', label: 'الأصناف والمخزون', icon: Package },
     { key: 'location', label: 'الموقع وساعات العمل', icon: MapPin },
     { key: 'payment', label: 'الدفع المباشر', icon: Clipboard },
-    { key: 'tools', label: 'أدوات المشاركة', icon: Grid2X2 },
+    { key: 'tools', label: 'الإعدادات', icon: Settings },
   ];
 
   return (
@@ -939,8 +939,8 @@ function ToolsSection({
   return (
     <>
       <PageHeading
-        eyebrow="أدوات المشاركة"
-        title="خلّي الوصول أسهل"
+        eyebrow="الإعدادات"
+        title="كل إعدادات نشاطك من هنا"
         copy="هوية النشاط، ملصق QR، وشريط وصل اليوم — كلها من نفس الأدوات الحقيقية."
       />
 

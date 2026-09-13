@@ -12,7 +12,7 @@ import {
   Clipboard,
   Clock3,
   FileText,
-  Grid2X2,
+  Settings,
   
   MapPin,
   Menu,
@@ -141,7 +141,7 @@ export function CafeChatlyDesk({
     { key: 'products', label: 'المنتجات والمخزون', icon: Package },
     { key: 'location', label: 'الموقع والساعات', icon: MapPin },
     { key: 'payment', label: 'الدفع المباشر', icon: Clipboard },
-    { key: 'tools', label: 'أدوات المشاركة', icon: Grid2X2 },
+    { key: 'tools', label: 'الإعدادات', icon: Settings },
   ];
 
   return (
@@ -953,8 +953,8 @@ function ToolsSection({
   return (
     <>
       <PageHeading
-        eyebrow="أدوات المشاركة"
-        title="خلّي الوصول أسهل"
+        eyebrow="الإعدادات"
+        title="كل إعدادات نشاطك من هنا"
         copy="هوية المتجر، ملصق QR، وعرض الفلاش — كلها من نفس الأدوات الحقيقية."
       />
 

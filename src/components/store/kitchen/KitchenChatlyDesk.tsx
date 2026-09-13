@@ -13,7 +13,7 @@ import {
   Clock3,
   FileText,
   Gift,
-  Grid2X2,
+  Settings,
   MapPin,
   Menu,
   Package,
@@ -159,7 +159,7 @@ export function KitchenChatlyDesk({
     { key: 'products', label: 'الأصناف والمخزون', icon: Package },
     { key: 'location', label: 'الاستلام والساعات', icon: MapPin },
     { key: 'payment', label: 'الدفع المباشر', icon: Clipboard },
-    { key: 'tools', label: 'أدوات المشاركة', icon: Grid2X2 },
+    { key: 'tools', label: 'الإعدادات', icon: Settings },
   ];
 
   return (
@@ -1153,8 +1153,8 @@ function ToolsSection({
   return (
     <>
       <PageHeading
-        eyebrow="أدوات المشاركة"
-        title="خلّي الوصول أسهل"
+        eyebrow="الإعدادات"
+        title="كل إعدادات نشاطك من هنا"
         copy="هوية النشاط، ملصق QR، وعرض طبق اليوم — كلها من نفس الأدوات الحقيقية."
       />
 
