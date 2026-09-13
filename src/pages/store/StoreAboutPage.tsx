@@ -56,13 +56,13 @@ export default function StoreAboutPage() {
             </div>
             <figure className="overflow-hidden rounded-2xl border border-white/12 shadow-[0_24px_60px_-28px_rgba(0,0,0,0.55)]">
               <div className="grid grid-cols-2 gap-px bg-white/10">
-                {STORE_ABOUT_HERO_COLLAGE.map((frame) => (
+                {STORE_ABOUT_HERO_COLLAGE.map((frame, index) => (
                   <StoreShot
                     key={frame.reel}
                     reel={frame.reel}
                     alt={frame.alt}
                     className="aspect-square w-full"
-                    eager
+                    eager={index === 0}
                   />
                 ))}
               </div>
