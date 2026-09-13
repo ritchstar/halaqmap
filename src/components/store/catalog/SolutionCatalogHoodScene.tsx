@@ -4,7 +4,7 @@
  * مشهد الحي — خريطة الحل كنقطة مركزية تربط نشاطات جار الحي.
  */
 import type { CSSProperties } from 'react';
-import { ProductMark } from '@/components/store/catalog/ProductMark';
+import { HoodNodeIcon, type HoodNodeIconKind } from '@/components/store/catalog/HoodNodeIcon';
 import { StoreBrandMark } from '@/components/store/StoreBrandMark';
 import type { SolutionCatalogProduct } from '@/config/storeSolutionCatalog';
 
@@ -14,6 +14,18 @@ const HOOD_NODE_LAYOUT: Record<string, { x: number; y: number }> = {
   'B-03': { x: 86, y: 76 },
   'B-04': { x: 12, y: 24 },
   'C-01': { x: 50, y: 12 },
+};
+
+/**
+ * أيقونة خفيفة (منزل أو متجر) بدل صورة المنتج الفعلية — الصور الحقيقية تصبح غير واضحة
+ * بحجم صغير داخل عقد المشهد السداسي. منزل للأنشطة المنزلية، ومتجر للأنشطة ذات واجهة محل.
+ */
+const HOOD_NODE_ICON_KIND: Record<string, HoodNodeIconKind> = {
+  'B-01': 'shop', // خضارنا1
+  'B-02': 'shop', // تمويناتا1
+  'B-03': 'house', // طبختنا1
+  'B-04': 'house', // حلانا1
+  'C-01': 'shop', // مطعمنا1
 };
 
 function hoodLineColor(stripe: SolutionCatalogProduct['stripe']) {
@@ -80,10 +92,9 @@ export function SolutionCatalogHoodScene({
                 aria-label={`${product.nameAr} — ${product.summaryAr}`}
               >
                 <span className="solution-catalog__hood-node-mark">
-                  <ProductMark
-                    logoSrc={product.logoSrc}
+                  <HoodNodeIcon
+                    kind={HOOD_NODE_ICON_KIND[product.code] || 'shop'}
                     name={product.nameAr}
-                    code={product.code}
                     accent={product.stripe}
                     compact
                   />
