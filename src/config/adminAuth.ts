@@ -44,12 +44,11 @@ export function getBootstrapOwnerDisplayName(): string {
 
 /**
  * مسار «البوابة» الخفي للإدارة (بدون رابط في واجهة المنصة).
- * عيّن VITE_ADMIN_PORTAL_BASE في بيئة **البناء** (Vercel) ليطابق الرابط الذي تستخدمه (مثل /x7k-m9q2-a4).
- * يمكن تمرير عدة قواعد مفصولة بفواصل ليتم تسجيل كلها في React Router (انتقال من مسار قديم إلى جديد):
- * مثال: VITE_ADMIN_PORTAL_BASE=/x7k-m9q2-a4,/_hmap-int-9kz2
+ * عيّن `VITE_ADMIN_PORTAL_BASE` في بيئة **البناء** (Vercel) ليطابق الرابط الذي تستخدمه.
+ * يمكن تمرير عدة قواعد مفصولة بفواصل ليتم تسجيل كلها في React Router (انتقال من مسار قديم إلى جديد).
  * القيمة الأولى تُستخدم كافتراضي للروابط التي لا تستنتج المسار من عنوان الصفحة الحالي.
  */
-const ADMIN_PORTAL_DEFAULT_BASE = '/_hmap-int-9kz2';
+const ADMIN_PORTAL_DEFAULT_BASE = '/_hm-nrvooaupmnl9';
 
 function normalizePortalBaseSegment(raw: string): string {
   let b = raw.trim();
@@ -85,7 +84,7 @@ export function getAdminPortalBasePath(): string {
 }
 
 /**
- * يستنتج قاعدة البوابة من pathname الحالي (مثل /x7k-m9q2-a4/sentinel → /x7k-m9q2-a4)
+ * يستنتج قاعدة البوابة من pathname الحالي (مثل `/your-base/sentinel` → `/your-base`)
  * إن وُجدت ضمن القائمة؛ وإلا null.
  */
 export function getAdminPortalBaseFromPathname(pathname: string): string | null {

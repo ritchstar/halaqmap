@@ -38,7 +38,7 @@ const ADMIN_PORTAL_BASE_ENV_KEYS = [
  * even when the env override is not provided, so emails built with
  * this fallback still resolve to a real route (no 404).
  */
-const ADMIN_PORTAL_FALLBACK_BASE = '/_hmap-int-9kz2';
+const ADMIN_PORTAL_FALLBACK_BASE = '/_hm-nrvooaupmnl9';
 
 /** Resolve the site origin (e.g. https://www.halaqmap.com) — no trailing slash. */
 function readSiteOrigin(): string {
