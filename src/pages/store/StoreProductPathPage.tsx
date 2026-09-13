@@ -7,6 +7,7 @@
  */
 import { useEffect, useMemo } from 'react';
 import { Navigate, useParams } from 'react-router-dom';
+import { PathsBackHeader } from '@/components/store/paths/PathsBackHeader';
 import { PathDetailHeader } from '@/components/store/paths/PathDetailHeader';
 import { PathFitSection } from '@/components/store/paths/PathFitSection';
 import { PathProblemSection } from '@/components/store/paths/PathProblemSection';
@@ -60,6 +61,7 @@ export default function StoreProductPathPage() {
   return (
     <div className="min-h-screen bg-[#e9e5dc] px-3 py-6 pb-24 sm:px-6 sm:py-10 sm:pb-10" dir="rtl">
       <div className="mx-auto flex max-w-3xl flex-col gap-6 sm:gap-8">
+        <PathsBackHeader />
         <PathDetailHeader
           shortTitleAr={path.shortTitleAr}
           titleAr={path.titleAr}

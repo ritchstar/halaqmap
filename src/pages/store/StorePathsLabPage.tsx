@@ -7,6 +7,7 @@
  */
 import { useEffect, useMemo, useState } from 'react';
 import { Navigate } from 'react-router-dom';
+import { PathsBackHeader } from '@/components/store/paths/PathsBackHeader';
 import { PathsHero } from '@/components/store/paths/PathsHero';
 import { PathSearch } from '@/components/store/paths/PathSearch';
 import { OperatingModelFilter } from '@/components/store/paths/OperatingModelFilter';
@@ -72,6 +73,7 @@ export default function StorePathsLabPage() {
   return (
     <div className="min-h-screen bg-[#e9e5dc] px-3 py-6 sm:px-6 sm:py-10" dir="rtl">
       <div className="mx-auto flex max-w-5xl flex-col gap-6 sm:gap-8">
+        <PathsBackHeader />
         <PathsHero
           onExplore={() => document.getElementById(GRID_ANCHOR_ID)?.scrollIntoView({ behavior: 'smooth' })}
           onHelp={() => document.getElementById(HELP_ANCHOR_ID)?.scrollIntoView({ behavior: 'smooth' })}
