@@ -38,6 +38,7 @@ import {
   SolutionCatalogHoodScene,
 } from '@/components/store/catalog/SolutionCatalogHoodScene';
 import { StoreBrandMark } from '@/components/store/StoreBrandMark';
+import { CatalogTheoryRealityPracticeArticle } from '@/components/store/catalog/CatalogTheoryRealityPracticeArticle';
 
 const SOLUTION_CATALOG_CATEGORY_ICONS: Record<string, LucideIcon> = {
   all: LayoutGrid,
@@ -251,6 +252,8 @@ export function SolutionCatalogApp() {
                 />
               </label>
             </div>
+
+            <CatalogTheoryRealityPracticeArticle />
 
             {filtered.length ? (
               <div className="solution-catalog__grid">
