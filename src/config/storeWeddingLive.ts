@@ -296,7 +296,10 @@ export function weddingLiveCopy(voice: StoreWeddingLiveVoice) {
 }
 
 export function weddingLiveAccent(voice: StoreWeddingLiveVoice): string {
-  return voice === 'women' ? '#e4b7c5' : '#e8c547';
+  // لوني الذهب الدافئ العميق (رجالي) والوردي العميق (نسائي) — مضبوطان للقراءة
+  // فوق خلفية القاعة الفاتحة الجديدة لـ StoreWeddingHallStage، بخلاف الإصدار
+  // الفاتح القديم الذي كان مصمَّمًا للتوهج فوق خلفية داكنة.
+  return voice === 'women' ? '#B1577A' : '#B8892E';
 }
 
 export function weddingLiveFillClass(voice: StoreWeddingLiveVoice): string {

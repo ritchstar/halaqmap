@@ -1,0 +1,70 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ *
+ * "بوابة القصر" — طابع فاتح واحتفالي لشاشة القاعة الحية لمنتجي أفراحي1 (wedding)
+ * وأجواء1 (event) فقط. تعديلات بصرية محضة فوق الأصناف المشتركة (wedding-hall-*)
+ * مُحصَّنة بالاختيار عبر data-product حتى لا تتأثر بها منتجات أخرى تُشارك نفس
+ * الأصناف (مثل الاستراحة أو الكافيه).
+ */
+
+.store-product-theme[data-product='wedding'] .hall-masthead-host {
+  color: rgba(62, 43, 18, 0.78);
+}
+.store-product-theme[data-product='event'] .hall-masthead-host {
+  color: rgba(52, 36, 63, 0.78);
+}
+
+.store-product-theme[data-product='wedding'] .invite-luminous {
+  text-shadow:
+    0 1px 1px rgba(255, 255, 255, 0.65),
+    0 0 18px rgba(184, 137, 46, 0.2);
+}
+.store-product-theme[data-product='event'] .invite-luminous {
+  text-shadow:
+    0 1px 1px rgba(255, 255, 255, 0.65),
+    0 0 18px rgba(124, 91, 170, 0.2);
+}
+
+.store-product-theme[data-product='wedding'] .hall-masthead-names,
+.store-product-theme[data-product='event'] .hall-masthead-names {
+  font-family: var(--font-display-ar);
+}
+
+.store-product-theme[data-product='wedding'] .wedding-hall-glow {
+  animation-name: wedding-hall-glow-festive-gold;
+}
+.store-product-theme[data-product='event'] .wedding-hall-glow {
+  animation-name: wedding-hall-glow-festive-violet;
+}
+@keyframes wedding-hall-glow-festive-gold {
+  0%,
+  100% {
+    box-shadow: 0 0 14px rgba(184, 137, 46, 0.14);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(184, 137, 46, 0.3);
+  }
+}
+@keyframes wedding-hall-glow-festive-violet {
+  0%,
+  100% {
+    box-shadow: 0 0 14px rgba(124, 91, 170, 0.14);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(124, 91, 170, 0.3);
+  }
+}
+
+/* لوحة تنويه المضيف تحتفظ بخلفيتها الداكنة عمدًا (بطاقة أنيقة على المشهد الفاتح)
+   لذا نضمن بقاء نصّها فاتحًا صراحةً بدل توارث الحبر الغامق الجديد للصفحة. */
+.store-product-theme[data-product='wedding'] .hall-notice-plaque,
+.store-product-theme[data-product='event'] .hall-notice-plaque {
+  color: #fff6e4;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .store-product-theme[data-product='wedding'] .wedding-hall-glow,
+  .store-product-theme[data-product='event'] .wedding-hall-glow {
+    animation: none !important;
+  }
+}

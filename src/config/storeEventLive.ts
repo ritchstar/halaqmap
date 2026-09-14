@@ -124,7 +124,9 @@ export function eventLiveCopy(voice: StoreEventLiveVoice) {
 }
 
 export function eventLiveAccent(voice: StoreEventLiveVoice): string {
-  return voice === 'women' ? '#e4b7c5' : '#e8c547';
+  // طابع بنفسجي احتفالي مميَّز عن ذهبي أفراحي1 (نفس أسلوب المعالجة، بلون مختلف)،
+  // ومضبوط للقراءة فوق خلفية القاعة الفاتحة الجديدة لـ StoreEventHallStage.
+  return voice === 'women' ? '#A9709C' : '#7C5BAA';
 }
 
 export function eventLiveFillClass(voice: StoreEventLiveVoice): string {

@@ -207,6 +207,19 @@ export const STORE_EVENT_WOMEN_MARKETING_FRAMES = [
   ...STORE_LIVE_PANORAMAS,
 ] as const;
 
+/**
+ * خلفيات فاتحة ومبهجة (قاعة أفراح مضiئة نهارًا) — مخصّصة لشاشة القاعة الحية فقط
+ * لمنتجي أفراحي1 وأجواء1 (StoreWeddingHallStage / StoreEventHallStage)، ولا تُستخدم
+ * في بكرات التسويق الأخرى حتى لا تتغيّر تلك الصفحات.
+ */
+export const STORE_HALL_FESTIVE_FRAMES = [
+  '/images/store/lab/lab-wedding-panorama.jpg',
+  '/images/store/lab/lab-luxury-ivory.jpg',
+  '/images/store/lab/lab-luxury-gold.jpg',
+  '/images/store/lab/lab-luxury-pearl.jpg',
+  '/images/store/lab/lab-luxury-rosegold.jpg',
+] as const;
+
 export const STORE_HALAQ_MARKETING_FRAMES = [
   '/images/partners/feature_radar_2.webp',
   '/images/platform-radar-night-map.jpg',

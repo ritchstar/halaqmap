@@ -10,13 +10,14 @@ import {
   weddingWelcomeSetAt,
   weddingWelcomeSetCount,
 } from '@/config/storeWeddingWelcomeSets';
-import { StoreHallAtmosphere } from '@/components/store/StoreHallAtmosphere';
 import { StoreHallNoticePlaque } from '@/components/store/StoreHallNoticePlaque';
+import { StoreHallOrnamentFrame } from '@/components/store/StoreHallOrnamentFrame';
 import { StoreHallVideoWell } from '@/components/store/StoreHallVideoWell';
 import { StoreLivePanoramaCycle } from '@/components/store/StoreLivePanoramaCycle';
 import { StoreShot } from '@/components/store/StoreShot';
 import { StoreWeddingMapsPin } from '@/components/store/StoreWeddingMapsPin';
-import { STORE_WEDDING_MARKETING_FRAMES, STORE_WEDDING_WOMEN_MARKETING_FRAMES } from '@/config/storeMarketingReels';
+import { STORE_HALL_FESTIVE_FRAMES } from '@/config/storeMarketingReels';
+import { STORE_HALL_SCREEN_FRAME } from '@/config/storeHallFrames';
 import type { WeddingLiveLabState } from '@/lib/storeWeddingLiveLab';
 import { weddingBlessingIsPublic } from '@/lib/storeWeddingLiveLab';
 import {
@@ -105,24 +106,20 @@ export function StoreWeddingHallStage({
     <div
       data-voice={voice}
       className={cn(
-        'relative overflow-hidden bg-black text-[#f7edd8]',
+        // بوابة القصر — طابع فاتح ومبهج: خلفية عاجية دافئة وحبر ذهبي غامق بدل الليلي القديم.
+        'relative overflow-hidden bg-[#FBF3E1] text-[#3E2B12]',
         immersive
           ? 'min-h-[100svh] rounded-none border-0'
-          : cn(
-              'rounded-[28px] border',
-              voice === 'women' ? 'border-[#e4b7c5]/35 text-[#f8eef2]' : 'border-[#d4af67]/35',
-            ),
+          : cn('rounded-[28px] border', voice === 'women' ? 'border-[#B1577A]/45' : 'border-[#B8892E]/45'),
         className,
       )}
       style={pageStyle}
     >
-      {!customPageBg ? (
-        <StoreLivePanoramaCycle
-          frames={voice === 'women' ? STORE_WEDDING_WOMEN_MARKETING_FRAMES : STORE_WEDDING_MARKETING_FRAMES}
-        />
-      ) : null}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/28 via-black/18 to-black/58" />
-      <StoreHallAtmosphere voice={voice} />
+      {!customPageBg ? <StoreLivePanoramaCycle frames={STORE_HALL_FESTIVE_FRAMES} /> : null}
+      {/* غلاف ضوئي عاجي دافئ بدل التعتيم الأسود القديم — يبقي صورة القاعة مضiئة وواضحة. */}
+      <div className="absolute inset-0 bg-gradient-to-b from-[#FFFBF0]/55 via-[#FFFBF0]/25 to-[#FFFBF0]/50" />
+      {/* إطار ذهبي مزدوج يطوّق الشاشة كاملة — مستوحى من أبواب القصور. */}
+      <StoreHallOrnamentFrame src={STORE_HALL_SCREEN_FRAME} className="z-[12]" />
 
       <div
         className={cn(
@@ -161,7 +158,7 @@ export function StoreWeddingHallStage({
           </div>
           <div
             className={cn(
-              'invite-luminous max-w-2xl text-base leading-8 text-white/90 md:text-lg',
+              'invite-luminous max-w-2xl text-base leading-8 text-[#3E2B12]/90 md:text-lg',
               compact && 'line-clamp-2 lg:line-clamp-none',
             )}
             data-bidi="off"
@@ -169,11 +166,14 @@ export function StoreWeddingHallStage({
             {invitation}
           </div>
           {state.host.welcomeAr.trim() ? (
-            <div className={cn('max-w-xl text-base leading-8 text-white/75', compact && 'hidden lg:block')} data-bidi="off">
+            <div
+              className={cn('max-w-xl text-base leading-8 text-[#3E2B12]/75', compact && 'hidden lg:block')}
+              data-bidi="off"
+            >
               {state.host.welcomeAr.trim()}
             </div>
           ) : null}
-          <div className={cn('text-base text-white/70', compact && 'hidden lg:block')} data-bidi="off">
+          <div className={cn('text-base text-[#3E2B12]/70', compact && 'hidden lg:block')} data-bidi="off">
             {state.host.eventTime}
           </div>
           </div>
@@ -184,7 +184,7 @@ export function StoreWeddingHallStage({
             target="_blank"
             rel="noreferrer"
             className={cn(
-              'mx-auto inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-sm font-bold',
+              'mx-auto inline-flex items-center gap-2 rounded-full bg-[#3E2B12]/8 px-3 py-1.5 text-sm font-bold',
               compact && 'hidden lg:inline-flex',
             )}
           >
@@ -201,7 +201,7 @@ export function StoreWeddingHallStage({
             <div
               data-bidi="off"
               className={welcomeSizeClass(heroLine.weight, displayTone)}
-              style={{ color: '#fff8ee', textAlign: 'center' }}
+              style={{ color: '#3E2B12', textAlign: 'center' }}
             >
               {heroLine.textAr}
             </div>
@@ -236,7 +236,7 @@ export function StoreWeddingHallStage({
         <ul className={cn('mx-auto mt-2 grid w-full max-w-4xl gap-3 sm:grid-cols-2', compact && 'hidden lg:grid')}>
           {latest.length ? (
             latest.map((item) => (
-              <li key={item.id} className="rounded-2xl border border-white/12 bg-black/40 p-4">
+              <li key={item.id} className="rounded-2xl border border-[#C9AE7A]/55 bg-white/65 p-4 backdrop-blur-sm">
                 <div className="invite-luminous text-base font-extrabold" data-bidi="off" style={{ color: accent }}>
                   {item.name}
                 </div>
@@ -244,14 +244,14 @@ export function StoreWeddingHallStage({
                   {item.cannedText}
                 </div>
                 {item.extra ? (
-                  <div className="mt-1 text-base text-white/70" data-bidi="off">
+                  <div className="mt-1 text-base text-[#3E2B12]/70" data-bidi="off">
                     {item.extra}
                   </div>
                 ) : null}
               </li>
             ))
           ) : (
-            <li className="rounded-2xl border border-white/12 bg-black/40 p-4 text-base text-white/55 sm:col-span-2">
+            <li className="rounded-2xl border border-[#C9AE7A]/55 bg-white/65 p-4 text-base text-[#3E2B12]/55 backdrop-blur-sm sm:col-span-2">
               بانتظار أولى التهاني على الشاشة.
             </li>
           )}
@@ -264,7 +264,7 @@ export function StoreWeddingHallStage({
           <p
             className="wedding-live-ticker whitespace-nowrap text-base"
             data-bidi="off"
-            style={{ color: voice === 'women' ? '#f4e4ea' : '#f4e6c8' }}
+            style={{ color: voice === 'women' ? '#4A2233' : '#4A3418' }}
           >
             {ticker || 'بانتظار أولى التهاني على شاشة القاعة'}
           </p>
