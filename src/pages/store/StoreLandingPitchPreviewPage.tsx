@@ -17,7 +17,7 @@ function scrollToPreviewSection(id: string) {
 }
 
 export default function StoreLandingPitchPreviewPage() {
-  useDocumentTitle('معاينة — واجهة متجر خريطة الحل');
+  useDocumentTitle('معاينة — واجهة متجر منصة طريقة الحل');
 
   useEffect(() => {
     const meta = document.createElement('meta');

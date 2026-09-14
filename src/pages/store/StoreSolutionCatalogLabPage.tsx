@@ -1,7 +1,7 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
- * معاينة فهرس خريطة الحل (كتالوج شاتلي) — داخلية بلا noindex حتى قرار التعميم.
+ * معاينة فهرس منصة طريقة الحل (كتالوج شاتلي) — داخلية بلا noindex حتى قرار التعميم.
  */
 import { useEffect } from 'react';
 import { Navigate } from 'react-router-dom';

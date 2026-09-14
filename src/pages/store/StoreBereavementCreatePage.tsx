@@ -95,7 +95,7 @@ export default function StoreBereavementCreatePage() {
         <header className="border-b border-white/10 px-4 py-4">
           <div className="mx-auto flex max-w-3xl items-center justify-between">
             <Link to={ROUTE_PATHS.STORE_LANDING} className="text-sm text-white/60">
-              خريطة الحل
+              منصة طريقة الحل
             </Link>
           </div>
         </header>
@@ -199,7 +199,7 @@ export default function StoreBereavementCreatePage() {
       <header className="border-b border-white/10 px-4 py-4">
         <div className="mx-auto flex max-w-3xl items-center justify-between">
           <Link to={ROUTE_PATHS.STORE_LANDING} className="text-sm text-white/60">
-            خريطة الحل
+            منصة طريقة الحل
           </Link>
           <span className="text-xs text-white/45">{STORE_BEREAVEMENT_COPY.kicker}</span>
         </div>

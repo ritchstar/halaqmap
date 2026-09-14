@@ -109,7 +109,7 @@ export function StoreEventHostPanel({
         dateAr: host.eventDate,
         timeAr: host.eventTime,
         placeAr: eventPlaceLine(host),
-        stampAr: 'خريطة الحل - halaqmap',
+        stampAr: 'منصة طريقة الحل - halaqmap',
         accent: style.accent || (voice === 'women' ? '#e4b7c5' : '#e8c547'),
         photoSrc: style.image,
         voice,

@@ -1,7 +1,7 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
- * لوحة مشغّلي خريطة الحل. لا تُستورد من App.
+ * لوحة مشغّلي منصة طريقة الحل. لا تُستورد من App.
  * بلا شراء وبلا أسعار وبلا تجربة في النصوص.
  */
 import { ROUTE_PATHS } from '@/lib/routePaths';
@@ -45,9 +45,9 @@ export const STORE_OPERATOR_PRODUCTS: Record<
 };
 
 export const STORE_OPERATORS_DESK_COPY = {
-  documentTitle: 'لوحة مشغّلي خريطة الحل',
+  documentTitle: 'لوحة مشغّلي منصة طريقة الحل',
   kickerAr: 'للمشغّل فقط',
-  titleAr: 'لوحة مشغّلي خريطة الحل',
+  titleAr: 'لوحة مشغّلي منصة طريقة الحل',
   leadAr: 'أدخل بريد التشغيل المعتمد. إن طابق بريداً مرتبطاً بلوحة، يصلك رمز من ستة أرقام.',
   emailLabelAr: 'بريد التشغيل',
   sendCodeAr: 'أرسل رمز التحقق',
@@ -57,8 +57,8 @@ export const STORE_OPERATORS_DESK_COPY = {
   sentAr: 'إن كان البريد معتمداً فسيصل الرمز خلال لحظات.',
   emptyAr: 'لا تشغيل مرتبط بهذا البريد الآن.',
   expiredAr: 'التشغيل غير متاح الآن.',
-  storeHomeAr: 'خريطة الحل',
-  storeHomeLeadAr: 'العودة إلى واجهة خريطة الحل.',
+  storeHomeAr: 'منصة طريقة الحل',
+  storeHomeLeadAr: 'العودة إلى واجهة منصة طريقة الحل.',
   logoutAr: 'خروج',
   sessionExpiredAr: 'انتهت الجلسة. أدخل البريد من جديد.',
   tilesTitleAr: 'تشغيلاتك',

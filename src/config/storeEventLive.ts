@@ -28,13 +28,13 @@ function envEnabled(name: string, fallback: boolean): boolean {
 export const STORE_EVENT_LIVE_CHECKOUT_ENABLED = envEnabled('VITE_STORE_EVENT_LIVE_CHECKOUT_ENABLED', true);
 
 export const STORE_EVENT_LIVE = {
-  documentTitle: 'اجواء1 — خريطة الحل',
+  documentTitle: 'اجواء1 — منصة طريقة الحل',
   kickerAr: 'منصة احتفالية رقمية لمناسبتك',
   titleAr: 'اجواء1',
   leadAr:
     'حوّل دعوة مناسبتك التقليدية إلى منصة احتفالية رقمية. لا تقتصر على تفاصيل الحفل فحسب، بل تصنع تجربة حية يشارك فيها الضيوف التهاني لتُعرض على شاشة القاعة.',
   priceLineAr: 'السعر الافتتاحي 899 ر.س',
-  hallStampAr: 'خريطة الحل - halaqmap',
+  hallStampAr: 'منصة طريقة الحل - halaqmap',
   guestFormTitleAr: 'أرسل تهنئة تظهر على الشاشة',
   guestNameLabelAr: 'اسمك',
   guestExtraLabelAr: 'سطر إضافي من قلبك',
@@ -98,7 +98,7 @@ export const STORE_EVENT_LIVE = {
 } as const;
 
 export const STORE_EVENT_LIVE_WOMEN = {
-  documentTitle: 'اجواء1 نسائي — خريطة الحل',
+  documentTitle: 'اجواء1 نسائي — منصة طريقة الحل',
   kickerAr: 'منصة احتفالية رقمية لمناسبتكن',
   titleAr: 'اجواء1 نسائي',
   leadAr:

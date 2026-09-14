@@ -65,7 +65,7 @@ export const STORE_CAFE_LIVE_PACKS = [
 export type StoreCafeLivePackId = (typeof STORE_CAFE_LIVE_PACKS)[number]['id'];
 
 export const STORE_CAFE_LIVE = {
-  documentTitle: 'كافينا1 — خريطة الحل',
+  documentTitle: 'كافينا1 — منصة طريقة الحل',
   kickerAr: 'صفحة لجار الحي، ولوحة كاشير، وشاشات داخل المقهى',
   titleAr: 'كافينا1',
   problemTitleAr: 'بين الطاولة والهاتف والشاشة المطفأة',
@@ -120,7 +120,7 @@ export const STORE_CAFE_LIVE = {
   priceLineAr: 'باقة مئة وثمانين يوماً: 1199 ر.س – باقة ثلاثمئة وخمسة وستين يوماً: 2099 ر.س',
   durationLineAr: 'صندوق المحادثة مدرج ضمن الباقتين، بلا أي إضافة.',
   legalTitleAr: 'منتج من منشأة موثّقة نظامياً',
-  legalLeadBeforeAr: 'كافينا1 من متجر خريطة الحل ',
+  legalLeadBeforeAr: 'كافينا1 من متجر منصة طريقة الحل ',
   legalLeadAfterAr: `، وهو مؤسسة موثّقة نظامياً في المملكة العربية السعودية. الرقم الوطني الموحد ${LEGAL_NATIONAL_UNIFIED_NUMBER}، ورقم توثيق التجارة الإلكترونية ${LEGAL_ECOMMERCE_AUTH_NUMBER}. تعمل ضمن الأنظمة السعودية ومبادئ حماية البيانات الشخصية. والمنصة نفسها خدمة سحابية مرخصة وموثقة، ومحمية بحقوق الملكية الفكرية. بيانات صاحب المقهى وبيانات زبائنه تُستخدم فقط لتشغيل الطلبات، ولا تُستخدم لأي غرض إعلاني.`,
   privacyAr:
     'تُستخدم بيانات جار الحي لتنفيذ الطلب فقط، وتُحفظ على جهازه إن وافق، ولا دفتر زبائن لدى المنصة.',
@@ -218,7 +218,7 @@ export const STORE_CAFE_LIVE = {
   screenLiveAr: 'الشاشة متصلة',
   screenStaleAr: 'تعذر تحديث الشاشة',
   hallKickerAr: 'المقهى على الشاشة',
-  hallStampAr: 'halaqmap · خريطة الحل',
+  hallStampAr: 'halaqmap · منصة طريقة الحل',
   hostPauseAr: 'إيقاف استقبال المشاركات',
   hostReviewAr: 'اعتماد المشاركة قبل ظهورها على الشاشة',
   hostApproveAr: 'اعتمد',

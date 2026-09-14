@@ -1,7 +1,7 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
- * كروت تعريفية وتسويقية لواجهة متجر halaqmap — خريطة الحل.
+ * كروت تعريفية وتسويقية لواجهة متجر halaqmap — منصة طريقة الحل.
  * لا تُخلط بكاردي8 ولا بتهنئة المناسبات ولا بكروت كوافير ماب.
  * يُحمَّل كسولاً مع صفحة الاستوديو، لا يُستورد من App.
  */
@@ -43,10 +43,10 @@ export type StoreIntroCardRoleId = (typeof STORE_INTRO_CARD_ROLES)[number]['id']
 const FEMALE_ROLE_IDS = new Set<StoreIntroCardRoleId>(['lead_f', 'marketer_f']);
 
 export const STORE_INTRO_CARD_COPY = {
-  documentTitleStudio: 'كروت تعريفية — خريطة الحل',
-  documentTitleView: 'خريطة الحل',
+  documentTitleStudio: 'كروت تعريفية — منصة طريقة الحل',
+  documentTitleView: 'منصة طريقة الحل',
   studioKicker: 'بطاقة تعريف وتسويق لواجهة المتجر',
-  studioTitle: 'كروت خريطة الحل',
+  studioTitle: 'كروت منصة طريقة الحل',
   studioLead:
     'اكتب الاسم أو اللقب والصفة، ثم ولّد البطاقة وأرسلها عبر واتساب أو أي منصة. من يضغط البطاقة يدخل واجهة المتجر.',
   nameLabel: 'الاسم / اللقب',
@@ -70,8 +70,8 @@ export const STORE_INTRO_CARD_COPY = {
   needFields: 'اكتب الاسم والصفة أولاً.',
   headline: 'واجهة المتجر الإلكتروني',
   tagline: 'منتجات برمجية جاهزة — من الواجهة بلا تطبيق',
-  cta: 'ادخل خريطة الحل',
-  ctaFemale: 'ادخلي خريطة الحل',
+  cta: 'ادخل منصة طريقة الحل',
+  ctaFemale: 'ادخلي منصة طريقة الحل',
   privacyLine: 'الاسم والصفة يظهران على البطاقة فقط، ولا يُحفظان على الخادم.',
   landingDoorTitleAr: 'كروت تعريفية وتسويقية',
   landingDoorLeadAr:

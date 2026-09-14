@@ -412,7 +412,7 @@ export default function StoreOccasionCardLabPage() {
                       </a>
                     ) : null}
                   </div>
-                  <p className="mt-4 text-center text-[10px] opacity-50">halaqmap · خريطة الحل · {price} ر.س</p>
+                  <p className="mt-4 text-center text-[10px] opacity-50">halaqmap · منصة طريقة الحل · {price} ر.س</p>
                 </div>
               </article>
             )}

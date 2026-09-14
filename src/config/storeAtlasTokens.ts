@@ -47,8 +47,8 @@ export const STORE_ATLAS_LAB_VIEWS: readonly {
 ] as const;
 
 export const STORE_ATLAS_COPY = {
-  documentTitle: 'خريطة الحل — متجر الحلول الرقمية | معاينة داخلية',
-  brandNameAr: 'خريطة الحل',
+  documentTitle: 'منصة طريقة الحل — متجر الحلول الرقمية | معاينة داخلية',
+  brandNameAr: 'منصة طريقة الحل',
   brandTaglineAr: 'حلول رقمية متخصصة',
   labKickerAr: 'معاينة V3 — داخلية، ليست الواجهة العامة',
   daylightOnAr: 'خلفية أطلس المشرقة',
@@ -78,7 +78,7 @@ export const STORE_ATLAS_COPY = {
   headerRequestAr: 'طلب حل خاص',
   headerTrialAr: 'جرّب قبل أن تشتري',
   heroKickerAr: 'حلول رقمية متخصصة',
-  heroTitleAr: 'خريطة الحل',
+  heroTitleAr: 'منصة طريقة الحل',
   heroClaimAr: 'لعملٍ أوضح ونموٍ أسرع',
   heroLeadAr:
     'منتجات رقمية سحابية متخصصة تساعدك على عرض ما تقدمه، واستقبال الطلبات، وتنظيم العمل؛ من رابط واحد يناسب طبيعة نشاطك.',

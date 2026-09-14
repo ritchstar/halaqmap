@@ -30,7 +30,7 @@ const HELP_ANCHOR_ID = 'paths-help';
 export const STORE_PATHS_LAB_ENABLED = true;
 
 export default function StorePathsLabPage() {
-  useDocumentTitle('صفحة المسارات — خريطة الحل | معاينة');
+  useDocumentTitle('صفحة المسارات — منصة طريقة الحل | معاينة');
   const [query, setQuery] = useState('');
   const [model, setModel] = useState<ProductPathOperatingModel | 'all'>('all');
 

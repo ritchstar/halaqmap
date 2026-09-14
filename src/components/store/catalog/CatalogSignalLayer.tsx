@@ -1,7 +1,7 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
- * طبقة إشارات تفاعلية — خلفية كتالوج خريطة الحل.
+ * طبقة إشارات تفاعلية — خلفية كتالوج منصة طريقة الحل.
  */
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { ArrowDownLeft, ArrowUpLeft, Check, Radio, Send } from 'lucide-react';

@@ -35,7 +35,7 @@ export const ROUTE_PATHS = {
   STORE_LANDING: '/store',
   /** معاينة تحريرية لواجهة المتجر — بلا فهرسة */
   STORE_LANDING_PITCH_PREVIEW: '/store/pitch-preview',
-  /** مشاهدة مقاطع خريطة الحل داخل الصفحة */
+  /** مشاهدة مقاطع منصة طريقة الحل داخل الصفحة */
   YOUTUBE_STORE: '/store/videos',
   /** مشاهدة مقاطع حلاق ماب داخل الصفحة */
   YOUTUBE_HALAQ: '/videos',
@@ -54,7 +54,7 @@ export const ROUTE_PATHS = {
   STORE_ABOUT: '/store/about',
   /** مزايا المنتجات المستضافة — إحالة من صفحات العرض */
   STORE_PRODUCT_BENEFITS: '/store/benefits',
-  /** هدية خريطة الحل — خمسة نماذج مناسبات بالسحب التقني */
+  /** هدية منصة طريقة الحل — خمسة نماذج مناسبات بالسحب التقني */
   STORE_GIFT: '/store/gift',
   STORE_GIFT_TERMS: '/store/gift/terms',
   STORE_GIFT_CONFIRM: '/store/gift/confirm',
@@ -64,7 +64,7 @@ export const ROUTE_PATHS = {
   STORE_GENERAL_TRIAL_CONFIRM: '/store/try/confirm',
   /** اليوم الوطني — صفحة احتفال موسمية */
   STORE_NATIONAL_DAY: '/store/national-day',
-  /** تقييمات متجر خريطة الحل — نجوم وتعليق. مستقلة عن /reviews */
+  /** تقييمات متجر منصة طريقة الحل — نجوم وتعليق. مستقلة عن /reviews */
   STORE_REVIEWS: '/store/reviews',
   /** تصنيفات وفحوص مستقلة قابلة للتحقق */
   STORE_TRUST: '/store/trust',
@@ -84,7 +84,7 @@ export const ROUTE_PATHS = {
   STORE_INVITES_LAB: '/store/invites/lab',
   /** معاينة أطلس الحلول — داخلية بلا تعميم على المتجر العام */
   STORE_STYLE_LAB: '/store/style-lab',
-  /** معاينة فهرس خريطة الحل (كتالوج شاتلي) — داخلية */
+  /** معاينة فهرس منصة طريقة الحل (كتالوج شاتلي) — داخلية */
   STORE_CATALOG_LAB: '/store/catalog-lab',
   /** معاينة صفحة المسارات — تعيد تقديم كتالوج الحلول كمسارات مهنية، معزولة بلا لمس الفهرس أو الدفع */
   STORE_PATHS_LAB: '/store/paths-lab',
@@ -192,7 +192,7 @@ export const ROUTE_PATHS = {
   STORE_AFFILIATES_ENTER: '/store/affiliates/enter',
   STORE_AFFILIATES_DESK: '/store/affiliates/desk',
   STORE_AFFILIATES_RULES: '/store/affiliates/rules',
-  /** لوحة مشغّلي خريطة الحل — دخول بريد ثم رمز. ليست لوحة الإدارة */
+  /** لوحة مشغّلي منصة طريقة الحل — دخول بريد ثم رمز. ليست لوحة الإدارة */
   STORE_OPERATORS: '/store/operators',
   /** مسار قديم على نطاق المتجر — يُحوَّل إلى لوحة التحكم */
   STORE_OPS: '/store/ops',

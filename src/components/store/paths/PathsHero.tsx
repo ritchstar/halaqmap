@@ -12,7 +12,7 @@ export function PathsHero({
 }) {
   return (
     <section className="relative overflow-hidden rounded-3xl border border-[#bdb5a7] bg-[#fffaf4] px-5 py-10 text-center sm:px-10 sm:py-14">
-      <p className="text-xs font-bold tracking-wide text-[#566269]">خريطة الحل — منظومة تشغيل رقمية متخصصة لمهنتك</p>
+      <p className="text-xs font-bold tracking-wide text-[#566269]">منصة طريقة الحل — منظومة تشغيل رقمية متخصصة لمهنتك</p>
       <h1 className="mt-3 text-balance text-2xl font-extrabold leading-snug text-[#1f2933] sm:text-4xl">
         اختر مسار مهنتك، وابدأ بمنتج صُمم لطبيعة عملك
       </h1>

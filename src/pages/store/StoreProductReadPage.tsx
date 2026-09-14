@@ -17,7 +17,7 @@ import { StoreSaipTrustLine } from '@/components/store/StoreSaipTrustLine';
 export default function StoreProductReadPage() {
   const { pathname } = useLocation();
   const entry = useMemo(() => storeProductReadByPath(pathname), [pathname]);
-  useDocumentTitle(entry?.documentTitle ?? 'خريطة الحل');
+  useDocumentTitle(entry?.documentTitle ?? 'منصة طريقة الحل');
 
   if (!entry) {
     return <Navigate to={ROUTE_PATHS.STORE_LANDING} replace />;

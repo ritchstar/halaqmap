@@ -1,7 +1,7 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
- * إبراز هدية خريطة الحل على واجهة المتجر وصفحات افراحي1 واجواء1 فقط.
+ * إبراز هدية منصة طريقة الحل على واجهة المتجر وصفحات افراحي1 واجواء1 فقط.
  */
 import { Link, useLocation } from 'react-router-dom';
 import { Gift } from 'lucide-react';

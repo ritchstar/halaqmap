@@ -399,7 +399,7 @@ export function Layout({ children }: LayoutProps) {
                 href="https://store.halaqmap.com/store"
                 className="text-[0.7rem] text-slate-600 hover:text-teal-400 transition-colors"
               >
-                خريطة الحل
+                منصة طريقة الحل
               </a>
               <span className="text-slate-700 text-[0.7rem]">© ٢٠٢٦ حلاق ماب · ISIC4 474151</span>
             </div>

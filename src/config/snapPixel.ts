@@ -10,4 +10,4 @@ export const SNAP_PIXEL_ID = String(
 
 export const SNAP_PIXEL_SCRIPT_SRC = 'https://sc-static.net/scevent.min.js';
 
-export const SNAP_PIXEL_LABEL_AR = 'تتبع حملة Snapchat — خريطة الحل';
+export const SNAP_PIXEL_LABEL_AR = 'تتبع حملة Snapchat — منصة طريقة الحل';

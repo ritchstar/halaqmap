@@ -1,7 +1,7 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
- * فهرس خريطة الحل — كتالوج مصنع عربي (شاتلي). لا يُستورد من App.tsx.
+ * فهرس منصة طريقة الحل — كتالوج مصنع عربي (شاتلي). لا يُستورد من App.tsx.
  */
 import { ROUTE_PATHS } from '@/lib/routePaths';
 
@@ -57,8 +57,8 @@ export type SolutionCatalogProduct = {
 };
 
 export const STORE_SOLUTION_CATALOG_COPY = {
-  documentTitle: 'خريطة الحل — متجر المنتجات الرقمية | معاينة الفهرس',
-  brandAr: 'خريطة الحل',
+  documentTitle: 'منصة طريقة الحل — متجر المنتجات الرقمية | معاينة الفهرس',
+  brandAr: 'منصة طريقة الحل',
   kickerAr: 'معاينة كتالوج الفهرس — داخلية، ليست الواجهة العامة بعد',
   heroTitleAr: 'شغلك بطريقتك، لا بقالب عام',
   heroLeadAr: 'من صفحة النشاط إلى الطلب والتشغيل — اختر مسارك من فهرس رقمي صُمّم للمنشآت والمهن والأعمال الفردية.',
@@ -101,7 +101,7 @@ export const STORE_SOLUTION_CATALOG_PRODUCTS: readonly SolutionCatalogProduct[] 
     nameEn: 'HalaqMap',
     categoryId: 'trades',
     categoryAr: 'مهن وخدمات',
-    summaryAr: 'حضور الصالون في خريطة الحل',
+    summaryAr: 'حضور الصالون في منصة طريقة الحل',
     descriptionAr:
       'صفحة رقمية تساعد العميل على اكتشاف الصالون والوصول إليه، وتمنحك حضورًا واضحًا وأدوات تشغيل بحسب الخدمة المشتركة.',
     tags: ['اكتشاف', 'تواصل', 'صالونات الرجال'],

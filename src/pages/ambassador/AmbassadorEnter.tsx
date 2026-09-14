@@ -150,7 +150,7 @@ export default function AmbassadorEnter() {
             className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-teal-200"
           >
             <ArrowLeft className="h-4 w-4" aria-hidden />
-            خريطة الحل
+            منصة طريقة الحل
           </Link>
           <div className="flex items-center gap-3">
             <Link

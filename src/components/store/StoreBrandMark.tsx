@@ -1,7 +1,7 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
- * شعار واجهة خريطة الحل — ضعف الحجم مع نبض مشع. لا يُستورد من App.
+ * شعار واجهة منصة طريقة الحل — ضعف الحجم مع نبض مشع. لا يُستورد من App.
  */
 import { STORE_VISUALS } from '@/config/storeFront';
 import { cn } from '@/lib/utils';

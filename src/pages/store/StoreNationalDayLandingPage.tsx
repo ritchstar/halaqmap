@@ -45,7 +45,7 @@ export default function StoreNationalDayLandingPage() {
     <div dir="rtl" className="store-national-day">
       <header className="store-national-day__header">
         <div className="store-national-day__header-inner">
-          <span className="store-national-day__brand">خريطة الحل · المتجر</span>
+          <span className="store-national-day__brand">منصة طريقة الحل · المتجر</span>
           <Link to={ROUTE_PATHS.STORE_LANDING} className="store-national-day__nav-link">
             {copy.backStoreAr}
           </Link>

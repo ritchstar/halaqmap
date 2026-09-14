@@ -15,7 +15,7 @@ export const STORE_GIFT_ROSTER_COPY = {
   deniedAr: 'هذه الصفحة للإدارة فقط.',
   dashAr: 'لوحة التحكم',
   allAr: 'الكل',
-  occasionAr: 'هدية خريطة الحل',
+  occasionAr: 'هدية منصة طريقة الحل',
   kitchenAr: 'هدية طبختنا1',
   pendingAr: 'بانتظار تأكيد البريد',
   activeAr: 'مفعل',

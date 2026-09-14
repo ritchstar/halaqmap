@@ -128,7 +128,7 @@ export function directPayCopyText(input: {
     input.externalUrl ? `رابط الدفع: ${input.externalUrl}` : '',
     input.amountSar ? `المبلغ: ${input.amountSar} ر.س` : '',
     input.requestRef ? `مرجع الطلب: ${input.requestRef}` : '',
-    'خريطة الحل لا تستلم المبلغ ولا تؤكد وصوله ولا تأخذ عمولة على الحرفة.',
+    'منصة طريقة الحل لا تستلم المبلغ ولا تؤكد وصوله ولا تأخذ عمولة على الحرفة.',
   ]
     .filter(Boolean)
     .join('\n');

@@ -14,7 +14,7 @@ export function PathsBackHeader() {
     <header className="flex items-center justify-between gap-3">
       <Link to={ROUTE_PATHS.STORE_LANDING} className="flex items-center gap-2">
         <StoreBrandMark className="h-8 w-8" />
-        <span className="text-sm font-extrabold text-[#1f2933]">خريطة الحل</span>
+        <span className="text-sm font-extrabold text-[#1f2933]">منصة طريقة الحل</span>
       </Link>
       <Link
         to={ROUTE_PATHS.STORE_LANDING}

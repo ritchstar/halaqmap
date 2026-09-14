@@ -7,7 +7,7 @@ export const AMBASSADOR_TELEGRAM_GROUP_URL = 'https://t.me/HalaqMapAmbassadors';
 
 export const AMBASSADOR_TELEGRAM_GROUP_HANDLE = 'HalaqMapAmbassadors';
 
-export const AMBASSADOR_TELEGRAM_GROUP_NAME_AR = 'المجموعة التسويقية لخريطة الحل';
+export const AMBASSADOR_TELEGRAM_GROUP_NAME_AR = 'المجموعة التسويقية لمنصة طريقة الحل';
 
 export const AMBASSADOR_TELEGRAM_GROUP_CTA_AR = 'ادخل المجموعة التسويقية الآن';
 

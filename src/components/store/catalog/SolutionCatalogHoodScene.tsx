@@ -1,7 +1,7 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
- * مشهد الحي — خريطة الحل كنقطة مركزية تربط نشاطات جار الحي.
+ * مشهد الحي — منصة طريقة الحل كنقطة مركزية تربط نشاطات جار الحي.
  */
 import type { CSSProperties } from 'react';
 import { HoodNodeIcon, type HoodNodeIconKind } from '@/components/store/catalog/HoodNodeIcon';
@@ -69,7 +69,7 @@ export function SolutionCatalogHoodScene({
 
         <div className="solution-catalog__hood-center" aria-hidden>
           <StoreBrandMark className="solution-catalog__hood-brand" />
-          <span className="solution-catalog__hood-center-label">خريطة الحل</span>
+          <span className="solution-catalog__hood-center-label">منصة طريقة الحل</span>
         </div>
 
         <div className="solution-catalog__hood-nodes">

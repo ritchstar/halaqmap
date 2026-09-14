@@ -33,7 +33,7 @@ export function StorePurchasedShell({
   showStoreLink?: boolean;
   /** إشعار «التطوير المستمر» أسفل المحتوى — يُخفى على واجهات Chatly المكتملة */
   showDevNotice?: boolean;
-  /** شارة «خريطة الحل» الثابتة أسفل الشاشة */
+  /** شارة «منصة طريقة الحل» الثابتة أسفل الشاشة */
   showLiveMark?: boolean;
   pageBg?: string;
 }) {
