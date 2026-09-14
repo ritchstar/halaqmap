@@ -154,7 +154,12 @@ export function DatesChatlyDesk({
           يُحتسب ضمن عرض التمرير الأفقي للمستند في بعض متصفحات الجوال (سفاري تحديدًا)،
           مما يُزيح كل محتوى الصفحة يسارًا ويترك فراغًا غير مرئي على اليمين.
         */}
-        <div className="fixed inset-y-0 right-0 z-50 w-[min(280px,88vw)] overflow-hidden lg:static lg:z-auto lg:w-auto lg:overflow-visible">
+        <div
+          className={cn(
+            'fixed inset-y-0 right-0 z-50 w-[min(280px,88vw)] overflow-hidden lg:static lg:z-auto lg:w-auto lg:overflow-visible lg:pointer-events-auto',
+            mobileNav ? 'pointer-events-auto' : 'pointer-events-none',
+          )}
+        >
           <aside
             className={cn(
               'flex h-full w-full flex-col border-l border-[#dac8aa] bg-[#f9f4ea] p-5 transition-transform lg:w-auto',
