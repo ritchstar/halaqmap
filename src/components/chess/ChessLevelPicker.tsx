@@ -3,7 +3,7 @@
  *
  * بطاقات اختيار مستوى الذكاء الاصطناعي — ثلاث درجات صعوبة.
  */
-import { Swords } from 'lucide-react';
+import { Cpu, Swords } from 'lucide-react';
 import { CHESS_ARENA_COPY, CHESS_DIFFICULTY_LEVELS, type ChessDifficultyId } from '@/config/chessArena';
 
 export interface ChessLevelPickerProps {
@@ -28,12 +28,18 @@ export function ChessLevelPicker({ selected, onSelect, onStart }: ChessLevelPick
               type="button"
               onClick={() => onSelect(level.id)}
               className={[
-                'flex flex-col items-center gap-2 rounded-2xl border-2 p-4 text-center transition-all',
+                'relative flex flex-col items-center gap-2 rounded-2xl border-2 p-4 text-center transition-all',
                 isSelected
                   ? 'border-amber-600 bg-amber-50 shadow-md'
                   : 'border-[#e3d5b8] bg-white hover:border-amber-400',
               ].join(' ')}
             >
+              {level.useStockfish && (
+                <span className="absolute -top-2 inline-flex items-center gap-1 rounded-full bg-[#3a2c1a] px-2 py-0.5 text-[0.6rem] font-bold text-white">
+                  <Cpu className="h-2.5 w-2.5" />
+                  Stockfish
+                </span>
+              )}
               <span className="text-sm font-black text-[#3a2c1a]">{level.titleAr}</span>
               <span className="text-xs leading-relaxed text-[#7a6a4f]">{level.descriptionAr}</span>
             </button>

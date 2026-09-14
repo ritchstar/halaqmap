@@ -3,6 +3,7 @@
  *
  * رقعة الشطرنج التفاعلية — اضغط لتحديد قطعة ثم اضغط على مربّع الوجهة.
  * بلا مكتبة رقعة خارجية: شبكة 8×8 برموز يونيكود، فقط chess.js للقواعد.
+ * تتضمن إحداثيات الملفات/الرتب وتظليل آخر نقلة.
  */
 import { useMemo, useState } from 'react';
 import type { Chess } from 'chess.js';
@@ -39,6 +40,7 @@ export interface ChessBoardViewProps {
   chess: Chess;
   playerColor: 'w' | 'b';
   interactive: boolean;
+  lastMove?: { from: string; to: string } | null;
   onPlayerMove: (from: string, to: string, promotion?: string) => void;
 }
 
@@ -47,7 +49,7 @@ function squareAt(rowFromTop: number, file: number): string {
   return `${FILES[file]}${rank}`;
 }
 
-export function ChessBoardView({ chess, playerColor, interactive, onPlayerMove }: ChessBoardViewProps) {
+export function ChessBoardView({ chess, playerColor, interactive, lastMove, onPlayerMove }: ChessBoardViewProps) {
   const [selected, setSelected] = useState<string | null>(null);
   const [promotionPending, setPromotionPending] = useState<{ from: string; to: string } | null>(null);
 
@@ -94,50 +96,79 @@ export function ChessBoardView({ chess, playerColor, interactive, onPlayerMove }
   }
 
   const displayRows = flipped ? [...board].reverse() : board;
+  const displayFiles = flipped ? [...FILES].reverse() : FILES;
+  const displayRanks = flipped ? [1, 2, 3, 4, 5, 6, 7, 8] : [8, 7, 6, 5, 4, 3, 2, 1];
 
   return (
-    <div className="relative mx-auto w-full max-w-[480px]">
-      <div className="grid grid-cols-8 overflow-hidden rounded-xl border border-[#d8c6a1] shadow-lg">
-        {displayRows.map((row, rIdx) => {
-          const actualRowFromTop = flipped ? 7 - rIdx : rIdx;
-          const displayCols = flipped ? [...row].reverse() : row;
-          return displayCols.map((piece, cIdx) => {
-            const actualFile = flipped ? 7 - cIdx : cIdx;
-            const square = squareAt(actualRowFromTop, actualFile);
-            const isDark = (actualRowFromTop + actualFile) % 2 === 1;
-            const isSelected = selected === square;
-            const isTarget = legalTargets.has(square);
-            const glyph = piece ? PIECE_GLYPHS[`${piece.color}${piece.type}`] : '';
+    <div className="relative mx-auto w-full max-w-[500px]">
+      <div className="rounded-2xl border border-[#d8c6a1] bg-[#efe0bf] p-2 shadow-xl sm:p-3">
+        <div className="flex">
+          <div className="flex flex-col justify-around pe-1 sm:pe-1.5">
+            {displayRanks.map((rank) => (
+              <span key={rank} className="flex h-full items-center text-[0.6rem] font-bold text-[#8a7550] sm:text-xs">
+                {rank}
+              </span>
+            ))}
+          </div>
 
-            return (
-              <button
-                key={square}
-                type="button"
-                onClick={() => handleSquareClick(square)}
-                disabled={!interactive}
-                aria-label={square}
-                className={[
-                  'relative flex aspect-square select-none items-center justify-center text-2xl leading-none transition-colors sm:text-3xl',
-                  isDark ? 'bg-[#b58863]' : 'bg-[#f0d9b5]',
-                  isSelected ? 'ring-4 ring-inset ring-amber-500' : '',
-                  interactive ? 'cursor-pointer' : 'cursor-default',
-                ].join(' ')}
-              >
-                <span aria-hidden="true">{glyph}</span>
-                {isTarget && !piece && (
-                  <span className="pointer-events-none absolute h-3 w-3 rounded-full bg-emerald-700/60 sm:h-3.5 sm:w-3.5" />
-                )}
-                {isTarget && piece && (
-                  <span className="pointer-events-none absolute inset-0 ring-4 ring-inset ring-red-600/70" />
-                )}
-              </button>
-            );
-          });
-        })}
+          <div className="grid flex-1 grid-cols-8 overflow-hidden rounded-lg border border-[#c8b384] shadow-inner">
+            {displayRows.map((row, rIdx) => {
+              const actualRowFromTop = flipped ? 7 - rIdx : rIdx;
+              const displayCols = flipped ? [...row].reverse() : row;
+              return displayCols.map((piece, cIdx) => {
+                const actualFile = flipped ? 7 - cIdx : cIdx;
+                const square = squareAt(actualRowFromTop, actualFile);
+                const isDark = (actualRowFromTop + actualFile) % 2 === 1;
+                const isSelected = selected === square;
+                const isTarget = legalTargets.has(square);
+                const isLastMoveSquare = lastMove && (lastMove.from === square || lastMove.to === square);
+                const glyph = piece ? PIECE_GLYPHS[`${piece.color}${piece.type}`] : '';
+
+                return (
+                  <button
+                    key={square}
+                    type="button"
+                    onClick={() => handleSquareClick(square)}
+                    disabled={!interactive}
+                    aria-label={square}
+                    className={[
+                      'relative flex aspect-square select-none items-center justify-center text-2xl leading-none transition-colors sm:text-3xl',
+                      isDark ? 'bg-[#b58863]' : 'bg-[#f0d9b5]',
+                      isLastMoveSquare && !isSelected ? (isDark ? 'bg-[#9d9339]' : 'bg-[#cdd26a]') : '',
+                      isSelected ? 'ring-4 ring-inset ring-amber-500' : '',
+                      interactive ? 'cursor-pointer' : 'cursor-default',
+                    ].join(' ')}
+                  >
+                    <span aria-hidden="true" className="drop-shadow-sm">
+                      {glyph}
+                    </span>
+                    {isTarget && !piece && (
+                      <span className="pointer-events-none absolute h-3 w-3 rounded-full bg-emerald-700/60 sm:h-3.5 sm:w-3.5" />
+                    )}
+                    {isTarget && piece && (
+                      <span className="pointer-events-none absolute inset-0 ring-4 ring-inset ring-red-600/70" />
+                    )}
+                  </button>
+                );
+              });
+            })}
+          </div>
+        </div>
+
+        <div className="flex ps-[calc(1.1rem)] pt-1 sm:ps-[calc(1.35rem)]">
+          {displayFiles.map((file) => (
+            <span
+              key={file}
+              className="flex flex-1 items-center justify-center text-[0.6rem] font-bold text-[#8a7550] sm:text-xs"
+            >
+              {file}
+            </span>
+          ))}
+        </div>
       </div>
 
       {promotionPending && (
-        <div className="absolute inset-0 z-10 flex items-center justify-center rounded-xl bg-black/60">
+        <div className="absolute inset-0 z-10 flex items-center justify-center rounded-2xl bg-black/60">
           <div dir="rtl" className="rounded-2xl bg-white p-4 text-center shadow-xl">
             <p className="mb-3 text-sm font-bold text-slate-800">اختر الترقية</p>
             <div className="flex gap-2">

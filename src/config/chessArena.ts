@@ -1,9 +1,11 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
- * ساحة الشطرنج — المرحلة الأولى: لعب ضد الذكاء الاصطناعي بثلاث مستويات،
- * بجلسة محفوظة محلياً (بلا خادم، بلا حساب). التشاركي والاشتراكات المدفوعة
- * مرحلتان لاحقتان غير مفعّلتين بعد — راجع docs/chess-arena-roadmap.md.
+ * ساحة الشطرنج — المرحلة الأولى (مطوَّرة): لعب ضد الذكاء الاصطناعي بثلاث
+ * مستويات، محرك Stockfish الحقيقي لمستوى «محترف» (مع خط رجوع آمن للمحرك
+ * المحلي عند تعذّر التحميل)، ولوحة بتصميم أرقى — كل ذلك بجلسة محفوظة
+ * محلياً (بلا خادم، بلا حساب). التشاركي والاشتراكات المدفوعة مرحلتان
+ * لاحقتان غير مفعّلتين بعد — راجع docs/chess-arena-roadmap.md.
  */
 
 export type ChessDifficultyId = 'beginner' | 'intermediate' | 'advanced';
@@ -12,12 +14,16 @@ export interface ChessDifficultyLevel {
   id: ChessDifficultyId;
   titleAr: string;
   descriptionAr: string;
-  /** عمق البحث الأساسي (نصف-نقلات) قبل تمديد الوقت الإضافي عند التعادل بالتقييم. */
+  /** عمق البحث الأساسي (نصف-نقلات) قبل تمديد الوقت الإضافي عند التعادل بالتقييم — للمحرك المحلي فقط. */
   searchDepth: number;
-  /** أقصى زمن تفكير مسموح للذكاء الاصطناعي بالمللي ثانية (تعميق تكراري). */
+  /** أقصى زمن تفكير مسموح بالمللي ثانية — يُستخدم أيضاً كـ movetime لمحرك Stockfish عند تفعيله. */
   timeBudgetMs: number;
-  /** احتمال أن يلعب الذكاء الاصطناعي نقلة عشوائية عمداً بدل الأفضل — يصنع مستوى «مبتدئ» قابلاً للفوز عليه. */
+  /** احتمال أن يلعب المحرك المحلي نقلة عشوائية عمداً بدل الأفضل — يصنع مستوى «مبتدئ» قابلاً للفوز عليه. */
   blunderChance: number;
+  /** استخدام محرك Stockfish الحقيقي (عبر Web Worker) بدل المحرك المحلي، مع خط رجوع تلقائي عند التعذّر. */
+  useStockfish: boolean;
+  /** قيمة UCI «Skill Level» (0 أضعف – 20 أقوى) عند تفعيل Stockfish. */
+  stockfishSkillLevel?: number;
 }
 
 export const CHESS_DIFFICULTY_LEVELS: readonly ChessDifficultyLevel[] = [
@@ -28,6 +34,7 @@ export const CHESS_DIFFICULTY_LEVELS: readonly ChessDifficultyLevel[] = [
     searchDepth: 1,
     timeBudgetMs: 150,
     blunderChance: 0.35,
+    useStockfish: false,
   },
   {
     id: 'intermediate',
@@ -36,14 +43,17 @@ export const CHESS_DIFFICULTY_LEVELS: readonly ChessDifficultyLevel[] = [
     searchDepth: 2,
     timeBudgetMs: 400,
     blunderChance: 0.12,
+    useStockfish: false,
   },
   {
     id: 'advanced',
     titleAr: 'محترف',
-    descriptionAr: 'بحث أعمق بلا أخطاء متعمدة — للاعبين المتمرسين الباحثين عن تحدٍ جاد.',
+    descriptionAr: 'محرك Stockfish الحقيقي بأقصى قوة — للاعبين المتمرسين الباحثين عن تحدٍ جاد.',
     searchDepth: 3,
     timeBudgetMs: 900,
     blunderChance: 0,
+    useStockfish: true,
+    stockfishSkillLevel: 20,
   },
 ] as const;
 
@@ -76,14 +86,28 @@ export const CHESS_ARENA_COPY = {
   turnPlayerAr: 'دورك للعب',
   turnAiAr: 'الذكاء الاصطناعي يفكّر…',
   checkAr: 'كش!',
-  checkmatePlayerWinsAr: 'كش ملك! لقد فزت 🎉',
-  checkmateAiWinsAr: 'كش ملك! فاز الذكاء الاصطناعي هذه المرة.',
-  drawAr: 'تعادل.',
-  resignedAr: 'استسلمت — انتهت المباراة.',
+  checkmatePlayerWinsAr: 'كش ملك! لقد فزت',
+  checkmateAiWinsAr: 'كش ملك! فاز الذكاء الاصطناعي هذه المرة',
+  drawAr: 'تعادل',
+  resignedAr: 'استسلمت — انتهت المباراة',
   promotionTitleAr: 'اختر الترقية',
   confirmResignAr: 'هل تريد الاستسلام وإنهاء هذه المباراة؟',
   confirmNewGameWhilePlayingAr: 'ستفقد تقدّم المباراة الحالية إن بدأت مباراة جديدة. متابعة؟',
+  movesLabelAr: 'النقلات',
+  capturedByPlayerAr: 'قطع كسبتها',
+  capturedByAiAr: 'قطع خسرتها',
+  materialAdvantagePlayerAr: 'أنت متقدّم بمقدار',
+  materialAdvantageAiAr: 'الذكاء الاصطناعي متقدّم بمقدار',
+  soundOnAr: 'الصوت مُفعَّل',
+  soundOffAr: 'الصوت مُعطَّل',
+  engineStockfishActiveAr: 'محرك Stockfish نشط',
+  engineLocalFallbackAr: 'المحرك المحلي (Stockfish غير متاح الآن)',
+  engineCheckingAr: 'جاري التحقق من المحرك…',
+  resultOverlayNewGameAr: 'مباراة جديدة',
 } as const;
 
 /** مفتاح تخزين جلسة اللعب المحلية — نمط «Lab» المتّبع في بقية المنتجات. */
 export const CHESS_SESSION_STORAGE_KEY = 'halaqmap-chess-arena:v1';
+
+/** مفتاح تخزين تفضيل الصوت محلياً. */
+export const CHESS_SOUND_PREF_STORAGE_KEY = 'halaqmap-chess-arena-sound:v1';

@@ -1,10 +1,12 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
- * محرك خصم الذكاء الاصطناعي لساحة الشطرنج — بحث Minimax مع تقليم Alpha-Beta
- * وتعميق تكراري محدود بزمن، يعمل بالكامل داخل المتصفح بلا أي اتصال خارجي.
- * الأنواع هنا محلية عمداً (بدل الاستيراد من chess.js) لتبقى متوافقة مع شكل
- * الكائنات الفعلي الذي تُرجعه المكتبة بصرف النظر عن تسمية أنواعها الداخلية.
+ * محرك خصم الذكاء الاصطناعي المحلي لساحة الشطرنج — بحث Minimax مع تقليم
+ * Alpha-Beta وتعميق تكراري محدود بزمن، يعمل بالكامل داخل المتصفح بلا أي
+ * اتصال خارجي. يُستخدم للمستويين «مبتدئ» و«متوسط» دائماً، وهو أيضاً خط
+ * الرجوع الآمن لمستوى «محترف» إن تعذّر تحميل محرك Stockfish (راجع
+ * chessEngine.ts). الأنواع هنا محلية عمداً (بدل الاستيراد من chess.js)
+ * لتبقى متوافقة مع شكل الكائنات الفعلي الذي تُرجعه المكتبة.
  */
 import { Chess } from 'chess.js';
 import type { ChessDifficultyId } from '@/config/chessArena';
@@ -174,8 +176,8 @@ function searchBestMove(chess: Chess, maxDepth: number, timeBudgetMs: number): E
 }
 
 /**
- * يختار نقلة الذكاء الاصطناعي للوضعية الحالية دون المساس بكائن chess الممرَّر
- * (يُنشئ نسخة مستقلة للبحث). يعيد null فقط إذا لم تعد هناك نقلات شرعية.
+ * يختار نقلة الذكاء الاصطناعي المحلي للوضعية الحالية دون المساس بكائن chess
+ * الممرَّر (يُنشئ نسخة مستقلة للبحث). يعيد null فقط إذا لم تعد هناك نقلات شرعية.
  */
 export function pickAiMove(chess: Chess, levelId: ChessDifficultyId): ChessAiMoveResult | null {
   const level = getChessDifficultyLevel(levelId);
