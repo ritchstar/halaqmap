@@ -50,6 +50,7 @@ import { STORE_CAFE_LIVE, STORE_CAFE_LIVE_PUBLIC_ENABLED } from '@/config/storeC
 import { STORE_KITCHEN_LIVE, STORE_KITCHEN_LIVE_PUBLIC_ENABLED } from '@/config/storeKitchenLive';
 import { STORE_PRODUCE_LIVE, STORE_PRODUCE_LIVE_PUBLIC_ENABLED } from '@/config/storeProduceLive';
 import { STORE_DATES_LIVE, STORE_DATES_LIVE_PUBLIC_ENABLED } from '@/config/storeDatesLive';
+import { STORE_BAKHURNA_LIVE, STORE_BAKHURNA_LIVE_PUBLIC_ENABLED } from '@/config/storeBakhurnaLive';
 import { STORE_HALANA_LIVE, STORE_HALANA_LIVE_PUBLIC_ENABLED } from '@/config/storeHalanaLive';
 import { storeLiveProductReel, storeSoftwareShotReel } from '@/config/storeMarketingReels';
 import { storeGeneralTrialHref, type StoreGeneralTrialKey } from '@/config/storeProductTrial';
@@ -146,6 +147,17 @@ export default function StoreLanding() {
                 ctaAr={STORE_LANDING_COPY.datesLiveCtaAr}
                 accent="#8A6239"
                 trialProductKey="dates"
+              />
+            ) : null}
+            {STORE_BAKHURNA_LIVE_PUBLIC_ENABLED ? (
+              <StoreBrowseCard
+                to={ROUTE_PATHS.STORE_BAKHURNA}
+                reel="bakhurna"
+                alt={STORE_BAKHURNA_LIVE.heroAltAr}
+                titleAr={STORE_LANDING_COPY.bakhurnaLiveTitleAr}
+                leadAr={STORE_LANDING_COPY.bakhurnaLiveLeadAr}
+                ctaAr={STORE_LANDING_COPY.bakhurnaLiveCtaAr}
+                accent="#6E4A26"
               />
             ) : null}
           </div>

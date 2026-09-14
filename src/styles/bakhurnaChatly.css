@@ -1,0 +1,187 @@
+/**
+ * بخورنا1 — طبقة Chatly (هيكل بصري فقط).
+ */
+
+.bakhurna-chatly-root {
+  --bc-bg: #f3e6cf;
+  --bc-surface: #fdf9f0;
+  --bc-border: #e2d2b4;
+  --bc-text: #2a2016;
+  --bc-muted: #8a7c66;
+  --bc-accent: #6e4a26;
+  --bc-accent-soft: #f3e6cf;
+  --bc-ink: #2a2016;
+}
+
+.bakhurna-chatly-desk-root {
+  --bc-bg: #ebdcc2;
+  --bc-surface: #f9f4ea;
+  --bc-border: #dac8aa;
+  --bc-text: #2a2016;
+  --bc-muted: #8a7c66;
+  --bc-accent: #6e4a26;
+  --bc-accent-soft: #f3e6cf;
+  --bc-ink: #2a2016;
+}
+
+.bakhurna-chatly-desk-root .bakhurna-field,
+.bakhurna-chatly-desk-root input.bakhurna-field,
+.bakhurna-chatly-desk-root textarea.bakhurna-field {
+  background: #fff;
+  border: 1px solid #dac8aa;
+  color: var(--bc-text);
+}
+
+.bakhurna-chatly-desk-root .store-desk-ticket-card {
+  background: #fff;
+  border-color: #e6d7bc !important;
+  color: var(--bc-text);
+}
+
+.bakhurna-chatly-desk-root .store-desk-ticket-card .text-white\/70,
+.bakhurna-chatly-desk-root .store-desk-ticket-card .text-white\/60,
+.bakhurna-chatly-desk-root .store-desk-ticket-card .text-white\/75 {
+  color: var(--bc-muted) !important;
+}
+
+.bakhurna-chatly-desk-root .store-desk-accent-text {
+  color: var(--bc-accent) !important;
+}
+
+.bakhurna-chatly-desk-root .border-white\/12,
+.bakhurna-chatly-desk-root .border-white\/10,
+.bakhurna-chatly-desk-root .border-white\/20 {
+  border-color: #dac8aa !important;
+}
+
+.bakhurna-chatly-desk-root .text-white\/60,
+.bakhurna-chatly-desk-root .text-white\/70,
+.bakhurna-chatly-desk-root .text-white\/75,
+.bakhurna-chatly-desk-root .text-white\/35 {
+  color: var(--bc-muted) !important;
+}
+
+.bakhurna-chatly-desk-root h2,
+.bakhurna-chatly-desk-root h3,
+.bakhurna-chatly-desk-root .font-extrabold {
+  color: var(--bc-text);
+}
+
+.bakhurna-chatly-desk-root .store-ops-section {
+  background: var(--bc-surface);
+  border-color: var(--bc-border);
+}
+
+.bakhurna-chatly-desk-root .store-desk-control-title {
+  border: 0;
+  background: transparent;
+  padding: 0;
+}
+
+.bakhurna-chatly-desk-root .store-desk-control-title h1 {
+  margin-top: 0.25rem;
+  font-size: 1.25rem;
+  font-weight: 900;
+  line-height: 1.4;
+  color: var(--bc-text);
+}
+
+.bakhurna-chatly-desk-root .store-desk-control-title p {
+  color: var(--bc-muted);
+}
+
+.bakhurna-chatly-desk-header {
+  border-bottom: 1px solid var(--bc-border);
+  background: rgb(249 244 234 / 0.9);
+  backdrop-filter: blur(4px);
+  padding: 0.75rem 1rem;
+}
+
+@media (min-width: 640px) {
+  .bakhurna-chatly-desk-header {
+    padding-inline: 2rem;
+  }
+}
+
+.bakhurna-chatly-desk-header__top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem 1rem;
+}
+
+.bakhurna-chatly-desk-header__start {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  min-width: 0;
+  flex: 1 1 12rem;
+}
+
+.bakhurna-chatly-desk-header__brand.store-brand-mark {
+  height: 2.25rem;
+  width: 2.25rem;
+  margin-top: 0.125rem;
+}
+
+@media (min-width: 768px) {
+  .bakhurna-chatly-desk-header__brand.store-brand-mark {
+    height: 2.5rem;
+    width: 2.5rem;
+  }
+}
+
+.bakhurna-chatly-desk-header__title-block {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.bakhurna-chatly-desk-header__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  flex: 1 1 100%;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .bakhurna-chatly-desk-header__actions {
+    flex: 0 0 auto;
+    width: auto;
+    max-width: min(100%, 26rem);
+  }
+}
+
+.bakhurna-chatly-desk-header__trial-note {
+  margin: 0.75rem 0 0;
+  padding: 0.625rem 0.875rem;
+  border-radius: 0.75rem;
+  border: 1px solid #e6d7bc;
+  background: #f7efdf;
+  font-size: 0.875rem;
+  line-height: 1.625;
+  color: var(--bc-muted);
+}
+
+.bakhurna-chatly-btn-primary {
+  background: var(--bc-accent) !important;
+  color: #fff !important;
+}
+
+.bakhurna-chatly-btn-primary:hover {
+  background: #4f3419 !important;
+}
+
+.bakhurna-chatly-btn-ghost {
+  background: var(--bc-surface) !important;
+  border: 1px solid #dac8aa !important;
+  color: #8a7c66 !important;
+  box-shadow: none !important;
+}
+
+.bakhurna-chatly-btn-ghost:hover {
+  background: #f2e6cd !important;
+}

@@ -10,6 +10,7 @@ import { STORE_KITCHEN_LIVE_ACCENT } from '@/config/storeKitchenLive';
 import { STORE_PRODUCE_LIVE_ACCENT } from '@/config/storeProduceLive';
 import { STORE_DATES_LIVE_ACCENT } from '@/config/storeDatesLive';
 import { STORE_RESTAURANT_LIVE_ACCENT } from '@/config/storeRestaurantLive';
+import { STORE_BAKHURNA_LIVE_ACCENT } from '@/config/storeBakhurnaLive';
 import type { StoreLiveShopShareKind } from '@/lib/storeHostRedirect';
 
 type StoreLiveShopKind = StoreLiveShopShareKind;
@@ -274,6 +275,42 @@ export const STORE_LIVE_ACTIVITY: Record<LiveActivityKind, LiveActivityProductCo
     liveBannerFlashAr: (line) => `وصل اليوم · ${line}`,
     liveBannerTodayAr: (line) => `متوفر · ${line}`,
     checkoutId: 'dates-checkout',
+  },
+  /**
+   * بخورنا1 — بنية تحتية أولية قيد التقييم والتطوير. لا واجهة قديمة (StoreLiveActivityCartShop)
+   * تُستخدم فعلياً لهذا المنتج؛ هذا المدخل يفي فقط باكتمال نوع Record. راجع docs/bakhurna1-backend-todo.md.
+   */
+  bakhurna: {
+    accent: STORE_BAKHURNA_LIVE_ACCENT,
+    statusOpenAr: 'مفتوح للطلب',
+    statusClosedAr: 'مغلق — طلب مسبق',
+    statusPausedAr: 'الطلبات متوقفة',
+    browseAr: 'تصفح الأصناف',
+    startOrderAr: 'ابدأ الطلب',
+    stickyOrderAr: 'أكمل طلبك',
+    explorerTitleAr: 'وش تحتاج من البخور؟',
+    occasions: [
+      ALL_OCCASION,
+      { id: 'gift', labelAr: 'هدية', keywords: ['هد', 'إهد', 'تغليف'] },
+      { id: 'oud', labelAr: 'دهن عود', keywords: ['عود', 'دهن'] },
+      { id: 'daily', labelAr: 'استهلاك يومي', keywords: ['يوم', 'بيت'] },
+    ],
+    tabs: { home: 'الرئيسية', order: 'الطلب', about: 'عن المحل' },
+    homeFeaturedTitleAr: 'الأكثر طلباً',
+    homeFeaturedLeadAr: 'أصناف مختارة — أكمل طلبك من تبويب الطلب.',
+    orderTabTitleAr: 'سلة الطلب',
+    aboutTitleAr: 'عن المحل',
+    trustStrip: ['طلب من الجوال', 'توصيل أو استلام', 'الدفع مع المحل', 'لا عمولة على السلة'],
+    policySummary: [
+      'اختر الأصناف والوزن أو العدد.',
+      'حدد التوصيل أو الاستلام.',
+      'يراجع المحل الطلب.',
+      'الدفع عند التسليم أو حسب تعليمات المحل.',
+    ],
+    policyFullAr: 'تفاصيل أكثر عن المحل',
+    liveBannerFlashAr: (line) => `وصل اليوم · ${line}`,
+    liveBannerTodayAr: (line) => `متوفر · ${line}`,
+    checkoutId: 'bakhurna-checkout',
   },
 };
 

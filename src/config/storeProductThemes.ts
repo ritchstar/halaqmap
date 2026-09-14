@@ -30,7 +30,8 @@ export type StoreProductId =
   | 'dates'
   | 'wedding'
   | 'event'
-  | 'occasion_card';
+  | 'occasion_card'
+  | 'bakhurna';
 
 export type StoreProductThemePair = Record<StoreProductThemeContext, StoreProductThemeTokens>;
 
@@ -281,6 +282,26 @@ export const STORE_PRODUCT_THEMES: Record<StoreProductId, StoreProductThemePair>
       text: '#232629',
       muted: '#636870',
       accent: '#5C6470',
+      field: '#FFFFFF',
+    },
+  },
+  bakhurna: {
+    // بخورنا1 (Chatly): عاجي/كريمي دافئ + بني عود غامق.
+    storefront: {
+      pageBg: '#F3E6CF',
+      surface: '#FDF9F0',
+      surfaceAlt: '#E2D2B4',
+      text: '#2A2016',
+      muted: '#8A7C66',
+      accent: '#6E4A26',
+    },
+    operator: {
+      pageBg: '#EBDCC2',
+      surface: '#F9F4EA',
+      surfaceAlt: '#DAC8AA',
+      text: '#2A2016',
+      muted: '#8A7C66',
+      accent: '#6E4A26',
       field: '#FFFFFF',
     },
   },

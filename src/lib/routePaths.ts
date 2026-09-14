@@ -176,6 +176,13 @@ export const ROUTE_PATHS = {
   STORE_DATES_VIEW: '/t/:token',
   STORE_DATES_DESK: '/t/:token/desk',
   STORE_DATES_PAY: '/pay/dates/:token',
+  /**
+   * بخورنا1 — بنية تحتية أولية قيد التقييم والتطوير (راجع docs/bakhurna1-backend-todo.md).
+   * صفحة محل بخور وعود وعطور. منتج غير مسجّل لدى الهيئة السعودية للملكية الفكرية.
+   */
+  STORE_BAKHURNA: '/store/bakhurna',
+  STORE_BAKHURNA_VIEW: '/b/:token',
+  STORE_BAKHURNA_DESK: '/b/:token/desk',
   /** حلانا1 — معرض المتخصصة وصفحة الطلب ولوحة التشغيل */
   STORE_HALANA: '/store/halana',
   STORE_HALANA_READ: '/store/halana/read',

@@ -15,6 +15,7 @@ export type StoreMarketingReelId =
   | 'grocers'
   | 'produce'
   | 'dates'
+  | 'bakhurna'
   | 'restaurant'
   | 'kitchen'
   | 'halana'
@@ -94,6 +95,15 @@ const DATES_GENERATED = [
 export const STORE_DATES_MARKETING_FRAMES = [
   '/images/store/dates-hero-marketing.jpg',
   ...DATES_GENERATED,
+] as const;
+
+/** بنية تحتية أولية قيد التقييم والتطوير — راجع docs/bakhurna1-backend-todo.md. */
+export const STORE_BAKHURNA_MARKETING_FRAMES = [
+  '/images/store/bakhurna-hero-marketing.jpg',
+  '/images/store/bakhurna/bakhurna-01.jpg',
+  '/images/store/bakhurna/bakhurna-02.jpg',
+  '/images/store/bakhurna/bakhurna-03.jpg',
+  '/images/store/bakhurna/bakhurna-04.jpg',
 ] as const;
 
 export const STORE_RESTAURANT_MARKETING_FRAMES = [
@@ -272,6 +282,7 @@ const REELS: Record<StoreMarketingReelId, readonly string[]> = {
   grocers: STORE_GROCERS_MARKETING_FRAMES,
   produce: STORE_PRODUCE_MARKETING_FRAMES,
   dates: STORE_DATES_MARKETING_FRAMES,
+  bakhurna: STORE_BAKHURNA_MARKETING_FRAMES,
   restaurant: STORE_RESTAURANT_MARKETING_FRAMES,
   kitchen: STORE_KITCHEN_MARKETING_FRAMES,
   halana: STORE_HALANA_MARKETING_FRAMES,
@@ -298,6 +309,7 @@ export function storeLiveProductReel(productId: string): StoreMarketingReelId {
   if (productId === 'kitchen') return 'kitchen';
   if (productId === 'produce') return 'produce';
   if (productId === 'dates') return 'dates';
+  if (productId === 'bakhurna') return 'bakhurna';
   if (productId === 'halana') return 'halana';
   return 'landing';
 }

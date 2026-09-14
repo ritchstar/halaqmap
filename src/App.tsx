@@ -233,6 +233,12 @@ const STORE_DATES_DESK_PATH =
   (ROUTE_PATHS as { STORE_DATES_DESK?: string }).STORE_DATES_DESK || "/t/:token/desk";
 const STORE_DATES_PAY_PATH =
   (ROUTE_PATHS as { STORE_DATES_PAY?: string }).STORE_DATES_PAY || "/pay/dates/:token";
+const STORE_BAKHURNA_PATH =
+  (ROUTE_PATHS as { STORE_BAKHURNA?: string }).STORE_BAKHURNA || "/store/bakhurna";
+const STORE_BAKHURNA_VIEW_PATH =
+  (ROUTE_PATHS as { STORE_BAKHURNA_VIEW?: string }).STORE_BAKHURNA_VIEW || "/b/:token";
+const STORE_BAKHURNA_DESK_PATH =
+  (ROUTE_PATHS as { STORE_BAKHURNA_DESK?: string }).STORE_BAKHURNA_DESK || "/b/:token/desk";
 const STORE_HALANA_PATH =
   (ROUTE_PATHS as { STORE_HALANA?: string }).STORE_HALANA || "/store/halana";
 const STORE_HALANA_READ_PATH =
@@ -421,6 +427,8 @@ const StoreDatesLandingPage = lazy(() => import("@/pages/store/StoreDatesLanding
 const StoreDatesShopPage = lazy(() => import("@/pages/store/StoreDatesShopPage"));
 const StoreDatesPayPage = lazy(() => import("@/pages/store/StoreDatesPayPage"));
 const StoreDatesOpsPlanPreviewPage = lazy(() => import("@/pages/store/StoreDatesOpsPlanPreviewPage"));
+const StoreBakhurnaLandingPage = lazy(() => import("@/pages/store/StoreBakhurnaLandingPage"));
+const StoreBakhurnaShopPage = lazy(() => import("@/pages/store/StoreBakhurnaShopPage"));
 const StoreHalanaLandingPage = lazy(() => import("@/pages/store/StoreHalanaLandingPage"));
 const StoreHalanaShopPage = lazy(() => import("@/pages/store/StoreHalanaShopPage"));
 const StoreHalanaPayPage = lazy(() => import("@/pages/store/StoreHalanaPayPage"));
@@ -1055,6 +1063,9 @@ export function App() {
           <Route path={STORE_DATES_PATH} element={<LazyRoute><StoreDatesLandingPage /></LazyRoute>} />
           <Route path={STORE_DATES_DESK_PATH} element={<LazyRoute><StoreDatesShopPage /></LazyRoute>} />
           <Route path={STORE_DATES_VIEW_PATH} element={<LazyRoute><StoreDatesShopPage /></LazyRoute>} />
+          <Route path={STORE_BAKHURNA_PATH} element={<LazyRoute><StoreBakhurnaLandingPage /></LazyRoute>} />
+          <Route path={STORE_BAKHURNA_DESK_PATH} element={<LazyRoute><StoreBakhurnaShopPage /></LazyRoute>} />
+          <Route path={STORE_BAKHURNA_VIEW_PATH} element={<LazyRoute><StoreBakhurnaShopPage /></LazyRoute>} />
           <Route path={STORE_HALANA_PAY_PATH} element={<LazyRoute><StoreHalanaPayPage /></LazyRoute>} />
           <Route path={STORE_HALANA_SUPPORT_PATH} element={<LazyRoute><StoreProductSupportPage /></LazyRoute>} />
           <Route path={STORE_HALANA_PATH} element={<LazyRoute><StoreHalanaLandingPage /></LazyRoute>} />
