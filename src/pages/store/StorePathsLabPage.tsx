@@ -14,6 +14,7 @@ import { OperatingModelFilter } from '@/components/store/paths/OperatingModelFil
 import { ProductPathGrid } from '@/components/store/paths/ProductPathGrid';
 import { PathHelpBanner } from '@/components/store/paths/PathHelpBanner';
 import { SharedDeliverablesSection } from '@/components/store/paths/SharedDeliverablesSection';
+import { CatalogTheoryRealityPracticeArticle } from '@/components/store/catalog/CatalogTheoryRealityPracticeArticle';
 import {
   PRODUCT_PATH_OPERATING_MODEL_OPTIONS,
   STORE_PRODUCT_PATHS,
@@ -23,6 +24,7 @@ import type { ProductPathOperatingModel } from '@/config/storeProductPathTypes';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { StorePathEvents } from '@/lib/storePathAnalytics';
+import '@/styles/storeSolutionCatalog.css';
 
 const GRID_ANCHOR_ID = 'paths-grid';
 const HELP_ANCHOR_ID = 'paths-help';
@@ -81,6 +83,7 @@ export default function StorePathsLabPage() {
 
         <div id={GRID_ANCHOR_ID} className="flex flex-col gap-5 scroll-mt-6">
           <PathSearch value={query} onChange={setQuery} />
+          <CatalogTheoryRealityPracticeArticle />
           <OperatingModelFilter options={PRODUCT_PATH_OPERATING_MODEL_OPTIONS} active={model} onChange={setModel} />
           <ProductPathGrid
             paths={filtered}

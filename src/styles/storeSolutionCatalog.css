@@ -717,6 +717,14 @@
 }
 
 .solution-catalog__article {
+  /* متغيرات محلية حتى يظهر المقال على /store/paths-lab بلا غلاف .solution-catalog */
+  --sc-border: #bdb5a7;
+  --sc-surface: #fffaf4;
+  --sc-card: #fffdf8;
+  --sc-ink: #1f2933;
+  --sc-muted: #566269;
+  --sc-blue: #1d4f69;
+  --sc-brick: #b84c3a;
   margin-top: 1.75rem;
   padding: 28px 24px;
   border: 1px solid var(--sc-border);
