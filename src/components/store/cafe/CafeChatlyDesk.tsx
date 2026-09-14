@@ -151,12 +151,19 @@ export function CafeChatlyDesk({
   return (
     <main dir="rtl" className="cafe-chatly-desk-root min-h-dvh bg-[#f4f1e8] pb-16 text-[#2a1810]">
       <div className="grid min-h-dvh lg:grid-cols-[250px_minmax(0,1fr)]">
-        <aside
-          className={cn(
-            'fixed inset-y-0 right-0 z-50 flex w-[min(280px,88vw)] flex-col border-l border-[#dfe4d6] bg-[#fffdf5] p-5 transition-transform lg:static lg:z-auto lg:w-auto lg:translate-x-0',
-            mobileNav ? 'translate-x-0 shadow-2xl' : 'translate-x-full lg:translate-x-0',
-          )}
-        >
+        {/*
+          غلاف تقصيص ثابت العرض/الموضع (overflow-hidden) حول القائمة الجانبية المنسدلة.
+          بدونه، عنصر aside بموضع fixed المُزاح خارج الشاشة عبر translate-x-full قد يظل
+          يُحتسب ضمن عرض التمرير الأفقي للمستند في بعض متصفحات الجوال (سفاري تحديدًا)،
+          مما يُزيح كل محتوى الصفحة يسارًا ويترك فراغًا غير مرئي على اليمين.
+        */}
+        <div className="fixed inset-y-0 right-0 z-50 w-[min(280px,88vw)] overflow-hidden lg:static lg:z-auto lg:w-auto lg:overflow-visible">
+          <aside
+            className={cn(
+              'flex h-full w-full flex-col border-l border-[#dfe4d6] bg-[#fffdf5] p-5 transition-transform lg:w-auto',
+              mobileNav ? 'translate-x-0 shadow-2xl' : 'translate-x-full lg:translate-x-0',
+            )}
+          >
           <div className="flex items-center justify-between border-b border-[#dfe4d6] pb-6 lg:block">
             <div className="flex items-center gap-3">
               <div className="flex size-10 items-center justify-center rounded-full bg-[#fde8d4] text-[#c48a4a]">
@@ -250,7 +257,8 @@ export function CafeChatlyDesk({
             {STORE_CAFE_LIVE.shopLinkAr}
             <ArrowLeft size={14} className="mr-auto" />
           </a>
-        </aside>
+          </aside>
+        </div>
 
         {mobileNav ? (
           <button
