@@ -53,6 +53,7 @@ import {
 } from '@/lib/sabPaymentRemote';
 import { fetchActivationCertificateByMoyasarPaymentId } from '@/lib/digitalActivationCertificateRemote';
 import { pollMoyasarPaymentFulfillmentRemote } from '@/lib/moyasarPaymentFulfillmentSyncRemote';
+import { pollBarberSubscriptionStatusRemote } from '@/lib/barberSubscriptionStatusRemote';
 import { loadSabPaymentWidgetScript, mountSabPaymentForm, setSabWidgetLocaleAr } from '@/lib/sabFormLoader';
 import { PaymentSuccessPanel } from '@/components/billing/PaymentSuccessPanel';
 import { PaymentMerchantCompliancePanel } from '@/components/billing/PaymentMerchantCompliancePanel';
@@ -545,6 +546,53 @@ export default function Payment() {
     );
   }, []);
 
+  /**
+   * يُستدعى عند أي إشارة فشل من ميسر لا ترفق معرّف دفعة (لا ودجت on_failure ولا
+   * عودة الرابط ?status=failed ترفق id — موثّق رسمياً لدى ميسر). بلا معرّف دفعة
+   * لا يمكن التحقق المباشر عبر /api/verify-moyasar-payment كما في مسار العودة
+   * الطبيعي، لذا — بدل تصديق حكم المتصفح وحده وإخبار العميل بفشل قد لا يكون
+   * حقيقياً بينما البنك خصم المبلغ فعلاً — نتحقق أولاً من آخر حالة اشتراك
+   * مسجَّلة عبر webhook ميسر (مصدر مستقل تماماً عن ودجت المتصفح، تستدعيه خوادم
+   * ميسر مباشرة). إن ظهرت «مدفوعة» حديثاً نعرض نجاحاً؛ وإلا نعرض رسالة عدم-تأكد
+   * (لا رسالة فشل جازمة) مع رقم مرجعي للدعم.
+   */
+  const resolveUnverifiedMoyasarFailure = useCallback(
+    async (userMessage: string) => {
+      // شحن المحفظة يُسجَّل في جدول مختلف عن اشتراكات الحلاق — هذا الفحص البديل
+      // لا يغطيه بعد، وبلا أي معرّف (حلاق/طلب) لا يوجد ما نتحقق منه أصلاً.
+      const hasIdentifier = Boolean(linkedBarberId || requestId);
+      if (isWalletTopup || !hasIdentifier) {
+        setMoyasarReturnVerify('error');
+        setMoyasarVerifyMessage(userMessage);
+        toast.error('تعذر تأكيد نتيجة الدفع', { description: userMessage });
+        return;
+      }
+
+      setMoyasarReturnVerify('loading');
+      setMoyasarVerifyMessage(null);
+      const sinceMs = Date.now();
+      const result = await pollBarberSubscriptionStatusRemote({
+        linkedBarberId: linkedBarberId || undefined,
+        requestId: requestId || undefined,
+        sinceMs,
+      });
+
+      if (result.ok && result.found && result.status === 'paid') {
+        setMoyasarReturnVerify('paid');
+        setMoyasarVerifyMessage(null);
+        toast.success('الدفع تم فعلاً', {
+          description: 'رغم رسالة خطأ ظهرت في المتصفح، تأكّد نجاح الدفع من بوابة الدفع وتم تفعيل اشتراكك.',
+        });
+        return;
+      }
+
+      setMoyasarReturnVerify('error');
+      setMoyasarVerifyMessage(userMessage);
+      toast.error('تعذر تأكيد نتيجة الدفع', { description: userMessage });
+    },
+    [linkedBarberId, requestId, isWalletTopup],
+  );
+
   useEffect(() => {
     if (!moyasarReturnHydrated) return;
     const failure = readMoyasarFailureReturn(searchParams);
@@ -567,9 +615,7 @@ export default function Payment() {
     }
 
     const userMessage = formatMoyasarFailureReturnMessage(failure.message);
-    setMoyasarReturnVerify('error');
-    setMoyasarVerifyMessage(userMessage);
-    toast.error('تعذر إتمام الدفع', { description: userMessage });
+    void resolveUnverifiedMoyasarFailure(userMessage);
 
     setSearchParams(
       (prev) => {
@@ -580,7 +626,7 @@ export default function Payment() {
       },
       { replace: true },
     );
-  }, [moyasarReturnHydrated, searchParams, setSearchParams]);
+  }, [moyasarReturnHydrated, searchParams, setSearchParams, resolveUnverifiedMoyasarFailure]);
 
   useEffect(() => {
     if (!moyasarReturnHydrated) return;
@@ -950,11 +996,14 @@ export default function Payment() {
               if (id) persistMoyasarLastPaymentId(id);
             },
             on_failure: (msg: unknown) => {
+              // ملاحظة مهمة: ودجت ميسر (mpf.js) يُرفق هنا رسالة نصية فقط — لا
+              // معرّف دفعة إطلاقاً (موثّق رسمياً) — فحكمه بالفشل قد لا يعكس
+              // الحالة الفعلية لدى البنك (مثلاً عطل في اتصال iframe الودجت مع
+              // الصفحة الأم بعد أن أتم البنك الخصم فعلياً). لذا لا نُصدّق هذا
+              // الحكم وحده — راجع resolveUnverifiedMoyasarFailure أعلاه.
               const raw = typeof msg === 'string' ? msg : 'تعذر إتمام الدفع.';
               const userMessage = formatMoyasarFailureReturnMessage(raw);
-              setMoyasarReturnVerify('error');
-              setMoyasarVerifyMessage(userMessage);
-              toast.error('تعذر إتمام الدفع', { description: userMessage });
+              void resolveUnverifiedMoyasarFailure(userMessage);
             },
           });
         } catch (e) {
@@ -992,6 +1041,7 @@ export default function Payment() {
     effectiveAmountHalalas,
     effectiveDescription,
     effectiveMetadata,
+    resolveUnverifiedMoyasarFailure,
   ]);
 
   /** تهيئة ودجت OPPWA لبنك الأول (SAB) بعد الإقرارات. */

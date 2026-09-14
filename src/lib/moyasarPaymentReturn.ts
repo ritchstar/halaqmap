@@ -369,24 +369,45 @@ export function readMoyasarFailureReturn(searchParams: URLSearchParams): { statu
   return null;
 }
 
+/**
+ * وضع مفاتيح الدفع الفعلي (اختبار/حقيقي) كما تراه الواجهة — يُستخدم فقط لإخفاء
+ * إرشادات بطاقة الاختبار عن عملاء الإنتاج الحقيقيين (راجع VITE_PAYMENT_ENV،
+ * نفس المتغيّر المستخدم في src/lib/store*LiveMoyasar.ts).
+ */
+function isLivePaymentEnv(): boolean {
+  return String(import.meta.env.VITE_PAYMENT_ENV || 'test').trim().toLowerCase() === 'live';
+}
+
 export function formatMoyasarFailureReturnMessage(rawMessage: string): string {
   const msg = rawMessage.trim();
   const upper = msg.toUpperCase();
+  const isLive = isLivePaymentEnv();
   if (
     upper.includes('INVALID CARD') ||
     upper.includes('CARD_INVALID') ||
     upper.includes('NOT FOUND') ||
     upper.includes('CARD NOT ENROLLED')
   ) {
-    return 'رفضت البطاقة: الرقم غير صالح للاختبار. استخدم بطاقة الاختبار `4111 1111 1111 1111` مع تاريخ مستقبلي وأي CVV، ثم أكمل شاشة التحقق بزر Submit.';
+    return isLive
+      ? 'رفضت بوابة الدفع بيانات البطاقة. تأكد من صحة رقم البطاقة وتاريخ الانتهاء وCVV، ثم أعد المحاولة أو تواصل مع الدعم.'
+      : 'رفضت البطاقة: الرقم غير صالح للاختبار. استخدم بطاقة الاختبار `4111 1111 1111 1111` مع تاريخ مستقبلي وأي CVV، ثم أكمل شاشة التحقق بزر Submit.';
   }
   if (upper.includes('DECLINED')) {
-    return `رفض البنك العملية (${msg}). جرّب البطاقة التجريبية 4111… أو تواصل مع الدعم.`;
+    return isLive
+      ? `رفض البنك مُصدِر البطاقة العملية (${msg}). إن ظهر خصم فعلي في حسابك رغم ذلك، لا تفترض ضياع المبلغ — سنتحقق تلقائياً خلال دقائق، أو تواصل مع الدعم.`
+      : `رفض البنك العملية (${msg}). جرّب البطاقة التجريبية 4111… أو تواصل مع الدعم.`;
   }
   if (upper.includes('INSUFFICIENT')) {
-    return 'الرصيد غير كافٍ. في الاختبار استخدم البطاقة `4111 1111 1111 1111`.';
+    return isLive
+      ? 'رصيد البطاقة غير كافٍ لإتمام العملية.'
+      : 'الرصيد غير كافٍ. في الاختبار استخدم البطاقة `4111 1111 1111 1111`.';
   }
-  return msg || 'تعذر إتمام الدفع عبر بوابة الدفع. أعد المحاولة أو تواصل مع الدعم.';
+  return (
+    msg ||
+    (isLive
+      ? 'تعذّر على المتصفح تأكيد نتيجة الدفع. إن ظهر خصم فعلي في حسابك البنكي فهذا لا يعني بالضرورة أن العملية فشلت — سنتحقق تلقائياً من الحالة الفعلية لدى بوابة الدفع.'
+      : 'تعذر إتمام الدفع عبر بوابة الدفع. أعد المحاولة أو تواصل مع الدعم.')
+  );
 }
 
 export function expectedHalalasFromReturnSearchParams(
