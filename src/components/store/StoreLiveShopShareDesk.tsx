@@ -97,7 +97,10 @@ export function StoreLiveShopShareDesk({
   function printQr() {
     const node = document.getElementById(printId);
     if (!node) return;
-    const win = window.open('', '_blank', 'noopener,noreferrer');
+    // مهم: بدون noopener/noreferrer هنا تحديدًا — هذان الخياران يجعلان بعض المتصفحات
+    // (كروم الحديث تحديدًا) تُرجع مرجعًا لنافذة "مقطوعة الصلة" لا يقبل الكتابة عليها،
+    // فتظهر نافذة فارغة بلا محتوى وبلا أمر طباعة فعلي. نحتاج مرجعًا صالحًا للكتابة فيه.
+    const win = window.open('', '_blank');
     if (!win) return;
     // نافذة الطباعة لا تحمّل ستايلات الموقع (Tailwind)، فبدون CSS مستقل هنا
     // يظهر رمز QR بلا حجم أو خلفية ثابتة — ستايل مكتفٍ بذاته يضمن ظهوره كاملاً وبنفس الشكل.
@@ -112,7 +115,11 @@ export function StoreLiveShopShareDesk({
     </style></head><body><div class="qr-print-card">${node.innerHTML}</div></body></html>`);
     win.document.close();
     win.focus();
-    win.print();
+    // مهلة قصيرة تضمن اكتمال رسم الصفحة (وSVG الكيو ار) قبل استدعاء الطباعة —
+    // بعض متصفحات الجوال تتجاهل print() إن استُدعي فورًا بعد الكتابة والإغلاق.
+    setTimeout(() => {
+      win.print();
+    }, 150);
   }
 
   async function copyCaption() {
