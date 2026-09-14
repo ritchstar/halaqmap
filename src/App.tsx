@@ -456,6 +456,7 @@ const BookBarber = lazy(() => import("@/pages/BookBarber"));
 const StaffTeamBookingsPage = lazy(() => import("@/pages/StaffTeamBookingsPage"));
 const AdminSentinelPage = lazy(() => import("@/pages/AdminSentinelPage"));
 const CosmicShowcase = lazy(() => import("@/pages/CosmicShowcase"));
+const ChessArenaPage = lazy(() => import("@/pages/ChessArenaPage"));
 const DigitalShiftFeaturePage = lazy(() => import("@/pages/DigitalShiftFeaturePage"));
 const PrivateOfficeGuide = lazy(() => import("@/pages/PrivateOfficeGuide"));
 const SematLegalHub = lazy(() => import("@/pages/semat/SematLegalHub"));
@@ -813,6 +814,7 @@ export function App() {
           <Route path={YOUTUBE_HALAQ_PATH} element={<LazyRoute><YoutubeGalleryPage /></LazyRoute>} />
           <Route path={YOUTUBE_STORE_PATH} element={<LazyRoute><YoutubeGalleryPage /></LazyRoute>} />
           <Route path={ROUTE_PATHS.COSMIC_SHOWCASE} element={<LazyRoute><CosmicShowcase /></LazyRoute>} />
+          <Route path={ROUTE_PATHS.CHESS_ARENA} element={<LazyRoute><ChessArenaPage /></LazyRoute>} />
           <Route path={ROUTE_PATHS.SAUDI_AGENT} element={<LazyRoute><SaudiAgentLanding /></LazyRoute>} />
           <Route
             path={ROUTE_PATHS.RADAR_SHOWCASE}

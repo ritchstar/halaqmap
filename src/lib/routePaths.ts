@@ -372,6 +372,11 @@ export const ROUTE_PATHS = {
   SAUDI_AGENT: '/saudi',
   /** معاينة نظام الرصد الذكي — Showcase Radar */
   RADAR_SHOWCASE: '/radar',
+  /**
+   * ساحة الشطرنج — المرحلة الأولى: لعب ضد الذكاء الاصطناعي بثلاث مستويات،
+   * بجلسة محفوظة محلياً. التشاركي والاشتراكات المدفوعة مرحلتان لاحقتان.
+   */
+  CHESS_ARENA: '/chess',
   /** صفحة هبوط تجريبية — Roo Landing Lab Experiment */
   ROO_LANDING_LAB: '/lab/roo-landing',
   /** مخيم النجوم الصامت — معمل تصميم مستقل (فلك صحراوي) */
