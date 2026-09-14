@@ -5,7 +5,7 @@
  * لا يُستورد من App.
  */
 
-export const STORE_LIVE_MARK_AR = 'منتج منصة طريقة الحل';
+export const STORE_LIVE_MARK_AR = 'منتج منصة خريطة الحل';
 
 export const STORE_LIVE_PANORAMA_MS = 9000;
 

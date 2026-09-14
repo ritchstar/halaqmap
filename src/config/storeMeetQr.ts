@@ -1,7 +1,7 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
- * رمز مقابلة متجر منصة طريقة الحل — يُحمَّل مع صفحة العرض، لا يُستورد من App.
+ * رمز مقابلة متجر منصة خريطة الحل — يُحمَّل مع صفحة العرض، لا يُستورد من App.
  * الهدف دائماً نطاق المتجر بلا هاش.
  */
 import { ROUTE_PATHS } from '@/lib/routePaths';
@@ -20,11 +20,11 @@ export function storeMeetQrTargetUrl(): string {
 }
 
 export const STORE_MEET_QR_COPY = {
-  documentTitle: 'رمز منصة طريقة الحل',
+  documentTitle: 'رمز منصة خريطة الحل',
   kickerAr: 'للعرض من الآيفون أثناء المقابلة',
   titleAr: STORE_PUBLIC_NAME_AR,
   latinMark: STORE_BRAND_LATIN,
-  scanHintAr: 'امسح الرمز لدخول واجهة منصة طريقة الحل',
+  scanHintAr: 'امسح الرمز لدخول واجهة منصة خريطة الحل',
   hostLine: `${STORE_SATELLITE_HOST}/store`,
   presentCtaAr: 'وضع العرض',
   presentExitAr: 'إغلاق العرض',
@@ -34,10 +34,10 @@ export const STORE_MEET_QR_COPY = {
   saveOkAr: 'جهّز الصورة. احفظها في الصور من قائمة الجهاز.',
   saveFailAr: 'تعذّر التجهيز. أعد المحاولة من المتصفح.',
   leadAr:
-    'افتح هذه الصفحة على الآيفون ثم اضغط وضع العرض أمام العميل. المسح يفتح واجهة منصة طريقة الحل على نطاقه بلا هاش.',
+    'افتح هذه الصفحة على الآيفون ثم اضغط وضع العرض أمام العميل. المسح يفتح واجهة منصة خريطة الحل على نطاقه بلا هاش.',
   landingDoorTitleAr: 'رمز المقابلة على الآيفون',
   landingDoorLeadAr:
-    'لوحة بستايل منصة طريقة الحل لعرضها من الجوال أثناء المقابلة. المسح يدخل الواجهة بلا هاش.',
+    'لوحة بستايل منصة خريطة الحل لعرضها من الجوال أثناء المقابلة. المسح يدخل الواجهة بلا هاش.',
   landingDoorCtaAr: 'افتح رمز المقابلة',
 } as const;
 

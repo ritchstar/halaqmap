@@ -1,7 +1,7 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
- * تنويه تشغيلي — تطوير مستمر لمنتجات منصة طريقة الحل.
+ * تنويه تشغيلي — تطوير مستمر لمنتجات منصة خريطة الحل.
  */
 import { PLATFORM_CONTINUOUS_DEVELOPMENT_COPY } from '@/config/platformContinuousDevelopment';
 import { cn } from '@/lib/utils';

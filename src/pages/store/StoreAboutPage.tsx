@@ -1,7 +1,7 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
- * تعريف متجر halaqmap على واجهة المتجر — عن منصة طريقة الحل.
+ * تعريف متجر halaqmap على واجهة المتجر — عن منصة خريطة الحل.
  */
 import { Link } from 'react-router-dom';
 import {

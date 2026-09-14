@@ -84,7 +84,7 @@ export default function StoreIssuedCardsLegalHub() {
     <StoreVisitorShell>
       <StoreVisitorHeader />
       <main className="mx-auto max-w-3xl px-4 py-10 print:max-w-none print:py-4">
-        <p className="text-xs font-bold tracking-wide text-[#e8c547]">halaqmap · منصة طريقة الحل</p>
+        <p className="text-xs font-bold tracking-wide text-[#e8c547]">halaqmap · منصة خريطة الحل</p>
         <h1 className="mt-2 text-3xl font-extrabold text-[#f4efe4]">{STORE_ISSUED_CARDS_LEGAL_TITLE_AR}</h1>
         <p className="mt-3 text-sm leading-7 text-white/75">{STORE_ISSUED_CARDS_LEGAL_SUBTITLE_AR}</p>
         <div className="mt-3 flex flex-wrap items-center gap-3 text-sm leading-7 text-white/70">

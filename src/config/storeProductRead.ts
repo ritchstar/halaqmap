@@ -48,7 +48,7 @@ export type StoreProductReadEntry = {
 const KITCHEN: StoreProductReadEntry = {
   id: 'kitchen',
   saipProductId: 'kitchen',
-  documentTitle: 'طبختنا1 — مسار طلب واحد للأسرة المنتجة — منصة طريقة الحل',
+  documentTitle: 'طبختنا1 — مسار طلب واحد للأسرة المنتجة — منصة خريطة الحل',
   accent: '#b45a3c',
   kickerAr: 'نظام الأسرة المنتجة',
   titleAr: 'مسار طلب واحد لأسرتك المنتجة: من الرسائل المتفرقة إلى بطاقة تسليم جاهزة',
@@ -133,7 +133,7 @@ const KITCHEN: StoreProductReadEntry = {
 const GROCERS: StoreProductReadEntry = {
   id: 'grocers',
   saipProductId: 'grocers',
-  documentTitle: 'تمويناتا1 — مسار طلب واحد للبقالة والتموينات — منصة طريقة الحل',
+  documentTitle: 'تمويناتا1 — مسار طلب واحد للبقالة والتموينات — منصة خريطة الحل',
   accent: '#8fbf7a',
   kickerAr: 'تموينات الحي',
   titleAr: 'مسار طلب واحد للبقالة والتموينات: من الرسائل المتفرقة إلى مذكرة توصيل جاهزة',
@@ -220,7 +220,7 @@ const GROCERS: StoreProductReadEntry = {
 const PRODUCE: StoreProductReadEntry = {
   id: 'produce',
   saipProductId: 'produce',
-  documentTitle: 'خضارنا1 — دليل ومقارنة — منصة طريقة الحل',
+  documentTitle: 'خضارنا1 — دليل ومقارنة — منصة خريطة الحل',
   accent: '#3d8b4a',
   kickerAr: 'صندوق الخضار والفواكه',
   titleAr: 'خضارنا1: صندوق اليوم بواجهة حية ولوحة تشغيل للحي',
@@ -263,7 +263,7 @@ const PRODUCE: StoreProductReadEntry = {
 /* ── تمرتنا1 — منتج غير مسجّل لدى الهيئة السعودية للملكية الفكرية ── */
 const DATES: StoreProductReadEntry = {
   id: 'dates',
-  documentTitle: 'تمرتنا1 — دليل ومقارنة — منصة طريقة الحل',
+  documentTitle: 'تمرتنا1 — دليل ومقارنة — منصة خريطة الحل',
   accent: '#8A6239',
   kickerAr: 'صندوق التمر',
   titleAr: 'تمرتنا1: صندوق اليوم بواجهة حية ولوحة تشغيل للحي',
@@ -306,7 +306,7 @@ const DATES: StoreProductReadEntry = {
 /* ── مطعمنا1 ── */
 const RESTAURANT: StoreProductReadEntry = {
   id: 'restaurant',
-  documentTitle: 'مطعمنا1 — دليل ومقارنة — منصة طريقة الحل',
+  documentTitle: 'مطعمنا1 — دليل ومقارنة — منصة خريطة الحل',
   accent: '#e08a3c',
   kickerAr: 'مطعم الحي',
   titleAr: 'مطعمنا1: صفحة الوجبات وتذكرة المطبخ وواتساب التوصيل',
@@ -345,7 +345,7 @@ const RESTAURANT: StoreProductReadEntry = {
 const CAFE: StoreProductReadEntry = {
   id: 'cafe',
   saipProductId: 'cafe',
-  documentTitle: 'كافينا1 — دليل ومقارنة — منصة طريقة الحل',
+  documentTitle: 'كافينا1 — دليل ومقارنة — منصة خريطة الحل',
   accent: '#c48a4a',
   kickerAr: 'مقهى الحي',
   titleAr: 'كافينا1: صفحة الطلب وثلاث شاشات داخل المقهى',
@@ -384,7 +384,7 @@ const CAFE: StoreProductReadEntry = {
 const LOUNGE: StoreProductReadEntry = {
   id: 'lounge',
   saipProductId: 'lounge',
-  documentTitle: 'لاونجا1 — دليل ومقارنة — منصة طريقة الحل',
+  documentTitle: 'لاونجا1 — دليل ومقارنة — منصة خريطة الحل',
   accent: '#d4a574',
   kickerAr: 'شاشات اللاونج',
   titleAr: 'لاونجا1: تشغيل شاشات اللاونج بفعاليات جاهزة وتفاعل الزوار',
@@ -422,7 +422,7 @@ const LOUNGE: StoreProductReadEntry = {
 /* ── افراحي1 ── */
 const WEDDING: StoreProductReadEntry = {
   id: 'wedding',
-  documentTitle: 'افراحي1 — دليل ومقارنة — منصة طريقة الحل',
+  documentTitle: 'افراحي1 — دليل ومقارنة — منصة خريطة الحل',
   accent: '#e8c547',
   kickerAr: 'دعوة الزواج التفاعلية',
   titleAr: 'افراحي1: ليست بطاقة، بل قاعة أفراح حيّة على شاشة المدعو',
@@ -466,7 +466,7 @@ const WEDDING: StoreProductReadEntry = {
 const EVENT: StoreProductReadEntry = {
   id: 'event',
   saipProductId: 'event',
-  documentTitle: 'اجواء1 — دليل ومقارنة — منصة طريقة الحل',
+  documentTitle: 'اجواء1 — دليل ومقارنة — منصة خريطة الحل',
   accent: '#e8c547',
   kickerAr: 'الدعوة الحرة التفاعلية',
   titleAr: 'اجواء1: دعوة حرة لمناسبتك تفتح إلى قاعة احتفالية حية',
@@ -504,7 +504,7 @@ const EVENT: StoreProductReadEntry = {
 /* ── كاردي8 ── */
 const INVITES: StoreProductReadEntry = {
   id: 'invites',
-  documentTitle: 'كاردي8 — دليل ومقارنة — منصة طريقة الحل',
+  documentTitle: 'كاردي8 — دليل ومقارنة — منصة خريطة الحل',
   accent: '#e8c547',
   kickerAr: 'بطاقة المناسبة',
   titleAr: 'كاردي8: بطاقة مناسبة حية بثلاثة مستويات',
@@ -542,7 +542,7 @@ const INVITES: StoreProductReadEntry = {
 /* ── حلانا1 ── */
 const HALANA: StoreProductReadEntry = {
   id: 'halana',
-  documentTitle: 'حلانا1 — مقر رقمي لمتخصصة الحلويات — منصة طريقة الحل',
+  documentTitle: 'حلانا1 — مقر رقمي لمتخصصة الحلويات — منصة خريطة الحل',
   accent: '#c45c7a',
   kickerAr: 'حلويات خاصة',
   titleAr: 'مسار طلب واحد للمتخصصة: من الرسائل المتفرقة إلى عربون تعتمده بنفسها',
@@ -559,7 +559,7 @@ const HALANA: StoreProductReadEntry = {
     {
       headingAr: 'عربون يدوي لا قفل آلي',
       bodyAr:
-        'بعد عرض السعر تظهر تعليمات التحويل التي تملكها المتخصصة. صورة الإثبات لا تقفل الموعد حتى تعتمد المتخصصة العربون من اللوحة. منصة طريقة الحل لا تستلم المبلغ ولا تؤكد وصوله.',
+        'بعد عرض السعر تظهر تعليمات التحويل التي تملكها المتخصصة. صورة الإثبات لا تقفل الموعد حتى تعتمد المتخصصة العربون من اللوحة. منصة خريطة الحل لا تستلم المبلغ ولا تؤكد وصوله.',
     },
     {
       headingAr: 'سعر ثابت بلا عمولة على الطلب',

@@ -17,7 +17,7 @@ export const LEGAL_ECOMMERCE_STORE_ROLE_AR =
  * اسم عربي للجمهور على واجهة المتجر.
  * ليس بديلاً عن الاسم اللاتيني الموثّق، ولا يُقدَّم على أنه ترجمة رسمية.
  */
-export const LEGAL_ECOMMERCE_STORE_PUBLIC_NAME_AR = 'منصة طريقة الحل' as const;
+export const LEGAL_ECOMMERCE_STORE_PUBLIC_NAME_AR = 'منصة خريطة الحل' as const;
 
 /** سطر إنجليزي للعنوان العام — الاسم اللاتيني كما في التوثيق */
 export const LEGAL_ECOMMERCE_STORE_ENGLISH_LINE = 'halaqmap — retail software store' as const;

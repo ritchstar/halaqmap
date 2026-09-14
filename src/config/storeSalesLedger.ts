@@ -1,7 +1,7 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
- * قيد مبيعات المتجر الإلكتروني — منصة طريقة الحل.
+ * قيد مبيعات المتجر الإلكتروني — منصة خريطة الحل.
  * لا يُستورد من App. لا كاردي8 ولا رخصة النفاذ.
  */
 export const STORE_SALES_LEDGER_PRODUCTS = [
@@ -21,7 +21,7 @@ export const STORE_SALES_LEDGER_PRODUCTS = [
 export type StoreSalesLedgerProduct = (typeof STORE_SALES_LEDGER_PRODUCTS)[number];
 
 export const STORE_SALES_LEDGER_COPY = {
-  documentTitle: 'قيد مبيعات المتجر الإلكتروني — منصة طريقة الحل',
+  documentTitle: 'قيد مبيعات المتجر الإلكتروني — منصة خريطة الحل',
   kickerAr: 'إدارة مبيعات واجهة المتجر الإلكتروني',
   titleAr: 'قيد مبيعات المتجر',
   leadAr:

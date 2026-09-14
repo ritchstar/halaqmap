@@ -1,19 +1,19 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
- * تقييمات متجر منصة طريقة الحل — نصوص الزائر والإدارة. لا يُستورد من App.
+ * تقييمات متجر منصة خريطة الحل — نصوص الزائر والإدارة. لا يُستورد من App.
  */
 export const STORE_REVIEWS_PUBLIC_ENABLED = true as const;
 
 export const STORE_REVIEWS_COPY = {
-  documentTitle: 'تقييمات منصة طريقة الحل | منصة طريقة الحل',
-  kickerAr: 'تقييمات منصة طريقة الحل',
+  documentTitle: 'تقييمات منصة خريطة الحل | منصة خريطة الحل',
+  kickerAr: 'تقييمات منصة خريطة الحل',
   titleAr: 'النجوم والتعليق',
-  leadAr: 'اترك تقييماً وتعليقاً عن منصة طريقة الحل. تظهر التعليقات في هذه الصفحة، وتصل إلى لوحة الإدارة.',
+  leadAr: 'اترك تقييماً وتعليقاً عن منصة خريطة الحل. تظهر التعليقات في هذه الصفحة، وتصل إلى لوحة الإدارة.',
   formTitleAr: 'صندوق التقييم والتعليق',
   starsLabelAr: 'عدد النجوم',
   commentLabelAr: 'التعليق',
-  commentHintAr: 'اكتب ملاحظة قصيرة عن تجربتك مع منصة طريقة الحل.',
+  commentHintAr: 'اكتب ملاحظة قصيرة عن تجربتك مع منصة خريطة الحل.',
   nameLabelAr: 'الاسم إن رغبت',
   optionalAr: 'اختياري',
   submitAr: 'أرسل التقييم والتعليق',
@@ -23,7 +23,7 @@ export const STORE_REVIEWS_COPY = {
   needStarsAr: 'اختر عدد النجوم.',
   needCommentAr: 'اكتب تعليقاً واضحاً لا يقل عن ثمانية أحرف.',
   visitorAr: 'زائر',
-  backAr: 'واجهة منصة طريقة الحل',
+  backAr: 'واجهة منصة خريطة الحل',
   navAr: 'التقييمات',
 } as const;
 

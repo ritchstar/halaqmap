@@ -10,7 +10,7 @@ export type LabTier = 'quick' | 'featured' | 'luxury';
 export type LabLifecycle = 'before' | 'day' | 'after';
 
 export const STORE_OCCASION_CARD_LAB = {
-  documentTitle: 'نماذج البطاقة الحيّة — منصة طريقة الحل',
+  documentTitle: 'نماذج البطاقة الحيّة — منصة خريطة الحل',
   kickerAr: 'مختبر تجريبي — بلا دفع',
   titleAr: 'ثلاثة مستويات لكاردي8',
   leadAr:

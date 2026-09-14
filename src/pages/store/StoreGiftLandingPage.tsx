@@ -1,7 +1,7 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
- * هدية منصة طريقة الحل — صفحة المشاركة.
+ * هدية منصة خريطة الحل — صفحة المشاركة.
  */
 import { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';

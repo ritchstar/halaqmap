@@ -43,7 +43,7 @@ export function StoreGuestDeviceBlocked({
         </p>
         <p className={cn('mt-3 leading-7 text-white/75', compact ? 'text-xs' : 'text-sm leading-8')}>{askAr}</p>
         <p className={cn('mt-2 leading-7 text-white/60', compact ? 'text-xs' : 'mt-3 text-sm leading-8')}>
-          <code dir="ltr">halaqmap</code> منصة طريقة الحل
+          <code dir="ltr">halaqmap</code> منصة خريطة الحل
         </p>
       </div>
     </div>

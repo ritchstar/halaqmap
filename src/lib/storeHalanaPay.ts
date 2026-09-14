@@ -33,7 +33,7 @@ export function halanaPayCopyText(input: {
     input.iban ? `الآيبان: ${normalizeHalanaIban(input.iban)}` : '',
     input.amountSar ? `المبلغ: ${input.amountSar} ر.س` : '',
     input.requestRef ? `مرجع الطلب: ${input.requestRef}` : '',
-    'منصة طريقة الحل لا تستلم المبلغ ولا تؤكد وصوله نيابة عن المتخصصة.',
+    'منصة خريطة الحل لا تستلم المبلغ ولا تؤكد وصوله نيابة عن المتخصصة.',
   ]
     .filter(Boolean)
     .join('\n');

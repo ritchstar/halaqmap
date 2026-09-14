@@ -1,7 +1,7 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
- * صفحة رمز متجر منصة طريقة الحل للعرض من الآيفون أثناء المقابلات.
+ * صفحة رمز متجر منصة خريطة الحل للعرض من الآيفون أثناء المقابلات.
  */
 import { useEffect, useState } from 'react';
 import { Download, Maximize2, Minimize2 } from 'lucide-react';

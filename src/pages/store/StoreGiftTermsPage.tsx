@@ -1,7 +1,7 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
- * شروط هدايا منصة طريقة الحل — مستقلة عن كاردي8.
+ * شروط هدايا منصة خريطة الحل — مستقلة عن كاردي8.
  */
 import { Link } from 'react-router-dom';
 import {

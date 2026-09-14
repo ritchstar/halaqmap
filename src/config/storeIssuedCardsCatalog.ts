@@ -67,12 +67,12 @@ export const STORE_PAID_INVITE_TEMPLATES: readonly StorePaidInviteTemplate[] = [
 ];
 
 export const STORE_PAID_INVITE_COPY = {
-  documentTitle: 'كاردي8 — منصة طريقة الحل',
+  documentTitle: 'كاردي8 — منصة خريطة الحل',
   kicker: 'إصدار فوري لكاردي8',
   titleAr: 'كاردي8',
   leadAr:
     'جرّب المعاينة مجاناً. ثلاث طبقات: 12 و29 و59 ر.س. ادفع عبر بوابة الدفع الآمنة ثم شارك الرابط أو حمّل الصورة. أنت من يرسل البطاقة لمن تشاء.',
-  stampAr: 'صُممت عبر halaqmap · منصة طريقة الحل',
+  stampAr: 'صُممت عبر halaqmap · منصة خريطة الحل',
   createCtaAr: 'أنشئ بطاقتك',
   downloadCtaAr: 'تحميل بطاقتك',
   copyLinkCtaAr: 'نسخ رابط المشاركة',

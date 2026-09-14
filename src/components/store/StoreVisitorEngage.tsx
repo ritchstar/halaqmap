@@ -133,7 +133,7 @@ export function StoreVisitorEngage() {
         <button
           type="button"
           onClick={() => setPanel((current) => (current ? null : 'menu'))}
-          aria-label="تفاعل مع منصة طريقة الحل"
+          aria-label="تفاعل مع منصة خريطة الحل"
           className="inline-flex items-center gap-2 rounded-full border border-[#e8c547]/40 bg-[#061018]/90 px-3 py-2 text-sm font-extrabold text-[#e8c547] shadow-lg backdrop-blur-md"
         >
           <MessageCircle className="h-4 w-4" />

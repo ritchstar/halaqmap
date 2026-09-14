@@ -194,7 +194,7 @@ export function StoreVisitorFooter() {
           </Link>
           ) : null}
           <Link to={ROUTE_PATHS.STORE_LANDING} className="text-white/80">
-            واجهة منصة طريقة الحل
+            واجهة منصة خريطة الحل
           </Link>
           <Link to={ROUTE_PATHS.STORE_INTRO_CARDS} className="text-white/80">
             كروت تعريفية

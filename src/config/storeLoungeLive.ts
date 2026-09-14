@@ -71,7 +71,7 @@ export const STORE_LOUNGE_LIVE_CHECKOUT_ENABLED = envEnabled('VITE_STORE_LOUNGE_
 export const STORE_LOUNGE_LIVE_ACCENT = '#d4a574' as const;
 
 export const STORE_LOUNGE_LIVE = {
-  documentTitle: 'لاونجا1 — تشغيل شاشات اللاونج — منصة طريقة الحل',
+  documentTitle: 'لاونجا1 — تشغيل شاشات اللاونج — منصة خريطة الحل',
   kickerAr: 'شاشة اللاونج تعمل حسب المدة التي تختارونها',
   titleAr: 'لاونجا1',
   leadAr:
@@ -97,7 +97,7 @@ export const STORE_LOUNGE_LIVE = {
       bodyAr: 'لا عمولة على التهاني أو تفاعل الزوار. تُدفع قيمة الباقة فقط.',
     },
   ],
-  hallStampAr: 'halaqmap · منصة طريقة الحل',
+  hallStampAr: 'halaqmap · منصة خريطة الحل',
   guestFormTitleAr: 'أرسل ترحيباً يظهر على شاشة اللاونج',
   guestNameLabelAr: 'اسمك إن رغبت',
   guestMessageLabelAr: 'الترحيب على الشاشة',

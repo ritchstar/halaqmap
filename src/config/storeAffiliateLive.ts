@@ -7,7 +7,7 @@
  */
 export const STORE_AFFILIATE_PUBLIC_ENABLED = true;
 
-export const STORE_AFFILIATE_HUB_TITLE_AR = 'بوابة مسوّقي منتجات المتجر — منصة طريقة الحل';
+export const STORE_AFFILIATE_HUB_TITLE_AR = 'بوابة مسوّقي منتجات المتجر — منصة خريطة الحل';
 
 export const STORE_AFFILIATE_GROUP_NAME_AR = 'المجموعة التسويقية للمتجر الإلكتروني';
 
@@ -21,7 +21,7 @@ export const STORE_AFFILIATE_LANES = [
 ] as const;
 
 export const STORE_AFFILIATE_COPY = {
-  documentTitle: 'بوابة مسوّقي منتجات المتجر — منصة طريقة الحل',
+  documentTitle: 'بوابة مسوّقي منتجات المتجر — منصة خريطة الحل',
   kickerAr: 'المجموعة التسويقية للمتجر الإلكتروني',
   titleAr: STORE_AFFILIATE_HUB_TITLE_AR,
   leadAr:

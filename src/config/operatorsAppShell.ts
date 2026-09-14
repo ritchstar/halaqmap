@@ -1,7 +1,7 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
- * غلاف تطبيق لوحة مشغّلي منصة طريقة الحل — ثوابت مستقلة عن غلاف المستخدم.
+ * غلاف تطبيق لوحة مشغّلي منصة خريطة الحل — ثوابت مستقلة عن غلاف المستخدم.
  * لا يُستورد من `consumerAppShell` ولا منه، حتى لا تتقاطع الحزمتان.
  */
 
@@ -12,7 +12,7 @@ export const OPERATORS_APP_PACKAGE_ID = 'com.halaqmap.operators' as const;
 export const OPERATORS_APPLE_TEAM_ID = '682KF3CDQM' as const;
 
 /** الاسم الظاهر في متجري التطبيقات */
-export const OPERATORS_APP_DISPLAY_NAME_AR = 'لوحة مشغّلي منصة طريقة الحل' as const;
+export const OPERATORS_APP_DISPLAY_NAME_AR = 'لوحة مشغّلي منصة خريطة الحل' as const;
 
 /** الاسم المختصر تحت الأيقونة */
 export const OPERATORS_APP_LAUNCHER_NAME_AR = 'لوحة المشغّلين' as const;

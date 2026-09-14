@@ -268,7 +268,7 @@ export default function StoreBereavementViewPage() {
         ) : null}
 
         <p className="mt-10 text-center text-xs text-white/35">
-          <Link to={ROUTE_PATHS.STORE_LANDING}>منصة طريقة الحل</Link>
+          <Link to={ROUTE_PATHS.STORE_LANDING}>منصة خريطة الحل</Link>
         </p>
       </main>
     </div>

@@ -23,7 +23,7 @@ export default function StoreDirectPayPolicyPage() {
     <StoreVisitorShell>
       <StoreVisitorHeader />
       <main className="mx-auto max-w-3xl px-4 py-10">
-        <p className="text-xs font-bold tracking-wide text-[#e8c547]">halaqmap · منصة طريقة الحل</p>
+        <p className="text-xs font-bold tracking-wide text-[#e8c547]">halaqmap · منصة خريطة الحل</p>
         <h1 className="mt-2 text-3xl font-extrabold text-[#f4efe4]">{STORE_DIRECT_PAY_POLICY_TITLE_AR}</h1>
         <p className="mt-3 text-sm leading-7 text-white/75">{STORE_DIRECT_PAY_POLICY_SUBTITLE_AR}</p>
         <p className="mt-2 text-xs text-white/45">نسخة السياسات: {STORE_DIRECT_PAY_POLICY_VERSION}</p>
