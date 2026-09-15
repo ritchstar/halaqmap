@@ -361,7 +361,7 @@ export default function PartnerBannersPreviewLanding() {
                 </h2>
                 <p className="mt-1 text-sm text-slate-600">محادثة داخلية حصرية — أنت والمناوب فقط، لا يراها الزبائن</p>
               </div>
-              <NavLink to={PARTNER_PRODUCT_HUB_CTA.guidePath}>
+              <NavLink to={PARTNER_PRODUCT_HUB_CTA.guidePath} target="_blank" rel="noreferrer noopener">
                 <button
                   type="button"
                   className="flex items-center gap-2 rounded-xl border border-violet-200 bg-white px-5 py-2.5 text-sm font-bold text-violet-800 shadow-sm transition-all hover:bg-violet-50"
