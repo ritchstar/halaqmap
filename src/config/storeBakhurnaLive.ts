@@ -2,9 +2,9 @@
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
  * بخورنا1 — صفحة محل البخور والعود والعطور في الحي. لا يُستورد من App.
- * بنية تحتية أولية قابلة للتقييم والتطوير: الواجهة والوحة التشغيل تعملان محلياً
- * (بيانات المتصفح فقط) دون ربط خادم أو دفع فعلي بعد. راجع docs/bakhurna1-backend-todo.md
- * للخطوات المتبقية قبل التشغيل الفعلي (قاعدة بيانات، واجهة خدمة، دفع، تجربة مجانية).
+ * 899 ر.س لمئة وثمانين يوماً أو 1799 ر.س لثلاثمئة وستين يوماً، بتجربة مجانية
+ * ستين يوماً. الخادم في api/public-store-bakhurna-live.ts والتحقق في
+ * api/_lib/storeBakhurnaLive.ts. الرمز bakhurna-lab وحده معاينة محلية بلا خادم.
  * منتج غير مسجّل لدى الهيئة السعودية للملكية الفكرية (SAIP).
  */
 import { ROUTE_PATHS } from '@/lib/routePaths';
@@ -17,10 +17,10 @@ export const STORE_BAKHURNA_LIVE_PRODUCT = 'store_bakhurna_live' as const;
 
 export const STORE_BAKHURNA_LIVE_DAYS_6 = 180 as const;
 export const STORE_BAKHURNA_LIVE_DAYS_12 = 360 as const;
-export const STORE_BAKHURNA_LIVE_PRICE_6_SAR = 1350 as const;
-export const STORE_BAKHURNA_LIVE_PRICE_12_SAR = 2500 as const;
-export const STORE_BAKHURNA_LIVE_PRICE_6_HALALAS = 135000 as const;
-export const STORE_BAKHURNA_LIVE_PRICE_12_HALALAS = 250000 as const;
+export const STORE_BAKHURNA_LIVE_PRICE_6_SAR = 899 as const;
+export const STORE_BAKHURNA_LIVE_PRICE_12_SAR = 1799 as const;
+export const STORE_BAKHURNA_LIVE_PRICE_6_HALALAS = 89900 as const;
+export const STORE_BAKHURNA_LIVE_PRICE_12_HALALAS = 179900 as const;
 export const STORE_BAKHURNA_TRIAL_DAYS = 60 as const;
 
 function envEnabled(name: string, fallback: boolean): boolean {
@@ -33,12 +33,12 @@ function envEnabled(name: string, fallback: boolean): boolean {
 }
 
 /**
- * إيقاف افتراضي — لا توجد بعد بوابة دفع أو خادم حقيقي لبخورنا1.
- * فعّلها من Cursor بعد إتمام خطوات docs/bakhurna1-backend-todo.md.
+ * تحصيل بخورنا1 عبر ميسر — وسم store_bakhurna_live، 899 أو 1799 ر.س.
+ * يمكن إيقافه مؤقتاً عبر متغير البيئة عند الحاجة.
  */
 export const STORE_BAKHURNA_LIVE_CHECKOUT_ENABLED = envEnabled(
   'VITE_STORE_BAKHURNA_LIVE_CHECKOUT_ENABLED',
-  false,
+  true,
 );
 
 export const STORE_BAKHURNA_LIVE_ACCENT = '#6E4A26' as const;
@@ -51,7 +51,7 @@ export const STORE_BAKHURNA_LIVE_PACKS = [
     priceSar: STORE_BAKHURNA_LIVE_PRICE_6_SAR,
     priceHalalas: STORE_BAKHURNA_LIVE_PRICE_6_HALALAS,
     titleAr: 'تمديد 180 يوماً',
-    priceLineAr: '1350 ر.س',
+    priceLineAr: '899 ر.س',
     lineAr: 'واجهة العميل، ولوحة التشغيل، ورمز QR، والنشاط الثابت أو المتحرك، وتحديث موقع العربة دون رسوم إضافية.',
   },
   {
@@ -61,7 +61,7 @@ export const STORE_BAKHURNA_LIVE_PACKS = [
     priceSar: STORE_BAKHURNA_LIVE_PRICE_12_SAR,
     priceHalalas: STORE_BAKHURNA_LIVE_PRICE_12_HALALAS,
     titleAr: 'تمديد 360 يوماً',
-    priceLineAr: '2500 ر.س',
+    priceLineAr: '1799 ر.س',
     lineAr: 'نفس التشغيل مع مدة أطول. المسار المتحرك ونافذة الاستفسار مدرجان.',
   },
 ] as const;

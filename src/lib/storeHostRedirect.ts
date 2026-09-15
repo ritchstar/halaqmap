@@ -265,6 +265,24 @@ export function datesLiveViewHref(token: string): string {
   return `/#${hashPath}`;
 }
 
+export function bakhurnaLivePayHref(token: string): string {
+  const hashPath = `/pay/bakhurna/${encodeURIComponent(token)}`;
+  if (typeof window === 'undefined') return `/#${hashPath}`;
+  if (isHalaqmapStoreHost(window.location.hostname)) {
+    return `https://www.halaqmap.com/#${hashPath}`;
+  }
+  return `/#${hashPath}`;
+}
+
+export function bakhurnaLiveViewHref(token: string): string {
+  const hashPath = `/b/${encodeURIComponent(token)}`;
+  if (typeof window === 'undefined') return `/#${hashPath}`;
+  if (isHalaqmapMensHost(window.location.hostname)) {
+    return `https://store.halaqmap.com/#${hashPath}`;
+  }
+  return `/#${hashPath}`;
+}
+
 export function occasionCardPayHref(token: string): string {
   const hashPath = `/pay/occasion-card/${encodeURIComponent(token)}`;
   if (typeof window === 'undefined') return `/#${hashPath}`;

@@ -43,7 +43,7 @@ export const STORE_AFFILIATE_COPY = {
   storeLeadAr:
     'عمولة ثابتة تُقتطع من حصة المنصة بعد كل عملية دفع ناجحة تصل من رابط المسوّق أو المسوّقة. كل عملية شراء جديدة تُقيَّد بعمولة المنتج المشترى، ولا يتوقف المسار بعد أول بيع. الزبون يدفع السعر كاملاً. لا كاردي8، ولا علاقة بطلب جار الحي نقداً أو شبكة عند الباب.',
   storeOngoingAr:
-    'كل فاتورة جديدة من رابطك لها عمولة ذلك المنتج. إعادة شراء لاونجا1 أو تمويناتا1 أو مطعمنا1 أو كافينا1 أو طبختنا1 أو خضارنا1 أو حلانا1 من الرابط تُحسب أيضاً.',
+    'كل فاتورة جديدة من رابطك لها عمولة ذلك المنتج. إعادة شراء لاونجا1 أو تمويناتا1 أو مطعمنا1 أو كافينا1 أو طبختنا1 أو خضارنا1 أو حلانا1 أو تمرتنا1 أو بخورنا1 من الرابط تُحسب أيضاً.',
   isolationAr:
     'لا تخلط هذا المسار بطلب استهداف حلاق أو شقق مخدومة. تلك أدوات سفراء حلاق ماب ومسوّقات كوافير ماب فقط.',
   reviewLeadAr:
@@ -93,6 +93,8 @@ export const STORE_AFFILIATE_COPY = {
     dates_12: 'تمرتنا1 ثلاثمئة وستون يوماً',
     halana_6: 'حلانا1 مئة وثمانون يوماً',
     halana_12: 'حلانا1 ثلاثمئة وستون يوماً',
+    bakhurna_6: 'بخورنا1 مئة وثمانون يوماً',
+    bakhurna_12: 'بخورنا1 ثلاثمئة وستون يوماً',
   },
   deskLinkAr: {
     wedding: 'افراحي1',
@@ -105,6 +107,7 @@ export const STORE_AFFILIATE_COPY = {
     produce: 'خضارنا1',
     dates: 'تمرتنا1',
     halana: 'حلانا1',
+    bakhurna: 'بخورنا1',
   },
   netLabelAr: 'صافي المنصة',
   commissionLabelAr: 'عمولة المسوّق أو المسوّقة',
@@ -138,11 +141,13 @@ export type StoreAffiliateLineId =
   | 'dates_6'
   | 'dates_12'
   | 'halana_6'
-  | 'halana_12';
+  | 'halana_12'
+  | 'bakhurna_6'
+  | 'bakhurna_12';
 
 export type StoreAffiliateLine = {
   id: StoreAffiliateLineId;
-  productTag: 'store_wedding_live' | 'store_event_live' | 'store_lounge_live' | 'store_grocers_live' | 'store_restaurant_live' | 'store_cafe_live' | 'store_kitchen_live' | 'store_produce_live' | 'store_dates_live' | 'store_halana_live';
+  productTag: 'store_wedding_live' | 'store_event_live' | 'store_lounge_live' | 'store_grocers_live' | 'store_restaurant_live' | 'store_cafe_live' | 'store_kitchen_live' | 'store_produce_live' | 'store_dates_live' | 'store_halana_live' | 'store_bakhurna_live';
   titleAr: string;
   packAr: string;
   priceSar: number;
@@ -366,6 +371,22 @@ export const STORE_AFFILIATE_LINES: readonly StoreAffiliateLine[] = [
     priceSar: 1788,
     commissionSar: 288,
   },
+  {
+    id: 'bakhurna_6',
+    productTag: 'store_bakhurna_live',
+    titleAr: 'بخورنا1',
+    packAr: 'مئة وثمانون يوماً',
+    priceSar: 899,
+    commissionSar: 99,
+  },
+  {
+    id: 'bakhurna_12',
+    productTag: 'store_bakhurna_live',
+    titleAr: 'بخورنا1',
+    packAr: 'ثلاثمئة وستون يوماً',
+    priceSar: 1799,
+    commissionSar: 299,
+  },
 ] as const;
 
 export function affiliateNetSar(priceSar: number, commissionSar: number): number {
@@ -413,6 +434,10 @@ export function datesAffiliateCommissionSar(packId: 'm6' | 'm12'): number {
 
 export function halanaAffiliateCommissionSar(packId: 'm6' | 'm12'): number {
   return packId === 'm12' ? 288 : 194;
+}
+
+export function bakhurnaAffiliateCommissionSar(packId: 'm6' | 'm12'): number {
+  return packId === 'm12' ? 299 : 99;
 }
 
 export function parseAffiliateLane(raw: string | null | undefined): StoreAffiliateLane {

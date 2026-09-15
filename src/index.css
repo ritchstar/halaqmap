@@ -4577,6 +4577,17 @@ html.platform-radar-fullscreen #root {
   box-shadow: 0 0 28px rgba(138, 98, 57, 0.35);
 }
 
+.bakhurna-field {
+  margin-top: 0.25rem;
+  height: 3rem;
+  width: 100%;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(110, 74, 38, 0.32);
+  background: rgba(0, 0, 0, 0.4);
+  padding: 0 0.75rem;
+  color: #f4efe4;
+}
+
 .dates-feature-pulse {
   animation: dates-flash-slide 6s ease-in-out infinite;
 }

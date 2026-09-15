@@ -64,5 +64,9 @@ export function matchStoreAffiliateCommission(
     if (amount === 89400) return { lineId: 'halana_6', commissionHalalas: 19400 };
     if (amount === 178800) return { lineId: 'halana_12', commissionHalalas: 28800 };
   }
+  if (tag === 'store_bakhurna_live') {
+    if (amount === 89900) return { lineId: 'bakhurna_6', commissionHalalas: 9900 };
+    if (amount === 179900) return { lineId: 'bakhurna_12', commissionHalalas: 29900 };
+  }
   return null;
 }

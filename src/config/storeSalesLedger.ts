@@ -16,6 +16,7 @@ export const STORE_SALES_LEDGER_PRODUCTS = [
   'dates',
   'halana',
   'lounge',
+  'bakhurna',
 ] as const;
 
 export type StoreSalesLedgerProduct = (typeof STORE_SALES_LEDGER_PRODUCTS)[number];
@@ -25,7 +26,7 @@ export const STORE_SALES_LEDGER_COPY = {
   kickerAr: 'إدارة مبيعات واجهة المتجر الإلكتروني',
   titleAr: 'قيد مبيعات المتجر',
   leadAr:
-    'سجل السداد لمنتجات المتجر المعروضة: افراحي1 رجالي ونسائي، اجواء1، تمويناتا1، مطعمنا1، كافينا1، طبختنا1، خضارنا1، تمرتنا1، حلانا1، ولاونجا1. لا تُخلط برخصة النفاذ ولا بعمولة القص ولا بكاردي8.',
+    'سجل السداد لمنتجات المتجر المعروضة: افراحي1 رجالي ونسائي، اجواء1، تمويناتا1، مطعمنا1، كافينا1، طبختنا1، خضارنا1، تمرتنا1، حلانا1، لاونجا1، وبخورنا1. لا تُخلط برخصة النفاذ ولا بعمولة القص ولا بكاردي8.',
   deniedAr: 'يلزم دخول الإدارة لفتح قيد المبيعات.',
   emptyAr: 'لا قيود في هذا الفرع بعد.',
   backAr: 'مركز المبيعات',
@@ -65,7 +66,8 @@ export const STORE_SALES_LEDGER_BRANCHES: readonly {
     | 'store_produce_live'
     | 'store_dates_live'
     | 'store_halana_live'
-    | 'store_lounge_live';
+    | 'store_lounge_live'
+    | 'store_bakhurna_live';
 }[] = [
   { id: 'wedding', titleAr: 'افراحي1 رجالي', packAr: '899 ر.س مرة واحدة', tag: 'store_wedding_live' },
   { id: 'wedding-women', titleAr: 'افراحي1 نسائي', packAr: '899 ر.س مرة واحدة', tag: 'store_wedding_live' },
@@ -78,6 +80,7 @@ export const STORE_SALES_LEDGER_BRANCHES: readonly {
   { id: 'dates', titleAr: 'تمرتنا1', packAr: '1350 ر.س لمئة وثمانين يوماً أو 2500 ر.س لثلاثمئة وستين يوماً', tag: 'store_dates_live' },
   { id: 'halana', titleAr: 'حلانا1', packAr: '894 ر.س لمئة وثمانين يوماً أو 1788 ر.س لثلاثمئة وستين يوماً', tag: 'store_halana_live' },
   { id: 'lounge', titleAr: 'لاونجا1', packAr: '600 أو 1200 أو 2400 ر.س', tag: 'store_lounge_live' },
+  { id: 'bakhurna', titleAr: 'بخورنا1', packAr: '899 ر.س لمئة وثمانين يوماً أو 1799 ر.س لثلاثمئة وستين يوماً', tag: 'store_bakhurna_live' },
 ];
 
 export function isStoreSalesLedgerProduct(raw: string): raw is StoreSalesLedgerProduct {

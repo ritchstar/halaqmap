@@ -11,12 +11,13 @@ import { STORE_GROCERS_LIVE_TABLE } from './storeGrocersLive.js';
 import { STORE_KITCHEN_LIVE_TABLE } from './storeKitchenLive.js';
 import { STORE_PRODUCE_LIVE_TABLE } from './storeProduceLive.js';
 import { STORE_DATES_LIVE_TABLE } from './storeDatesLive.js';
+import { STORE_BAKHURNA_LIVE_TABLE } from './storeBakhurnaLive.js';
 import { STORE_RESTAURANT_LIVE_TABLE } from './storeRestaurantLive.js';
 
 export const STORE_LIVE_SHOP_ORIGIN = 'https://store.halaqmap.com';
 export const STORE_LIVE_SHOP_TOKEN_RE = /^[A-Za-z0-9_-]{3,64}$/;
 
-export type StoreLiveShopKind = 'halana' | 'grocers' | 'restaurant' | 'cafe' | 'kitchen' | 'produce' | 'dates';
+export type StoreLiveShopKind = 'halana' | 'grocers' | 'restaurant' | 'cafe' | 'kitchen' | 'produce' | 'dates' | 'bakhurna';
 
 type ShopKindMeta = {
   prefix: `/${string}`;
@@ -67,6 +68,12 @@ const KIND_META: Record<StoreLiveShopKind, ShopKindMeta> = {
     productAr: 'تمرتنا1',
     defaultImage: `${STORE_LIVE_SHOP_ORIGIN}/images/store/dates-hero-marketing.jpg`,
     describe: (shop) => `اطلب من ${shop} — تمر الحي.`,
+  },
+  bakhurna: {
+    prefix: '/b',
+    productAr: 'بخورنا1',
+    defaultImage: `${STORE_LIVE_SHOP_ORIGIN}/images/store/bakhurna-hero-marketing.jpg`,
+    describe: (shop) => `اطلب من ${shop} — بخور وعود وعطور الحي.`,
   },
 };
 
@@ -150,7 +157,9 @@ export async function readStoreLiveShopMeta(
             ? STORE_KITCHEN_LIVE_TABLE
             : kind === 'dates'
               ? STORE_DATES_LIVE_TABLE
-              : STORE_PRODUCE_LIVE_TABLE;
+              : kind === 'bakhurna'
+                ? STORE_BAKHURNA_LIVE_TABLE
+                : STORE_PRODUCE_LIVE_TABLE;
 
   const { data } = await db
     .from(table)

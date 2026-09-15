@@ -9,7 +9,7 @@ import { storeAffiliateCheckoutLinks, type StoreAffiliateCheckoutLinks } from '.
 import { STORE_LIVE_INVITE_MARK } from './storeLiveInviteShare.js';
 import { STORE_LINK_ROLE_EMOJI, STORE_PRODUCT_EMOJI } from '../../src/config/storeLinkIcons.js';
 
-export type StoreMailThemeId = 'wedding' | 'event' | 'lounge' | 'grocers' | 'restaurant' | 'cafe' | 'kitchen' | 'produce' | 'halana' | 'dates' | 'affiliate';
+export type StoreMailThemeId = 'wedding' | 'event' | 'lounge' | 'grocers' | 'restaurant' | 'cafe' | 'kitchen' | 'produce' | 'halana' | 'dates' | 'bakhurna' | 'affiliate';
 
 export type StoreMailTheme = {
   id: StoreMailThemeId;
@@ -116,6 +116,15 @@ const THEMES: Record<StoreMailThemeId, StoreMailTheme> = {
     markAr: STORE_PRODUCT_EMOJI.dates,
     titleAr: 'تمرتنا1',
     accent: '#8A6239',
+    ink: '#2A2016',
+    canvas: '#1a140c',
+    ring: '#c9a877',
+  },
+  bakhurna: {
+    id: 'bakhurna',
+    markAr: STORE_PRODUCT_EMOJI.bakhurna,
+    titleAr: 'بخورنا1',
+    accent: '#6E4A26',
     ink: '#2A2016',
     canvas: '#1a140c',
     ring: '#c9a877',
@@ -573,6 +582,44 @@ export function buildDatesLiveLinksHtml(input: {
           titleAr: theme.titleAr,
           captionAr: 'لوحة الصندوق',
           theme: 'dates',
+        },
+      ],
+    ],
+    notesAr: [
+      `تنتهي المدة في ${input.expiresLabel}. بعد انتهائها تبقى الروابط وتحيلكم لإعادة الشراء على نفس الصفحة.`,
+    ],
+  });
+}
+
+export function buildBakhurnaLiveLinksHtml(input: {
+  shopUrl: string;
+  deskUrl: string;
+  expiresLabel: string;
+  renewed?: boolean;
+}): string {
+  const theme = THEMES.bakhurna;
+  return buildStoreMailHtml({
+    theme: 'bakhurna',
+    kickerAr: input.renewed ? `تمديد تشغيل — ${theme.titleAr}` : `روابط تشغيل — ${theme.titleAr}`,
+    titleAr: input.renewed ? 'تمديد صفحة النشاط' : 'روابط التشغيل جاهزة',
+    leadAr: input.renewed
+      ? 'الروابط نفسها لم تتغير. اضغط الأيقونة لفتح المسار.'
+      : 'اضغط الأيقونة لفتح صفحة جار الحي أو لوحة التشغيل.',
+    iconRows: [
+      [
+        {
+          href: input.shopUrl,
+          markAr: STORE_LINK_ROLE_EMOJI.shop,
+          titleAr: theme.titleAr,
+          captionAr: 'جار الحي',
+          theme: 'bakhurna',
+        },
+        {
+          href: input.deskUrl,
+          markAr: STORE_LINK_ROLE_EMOJI.desk,
+          titleAr: theme.titleAr,
+          captionAr: 'لوحة التشغيل',
+          theme: 'bakhurna',
         },
       ],
     ],

@@ -239,6 +239,8 @@ const STORE_BAKHURNA_VIEW_PATH =
   (ROUTE_PATHS as { STORE_BAKHURNA_VIEW?: string }).STORE_BAKHURNA_VIEW || "/b/:token";
 const STORE_BAKHURNA_DESK_PATH =
   (ROUTE_PATHS as { STORE_BAKHURNA_DESK?: string }).STORE_BAKHURNA_DESK || "/b/:token/desk";
+const STORE_BAKHURNA_PAY_PATH =
+  (ROUTE_PATHS as { STORE_BAKHURNA_PAY?: string }).STORE_BAKHURNA_PAY || "/pay/bakhurna/:token";
 const STORE_HALANA_PATH =
   (ROUTE_PATHS as { STORE_HALANA?: string }).STORE_HALANA || "/store/halana";
 const STORE_HALANA_READ_PATH =
@@ -429,6 +431,7 @@ const StoreDatesPayPage = lazy(() => import("@/pages/store/StoreDatesPayPage"));
 const StoreDatesOpsPlanPreviewPage = lazy(() => import("@/pages/store/StoreDatesOpsPlanPreviewPage"));
 const StoreBakhurnaLandingPage = lazy(() => import("@/pages/store/StoreBakhurnaLandingPage"));
 const StoreBakhurnaShopPage = lazy(() => import("@/pages/store/StoreBakhurnaShopPage"));
+const StoreBakhurnaPayPage = lazy(() => import("@/pages/store/StoreBakhurnaPayPage"));
 const StoreHalanaLandingPage = lazy(() => import("@/pages/store/StoreHalanaLandingPage"));
 const StoreHalanaShopPage = lazy(() => import("@/pages/store/StoreHalanaShopPage"));
 const StoreHalanaPayPage = lazy(() => import("@/pages/store/StoreHalanaPayPage"));
@@ -1066,6 +1069,7 @@ export function App() {
           <Route path={STORE_DATES_DESK_PATH} element={<LazyRoute><StoreDatesShopPage /></LazyRoute>} />
           <Route path={STORE_DATES_VIEW_PATH} element={<LazyRoute><StoreDatesShopPage /></LazyRoute>} />
           <Route path={STORE_BAKHURNA_PATH} element={<LazyRoute><StoreBakhurnaLandingPage /></LazyRoute>} />
+          <Route path={STORE_BAKHURNA_PAY_PATH} element={<LazyRoute><StoreBakhurnaPayPage /></LazyRoute>} />
           <Route path={STORE_BAKHURNA_DESK_PATH} element={<LazyRoute><StoreBakhurnaShopPage /></LazyRoute>} />
           <Route path={STORE_BAKHURNA_VIEW_PATH} element={<LazyRoute><StoreBakhurnaShopPage /></LazyRoute>} />
           <Route path={STORE_HALANA_PAY_PATH} element={<LazyRoute><StoreHalanaPayPage /></LazyRoute>} />

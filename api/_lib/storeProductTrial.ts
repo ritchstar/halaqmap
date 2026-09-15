@@ -18,6 +18,8 @@ import { newProduceToken } from './storeProduceLive.js';
 import { sendProduceLiveLinksEmail } from './storeProduceLiveMail.js';
 import { newDatesToken } from './storeDatesLive.js';
 import { sendDatesLiveLinksEmail } from './storeDatesLiveMail.js';
+import { newBakhurnaToken } from './storeBakhurnaLive.js';
+import { sendBakhurnaLiveLinksEmail } from './storeBakhurnaLiveMail.js';
 import {
   DEFAULT_KITCHEN_PICKUP,
   newKitchenQrStamp,
@@ -37,7 +39,7 @@ export const STORE_PRODUCT_TRIAL_QUOTA = 5 as const;
 export const STORE_PRODUCE_TRIAL_DAYS = STORE_PRODUCT_TRIAL_DAYS;
 export const STORE_KITCHEN_TRIAL_DAYS = STORE_PRODUCT_TRIAL_DAYS;
 
-export const STORE_GENERAL_TRIAL_KEYS = ['lounge', 'grocers', 'restaurant', 'cafe', 'kitchen', 'produce', 'dates', 'halana'] as const;
+export const STORE_GENERAL_TRIAL_KEYS = ['lounge', 'grocers', 'restaurant', 'cafe', 'kitchen', 'produce', 'dates', 'halana', 'bakhurna'] as const;
 export type StoreGeneralTrialKey = (typeof STORE_GENERAL_TRIAL_KEYS)[number];
 
 export type StoreProductTrialKey =
@@ -50,7 +52,8 @@ export type StoreProductTrialKey =
   | 'kitchen'
   | 'produce'
   | 'dates'
-  | 'halana';
+  | 'halana'
+  | 'bakhurna';
 
 export type StoreProductTrialRow = {
   id: string;
@@ -87,6 +90,7 @@ const PRODUCT_TAG: Record<StoreProductTrialKey, string> = {
   produce: 'store_produce_live',
   dates: 'store_dates_live',
   halana: 'store_halana_live',
+  bakhurna: 'store_bakhurna_live',
 };
 
 const ORDER_TABLE: Record<StoreProductTrialKey, string> = {
@@ -100,6 +104,7 @@ const ORDER_TABLE: Record<StoreProductTrialKey, string> = {
   produce: 'store_produce_live_orders',
   dates: 'store_dates_live_orders',
   halana: 'store_halana_copies',
+  bakhurna: 'store_bakhurna_live_orders',
 };
 
 const GIFT_KEYS = new Set<StoreProductTrialKey>(['wedding', 'event']);
@@ -115,7 +120,8 @@ export function isStoreProductTrialKey(raw: unknown): raw is StoreProductTrialKe
     raw === 'kitchen' ||
     raw === 'produce' ||
     raw === 'dates' ||
-    raw === 'halana'
+    raw === 'halana' ||
+    raw === 'bakhurna'
   );
 }
 
@@ -128,7 +134,8 @@ export function isGeneralTrialProductKey(raw: unknown): raw is StoreGeneralTrial
     raw === 'kitchen' ||
     raw === 'produce' ||
     raw === 'dates' ||
-    raw === 'halana'
+    raw === 'halana' ||
+    raw === 'bakhurna'
   );
 }
 
@@ -190,6 +197,12 @@ function productLinks(key: StoreProductTrialKey, tokens: Record<string, string>)
     return {
       a: storeLiveShopShareHref('dates', tokens.shop),
       b: `${storeOrigin()}/#/t/${encodeURIComponent(tokens.desk)}/desk`,
+    };
+  }
+  if (key === 'bakhurna') {
+    return {
+      a: storeLiveShopShareHref('bakhurna', tokens.shop),
+      b: `${storeOrigin()}/#/b/${encodeURIComponent(tokens.desk)}/desk`,
     };
   }
   if (key === 'kitchen') {
@@ -261,6 +274,12 @@ export function publicTrialHrefs(
     return [
       { titleAr: 'جار الحي', href: links.a },
       { titleAr: 'الصندوق', href: links.b },
+    ];
+  }
+  if (key === 'bakhurna') {
+    return [
+      { titleAr: 'جار الحي', href: links.a },
+      { titleAr: 'لوحة التشغيل', href: links.b },
     ];
   }
   if (key === 'kitchen') {
@@ -364,6 +383,20 @@ function trialPayload(
       shopName: 'تجربة تمرتنا1',
       hostName: 'الصندوق',
       blurbAr: 'نموذج تجريبي لصندوق التمر في الحي.',
+      customFields: ['', '', '', '', ''],
+      flashAr: '',
+      shelf: [],
+      orders: [],
+      chatIncluded: true,
+      chats: [],
+    };
+  }
+  if (key === 'bakhurna') {
+    return {
+      packId: 'm6',
+      shopName: 'تجربة بخورنا1',
+      hostName: 'النشاط',
+      blurbAr: 'نموذج تجريبي لمحل البخور والعود في الحي.',
       customFields: ['', '', '', '', ''],
       flashAr: '',
       shelf: [],
@@ -524,6 +557,10 @@ async function sendIssuedMail(key: StoreProductTrialKey, email: string, tokens: 
   }
   if (key === 'dates') {
     await sendDatesLiveLinksEmail({ to: email, shopUrl: links.a, deskUrl: links.b, expiresLabel });
+    return;
+  }
+  if (key === 'bakhurna') {
+    await sendBakhurnaLiveLinksEmail({ to: email, shopUrl: links.a, deskUrl: links.b, expiresLabel });
     return;
   }
   if (key === 'kitchen') {
@@ -700,6 +737,31 @@ async function insertLiveOrder(
       .select('id')
       .maybeSingle();
     if (error || !data) return { error: 'تعذر إنشاء صفحة الصندوق التجريبية.' };
+    return { orderId: String(data.id), tokens: { shop, desk } };
+  }
+  if (key === 'bakhurna') {
+    const shop = newBakhurnaToken();
+    const desk = newBakhurnaToken();
+    const { data, error } = await db
+      .from(table)
+      .insert({
+        status: 'live',
+        shop_token: shop,
+        desk_token: desk,
+        buyer_email: email,
+        buyer_name: 'تجربة بخورنا1',
+        price_halalas: 0,
+        payload,
+        policy_version: 'trial-60',
+        is_trial: true,
+        trial_id: trialId,
+        expires_at: null,
+        created_at: now,
+        updated_at: now,
+      })
+      .select('id')
+      .maybeSingle();
+    if (error || !data) return { error: 'تعذر إنشاء صفحة النشاط التجريبية.' };
     return { orderId: String(data.id), tokens: { shop, desk } };
   }
   if (key === 'kitchen') {

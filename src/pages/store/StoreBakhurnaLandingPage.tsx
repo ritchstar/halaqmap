@@ -1,14 +1,14 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
- * هبوط بخورنا1 — بنية تحتية أولية قيد التقييم والتطوير.
- * لا يعرض دعوات تجربة أو دفع فعلية بعد؛ راجع docs/bakhurna1-backend-todo.md.
+ * هبوط بخورنا1.
  */
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { ChevronDown } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { StoreVisitorFooter, StoreVisitorHeader, StoreVisitorShell } from '@/components/store/StoreChrome';
+import { StoreBakhurnaOrderForm } from '@/components/store/StoreBakhurnaOrderForm';
 import { StoreEnterpriseDirectMail } from '@/components/store/StoreEnterpriseDirectMail';
 import { StoreProductBenefitsLink } from '@/components/store/StoreProductBenefitsLink';
 import { StoreShot } from '@/components/store/StoreShot';
@@ -23,6 +23,7 @@ import {
   STORE_BAKHURNA_LIVE_PUBLIC_ENABLED,
 } from '@/config/storeBakhurnaLive';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
+import { readHashQueryParam } from '@/lib/hashQueryParams';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { cn } from '@/lib/utils';
 
@@ -31,11 +32,14 @@ const proseSm = 'max-w-xl text-sm leading-[1.75] text-white/75';
 
 export default function StoreBakhurnaLandingPage() {
   const [termsOpen, setTermsOpen] = useState(false);
+  const renewToken = useMemo(() => readHashQueryParam('renew') || '', []);
   useDocumentTitle(STORE_BAKHURNA_LIVE.documentTitle);
 
   if (!STORE_BAKHURNA_LIVE_PUBLIC_ENABLED) {
     return <Navigate to={ROUTE_PATHS.STORE_LANDING} replace />;
   }
+
+  const trialHref = `${ROUTE_PATHS.STORE_GENERAL_TRIAL}?product=bakhurna`;
 
   return (
     <StoreVisitorShell>
@@ -66,6 +70,12 @@ export default function StoreBakhurnaLandingPage() {
               >
                 {STORE_BAKHURNA_LIVE.tryCtaAr}
               </a>
+              <Link
+                to={trialHref}
+                className="rounded-full bg-[#6E4A26] px-5 py-2.5 text-sm font-bold text-[#061018]"
+              >
+                {STORE_BAKHURNA_LIVE.trialCtaAr}
+              </Link>
               <StoreProductBenefitsLink />
             </div>
             <StoreEnterpriseDirectMail
@@ -163,13 +173,29 @@ export default function StoreBakhurnaLandingPage() {
             </Link>
           </div>
 
-          <div className="rounded-2xl border border-[#6E4A26]/35 bg-[#6E4A26]/10 p-5 md:p-6">
-            <h2 className="text-xl font-extrabold text-[#f4efe4]">بنية تحتية قيد التقييم والتطوير</h2>
-            <p className={`mt-3 ${prose}`}>
-              بخورنا1 معروض هنا كمعاينة حيّة تعمل بالكامل محلياً على جهازك (بلا خادم أو بوابة دفع بعد). الواجهة ولوحة
-              التشغيل تعملان فعلياً — أضف أصنافك، واستقبل طلباً تجريبياً، وجرّب مسار «تعال». التفعيل الفعلي للمنتج
-              (تجربة مدفوعة، تمديد، ربط قاعدة بيانات) يُستكمل لاحقاً.
+          {!renewToken ? (
+            <div id="bakhurna-trial" className="scroll-mt-8 rounded-2xl border border-[#6E4A26]/35 bg-[#6E4A26]/10 p-5 md:p-6">
+              <h2 className="text-xl font-extrabold text-[#f4efe4]">{STORE_BAKHURNA_LIVE.trialTitleAr}</h2>
+              <p className={`mt-3 ${prose}`}>{STORE_BAKHURNA_LIVE.trialLeadAr}</p>
+              <Link
+                to={trialHref}
+                className="mt-5 inline-flex rounded-full bg-[#6E4A26] px-5 py-2.5 text-sm font-bold text-[#061018]"
+              >
+                {STORE_BAKHURNA_LIVE.trialCtaAr}
+              </Link>
+            </div>
+          ) : (
+            <p className="rounded-xl border border-[#6E4A26]/35 bg-[#6E4A26]/10 px-4 py-3 text-sm leading-7">
+              انتهت المدة. الرابط ما زال لديكم. أتمّوا التمديد لتفعيل نفس الصفحة واللوحة.
             </p>
+          )}
+
+          <div>
+            <h2 className="text-xl font-extrabold text-[#f4efe4]">{STORE_BAKHURNA_LIVE.extensionTitleAr}</h2>
+            <p className={`mt-2 ${proseSm}`}>{STORE_BAKHURNA_LIVE.extensionLeadAr}</p>
+            <div className="mt-5 max-w-2xl">
+              <StoreBakhurnaOrderForm renewToken={renewToken} />
+            </div>
           </div>
 
           <Collapsible open={termsOpen} onOpenChange={setTermsOpen}>

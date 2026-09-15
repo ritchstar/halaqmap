@@ -15,6 +15,7 @@ export const STORE_SALES_LEDGER_PRODUCTS = [
   'dates',
   'halana',
   'lounge',
+  'bakhurna',
 ] as const;
 
 export type StoreSalesLedgerProduct = (typeof STORE_SALES_LEDGER_PRODUCTS)[number];
@@ -31,6 +32,7 @@ const TITLES: Record<StoreSalesLedgerProduct, string> = {
   dates: 'تمرتنا1',
   halana: 'حلانا1',
   lounge: 'لاونجا1',
+  bakhurna: 'بخورنا1',
 };
 
 export const STORE_SALES_TABLE: Record<
@@ -45,6 +47,7 @@ export const STORE_SALES_TABLE: Record<
   | 'store_dates_live_orders'
   | 'store_halana_copies'
   | 'store_lounge_live_orders'
+  | 'store_bakhurna_live_orders'
 > = {
   wedding: 'store_wedding_live_orders',
   'wedding-women': 'store_wedding_live_orders',
@@ -57,6 +60,7 @@ export const STORE_SALES_TABLE: Record<
   dates: 'store_dates_live_orders',
   halana: 'store_halana_copies',
   lounge: 'store_lounge_live_orders',
+  bakhurna: 'store_bakhurna_live_orders',
 };
 
 export type StoreSalesLedgerRow = {
@@ -157,6 +161,9 @@ export function mapStoreSalesRow(
   } else if (product === 'dates') {
     subjectAr = clip(payload.shopName, 80) || '—';
     packAr = dayPackAr(payload, amountSar, 2500);
+  } else if (product === 'bakhurna') {
+    subjectAr = clip(payload.shopName, 80) || '—';
+    packAr = dayPackAr(payload, amountSar, 1799);
   } else if (product === 'halana') {
     subjectAr = clip(row.shop_name, 80) || clip(row.specialist_name, 80) || clip(row.buyer_name, 80) || '—';
     packAr = dayPackAr({ packId: clip(row.pack_id, 8) }, amountSar, 1788);
