@@ -220,7 +220,7 @@ export const STORE_SOLUTION_CATALOG_PRODUCTS: readonly SolutionCatalogProduct[] 
     tags: ['بخور وعود وعطور', 'موقع العربة', 'بلا عمولة'],
     stripe: 'yellow',
     logoSrc: null,
-    cardImageSrc: '/images/store/bakhurna-hero-marketing.jpg',
+    cardImageSrc: solutionCatalogCardImageSrc('B-06'),
     href: ROUTE_PATHS.STORE_BAKHURNA,
     pathItems: ['أصناف وأسعار اليوم', 'طلب منظم بالكمية', 'لوحة تشغيل وموقع العربة'],
   },
