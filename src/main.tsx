@@ -387,6 +387,19 @@ function isPartnerAdsLandingPath(): boolean {
   );
 }
 
+/** مسارات حساسة: الشبكة مباشرة بلا SW حتى لا تختلط أجيال الحزم بعد النشر. */
+function shouldSkipServiceWorker(): boolean {
+  const hashPath = currentHashPath();
+  return (
+    isPartnerAdsLandingPath() ||
+    hashPath === '/' ||
+    hashPath === '' ||
+    isStorePathsLabHashPath(hashPath) ||
+    hashPath === '/store/catalog-lab' ||
+    hashPath === '/store/style-lab'
+  );
+}
+
 function markAppMounted(): void {
   const bootMarker = window as Window & { [APP_MOUNTED_FLAG]?: boolean }
   if (bootMarker[APP_MOUNTED_FLAG] === true) return
@@ -473,9 +486,9 @@ async function bootstrapApp(rootEl: HTMLElement): Promise<void> {
       // أوقف watchdog فور استدعاء React — لا تنتظر DOM (Suspense/الجوال البطيء)
       markAppMounted()
       schedulePlatformBuildSync();
-      if (isPartnerAdsLandingPath()) {
-        // هبوط الإعلانات يجب أن يبقى من الشبكة مباشرة — عامل الخدمة يُظهر
-        // شريط «إعادة التحميل للتحديث» ويخلط أجيال الحزم حتى في نافذة خاصة.
+      if (shouldSkipServiceWorker()) {
+        // الرئيسية وهبوط الإعلانات ومختبرات المتجر — من الشبكة مباشرة.
+        // عامل الخدمة يخلط أجيال الحزم بعد النشر حتى في نافذة خاصة.
         if ('serviceWorker' in navigator) {
           void navigator.serviceWorker.getRegistrations().then((regs) =>
             Promise.all(regs.map((r) => r.unregister().catch(() => undefined))),

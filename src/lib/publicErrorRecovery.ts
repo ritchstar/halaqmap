@@ -4,12 +4,18 @@
  * روابط التعافي في شاشة الخطأ العامة — بلا لوحة إدارة على نطاق المتجر.
  */
 import { getAdminDashboardPath } from '@/config/adminAuth';
+import { forceHardRefresh } from '@/lib/platformBuildSync';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 
 export function isStoreSatelliteHost(): boolean {
   if (typeof window === 'undefined') return false;
   const host = window.location.hostname.toLowerCase();
   return host === 'store.halaqmap.com' || host.endsWith('.store.halaqmap.com');
+}
+
+function currentHashPath(): string {
+  const raw = window.location.hash.replace(/^#/, '').split('?')[0]?.trim() || '/';
+  return raw.startsWith('/') ? raw : `/${raw}`;
 }
 
 export type PublicErrorRecoveryAction = {
@@ -39,9 +45,14 @@ export function publicErrorRecoveryAction(): PublicErrorRecoveryAction | null {
     };
   }
 
+  const onHome = currentHashPath() === '/' || currentHashPath() === '';
   return {
-    labelAr: 'العودة للرئيسية',
+    labelAr: onHome ? 'تحديث قوي للمنصة' : 'العودة للرئيسية',
     onClick: () => {
+      if (onHome) {
+        void forceHardRefresh();
+        return;
+      }
       window.location.replace(`${window.location.origin}/#/`);
     },
   };
