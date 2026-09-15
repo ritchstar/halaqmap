@@ -82,6 +82,7 @@ import {
 import { healIfStaleBuild, healIfStaleBuildFromServer } from '@/lib/platformBuildSync';
 import { readBarberAuthSession } from '@/lib/barberPortalSession';
 import { parseSubscriptionTierParam } from '@/lib/subscriptionTierParam';
+import { toast } from 'sonner';
 
 export default function Payment() {
   const navigate = useNavigate();
@@ -95,13 +96,6 @@ export default function Payment() {
     () => clampListingLicenseQuantity(searchParams.get('qty')),
     [searchParams],
   );
-  const licenseSurface: SoftwareLicenseFormSurface = useMemo(() => {
-    const fromUrl = (searchParams.get('surface') ?? '').trim().toLowerCase();
-    if (fromUrl === COIFFEUR_REGISTRATION_SURFACE) return 'coiffeur';
-    const lastOrder = loadLastOrderConfirmation();
-    if (lastOrder?.listingSector === 'coiffeur_women') return 'coiffeur';
-    return 'halaqmap';
-  }, [searchParams]);
   const digitalShiftAddonSelected = useMemo(
     () => isDigitalShiftAddonAllowed(tier, parseDigitalShiftAddonParam(searchParams.get('aiAddon'))),
     [tier, searchParams],

@@ -28,6 +28,9 @@ import { buildMapContactPartnerInterestPath } from "@/config/mapContactCardCopy"
 import { getAdminLoginPath, getAdminPortalBasePath, getAdminPortalBasePaths } from "@/config/adminAuth";
 import { PUBLIC_PULSE_EXPERIENCE_ENABLED } from '@/config/publicPulseExperience';
 import { AdminAuthHashGate, AdminSentinelSecurityGate } from "@/components/AdminAuthHashGate";
+import Payment from '@/pages/Payment';
+import PartnerPackagesPage from '@/pages/PartnerPackagesPage';
+import PaymentSuccess from '@/pages/PaymentSuccess';
 
 /** حرفي احتياطي — حزمة `route-paths` منفصلة؛ مفتاح جديد + كاش قديم = path undefined ويُسقط التوجيه. */
 const FOUNDER_DESK_LANDING_PATH =
@@ -458,9 +461,6 @@ const BarberLogin = lazy(() => import("@/pages/BarberLogin"));
 const PartnerAppInstall = lazy(() => import("@/pages/PartnerAppInstall"));
 const BarberAccountDeletionRequest = lazy(() => import("@/pages/BarberAccountDeletionRequest"));
 const AdminLogin = lazy(() => import("@/pages/AdminLogin"));
-const Payment = lazy(() => import("@/pages/Payment"));
-const PartnerPackagesPage = lazy(() => import("@/pages/PartnerPackagesPage"));
-const PaymentSuccess = lazy(() => import("@/pages/PaymentSuccess"));
 const PartnerSubscriptionTutorials = lazy(() => import("@/pages/PartnerSubscriptionTutorials"));
 const MapCommunity = lazy(() => import("@/pages/MapCommunity"));
 const PartnerBannersPreviewLanding = lazy(() => import("@/pages/PartnerBannersPreviewLanding"));
@@ -1193,9 +1193,9 @@ export function App() {
           <Route path={ROUTE_PATHS.BARBER_LOGIN} element={<LazyRoute><BarberLogin /></LazyRoute>} />
           <Route path={ROUTE_PATHS.PARTNER_APP} element={<LazyRoute><PartnerAppInstall /></LazyRoute>} />
           <Route path={ROUTE_PATHS.BARBER_PORTAL_ENTER} element={<LazyRoute><BarberPortalEnter /></LazyRoute>} />
-          <Route path={ROUTE_PATHS.PAYMENT_SUCCESS} element={<WithPartnerLayout><LazyRoute><PaymentSuccess /></LazyRoute></WithPartnerLayout>} />
-          <Route path={ROUTE_PATHS.PARTNER_PACKAGES} element={<WithPartnerLayout><LazyRoute><PartnerPackagesPage /></LazyRoute></WithPartnerLayout>} />
-          <Route path={ROUTE_PATHS.PAYMENT} element={<WithPartnerLayout><LazyRoute><Payment /></LazyRoute></WithPartnerLayout>} />
+          <Route path={ROUTE_PATHS.PAYMENT_SUCCESS} element={<WithPartnerLayout><PaymentSuccess /></WithPartnerLayout>} />
+          <Route path={ROUTE_PATHS.PARTNER_PACKAGES} element={<WithPartnerLayout><PartnerPackagesPage /></WithPartnerLayout>} />
+          <Route path={ROUTE_PATHS.PAYMENT} element={<WithPartnerLayout><Payment /></WithPartnerLayout>} />
           <Route path={ROUTE_PATHS.PARTNER_TUTORIALS} element={<WithPartnerLayout><LazyRoute><PartnerSubscriptionTutorials /></LazyRoute></WithPartnerLayout>} />
           <Route path={ROUTE_PATHS.MAP_COMMUNITY} element={<WithPartnerLayout><LazyRoute><MapCommunity /></LazyRoute></WithPartnerLayout>} />
           <Route path={ROUTE_PATHS.PARTNER_SUPPORT} element={<WithPartnerLayout><LazyRoute><PartnerSupportChat /></LazyRoute></WithPartnerLayout>} />
