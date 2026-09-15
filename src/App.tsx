@@ -8,6 +8,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Fragment, lazy, Suspense, useEffect, useState, type ReactNode } from "react";
 import { lazyPage } from "@/lib/resolveLazyPage";
 import { HashRouter, Routes, Route, Navigate, useLocation, useParams, Link } from "react-router-dom";
+import LandingPreview from "@/pages/LandingPreview";
 import { PlatformAmbientProvider } from "@/context/PlatformAmbientContext";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { AnalyticsRouteTracker } from "@/components/AnalyticsRouteTracker";
@@ -300,7 +301,6 @@ const PartnerLayout = lazy(() =>
   import("@/components/PartnerLayout").then((m) => ({ default: m.PartnerLayout })),
 );
 
-const LandingPreview = lazyPage(() => import("@/pages/LandingPreview"), "LandingPreview");
 const HospitalityB2BRequestLanding = lazy(() => import("@/pages/HospitalityB2BRequestLanding"));
 const PartnerMarketingPreview = lazyPage(
   () => import("@/pages/PartnerMarketingPreview"),
@@ -820,7 +820,7 @@ export function App() {
         <ConsumerNativeShellGate />
         <Routes>
           {/* ?????? ?????????? ?????????????? ???????????? ????????????????????????????????????????????????????????????????????????????????? */}
-          <Route path={ROUTE_PATHS.HOME} element={<LazyRoute><LandingPreview /></LazyRoute>} />
+          <Route path={ROUTE_PATHS.HOME} element={<LandingPreview />} />
           <Route path={ROUTE_PATHS.PLATFORM_REVIEWS} element={<LazyRoute><PlatformReviews /></LazyRoute>} />
           <Route path={YOUTUBE_HALAQ_PATH} element={<LazyRoute><YoutubeGalleryPage /></LazyRoute>} />
           <Route path={YOUTUBE_STORE_PATH} element={<LazyRoute><YoutubeGalleryPage /></LazyRoute>} />
@@ -866,7 +866,7 @@ export function App() {
           <Route path="/archive/partners" element={<WithPartnerLayout><LazyRoute><BarberGrowthLanding /></LazyRoute></WithPartnerLayout>} />
 
           {/* ?????? ????? ???????????? ??? ?????? ???????? ???????????????????????????????????????????????????????????????????????? */}
-          <Route path={ROUTE_PATHS.LANDING_PREVIEW} element={<LazyRoute><LandingPreview /></LazyRoute>} />
+          <Route path={ROUTE_PATHS.LANDING_PREVIEW} element={<LandingPreview />} />
           <Route path={ROUTE_PATHS.LANDING_PARTNERS_PREVIEW} element={<LazyRoute><PartnerMarketingPreview /></LazyRoute>} />
           <Route path={ROUTE_PATHS.INTERNAL_PARTNER_PATH_PRINT_CARD} element={<LazyRoute><InternalPartnerPathPrintCard /></LazyRoute>} />
           <Route path={FOUNDER_DESK_LANDING_PATH} element={<LazyRoute><FounderDeskLandingPage /></LazyRoute>} />

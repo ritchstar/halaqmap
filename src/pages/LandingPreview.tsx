@@ -9,7 +9,7 @@
  * تصميم تكتيكي داكن · فخامة خليجية · وصول مباشر للخدمة
  */
 
-import { useState, useEffect, useRef, useCallback, useMemo, startTransition, lazy, Suspense } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo, startTransition, Suspense } from 'react';
 import { motion, useInView, AnimatePresence, useReducedMotion } from 'framer-motion';
 import {
   MapPin, Scissors, Star, Search, Zap,
@@ -60,24 +60,17 @@ import { resolveStrictUserLocation } from '@/lib/strictGeolocation';
 import { toast } from '@/components/ui/sonner';
 import { PlatformVoluntaryEngagementStrip } from '@/components/platformEngagement/PlatformVoluntaryEngagementStrip';
 import {
+  LandingAgentPanelBody,
   LandingBarberDetailModal,
   LandingFloatingPlatformActions,
   LandingPlatformAmbientBackground,
   LandingPulseRadarHero,
   LandingSearchResults,
 } from '@/pages/landing/lazyLandingParts';
+import { LandingLazyBoundary } from '@/pages/landing/LandingLazyBoundary';
 import { AppBuildStamp } from '@/components/AppBuildStamp';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { GeoRadarButton } from '@/components/GeoRadarButton';
-
-const LazyLandingAgentPanelBody = lazy(async () => {
-  const mod = await import('@/pages/landing/LandingAgentPanelBody');
-  const C = mod.LandingAgentPanelBody;
-  if (typeof C !== 'function') {
-    throw new Error('LandingAgentPanelBody failed to load');
-  }
-  return { default: C };
-});
 
 type LandingAgentPanel = 'media' | 'legal' | null;
 
@@ -233,15 +226,23 @@ function LandingAgentPanel({
             >
               إغلاق
             </button>
-            <Suspense
+            <LandingLazyBoundary
               fallback={
                 <div className="rounded-3xl border border-white/10 bg-[#071426]/95 p-6 text-sm text-slate-300">
-                  جاري تحميل لوحة الوكلاء…
+                  تعذّر تحميل لوحة الوكلاء مؤقتاً.
                 </div>
               }
             >
-              <LazyLandingAgentPanelBody panel={activePanel} />
-            </Suspense>
+              <Suspense
+                fallback={
+                  <div className="rounded-3xl border border-white/10 bg-[#071426]/95 p-6 text-sm text-slate-300">
+                    جاري تحميل لوحة الوكلاء…
+                  </div>
+                }
+              >
+                <LandingAgentPanelBody panel={activePanel} />
+              </Suspense>
+            </LandingLazyBoundary>
           </motion.aside>
         </motion.div>
       ) : null}
@@ -846,9 +847,11 @@ export default function LandingPreview() {
       )}
 
       {!isMobile && deferMobileExtras ? (
-        <Suspense fallback={null}>
-          <LandingFloatingPlatformActions />
-        </Suspense>
+        <LandingLazyBoundary>
+          <Suspense fallback={null}>
+            <LandingFloatingPlatformActions />
+          </Suspense>
+        </LandingLazyBoundary>
       ) : null}
 
       {!isMobile && deferMobileExtras ? (
@@ -873,9 +876,11 @@ export default function LandingPreview() {
       />
 
       {!isMobile && deferMobileExtras ? (
-        <Suspense fallback={null}>
-          <LandingPlatformAmbientBackground variant="default" />
-        </Suspense>
+        <LandingLazyBoundary>
+          <Suspense fallback={null}>
+            <LandingPlatformAmbientBackground variant="default" />
+          </Suspense>
+        </LandingLazyBoundary>
       ) : null}
 
       {/* ══════════════════════════════════════════════════════════════════
@@ -1159,7 +1164,7 @@ export default function LandingPreview() {
             className="relative min-w-0 w-full"
           >
             <div className="relative mx-auto w-full max-w-[440px] min-w-0 overflow-hidden">
-              <Suspense
+              <LandingLazyBoundary
                 fallback={
                   <div
                     className="aspect-square w-full max-w-[440px] rounded-full bg-teal-500/[0.06] ring-1 ring-teal-400/15"
@@ -1167,8 +1172,17 @@ export default function LandingPreview() {
                   />
                 }
               >
-                <LandingPulseRadarHero />
-              </Suspense>
+                <Suspense
+                  fallback={
+                    <div
+                      className="aspect-square w-full max-w-[440px] rounded-full bg-teal-500/[0.06] ring-1 ring-teal-400/15"
+                      aria-hidden
+                    />
+                  }
+                >
+                  <LandingPulseRadarHero />
+                </Suspense>
+              </LandingLazyBoundary>
             </div>
           </motion.div>
           ) : null}
@@ -1192,26 +1206,34 @@ export default function LandingPreview() {
           ref={resultsRef}
           className="relative z-10 border-y border-teal-400/15 bg-[#020912]"
         >
-          <Suspense
+          <LandingLazyBoundary
             fallback={
               <div className="flex min-h-[40vh] items-center justify-center px-4 py-16 text-sm text-teal-200/75">
-                جاري تجهيز النتائج…
+                تعذّر تحميل النتائج مؤقتاً — أعد التحميل بعد لحظات.
               </div>
             }
           >
-            <LandingSearchResults
-              userLocation={userLocation}
-              filters={filters}
-              onFilterChange={setFilters}
-              filteredBarbers={filteredBarbers}
-              mapBarbers={mapBarbers}
-              showcaseActive={showcaseActive}
-              showcaseFallback={showcaseFallback}
-              remoteStatus={remoteStatus}
-              onBarberPatch={onBarberPatch}
-              onSelectBarber={setSelectedBarber}
-            />
-          </Suspense>
+            <Suspense
+              fallback={
+                <div className="flex min-h-[40vh] items-center justify-center px-4 py-16 text-sm text-teal-200/75">
+                  جاري تجهيز النتائج…
+                </div>
+              }
+            >
+              <LandingSearchResults
+                userLocation={userLocation}
+                filters={filters}
+                onFilterChange={setFilters}
+                filteredBarbers={filteredBarbers}
+                mapBarbers={mapBarbers}
+                showcaseActive={showcaseActive}
+                showcaseFallback={showcaseFallback}
+                remoteStatus={remoteStatus}
+                onBarberPatch={onBarberPatch}
+                onSelectBarber={setSelectedBarber}
+              />
+            </Suspense>
+          </LandingLazyBoundary>
           {!isMobile ? (
             <div className="mx-auto max-w-4xl px-5 pb-10">
               <PlatformVoluntaryEngagementStrip variant="compact" />
@@ -1221,27 +1243,29 @@ export default function LandingPreview() {
       ) : null}
 
       {selectedBarber ? (
-        <Suspense fallback={null}>
-          <LandingBarberDetailModal
-            barber={selectedBarber}
-            isOpen
-            onClose={() => setSelectedBarber(null)}
-            onExpandSearchRadius={() => {
-              setFilters((prev) => ({
-                ...prev,
-                maxDistance: Math.min(10, Math.max(prev.maxDistance + 3, 6)),
-                openNow: false,
-              }));
-            }}
-            onRetrySearch={() => {
-              setFilters((prev) => ({
-                ...prev,
-                openNow: false,
-                maxDistance: Math.max(1, Math.min(10, prev.maxDistance || 3)),
-              }));
-            }}
-          />
-        </Suspense>
+        <LandingLazyBoundary>
+          <Suspense fallback={null}>
+            <LandingBarberDetailModal
+              barber={selectedBarber}
+              isOpen
+              onClose={() => setSelectedBarber(null)}
+              onExpandSearchRadius={() => {
+                setFilters((prev) => ({
+                  ...prev,
+                  maxDistance: Math.min(10, Math.max(prev.maxDistance + 3, 6)),
+                  openNow: false,
+                }));
+              }}
+              onRetrySearch={() => {
+                setFilters((prev) => ({
+                  ...prev,
+                  openNow: false,
+                  maxDistance: Math.max(1, Math.min(10, prev.maxDistance || 3)),
+                }));
+              }}
+            />
+          </Suspense>
+        </LandingLazyBoundary>
       ) : null}
 
       {/* ── Stats strip ──────────────────────────────────────────────────── */}
