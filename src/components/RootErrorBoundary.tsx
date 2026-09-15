@@ -47,6 +47,7 @@ function isLazyDefaultExportError(error: Error): boolean {
     /PartnerMarketingPreview failed to load/i.test(error.message) ||
     /Payment failed to load/i.test(error.message) ||
     /PartnerPackagesPage failed to load/i.test(error.message) ||
+    /PaymentSuccess failed to load/i.test(error.message) ||
     /normalizeLocationHash/i.test(error.message)
   );
 }
@@ -144,6 +145,10 @@ export class RootErrorBoundary extends Component<Props, State> {
       sessionStorage.removeItem(`${REACT_HOOK_RECOVER_FLAG}:${currentRecoverPathKey()}`);
       sessionStorage.removeItem(LAZY_DEFAULT_RECOVER_FLAG);
       sessionStorage.removeItem(`${LAZY_DEFAULT_RECOVER_FLAG}:${currentRecoverPathKey()}`);
+      for (let i = sessionStorage.length - 1; i >= 0; i -= 1) {
+        const k = sessionStorage.key(i);
+        if (k?.startsWith('hm-lazy-page-retry:')) sessionStorage.removeItem(k);
+      }
       localStorage.removeItem('hm-sw-reset-v5');
       localStorage.removeItem('hm-sw-reset-v3');
       if ('serviceWorker' in navigator) {
