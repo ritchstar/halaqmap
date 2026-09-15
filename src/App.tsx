@@ -395,8 +395,8 @@ const StorePaidInvitePayPage = lazy(() => import("@/pages/store/StorePaidInviteP
 const StoreOccasionCardLabPage = lazy(() => import("@/pages/store/StoreOccasionCardLabPage"));
 const StoreAtlasStyleLabPage = lazy(() => import("@/pages/store/StoreAtlasStyleLabPage"));
 const StoreSolutionCatalogLabPage = lazy(() => import("@/pages/store/StoreSolutionCatalogLabPage"));
-const StorePathsLabPage = lazy(() => import("@/pages/store/StorePathsLabPage"));
-const StoreProductPathPage = lazy(() => import("@/pages/store/StoreProductPathPage"));
+const StorePathsLabPage = lazyPage(() => import("@/pages/store/StorePathsLabPage"), "StorePathsLabPage");
+const StoreProductPathPage = lazyPage(() => import("@/pages/store/StoreProductPathPage"), "StoreProductPathPage");
 const StoreWeddingLandingPage = lazy(() => import("@/pages/store/StoreWeddingLandingPage"));
 const StoreWeddingLabPage = lazy(() => import("@/pages/store/StoreWeddingLabPage"));
 const StoreWeddingHallPage = lazy(() => import("@/pages/store/StoreWeddingHallPage"));

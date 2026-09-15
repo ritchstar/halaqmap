@@ -48,6 +48,8 @@ function isLazyDefaultExportError(error: Error): boolean {
     /Payment failed to load/i.test(error.message) ||
     /PartnerPackagesPage failed to load/i.test(error.message) ||
     /PaymentSuccess failed to load/i.test(error.message) ||
+    /StorePathsLabPage failed to load/i.test(error.message) ||
+    /StoreProductPathPage failed to load/i.test(error.message) ||
     /normalizeLocationHash/i.test(error.message)
   );
 }

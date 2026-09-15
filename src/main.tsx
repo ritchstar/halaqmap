@@ -3,7 +3,7 @@
  * Product: HalaqMap / منصة حلاق ماب — SAIP 26-12-81959218
  */
 import { createRoot } from 'react-dom/client'
-import type { ComponentType } from 'react'
+import { useEffect, type ComponentType } from 'react'
 import './index.css'
 import { ensureDomainVerificationMeta } from '@/config/domainVerification'
 import { PLATFORM_REWORK_NOTICE_AR, RootErrorBoundary } from '@/components/RootErrorBoundary'
@@ -76,20 +76,69 @@ const LAB_STANDALONE_ROUTES: Record<string, () => Promise<{ default: ComponentTy
   '/store/catalog-lab': () => import('./pages/store/StoreSolutionCatalogLabPage.tsx'),
 };
 
+function pickLabPageComponent(mod: unknown, name: string): ComponentType {
+  if (typeof mod === 'function') return mod as ComponentType;
+  if (mod && typeof mod === 'object') {
+    const rec = mod as Record<string, unknown>;
+    if (typeof rec.default === 'function') return rec.default as ComponentType;
+    if (typeof rec[name] === 'function') return rec[name] as ComponentType;
+  }
+  throw new Error(`${name} failed to load`);
+}
+
+function isStorePathsLabHashPath(path: string): boolean {
+  return path === '/store/paths-lab' || path.startsWith('/store/paths-lab/');
+}
+
+/**
+ * صفحة المسارات تحتاج فهرساً + تفاصيل `:slug` معاً، بلا App الكامل ولا SW —
+ * نفس عزل catalog-lab/style-lab حتى لا تسقط الحزم القديمة بعد النشر.
+ */
+async function bootstrapPathsLabStandalone(rootEl: HTMLElement): Promise<boolean> {
+  const path = currentHashPath();
+  if (!isStorePathsLabHashPath(path)) return false;
+
+  const [routerMod, indexMod, detailMod] = await Promise.all([
+    import('react-router-dom-original'),
+    import('./pages/store/StorePathsLabPage.tsx'),
+    import('./pages/store/StoreProductPathPage.tsx'),
+  ]);
+  const { HashRouter, Routes, Route } = routerMod;
+  const IndexPage = pickLabPageComponent(indexMod, 'StorePathsLabPage');
+  const DetailPage = pickLabPageComponent(detailMod, 'StoreProductPathPage');
+
+  function PathsLabExitToApp() {
+    useEffect(() => {
+      // الهاش تغيّر عبر Link إلى خارج المسارات — أعد الإقلاع ليحمّل App الكامل.
+      window.location.reload();
+    }, []);
+    return null;
+  }
+
+  createRoot(rootEl).render(
+    <RootErrorBoundary>
+      <HashRouter>
+        <Routes>
+          <Route path="/store/paths-lab" element={<IndexPage />} />
+          <Route path="/store/paths-lab/:slug" element={<DetailPage />} />
+          <Route path="*" element={<PathsLabExitToApp />} />
+        </Routes>
+      </HashRouter>
+    </RootErrorBoundary>,
+  );
+  markAppMounted();
+  return true;
+}
+
 async function bootstrapLabStandalone(rootEl: HTMLElement): Promise<boolean> {
+  if (await bootstrapPathsLabStandalone(rootEl)) return true;
+
   const path = currentHashPath();
   const loader = LAB_STANDALONE_ROUTES[path];
   if (!loader) return false;
 
   const pageMod = await loader();
-  const Page =
-    (typeof pageMod.default === 'function' ? pageMod.default : undefined) ??
-    (typeof (pageMod as unknown) === 'function'
-      ? (pageMod as unknown as ComponentType)
-      : undefined);
-  if (!Page) {
-    throw new Error('تعذّر تحميل صفحة المختبر');
-  }
+  const Page = pickLabPageComponent(pageMod, 'LabStandalonePage');
   const { HashRouter } = await import('react-router-dom-original');
   createRoot(rootEl).render(
     <RootErrorBoundary>
