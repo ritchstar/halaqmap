@@ -2,7 +2,11 @@
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
 import { createClient } from '@supabase/supabase-js';
-import { registrationGuardDiagnostics, runRegistrationRouteGuards } from './_lib/registrationRouteGuard.js';
+import {
+  envInt,
+  registrationGuardDiagnostics,
+  runRegistrationRouteGuards,
+} from './_lib/registrationRouteGuard.js';
 import { buildInclusiveCareSnapshotFromBarberRow } from './_lib/inclusiveCareBarberSnapshot.js';
 import { buildChildrenServicesSnapshotFromBarberRow } from './_lib/childrenServicesBarberSnapshot.js';
 import { buildMensGroomingCenterSnapshotFromBarberRow } from './_lib/mensGroomingCenterBarberSnapshot.js';
@@ -78,7 +82,10 @@ export async function POST(request: Request): Promise<Response> {
   if (guard.ok === false) {
     return Response.json(guard.json, { status: guard.status, headers });
   }
-  const secGuard = await runSecurityGuard(request, { sensitiveRoute: true, rateLimit: 8 });
+  const secGuard = await runSecurityGuard(request, {
+    sensitiveRoute: true,
+    rateLimit: envInt('BARBER_PORTAL_LOGIN_SECURITY_RATE_LIMIT_MAX', 24),
+  });
   if (!secGuard.allowed) return secGuard.response;
 
   const url = (process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '').trim();

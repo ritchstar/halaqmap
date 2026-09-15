@@ -137,10 +137,15 @@ export async function barberPortalLoginRemote(input: {
     };
     if (!response.ok) {
       const code = typeof payload.code === 'string' && payload.code.trim() ? payload.code.trim() : undefined;
+      const fallback429 = 'محاولات دخول كثيرة — انتظر دقيقة ثم أعد المحاولة.';
+      const errorMessage =
+        response.status === 429
+          ? payload.error?.trim() || fallback429
+          : payload.error || `HTTP ${response.status}`;
       return {
         ok: false,
-        error: payload.error || `HTTP ${response.status}`,
-        ...(code ? { code } : {}),
+        error: errorMessage,
+        ...(code ? { code } : response.status === 429 ? { code: 'RATE_LIMIT_EXCEEDED' } : {}),
       };
     }
     const b = payload.barber;

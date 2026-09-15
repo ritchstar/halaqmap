@@ -11,7 +11,7 @@ export type RegistrationGuardResult =
   | { ok: true }
   | { ok: false; status: number; json: Record<string, unknown> };
 
-function envInt(name: string, fallback: number): number {
+export function envInt(name: string, fallback: number): number {
   const raw = (process.env[name] || '').trim();
   const n = Number.parseInt(raw, 10);
   return Number.isFinite(n) && n >= 0 ? n : fallback;
@@ -144,6 +144,9 @@ function rateLimitMaxForRoute(routeId: string): number {
   }
   if (routeId === 'submit-barber-qr-review') {
     return envInt('SUBMIT_BARBER_QR_REVIEW_RATE_LIMIT_MAX', 15);
+  }
+  if (routeId === 'barber-portal-login') {
+    return envInt('BARBER_PORTAL_LOGIN_RATE_LIMIT_MAX', 30);
   }
   if (routeId === 'barber-portal-magic-consume' || routeId === 'barber-portal-magic-enter') {
     return envInt('BARBER_PORTAL_MAGIC_RATE_LIMIT_MAX', 12);
@@ -300,8 +303,12 @@ export function runRegistrationRouteGuards(request: Request, routeId: string): R
       ok: false,
       status: 429,
       json: {
-        error: 'Too many requests',
-        hint: 'Slow down requests from this client. Tune REGISTRATION_RATE_LIMIT_MAX / REGISTRATION_RATE_LIMIT_WINDOW_MS; for barber portal only use BARBER_PORTAL_RATE_LIMIT_MAX.',
+        error:
+          routeId === 'barber-portal-login'
+            ? 'محاولات دخول كثيرة من نفس الشبكة — انتظر دقيقة ثم أعد المحاولة.'
+            : 'Too many requests',
+        code: 'RATE_LIMIT_EXCEEDED',
+        hint: 'Slow down requests from this client. Tune REGISTRATION_RATE_LIMIT_MAX / REGISTRATION_RATE_LIMIT_WINDOW_MS; for barber portal login use BARBER_PORTAL_LOGIN_RATE_LIMIT_MAX and BARBER_PORTAL_LOGIN_SECURITY_RATE_LIMIT_MAX.',
       },
     };
   }
