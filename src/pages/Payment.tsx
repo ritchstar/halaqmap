@@ -4,7 +4,6 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { calcVatBreakdown, type PlatformVatSettings } from '@/lib/platformVatSettings';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import {
   CreditCard,
   CheckCircle2,
@@ -12,32 +11,19 @@ import {
   Loader2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { ROUTE_PATHS, SubscriptionTier } from '@/lib';
-import { IMAGES } from '@/assets/images';
 import { resolvePaymentGateway } from '@/config/paymentGateway';
 import { LEGAL_ECOMMERCE_STORE_NAME } from '@/config/partnerLegal';
 import {
   clampListingLicenseQuantity,
   computeListingLicenseTotalSar,
-  computeListingLicenseUnitSar,
-  formatListingLicenseQuantitySummaryAr,
   isDigitalShiftAddonAllowed,
-  LISTING_LICENSE_MAX_QUANTITY,
-  LISTING_LICENSE_MIN_QUANTITY,
   parseDigitalShiftAddonParam,
 } from '@/config/listingLicenseQuantity';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import {
   DIAMOND_PRODUCT_SMART_LABEL_AR,
   DIAMOND_PRODUCT_STANDARD_LABEL_AR,
@@ -56,28 +42,15 @@ import { pollMoyasarPaymentFulfillmentRemote } from '@/lib/moyasarPaymentFulfill
 import { pollBarberSubscriptionStatusRemote } from '@/lib/barberSubscriptionStatusRemote';
 import { loadSabPaymentWidgetScript, mountSabPaymentForm, setSabWidgetLocaleAr } from '@/lib/sabFormLoader';
 import { PaymentSuccessPanel } from '@/components/billing/PaymentSuccessPanel';
-import { PaymentMerchantCompliancePanel } from '@/components/billing/PaymentMerchantCompliancePanel';
 import { PaymentCheckoutAcknowledgment } from '@/components/billing/PaymentCheckoutAcknowledgment';
-import { PaymentLicenseTotalPanel } from '@/components/billing/PaymentLicenseTotalPanel';
 import { MoyasarOfficialTrustChip } from '@/components/billing/MoyasarOfficialTrustChip';
 import { PartnerExternalCheckoutGate } from '@/components/partner/PartnerExternalCheckoutGate';
 import { lockPartnerDarkCanvas } from '@/lib/partnerDarkCanvas';
 import { MadaBadgeIcon, VisaMastercardBadgeIcon } from '@/components/billing/PaymentMethodBadgeIcons';
 import { REGISTRATION_STORAGE_ORDER_ID_RE } from '@/lib/registrationFileUploads';
-import { PlatformTlsTrustBadge } from '@/components/PlatformTlsTrustBadge';
-import { PlatformTrustStrip } from '@/components/PlatformTrustStrip';
-import {
-  paymentActivateNowCtaAr,
-  softwareLicenseFormNameAr,
-  type SoftwareLicenseFormSurface,
-  TERM_ACTIVATE_NOW_AR,
-} from '@/config/softwareLicenseTerminology';
-import { COIFFEUR_REGISTRATION_SURFACE } from '@/config/coiffeurPartnerSector';
-import { loadLastOrderConfirmation } from '@/lib/subscriptionRequestStorage';
 import {
   PAYMENT_INCOMPLETE_ADMIN_GRANT_BODY_AR,
   PAYMENT_INCOMPLETE_ADMIN_GRANT_TITLE_AR,
-  PAYMENT_PRE_CHECKOUT_ADMIN_GRANT_HINT_AR,
 } from '@/config/paymentCheckoutCommitments';
 import type { DigitalActivationCertificateView } from '@/config/geospatialLicenseDoctrine';
 import { getMoyasarGlobal, loadMoyasarFormScript, MOYASAR_APPLE_PAY_VALIDATE_URL } from '@/lib/moyasarFormLoader';
@@ -108,10 +81,7 @@ import {
 } from '@/lib/moyasarPaymentReturn';
 import { healIfStaleBuild, healIfStaleBuildFromServer } from '@/lib/platformBuildSync';
 import { readBarberAuthSession } from '@/lib/barberPortalSession';
-import { toast } from 'sonner';
-import { redeemBronzeTrialRemote, bronzeTrialErrorMessageAr } from '@/lib/bronzeTrialRedeemRemote';
 import { parseSubscriptionTierParam } from '@/lib/subscriptionTierParam';
-import { Input } from '@/components/ui/input';
 
 export default function Payment() {
   const navigate = useNavigate();
@@ -132,17 +102,6 @@ export default function Payment() {
     if (lastOrder?.listingSector === 'coiffeur_women') return 'coiffeur';
     return 'halaqmap';
   }, [searchParams]);
-  const licenseFormNameAr = softwareLicenseFormNameAr(licenseSurface);
-
-  const setLicenseQuantity = useCallback(
-    (nextRaw: number) => {
-      const next = clampListingLicenseQuantity(nextRaw);
-      const params = new URLSearchParams(searchParams);
-      params.set('qty', String(next));
-      setSearchParams(params, { replace: true });
-    },
-    [searchParams, setSearchParams],
-  );
   const digitalShiftAddonSelected = useMemo(
     () => isDigitalShiftAddonAllowed(tier, parseDigitalShiftAddonParam(searchParams.get('aiAddon'))),
     [tier, searchParams],
@@ -342,18 +301,6 @@ export default function Payment() {
   const sabHostRef = useRef<HTMLDivElement>(null);
   const [sabFormError, setSabFormError] = useState<string | null>(null);
   const [sabCheckoutLoading, setSabCheckoutLoading] = useState(false);
-  const [bronzeTrialCode, setBronzeTrialCode] = useState('');
-  const [bronzeTrialEmail, setBronzeTrialEmail] = useState('');
-  const [bronzeTrialLoading, setBronzeTrialLoading] = useState(false);
-  const [bronzeTrialSuccess, setBronzeTrialSuccess] = useState<{
-    barberId: string;
-    validUntil: string;
-    messageAr: string;
-  } | null>(null);
-
-  // إظهار الخانة دائماً للبرونزي؛ الاسترداد نفسه يبقى مشروطاً برقم طلب صالح.
-  const showBronzeTrialField =
-    !isWalletTopup && tier === SubscriptionTier.BRONZE && !bronzeTrialSuccess;
 
   const moyasarPublishableKey = useMemo(() => {
     // Production key source (frontend env):
@@ -371,52 +318,14 @@ export default function Payment() {
   }, []);
   const moyasarKeyOk = moyasarPublishableKey.startsWith('pk_');
 
-  const redeemBronzeTrial = useCallback(async () => {
-    const code = bronzeTrialCode.trim();
-    if (!code) {
-      toast.error('أدخل رمز التجربة');
-      return;
-    }
-    if (purchasePurpose === 'new' && !registrationRequestReady) {
-      toast.error('أكمل طلب التسجيل أولاً');
-      return;
-    }
-    setBronzeTrialLoading(true);
-    const res = await redeemBronzeTrialRemote({
-      code,
-      requestId: requestId || undefined,
-      linkedBarberId: linkedBarberId || undefined,
-      email: bronzeTrialEmail.trim() || undefined,
-    });
-    setBronzeTrialLoading(false);
-    if (!res.ok) {
-      toast.error(bronzeTrialErrorMessageAr(res.error));
-      return;
-    }
-    setBronzeTrialSuccess({
-      barberId: res.barberId,
-      validUntil: res.validUntil,
-      messageAr: res.messageAr,
-    });
-    toast.success(res.messageAr);
-  }, [bronzeTrialCode, bronzeTrialEmail, purchasePurpose, registrationRequestReady, requestId, linkedBarberId]);
-
   const tierNames = {
     [SubscriptionTier.BRONZE]: 'برونزي',
     [SubscriptionTier.GOLD]: 'ذهبي',
     [SubscriptionTier.DIAMOND]: 'ماسي',
   };
 
-  const tierColors = {
-    [SubscriptionTier.BRONZE]: 'from-amber-700 to-amber-900',
-    [SubscriptionTier.GOLD]: 'from-accent to-yellow-600',
-    [SubscriptionTier.DIAMOND]: 'from-primary to-cyan-600',
-  };
-
-  const unitPriceSar = computeListingLicenseUnitSar(tier, listingPricingOptions);
   const price = computeListingLicenseTotalSar(tier, licenseQuantity, listingPricingOptions);
   const tierName = tierNames[tier];
-  const tierColor = tierColors[tier];
   const tierDisplayLabel =
     tier === SubscriptionTier.DIAMOND && digitalShiftAddonSelected
       ? DIAMOND_PRODUCT_SMART_LABEL_AR
@@ -1216,91 +1125,15 @@ export default function Payment() {
       className="min-h-screen overflow-x-hidden bg-[#020912]"
       dir="rtl"
       role="application"
-      aria-label="إتمام دفع رخصة الإدراج"
+      aria-label="إتمام الدفع"
     >
-      {/* Header */}
-      <div className="relative overflow-hidden bg-gradient-to-b from-primary/10 via-background to-background py-10 sm:py-16">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(13,148,136,0.15),transparent_50%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(212,175,55,0.1),transparent_50%)]" />
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="container mx-auto px-4 relative z-10"
-        >
-          <div className="mx-auto mb-4 max-w-4xl">
-            <PartnerExternalCheckoutGate pathWithSearch={paymentPathWithSearch} />
-          </div>
-          <div className="max-w-4xl mx-auto text-center">
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="inline-flex items-center justify-center w-14 h-14 sm:w-20 sm:h-20 rounded-full bg-primary/20 mb-4 sm:mb-6"
-            >
-              <CreditCard className="w-7 h-7 sm:w-10 sm:h-10 text-primary" />
-            </motion.div>
-
-            {/* شارة تمييز الغرض */}
-            <div className={`mb-4 inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-xs font-bold ${
-              isWalletTopup
-                ? 'border-primary/40 bg-primary/10 text-primary'
-                : purchasePurpose === 'recharge'
-                  ? 'border-emerald-400/40 bg-emerald-500/10 text-emerald-300'
-                  : 'border-amber-400/40 bg-amber-500/10 text-amber-300'
-            }`}>
-              {isWalletTopup
-                ? '🌙 شحن رصيد المناوب الرقمي'
-                : purchasePurpose === 'recharge'
-                  ? '🔄 شحن حزمة جديدة لحسابك المسجَّل'
-                  : '🆕 شراؤك الأول — تأكيد البيانات والدفع'
-              }
-            </div>
-
-            <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold mb-3 sm:mb-4 leading-snug">
-              {isWalletTopup
-                ? 'شحن محفظة المناوب الرقمي'
-                : purchasePurpose === 'recharge'
-                  ? 'تجديد / شحن حزمة الرخصة'
-                  : `إتمام شراء ${licenseFormNameAr}`
-              }
-            </h1>
-            <p className="mx-auto max-w-2xl text-base font-medium leading-relaxed text-foreground/90 sm:text-xl">
-              {isWalletTopup
-                ? 'أضِف رصيد ردود للمناوب — يُفعَّل فوراً بعد تأكيد الدفع'
-                : purchasePurpose === 'recharge'
-                  ? 'راجع الحسبة بوضوح، وافق على شروط الدفع مرة واحدة، ثم أكمل الدفع لتُضاف الحزم لحسابك'
-                  : 'راجع الحسبة بوضوح ← وافق على شروط الدفع مرة واحدة ← ادفع بأمان ← تُصدر الرخصة بعد نجاح الدفع'
-              }
-            </p>
-          </div>
-        </motion.div>
-      </div>
-
-      {/* Main Content */}
-      <div className="container mx-auto px-4 py-8 sm:py-12">
-        <div className="max-w-5xl mx-auto">
+      <div className="container mx-auto px-4 py-6 sm:py-8">
+        <div className="mx-auto max-w-3xl space-y-4">
+          <PartnerExternalCheckoutGate pathWithSearch={paymentPathWithSearch} />
           {paymentReturnLoading && (
             <Alert className="mb-6 border-primary/30 bg-primary/5">
               <Loader2 className="h-4 w-4 animate-spin text-primary" />
               <AlertDescription>جاري التحقق من عملية الدفع مع {paymentReturnGatewayLabel}…</AlertDescription>
-            </Alert>
-          )}
-
-          {purchasePurpose === 'new' && !registrationRequestReady && !paymentReturnPaid && (
-            <Alert className="mb-6 border-amber-500/40 bg-amber-500/10">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription className="text-sm leading-relaxed space-y-2">
-                <p className="font-semibold text-foreground">تنويه قبل الدفع</p>
-                <p>
-                  للشراء الأول يلزم رقم طلب تسجيل صالح (<span dir="ltr">HM-…</span>). أكمل{' '}
-                  <Link to={ROUTE_PATHS.REGISTER} className="font-semibold text-primary underline-offset-2 hover:underline">
-                    نموذج التسجيل
-                  </Link>{' '}
-                  ثم افتح الدفع من صفحة نجاح التسجيل — أو استخدم «تجديد / شحن» من لوحة التحكم إن كان حسابك مفعّلاً.
-                </p>
-              </AlertDescription>
             </Alert>
           )}
 
@@ -1461,251 +1294,23 @@ export default function Payment() {
             </Alert>
           )}
 
-          <div className="mx-auto max-w-3xl space-y-6">
-              {paymentReturnPaid ? (
-                <Alert className="border-emerald-600/40 bg-emerald-500/10">
-                  <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-                  <AlertDescription className="text-sm leading-relaxed">
-                    الدفع مكتمل. إن لم تصلك رسالة التفعيل خلال دقائق، راجع البريد غير المرغوب أو افتح{' '}
-                    <Link to={ROUTE_PATHS.BARBER_LOGIN} className="font-semibold text-primary underline-offset-2 hover:underline">
-                      دخول لوحة الشريك
-                    </Link>
-                    .
-                  </AlertDescription>
-                </Alert>
-              ) : null}
+          {paymentReturnPaid ? (
+            <Alert className="border-emerald-600/40 bg-emerald-500/10">
+              <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+              <AlertDescription className="text-sm leading-relaxed">
+                الدفع مكتمل. إن لم تصلك رسالة التفعيل خلال دقائق، راجع البريد غير المرغوب أو افتح{' '}
+                <Link to={ROUTE_PATHS.BARBER_LOGIN} className="font-semibold text-primary underline-offset-2 hover:underline">
+                  دخول لوحة الشريك
+                </Link>
+                .
+              </AlertDescription>
+            </Alert>
+          ) : null}
 
-              {bronzeTrialSuccess ? (
-                <Alert className="border-emerald-600/40 bg-emerald-500/10">
-                  <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-                  <AlertDescription className="space-y-2 text-sm leading-relaxed">
-                    <p className="font-semibold text-foreground">{bronzeTrialSuccess.messageAr}</p>
-                    <p>
-                      أنت الآن <strong>مشترك تجريبي</strong> — باقة برونزي لمدة 30 يوماً. الظهور على البحث
-                      والخريطة فعّال حتى انتهاء الفترة.
-                    </p>
-                    {bronzeTrialSuccess.validUntil ? (
-                      <p className="text-xs text-muted-foreground" dir="ltr">
-                        ينتهي: {bronzeTrialSuccess.validUntil.slice(0, 10)}
-                      </p>
-                    ) : null}
-                    <Button type="button" asChild className="mt-2">
-                      <Link to={ROUTE_PATHS.BARBER_LOGIN}>الدخول للوحة الشريك</Link>
-                    </Button>
-                  </AlertDescription>
-                </Alert>
-              ) : null}
-
-              {/* Subscription / Wallet Summary — يُخفى بعد نجاح الدفع */}
-              {!paymentReturnPaid ? (
-              <Card className="border-primary/25">
-                <CardHeader>
-                  <CardTitle className="text-xl sm:text-2xl">
-                    {isWalletTopup ? 'ملخص شحن محفظة المناوب الرقمي' : `ملخص ${licenseFormNameAr}`}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-5">
-                  {isWalletTopup ? (
-                    <div className="space-y-4 rounded-xl border-2 border-primary/40 bg-gradient-to-b from-primary/12 to-background p-4 sm:p-6">
-                      <div className="flex items-center gap-4">
-                        <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-cyan-600 text-2xl text-white">
-                          🌙
-                        </div>
-                        <div>
-                          <h3 className="text-xl font-black sm:text-2xl">
-                            {walletPkg?.labelAr ?? 'باقة شحن المحفظة'}
-                          </h3>
-                          <p className="text-base text-foreground/90 sm:text-lg">
-                            شحن رصيد ردود المناوب الآلي (كل رد ≈ 1.50 ر.س)
-                          </p>
-                        </div>
-                      </div>
-                      <dl className="space-y-2 text-base sm:text-lg">
-                        {walletVatHalalas > 0 ? (
-                          <>
-                            <div className="flex justify-between gap-3 border-b border-border/60 pb-2">
-                              <dt>يُضاف للرصيد</dt>
-                              <dd className="font-bold tabular-nums">
-                                {(walletCreditedHalalas / 100).toFixed(2)} ر.س
-                              </dd>
-                            </div>
-                            <div className="flex justify-between gap-3 border-b border-border/60 pb-2">
-                              <dt>ضريبة القيمة المضافة ({vatSettings.ratePercent}%)</dt>
-                              <dd className="font-bold tabular-nums">
-                                {(walletVatHalalas / 100).toFixed(2)} ر.س
-                              </dd>
-                            </div>
-                          </>
-                        ) : (
-                          <p className="font-medium text-foreground/85">
-                            يُضاف المبلغ كاملاً للرصيد · بلا ضريبة حالياً
-                          </p>
-                        )}
-                      </dl>
-                      <div className="rounded-xl border-2 border-primary/50 bg-primary/15 px-4 py-4 text-center">
-                        <p className="text-sm font-bold text-primary sm:text-base">المبلغ المستحق للدفع الآن</p>
-                        <p className="mt-1 text-4xl font-black tabular-nums text-foreground sm:text-5xl">
-                          {(walletChargedHalalas / 100).toFixed(2)}
-                          <span className="mr-2 text-xl font-bold sm:text-2xl">ر.س</span>
-                        </p>
-                        <p className="mt-2 text-base font-semibold text-foreground/90">
-                          ≈ {repliesFromHalalas(walletCreditedHalalas)} رد آلي
-                        </p>
-                      </div>
-                    </div>
-                  ) : (
-                    <>
-                      <div className="flex items-center gap-3">
-                        <div
-                          className={`flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br ${tierColor} text-lg font-bold text-white`}
-                        >
-                          {tierName === 'برونزي' && '🥉'}
-                          {tierName === 'ذهبي' && '🥇'}
-                          {tierName === 'ماسي' && '💎'}
-                        </div>
-                        <p className="text-base font-semibold text-foreground sm:text-lg">
-                          اختر عدد الحزم ثم راجع الحسبة أدناه قبل الدفع
-                        </p>
-                      </div>
-
-                      <div className="grid gap-3 rounded-xl border border-border/80 bg-muted/30 p-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
-                        <div className="space-y-1.5">
-                          <Label htmlFor="license-qty-select" className="text-base font-bold">
-                            عدد الحزم المشتراة
-                          </Label>
-                          <p className="text-sm leading-relaxed text-foreground/85 sm:text-base">
-                            {formatListingLicenseQuantitySummaryAr(licenseQuantity)}
-                          </p>
-                        </div>
-                        <Select
-                          value={String(licenseQuantity)}
-                          onValueChange={(v) => setLicenseQuantity(Number(v))}
-                        >
-                          <SelectTrigger
-                            id="license-qty-select"
-                            className="h-11 w-full text-base sm:w-[12rem]"
-                            aria-label="اختيار عدد الحزم"
-                          >
-                            <SelectValue placeholder="اختر العدد" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {Array.from(
-                              { length: LISTING_LICENSE_MAX_QUANTITY - LISTING_LICENSE_MIN_QUANTITY + 1 },
-                              (_, i) => LISTING_LICENSE_MIN_QUANTITY + i,
-                            ).map((n) => (
-                              <SelectItem key={n} value={String(n)} className="text-base">
-                                {n === 1
-                                  ? '1 حزمة (30 يوماً)'
-                                  : n === 12
-                                    ? '12 حزمة (سنة / 360 يوماً)'
-                                    : `${n} حزم (${n * 30} يوماً)`}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      <PaymentLicenseTotalPanel
-                        tierLabel={tierDisplayLabel}
-                        unitSar={unitPriceSar}
-                        quantity={licenseQuantity}
-                        digitalShiftAddon={digitalShiftAddonSelected}
-                        breakdown={licenseBreakdown}
-                        vatEnabled={vatSettings.enabled}
-                        vatPercent={vatSettings.ratePercent}
-                        chargedHalalas={monthlyAmountHalalas}
-                      />
-
-                      <p className="rounded-lg border border-amber-600/25 bg-amber-500/10 px-3 py-3 text-sm font-medium leading-relaxed text-foreground sm:text-base">
-                        {PAYMENT_PRE_CHECKOUT_ADMIN_GRANT_HINT_AR}
-                      </p>
-                    </>
-                  )}
-                </CardContent>
-              </Card>
-              ) : null}
-
-              {showBronzeTrialField && !paymentReturnPaid ? (
-                <Card className="border-amber-500/35 bg-amber-500/5">
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-lg">رمز تجربة برونزي (30 يوماً)</CardTitle>
-                    <CardDescription>
-                      إن وصلك رمز مجاني، أدخله هنا لتفعيل الحساب دون دفع. مسار بوابة الدفع أدناه يبقى كما هو إن
-                      لم يكن لديك رمز.
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    {purchasePurpose === 'new' && !registrationRequestReady ? (
-                      <Alert className="border-amber-500/40 bg-amber-500/10">
-                        <AlertCircle className="h-4 w-4" />
-                        <AlertDescription className="text-sm leading-relaxed">
-                          لتفعيل الكود يلزم رقم طلب تسجيل صالح. ارجع إلى صفحة نجاح التسجيل واضغط «تفعيل الآن»
-                          حتى يُمرَّر رقم الطلب تلقائياً، أو أكمل{' '}
-                          <Link
-                            to={ROUTE_PATHS.REGISTER}
-                            className="font-semibold text-primary underline-offset-2 hover:underline"
-                          >
-                            نموذج التسجيل
-                          </Link>
-                          .
-                        </AlertDescription>
-                      </Alert>
-                    ) : null}
-                    <div className="space-y-2">
-                      <Label htmlFor="bronze-trial-code">رمز التجربة</Label>
-                      <Input
-                        id="bronze-trial-code"
-                        value={bronzeTrialCode}
-                        onChange={(e) => setBronzeTrialCode(e.target.value)}
-                        placeholder="HM-TRY-XXXX-XXXX-XXXX"
-                        dir="ltr"
-                        className="font-mono"
-                        autoComplete="off"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="bronze-trial-email">البريد المسجّل عليه الكود</Label>
-                      <Input
-                        id="bronze-trial-email"
-                        type="email"
-                        value={bronzeTrialEmail}
-                        onChange={(e) => setBronzeTrialEmail(e.target.value)}
-                        placeholder="نفس بريد طلب التجربة والتسجيل"
-                        dir="ltr"
-                        autoComplete="email"
-                      />
-                    </div>
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      disabled={
-                        bronzeTrialLoading ||
-                        !bronzeTrialCode.trim() ||
-                        (purchasePurpose === 'new' && !registrationRequestReady)
-                      }
-                      onClick={() => void redeemBronzeTrial()}
-                    >
-                      {bronzeTrialLoading ? (
-                        <>
-                          <Loader2 className="ml-2 h-4 w-4 animate-spin" />
-                          جاري التفعيل…
-                        </>
-                      ) : (
-                        'تفعيل التجربة المجانية'
-                      )}
-                    </Button>
-                  </CardContent>
-                </Card>
-              ) : null}
-
-              {/* Payment Methods — تُخفى بعد نجاح الدفع لتفادي الارتباك */}
-              {!bronzeTrialSuccess && !paymentReturnPaid ? (
+          {!paymentReturnPaid ? (
               <Card>
                 <CardHeader>
                   <CardTitle>اختر طريقة الدفع</CardTitle>
-                  <CardDescription>
-                    ادفع بأمان عبر بوابة سعودية. بعد النجاح تظهر شهادة التفعيل ورقم الرخصة أعلاه.
-                  </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <RadioGroup
@@ -1796,16 +1401,8 @@ export default function Payment() {
                     </Alert>
                   )}
 
-                  {pubPayConfig?.ok && (
-                    <p className="text-xs text-muted-foreground">
-                      وضع الدفع المعروض للمنصة:{' '}
-                      <strong>{pubPayConfig.displayPaymentMode === 'live' ? 'إنتاج' : 'اختبار'}</strong>
-                    </p>
-                  )}
-
                   {paymentMethod === 'moyasar' && showMoyasarCheckout && (
                     <div className="space-y-4 rounded-lg border border-primary/30 bg-primary/5 p-4 sm:p-5">
-                      <MoyasarOfficialTrustChip variant="banner" />
                       <PaymentCheckoutAcknowledgment
                         checked={checkoutAcknowledged}
                         onCheckedChange={setCheckoutAcknowledged}
@@ -1827,34 +1424,19 @@ export default function Payment() {
                       )}
 
                       {moyasarKeyOk && checkoutAcknowledged && registrationRequestReady && (
-                        <Card className="border-primary/30">
-                          <CardHeader className="pb-2">
-                            <CardTitle className="text-xl sm:text-2xl">
-                              {paymentActivateNowCtaAr(isWalletTopup ? walletChargedHalalas / 100 : price)}
-                            </CardTitle>
-                            <CardDescription className="text-base leading-relaxed text-foreground/85">
-                              {TERM_ACTIVATE_NOW_AR} — منتج رقمي فوري. المبلغ المعروض أعلاه بالريال هو ما يُخصم عبر
-                              بوابة الدفع. بعد إتمام العملية تُفعَّل الرخصة تلقائياً.
-                            </CardDescription>
-                          </CardHeader>
-                          <CardContent className="space-y-3">
-                            {moyasarFormError && (
-                              <Alert variant="destructive">
-                                <AlertCircle className="h-4 w-4" />
-                                <AlertDescription>{moyasarFormError}</AlertDescription>
-                              </Alert>
-                            )}
-                            <div
-                              ref={moyasarHostRef}
-                              className="min-h-[280px] w-full max-w-full overflow-x-auto rounded-md border border-border bg-background p-2"
-                              dir="ltr"
-                            />
-                            <p className="text-sm leading-relaxed text-foreground/80 sm:text-base">
-                              تُدخَل بيانات البطاقة داخل نموذج بوابة الدفع نفسه وتُعالَج عبر المزود المعتمد؛ لا يحتفظ
-                              حلاق ماب ببيانات البطاقة الكاملة.
-                            </p>
-                          </CardContent>
-                        </Card>
+                        <div className="space-y-3">
+                          {moyasarFormError && (
+                            <Alert variant="destructive">
+                              <AlertCircle className="h-4 w-4" />
+                              <AlertDescription>{moyasarFormError}</AlertDescription>
+                            </Alert>
+                          )}
+                          <div
+                            ref={moyasarHostRef}
+                            className="min-h-[280px] w-full max-w-full overflow-x-auto rounded-md border border-border bg-background p-2"
+                            dir="ltr"
+                          />
+                        </div>
                       )}
                     </div>
                   )}
@@ -1869,109 +1451,33 @@ export default function Payment() {
                       />
 
                       {checkoutAcknowledged && (
-                        <Card className="border-primary/30">
-                          <CardHeader className="pb-2">
-                            <CardTitle className="text-xl sm:text-2xl">{paymentActivateNowCtaAr(price)}</CardTitle>
-                            <CardDescription className="text-base leading-relaxed text-foreground/85">
-                              {TERM_ACTIVATE_NOW_AR} — بعد إتمام العملية يعيد البنك التوجيه مع{' '}
-                              <span dir="ltr">?gateway=sab&amp;id=</span> ثم يُتحقق من الخادم تلقائياً وتُصدر الرخصة.
-                            </CardDescription>
-                          </CardHeader>
-                          <CardContent className="space-y-3">
-                            {sabCheckoutLoading && (
-                              <div className="flex items-center gap-2 text-base text-foreground/80">
-                                <Loader2 className="h-4 w-4 animate-spin" />
-                                جاري تجهيز جلسة الدفع…
-                              </div>
-                            )}
-                            {sabFormError && (
-                              <Alert variant="destructive">
-                                <AlertCircle className="h-4 w-4" />
-                                <AlertDescription>{sabFormError}</AlertDescription>
-                              </Alert>
-                            )}
-                            <div
-                              ref={sabHostRef}
-                              className="min-h-[280px] w-full max-w-full overflow-x-auto rounded-md border border-border bg-background p-2"
-                              dir="ltr"
-                            />
-                            <p className="text-sm leading-relaxed text-foreground/80 sm:text-base">
-                              يتطلب الإنتاج <strong>HTTPS</strong> وتسجيل النطاق لدى البنك. webhook الخادم:{' '}
-                              <span dir="ltr">/api/sab-webhook</span>
-                            </p>
-                          </CardContent>
-                        </Card>
+                        <div className="space-y-3">
+                          {sabCheckoutLoading && (
+                            <div className="flex items-center gap-2 text-base text-foreground/80">
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                              جاري تجهيز جلسة الدفع…
+                            </div>
+                          )}
+                          {sabFormError && (
+                            <Alert variant="destructive">
+                              <AlertCircle className="h-4 w-4" />
+                              <AlertDescription>{sabFormError}</AlertDescription>
+                            </Alert>
+                          )}
+                          <div
+                            ref={sabHostRef}
+                            className="min-h-[280px] w-full max-w-full overflow-x-auto rounded-md border border-border bg-background p-2"
+                            dir="ltr"
+                          />
+                        </div>
                       )}
                     </div>
                   )}
                 </CardContent>
               </Card>
-              ) : null}
-          </div>
-
-          {/* مربّعات ثانوية مختصرة — أسفل المنتج وصندوق الدفع مباشرةً */}
-          <div className="mx-auto mt-10 max-w-5xl space-y-6">
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {/* Security Badge */}
-              <Card>
-                <CardContent className="space-y-4 p-4">
-                  <PlatformTrustStrip variant="strip" />
-                  <PlatformTlsTrustBadge variant="card" />
-                </CardContent>
-              </Card>
-
-              {/* Support */}
-              <Card>
-                <CardContent className="p-6">
-                  <h3 className="font-semibold mb-3">هل تحتاج مساعدة؟</h3>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    فريق الدعم متاح للإجابة على استفساراتك
-                  </p>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex items-center gap-2">
-                      <span className="text-muted-foreground">📧</span>
-                      <span dir="ltr">admin@halaqmap.com</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-muted-foreground">📱</span>
-                      <span dir="ltr">0559602685</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Payment Info */}
-              <Card>
-                <CardContent className="p-6">
-                  <h3 className="font-semibold mb-3">معلومات الدفع</h3>
-                  <ul className="space-y-2 text-sm text-muted-foreground">
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
-                      <span>حزمة رخصة مسبقة الدفع — دون تجديد تلقائي أو خصم دوري</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
-                      <span>صلاحية الإدراج محددة بمدة حزمة الرخصة المشتراة</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
-                      <span>فاتورة رسمية بعد كل دفعة</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
-                      <span>دعم فني على مدار الساعة</span>
-                    </li>
-                  </ul>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* هوية التاجر · الأسعار · السياسات — تفاصيل مرجعية أسفل الصفحة */}
-            <PaymentMerchantCompliancePanel />
-          </div>
+          ) : null}
         </div>
       </div>
-
     </div>
   );
 }
