@@ -287,6 +287,8 @@ export const ROUTE_PATHS = {
   BARBER_DASHBOARD: '/barber/dashboard',
   /** طلب حذف الحساب (باقة برونزية — نموذج يُحال للإدارة) */
   BARBER_ACCOUNT_DELETE_REQUEST: '/barber/request-account-deletion',
+  /** اختيار حزمة اشتراك صالون — خطوة إلزامية قبل الدفع عند غياب tier صالح في الرابط */
+  PARTNER_PACKAGES: '/partners/packages',
   PAYMENT: '/partners/payment',
   /** تأكيد الاشتراك بعد نجاح الدفع فقط — لتتبع إحالات Google Ads */
   PAYMENT_SUCCESS: '/partners/payment/success',

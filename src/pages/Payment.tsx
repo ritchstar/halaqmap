@@ -110,18 +110,17 @@ import { healIfStaleBuild, healIfStaleBuildFromServer } from '@/lib/platformBuil
 import { readBarberAuthSession } from '@/lib/barberPortalSession';
 import { toast } from 'sonner';
 import { redeemBronzeTrialRemote, bronzeTrialErrorMessageAr } from '@/lib/bronzeTrialRedeemRemote';
+import { parseSubscriptionTierParam } from '@/lib/subscriptionTierParam';
 import { Input } from '@/components/ui/input';
 
 export default function Payment() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const tierRaw = (searchParams.get('tier') ?? '').trim().toLowerCase();
-  const tier: SubscriptionTier =
-    tierRaw === SubscriptionTier.GOLD
-      ? SubscriptionTier.GOLD
-      : tierRaw === SubscriptionTier.DIAMOND
-        ? SubscriptionTier.DIAMOND
-        : SubscriptionTier.BRONZE;
+  const tierFromUrl = useMemo(
+    () => parseSubscriptionTierParam(searchParams.get('tier')),
+    [searchParams],
+  );
+  const tier: SubscriptionTier = tierFromUrl ?? SubscriptionTier.BRONZE;
   const licenseQuantity = useMemo(
     () => clampListingLicenseQuantity(searchParams.get('qty')),
     [searchParams],
@@ -176,9 +175,20 @@ export default function Payment() {
   const isWalletTopup = purchasePurpose === 'wallet_topup';
   const gatewayReturnPaymentId = searchParams.get('id')?.trim() ?? '';
 
+  /** بلا tier صالح — إعادة توجيه لصفحة اختيار الحزمة (لا افتراض bronze صامت). */
   useEffect(() => {
     if (isWalletTopup) return;
     if (gatewayReturnPaymentId) return;
+    if (tierFromUrl) return;
+    const q = new URLSearchParams(searchParams);
+    q.set('reason', 'missing_tier');
+    navigate(`${ROUTE_PATHS.PARTNER_PACKAGES}?${q.toString()}`, { replace: true });
+  }, [isWalletTopup, gatewayReturnPaymentId, tierFromUrl, searchParams, navigate]);
+
+  useEffect(() => {
+    if (isWalletTopup) return;
+    if (gatewayReturnPaymentId) return;
+    if (!tierFromUrl) return;
     const value = computeListingLicenseTotalSar(tier, licenseQuantity, listingPricingOptions);
     trackTikTokInitiateCheckout({
       contentId: `listing_license_${tier}${digitalShiftAddonSelected ? '_shift' : ''}`,
@@ -1187,6 +1197,19 @@ export default function Payment() {
     const q = searchParams.toString();
     return q ? `${ROUTE_PATHS.PAYMENT}?${q}` : ROUTE_PATHS.PAYMENT;
   }, [searchParams]);
+
+  if (!isWalletTopup && !gatewayReturnPaymentId && !tierFromUrl) {
+    return (
+      <div
+        className="flex min-h-screen items-center justify-center bg-[#020912] text-white"
+        dir="rtl"
+        aria-busy="true"
+        aria-label="جاري التحويل لاختيار الحزمة"
+      >
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div

@@ -92,6 +92,7 @@ const partnerBottomNav: ReadonlyArray<Required<PartnerNavItem>> = [
 const COMPACT_PARTNER_HEADER_PATHS = new Set<string>([
   ROUTE_PATHS.REGISTER,
   ROUTE_PATHS.REGISTER_SUCCESS,
+  ROUTE_PATHS.PARTNER_PACKAGES,
   ROUTE_PATHS.PAYMENT,
   ROUTE_PATHS.PAYMENT_SUCCESS,
   ROUTE_PATHS.PARTNER_SUPPORT,
@@ -104,6 +105,7 @@ const COMPACT_PARTNER_HEADER_PATHS = new Set<string>([
 function compactPartnerHeaderTitle(pathname: string): string {
   if (pathname === ROUTE_PATHS.REGISTER) return 'التسجيل في المنصة';
   if (pathname === ROUTE_PATHS.REGISTER_SUCCESS) return 'تم إرسال الطلب';
+  if (pathname === ROUTE_PATHS.PARTNER_PACKAGES) return 'اختيار حزمة الاشتراك';
   if (pathname === ROUTE_PATHS.PAYMENT) return 'إتمام الدفع';
   if (pathname === ROUTE_PATHS.PAYMENT_SUCCESS) return 'تم تأكيد الاشتراك';
   if (pathname === ROUTE_PATHS.PARTNER_SUPPORT) return 'الدعم الفني';

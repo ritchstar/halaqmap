@@ -107,7 +107,7 @@ function PackageStatusBar({ daysRemaining }: { daysRemaining: number }) {
       </div>
       <div className="flex gap-2">
         <BarberDashboardOutboundAnchor
-          href={`/#${ROUTE_PATHS.PAYMENT}`}
+          href={`/#${ROUTE_PATHS.PARTNER_PACKAGES}?purpose=recharge`}
           className="flex items-center gap-1.5 rounded-lg border border-amber-300/50 bg-amber-500/20 px-3 py-1.5 text-sm font-bold text-amber-100 hover:bg-amber-500/30 transition-all"
         >
           <CreditCard className="h-3.5 w-3.5" /> تجديد

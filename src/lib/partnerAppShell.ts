@@ -38,8 +38,8 @@ export function isPartnerAppShell(): boolean {
       window.matchMedia('(display-mode: minimal-ui)').matches;
     const iosStandalone =
       (window.navigator as Navigator & { standalone?: boolean }).standalone === true;
-    const twaReferrer = document.referrer.startsWith('android-app://');
-    return standalone || iosStandalone || twaReferrer;
+    // لا نعتمد referrer وحدها — Custom Tab قد يحمل android-app:// ويُظهر شريط «افتح في المتصفح» بالخطأ.
+    return standalone || iosStandalone;
   } catch {
     return false;
   }
@@ -68,9 +68,6 @@ export function openInExternalBrowser(url: string): boolean {
       ? trimmed
       : buildAbsoluteAppHashUrl(trimmed.startsWith('#') ? trimmed.slice(1) : trimmed);
 
-    if (wasExternalBreakoutAttempted(absolute)) {
-      return false;
-    }
     markExternalBreakoutAttempted(absolute);
 
     const ua = navigator.userAgent || '';
@@ -84,10 +81,9 @@ export function openInExternalBrowser(url: string): boolean {
       const intent =
         `intent://${hostPath}#Intent;scheme=https;action=android.intent.action.VIEW;` +
         `package=com.android.chrome;S.browser_fallback_url=${fallback};end`;
-      // لا نستخدم location.href — يُعيد تحميل نفس WebView ويُسبب حلقة لا نهائية في TWA.
-      const opened = window.open(intent, '_blank');
-      if (opened) return true;
-      return Boolean(window.open(absolute, '_blank', 'noopener,noreferrer'));
+      // location.href موثوق لفتح Chrome من TWA؛ الحارس يمنع الحلقة (لا فتح تلقائي عند التحميل).
+      window.location.href = intent;
+      return true;
     }
 
     const opened = window.open(absolute, '_blank', 'noopener,noreferrer');
@@ -106,7 +102,9 @@ export function breakOutFinancialPathToBrowser(pathnameWithSearch: string): bool
   if (!isPartnerAppShell()) return false;
   const pathOnly = pathnameWithSearch.split('?')[0] || '';
   if (!isPartnerAppFinancialPath(pathOnly)) return false;
-  return openInExternalBrowser(buildAbsoluteAppHashUrl(pathnameWithSearch));
+  const absolute = buildAbsoluteAppHashUrl(pathnameWithSearch);
+  if (wasExternalBreakoutAttempted(absolute)) return false;
+  return openInExternalBrowser(absolute);
 }
 
 export function partnerAppLoginUrl(): string {
