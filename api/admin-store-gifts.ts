@@ -10,6 +10,8 @@ import { giftConfirmUrl, prepareGiftConfirmResend } from './_lib/storeGiftCampai
 import { sendGiftConfirmEmail } from './_lib/storeGiftMail.js';
 import { kitchenGiftConfirmUrl, prepareKitchenGiftConfirmResend } from './_lib/storeKitchenGiftCampaign.js';
 import { sendKitchenGiftConfirmEmail } from './_lib/storeKitchenGiftMail.js';
+import { bakhurnaGiftConfirmUrl, prepareBakhurnaGiftConfirmResend } from './_lib/storeBakhurnaGiftCampaign.js';
+import { sendBakhurnaGiftConfirmEmail } from './_lib/storeBakhurnaGiftMail.js';
 import { listStoreGiftRoster } from './_lib/storeGiftRoster.js';
 
 export const config = { maxDuration: 30 };
@@ -103,6 +105,16 @@ export async function POST(request: Request): Promise<Response> {
     const mailed = await sendKitchenGiftConfirmEmail({
       to: prepared.email,
       confirmUrl: kitchenGiftConfirmUrl(prepared.confirmToken),
+    });
+    if (!mailed) return json({ ok: false, error: 'تعذر إرسال رسالة التأكيد.' }, 503, headers);
+    return json({ ok: true }, 200, headers);
+  }
+  if (campaign === 'bakhurna') {
+    const prepared = await prepareBakhurnaGiftConfirmResend(gate.db, entryId);
+    if (!prepared.ok) return json(prepared, 400, headers);
+    const mailed = await sendBakhurnaGiftConfirmEmail({
+      to: prepared.email,
+      confirmUrl: bakhurnaGiftConfirmUrl(prepared.confirmToken),
     });
     if (!mailed) return json({ ok: false, error: 'تعذر إرسال رسالة التأكيد.' }, 503, headers);
     return json({ ok: true }, 200, headers);

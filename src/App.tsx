@@ -235,6 +235,12 @@ const STORE_DATES_PAY_PATH =
   (ROUTE_PATHS as { STORE_DATES_PAY?: string }).STORE_DATES_PAY || "/pay/dates/:token";
 const STORE_BAKHURNA_PATH =
   (ROUTE_PATHS as { STORE_BAKHURNA?: string }).STORE_BAKHURNA || "/store/bakhurna";
+const STORE_BAKHURNA_GIFT_PATH =
+  (ROUTE_PATHS as { STORE_BAKHURNA_GIFT?: string }).STORE_BAKHURNA_GIFT || "/store/bakhurna/gift";
+const STORE_BAKHURNA_GIFT_TERMS_PATH =
+  (ROUTE_PATHS as { STORE_BAKHURNA_GIFT_TERMS?: string }).STORE_BAKHURNA_GIFT_TERMS || "/store/bakhurna/gift/terms";
+const STORE_BAKHURNA_GIFT_CONFIRM_PATH =
+  (ROUTE_PATHS as { STORE_BAKHURNA_GIFT_CONFIRM?: string }).STORE_BAKHURNA_GIFT_CONFIRM || "/store/bakhurna/gift/confirm";
 const STORE_BAKHURNA_VIEW_PATH =
   (ROUTE_PATHS as { STORE_BAKHURNA_VIEW?: string }).STORE_BAKHURNA_VIEW || "/b/:token";
 const STORE_BAKHURNA_DESK_PATH =
@@ -432,6 +438,9 @@ const StoreDatesOpsPlanPreviewPage = lazy(() => import("@/pages/store/StoreDates
 const StoreBakhurnaLandingPage = lazy(() => import("@/pages/store/StoreBakhurnaLandingPage"));
 const StoreBakhurnaShopPage = lazy(() => import("@/pages/store/StoreBakhurnaShopPage"));
 const StoreBakhurnaPayPage = lazy(() => import("@/pages/store/StoreBakhurnaPayPage"));
+const StoreBakhurnaGiftLandingPage = lazy(() => import("@/pages/store/StoreBakhurnaGiftLandingPage"));
+const StoreBakhurnaGiftTermsPage = lazy(() => import("@/pages/store/StoreBakhurnaGiftTermsPage"));
+const StoreBakhurnaGiftConfirmPage = lazy(() => import("@/pages/store/StoreBakhurnaGiftConfirmPage"));
 const StoreHalanaLandingPage = lazy(() => import("@/pages/store/StoreHalanaLandingPage"));
 const StoreHalanaShopPage = lazy(() => import("@/pages/store/StoreHalanaShopPage"));
 const StoreHalanaPayPage = lazy(() => import("@/pages/store/StoreHalanaPayPage"));
@@ -1068,6 +1077,9 @@ export function App() {
           <Route path={STORE_DATES_PATH} element={<LazyRoute><StoreDatesLandingPage /></LazyRoute>} />
           <Route path={STORE_DATES_DESK_PATH} element={<LazyRoute><StoreDatesShopPage /></LazyRoute>} />
           <Route path={STORE_DATES_VIEW_PATH} element={<LazyRoute><StoreDatesShopPage /></LazyRoute>} />
+          <Route path={STORE_BAKHURNA_GIFT_CONFIRM_PATH} element={<LazyRoute><StoreBakhurnaGiftConfirmPage /></LazyRoute>} />
+          <Route path={STORE_BAKHURNA_GIFT_TERMS_PATH} element={<LazyRoute><StoreBakhurnaGiftTermsPage /></LazyRoute>} />
+          <Route path={STORE_BAKHURNA_GIFT_PATH} element={<LazyRoute><StoreBakhurnaGiftLandingPage /></LazyRoute>} />
           <Route path={STORE_BAKHURNA_PATH} element={<LazyRoute><StoreBakhurnaLandingPage /></LazyRoute>} />
           <Route path={STORE_BAKHURNA_PAY_PATH} element={<LazyRoute><StoreBakhurnaPayPage /></LazyRoute>} />
           <Route path={STORE_BAKHURNA_DESK_PATH} element={<LazyRoute><StoreBakhurnaShopPage /></LazyRoute>} />

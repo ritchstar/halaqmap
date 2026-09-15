@@ -26,6 +26,7 @@ import {
   bakhurnaLivePaymentMatches,
   bakhurnaLiveTermEndIso,
   bakhurnaPackFromHalalas,
+  isBakhurnaGiftPayload,
   isBakhurnaLiveCheckoutEnabled,
   isBakhurnaPriceHalalas,
   newBakhurnaToken,
@@ -34,6 +35,7 @@ import {
   parseBakhurnaLiveOrderBody,
   parseBakhurnaPackId,
   publicBakhurnaPayload,
+  STORE_BAKHURNA_LIVE_DAYS_6,
   STORE_BAKHURNA_LIVE_POLICY,
   STORE_BAKHURNA_LIVE_PRODUCT,
   STORE_BAKHURNA_LIVE_TABLE,
@@ -207,10 +209,37 @@ async function readByRole(db: Db, token: string, role: string, headers: Record<s
   if (!data && role !== 'pay') {
     const again = await findByAnyToken(db, token);
     if (!again) return json({ error: 'الرابط غير موجود' }, 404, headers);
-    return readRow(db, again, role, headers);
+    return readRow(db, await startBakhurnaGiftClockIfNeeded(db, again), role, headers);
   }
   if (!data) return json({ error: 'الرابط غير موجود' }, 404, headers);
-  return readRow(db, data as BakhurnaRow, role, headers);
+  const liveRow = role === 'pay' ? (data as BakhurnaRow) : await startBakhurnaGiftClockIfNeeded(db, data as BakhurnaRow);
+  return readRow(db, liveRow, role, headers);
+}
+
+async function startBakhurnaGiftClockIfNeeded(db: Db, row: BakhurnaRow): Promise<BakhurnaRow> {
+  if (row.status !== 'live' || row.expires_at) return row;
+  if (!isBakhurnaGiftPayload(row.payload)) return row;
+  const now = new Date().toISOString();
+  const expiresAt = bakhurnaLiveTermEndIso(STORE_BAKHURNA_LIVE_DAYS_6);
+  const payload: BakhurnaLiveOrderPayload & Record<string, unknown> = {
+    ...(row.payload || {}),
+    giftStartedAt: now,
+  };
+  const { data: updated } = await db
+    .from(STORE_BAKHURNA_LIVE_TABLE)
+    .update({
+      expires_at: expiresAt,
+      payload,
+      updated_at: now,
+    })
+    .eq('id', row.id)
+    .eq('status', 'live')
+    .is('expires_at', null)
+    .select('*')
+    .maybeSingle();
+  if (updated) return updated as BakhurnaRow;
+  const { data: again } = await db.from(STORE_BAKHURNA_LIVE_TABLE).select('*').eq('id', row.id).maybeSingle();
+  return (again as BakhurnaRow) || row;
 }
 
 async function readRow(db: Db, row: BakhurnaRow, role: string, headers: Record<string, string>) {
@@ -440,6 +469,10 @@ async function markLive(db: Db, id: string, paymentId: string, amount: number): 
     packId: pack.id,
     chatIncluded: true,
   };
+  if (isBakhurnaGiftPayload(payload)) {
+    payload.gift = false;
+    payload.giftConvertedAt = new Date().toISOString();
+  }
   const history = Array.isArray(payload.paymentHistory) ? payload.paymentHistory : [];
   history.push({ id: paymentId, at: new Date().toISOString(), kind: wasRenewal ? 'renewal' : 'purchase' });
   payload.paymentHistory = history.slice(-12);

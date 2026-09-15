@@ -17,6 +17,7 @@ export const STORE_GIFT_ROSTER_COPY = {
   allAr: 'الكل',
   occasionAr: 'هدية منصة خريطة الحل',
   kitchenAr: 'هدية طبختنا1',
+  bakhurnaAr: 'هدية بخورنا1',
   pendingAr: 'بانتظار تأكيد البريد',
   activeAr: 'مفعل',
   expiredLinkAr: 'انتهت مهلة الرابط',

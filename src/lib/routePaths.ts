@@ -178,6 +178,9 @@ export const ROUTE_PATHS = {
   STORE_DATES_PAY: '/pay/dates/:token',
   /** بخورنا1 — صفحة محل البخور والعود والعطور ولوحة التشغيل. منتج غير مسجّل لدى الهيئة السعودية للملكية الفكرية */
   STORE_BAKHURNA: '/store/bakhurna',
+  STORE_BAKHURNA_GIFT: '/store/bakhurna/gift',
+  STORE_BAKHURNA_GIFT_TERMS: '/store/bakhurna/gift/terms',
+  STORE_BAKHURNA_GIFT_CONFIRM: '/store/bakhurna/gift/confirm',
   STORE_BAKHURNA_VIEW: '/b/:token',
   STORE_BAKHURNA_DESK: '/b/:token/desk',
   STORE_BAKHURNA_PAY: '/pay/bakhurna/:token',

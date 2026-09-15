@@ -210,6 +210,7 @@ export default function StoreGiftRosterPage() {
             ['all', copy.allAr],
             ['occasion', copy.occasionAr],
             ['kitchen', copy.kitchenAr],
+            ['bakhurna', copy.bakhurnaAr],
           ] as const).map(([id, label]) => (
             <button
               key={id}

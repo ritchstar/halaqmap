@@ -9,10 +9,15 @@ export async function sendBakhurnaLiveLinksEmail(input: {
   deskUrl: string;
   expiresLabel: string;
   renewed?: boolean;
+  gift?: boolean;
 }): Promise<boolean> {
   return sendStoreResendEmail({
     to: input.to,
-    subject: input.renewed ? 'تمديد بخورنا1 — خريطة الحل' : 'روابط بخورنا1 — خريطة الحل',
+    subject: input.gift
+      ? 'هدية بخورنا1 — روابط التشغيل'
+      : input.renewed
+        ? 'تمديد بخورنا1 — خريطة الحل'
+        : 'روابط بخورنا1 — خريطة الحل',
     html: buildBakhurnaLiveLinksHtml(input),
   });
 }

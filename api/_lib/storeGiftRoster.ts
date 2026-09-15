@@ -16,8 +16,14 @@ import {
   STORE_KITCHEN_GIFT_ENTRIES_TABLE,
   STORE_KITCHEN_GIFT_PRODUCT_LABEL_AR,
 } from './storeKitchenGiftCampaign.js';
+import {
+  STORE_BAKHURNA_GIFT_CONFIRM_HOURS,
+  STORE_BAKHURNA_GIFT_CYCLES_TABLE,
+  STORE_BAKHURNA_GIFT_ENTRIES_TABLE,
+  STORE_BAKHURNA_GIFT_PRODUCT_LABEL_AR,
+} from './storeBakhurnaGiftCampaign.js';
 
-export type StoreGiftRosterCampaign = 'occasion' | 'kitchen';
+export type StoreGiftRosterCampaign = 'occasion' | 'kitchen' | 'bakhurna';
 export type StoreGiftRosterMailState = 'pending' | 'active' | 'expired_link';
 
 export type StoreGiftRosterRow = {
@@ -142,7 +148,48 @@ async function loadKitchen(db: SupabaseClient): Promise<StoreGiftRosterRow[]> {
   });
 }
 
+async function loadBakhurna(db: SupabaseClient): Promise<StoreGiftRosterRow[]> {
+  const { data, error } = await db
+    .from(STORE_BAKHURNA_GIFT_ENTRIES_TABLE)
+    .select('id, cycle_id, given_name, email, city, source_channel, email_verified_at, created_at, updated_at')
+    .order('created_at', { ascending: false })
+    .limit(500);
+  if (error) {
+    if (tableMissing(error)) return [];
+    throw error;
+  }
+  const cycleIds = [...new Set((data || []).map((row) => String(row.cycle_id || '')).filter(Boolean))];
+  const slots = new Map<string, number>();
+  if (cycleIds.length) {
+    const { data: cycles } = await db.from(STORE_BAKHURNA_GIFT_CYCLES_TABLE).select('id, slot_no').in('id', cycleIds);
+    for (const cycle of cycles || []) {
+      slots.set(String(cycle.id), Number(cycle.slot_no) || 0);
+    }
+  }
+  return (data || []).map((row) => {
+    const createdAt = String(row.created_at || '');
+    const linkDeadlineAt = deadlineIso(String(row.updated_at || createdAt), STORE_BAKHURNA_GIFT_CONFIRM_HOURS);
+    const emailVerifiedAt = row.email_verified_at ? String(row.email_verified_at) : null;
+    return {
+      id: String(row.id),
+      campaign: 'bakhurna' as const,
+      campaignLabelAr: 'هدية بخورنا1',
+      productLabelAr: STORE_BAKHURNA_GIFT_PRODUCT_LABEL_AR,
+      givenName: String(row.given_name || ''),
+      email: String(row.email || ''),
+      city: String(row.city || ''),
+      source: String(row.source_channel || ''),
+      occasionDate: '',
+      slotNo: slots.get(String(row.cycle_id)) || 0,
+      mailState: mailState(emailVerifiedAt, linkDeadlineAt),
+      emailVerifiedAt,
+      createdAt,
+      linkDeadlineAt,
+    };
+  });
+}
+
 export async function listStoreGiftRoster(db: SupabaseClient): Promise<StoreGiftRosterRow[]> {
-  const [occasion, kitchen] = await Promise.all([loadOccasion(db), loadKitchen(db)]);
-  return [...occasion, ...kitchen].sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt));
+  const [occasion, kitchen, bakhurna] = await Promise.all([loadOccasion(db), loadKitchen(db), loadBakhurna(db)]);
+  return [...occasion, ...kitchen, ...bakhurna].sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt));
 }

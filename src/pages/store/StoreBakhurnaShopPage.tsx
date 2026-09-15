@@ -81,6 +81,7 @@ export default function StoreBakhurnaShopPage() {
   const [gate, setGate] = useState<Gate>(isLab ? 'ok' : 'loading');
   const deskSync = useStoreLiveDeskSync(desk && !isLab);
   const [renewToken, setRenewToken] = useState('');
+  const [giftNotice, setGiftNotice] = useState<{ expiresAt: string; shopToken: string } | null>(null);
   const [shopUrl, setShopUrl] = useState(storeLiveShopShareHref('bakhurna', safeToken));
   useDocumentTitle(STORE_BAKHURNA_LIVE.documentTitle);
   useStoreShopPresence({
@@ -115,10 +116,17 @@ export default function StoreBakhurnaShopPage() {
           setGate((current) => nextStoreLivePublicGate(current, result).gate);
           return;
         }
-        setState((current) =>
-          deskSync.applyPoll(current, payloadToState(result.payload as Record<string, unknown>, current)),
-        );
+        const payload = result.payload as Record<string, unknown>;
+        setState((current) => deskSync.applyPoll(current, payloadToState(payload, current)));
         if (typeof result.shopUrl === 'string' && result.shopUrl) setShopUrl(result.shopUrl);
+        if (payload.gift === true) {
+          setGiftNotice({
+            expiresAt: String(result.expiresAt || ''),
+            shopToken: String(result.shopToken || ''),
+          });
+        } else {
+          setGiftNotice(null);
+        }
         setGate('ok');
       });
     };
@@ -185,7 +193,7 @@ export default function StoreBakhurnaShopPage() {
       {gate === 'ok' || isLab ? (
         desk ? (
           <div className="-mx-3 sm:-mx-4">
-            <BakhurnaChatlyDesk state={state} onChange={commit} shopUrl={shopUrl} token={safeToken} />
+            <BakhurnaChatlyDesk state={state} onChange={commit} shopUrl={shopUrl} token={safeToken} gift={giftNotice} />
           </div>
         ) : (
           <div className="-mx-3 sm:-mx-4">

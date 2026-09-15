@@ -596,15 +596,22 @@ export function buildBakhurnaLiveLinksHtml(input: {
   deskUrl: string;
   expiresLabel: string;
   renewed?: boolean;
+  gift?: boolean;
 }): string {
   const theme = THEMES.bakhurna;
   return buildStoreMailHtml({
     theme: 'bakhurna',
-    kickerAr: input.renewed ? `تمديد تشغيل — ${theme.titleAr}` : `روابط تشغيل — ${theme.titleAr}`,
-    titleAr: input.renewed ? 'تمديد صفحة النشاط' : 'روابط التشغيل جاهزة',
-    leadAr: input.renewed
-      ? 'الروابط نفسها لم تتغير. اضغط الأيقونة لفتح المسار.'
-      : 'اضغط الأيقونة لفتح صفحة جار الحي أو لوحة التشغيل.',
+    kickerAr: input.gift
+      ? `هدية من متجر خريطة الحل — ${theme.titleAr}`
+      : input.renewed
+        ? `تمديد تشغيل — ${theme.titleAr}`
+        : `روابط تشغيل — ${theme.titleAr}`,
+    titleAr: input.gift ? 'روابط هدية بخورنا1' : input.renewed ? 'تمديد صفحة النشاط' : 'روابط التشغيل جاهزة',
+    leadAr: input.gift
+      ? 'هذه هدية من متجر خريطة الحل. اضغط الأيقونة لفتح صفحة جار الحي أو لوحة التشغيل.'
+      : input.renewed
+        ? 'الروابط نفسها لم تتغير. اضغط الأيقونة لفتح المسار.'
+        : 'اضغط الأيقونة لفتح صفحة جار الحي أو لوحة التشغيل.',
     iconRows: [
       [
         {
@@ -624,7 +631,9 @@ export function buildBakhurnaLiveLinksHtml(input: {
       ],
     ],
     notesAr: [
-      `تنتهي المدة في ${input.expiresLabel}. بعد انتهائها تبقى الروابط وتحيلكم لإعادة الشراء على نفس الصفحة.`,
+      input.gift
+        ? `ساعة التشغيل مئة وثمانون يوماً من أول دخول إلى الرابط (${input.expiresLabel}). اللوحة تبيّن أن النشاط هدية. بعد انتهائها أعد الشراء من صفحة بخورنا1 فتبقى الصفحة واللوحة.`
+        : `تنتهي المدة في ${input.expiresLabel}. بعد انتهائها تبقى الروابط وتحيلكم لإعادة الشراء على نفس الصفحة.`,
     ],
   });
 }

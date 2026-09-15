@@ -147,10 +147,22 @@ export type BakhurnaLiveOrderPayload = {
   orderArchive?: unknown[];
   chatIncluded: boolean;
   chats: unknown[];
+  gift?: boolean;
+  giftLabelAr?: string;
+  issuedByLabel?: string;
+  giftClockFromFirstVisit?: boolean;
+  giftStartedAt?: string;
+  giftConvertedAt?: string;
 } & StoreShopHoursState & ShopPickupPlace & {
   shopHeaderBg?: string;
   shopPageBg?: string;
 };
+
+export function isBakhurnaGiftPayload(payload: Record<string, unknown> | BakhurnaLiveOrderPayload | null | undefined): boolean {
+  if (!payload) return false;
+  const raw = payload as Record<string, unknown>;
+  return raw.gift === true || String(raw.issuedByLabel || '').trim() === 'هدية بخورنا1';
+}
 
 export function parseBakhurnaLiveOrderBody(body: Record<string, unknown>):
   | { ok: true; email: string; buyerName: string; packId: 'm6' | 'm12'; vendorMode: StoreVendorMode; payload: BakhurnaLiveOrderPayload }
@@ -224,6 +236,11 @@ export function publicBakhurnaPayload(payload: BakhurnaLiveOrderPayload, role = 
     orderArchive: role === 'desk' && Array.isArray(payload.orderArchive) ? payload.orderArchive.slice(0, 1000) : [],
     chatIncluded: payload.chatIncluded !== false,
     chats: parseBakhurnaChats(payload.chats),
+    gift: payload.gift === true,
+    giftLabelAr: String(payload.giftLabelAr || ''),
+    issuedByLabel: String(payload.issuedByLabel || ''),
+    giftClockFromFirstVisit: payload.giftClockFromFirstVisit === true,
+    giftStartedAt: String(payload.giftStartedAt || ''),
     ...parseStoreShopHours(payload),
     ...publicShopPlaceFields(role, parseShopPickupPlace(payload)),
   };

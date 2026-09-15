@@ -5,11 +5,13 @@
  * بنية تحتية أولية قابلة للتقييم والتطوير — راجع docs/bakhurna1-backend-todo.md.
  */
 import { useMemo, useState, type ReactNode } from 'react';
+import { Link } from 'react-router-dom';
 import {
   Archive,
   ArrowLeft,
   Bell,
   Clipboard,
+  Gift,
   Settings,
   MapPin,
   Menu,
@@ -22,6 +24,8 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { StoreLiveShopShareDesk } from '@/components/store/StoreLiveShopShareDesk';
 import { STORE_BAKHURNA_LIVE, STORE_BAKHURNA_LIVE_ACCENT } from '@/config/storeBakhurnaLive';
+import { STORE_BAKHURNA_GIFT_COPY } from '@/config/storeBakhurnaGiftCampaign';
+import { ROUTE_PATHS } from '@/lib/routePaths';
 import { STORE_SHOP_HOURS_COPY } from '@/config/storeShopHours';
 import { STORE_SHOP_PRESENCE_LABEL_AR } from '@/config/storeShopPresence';
 import { bakhurnaServiceLabelAr, bakhurnaWhatsAppText, type BakhurnaLabState, type BakhurnaOrder } from '@/lib/storeBakhurnaLiveLab';
@@ -65,6 +69,7 @@ export function BakhurnaChatlyDesk({
   onChange,
   shopUrl,
   token,
+  gift,
   showTrialNote = false,
   saveStatus = 'idle',
 }: {
@@ -72,11 +77,17 @@ export function BakhurnaChatlyDesk({
   onChange: (next: BakhurnaLabState) => void;
   shopUrl: string;
   token: string;
+  gift?: { expiresAt: string; shopToken: string } | null;
   showTrialNote?: boolean;
   saveStatus?: StoreLiveDeskSaveStatus;
 }) {
   const [section, setSection] = useState<DeskSection>('overview');
   const [mobileNav, setMobileNav] = useState(false);
+  const giftCopy = STORE_BAKHURNA_GIFT_COPY;
+  const renewHref = gift?.shopToken
+    ? `${ROUTE_PATHS.STORE_BAKHURNA}?renew=${encodeURIComponent(gift.shopToken)}`
+    : '';
+  const giftEnds = gift?.expiresAt ? gift.expiresAt.slice(0, 10) : '';
 
   const live = state.orders.filter(isLiveDeskTicket);
   const fresh = live.filter((item) => deskOrderPhase(item) === 'new');
@@ -298,7 +309,7 @@ export function BakhurnaChatlyDesk({
                 </div>
               </div>
             </div>
-            {showTrialNote ? (
+            {showTrialNote && !gift ? (
               <p className="bakhurna-chatly-desk-header__trial-note" role="note">
                 {BAKHURNA_DESK_TRIAL_NOTE_AR}
               </p>
@@ -325,6 +336,30 @@ export function BakhurnaChatlyDesk({
                   vendorMode={state.host.vendorMode}
                   pickupMapsUrl={state.host.vendorMode === 'mobile' ? state.host.pickupMapsUrl : ''}
                   chatSlot={<StoreBakhurnaDeskChat state={state} onChange={onChange} theme="light" />}
+                  giftSlot={
+                    gift ? (
+                      <section className="rounded-2xl border border-[#8a6239] bg-[#f9f4ea] p-5" aria-label={giftCopy.deskBadgeAr}>
+                        <p className="inline-flex items-center gap-1.5 rounded-full border border-[#8a6239] px-2.5 py-0.5 text-[0.7rem] font-extrabold text-[#8a6239]">
+                          <Gift size={13} />
+                          {giftCopy.deskBadgeAr}
+                        </p>
+                        <p className="mt-3 text-sm leading-7 text-[#6e5a47]">
+                          {giftEnds ? `${giftCopy.deskClockStartedAr} ${giftEnds}` : giftCopy.deskClockPendingAr}
+                        </p>
+                        {renewHref ? (
+                          <>
+                            <p className="mt-2 text-sm leading-7 text-[#79674f]">{giftCopy.deskRenewHintAr}</p>
+                            <Link
+                              to={renewHref}
+                              className="mt-3 inline-flex rounded-full bg-[#8a6239] px-4 py-2 text-sm font-extrabold text-white"
+                            >
+                              {giftCopy.deskRenewCtaAr}
+                            </Link>
+                          </>
+                        ) : null}
+                      </section>
+                    ) : null
+                  }
                 />
               ) : null}
 
@@ -568,6 +603,7 @@ function OverviewSection({
   vendorMode,
   pickupMapsUrl,
   chatSlot,
+  giftSlot,
 }: {
   fresh: BakhurnaOrder[];
   working: BakhurnaOrder[];
@@ -585,6 +621,7 @@ function OverviewSection({
   vendorMode: 'fixed' | 'mobile';
   pickupMapsUrl: string;
   chatSlot: ReactNode;
+  giftSlot?: ReactNode;
 }) {
   return (
     <>
@@ -604,6 +641,8 @@ function OverviewSection({
           </a>
         }
       />
+
+      {giftSlot ? <div className="mt-6">{giftSlot}</div> : null}
 
       <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <Metric label="طلبات جديدة" value={String(fresh.length)} hint="تحتاج استلام" tone="green" />

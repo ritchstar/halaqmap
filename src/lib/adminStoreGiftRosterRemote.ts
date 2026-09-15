@@ -4,7 +4,7 @@
 import { getSupabaseClient } from '@/integrations/supabase/client';
 
 export type StoreGiftRosterMailState = 'pending' | 'active' | 'expired_link';
-export type StoreGiftRosterCampaign = 'occasion' | 'kitchen';
+export type StoreGiftRosterCampaign = 'occasion' | 'kitchen' | 'bakhurna';
 
 export type StoreGiftRosterRow = {
   id: string;
