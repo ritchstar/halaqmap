@@ -24,6 +24,20 @@ function resolveBuildCommit(): string | null {
   return full.length > 7 ? full.slice(0, 7) : full;
 }
 
+type PublicPayConfigPayload = {
+  ok: true;
+  preferredGateway: 'MOYASAR' | 'SAB';
+  displayPaymentMode: 'test' | 'live';
+  enableMoyasarCard: boolean;
+  enableSabGateway: boolean;
+  vatEnabled: boolean;
+  vatPercent: number;
+  buildCommit: string | null;
+};
+
+let cachedPayload: { at: number; body: PublicPayConfigPayload } | null = null;
+const SERVER_CACHE_MS = 45_000;
+
 type Row = {
   preferred_gateway?: string;
   display_payment_mode?: string;
@@ -59,6 +73,16 @@ export async function GET(request: Request): Promise<Response> {
     );
   }
 
+  const now = Date.now();
+  if (cachedPayload && now - cachedPayload.at < SERVER_CACHE_MS) {
+    return Response.json(cachedPayload.body, {
+      headers: {
+        ...headers,
+        'Cache-Control': 'public, max-age=30, stale-while-revalidate=60',
+      },
+    });
+  }
+
   const { createClient } = await import('@supabase/supabase-js');
   const supabase = createClient(url, serviceRole, { auth: { persistSession: false } });
 
@@ -74,17 +98,22 @@ export async function GET(request: Request): Promise<Response> {
   // علم ض.ق.م الحيّ (مصدر الحقيقة: حالة ZATCA) — للعرض/حساب المبلغ على الواجهة.
   const vat = await getPlatformVatConfig(supabase);
 
-  return Response.json(
-    {
-      ok: true,
-      preferredGateway,
-      displayPaymentMode: String(row.display_payment_mode || 'test').toLowerCase() === 'live' ? 'live' : 'test',
-      enableMoyasarCard: row.enable_moyasar_card !== false,
-      enableSabGateway: row.enable_sab_gateway === true,
-      vatEnabled: vat.enabled,
-      vatPercent: vat.percent,
-      buildCommit: resolveBuildCommit(),
+  const body: PublicPayConfigPayload = {
+    ok: true,
+    preferredGateway,
+    displayPaymentMode: String(row.display_payment_mode || 'test').toLowerCase() === 'live' ? 'live' : 'test',
+    enableMoyasarCard: row.enable_moyasar_card !== false,
+    enableSabGateway: row.enable_sab_gateway === true,
+    vatEnabled: vat.enabled,
+    vatPercent: vat.percent,
+    buildCommit: resolveBuildCommit(),
+  };
+  cachedPayload = { at: now, body };
+
+  return Response.json(body, {
+    headers: {
+      ...headers,
+      'Cache-Control': 'public, max-age=30, stale-while-revalidate=60',
     },
-    { headers },
-  );
+  });
 }

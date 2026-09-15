@@ -202,6 +202,18 @@ function rateLimitMaxForRoute(routeId: string): number {
   if (routeId === 'public-store-operators') {
     return envInt('STORE_OPERATORS_RATE_LIMIT_MAX', 10);
   }
+  if (routeId === 'verify-moyasar-payment') {
+    return envInt('VERIFY_MOYSAR_PAYMENT_RATE_LIMIT_MAX', 90);
+  }
+  if (routeId === 'check-barber-subscription-status') {
+    return envInt('CHECK_BARBER_SUBSCRIPTION_STATUS_RATE_LIMIT_MAX', 90);
+  }
+  if (routeId === 'sync-moyasar-payment-fulfillment') {
+    return envInt('SYNC_MOYSAR_FULFILLMENT_RATE_LIMIT_MAX', 90);
+  }
+  if (routeId === 'wallet-topup-fulfill') {
+    return envInt('WALLET_TOPUP_FULFILL_RATE_LIMIT_MAX', 60);
+  }
   if (routeId.startsWith('barber-portal')) {
     const barberOnly = envInt('BARBER_PORTAL_RATE_LIMIT_MAX', -1);
     if (barberOnly >= 0) return barberOnly;

@@ -4,6 +4,31 @@
 import { isPartnerAppFinancialPath } from '@/config/partnerAppShell';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 
+const EXTERNAL_BREAKOUT_GUARD_PREFIX = 'hm-partner-external-breakout:';
+
+function breakoutGuardKey(url: string): string {
+  return `${EXTERNAL_BREAKOUT_GUARD_PREFIX}${url.trim().slice(0, 240)}`;
+}
+
+/** هل سبق محاولة فتح هذا الرابط في متصفح خارجي في هذه الجلسة؟ */
+export function wasExternalBreakoutAttempted(url: string): boolean {
+  if (typeof sessionStorage === 'undefined') return false;
+  try {
+    return sessionStorage.getItem(breakoutGuardKey(url)) === '1';
+  } catch {
+    return false;
+  }
+}
+
+function markExternalBreakoutAttempted(url: string): void {
+  if (typeof sessionStorage === 'undefined') return;
+  try {
+    sessionStorage.setItem(breakoutGuardKey(url), '1');
+  } catch {
+    /* ignore */
+  }
+}
+
 /** هل الواجهة تعمل كـ PWA مثبت أو غلاف TWA؟ */
 export function isPartnerAppShell(): boolean {
   if (typeof window === 'undefined') return false;
@@ -43,32 +68,40 @@ export function openInExternalBrowser(url: string): boolean {
       ? trimmed
       : buildAbsoluteAppHashUrl(trimmed.startsWith('#') ? trimmed.slice(1) : trimmed);
 
+    if (wasExternalBreakoutAttempted(absolute)) {
+      return false;
+    }
+    markExternalBreakoutAttempted(absolute);
+
     const ua = navigator.userAgent || '';
     if (/android/i.test(ua)) {
       const parsed = new URL(absolute);
-      const pathAndQuery = `${parsed.pathname}${parsed.search}`;
-      const hash = parsed.hash || '';
-      // ترميز # حتى لا يقطع Intent عند المسارات من نوع /#/partners/payment
-      const hostPath = `${parsed.host}${pathAndQuery}${hash.replace(/^#/, '/%23')}`;
+      const hashPart = parsed.hash ? parsed.hash.replace(/^#/, '') : '';
+      const hostPath = hashPart
+        ? `${parsed.host}${parsed.pathname || '/'}${parsed.search}#${hashPart}`
+        : `${parsed.host}${parsed.pathname || '/'}${parsed.search}`;
       const fallback = encodeURIComponent(absolute);
       const intent =
         `intent://${hostPath}#Intent;scheme=https;action=android.intent.action.VIEW;` +
-        `S.browser_fallback_url=${fallback};end`;
-      window.location.href = intent;
-      return true;
+        `package=com.android.chrome;S.browser_fallback_url=${fallback};end`;
+      // لا نستخدم location.href — يُعيد تحميل نفس WebView ويُسبب حلقة لا نهائية في TWA.
+      const opened = window.open(intent, '_blank');
+      if (opened) return true;
+      return Boolean(window.open(absolute, '_blank', 'noopener,noreferrer'));
     }
 
     const opened = window.open(absolute, '_blank', 'noopener,noreferrer');
-    if (!opened) {
-      window.location.assign(absolute);
-    }
-    return true;
+    // لا نستخدم location.assign داخل الغلاف — يُعيد تحميل نفس WebView ويُسبب حلقة لا نهائية.
+    return Boolean(opened);
   } catch {
     return false;
   }
 }
 
-/** إن كنا داخل الغلاف وعلى مسار مالي — افتح المتصفح الخارجي وأعد true */
+/**
+ * @deprecated لا يُستدعى تلقائياً عند تحميل الصفحة — يُفتح المتصفح الخارجي من
+ * زر صريح فقط (PartnerExternalCheckoutGate) لتجنّب حلقة إعادة التحميل في TWA.
+ */
 export function breakOutFinancialPathToBrowser(pathnameWithSearch: string): boolean {
   if (!isPartnerAppShell()) return false;
   const pathOnly = pathnameWithSearch.split('?')[0] || '';

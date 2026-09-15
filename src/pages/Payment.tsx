@@ -246,8 +246,11 @@ export default function Payment() {
   useEffect(() => {
     void fetchPublicPaymentPageConfig().then(async (cfg) => {
       setPubPayConfig(cfg);
-      // مقارنة commit الخادم (لا يُخزَّن في SW) مع الحزمة الجارية — يشفى كاش صفحة دفع قديمة.
-      await healIfStaleBuildFromServer(cfg.buildCommit);
+      // لا نُعيد تحميل الصفحة عند فشل جلب الإعدادات (429/403) — ذلك كان يُضاعف
+      // الطلبات ويُفاقم الحظر. الشفاء يُجرى فقط بعد نجاح القراءة من الخادم.
+      if (cfg.ok) {
+        await healIfStaleBuildFromServer(cfg.buildCommit);
+      }
     });
   }, []);
 
@@ -1754,8 +1757,9 @@ export default function Payment() {
                     <Alert variant="destructive">
                       <AlertCircle className="h-4 w-4" />
                       <AlertDescription className="text-sm leading-relaxed">
-                        تعذّر تحميل إعدادات الدفع من الخادم ({pubPayConfig.error || 'خطأ'}). تُعرض بوابة الدفع
-                        افتراضياً. أعد تحميل الصفحة أو تواصل مع الدعم.
+                        تعذّر تحميل إعدادات الدفع من الخادم. {pubPayConfig.error || 'خطأ غير معروف.'}{' '}
+                        تُعرض بوابة الدفع افتراضياً — انتظر دقيقة ثم أعد تحميل الصفحة، أو افتح الرابط من
+                        Chrome/Safari مباشرة.
                       </AlertDescription>
                     </Alert>
                   )}
