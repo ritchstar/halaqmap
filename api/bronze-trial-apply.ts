@@ -13,6 +13,9 @@ import {
   rejectIfPublicApiCorsBlocked,
 } from './_lib/publicApiCors.js';
 import { recordHoneypotTrip, runSecurityGuard } from './_lib/securityGuard.js';
+import { bronzeTrialPublicDisabledResponse } from './_lib/bronzeTrialPublicGate.js';
+
+const BRONZE_TRIAL_PUBLIC_ENABLED = false;
 
 export const config = { maxDuration: 30 };
 
@@ -42,6 +45,9 @@ export async function POST(request: Request): Promise<Response> {
   const blocked = rejectIfPublicApiCorsBlocked(request, CORS_OPTS);
   if (blocked) return blocked;
   const headers = corsHeaders(request);
+  if (!BRONZE_TRIAL_PUBLIC_ENABLED) {
+    return bronzeTrialPublicDisabledResponse(headers);
+  }
 
   const guard = runRegistrationRouteGuards(request, 'bronze-trial-apply');
   if (guard.ok === false) {

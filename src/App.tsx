@@ -354,8 +354,6 @@ const PlatformDiscoverLandingPage = lazy(() => import("@/pages/PlatformDiscoverL
 const PartnerInterestLanding = lazy(() => import("@/pages/PartnerInterestLanding"));
 const CoverageSalonNominatePage = lazy(() => import("@/pages/CoverageSalonNominatePage"));
 const MapContactCardPage = lazy(() => import("@/pages/MapContactCardPage"));
-const BronzeTrialApplyLanding = lazy(() => import("@/pages/BronzeTrialApplyLanding"));
-const BronzeTrialConfirmLanding = lazy(() => import("@/pages/BronzeTrialConfirmLanding"));
 const PartnerWhyPage = lazy(() => import("@/pages/PartnerWhyPage"));
 const PartnerMarketingCommitmentsPage = lazy(() => import("@/pages/PartnerMarketingCommitmentsPage"));
 const CoiffeurLanding = lazy(() => import("@/pages/coiffeur/CoiffeurLanding"));
@@ -1130,19 +1128,11 @@ export function App() {
           />
           <Route
             path={ROUTE_PATHS.BRONZE_TRIAL_APPLY}
-            element={
-              <WithPartnerLayout>
-                <LazyRoute><BronzeTrialApplyLanding /></LazyRoute>
-              </WithPartnerLayout>
-            }
+            element={<Navigate to={ROUTE_PATHS.BARBERS_LANDING} replace />}
           />
           <Route
             path={ROUTE_PATHS.BRONZE_TRIAL_CONFIRM}
-            element={
-              <WithPartnerLayout>
-                <LazyRoute><BronzeTrialConfirmLanding /></LazyRoute>
-              </WithPartnerLayout>
-            }
+            element={<Navigate to={ROUTE_PATHS.BARBERS_LANDING} replace />}
           />
           <Route
             path={ROUTE_PATHS.FAZAA_LISTING_CONSENT}

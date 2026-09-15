@@ -371,6 +371,11 @@ export default function Payment() {
   );
   const walletVatHalalas = walletChargedHalalas - walletCreditedHalalas;
 
+  const checkoutTotalSar = useMemo(
+    () => (isWalletTopup ? walletChargedHalalas / 100 : licenseBreakdown.total),
+    [isWalletTopup, walletChargedHalalas, licenseBreakdown.total],
+  );
+
   /** المبلغ/الوصف/الميتاداتا الفعّالة — تتبدّل بين رخصة الإدراج وشحن المحفظة. */
   const effectiveAmountHalalas = isWalletTopup ? walletChargedHalalas : monthlyAmountHalalas;
   const effectiveDescription = isWalletTopup
@@ -1307,6 +1312,16 @@ export default function Payment() {
                   <CardTitle>اختر طريقة الدفع</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                  <p className="rounded-lg border border-primary/30 bg-primary/5 px-4 py-3 text-base font-bold text-foreground">
+                    المبلغ الإجمالي:{' '}
+                    <span className="tabular-nums" dir="ltr">
+                      {checkoutTotalSar.toLocaleString('en-US', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
+                    </span>{' '}
+                    ر.س{vatSettings.enabled ? ' (شامل الضريبة)' : ''}
+                  </p>
                   <RadioGroup
                     value={paymentMethod}
                     onValueChange={(value: 'moyasar' | 'sab') => {
