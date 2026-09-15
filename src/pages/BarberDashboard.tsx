@@ -357,11 +357,11 @@ export default function BarberDashboard({
 
   const refreshListingBalance = useCallback(async () => {
     if (founderPreview) return;
-    if (!barberData?.id || !barberData.email) return;
+    if (!barberData?.id) return;
     setListingBalanceLoading(true);
     const res = await fetchListingLicenseBalanceRemote({
       barberId: barberData.id,
-      email: barberData.email,
+      email: barberData.email ?? '',
     });
     setListingBalanceLoading(false);
     if (res.ok) setListingBalance(res.balance);

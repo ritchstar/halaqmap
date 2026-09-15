@@ -1,6 +1,8 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
+import { getSupabaseClient } from '@/integrations/supabase/client';
+
 const REDEEM_ENDPOINT = String(
   import.meta.env.VITE_LISTING_LICENSE_REDEEM_URL || '/api/listing-license-redeem',
 ).trim();
@@ -25,10 +27,43 @@ export type ListingLicenseBalance = {
   isTrial?: boolean;
 };
 
+function mapListingSummaryRow(row: unknown): ListingLicenseBalance | null {
+  const r = (Array.isArray(row) ? row[0] : row) as {
+    has_active_listing?: boolean;
+    listing_days_remaining?: number;
+    valid_until?: string | null;
+    active_tier?: string | null;
+  } | null;
+  if (!r) return null;
+  return {
+    hasActiveListing: r.has_active_listing === true,
+    listingDaysRemaining: Number(r.listing_days_remaining ?? 0),
+    validUntil: r.valid_until ?? null,
+    activeTier: r.active_tier ?? null,
+    isTrial: false,
+  };
+}
+
+/** احتياط عند تعذّر `/api/listing-license-balance` — نفس RPC `barber_listing_summary`. */
+async function fetchListingBalanceViaSupabaseRpc(
+  barberId: string,
+): Promise<ListingLicenseBalance | null> {
+  const client = getSupabaseClient();
+  if (!client) return null;
+  const { data, error } = await client.rpc('barber_listing_summary', {
+    p_barber_id: barberId,
+  });
+  if (error) return null;
+  return mapListingSummaryRow(data);
+}
+
 export async function fetchListingLicenseBalanceRemote(input: {
   barberId: string;
   email: string;
 }): Promise<{ ok: true; balance: ListingLicenseBalance } | { ok: false; error: string }> {
+  const rpcBalance = await fetchListingBalanceViaSupabaseRpc(input.barberId);
+  if (rpcBalance) return { ok: true, balance: rpcBalance };
+
   try {
     const resp = await fetch(BALANCE_ENDPOINT, {
       method: 'POST',
