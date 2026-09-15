@@ -45,6 +45,8 @@ function isLazyDefaultExportError(error: Error): boolean {
     /StoreOpsDeskPage failed to load/i.test(error.message) ||
     /LandingPreview failed to load/i.test(error.message) ||
     /PartnerMarketingPreview failed to load/i.test(error.message) ||
+    /Payment failed to load/i.test(error.message) ||
+    /PartnerPackagesPage failed to load/i.test(error.message) ||
     /normalizeLocationHash/i.test(error.message)
   );
 }
