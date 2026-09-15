@@ -8,10 +8,10 @@
  * لا نسخ بيانات: كل تعديل على الكتالوج الأصلي أو الثيمات ينعكس هنا تلقائياً.
  * operatingFacts لا تُملأ إلا لمنتج تحقّقنا من حقوله الفعلية في كوده —
  * التحقق: api/_lib/store*Live.ts — kitchen وحدها فيها scheduleEnabled/qrStamp/
- * deliveryFee كحقول payload صريحة؛ الخمسة الباقية بلا هذه الحقول، لكن جميع
- * الستة تشترك في StoreLiveShopShareDesk (رابط + QR) وStoreDeskArchiveDock
- * (لوحة تذاكر الطلبات) وparseStoreShopHours (ساعات العمل) — تحقّقتُ من
- * الأربعة بالبحث المباشر في الكود، لا افتراضاً.
+ * deliveryFee كحقول payload صريحة؛ الستة الباقية (بما فيها بخورنا1) بلا هذه
+ * الحقول، لكن جميع السبعة تشترك في StoreLiveShopShareDesk (رابط + QR)
+ * وStoreDeskArchiveDock (لوحة تذاكر الطلبات) وparseStoreShopHours (ساعات
+ * العمل) — تحقّقتُ من الجميع بالبحث المباشر في الكود، لا افتراضاً.
  */
 import { STORE_SOLUTION_CATALOG_PRODUCTS, type SolutionCatalogProduct } from '@/config/storeSolutionCatalog';
 import { STORE_PRODUCT_PATH_CONTENT } from '@/config/storeProductPathContent';
@@ -35,6 +35,8 @@ const CODE_TO_PRODUCT_ID: Record<string, StoreProductId> = {
   'D-02': 'wedding',
   'D-03': 'event',
   'E-01': 'occasion_card',
+  'B-05': 'dates',
+  'B-06': 'bakhurna',
 };
 
 /** نموذج التشغيل من فئة الكتالوج الحقيقية categoryId — لا تصنيف من الاسم. */
@@ -57,6 +59,7 @@ const LIVE_ORDER_DESK_FACTS: Record<string, ProductPathOperatingFacts> = {
   restaurant: { hasScheduledOrders: false, hasDeliveryFeeOption: false, hasShopHours: true, hasDeskTicketBoard: true, hasQrShare: true },
   dates: { hasScheduledOrders: false, hasDeliveryFeeOption: false, hasShopHours: true, hasDeskTicketBoard: true, hasQrShare: true },
   cafe: { hasScheduledOrders: false, hasDeliveryFeeOption: false, hasShopHours: true, hasDeskTicketBoard: true, hasQrShare: true },
+  bakhurna: { hasScheduledOrders: false, hasDeliveryFeeOption: false, hasShopHours: true, hasDeskTicketBoard: true, hasQrShare: true },
 };
 
 export const PRODUCT_PATH_OPERATING_MODEL_OPTIONS: readonly ProductPathOperatingModelOption[] = [
