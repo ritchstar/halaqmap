@@ -43,9 +43,11 @@ export function StoreLandingPitchHero({ onExplore }: { onExplore: () => void }) 
           <Link
             to={ROUTE_PATHS.STORE_PATHS_LAB}
             onClick={() => StorePathEvents.homeEntryClick()}
-            className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full border-2 border-white/25 bg-white/[0.04] px-5 py-2.5 text-base font-extrabold text-white/90 transition hover:border-[#e8c547]/60 hover:text-[#e8c547] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e8c547]"
+            aria-label={`${STORE_LANDING_COPY.pitchPathsCtaAr} — اضغط هنا للاختيار`}
+            className="store-pitch-paths-cta relative inline-flex min-h-11 min-w-11 items-center justify-center rounded-full border-2 border-[#e8c547]/85 bg-[#0d1a16] px-5 py-2.5 text-base font-extrabold text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e8c547]"
           >
-            {STORE_LANDING_COPY.pitchPathsCtaAr}
+            <span className="store-pitch-paths-cta__ring" aria-hidden />
+            <span className="relative z-[1]">{STORE_LANDING_COPY.pitchPathsCtaAr}</span>
           </Link>
         </div>
       </div>
