@@ -232,6 +232,8 @@ const STORE_DATES_VIEW_PATH =
   (ROUTE_PATHS as { STORE_DATES_VIEW?: string }).STORE_DATES_VIEW || "/t/:token";
 const STORE_DATES_DESK_PATH =
   (ROUTE_PATHS as { STORE_DATES_DESK?: string }).STORE_DATES_DESK || "/t/:token/desk";
+const STORE_DATES_AUCTION_PATH =
+  (ROUTE_PATHS as { STORE_DATES_AUCTION?: string }).STORE_DATES_AUCTION || "/t/:token/auction";
 const STORE_DATES_PAY_PATH =
   (ROUTE_PATHS as { STORE_DATES_PAY?: string }).STORE_DATES_PAY || "/pay/dates/:token";
 const STORE_BAKHURNA_PATH =
@@ -431,6 +433,7 @@ const StoreProduceShopPage = lazy(() => import("@/pages/store/StoreProduceShopPa
 const StoreProducePayPage = lazy(() => import("@/pages/store/StoreProducePayPage"));
 const StoreDatesLandingPage = lazy(() => import("@/pages/store/StoreDatesLandingPage"));
 const StoreDatesShopPage = lazy(() => import("@/pages/store/StoreDatesShopPage"));
+const StoreDatesAuctionPage = lazy(() => import("@/pages/store/StoreDatesAuctionPage"));
 const StoreDatesPayPage = lazy(() => import("@/pages/store/StoreDatesPayPage"));
 const StoreDatesOpsPlanPreviewPage = lazy(() => import("@/pages/store/StoreDatesOpsPlanPreviewPage"));
 const StoreBakhurnaLandingPage = lazy(() => import("@/pages/store/StoreBakhurnaLandingPage"));
@@ -1074,6 +1077,7 @@ export function App() {
             element={<LazyRoute><StoreDatesOpsPlanPreviewPage /></LazyRoute>}
           />
           <Route path={STORE_DATES_PATH} element={<LazyRoute><StoreDatesLandingPage /></LazyRoute>} />
+          <Route path={STORE_DATES_AUCTION_PATH} element={<LazyRoute><StoreDatesAuctionPage /></LazyRoute>} />
           <Route path={STORE_DATES_DESK_PATH} element={<LazyRoute><StoreDatesShopPage /></LazyRoute>} />
           <Route path={STORE_DATES_VIEW_PATH} element={<LazyRoute><StoreDatesShopPage /></LazyRoute>} />
           <Route path={STORE_BAKHURNA_GIFT_CONFIRM_PATH} element={<LazyRoute><StoreBakhurnaGiftConfirmPage /></LazyRoute>} />

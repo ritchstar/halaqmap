@@ -11,6 +11,7 @@ import {
   Bell,
   Clipboard,
   FileText,
+  Gavel,
   Settings,
   MapPin,
   Menu,
@@ -38,6 +39,7 @@ import { applyDeskFinish, deskOrderPhase, isLiveDeskTicket, receiveDeskTicket } 
 import { StoreShopHoursDesk } from '@/components/store/StoreShopHoursDesk';
 import { StoreShopPlaceDesk } from '@/components/store/StoreShopPlaceDesk';
 import { StoreShopShippingDesk } from '@/components/store/StoreShopShippingDesk';
+import { DatesAuctionDesk } from '@/components/store/dates/DatesAuctionDesk';
 import { StoreDeskHelpSupport } from '@/components/store/StoreDeskHelpSupport';
 import { StoreDeskGuideLink } from '@/components/store/StoreDeskGuideLink';
 import { StoreDeskCornerDock } from '@/components/store/StoreDeskCornerNav';
@@ -53,7 +55,7 @@ import { ROUTE_PATHS } from '@/lib/routePaths';
 import { useStoreShopPresence } from '@/hooks/useStoreShopPresence';
 import { cn } from '@/lib/utils';
 
-type DeskSection = 'overview' | 'orders' | 'products' | 'location' | 'payment' | 'tools';
+type DeskSection = 'overview' | 'orders' | 'products' | 'location' | 'payment' | 'auction' | 'tools';
 
 function orderIsToday(at: string): boolean {
   const d = new Date(at);
@@ -142,6 +144,7 @@ export function DatesChatlyDesk({
     { key: 'orders', label: 'الطلبات', icon: ShoppingBag, badge: fresh.length || undefined },
     { key: 'products', label: 'الأصناف والمخزون', icon: Package },
     { key: 'location', label: 'الموقع وساعات العمل', icon: MapPin },
+    { key: 'auction', label: 'المزاد', icon: Gavel },
     { key: 'payment', label: 'الدفع المباشر', icon: Clipboard },
     { key: 'tools', label: 'الإعدادات', icon: Settings },
   ];
@@ -421,6 +424,19 @@ export function DatesChatlyDesk({
                 <PaymentSection
                   paySlot={<StoreDirectPayDesk product="store_dates_live" token={token} accent={STORE_DATES_LIVE_ACCENT} />}
                 />
+              ) : null}
+
+              {section === 'auction' ? (
+                <>
+                  <PageHeading
+                    eyebrow="المزاد العلني"
+                    title="حراج صناديق التمر"
+                    copy="أنشئ صناديق بصور وفيديو، انشر الرابط لمن تعتمدهم، وأغلق المزاد يدوياً عند استقرار السومة."
+                  />
+                  <div className="mt-7">
+                    <DatesAuctionDesk deskToken={token} shopToken={token} />
+                  </div>
+                </>
               ) : null}
 
               {section === 'tools' ? (

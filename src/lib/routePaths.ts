@@ -175,6 +175,7 @@ export const ROUTE_PATHS = {
   STORE_DATES_OPS_PLAN_PREVIEW: '/store/dates/ops-plan-preview',
   STORE_DATES_VIEW: '/t/:token',
   STORE_DATES_DESK: '/t/:token/desk',
+  STORE_DATES_AUCTION: '/t/:token/auction',
   STORE_DATES_PAY: '/pay/dates/:token',
   /** بخورنا1 — صفحة محل البخور والعود والعطور ولوحة التشغيل. منتج غير مسجّل لدى الهيئة السعودية للملكية الفكرية */
   STORE_BAKHURNA: '/store/bakhurna',

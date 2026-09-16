@@ -30,6 +30,8 @@ export const POLL_MS = {
   STORE_LIVE_DESK: 4_000,
   /** المختبر المحلي عبر storage — بلا شبكة */
   STORE_LIVE_LAB: 1_500,
+  /** صفحة المزاد الحي — تحديث السومة */
+  STORE_LIVE_AUCTION: 2_000,
   /** تغذية الإدارة والرادار — دقيقة واحدة تكفي */
   ADMIN_HIVE: 60_000,
 } as const;
