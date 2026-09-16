@@ -260,7 +260,7 @@ export function ProduceChatlyStorefront({
     { id: 'delivery' as const, label: STORE_PRODUCE_LIVE.serviceDeliveryAr, icon: Truck, copy: 'إلى بابك' },
     { id: 'pickup' as const, label: STORE_PRODUCE_LIVE.servicePickupAr, icon: MapPin, copy: 'من نقطة البائع' },
     ...(mobile
-      ? [{ id: 'come' as const, label: STORE_PRODUCE_LIVE.serviceComeAr, icon: LocateFixed, copy: 'لبائع المتجول' }]
+      ? [{ id: 'come' as const, label: STORE_PRODUCE_LIVE.serviceComeAr, icon: LocateFixed, copy: STORE_PRODUCE_LIVE.serviceComeHintAr }]
       : []),
   ];
 
@@ -465,7 +465,7 @@ export function ProduceChatlyStorefront({
           <Feature icon={Truck} title={STORE_PRODUCE_LIVE.serviceDeliveryAr} copy="توصيل واضح — الدفع عند الاستلام." />
           <Feature icon={MapPin} title={STORE_PRODUCE_LIVE.servicePickupAr} copy="نقطة البائع تظهر قبل التأكيد." />
           {mobile ? (
-            <Feature icon={Compass} title={STORE_PRODUCE_LIVE.serviceComeAr} copy="تنبيه عند اقتراب البائع المتجول." />
+            <Feature icon={Compass} title={STORE_PRODUCE_LIVE.serviceComeAr} copy={STORE_PRODUCE_LIVE.serviceComeHintAr} />
           ) : (
             <Feature icon={Store} title="متجر مستقل" copy="طلبك يذهب مباشرة إلى هذا المحل." />
           )}

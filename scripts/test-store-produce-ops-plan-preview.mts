@@ -35,7 +35,7 @@ assert.deepEqual(navTitles, [
   'جهّز صفحتك',
   'اطبع رمزك',
   'ارسم نطاقك',
-  'ثبّت حضورك في حيّك',
+  'انزل إلى حيّك',
   'استقبل الطلب',
   'راجع وتوسّع',
 ]);
@@ -46,16 +46,18 @@ assert.equal(allSteps[0]?.stepNumber, 1);
 assert.equal(allSteps[9]?.stepNumber, 10);
 
 const joinedCopy = JSON.stringify(STORE_PRODUCE_OPS_PLAN_COPY);
-assert.doesNotMatch(joinedCopy, /احتل حيك|\/v\/|\/desk|000029176/);
+assert.doesNotMatch(joinedCopy, /احتل حيك|\/v\/|\/desk|000029176[^1]/);
 assert.match(joinedCopy, /ثبّت حضورك في حيّك/);
-assert.match(joinedCopy, /ليست سوقاً|صفحة زبائن|لا عمولة على قيمة سلة/);
+assert.match(joinedCopy, /انزل إلى حيّك/);
 assert.match(joinedCopy, /يجيك البائع إلى موقعك/);
+assert.match(joinedCopy, /لا عمولة على قيمة سلة/);
 assert.doesNotMatch(joinedCopy, /صلِّ مع جماعة|أمام كل مسجد/);
 
 assert.match(view, /produce-ops-timeline/);
 assert.match(view, /produce-ops-trust/);
 assert.match(view, /StoreOpsFieldSnapshot/);
 assert.match(view, /stage\.id === 'qr'/);
+assert.match(view, /deskPreviewHref|guestPreviewHref/);
 assert.doesNotMatch(view, /StoreProductSupportGuideView/);
 
 assert.equal(STORE_PRODUCE_OPS_PLAN_COPY.fieldSnapshot.titleAr, 'من البيع الميداني إلى جوال زبونك');
@@ -64,6 +66,8 @@ assert.match(STORE_PRODUCE_OPS_PLAN_COPY.fieldSnapshot.sceneAltAr, /دون إظ�
 assert.ok(existsSync(scenePath), 'scene image must exist in public/');
 
 assert.equal(ROUTE_PATHS.STORE_PRODUCE_VIEW.replace(':token', STORE_PRODUCE_LIVE_LAB_TOKEN), '/v/produce-lab');
+assert.equal(STORE_PRODUCE_OPS_PLAN_COPY.guestPreviewHref, '/v/produce-lab');
+assert.equal(STORE_PRODUCE_OPS_PLAN_COPY.deskPreviewHref, '/v/produce-lab/desk');
 
 assert.match(snapshot, /react-qr-code/);
 assert.match(snapshot, /store-ops-field-snapshot__board/);

@@ -74,10 +74,20 @@ function RadiusVisual() {
       <circle cx="160" cy="100" r="4" fill={accent} />
       <path d="M160 28v144M28 100h264" stroke="#ffffff18" strokeWidth="1" />
       <path d="M160 32v8M160 160v8M32 100h8M280 100h8" stroke={accent} strokeWidth="2" strokeLinecap="round" opacity="0.45" />
-      <rect x="132" y="148" width="24" height="14" rx="4" fill={accent} opacity="0.35" />
-      <rect x="88" y="72" width="12" height="12" rx="2" fill="#ffffff33" />
-      <rect x="200" y="88" width="12" height="12" rx="2" fill="#ffffff33" />
-      <rect x="120" y="112" width="12" height="12" rx="2" fill="#ffffff33" />
+      {/* مركبة / بسطة جانبية آمنة */}
+      <rect x="148" y="118" width="28" height="16" rx="4" fill={accent} opacity="0.4" />
+      <circle cx="154" cy="138" r="4" fill="#ffffff44" />
+      <circle cx="170" cy="138" r="4" fill="#ffffff44" />
+      {/* منازل داخل النطاق */}
+      <rect x="88" y="64" width="14" height="14" rx="2" fill="#ffffff33" />
+      <path d="M88 64 L95 56 L102 64" fill="#ffffff44" />
+      <rect x="210" y="78" width="14" height="14" rx="2" fill="#ffffff33" />
+      <path d="M210 78 L217 70 L224 78" fill="#ffffff44" />
+      <rect x="118" y="128" width="12" height="12" rx="2" fill="#ffffff33" />
+      <rect x="196" y="120" width="12" height="12" rx="2" fill="#ffffff33" />
+      {/* خط انتقال الطلب */}
+      <path d="M164 108 C188 96, 204 92, 216 84" fill="none" stroke={accent} strokeWidth="2" strokeDasharray="4 3" opacity="0.7" />
+      <circle cx="216" cy="84" r="3" fill={accent} />
     </SvgFrame>
   );
 }

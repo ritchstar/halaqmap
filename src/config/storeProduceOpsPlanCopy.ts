@@ -3,9 +3,11 @@
  *
  * خطة تشغيل وتسويق خضارنا1 — نصوص المعاينة والإنتاج.
  */
+import { LEGAL_ECOMMERCE_AUTH_NUMBER } from '@/config/partnerLegal';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { STORE_PRODUCE_LIVE, STORE_PRODUCE_LIVE_LAB_TOKEN } from '@/config/storeProduceLive';
 import { STORE_SAIP_PUBLIC_WORKS } from '@/config/storeSaipRegistry';
+
 export type StoreProduceOpsFieldSnapshotConfig = {
   titleAr: string;
   hookAr: string;
@@ -47,6 +49,8 @@ export type ProduceOpsStageId =
 export type ProduceOpsStage = {
   id: ProduceOpsStageId;
   navTitleAr: string;
+  /** عبارة مهنية تظهر فوق خطوات المرحلة عند الحاجة */
+  stageHookAr?: string;
   steps: ProduceOpsStep[];
 };
 
@@ -56,6 +60,9 @@ export type ProduceOpsStep = {
   hookAr: string;
   bodyAr: string[];
   checklistAr?: string[];
+  checklistTitleAr?: string;
+  placesChecklistAr?: string[];
+  placesChecklistTitleAr?: string;
   alertAr?: string;
   fieldScriptAr?: string;
   comeClarificationAr?: string;
@@ -101,20 +108,24 @@ export const STORE_PRODUCE_OPS_PLAN_COPY = {
   backAr: 'رجوع لصفحة خضارنا1',
   landingPath: ROUTE_PATHS.STORE_PRODUCE,
   stagesNavLabelAr: 'مراحل الخطة',
-  activationButtonsNoteAr: 'يصل الرابطان في رسالة التفعيل بعد اكتمال الاشتراك.',
+  activationButtonsNoteAr:
+    'بعد اكتمال التفعيل تصل الروابط في الرسالة المعتمدة. الزرّان أدناه يفتحان معاينة تجريبية لصفحة زبائنك ولوحة التشغيل حتى تستلم روابط نشاطك.',
   deskButtonAr: 'دخول لوحة التشغيل',
   guestPageButtonAr: 'معاينة صفحة زبائنك',
+  deskPreviewHref: ROUTE_PATHS.STORE_PRODUCE_DESK.replace(':token', STORE_PRODUCE_LIVE_LAB_TOKEN),
+  guestPreviewHref: ROUTE_PATHS.STORE_PRODUCE_VIEW.replace(':token', STORE_PRODUCE_LIVE_LAB_TOKEN),
   qrCaptionAr: 'المتوفر اليوم على جوالك',
   qrCaptionSubAr: 'امسح الرمز، اختر طلبك، وحدّد الطريقة المناسبة لك.',
   comeUxNoteTitleAr: 'ملاحظة عن خيار «تعال»',
   comeUxNoteAr:
-    'في واجهة الزبون الحالية، خيار «تعال» يعني أن جار الحي يحدّد موقعاً ليلتقي البائع عنده أو يقترب منه على المسار المتحرك، مع تنبيه المتصفح عند اقتراب السيارة. التسمية وحدها قد تُفهم أحياناً بأن الزبون هو من يأتي؛ لذلك يُعرض في هذا الدليل الشرح التوضيحي «يجيك البائع إلى موقعك» دون تغيير الاسم البرمجي ضمن هذه المهمة.',
+    'في واجهة الزبون الحالية، خيار «تعال» يعني أن جار الحي يحدّد موقعاً ليلتقي البائع عنده أو يقترب منه على المسار المتحرك، مع تنبيه المتصفح عند اقتراب السيارة. التسمية وحدها قد تُفهم أحياناً بأن الزبون هو من يأتي؛ لذلك يُعرض تحت الخيار الشرح التوضيحي «يجيك البائع إلى موقعك» دون تغيير الاسم البرمجي أو منطق الخيار ضمن هذه المهمة. إن رغبت الإدارة لاحقاً بتسمية أوضح مثل «تعال لموقعي» فذلك قرار منتج منفصل.',
   comeClarificationAr: 'يجيك البائع إلى موقعك',
   fieldScriptAr:
     'هذه صفحتي على خضارنا1. امسح الرمز لتشوف المتوفر والأسعار، وإذا احتجت بعدين اطلب من جوالك وحدّد الاستلام أو الطريقة المتاحة لك.',
   fieldScriptComeAr:
     'اختر «تعال»، وحدّد موقعك، ونجيك بالطلب إلى باب بيتك ضمن النطاق والوقت المتاح.',
   customerShortAr: 'اليوم قابلتني هنا، وغداً تعرف المتوفر وتطلب من صفحتي.',
+  presencePhraseAr: 'ثبّت حضورك في حيّك',
   produceOnlyTitleAr: 'ما يخص خضارنا1 تحديداً',
   produceOnlyItemsAr: [
     'التحديث اليومي أو المتكرر للتوفر.',
@@ -184,6 +195,7 @@ export const STORE_PRODUCE_OPS_PLAN_COPY = {
     produceSaip
       ? `مصنف برمجي مسجّل لدى الهيئة السعودية للملكية الفكرية. رقم الشهادة ${produceSaip.certificateNo}.`
       : STORE_PRODUCE_LIVE.legalCertAr,
+    `توثيق التجارة الإلكترونية لدى المركز السعودي للأعمال برقم ${LEGAL_ECOMMERCE_AUTH_NUMBER} يخص متجر منصة خريطة الحل، وليس تصريحاً لممارسة البيع المتنقل.`,
     'لا تحصيل من جار الحي عبر بوابة الدفع على المنصة؛ الطلب نقداً أو شبكة عند التسليم أو بتعليمات تحويل يفعّلها صاحب النشاط.',
     'لا عمولة على قيمة سلة جار الحي في خضارنا1.',
     'ممارسة البيع المتنقل أو إقامة البسطات تخضع للأنظمة والتصاريح وتعليمات المواقع المعنية. خضارنا1 أداة للعرض وتنظيم الطلب والتواصل، ولا يُعد تصريحاً لممارسة النشاط في المواقع العامة.',
@@ -223,6 +235,7 @@ export const STORE_PRODUCE_OPS_PLAN_COPY = {
           bodyAr: [
             'يدخل المشغّل إلى لوحة خضارنا1 ويرتب الصفحة كما يرتب بسطته أو محله قبل بدء البيع.',
           ],
+          checklistTitleAr: 'قائمة التجهيز',
           checklistAr: [
             'اسم النشاط أو اسم البائع المعتمد للظهور.',
             'صورة أو هوية النشاط.',
@@ -253,6 +266,7 @@ export const STORE_PRODUCE_OPS_PLAN_COPY = {
           bodyAr: [
             'بعد تجهيز الصفحة، يحمّل المشغّل رمز QR الخاص بصفحة زبائنه، وليس رابط لوحة التشغيل أو أي صفحة إدارية.',
           ],
+          checklistTitleAr: 'قبل الطباعة',
           checklistAr: [
             'امسح الرمز من هاتف مختلف.',
             'تأكد من أنه يفتح صفحة النشاط الصحيحة مباشرة.',
@@ -260,6 +274,9 @@ export const STORE_PRODUCE_OPS_PLAN_COPY = {
             'تحقق من وضوح الاسم والعنوان على الصفحة المفتوحة.',
             'احفظ نسخة واضحة من الرمز على الجوال.',
             'احتفظ بنسخة مناسبة للطباعة.',
+          ],
+          placesChecklistTitleAr: 'أماكن استخدام الرمز',
+          placesChecklistAr: [
             'لوحة صغيرة ظاهرة على البسطة أو العربة.',
             'بطاقة مقاومة للعوامل اليومية.',
             'أكياس الطلبات أو بطاقة داخل الكيس.',
@@ -293,13 +310,15 @@ export const STORE_PRODUCE_OPS_PLAN_COPY = {
     },
     {
       id: 'field',
-      navTitleAr: 'ثبّت حضورك في حيّك',
+      navTitleAr: 'انزل إلى حيّك',
+      stageHookAr: 'ثبّت حضورك في حيّك',
       steps: [
         {
           stepNumber: 5,
           headlineAr: 'لا تخرج بمتوفر لا يعرفه زبونك، ولا تعرض في الصفحة ما لم يعد معك.',
           hookAr: 'حدّث الصفحة قبل الانطلاق، لا بعد نفاد البضاعة.',
           bodyAr: ['في بداية اليوم أو بعد شراء الخضار والفواكه من مصدر التوريد، يراجع المشغّل الكميات والأسعار ويحدّث الصفحة قبل الانطلاق.'],
+          checklistTitleAr: 'تسلسل التجهيز',
           checklistAr: [
             'استلام أو شراء البضاعة.',
             'فرز المنتجات والتأكد من حالتها.',
@@ -324,8 +343,6 @@ export const STORE_PRODUCE_OPS_PLAN_COPY = {
           fieldScriptAr:
             'هذه صفحتي على خضارنا1. امسح الرمز لتشوف المتوفر والأسعار، وإذا احتجت بعدين اطلب من جوالك وحدّد الاستلام أو الطريقة المناسبة لك.',
           comeClarificationAr: 'يجيك البائع إلى موقعك',
-          fieldScriptComeAr:
-            'اختر «تعال»، وحدّد موقعك، ونجيك بالطلب إلى باب بيتك ضمن النطاق والوقت المتاح.',
           visual: 'field-sale',
         },
         {

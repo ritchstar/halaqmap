@@ -16,6 +16,28 @@ function scrollToStage(id: ProduceOpsStageId) {
   document.getElementById(`produce-ops-${id}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
+function Checklist({
+  titleAr,
+  itemsAr,
+}: {
+  titleAr?: string;
+  itemsAr: readonly string[];
+}) {
+  return (
+    <div className="mt-5">
+      {titleAr ? <p className="mb-2 text-sm font-extrabold text-[#3d8b4a]">{titleAr}</p> : null}
+      <ul className="space-y-2">
+        {itemsAr.map((item) => (
+          <li key={item} className="flex gap-2 text-base leading-8 text-white/76">
+            <CheckCircle2 className="mt-1 h-4 w-4 shrink-0 text-[#3d8b4a]" aria-hidden />
+            <span>{item}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 export function StoreProduceOpsPlanView({ preview = false }: { preview?: boolean }) {
   const copy = STORE_PRODUCE_OPS_PLAN_COPY;
 
@@ -61,128 +83,142 @@ export function StoreProduceOpsPlanView({ preview = false }: { preview?: boolean
       <ol className="produce-ops-timeline relative mt-8 space-y-10 pb-4">
         {copy.stages.map((stage) => (
           <Fragment key={stage.id}>
-          <li id={`produce-ops-${stage.id}`} className="scroll-mt-24">
-            <p className="text-xs font-bold tracking-wide text-[#3d8b4a]">{stage.navTitleAr}</p>
-            <div className="mt-4 space-y-8">
-              {stage.steps.map((step) => (
-                <section
-                  key={step.stepNumber}
-                  className="produce-ops-step rounded-2xl border border-white/10 bg-white/[0.03] p-5 md:p-6"
-                >
-                  <div className="flex flex-wrap items-start gap-4">
-                    <span
-                      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-lg font-black text-[#061018]"
-                      style={{ backgroundColor: copy.accent }}
-                      aria-hidden
-                    >
-                      {step.stepNumber}
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <h2 className="produce-ops-step-title font-extrabold leading-snug text-[#f4efe4]">
-                        {step.headlineAr}
-                      </h2>
-                      <p className="produce-ops-step-hook mt-3 font-extrabold leading-8 text-[#e8c547]">
-                        {step.hookAr}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="mt-5 grid gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,14rem)] md:items-start">
-                    <div>
-                      {step.bodyAr.map((line) => (
-                        <p key={line} className="produce-ops-body mt-3 leading-8 text-white/76 first:mt-0">
-                          {line}
+            <li id={`produce-ops-${stage.id}`} className="scroll-mt-24">
+              <p className="text-xs font-bold tracking-wide text-[#3d8b4a]">{stage.navTitleAr}</p>
+              {stage.stageHookAr ? (
+                <p className="mt-1 text-base font-extrabold text-[#e8c547]">{stage.stageHookAr}</p>
+              ) : null}
+              <div className="mt-4 space-y-8">
+                {stage.steps.map((step) => (
+                  <section
+                    key={step.stepNumber}
+                    className="produce-ops-step rounded-2xl border border-white/10 bg-white/[0.03] p-5 md:p-6"
+                  >
+                    <div className="flex flex-wrap items-start gap-4">
+                      <span
+                        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-lg font-black text-[#061018]"
+                        style={{ backgroundColor: copy.accent }}
+                        aria-hidden
+                      >
+                        {step.stepNumber}
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <h2 className="produce-ops-step-title font-extrabold leading-snug text-[#f4efe4]">
+                          {step.headlineAr}
+                        </h2>
+                        <p className="produce-ops-step-hook mt-3 font-extrabold leading-8 text-[#e8c547]">
+                          {step.hookAr}
                         </p>
-                      ))}
-
-                      {step.stepNumber === 1 ? (
-                        <div className="mt-5 rounded-xl border border-white/10 bg-black/20 p-4">
-                          <p className="text-sm leading-7 text-white/65">{copy.activationButtonsNoteAr}</p>
-                          <div className="mt-3 flex flex-wrap gap-3">
-                            <span
-                              className="inline-flex min-h-11 items-center rounded-full px-4 py-2 text-sm font-bold text-[#061018]"
-                              style={{ backgroundColor: copy.accent }}
-                            >
-                              {copy.deskButtonAr}
-                            </span>
-                            <span className="inline-flex min-h-11 items-center rounded-full border border-[#3d8b4a]/45 px-4 py-2 text-sm font-bold text-[#3d8b4a]">
-                              {copy.guestPageButtonAr}
-                            </span>
-                          </div>
-                        </div>
-                      ) : null}
-
-                      {step.checklistAr?.length ? (
-                        <ul className="mt-5 space-y-2">
-                          {step.checklistAr.map((item) => (
-                            <li key={item} className="flex gap-2 text-base leading-8 text-white/76">
-                              <CheckCircle2 className="mt-1 h-4 w-4 shrink-0 text-[#3d8b4a]" aria-hidden />
-                              <span>{item}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      ) : null}
-
-                      {step.fieldScriptAr ? (
-                        <blockquote className="mt-5 rounded-xl border border-[#3d8b4a]/25 bg-[#3d8b4a]/[0.07] px-4 py-3 text-base font-bold leading-8 text-white/85">
-                          {step.fieldScriptAr}
-                        </blockquote>
-                      ) : null}
-
-                      {step.comeClarificationAr ? (
-                        <p className="mt-3 text-base font-bold leading-8 text-[#3d8b4a]">
-                          {step.comeClarificationAr}: {copy.fieldScriptComeAr}
-                        </p>
-                      ) : null}
-
-                      {step.alertAr ? (
-                        <p
-                          className={cn(
-                            'mt-5 flex gap-2 rounded-xl border px-4 py-3 text-base leading-8',
-                            step.stepNumber === 8
-                              ? 'border-[#e8c547]/30 bg-[#e8c547]/[0.08] font-bold text-[#e8c547]'
-                              : 'border-amber-300/25 bg-amber-400/[0.06] text-white/78',
-                          )}
-                        >
-                          {step.stepNumber === 8 ? null : (
-                            <CircleAlert className="mt-1 h-4 w-4 shrink-0 text-amber-200" aria-hidden />
-                          )}
-                          <span>{step.alertAr}</span>
-                        </p>
-                      ) : null}
-
-                      {step.visual === 'radius' ? (
-                        <p className="mt-4 flex flex-wrap justify-center gap-3 text-sm font-bold text-white/55">
-                          <span>شمال</span>
-                          <span>جنوب</span>
-                          <span>شرق</span>
-                          <span>غرب</span>
-                        </p>
-                      ) : null}
-
-                      {step.visual === 'qr' ? (
-                        <div className="mt-5 rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-center">
-                          <p className="text-base font-extrabold text-[#e8c547]">{copy.qrCaptionAr}</p>
-                          <p className="mt-1 text-sm leading-7 text-white/72">{copy.qrCaptionSubAr}</p>
-                        </div>
-                      ) : null}
-                    </div>
-
-                    {step.visual ? (
-                      <div className="mx-auto w-full max-w-xs md:mx-0">
-                        <StoreProduceOpsIllustration visual={step.visual} />
                       </div>
-                    ) : null}
-                  </div>
-                </section>
-              ))}
-            </div>
-          </li>
-          {stage.id === 'qr' ? (
-            <li className="list-none">
-              <StoreOpsFieldSnapshot {...copy.fieldSnapshot} accent={copy.accent} />
+                    </div>
+
+                    <div className="mt-5 grid gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,14rem)] md:items-start">
+                      <div>
+                        {step.bodyAr.map((line) => (
+                          <p key={line} className="produce-ops-body mt-3 leading-8 text-white/76 first:mt-0">
+                            {line}
+                          </p>
+                        ))}
+
+                        {step.stepNumber === 1 ? (
+                          <div className="mt-5 rounded-xl border border-white/10 bg-black/20 p-4">
+                            <p className="text-sm leading-7 text-white/65">{copy.activationButtonsNoteAr}</p>
+                            <div className="mt-3 flex flex-wrap gap-3">
+                              <Link
+                                to={copy.deskPreviewHref}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex min-h-11 items-center rounded-full px-4 py-2 text-sm font-bold text-[#061018]"
+                                style={{ backgroundColor: copy.accent }}
+                              >
+                                {copy.deskButtonAr}
+                              </Link>
+                              <Link
+                                to={copy.guestPreviewHref}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex min-h-11 items-center rounded-full border border-[#3d8b4a]/45 px-4 py-2 text-sm font-bold text-[#3d8b4a]"
+                              >
+                                {copy.guestPageButtonAr}
+                              </Link>
+                            </div>
+                          </div>
+                        ) : null}
+
+                        {step.checklistAr?.length ? (
+                          <Checklist titleAr={step.checklistTitleAr} itemsAr={step.checklistAr} />
+                        ) : null}
+
+                        {step.placesChecklistAr?.length ? (
+                          <Checklist titleAr={step.placesChecklistTitleAr} itemsAr={step.placesChecklistAr} />
+                        ) : null}
+
+                        {step.fieldScriptAr ? (
+                          <blockquote className="mt-5 rounded-xl border border-[#3d8b4a]/25 bg-[#3d8b4a]/[0.07] px-4 py-3 text-base font-bold leading-8 text-white/85">
+                            {step.fieldScriptAr}
+                          </blockquote>
+                        ) : null}
+
+                        {step.comeClarificationAr ? (
+                          <div className="mt-3 rounded-xl border border-[#3d8b4a]/30 bg-[#3d8b4a]/[0.08] px-4 py-3">
+                            <p className="text-sm font-bold text-white/65">تحت خيار «تعال»</p>
+                            <p className="mt-1 text-base font-extrabold leading-8 text-[#3d8b4a]">
+                              {step.comeClarificationAr}
+                            </p>
+                            <p className="mt-2 text-base leading-8 text-white/78">{copy.fieldScriptComeAr}</p>
+                          </div>
+                        ) : null}
+
+                        {step.alertAr ? (
+                          <p
+                            className={cn(
+                              'mt-5 flex gap-2 rounded-xl border px-4 py-3 text-base leading-8',
+                              step.stepNumber === 8
+                                ? 'border-[#e8c547]/30 bg-[#e8c547]/[0.08] font-bold text-[#e8c547]'
+                                : 'border-amber-300/25 bg-amber-400/[0.06] text-white/78',
+                            )}
+                          >
+                            {step.stepNumber === 8 ? null : (
+                              <CircleAlert className="mt-1 h-4 w-4 shrink-0 text-amber-200" aria-hidden />
+                            )}
+                            <span>{step.alertAr}</span>
+                          </p>
+                        ) : null}
+
+                        {step.visual === 'qr' ? (
+                          <div className="mt-5 rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-center">
+                            <p className="text-base font-extrabold text-[#e8c547]">{copy.qrCaptionAr}</p>
+                            <p className="mt-1 text-sm leading-7 text-white/72">{copy.qrCaptionSubAr}</p>
+                          </div>
+                        ) : null}
+                      </div>
+
+                      {step.visual ? (
+                        <div className="mx-auto w-full max-w-xs md:mx-0">
+                          <StoreProduceOpsIllustration visual={step.visual} />
+                          {step.visual === 'radius' ? (
+                            <p className="mt-3 flex flex-wrap justify-center gap-3 text-sm font-bold text-white/55">
+                              <span>شمال</span>
+                              <span>جنوب</span>
+                              <span>شرق</span>
+                              <span>غرب</span>
+                              <span className="basis-full text-center text-xs font-normal text-white/45">
+                                نصف قطر تقريبي: 1 كم
+                              </span>
+                            </p>
+                          ) : null}
+                        </div>
+                      ) : null}
+                    </div>
+                  </section>
+                ))}
+              </div>
             </li>
-          ) : null}
+            {stage.id === 'qr' ? (
+              <li className="list-none">
+                <StoreOpsFieldSnapshot {...copy.fieldSnapshot} accent={copy.accent} />
+              </li>
+            ) : null}
           </Fragment>
         ))}
       </ol>
@@ -191,7 +227,7 @@ export function StoreProduceOpsPlanView({ preview = false }: { preview?: boolean
         <h2 className="produce-ops-step-title font-extrabold text-[#f4efe4]">{copy.comeUxNoteTitleAr}</h2>
         <p className="produce-ops-body mt-3 leading-8 text-white/76">{copy.comeUxNoteAr}</p>
         <p className="mt-3 text-base font-bold text-[#3d8b4a]">
-          {copy.comeClarificationAr} — {STORE_PRODUCE_OPS_PLAN_COPY.fieldScriptComeAr}
+          {copy.comeClarificationAr} — {copy.fieldScriptComeAr}
         </p>
       </section>
 

@@ -160,6 +160,7 @@ export const STORE_PRODUCE_LIVE = {
   serviceDeliveryAr: 'توصيل داخل النطاق',
   servicePickupAr: 'استلام من الموقع',
   serviceComeAr: 'تعال',
+  serviceComeHintAr: 'يجيك البائع إلى موقعك',
   serviceComeLeadAr:
     'تسوق من العربة عند بابك أو عند موقع محدد. أرسل موقعك وفعّل تنبيه المتصفح ليصلك عند اقتراب السيارة.',
   comeNotifyRequiredAr: 'فعّل تنبيه المتصفح قبل إرسال تذكرة تعال.',
