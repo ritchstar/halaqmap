@@ -55,6 +55,9 @@ export function buildAbsoluteAppHashUrl(pathWithSearch: string): string {
 /**
  * يفتح رابطاً في المتصفح الخارجي (Chrome Intent على أندرويد، نافذة جديدة وإلا).
  * يُستخدم للدفع والرخص من داخل PWA/TWA.
+ *
+ * مهم: في `intent://` الفاصل `#Intent` يبتلع أي `#` في المسار — لذلك نرمّز
+ * جزء الـ HashRouter إلى `%23` وإلا يهتز الغلاف ولا يُفتح Chrome.
  */
 export function openInExternalBrowser(url: string): boolean {
   if (typeof window === 'undefined') return false;
@@ -73,22 +76,40 @@ export function openInExternalBrowser(url: string): boolean {
     const ua = navigator.userAgent || '';
     if (/android/i.test(ua)) {
       const parsed = new URL(absolute);
-      const hashPart = parsed.hash ? parsed.hash.replace(/^#/, '') : '';
-      const hostPath = hashPart
-        ? `${parsed.host}${parsed.pathname || '/'}${parsed.search}#${hashPart}`
-        : `${parsed.host}${parsed.pathname || '/'}${parsed.search}`;
+      const pathAndQuery = `${parsed.pathname || '/'}${parsed.search}`;
+      const fragment = parsed.hash ? parsed.hash.replace(/^#/, '') : '';
+      // %23 بدل # حتى لا يتعارض مع فاصل Intent
+      const hostPath = fragment
+        ? `${parsed.host}${pathAndQuery}%23${fragment}`
+        : `${parsed.host}${pathAndQuery}`;
       const fallback = encodeURIComponent(absolute);
       const intent =
         `intent://${hostPath}#Intent;scheme=https;action=android.intent.action.VIEW;` +
         `package=com.android.chrome;S.browser_fallback_url=${fallback};end`;
-      // location.href موثوق لفتح Chrome من TWA؛ الحارس يمنع الحلقة (لا فتح تلقائي عند التحميل).
       window.location.href = intent;
       return true;
     }
 
     const opened = window.open(absolute, '_blank', 'noopener,noreferrer');
-    // لا نستخدم location.assign داخل الغلاف — يُعيد تحميل نفس WebView ويُسبب حلقة لا نهائية.
-    return Boolean(opened);
+    if (opened) {
+      try {
+        opened.opener = null;
+      } catch {
+        /* ignore */
+      }
+      return true;
+    }
+
+    // iOS PWA غالباً يمنع window.open — رابط مؤقت بنفس إيماءة المستخدم
+    const anchor = document.createElement('a');
+    anchor.href = absolute;
+    anchor.target = '_blank';
+    anchor.rel = 'noopener noreferrer';
+    anchor.style.display = 'none';
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+    return true;
   } catch {
     return false;
   }

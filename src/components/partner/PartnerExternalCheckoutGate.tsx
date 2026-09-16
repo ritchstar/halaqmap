@@ -19,8 +19,8 @@ type Props = {
 };
 
 /**
- * داخل PWA/TWA: يوجّه الدفع إلى المتصفح الخارجي بزر صريح فقط — بدون فتح تلقائي
- * عند التحميل (كان يُسبب حلقة إعادة تحميل لا نهائية في غلاف أندرويد).
+ * داخل PWA/TWA: يوجّه شراء حزم النفاذ إلى منصة حلاق ماب في المتصفح الخارجي
+ * بزر صريح فقط — بدون فتح تلقائي عند التحميل.
  */
 export function PartnerExternalCheckoutGate({ pathWithSearch }: Props) {
   const [shell, setShell] = useState(false);
@@ -38,7 +38,7 @@ export function PartnerExternalCheckoutGate({ pathWithSearch }: Props) {
   const copyLink = async () => {
     try {
       await navigator.clipboard.writeText(absolute);
-      toast.success('تم نسخ رابط الدفع');
+      toast.success('تم نسخ رابط شراء حزم النفاذ');
     } catch {
       toast.error('تعذّر النسخ. انسخ الرابط يدوياً من شريط العنوان بعد فتح المتصفح.');
     }
@@ -57,12 +57,9 @@ export function PartnerExternalCheckoutGate({ pathWithSearch }: Props) {
   return (
     <Alert className="mb-4 border-amber-400/70 bg-amber-500/25 text-white shadow-md ring-1 ring-amber-400/35">
       <Smartphone className="h-4 w-4 text-amber-100" />
-      <AlertTitle className="font-bold text-white">أكمل الدفع في المتصفح</AlertTitle>
+      <AlertTitle className="font-bold text-white">صفحة شراء حزم نفاذ</AlertTitle>
       <AlertDescription className="mt-2 space-y-3 text-sm leading-relaxed text-amber-50">
-        <p>
-          من تطبيق الصالون تُفتح عمليات شراء الرخص والدفع في المتصفح الخارجي — لحماية حسابك
-          وتجنّب عمولات المتاجر.
-        </p>
+        <p>سيتم توجيهك الى منصة حلاق ماب لاتمام الدفع</p>
         {openedOnce ? (
           <p className="text-xs text-amber-100/95">
             إن لم يظهر المتصفح، انسخ الرابط أدناه وافتحه في Chrome أو Safari.
@@ -82,7 +79,7 @@ export function PartnerExternalCheckoutGate({ pathWithSearch }: Props) {
             onClick={handleOpen}
           >
             <ExternalLink className="h-4 w-4" />
-            فتح صفحة الدفع في المتصفح
+            فتح صفحة شراء حزم نفاذ في المتصفح
           </Button>
           <Button
             type="button"

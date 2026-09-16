@@ -46,6 +46,8 @@ import { PaymentCheckoutAcknowledgment } from '@/components/billing/PaymentCheck
 import { MoyasarOfficialTrustChip } from '@/components/billing/MoyasarOfficialTrustChip';
 import { PartnerExternalCheckoutGate } from '@/components/partner/PartnerExternalCheckoutGate';
 import { lockPartnerDarkCanvas } from '@/lib/partnerDarkCanvas';
+import { isPartnerAppShell } from '@/lib/partnerAppShell';
+import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { MadaBadgeIcon, VisaMastercardBadgeIcon } from '@/components/billing/PaymentMethodBadgeIcons';
 import { REGISTRATION_STORAGE_ORDER_ID_RE } from '@/lib/registrationFileUploads';
 import {
@@ -87,6 +89,11 @@ import { toast } from 'sonner';
 export default function Payment() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+  useDocumentTitle('صفحة شراء حزم نفاذ | حلاق ماب');
+  const [partnerAppShell, setPartnerAppShell] = useState(false);
+  useEffect(() => {
+    setPartnerAppShell(isPartnerAppShell());
+  }, []);
   const tierFromUrl = useMemo(
     () => parseSubscriptionTierParam(searchParams.get('tier')),
     [searchParams],
@@ -1124,7 +1131,7 @@ export default function Payment() {
       className="min-h-screen overflow-x-hidden bg-[#020912]"
       dir="rtl"
       role="application"
-      aria-label="إتمام الدفع"
+      aria-label="صفحة شراء حزم نفاذ"
     >
       <div className="container mx-auto px-4 py-6 sm:py-8">
         <div className="mx-auto max-w-3xl space-y-4">
@@ -1306,7 +1313,7 @@ export default function Payment() {
             </Alert>
           ) : null}
 
-          {!paymentReturnPaid ? (
+          {!paymentReturnPaid && !partnerAppShell ? (
               <Card>
                 <CardHeader>
                   <CardTitle>اختر طريقة الدفع</CardTitle>
