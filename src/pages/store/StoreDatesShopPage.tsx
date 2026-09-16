@@ -31,6 +31,7 @@ import { parseStoreShopHours } from '@/lib/storeShopHours';
 import { parseShopLogoSrc } from '@/lib/storeShopLogo';
 import { parseShopBackgroundFields } from '@/lib/storeShopBackground';
 import { parseShopPickupPlace } from '@/lib/storeShopPlace';
+import { parseShopShippingProfile } from '@/lib/storeShopShipping';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { storeLiveShopShareHref } from '@/lib/storeHostRedirect';
 
@@ -51,6 +52,7 @@ function payloadToState(payload: Record<string, unknown>, fallback: DatesLabStat
     packId: payload.packId === 'm12' ? ('m12' as const) : ('m6' as const),
     ...parseStoreShopHours(payload, fallback.host),
     ...parseShopPickupPlace(payload, fallback.host),
+    ...parseShopShippingProfile(payload, fallback.host),
     ...parseShopBackgroundFields(payload, fallback.host),
   };
   return {

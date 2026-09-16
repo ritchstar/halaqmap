@@ -16,6 +16,7 @@ import { DEFAULT_STORE_SHOP_HOURS, type StoreShopHoursState } from '@/config/sto
 import { hydrateDeskTickets } from '@/lib/storeDeskOrderTicket';
 import { parseShopLogoSrc } from '@/lib/storeShopLogo';
 import { DEFAULT_SHOP_PICKUP, parseShopPickupPlace, type ShopPickupPlace } from '@/lib/storeShopPlace';
+import { DEFAULT_SHOP_SHIPPING, parseShopShippingProfile, type ShopShippingProfile } from '@/lib/storeShopShipping';
 import { compressImageFile } from '@/lib/storeWeddingLiveLab';
 
 export { parseBakhurnaListText, compressImageFile, STORE_BAKHURNA_UNIT_AR };
@@ -40,7 +41,7 @@ export type BakhurnaOrderLine = {
 };
 
 export type BakhurnaPayMethod = 'cash' | 'card';
-export type BakhurnaService = 'delivery' | 'pickup' | 'come';
+export type BakhurnaService = 'delivery' | 'pickup' | 'come' | 'shipping';
 
 export type BakhurnaOrder = {
   id: string;
@@ -71,7 +72,7 @@ export type BakhurnaHostState = {
   packId: StoreBakhurnaLivePackId;
   shopHeaderBg: string;
   shopPageBg: string;
-} & StoreShopHoursState & ShopPickupPlace;
+} & StoreShopHoursState & ShopPickupPlace & ShopShippingProfile;
 
 export type BakhurnaChatMsg = {
   id: string;
@@ -137,6 +138,7 @@ export function defaultBakhurnaLabState(): BakhurnaLabState {
       shopHeaderBg: '',
       shopPageBg: '',
       ...DEFAULT_SHOP_PICKUP,
+      ...DEFAULT_SHOP_SHIPPING,
       ...DEFAULT_STORE_SHOP_HOURS,
     },
     shelf,
@@ -162,6 +164,7 @@ export function readBakhurnaLabState(token: string): BakhurnaLabState {
         logoSrc: parseShopLogoSrc(parsed.host?.logoSrc, fallback.host.logoSrc),
         acceptingOrders: parsed.host?.acceptingOrders !== false,
         ...parseShopPickupPlace(parsed.host, fallback.host),
+        ...parseShopShippingProfile(parsed.host, fallback.host),
       },
       shelf: Array.isArray(parsed.shelf) && parsed.shelf.length
         ? parsed.shelf.map((item) => ({ ...item, photoSrc: item.photoSrc || '' }))
@@ -227,6 +230,7 @@ export function activateBakhurnaCatalogItem(
 }
 
 export function bakhurnaServiceLabelAr(service: BakhurnaService): string {
+  if (service === 'shipping') return 'شحن خارج النطاق';
   if (service === 'come') return 'تعال إلى الموقع';
   if (service === 'pickup') return 'استلام من الموقع';
   return 'توصيل داخل النطاق';
@@ -240,8 +244,8 @@ export function bakhurnaWhatsAppText(order: BakhurnaOrder, shopName: string, map
     `الزبون: ${order.name}`,
     `الجوال: ${order.phone}`,
     `التسليم: ${bakhurnaServiceLabelAr(order.service)}`,
-    `الموقع: ${order.place}`,
-    mapsUrl ? `موقع المحل: ${mapsUrl}` : '',
+    order.place ? `الموقع: ${order.place}` : '',
+    mapsUrl && order.service !== 'shipping' ? `موقع المحل: ${mapsUrl}` : '',
     `الدفع: ${pay}`,
     lines,
     order.service === 'come' && !lines ? 'تسوق حر من المحل' : '',

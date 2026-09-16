@@ -12,6 +12,7 @@ import {
   MapPin,
   Minus,
   Navigation,
+  Package,
   Plus,
   Search,
   ShoppingBag,
@@ -35,6 +36,7 @@ import { StoreBuyerLocateButtons } from '@/components/store/StoreBuyerLocateButt
 import { StoreShopLogoMark } from '@/components/store/StoreShopLogoMark';
 import { StoreShopPlacePin } from '@/components/store/StoreShopPlacePin';
 import { StoreDirectPayGuest, StoreDirectPayPublicMount } from '@/components/store/StoreDirectPayGuest';
+import { StoreShopShippingBuyerCard } from '@/components/store/StoreShopShippingBuyerCard';
 import { DatesTamratnaMark } from '@/components/store/dates/DatesTamratnaMark';
 import { STORE_DATES_LIVE, STORE_DATES_LIVE_ACCENT, datesCatalogImage } from '@/config/storeDatesLive';
 import { STORE_DATES_UNIT_AR } from '@/config/storeDatesCatalog';
@@ -155,6 +157,10 @@ export function DatesChatlyStorefront({
   }, [mobile, service]);
 
   useEffect(() => {
+    if (!state.host.shippingEnabled && service === 'shipping') setService('delivery');
+  }, [state.host.shippingEnabled, service]);
+
+  useEffect(() => {
     if (!watchingCome || !buyerLat || !buyerLng) return;
     if (!isDatesComeApproaching(buyerLat, buyerLng, state.host.pickupLat, state.host.pickupLng)) return;
     setWatchingCome(false);
@@ -179,6 +185,7 @@ export function DatesChatlyStorefront({
   }
 
   function serviceLabel(s: DatesService) {
+    if (s === 'shipping') return STORE_DATES_LIVE.serviceShippingAr;
     if (s === 'come') return STORE_DATES_LIVE.serviceComeAr;
     if (s === 'pickup') return STORE_DATES_LIVE.servicePickupAr;
     return STORE_DATES_LIVE.serviceDeliveryAr;
@@ -188,6 +195,7 @@ export function DatesChatlyStorefront({
     if (name.trim().length < 2 || phone.trim().length < 9) return;
     if (!come && !lines.length) return;
     setComeHint('');
+    const shipping = service === 'shipping';
     const coords = come
       ? parseMapsQueryCoords(place) || (buyerLat && buyerLng ? { lat: buyerLat, lng: buyerLng } : null)
       : null;
@@ -206,7 +214,7 @@ export function DatesChatlyStorefront({
       id: `${Date.now()}`,
       name: name.trim().slice(0, 40),
       phone: phone.trim().slice(0, 20),
-      place: place.trim().slice(0, 240),
+      place: shipping ? '' : place.trim().slice(0, 240),
       service: come ? ('come' as const) : service,
       pay,
       lines,
@@ -248,6 +256,9 @@ export function DatesChatlyStorefront({
     { id: 'pickup' as const, label: STORE_DATES_LIVE.servicePickupAr, icon: MapPin, copy: 'من موقع الصندوق' },
     ...(mobile
       ? [{ id: 'come' as const, label: STORE_DATES_LIVE.serviceComeAr, icon: Navigation, copy: 'تسوق من العربة عند بابك' }]
+      : []),
+    ...(state.host.shippingEnabled
+      ? [{ id: 'shipping' as const, label: STORE_DATES_LIVE.serviceShippingAr, icon: Package, copy: 'خارج النطاق — عبر شركة المشغّل' }]
       : []),
   ];
 
@@ -619,6 +630,12 @@ export function DatesChatlyStorefront({
           {service === 'come' ? (
             <p className="mt-4 text-sm leading-7 text-[#6f6250]">{STORE_DATES_LIVE.serviceComeLeadAr}</p>
           ) : null}
+          {service === 'shipping' ? (
+            <StoreShopShippingBuyerCard
+              profile={state.host}
+              leadAr={STORE_DATES_LIVE.serviceShippingLeadAr}
+            />
+          ) : null}
           {service === 'pickup' && state.host.pickupPlaceVisible && state.host.pickupMapsUrl ? (
             <div className="mt-5 rounded-xl border border-[#dac8aa] bg-[#f3e6cf] p-4">
               <div className="flex items-center gap-2 text-sm font-black text-[#6f4a26]">
@@ -701,6 +718,12 @@ export function DatesChatlyStorefront({
             </div>
             {service === 'come' ? (
               <p className="text-sm leading-7 text-[#6f6250]">{STORE_DATES_LIVE.serviceComeLeadAr}</p>
+            ) : null}
+            {service === 'shipping' ? (
+              <StoreShopShippingBuyerCard
+                profile={state.host}
+                leadAr={STORE_DATES_LIVE.serviceShippingLeadAr}
+              />
             ) : null}
             {service === 'delivery' || service === 'come' ? (
               <>

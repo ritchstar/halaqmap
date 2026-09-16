@@ -10,6 +10,7 @@ import { DEFAULT_STORE_SHOP_HOURS, parseStoreShopHours, type StoreShopHoursState
 import { parseShopLogoSrc } from './storeShopLogo.js';
 import { parseVendorMode, type StoreVendorMode } from './storeMobileVendor.js';
 import { DEFAULT_SHOP_PICKUP, parseShopPickupPlace, publicShopPlaceFields, type ShopPickupPlace } from './storeShopPlace.js';
+import { DEFAULT_SHOP_SHIPPING, parseShopShippingProfile, type ShopShippingProfile } from './storeShopShipping.js';
 
 export const STORE_DATES_LIVE_TABLE = 'store_dates_live_orders' as const;
 export const STORE_DATES_LIVE_PRODUCT = 'store_dates_live' as const;
@@ -137,7 +138,7 @@ export type DatesLiveOrderPayload = {
   orderArchive?: unknown[];
   chatIncluded: boolean;
   chats: unknown[];
-} & StoreShopHoursState & ShopPickupPlace & {
+} & StoreShopHoursState & ShopPickupPlace & ShopShippingProfile & {
   shopHeaderBg?: string;
   shopPageBg?: string;
 };
@@ -173,6 +174,7 @@ export function parseDatesLiveOrderBody(body: Record<string, unknown>):
       chatIncluded: true,
       chats: [],
       ...DEFAULT_SHOP_PICKUP,
+      ...DEFAULT_SHOP_SHIPPING,
       vendorMode,
       ...DEFAULT_STORE_SHOP_HOURS,
     },
@@ -216,5 +218,6 @@ export function publicDatesPayload(payload: DatesLiveOrderPayload, role = 'shop'
     chats: parseDatesChats(payload.chats),
     ...parseStoreShopHours(payload),
     ...publicShopPlaceFields(role, parseShopPickupPlace(payload)),
+    ...parseShopShippingProfile(payload),
   };
 }

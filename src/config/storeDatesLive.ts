@@ -157,6 +157,9 @@ export const STORE_DATES_LIVE = {
   serviceDeliveryAr: 'توصيل داخل النطاق',
   servicePickupAr: 'استلام من الموقع',
   serviceComeAr: 'تعال',
+  serviceShippingAr: 'شحن خارج النطاق',
+  serviceShippingLeadAr:
+    'الشحن خارج النطاق يديره النشاط مباشرة مع شركة الشحن التي يتعامل معها. راجع التفاصيل أدناه قبل تأكيد الطلب.',
   serviceComeLeadAr:
     'تسوق من العربة عند بابك أو عند موقع محدد. أرسل موقعك وفعّل تنبيه المتصفح ليصلك عند اقتراب السيارة.',
   comeNotifyRequiredAr: 'فعّل تنبيه المتصفح قبل إرسال تذكرة تعال.',

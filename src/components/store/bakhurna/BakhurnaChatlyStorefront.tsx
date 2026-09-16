@@ -13,6 +13,7 @@ import {
   MapPin,
   Minus,
   Navigation,
+  Package,
   Plus,
   Search,
   ShoppingBag,
@@ -36,6 +37,7 @@ import { StoreBuyerLocateButtons } from '@/components/store/StoreBuyerLocateButt
 import { StoreShopLogoMark } from '@/components/store/StoreShopLogoMark';
 import { StoreShopPlacePin } from '@/components/store/StoreShopPlacePin';
 import { StoreDirectPayGuest, StoreDirectPayPublicMount } from '@/components/store/StoreDirectPayGuest';
+import { StoreShopShippingBuyerCard } from '@/components/store/StoreShopShippingBuyerCard';
 import { BakhurnaMabkharaMark } from '@/components/store/bakhurna/BakhurnaMabkharaMark';
 import { STORE_BAKHURNA_LIVE, STORE_BAKHURNA_LIVE_ACCENT, bakhurnaCatalogImage } from '@/config/storeBakhurnaLive';
 import { STORE_BAKHURNA_UNIT_AR } from '@/config/storeBakhurnaCatalog';
@@ -156,6 +158,10 @@ export function BakhurnaChatlyStorefront({
   }, [mobile, service]);
 
   useEffect(() => {
+    if (!state.host.shippingEnabled && service === 'shipping') setService('delivery');
+  }, [state.host.shippingEnabled, service]);
+
+  useEffect(() => {
     if (!watchingCome || !buyerLat || !buyerLng) return;
     if (!isBakhurnaComeApproaching(buyerLat, buyerLng, state.host.pickupLat, state.host.pickupLng)) return;
     setWatchingCome(false);
@@ -180,6 +186,7 @@ export function BakhurnaChatlyStorefront({
   }
 
   function serviceLabel(s: BakhurnaService) {
+    if (s === 'shipping') return STORE_BAKHURNA_LIVE.serviceShippingAr;
     if (s === 'come') return STORE_BAKHURNA_LIVE.serviceComeAr;
     if (s === 'pickup') return STORE_BAKHURNA_LIVE.servicePickupAr;
     return STORE_BAKHURNA_LIVE.serviceDeliveryAr;
@@ -189,6 +196,7 @@ export function BakhurnaChatlyStorefront({
     if (name.trim().length < 2 || phone.trim().length < 9) return;
     if (!come && !lines.length) return;
     setComeHint('');
+    const shipping = service === 'shipping';
     const coords = come
       ? parseMapsQueryCoords(place) || (buyerLat && buyerLng ? { lat: buyerLat, lng: buyerLng } : null)
       : null;
@@ -207,7 +215,7 @@ export function BakhurnaChatlyStorefront({
       id: `${Date.now()}`,
       name: name.trim().slice(0, 40),
       phone: phone.trim().slice(0, 20),
-      place: place.trim().slice(0, 240),
+      place: shipping ? '' : place.trim().slice(0, 240),
       service: come ? ('come' as const) : service,
       pay,
       lines,
@@ -249,6 +257,9 @@ export function BakhurnaChatlyStorefront({
     { id: 'pickup' as const, label: STORE_BAKHURNA_LIVE.servicePickupAr, icon: MapPin, copy: 'من موقع المحل' },
     ...(mobile
       ? [{ id: 'come' as const, label: STORE_BAKHURNA_LIVE.serviceComeAr, icon: Navigation, copy: 'تسوق من العربة عند بابك' }]
+      : []),
+    ...(state.host.shippingEnabled
+      ? [{ id: 'shipping' as const, label: STORE_BAKHURNA_LIVE.serviceShippingAr, icon: Package, copy: 'خارج النطاق — عبر شركة المشغّل' }]
       : []),
   ];
 
@@ -620,6 +631,12 @@ export function BakhurnaChatlyStorefront({
           {service === 'come' ? (
             <p className="mt-4 text-sm leading-7 text-[#6f6250]">{STORE_BAKHURNA_LIVE.serviceComeLeadAr}</p>
           ) : null}
+          {service === 'shipping' ? (
+            <StoreShopShippingBuyerCard
+              profile={state.host}
+              leadAr={STORE_BAKHURNA_LIVE.serviceShippingLeadAr}
+            />
+          ) : null}
           {service === 'pickup' && state.host.pickupPlaceVisible && state.host.pickupMapsUrl ? (
             <div className="mt-5 rounded-xl border border-[#dac8aa] bg-[#f3e6cf] p-4">
               <div className="flex items-center gap-2 text-sm font-black text-[#6e4a26]">
@@ -702,6 +719,12 @@ export function BakhurnaChatlyStorefront({
             </div>
             {service === 'come' ? (
               <p className="text-sm leading-7 text-[#6f6250]">{STORE_BAKHURNA_LIVE.serviceComeLeadAr}</p>
+            ) : null}
+            {service === 'shipping' ? (
+              <StoreShopShippingBuyerCard
+                profile={state.host}
+                leadAr={STORE_BAKHURNA_LIVE.serviceShippingLeadAr}
+              />
             ) : null}
             {service === 'delivery' || service === 'come' ? (
               <>

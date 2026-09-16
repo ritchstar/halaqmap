@@ -10,6 +10,7 @@ import { DEFAULT_STORE_SHOP_HOURS, parseStoreShopHours, type StoreShopHoursState
 import { parseShopLogoSrc } from './storeShopLogo.js';
 import { parseVendorMode, type StoreVendorMode } from './storeMobileVendor.js';
 import { DEFAULT_SHOP_PICKUP, parseShopPickupPlace, publicShopPlaceFields, type ShopPickupPlace } from './storeShopPlace.js';
+import { DEFAULT_SHOP_SHIPPING, parseShopShippingProfile, type ShopShippingProfile } from './storeShopShipping.js';
 
 export const STORE_BAKHURNA_LIVE_TABLE = 'store_bakhurna_live_orders' as const;
 export const STORE_BAKHURNA_LIVE_PRODUCT = 'store_bakhurna_live' as const;
@@ -153,7 +154,7 @@ export type BakhurnaLiveOrderPayload = {
   giftClockFromFirstVisit?: boolean;
   giftStartedAt?: string;
   giftConvertedAt?: string;
-} & StoreShopHoursState & ShopPickupPlace & {
+} & StoreShopHoursState & ShopPickupPlace & ShopShippingProfile & {
   shopHeaderBg?: string;
   shopPageBg?: string;
 };
@@ -195,6 +196,7 @@ export function parseBakhurnaLiveOrderBody(body: Record<string, unknown>):
       chatIncluded: true,
       chats: [],
       ...DEFAULT_SHOP_PICKUP,
+      ...DEFAULT_SHOP_SHIPPING,
       vendorMode,
       ...DEFAULT_STORE_SHOP_HOURS,
     },
@@ -243,5 +245,6 @@ export function publicBakhurnaPayload(payload: BakhurnaLiveOrderPayload, role = 
     giftStartedAt: String(payload.giftStartedAt || ''),
     ...parseStoreShopHours(payload),
     ...publicShopPlaceFields(role, parseShopPickupPlace(payload)),
+    ...parseShopShippingProfile(payload),
   };
 }

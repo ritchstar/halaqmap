@@ -15,6 +15,7 @@ import { DEFAULT_STORE_SHOP_HOURS, type StoreShopHoursState } from '@/config/sto
 import { hydrateDeskTickets } from '@/lib/storeDeskOrderTicket';
 import { parseShopLogoSrc } from '@/lib/storeShopLogo';
 import { DEFAULT_SHOP_PICKUP, parseShopPickupPlace, type ShopPickupPlace } from '@/lib/storeShopPlace';
+import { DEFAULT_SHOP_SHIPPING, parseShopShippingProfile, type ShopShippingProfile } from '@/lib/storeShopShipping';
 import { compressImageFile } from '@/lib/storeWeddingLiveLab';
 
 export { parseDatesListText, compressImageFile, STORE_DATES_UNIT_AR };
@@ -39,7 +40,7 @@ export type DatesOrderLine = {
 };
 
 export type DatesPayMethod = 'cash' | 'card';
-export type DatesService = 'delivery' | 'pickup' | 'come';
+export type DatesService = 'delivery' | 'pickup' | 'come' | 'shipping';
 
 export type DatesOrder = {
   id: string;
@@ -70,7 +71,7 @@ export type DatesHostState = {
   packId: StoreDatesLivePackId;
   shopHeaderBg: string;
   shopPageBg: string;
-} & StoreShopHoursState & ShopPickupPlace;
+} & StoreShopHoursState & ShopPickupPlace & ShopShippingProfile;
 
 export type DatesChatMsg = {
   id: string;
@@ -134,6 +135,7 @@ export function defaultDatesLabState(): DatesLabState {
       shopHeaderBg: '',
       shopPageBg: '',
       ...DEFAULT_SHOP_PICKUP,
+      ...DEFAULT_SHOP_SHIPPING,
       ...DEFAULT_STORE_SHOP_HOURS,
     },
     shelf,
@@ -159,6 +161,7 @@ export function readDatesLabState(token: string): DatesLabState {
         logoSrc: parseShopLogoSrc(parsed.host?.logoSrc, fallback.host.logoSrc),
         acceptingOrders: parsed.host?.acceptingOrders !== false,
         ...parseShopPickupPlace(parsed.host, fallback.host),
+        ...parseShopShippingProfile(parsed.host, fallback.host),
       },
       shelf: Array.isArray(parsed.shelf) && parsed.shelf.length
         ? parsed.shelf.map((item) => ({ ...item, photoSrc: item.photoSrc || '' }))
@@ -224,6 +227,7 @@ export function activateDatesCatalogItem(
 }
 
 export function datesServiceLabelAr(service: DatesService): string {
+  if (service === 'shipping') return 'شحن خارج النطاق';
   if (service === 'come') return 'تعال إلى الموقع';
   if (service === 'pickup') return 'استلام من الموقع';
   return 'توصيل داخل النطاق';
@@ -237,8 +241,8 @@ export function datesWhatsAppText(order: DatesOrder, shopName: string, mapsUrl =
     `الزبون: ${order.name}`,
     `الجوال: ${order.phone}`,
     `التسليم: ${datesServiceLabelAr(order.service)}`,
-    `الموقع: ${order.place}`,
-    mapsUrl ? `موقع الصندوق: ${mapsUrl}` : '',
+    order.place ? `الموقع: ${order.place}` : '',
+    mapsUrl && order.service !== 'shipping' ? `موقع الصندوق: ${mapsUrl}` : '',
     `الدفع: ${pay}`,
     lines,
     order.service === 'come' && !lines ? 'تسوق حر من الصندوق' : '',

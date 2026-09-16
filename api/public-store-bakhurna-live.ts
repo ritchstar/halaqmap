@@ -48,6 +48,7 @@ import { logoSrcIfChanged } from './_lib/storeLogoPollCache.js';
 import { persistShopImageIfBase64 } from './_lib/storeShopMediaStorage.js';
 import { lockPaidVendorMode, parseVendorMode } from './_lib/storeMobileVendor.js';
 import { parseShopPickupPlace } from './_lib/storeShopPlace.js';
+import { parseShopShippingProfile } from './_lib/storeShopShipping.js';
 import { sendBakhurnaLiveLinksEmail } from './_lib/storeBakhurnaLiveMail.js';
 import { applyStoreTrialClock, markStoreTrialConverted } from './_lib/storeProductTrial.js';
 import { storeLiveShopShareHref } from './_lib/storeLiveShopShare.js';
@@ -670,6 +671,7 @@ async function saveHost(db: Db, body: Record<string, unknown>, headers: Record<s
     chats: Array.isArray(body.chats) ? parseBakhurnaChats(body.chats) : parseBakhurnaChats(current.chats),
     ...parseStoreShopHours(body, parseStoreShopHours(current)),
     ...lockPaidVendorMode(parseShopPickupPlace(body, parseShopPickupPlace(current)), parseShopPickupPlace(current)),
+    ...parseShopShippingProfile(body, parseShopShippingProfile(current)),
     ...parseShopBackgroundSave(body, {
       shopHeaderBg: String(current.shopHeaderBg || ''),
       shopPageBg: String(current.shopPageBg || ''),

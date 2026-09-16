@@ -46,6 +46,7 @@ import { logoSrcIfChanged } from './_lib/storeLogoPollCache.js';
 import { persistShopImageIfBase64 } from './_lib/storeShopMediaStorage.js';
 import { lockPaidVendorMode, parseVendorMode } from './_lib/storeMobileVendor.js';
 import { parseShopPickupPlace } from './_lib/storeShopPlace.js';
+import { parseShopShippingProfile } from './_lib/storeShopShipping.js';
 import { sendDatesLiveLinksEmail } from './_lib/storeDatesLiveMail.js';
 import { applyStoreTrialClock, markStoreTrialConverted } from './_lib/storeProductTrial.js';
 import { storeLiveShopShareHref } from './_lib/storeLiveShopShare.js';
@@ -637,6 +638,7 @@ async function saveHost(db: Db, body: Record<string, unknown>, headers: Record<s
     chats: Array.isArray(body.chats) ? parseDatesChats(body.chats) : parseDatesChats(current.chats),
     ...parseStoreShopHours(body, parseStoreShopHours(current)),
     ...lockPaidVendorMode(parseShopPickupPlace(body, parseShopPickupPlace(current)), parseShopPickupPlace(current)),
+    ...parseShopShippingProfile(body, parseShopShippingProfile(current)),
     ...parseShopBackgroundSave(body, {
       shopHeaderBg: String(current.shopHeaderBg || ''),
       shopPageBg: String(current.shopPageBg || ''),

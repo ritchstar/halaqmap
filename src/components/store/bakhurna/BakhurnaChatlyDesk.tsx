@@ -38,6 +38,7 @@ import { STORE_DESK_ORDER_TICKET_COPY } from '@/config/storeDeskOrderTicket';
 import { applyDeskFinish, deskOrderPhase, isLiveDeskTicket, receiveDeskTicket } from '@/lib/storeDeskOrderTicket';
 import { StoreShopHoursDesk } from '@/components/store/StoreShopHoursDesk';
 import { StoreShopPlaceDesk } from '@/components/store/StoreShopPlaceDesk';
+import { StoreShopShippingDesk } from '@/components/store/StoreShopShippingDesk';
 import { StoreShopIdentityDesk } from '@/components/store/StoreShopIdentityDesk';
 import { StoreDeskSaveStatusLine } from '@/components/store/StoreDeskSaveStatusLine';
 import type { StoreLiveDeskSaveStatus } from '@/lib/storeLiveDeskSync';
@@ -407,6 +408,13 @@ export function BakhurnaChatlyDesk({
                       onChange={(nextHours) => onChange({ ...state, host: { ...state.host, ...nextHours } })}
                       accent={STORE_BAKHURNA_LIVE_ACCENT}
                       theme="light"
+                    />
+                  }
+                  shippingSlot={
+                    <StoreShopShippingDesk
+                      value={state.host}
+                      onChange={(shipping) => onChange({ ...state, host: { ...state.host, ...shipping } })}
+                      accent={STORE_BAKHURNA_LIVE_ACCENT}
                     />
                   }
                 />
@@ -902,18 +910,27 @@ function ProductsSection({
   );
 }
 
-function LocationSection({ placeSlot, hoursSlot }: { placeSlot: ReactNode; hoursSlot: ReactNode }) {
+function LocationSection({
+  placeSlot,
+  hoursSlot,
+  shippingSlot,
+}: {
+  placeSlot: ReactNode;
+  hoursSlot: ReactNode;
+  shippingSlot: ReactNode;
+}) {
   return (
     <>
       <PageHeading
         eyebrow="الموقع وساعات العمل"
         title="خلّي موقعك واضحاً لجيران الحي"
-        copy="حدّد موقع المحل أو العربة، وتحكم بساعات العمل والمسار المتحرك من هنا."
+        copy="حدّد موقع المحل أو العربة، وتحكم بساعات العمل والمسار المتحرك من هنا. الشحن خارج النطاق اختياري بحقول تملؤها أنت."
       />
 
       <div className="mt-7 grid gap-6">
         <section className="rounded-2xl border border-[#dac8aa] bg-[#f9f4ea] p-5">{placeSlot}</section>
         <section className="rounded-2xl border border-[#dac8aa] bg-[#f9f4ea] p-5">{hoursSlot}</section>
+        <section className="rounded-2xl border border-[#dac8aa] bg-[#f9f4ea] p-5">{shippingSlot}</section>
       </div>
     </>
   );
