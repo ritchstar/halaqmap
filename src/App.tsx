@@ -434,6 +434,10 @@ const StoreProducePayPage = lazy(() => import("@/pages/store/StoreProducePayPage
 const StoreDatesLandingPage = lazy(() => import("@/pages/store/StoreDatesLandingPage"));
 const StoreDatesShopPage = lazy(() => import("@/pages/store/StoreDatesShopPage"));
 const StoreDatesAuctionPage = lazy(() => import("@/pages/store/StoreDatesAuctionPage"));
+const FamilyGatheringSendPage = lazy(() => import("@/pages/FamilyGatheringSendPage"));
+const FamilyGatheringScreenPage = lazy(() => import("@/pages/FamilyGatheringScreenPage"));
+const FamilyGatheringHostPage = lazy(() => import("@/pages/FamilyGatheringHostPage"));
+const FamilyGatheringAdminPage = lazy(() => import("@/pages/FamilyGatheringAdminPage"));
 const StoreDatesPayPage = lazy(() => import("@/pages/store/StoreDatesPayPage"));
 const StoreDatesOpsPlanPreviewPage = lazy(() => import("@/pages/store/StoreDatesOpsPlanPreviewPage"));
 const StoreBakhurnaLandingPage = lazy(() => import("@/pages/store/StoreBakhurnaLandingPage"));
@@ -643,13 +647,20 @@ function NotaCouncilRedirect() {
   const host = window.location.hostname.toLowerCase();
   const isCommunityDomain = host === 'community.nota-council.com';
   const isNotaRoot = host === 'nota-council.com' || host === 'www.nota-council.com';
+  const hash = window.location.hash || '';
+  const isFamilyGatheringPath = /#\/sa1(\/|$)/.test(hash);
 
-  if (isNotaRoot) {
+  if (isNotaRoot && !isFamilyGatheringPath) {
     window.location.replace('https://community.nota-council.com/#/partners/community');
     return null;
   }
 
-  if (isCommunityDomain && !window.location.hash.includes('/partners/community')) {
+  if (isNotaRoot && isFamilyGatheringPath) {
+    window.location.replace(`https://community.nota-council.com/${hash}`);
+    return null;
+  }
+
+  if (isCommunityDomain && !hash.includes('/partners/community') && !isFamilyGatheringPath) {
     window.location.replace('/#/partners/community');
   }
 
@@ -1078,6 +1089,9 @@ export function App() {
           />
           <Route path={STORE_DATES_PATH} element={<LazyRoute><StoreDatesLandingPage /></LazyRoute>} />
           <Route path={STORE_DATES_AUCTION_PATH} element={<LazyRoute><StoreDatesAuctionPage /></LazyRoute>} />
+          <Route path={ROUTE_PATHS.FAMILY_GATHERING_SA1} element={<LazyRoute><FamilyGatheringSendPage /></LazyRoute>} />
+          <Route path={ROUTE_PATHS.FAMILY_GATHERING_SA1_SCREEN} element={<LazyRoute><FamilyGatheringScreenPage /></LazyRoute>} />
+          <Route path={ROUTE_PATHS.FAMILY_GATHERING_SA1_HOST} element={<LazyRoute><FamilyGatheringHostPage /></LazyRoute>} />
           <Route path={STORE_DATES_DESK_PATH} element={<LazyRoute><StoreDatesShopPage /></LazyRoute>} />
           <Route path={STORE_DATES_VIEW_PATH} element={<LazyRoute><StoreDatesShopPage /></LazyRoute>} />
           <Route path={STORE_BAKHURNA_GIFT_CONFIRM_PATH} element={<LazyRoute><StoreBakhurnaGiftConfirmPage /></LazyRoute>} />
@@ -1233,6 +1247,7 @@ export function App() {
               <Route path={`${adminBase}/radar/full-screen`} element={<LazyRoute><AdminRadarFullScreenPage /></LazyRoute>} />
               <Route path={`${adminBase}/cyber`} element={<LazyRoute><AdminCyberOperationsPage /></LazyRoute>} />
               <Route path={`${adminBase}/staff-hub`} element={<LazyRoute><StaffHubPage /></LazyRoute>} />
+              <Route path={`${adminBase}/family-gathering-sa1`} element={<LazyRoute><FamilyGatheringAdminPage /></LazyRoute>} />
               <Route path={`${adminBase}/coiffeur-hub`} element={<LazyRoute><CoiffeurHubPage /></LazyRoute>} />
               <Route path={`${adminBase}/store-desk`} element={<LazyRoute><StoreDeskPage /></LazyRoute>} />
               <Route path={`${adminBase}/store-sales`} element={<LazyRoute><StoreSalesHubPage /></LazyRoute>} />
@@ -1251,6 +1266,7 @@ export function App() {
           <Route path="/admin/radar/full-screen" element={<LegacyAdminRedirect suffix="/radar/full-screen" />} />
           <Route path="/admin/cyber" element={<LegacyAdminRedirect suffix="/cyber" />} />
           <Route path="/admin/staff-hub" element={<LegacyAdminRedirect suffix="/staff-hub" />} />
+          <Route path="/admin/family-gathering-sa1" element={<LegacyAdminRedirect suffix="/family-gathering-sa1" />} />
           <Route path="/admin/coiffeur-hub" element={<LegacyAdminRedirect suffix="/coiffeur-hub" />} />
           <Route path="/admin/store-desk" element={<LegacyAdminRedirect suffix="/store-desk" />} />
           <Route path="/admin/store-sales" element={<LegacyAdminRedirect suffix="/store-sales" />} />

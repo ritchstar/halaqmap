@@ -246,6 +246,12 @@ export const ROUTE_PATHS = {
   PARTNER_TUTORIALS: '/partners/tutorials',
   /** مجتمع ماب — مساحة تواصل مهنية للشركاء */
   MAP_COMMUNITY: '/partners/community',
+  /** تجمع عائلي sa1 — إرسال تهنئة (بلا كروم المنصة) */
+  FAMILY_GATHERING_SA1: '/sa1',
+  FAMILY_GATHERING_SA1_SCREEN: '/sa1/screen',
+  FAMILY_GATHERING_SA1_HOST: '/sa1/host/:token',
+  /** لوحة أدمن لتفويض مضيف sa1 */
+  FAMILY_GATHERING_SA1_ADMIN: '/family-gathering-sa1',
   REGISTER: '/partners/register',
   /** تعليمات طريقة الاشتراك — دليل المتطلبات والإجراءات بجانب نموذج التسجيل */
   REGISTER_GUIDE: '/partners/register/guide',

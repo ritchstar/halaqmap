@@ -1,0 +1,129 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ *
+ * أنماط تجمع عائلي sa1 — محلية للصفحات بلا كروم المنصة.
+ */
+.fg-root {
+  --fg-cream: #fbf6ea;
+  --fg-cream-deep: #f3ead4;
+  --fg-green: #0e4b34;
+  --fg-green-deep: #07301f;
+  --fg-gold: #c9a227;
+  --fg-gold-soft: #e7c767;
+  --fg-text: #1f2a23;
+  --fg-muted: #5c6d63;
+  min-height: 100dvh;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(231, 199, 103, 0.35), transparent 55%),
+    linear-gradient(180deg, var(--fg-cream) 0%, var(--fg-cream-deep) 100%);
+  color: var(--fg-text);
+  font-family: 'Tajawal', 'Segoe UI', system-ui, sans-serif;
+}
+
+.fg-display {
+  font-family: 'Amiri', 'Tajawal', serif;
+}
+
+.fg-kicker {
+  letter-spacing: 0.12em;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--fg-green);
+  text-transform: none;
+}
+
+.fg-card {
+  border: 1px solid rgba(201, 162, 39, 0.45);
+  background: rgba(255, 255, 255, 0.72);
+  border-radius: 1.25rem;
+  backdrop-filter: blur(8px);
+}
+
+.fg-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--fg-green);
+  color: var(--fg-cream);
+  font-weight: 800;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  cursor: pointer;
+}
+
+.fg-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.fg-btn-ghost {
+  background: transparent;
+  color: var(--fg-green);
+  border: 1px solid rgba(14, 75, 52, 0.35);
+}
+
+.fg-input,
+.fg-textarea {
+  width: 100%;
+  border-radius: 0.9rem;
+  border: 1px solid rgba(14, 75, 52, 0.22);
+  background: #fff;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  color: var(--fg-text);
+}
+
+.fg-chip {
+  border-radius: 999px;
+  border: 1px solid rgba(201, 162, 39, 0.55);
+  background: rgba(251, 246, 234, 0.9);
+  padding: 0.45rem 0.9rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--fg-green-deep);
+  cursor: pointer;
+}
+
+.fg-chip.is-active {
+  background: var(--fg-green);
+  color: var(--fg-cream);
+  border-color: var(--fg-green);
+}
+
+.fg-stage-grid {
+  display: grid;
+  gap: 0.85rem;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+}
+
+.fg-ticker {
+  overflow: hidden;
+  white-space: nowrap;
+  border-top: 1px solid rgba(201, 162, 39, 0.35);
+  border-bottom: 1px solid rgba(201, 162, 39, 0.35);
+  background: rgba(14, 75, 52, 0.06);
+  padding: 0.65rem 0;
+}
+
+.fg-ticker-track {
+  display: inline-block;
+  animation: fg-marquee 42s linear infinite;
+  padding-inline-start: 100%;
+}
+
+@keyframes fg-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fg-ticker-track {
+    animation: none;
+    padding-inline-start: 0;
+  }
+}

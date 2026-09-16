@@ -17,10 +17,11 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, X, Send, Users, Bot, MessageCircle, Eye } from 'lucide-react';
 import { ROUTE_PATHS } from '@/lib';
-import { getAdminDashboardPathFor } from '@/config/adminAuth';
+import { getAdminDashboardPathFor, getAdminPortalBasePath } from '@/config/adminAuth';
 import { getSupabaseClient, isSupabaseConfigured } from '@/integrations/supabase/client';
 import { resolveAdminAccess } from '@/lib/adminAccessRemote';
 import { AiStaffControlRoom } from '@/modules/ai-staff/components/AiStaffControlRoom';
+import { Mail } from 'lucide-react';
 
 type AuthPhase = 'loading' | 'ok' | 'denied' | 'nologin';
 
@@ -230,6 +231,17 @@ export default function StaffHubPage() {
                   transition={{ duration: 1.6, repeat: Infinity }}
                   style={{ boxShadow: '0 0 7px rgba(217,70,239,0.9)' }}
                 />
+              </motion.button>
+            )}
+            {isBootstrap && (
+              <motion.button
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.96 }}
+                onClick={() => navigate(`${getAdminPortalBasePath()}/family-gathering-sa1`)}
+                className="flex items-center gap-2 rounded-xl border border-amber-400/40 bg-amber-500/12 px-3.5 py-2 text-xs font-black text-amber-100"
+              >
+                <Mail className="h-3.5 w-3.5" />
+                <span>تجمع sa1</span>
               </motion.button>
             )}
             <button
