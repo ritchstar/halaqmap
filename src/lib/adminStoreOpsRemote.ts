@@ -72,7 +72,7 @@ export async function adminListStoreTrialsRemote(input: {
 
 export async function adminStoreOpsActionRemote(input: {
   accessToken?: string;
-  action: 'issue' | 'approve' | 'decline';
+  action: 'issue' | 'approve' | 'decline' | 'resend_confirm';
   productKey?: StoreProductTrialKey;
   email?: string;
   trialId?: string;

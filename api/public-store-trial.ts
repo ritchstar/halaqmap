@@ -11,7 +11,12 @@ import {
   rejectIfPublicApiCorsBlocked,
 } from './_lib/publicApiCors.js';
 import { recordHoneypotTrip, runSecurityGuard } from './_lib/securityGuard.js';
-import { confirmGeneralTrial, enterGeneralTrial, generalTrialConfirmUrl } from './_lib/storeGeneralTrial.js';
+import {
+  confirmGeneralTrial,
+  declineNotRequestedGeneralTrial,
+  enterGeneralTrial,
+  generalTrialConfirmUrl,
+} from './_lib/storeGeneralTrial.js';
 import { sendGeneralTrialConfirmEmail } from './_lib/storeGeneralTrialMail.js';
 
 export const config = { maxDuration: 30 };
@@ -81,6 +86,11 @@ export async function POST(request: Request): Promise<Response> {
     const confirmed = await confirmGeneralTrial(db, String(body.token || ''));
     if (!confirmed.ok) return json(confirmed, 400, headers);
     return json({ ok: true, confirmed: true }, 200, headers);
+  }
+  if (action === 'not_me') {
+    const declined = await declineNotRequestedGeneralTrial(db, String(body.token || ''));
+    if (!declined.ok) return json(declined, 400, headers);
+    return json({ ok: true, declined: true }, 200, headers);
   }
   const entered = await enterGeneralTrial(db, {
     productKey: body.productKey,

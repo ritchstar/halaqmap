@@ -62,6 +62,7 @@ export const ROUTE_PATHS = {
   STORE_GENERAL_TRIAL: '/store/try',
   STORE_GENERAL_TRIAL_TERMS: '/store/try/terms',
   STORE_GENERAL_TRIAL_CONFIRM: '/store/try/confirm',
+  STORE_GENERAL_TRIAL_NOT_ME: '/store/try/not-me',
   /** اليوم الوطني — صفحة احتفال موسمية */
   STORE_NATIONAL_DAY: '/store/national-day',
   /** تقييمات متجر خريطة الحل — نجوم وتعليق. مستقلة عن /reviews */

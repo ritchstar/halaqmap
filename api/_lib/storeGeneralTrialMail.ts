@@ -29,3 +29,43 @@ export async function sendGeneralTrialConfirmEmail(input: { to: string; confirmU
     html,
   });
 }
+
+export async function sendGeneralTrialConfirmReminderEmail(input: {
+  to: string;
+  confirmUrl: string;
+  notMeUrl: string;
+}): Promise<boolean> {
+  const html = buildStoreMailHtml({
+    theme: 'grocers',
+    kickerAr: 'تذكير — نظام التجربة العام',
+    titleAr: 'بريدك لم يُؤكَّد بعد',
+    leadAr:
+      'وصلنا طلب تجربة باسم بريدك هذا ولم يُؤكَّد بعد. إن كنت أنت من طلبه فاضغط «نعم، أنا من طلب» لإتمامه. إن لم تكن قد طلبت شيئاً من متجر خريطة الحل إطلاقاً، فاضغط «لا، لم أطلب هذا» لإنهاء الطلب فوراً وحماية بريدك — لا تترك الرسالة دون رد.',
+    iconRows: [
+      [
+        {
+          href: input.confirmUrl,
+          markAr: STORE_LINK_ROLE_EMOJI.confirmYes,
+          titleAr: 'نعم، أنا من طلب',
+          captionAr: 'تأكيد البريد وإتمام الطلب',
+          theme: 'grocers',
+        },
+        {
+          href: input.notMeUrl,
+          markAr: STORE_LINK_ROLE_EMOJI.notMe,
+          titleAr: 'لا، لم أطلب هذا',
+          captionAr: 'إنهاء الطلب فوراً',
+          theme: 'grocers',
+        },
+      ],
+    ],
+    notesAr: [
+      'إن لم تضغط أي زر، يبقى الطلب معلَّقاً بلا أثر على بريدك — لا اشتراك ولا رسوم بأي حال.',
+    ],
+  });
+  return sendStoreResendEmail({
+    to: input.to,
+    subject: 'تذكير: هل طلبت تجربة من متجر خريطة الحل؟',
+    html,
+  });
+}

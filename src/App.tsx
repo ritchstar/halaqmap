@@ -69,6 +69,8 @@ const STORE_GENERAL_TRIAL_TERMS_PATH =
   (ROUTE_PATHS as { STORE_GENERAL_TRIAL_TERMS?: string }).STORE_GENERAL_TRIAL_TERMS || "/store/try/terms";
 const STORE_GENERAL_TRIAL_CONFIRM_PATH =
   (ROUTE_PATHS as { STORE_GENERAL_TRIAL_CONFIRM?: string }).STORE_GENERAL_TRIAL_CONFIRM || "/store/try/confirm";
+const STORE_GENERAL_TRIAL_NOT_ME_PATH =
+  (ROUTE_PATHS as { STORE_GENERAL_TRIAL_NOT_ME?: string }).STORE_GENERAL_TRIAL_NOT_ME || "/store/try/not-me";
 const STORE_NATIONAL_DAY_PATH =
   (ROUTE_PATHS as { STORE_NATIONAL_DAY?: string }).STORE_NATIONAL_DAY || "/store/national-day";
 const STORE_REVIEWS_PATH =
@@ -385,6 +387,7 @@ const StoreGiftConfirmPage = lazy(() => import("@/pages/store/StoreGiftConfirmPa
 const StoreGeneralTrialLandingPage = lazy(() => import("@/pages/store/StoreGeneralTrialLandingPage"));
 const StoreGeneralTrialTermsPage = lazy(() => import("@/pages/store/StoreGeneralTrialTermsPage"));
 const StoreGeneralTrialConfirmPage = lazy(() => import("@/pages/store/StoreGeneralTrialConfirmPage"));
+const StoreGeneralTrialNotMePage = lazy(() => import("@/pages/store/StoreGeneralTrialNotMePage"));
 const StoreNationalDayLandingPage = lazy(() => import("@/pages/store/StoreNationalDayLandingPage"));
 const StoreReviewsPage = lazy(() => import("@/pages/store/StoreReviewsPage"));
 const StoreProductPassPage = lazy(() => import("@/pages/store/StoreProductPassPage"));
@@ -985,6 +988,7 @@ export function App() {
           <Route path={STORE_GIFT_TERMS_PATH} element={<LazyRoute><StoreGiftTermsPage /></LazyRoute>} />
           <Route path={STORE_GIFT_PATH} element={<LazyRoute><StoreGiftLandingPage /></LazyRoute>} />
           <Route path={STORE_GENERAL_TRIAL_CONFIRM_PATH} element={<LazyRoute><StoreGeneralTrialConfirmPage /></LazyRoute>} />
+          <Route path={STORE_GENERAL_TRIAL_NOT_ME_PATH} element={<LazyRoute><StoreGeneralTrialNotMePage /></LazyRoute>} />
           <Route path={STORE_GENERAL_TRIAL_TERMS_PATH} element={<LazyRoute><StoreGeneralTrialTermsPage /></LazyRoute>} />
           <Route path={STORE_GENERAL_TRIAL_PATH} element={<LazyRoute><StoreGeneralTrialLandingPage /></LazyRoute>} />
           <Route path={STORE_NATIONAL_DAY_PATH} element={<LazyRoute><StoreNationalDayLandingPage /></LazyRoute>} />

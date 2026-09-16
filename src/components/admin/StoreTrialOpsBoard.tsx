@@ -203,6 +203,22 @@ export function StoreTrialOpsBoard({
     void refresh({ silent: true });
   }
 
+  async function resendConfirm(row: StoreOpsTrialRow) {
+    setBusyKey(`resend:${row.id}`);
+    const res = await adminStoreOpsActionRemote({
+      accessToken,
+      action: 'resend_confirm',
+      trialId: row.id,
+    });
+    setBusyKey('');
+    if (!res.ok) {
+      toast.error(storeOpsActionErrorAr(res.error));
+      return;
+    }
+    toast.success('أُرسل تذكير تأكيد البريد.');
+    void refresh({ silent: true });
+  }
+
   async function decline(row: StoreOpsTrialRow) {
     setBusyKey(row.id);
     const res = await adminStoreOpsActionRemote({
@@ -261,6 +277,14 @@ export function StoreTrialOpsBoard({
                       </p>
                     ) : null}
                     <p className="mt-2 text-xs text-amber-200/80">{statusLabel(row.status)}</p>
+                    <button
+                      type="button"
+                      disabled={busyKey === `resend:${row.id}` || listBusy}
+                      onClick={() => void resendConfirm(row)}
+                      className="mt-3 rounded-lg border border-amber-300/35 bg-amber-400/10 px-3 py-1.5 text-xs font-bold text-amber-100 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {busyKey === `resend:${row.id}` ? 'جاري الإرسال…' : '✉️ إعادة إرسال تأكيد البريد'}
+                    </button>
                   </li>
                 );
               })}

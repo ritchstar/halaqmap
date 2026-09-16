@@ -17,6 +17,13 @@ import {
   trialOrderTable,
   type StoreProductTrialKey,
 } from './_lib/storeProductTrial.js';
+import {
+  generalTrialConfirmUrl,
+  generalTrialNotMeUrl,
+  mintGeneralTrialConfirmToken,
+  mintGeneralTrialNotMeToken,
+} from './_lib/storeGeneralTrial.js';
+import { sendGeneralTrialConfirmReminderEmail } from './_lib/storeGeneralTrialMail.js';
 
 export const config = { maxDuration: 30 };
 
@@ -185,6 +192,35 @@ export async function POST(request: Request): Promise<Response> {
 
   const { data: existing } = await db.from(STORE_PRODUCT_TRIAL_TABLE).select('*').eq('id', id).maybeSingle();
   if (!existing) return Response.json({ ok: false, error: 'الطلب غير موجود.' }, { status: 404, headers });
+
+  if (action === 'resend_confirm') {
+    if (String(existing.status) !== 'pending_confirm') {
+      return Response.json({ ok: false, error: 'الطلب ليس بانتظار تأكيد البريد.' }, { status: 409, headers });
+    }
+    const email = normalizeTrialEmail(existing.beneficiary_email);
+    if (!isTrialEmail(email)) {
+      return Response.json({ ok: false, error: 'بريد المستفيد غير صالح.' }, { status: 400, headers });
+    }
+    const confirmMinted = mintGeneralTrialConfirmToken({ trialId: id, email });
+    const notMeMinted = mintGeneralTrialNotMeToken({ trialId: id, email });
+    if (!confirmMinted.ok) {
+      return Response.json({ ok: false, error: confirmMinted.error }, { status: 500, headers });
+    }
+    if (!notMeMinted.ok) {
+      return Response.json({ ok: false, error: notMeMinted.error }, { status: 500, headers });
+    }
+    const mailed = await sendGeneralTrialConfirmReminderEmail({
+      to: email,
+      confirmUrl: generalTrialConfirmUrl(confirmMinted.token),
+      notMeUrl: generalTrialNotMeUrl(notMeMinted.token),
+    });
+    if (!mailed) {
+      return Response.json({ ok: false, error: 'تعذر إرسال رسالة التذكير.' }, { status: 503, headers });
+    }
+    await db.from(STORE_PRODUCT_TRIAL_TABLE).update({ updated_at: new Date().toISOString() }).eq('id', id);
+    return Response.json({ ok: true }, { headers });
+  }
+
   if (String(existing.status) !== 'pending_review') {
     return Response.json({ ok: false, error: 'الطلب ليس قيد التشاور.' }, { status: 409, headers });
   }

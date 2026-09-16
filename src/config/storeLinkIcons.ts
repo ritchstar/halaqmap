@@ -46,6 +46,8 @@ export const STORE_LINK_ROLE_EMOJI = {
   screenQuiet: '🤫',
   screenMenu: '📜',
   emailConfirm: '✉️',
+  confirmYes: '✅',
+  notMe: '🚫',
   gift: '🎁',
   storeHome: '🏪',
   affiliateLogin: '🔑',

@@ -42,3 +42,20 @@ export async function confirmStoreGeneralTrial(token: string): Promise<{ ok: boo
     return { ok: false, error: 'تعذر الاتصال.' };
   }
 }
+
+export async function declineStoreGeneralTrial(token: string): Promise<{ ok: boolean; error?: string }> {
+  try {
+    const res = await fetch(PATH, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'not_me', token }),
+    });
+    const data = await readJson(res);
+    if (!res.ok || data.ok === false) {
+      return { ok: false, error: typeof data.error === 'string' ? data.error : 'تعذر إنهاء الطلب.' };
+    }
+    return { ok: true };
+  } catch {
+    return { ok: false, error: 'تعذر الاتصال.' };
+  }
+}
