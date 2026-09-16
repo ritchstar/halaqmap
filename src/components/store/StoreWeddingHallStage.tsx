@@ -11,13 +11,11 @@ import {
   weddingWelcomeSetCount,
 } from '@/config/storeWeddingWelcomeSets';
 import { StoreHallNoticePlaque } from '@/components/store/StoreHallNoticePlaque';
-import { StoreHallOrnamentFrame } from '@/components/store/StoreHallOrnamentFrame';
 import { StoreHallVideoWell } from '@/components/store/StoreHallVideoWell';
 import { StoreLivePanoramaCycle } from '@/components/store/StoreLivePanoramaCycle';
 import { StoreShot } from '@/components/store/StoreShot';
 import { StoreWeddingMapsPin } from '@/components/store/StoreWeddingMapsPin';
 import { STORE_HALL_FESTIVE_FRAMES } from '@/config/storeMarketingReels';
-import { STORE_HALL_SCREEN_FRAME } from '@/config/storeHallFrames';
 import type { WeddingLiveLabState } from '@/lib/storeWeddingLiveLab';
 import { weddingBlessingIsPublic } from '@/lib/storeWeddingLiveLab';
 import {
@@ -118,8 +116,6 @@ export function StoreWeddingHallStage({
       {!customPageBg ? <StoreLivePanoramaCycle frames={STORE_HALL_FESTIVE_FRAMES} /> : null}
       {/* غلاف ضوئي عاجي دافئ بدل التعتيم الأسود القديم — يبقي صورة القاعة مضiئة وواضحة. */}
       <div className="absolute inset-0 bg-gradient-to-b from-[#FFFBF0]/55 via-[#FFFBF0]/25 to-[#FFFBF0]/50" />
-      {/* إطار ذهبي مزدوج يطوّق الشاشة كاملة — مستوحى من أبواب القصور. */}
-      <StoreHallOrnamentFrame src={STORE_HALL_SCREEN_FRAME} className="z-[12]" />
 
       <div
         className={cn(

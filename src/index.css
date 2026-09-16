@@ -3921,8 +3921,9 @@ html.platform-radar-fullscreen #root {
 
 .wedding-hall-video-well__media {
   position: absolute;
-  inset: 9% 8%;
+  inset: 0;
   overflow: hidden;
+  border-radius: 1rem;
   background: #050505;
 }
 

@@ -5,13 +5,11 @@
  */
 import { STORE_EVENT_LIVE, eventLiveAccent } from '@/config/storeEventLive';
 import { StoreHallNoticePlaque } from '@/components/store/StoreHallNoticePlaque';
-import { StoreHallOrnamentFrame } from '@/components/store/StoreHallOrnamentFrame';
 import { StoreHallVideoWell } from '@/components/store/StoreHallVideoWell';
 import { StoreLivePanoramaCycle } from '@/components/store/StoreLivePanoramaCycle';
 import { StoreShot } from '@/components/store/StoreShot';
 import { StoreWeddingMapsPin } from '@/components/store/StoreWeddingMapsPin';
 import { STORE_HALL_FESTIVE_FRAMES } from '@/config/storeMarketingReels';
-import { STORE_HALL_SCREEN_FRAME } from '@/config/storeHallFrames';
 import type { EventLiveLabState } from '@/lib/storeEventLiveLab';
 import { eventHostInviteLine, eventPlaceLine, safeMapsHref, youtubeEmbedSrc } from '@/lib/storeEventLiveLab';
 import { resolveShopHeaderCoverStyle, shopBackgroundStyle } from '@/lib/storeShopBackground';
@@ -56,12 +54,6 @@ export function StoreEventHallStage({
       {!customPageBg ? <StoreLivePanoramaCycle frames={STORE_HALL_FESTIVE_FRAMES} /> : null}
       {/* غلاف ضوئي بنفسجي-عاجي دافئ بدل التعتيم الأسود القديم — يبقي صورة القاعة مضiئة وواضحة. */}
       <div className="absolute inset-0 bg-gradient-to-b from-[#FBF6FF]/55 via-[#FBF6FF]/25 to-[#FBF6FF]/50" />
-      {/* نفس إطار أفراحي1 الذهبي، بفلتر لوني يحوّله إلى بنفسجي احتفالي مميّز. */}
-      <StoreHallOrnamentFrame
-        src={STORE_HALL_SCREEN_FRAME}
-        className="z-[12]"
-        style={{ filter: 'hue-rotate(230deg) saturate(0.85) brightness(1.04)' }}
-      />
 
       <div className="relative z-10 flex min-h-[36rem] flex-col gap-4 p-4 pt-5 sm:p-6 sm:pt-7 md:min-h-[42rem] md:p-8">
         {state.host.announcement.trim() ? (

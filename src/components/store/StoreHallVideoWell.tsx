@@ -1,10 +1,8 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
- * شاشة القاعة في الوسط: يوتيوب يعمل داخل إطار ذهبي.
+ * شاشة القاعة في الوسط: يوتيوب بلا إطار زخرفي فوق الصورة.
  */
-import { STORE_HALL_SCREEN_FRAME } from '@/config/storeHallFrames';
-import { StoreHallOrnamentFrame } from '@/components/store/StoreHallOrnamentFrame';
 import { StoreHallYoutubePlayer } from '@/components/store/StoreHallYoutubePlayer';
 import type { ReactNode } from 'react';
 
@@ -29,7 +27,6 @@ export function StoreHallVideoWell({
             fallback
           )}
         </div>
-        <StoreHallOrnamentFrame src={STORE_HALL_SCREEN_FRAME} className="z-[4]" />
       </div>
     </div>
   );
