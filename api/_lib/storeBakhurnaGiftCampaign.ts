@@ -16,6 +16,7 @@ import {
 } from './storeBakhurnaLive.js';
 import { DEFAULT_STORE_SHOP_HOURS } from './storeShopHours.js';
 import { DEFAULT_SHOP_PICKUP } from './storeShopPlace.js';
+import { DEFAULT_SHOP_SHIPPING } from './storeShopShipping.js';
 import { sendBakhurnaLiveLinksEmail } from './storeBakhurnaLiveMail.js';
 import { storeLiveShopShareHref } from './storeLiveShopShare.js';
 
@@ -177,13 +178,14 @@ export function bakhurnaGiftPayload(input: { shopName: string; hostName: string 
     chatIncluded: true,
     chats: [],
     ...DEFAULT_SHOP_PICKUP,
+    ...DEFAULT_SHOP_SHIPPING,
     vendorMode: 'fixed',
     ...DEFAULT_STORE_SHOP_HOURS,
     gift: true,
     giftLabelAr: STORE_BAKHURNA_GIFT_LABEL_AR,
     issuedByLabel: STORE_BAKHURNA_GIFT_ISSUED_BY,
     giftClockFromFirstVisit: true,
-  } as BakhurnaLiveOrderPayload;
+  };
 }
 
 export async function issueBakhurnaGiftShop(
