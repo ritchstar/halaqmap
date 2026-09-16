@@ -92,8 +92,9 @@ const DATES_GENERATED = [
   '/images/store/dates/dates-08.jpg',
 ] as const;
 
+/** صور تسويق تمرتنا1 — لقطة ميدانية حقيقية ثم أصناف التمر. */
 export const STORE_DATES_MARKETING_FRAMES = [
-  '/images/store/dates-hero-marketing.jpg',
+  '/images/store/dates/dates-field-snapshot-scene.jpg',
   ...DATES_GENERATED,
 ] as const;
 

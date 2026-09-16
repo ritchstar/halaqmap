@@ -176,7 +176,7 @@ export const STORE_LANDING_COPY = {
   produceLiveLeadAr: 'اعرض المتوفر واستقبل طلبات الحي بوضوح.',
   produceLiveCtaAr: 'افتح خضارنا1',
   datesLiveTitleAr: 'تمرتنا1',
-  datesLiveLeadAr: 'اعرض أصناف التمر وصناديق الهدايا واستقبل طلبات الحي.',
+  datesLiveLeadAr: 'اعرض أصناف التمر وصناديق الهدايا، وافتح مزاداً علنياً، واستقبل طلبات الحي والشحن.',
   datesLiveCtaAr: 'افتح تمرتنا1',
   /** بنية تحتية أولية قيد التقييم والتطوير — راجع docs/bakhurna1-backend-todo.md */
   bakhurnaLiveTitleAr: 'بخورنا1',

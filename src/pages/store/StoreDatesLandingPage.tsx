@@ -20,6 +20,7 @@ import { StoreLandingFold } from '@/components/store/StoreLandingFold';
 import {
   STORE_DATES_LIVE,
   STORE_DATES_LIVE_FEATURES,
+  STORE_DATES_ITEM_IMAGES,
   STORE_DATES_LIVE_LAB_TOKEN,
   STORE_DATES_LIVE_PUBLIC_ENABLED,
 } from '@/config/storeDatesLive';
@@ -88,7 +89,11 @@ export default function StoreDatesLandingPage() {
             </div>
           </div>
           <figure className="overflow-hidden rounded-2xl border border-[#8A6239]/35 bg-[#1a140c]">
-            <StoreShot reel="dates" alt={STORE_DATES_LIVE.heroAltAr} className="aspect-[16/10] w-full" />
+            <StoreShot
+              srcs={[STORE_DATES_LIVE.heroImage, ...STORE_DATES_ITEM_IMAGES]}
+              alt={STORE_DATES_LIVE.heroAltAr}
+              className="aspect-[16/10] w-full"
+            />
             <figcaption className="border-t border-[#8A6239]/20 bg-[#1a140c] px-5 py-4">
               <p className="text-xl font-black">{STORE_DATES_LIVE.heroCaptionAr}</p>
               <p className="mt-2 text-sm leading-7 text-white/70">{STORE_DATES_LIVE.qrPhraseAr}</p>
@@ -154,6 +159,34 @@ export default function StoreDatesLandingPage() {
                   </li>
                 ))}
               </ul>
+            </div>
+            <div>
+              <h2 className="text-base font-extrabold text-[#f4efe4]">{STORE_DATES_LIVE.auctionTitleAr}</h2>
+              <p className={`mt-2 ${prose}`}>{STORE_DATES_LIVE.auctionLeadAr}</p>
+              <h3 className="mt-5 text-sm font-extrabold text-[#8A6239]">{STORE_DATES_LIVE.auctionOpsTitleAr}</h3>
+              <ol className="mt-3 max-w-xl space-y-3">
+                {STORE_DATES_LIVE.auctionOpsSteps.map((step, index) => (
+                  <li key={step.titleAr} className="rounded-xl border border-[#8A6239]/25 bg-[#8A6239]/8 px-4 py-3">
+                    <p className="text-sm font-extrabold text-[#f0e2cc]">
+                      {index + 1}. {step.titleAr}
+                    </p>
+                    <p className={`mt-1 ${proseSm}`}>{step.bodyAr}</p>
+                  </li>
+                ))}
+              </ol>
+              <h3 className="mt-5 text-sm font-extrabold text-[#8A6239]">{STORE_DATES_LIVE.auctionUseTitleAr}</h3>
+              <ol className="mt-3 max-w-xl space-y-3">
+                {STORE_DATES_LIVE.auctionUseSteps.map((step, index) => (
+                  <li key={step.titleAr} className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3">
+                    <p className="text-sm font-extrabold text-white/90">
+                      {index + 1}. {step.titleAr}
+                    </p>
+                    <p className={`mt-1 ${proseSm}`}>{step.bodyAr}</p>
+                  </li>
+                ))}
+              </ol>
+              <p className={`mt-4 ${proseSm} font-bold text-[#f0e2cc]`}>{STORE_DATES_LIVE.auctionDisclaimerAr}</p>
+              <p className={`mt-3 ${proseSm}`}>{STORE_DATES_LIVE.shippingFeatureLineAr}</p>
             </div>
           </StoreLandingFold>
         </div>
