@@ -434,7 +434,7 @@ export function DatesChatlyDesk({
                     copy="أنشئ صناديق بصور وفيديو، انشر الرابط لمن تعتمدهم، وأغلق المزاد يدوياً عند استقرار السومة."
                   />
                   <div className="mt-7">
-                    <DatesAuctionDesk deskToken={token} shopToken={token} />
+                    <DatesAuctionDesk deskToken={token} shopToken={token} shopUrl={shopUrl} />
                   </div>
                 </>
               ) : null}

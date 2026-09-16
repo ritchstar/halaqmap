@@ -180,7 +180,7 @@ export default function StoreDatesAuctionPage() {
           {gate === 'loading' ? <p className="text-sm text-[#79674f]">جاري التحميل…</p> : null}
           {!openLots.length && !closedLots.length && gate === 'ok' ? (
             <p className="rounded-2xl border border-[#dac8aa] bg-[#f9f4ea] p-5 text-sm leading-7 text-[#79674f]">
-              لا صناديق مفتوحة الآن. انتظر نشر المشغّل أو أعد فتح الرابط لاحقاً.
+              لا صناديق مفتوحة الآن. من لوحة التشغيل: اضغط «حفظ ونشر الآن» أو «نشر الصندوق» على المسودة، ثم حدّث هذه الصفحة.
             </p>
           ) : null}
           {openLots.map((lot) => (

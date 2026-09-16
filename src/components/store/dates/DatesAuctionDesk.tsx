@@ -31,13 +31,25 @@ import { storeLiveShopShareHref } from '@/lib/storeHostRedirect';
 export function DatesAuctionDesk({
   deskToken,
   shopToken,
+  shopUrl = '',
 }: {
   deskToken: string;
   shopToken: string;
+  shopUrl?: string;
 }) {
   const isLab = deskToken === STORE_DATES_LIVE_LAB_TOKEN || shopToken === STORE_DATES_LIVE_LAB_TOKEN;
+  const tokenFromShopUrl = (() => {
+    try {
+      const path = new URL(shopUrl || 'https://store.halaqmap.com/t/x').pathname;
+      const parts = path.split('/').filter(Boolean);
+      const idx = parts.indexOf('t');
+      return idx >= 0 ? decodeURIComponent(parts[idx + 1] || '') : '';
+    } catch {
+      return '';
+    }
+  })();
   const [lots, setLots] = useState<AuctionLot[]>([]);
-  const [shareToken, setShareToken] = useState(shopToken || deskToken);
+  const [shareToken, setShareToken] = useState(tokenFromShopUrl || shopToken || deskToken);
   const [titleAr, setTitleAr] = useState('');
   const [descriptionAr, setDescriptionAr] = useState('');
   const [videoUrl, setVideoUrl] = useState('');
@@ -46,8 +58,12 @@ export function DatesAuctionDesk({
   const [photoSrcs, setPhotoSrcs] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);
   const [hint, setHint] = useState('');
-  const publicShopToken = shareToken || shopToken || deskToken;
+  const publicShopToken = shareToken || tokenFromShopUrl || shopToken || deskToken;
   const auctionUrl = `${storeLiveShopShareHref('dates', publicShopToken)}/auction`;
+
+  useEffect(() => {
+    if (tokenFromShopUrl) setShareToken(tokenFromShopUrl);
+  }, [tokenFromShopUrl]);
 
   useEffect(() => {
     let cancelled = false;
@@ -83,10 +99,8 @@ export function DatesAuctionDesk({
     setPhotoSrcs(next.slice(0, 6));
   }
 
-  async function createLot() {
-    setBusy(true);
-    setHint('');
-    const payload = {
+  function buildPayload() {
+    return {
       titleAr: titleAr.trim(),
       descriptionAr: descriptionAr.trim(),
       videoUrl: videoUrl.trim(),
@@ -94,41 +108,77 @@ export function DatesAuctionDesk({
       minIncrement: Math.floor(Number(minIncrement) || 10),
       photoSrcs,
     };
+  }
+
+  function resetForm() {
+    setTitleAr('');
+    setDescriptionAr('');
+    setVideoUrl('');
+    setPhotoSrcs([]);
+  }
+
+  async function refreshLots() {
+    if (isLab) {
+      setLots(readDatesAuctionLabLots(deskToken));
+      return;
+    }
+    const desk = await fetchDatesAuctionDesk(deskToken);
+    if (desk.ok && Array.isArray(desk.lots)) setLots(desk.lots as AuctionLot[]);
+  }
+
+  async function createLot(publish: boolean) {
+    setBusy(true);
+    setHint('');
+    const payload = buildPayload();
     if (payload.titleAr.length < 2 || payload.startingPrice < 1) {
       setBusy(false);
       setHint('العنوان والسعر الابتدائي مطلوبان');
       return;
     }
     if (isLab) {
-      labCreateLot(deskToken, payload);
-      setLots(readDatesAuctionLabLots(deskToken));
-      setTitleAr('');
-      setDescriptionAr('');
-      setVideoUrl('');
-      setPhotoSrcs([]);
-      setHint('أُنشئ الصندوق كمسودة');
+      const created = labCreateLot(deskToken, payload);
+      if (publish) labOpenLot(deskToken, created.id);
+      resetForm();
+      await refreshLots();
+      setHint(
+        publish
+          ? 'نُشر الصندوق — يظهر الآن في صفحة المزاد. حدّث صفحة المزاد إن كانت مفتوحة.'
+          : 'أُنشئ كمسودة فقط — لن يظهر للزائر حتى تضغط «نشر الصندوق».',
+      );
       setBusy(false);
       return;
     }
     const result = await createDatesAuctionLot(deskToken, payload);
-    setBusy(false);
     if (!result.ok) {
+      setBusy(false);
       setHint(String(result.error || 'تعذّر الإنشاء'));
       return;
     }
-    setTitleAr('');
-    setDescriptionAr('');
-    setVideoUrl('');
-    setPhotoSrcs([]);
-    setHint('أُنشئ الصندوق كمسودة');
-    const desk = await fetchDatesAuctionDesk(deskToken);
-    if (desk.ok && Array.isArray(desk.lots)) setLots(desk.lots as AuctionLot[]);
+    const createdId = String((result.lot as AuctionLot | undefined)?.id || '');
+    if (publish && createdId) {
+      const opened = await openDatesAuctionLot(deskToken, createdId);
+      if (!opened.ok) {
+        setBusy(false);
+        setHint(String(opened.error || 'حُفظت المسودة لكن تعذّر النشر'));
+        await refreshLots();
+        return;
+      }
+    }
+    resetForm();
+    await refreshLots();
+    setHint(
+      publish
+        ? 'نُشر الصندوق — يظهر الآن في صفحة المزاد. حدّث صفحة المزاد إن كانت مفتوحة.'
+        : 'أُنشئ كمسودة فقط — لن يظهر للزائر حتى تضغط «نشر الصندوق».',
+    );
+    setBusy(false);
   }
 
   async function openLot(lotId: string) {
     if (isLab) {
       labOpenLot(deskToken, lotId);
       setLots(readDatesAuctionLabLots(deskToken));
+      setHint('نُشر الصندوق — يظهر الآن في صفحة المزاد.');
       return;
     }
     const result = await openDatesAuctionLot(deskToken, lotId);
@@ -136,8 +186,8 @@ export function DatesAuctionDesk({
       setHint(String(result.error || 'تعذّر النشر'));
       return;
     }
-    const desk = await fetchDatesAuctionDesk(deskToken);
-    if (desk.ok && Array.isArray(desk.lots)) setLots(desk.lots as AuctionLot[]);
+    await refreshLots();
+    setHint('نُشر الصندوق — يظهر الآن في صفحة المزاد. حدّث صفحة المزاد إن كانت مفتوحة.');
   }
 
   async function closeLot(lotId: string) {
@@ -151,8 +201,7 @@ export function DatesAuctionDesk({
       setHint(String(result.error || 'تعذّر الإغلاق'));
       return;
     }
-    const desk = await fetchDatesAuctionDesk(deskToken);
-    if (desk.ok && Array.isArray(desk.lots)) setLots(desk.lots as AuctionLot[]);
+    await refreshLots();
   }
 
   const draft = lots.filter((lot) => lot.status === 'draft');
@@ -164,7 +213,7 @@ export function DatesAuctionDesk({
       <section className="rounded-2xl border border-[#dac8aa] bg-[#f9f4ea] p-5">
         <h3 className="font-black text-[#2e2418]">رابط المزاد العام</h3>
         <p className="mt-2 text-sm leading-7 text-[#79674f]">
-          أرسل هذا الرابط لمن تعتمدهم للمزاودة فقط. لا يظهر في فهرس عام.
+          أرسل هذا الرابط لمن تعتمدهم للمزاودة فقط. لا يظهر في فهرس عام. المسودات لا تظهر هنا — فقط الصناديق المنشورة.
         </p>
         <a href={auctionUrl} target="_blank" rel="noreferrer" className="mt-3 inline-flex break-all text-sm font-bold text-[#8a6239] underline">
           {auctionUrl}
@@ -182,6 +231,9 @@ export function DatesAuctionDesk({
 
       <section className="rounded-2xl border border-[#dac8aa] bg-[#f9f4ea] p-5">
         <h3 className="font-black text-[#2e2418]">صندوق مزاد جديد</h3>
+        <p className="mt-2 text-sm leading-7 text-[#79674f]">
+          اختر «حفظ ونشر» ليظهر فوراً في صفحة المزاد، أو «مسودة» للتحضير دون عرض عام.
+        </p>
         <div className="mt-4 space-y-3">
           <label className="block text-xs font-bold text-[#6f6250]">
             العنوان
@@ -216,22 +268,38 @@ export function DatesAuctionDesk({
               ))}
             </div>
           ) : null}
-          <Button
-            type="button"
-            disabled={busy}
-            onClick={() => void createLot()}
-            className="h-11 rounded-xl px-5 text-sm font-black text-white"
-            style={{ background: STORE_DATES_LIVE_ACCENT }}
-          >
-            حفظ كمسودة
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button
+              type="button"
+              disabled={busy}
+              onClick={() => void createLot(true)}
+              className="h-11 rounded-xl px-5 text-sm font-black text-white"
+              style={{ background: STORE_DATES_LIVE_ACCENT }}
+            >
+              حفظ ونشر الآن
+            </Button>
+            <Button
+              type="button"
+              disabled={busy}
+              onClick={() => void createLot(false)}
+              className="h-11 rounded-xl border border-[#dac8aa] bg-white px-5 text-sm font-bold text-[#6f4a26] shadow-none"
+            >
+              حفظ كمسودة
+            </Button>
+          </div>
         </div>
       </section>
 
       {hint ? <p className="text-sm font-bold text-[#8a6239]">{hint}</p> : null}
 
-      <LotGroup title="مفتوحة الآن" lots={open} onOpen={openLot} onClose={closeLot} showClose />
-      <LotGroup title="مسودات" lots={draft} onOpen={openLot} onClose={closeLot} showOpen />
+      <LotGroup title="مفتوحة الآن (تظهر للزائر)" lots={open} onOpen={openLot} onClose={closeLot} showClose />
+      <LotGroup
+        title="مسودات (لا تظهر للزائر حتى تنشرها)"
+        lots={draft}
+        onOpen={openLot}
+        onClose={closeLot}
+        showOpen
+      />
       <LotGroup title="مغلقة" lots={closed} onOpen={openLot} onClose={closeLot} archive />
 
       <p role="note" className="rounded-2xl border border-[#dac8aa] bg-[#f3e6cf] p-4 text-sm leading-7 text-[#6f4a26]">
