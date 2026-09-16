@@ -5,7 +5,6 @@
  */
 import { STORE_EVENT_LIVE, STORE_EVENT_LIVE_STYLES, eventLiveStyles } from '@/config/storeEventLive';
 import { StoreHallAtmosphere } from '@/components/store/StoreHallAtmosphere';
-import { StoreInviteCardFrame } from '@/components/store/StoreInviteCardFrame';
 import { StoreWeddingMapsPin } from '@/components/store/StoreWeddingMapsPin';
 import { inviteCardPhotoSrc } from '@/lib/downloadInviteCardAsPng';
 import { cn } from '@/lib/utils';
@@ -53,7 +52,6 @@ export function StoreEventInviteCard({
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-transparent" />
       {still ? null : <StoreHallAtmosphere voice={voice} />}
-      <StoreInviteCardFrame accent={style.accent} />
       <div className="absolute inset-x-0 bottom-0 p-5">
         <div
           className={cn(
