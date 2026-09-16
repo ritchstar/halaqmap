@@ -1,7 +1,8 @@
 # بخورنا1 — بنية تحتية أولية: ما اكتمل وما تبقّى لكرسور
 
 تاريخ الإنشاء: 2026-09-14
-الحالة: **بنية تحتية أولية قابلة للتقييم والتطوير** — واجهة العميل ولوحة التشغيل تعملان فعلياً محلياً (بيانات المتصفح فقط)، بلا خادم أو بوابة دفع حقيقية بعد.
+آخر تحديث: 2026-09-16
+الحالة: **الربط الخلفي (أ) و(ب) مكتمل** — صفحة العميل ولوحة التشغيل تحفظان على الخادم للرموز الحقيقية؛ `bakhurna-lab` معاينة محلية فقط.
 
 هذا المستند يشرح ما تم بناؤه فعلياً لمنتج **بخورنا1** (محل بخور وعود وعطور في الحي)، وما تبقّى من عمل خلفي (Supabase / Vercel API / Moyasar) لتفعيله كمنتج كامل يماثل باقي منتجات "منصة خريطة الحل" الحيّة (تمرتنا1، خضارنا1، تمويناتا1...).
 
@@ -26,8 +27,9 @@
 
 ### الصفحات والتوجيه
 - `src/pages/store/StoreBakhurnaLandingPage.tsx` — صفحة الهبوط (بلا دعوات تجربة أو دفع فعلية؛ تعرض المعاينة الحيّة مباشرة).
-- `src/pages/store/StoreBakhurnaShopPage.tsx` — صفحة المتجر/اللوحة الموحّدة، **تعمل حصرياً عبر بيانات المتصفح (Lab state)** — لا استدعاء شبكة إطلاقاً.
-- مسارات جديدة في `src/lib/routePaths.ts`: `STORE_BAKHURNA` (`/store/bakhurna`)، `STORE_BAKHURNA_VIEW` (`/b/:token`)، `STORE_BAKHURNA_DESK` (`/b/:token/desk`). حرف المسار `/b` تم التحقق أنه غير مستخدم من قبل.
+- `src/pages/store/StoreBakhurnaShopPage.tsx` — متجر/لوحة: `bakhurna-lab` محلي؛ الرموز الحقيقية عبر `api/public-store-bakhurna-live`.
+- مسارات: `STORE_BAKHURNA` (`/store/bakhurna`)، `STORE_BAKHURNA_VIEW` (`/b/:token`)، `STORE_BAKHURNA_DESK` (`/b/:token/desk`).
+- معرض صور الأصناف: `public/images/store/bakhurna/gallery/01.jpg` … `24.jpg`.
 - تسجيل في `src/App.tsx` (استيراد كسول + Route لكل مسار).
 - بطاقة تصفح في صفحة الهبوط العامة `src/pages/store/StoreLanding.tsx`.
 
@@ -55,16 +57,16 @@
 
 ## 3) ما تبقّى لتفعيله كمنتج حقيقي (مهمة Cursor / المطوّر الخلفي)
 
-هذا القسم يسرد الفجوة بين "بنية تحتية أولية تعمل محلياً" و"منتج مباع بالكامل" مثل تمرتنا1 الحالي:
+### أ) الخادم وقاعدة البيانات (Supabase) — مكتمل
+1. ~~إنشاء جداول Supabase لـ `store_bakhurna_live`~~ → جدول `store_bakhurna_live_orders` (هجرة `20260914120000_store_bakhurna_live.sql`) مع RLS لـ `service_role`.
+2. ~~`src/lib/storeBakhurnaLiveRemote.ts`~~ مطابق لتمرتنا1.
+3. ~~`api/public-store-bakhurna-live.ts`~~ مع إجراءات `create_pending` / `activate_paid` / `sync_paid` / `get_public` / `add_order` / `save_host` / `add_chat`. صور أصناف الرف `photoSrc` تُرفع إلى سطل `store-shop-media` عند الحفظ إن كانت base64.
 
-### أ) الخادم وقاعدة البيانات (Supabase)
-1. إنشاء جداول Supabase لـ `store_bakhurna_live` تماثل بنية `store_dates_live` (host, shelf, orders, orderArchive, chats)، مع صلاحيات RLS مناسبة.
-2. كتابة `src/lib/storeBakhurnaLiveRemote.ts` مطابق لـ `src/lib/storeDatesLiveRemote.ts` (`fetchBakhurnaLivePublic`, `addBakhurnaLiveOrder`, `addBakhurnaLiveChat`, `saveBakhurnaLiveHost`).
-3. إضافة نقاط `/api/store-bakhurna-live/...` في Vercel (أو التوسعة على نقاط `store-dates-live` الحالية بشكل عام إن كانت قابلة للتعميم).
+### ب) دمج الخادم في صفحة المتجر — مكتمل
+4. ~~`StoreBakhurnaShopPage.tsx`~~: بوابة `gate`، `useStoreLiveDeskSync`، استطلاع، و`bakhurna-lab` محلي دائماً.
+5. ~~`deskSync.scheduleSave` → `saveBakhurnaLiveHost`~~ مع `deskToken` من الاستجابة و`saveStatus` في اللوحة.
 
-### ب) دمج الخادم في صفحة المتجر
-4. تعديل `src/pages/store/StoreBakhurnaShopPage.tsx` ليماثل منطق `StoreDatesShopPage.tsx` الكامل: حالة `gate` (loading/ok/expired/missing)، `useStoreLiveDeskSync`، `scheduleVisiblePoll`، والتفريق بين "الرمز التجريبي bakhurna-lab" (محلي دائماً) و"الرموز الحقيقية" (عبر الخادم). حالياً الصفحة **تعمل بالوضع المحلي فقط لكل الرموز** — يجب تفعيل الفرع البعيد.
-5. ربط `deskSync.scheduleSave` بحفظ لوحة التشغيل على الخادم (مثل `saveDatesLiveHost`).
+صور المعرض الثابتة: `public/images/store/bakhurna/gallery/01.jpg` … `24.jpg` (من مجلد `bokorna`).
 
 ### ج) نظام التجربة والتمديد المدفوع
 6. إضافة `bakhurna` إلى `STORE_PRODUCT_TRIAL_PRODUCTS` (`src/config/storeProductTrial.ts`) إن رُغب بتفعيل تجربة 60 يوماً مثل باقي المنتجات (المرجع `STORE_BAKHURNA_TRIAL_DAYS = 60` معرّف مسبقاً في `storeBakhurnaLive.ts`).
@@ -81,7 +83,7 @@
 14. تفعيل `bakhurna` في نظام "الطلب العام" العام (Enterprise Direct) إن لزم تخصيص إضافي — حالياً يستخدم البريد العام بنجاح.
 
 ### هـ) الصور والمحتوى التسويقي
-15. استبدال الصور التجريدية المولّدة (`bakhurna-hero-marketing.jpg`, `bakhurna-01..04.jpg`) بصور حقيقية بجودة إنتاجية.
+15. استبدال صور الغلاف التجريدية (`bakhurna-hero-marketing.jpg`, `bakhurna-01..04.jpg`) بصور حقيقية بجودة إنتاجية عند الرغبة — منفصل عن صور أصناف الرف في `gallery/`.
 16. مراجعة نصوص `STORE_BAKHURNA_LIVE` (خصوصاً الأسعار الافتراضية للأصناف في `storeBakhurnaCatalog.ts`) مقابل أسعار السوق الفعلية.
 
 ### و) اختبار الطرف إلى طرف
@@ -90,4 +92,4 @@
 
 ## 4) ملخص الحالة الحالية بجملة واحدة
 
-**الواجهة الأمامية لبخورنا1 (عميل + لوحة تشغيل) جاهزة وتعمل بالكامل كمعاينة محلية تفاعلية؛ المتبقي هو الربط الخلفي (قاعدة بيانات، تجربة مدفوعة، بوابة دفع) لتحويلها من "بنية تحتية قابلة للتقييم" إلى "منتج مباع فعلياً" بنفس مستوى تمرتنا1.**
+**الربط الخلفي لبخورنا1 (جدول + API + حفظ اللوحة + صور الرف) جاهز؛ المتبقي اختياري: تجربة مدفوعة/ميسر وصفحات الدعم والتسجيل لدى SAIP.**

@@ -683,6 +683,18 @@ async function saveHost(db: Db, body: Record<string, unknown>, headers: Record<s
   next.logoSrc = nextLogoSrc;
   next.shopHeaderBg = nextShopHeaderBg;
   next.shopPageBg = nextShopPageBg;
+  if (Array.isArray(next.shelf)) {
+    next.shelf = await Promise.all(
+      next.shelf.map(async (raw, idx) => {
+        if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return raw;
+        const item = raw as Record<string, unknown>;
+        const photoSrc = String(item.photoSrc || '');
+        if (!photoSrc.startsWith('data:image/')) return item;
+        const stored = await persistShopImageIfBase64(db, String(row.id), `shelf-${idx}`, photoSrc);
+        return { ...item, photoSrc: stored };
+      }),
+    );
+  }
   await db
     .from(STORE_BAKHURNA_LIVE_TABLE)
     .update({ payload: next, last_public_change_at: new Date().toISOString(), updated_at: new Date().toISOString() })

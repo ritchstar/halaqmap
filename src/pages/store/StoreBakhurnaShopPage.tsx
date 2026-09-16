@@ -81,6 +81,7 @@ export default function StoreBakhurnaShopPage() {
   const [gate, setGate] = useState<Gate>(isLab ? 'ok' : 'loading');
   const deskSync = useStoreLiveDeskSync(desk && !isLab);
   const [renewToken, setRenewToken] = useState('');
+  const [deskSaveToken, setDeskSaveToken] = useState(safeToken);
   const [giftNotice, setGiftNotice] = useState<{ expiresAt: string; shopToken: string } | null>(null);
   const [shopUrl, setShopUrl] = useState(storeLiveShopShareHref('bakhurna', safeToken));
   useDocumentTitle(STORE_BAKHURNA_LIVE.documentTitle);
@@ -119,6 +120,9 @@ export default function StoreBakhurnaShopPage() {
         const payload = result.payload as Record<string, unknown>;
         setState((current) => deskSync.applyPoll(current, payloadToState(payload, current)));
         if (typeof result.shopUrl === 'string' && result.shopUrl) setShopUrl(result.shopUrl);
+        if (desk && typeof result.deskToken === 'string' && result.deskToken.trim()) {
+          setDeskSaveToken(result.deskToken.trim());
+        }
         if (payload.gift === true) {
           setGiftNotice({
             expiresAt: String(result.expiresAt || ''),
@@ -152,7 +156,7 @@ export default function StoreBakhurnaShopPage() {
     if (desk) {
       deskSync.scheduleSave(next, (saved) =>
         saveBakhurnaLiveHost({
-          token: safeToken,
+          token: deskSaveToken || safeToken,
           ...saved.host,
           shelf: saved.shelf,
           orders: saved.orders,
@@ -193,7 +197,14 @@ export default function StoreBakhurnaShopPage() {
       {gate === 'ok' || isLab ? (
         desk ? (
           <div className="-mx-3 sm:-mx-4">
-            <BakhurnaChatlyDesk state={state} onChange={commit} shopUrl={shopUrl} token={safeToken} gift={giftNotice} />
+            <BakhurnaChatlyDesk
+              state={state}
+              onChange={commit}
+              shopUrl={shopUrl}
+              token={safeToken}
+              gift={giftNotice}
+              saveStatus={deskSync.saveStatus}
+            />
           </div>
         ) : (
           <div className="-mx-3 sm:-mx-4">

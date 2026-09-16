@@ -111,6 +111,7 @@ const DEMO_IDS = [
 export function defaultBakhurnaLabState(): BakhurnaLabState {
   const shelf = DEMO_IDS.map((id, index) => {
     const item = bakhurnaCatalogById(id) || STORE_BAKHURNA_CATALOG[index];
+    const galleryN = String(index + 1).padStart(2, '0');
     return {
       catalogId: item.id,
       nameAr: item.nameAr,
@@ -120,6 +121,7 @@ export function defaultBakhurnaLabState(): BakhurnaLabState {
       inStock: true,
       arrivedToday: index < 4,
       featured: index === 4 || index === 5,
+      photoSrc: `/images/store/bakhurna/gallery/${galleryN}.jpg`,
     };
   });
   return {
