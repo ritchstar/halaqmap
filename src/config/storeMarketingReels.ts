@@ -97,13 +97,16 @@ export const STORE_DATES_MARKETING_FRAMES = [
   ...DATES_GENERATED,
 ] as const;
 
-/** بنية تحتية أولية قيد التقييم والتطوير — راجع docs/bakhurna1-backend-todo.md. */
+/** صور تسويق بخورنا1 — من معرض الأصناف الحقيقي (مجلد gallery). */
 export const STORE_BAKHURNA_MARKETING_FRAMES = [
-  '/images/store/bakhurna-hero-marketing.jpg',
-  '/images/store/bakhurna/bakhurna-01.jpg',
-  '/images/store/bakhurna/bakhurna-02.jpg',
-  '/images/store/bakhurna/bakhurna-03.jpg',
-  '/images/store/bakhurna/bakhurna-04.jpg',
+  '/images/store/bakhurna/gallery/01.jpg',
+  '/images/store/bakhurna/gallery/05.jpg',
+  '/images/store/bakhurna/gallery/08.jpg',
+  '/images/store/bakhurna/gallery/12.jpg',
+  '/images/store/bakhurna/gallery/03.jpg',
+  '/images/store/bakhurna/gallery/15.jpg',
+  '/images/store/bakhurna/gallery/20.jpg',
+  '/images/store/bakhurna/gallery/22.jpg',
 ] as const;
 
 export const STORE_RESTAURANT_MARKETING_FRAMES = [

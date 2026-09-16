@@ -230,9 +230,9 @@ export const STORE_BAKHURNA_LIVE = {
   labDemoNameAr: 'عميل تجريبي',
   labDemoPhoneAr: '05XXXXXXXX',
   labDemoPlaceAr: 'موقع تجريبي داخل نطاق التوصيل',
-  heroImage: '/images/store/bakhurna-hero-marketing.jpg',
+  heroImage: '/images/store/bakhurna/gallery/01.jpg',
   heroCaptionAr: 'من محل البخور إلى جوال الحي',
-  heroAltAr: 'محل بخور وعود جاهز للطلب من الجوال',
+  heroAltAr: 'بخور وعود من رفوف المحل جاهز للطلب من الجوال',
   checkoutClosedAr: 'بوابة الدفع غير مفتوحة لهذا المنتج بعد.',
   orderConsentAr:
     'أوافق على شروط الخدمة وسياسة الخصوصية، وأفهم أن المبلغ خاص باشتراك بخورنا1 ولا يشمل قيمة طلبات عملاء النشاط.',
@@ -284,10 +284,29 @@ export const STORE_BAKHURNA_LIVE_DEMO = {
 } as const;
 
 export const STORE_BAKHURNA_ITEM_IMAGES = [
-  '/images/store/bakhurna/bakhurna-01.jpg',
-  '/images/store/bakhurna/bakhurna-02.jpg',
-  '/images/store/bakhurna/bakhurna-03.jpg',
-  '/images/store/bakhurna/bakhurna-04.jpg',
+  '/images/store/bakhurna/gallery/01.jpg',
+  '/images/store/bakhurna/gallery/02.jpg',
+  '/images/store/bakhurna/gallery/03.jpg',
+  '/images/store/bakhurna/gallery/04.jpg',
+  '/images/store/bakhurna/gallery/05.jpg',
+  '/images/store/bakhurna/gallery/06.jpg',
+  '/images/store/bakhurna/gallery/07.jpg',
+  '/images/store/bakhurna/gallery/08.jpg',
+  '/images/store/bakhurna/gallery/09.jpg',
+  '/images/store/bakhurna/gallery/10.jpg',
+  '/images/store/bakhurna/gallery/11.jpg',
+  '/images/store/bakhurna/gallery/12.jpg',
+  '/images/store/bakhurna/gallery/13.jpg',
+  '/images/store/bakhurna/gallery/14.jpg',
+  '/images/store/bakhurna/gallery/15.jpg',
+  '/images/store/bakhurna/gallery/16.jpg',
+  '/images/store/bakhurna/gallery/17.jpg',
+  '/images/store/bakhurna/gallery/19.jpg',
+  '/images/store/bakhurna/gallery/20.jpg',
+  '/images/store/bakhurna/gallery/21.jpg',
+  '/images/store/bakhurna/gallery/22.jpg',
+  '/images/store/bakhurna/gallery/23.jpg',
+  '/images/store/bakhurna/gallery/24.jpg',
 ] as const;
 
 export function bakhurnaCatalogImage(index: number): string {
