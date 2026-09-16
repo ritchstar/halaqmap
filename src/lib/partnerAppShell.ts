@@ -2,6 +2,7 @@
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
 import { isPartnerAppFinancialPath } from '@/config/partnerAppShell';
+import { getSiteOrigin } from '@/config/siteOrigin';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 
 const EXTERNAL_BREAKOUT_GUARD_PREFIX = 'hm-partner-external-breakout:';
@@ -38,26 +39,44 @@ export function isPartnerAppShell(): boolean {
       window.matchMedia('(display-mode: minimal-ui)').matches;
     const iosStandalone =
       (window.navigator as Navigator & { standalone?: boolean }).standalone === true;
-    // لا نعتمد referrer وحدها — Custom Tab قد يحمل android-app:// ويُظهر شريط «افتح في المتصفح» بالخطأ.
+    // لا نعتمد referrer وحدها — Custom Tab قد يحمل android-app:// ويُظهر الشريط بالخطأ.
     return standalone || iosStandalone;
   } catch {
     return false;
   }
 }
 
-/** رابط مطلق لمسار HashRouter */
+/** رابط مطلق لمسار HashRouter — يفضّل أصل المنصة العام (www) للخروج من الغلاف. */
 export function buildAbsoluteAppHashUrl(pathWithSearch: string): string {
-  const origin = window.location.origin.replace(/\/$/, '');
+  const origin =
+    typeof window !== 'undefined'
+      ? getSiteOrigin() || window.location.origin.replace(/\/$/, '')
+      : 'https://www.halaqmap.com';
   const raw = pathWithSearch.startsWith('/') ? pathWithSearch : `/${pathWithSearch}`;
-  return `${origin}/#${raw}`;
+  return `${origin.replace(/\/$/, '')}/#${raw}`;
+}
+
+function clickSchemeOrUrl(href: string): boolean {
+  try {
+    const anchor = document.createElement('a');
+    anchor.href = href;
+    anchor.rel = 'noopener noreferrer';
+    anchor.style.display = 'none';
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 /**
- * يفتح رابطاً في المتصفح الخارجي (Chrome Intent على أندرويد، نافذة جديدة وإلا).
- * يُستخدم للدفع والرخص من داخل PWA/TWA.
+ * يفتح رابطاً في متصفح خارجي حقيقي من داخل PWA/TWA.
  *
- * مهم: في `intent://` الفاصل `#Intent` يبتلع أي `#` في المسار — لذلك نرمّز
- * جزء الـ HashRouter إلى `%23` وإلا يهتز الغلاف ولا يُفتح Chrome.
+ * لا تستخدم `intent://https://www.halaqmap.com/...` — Digital Asset Links تعيد
+ * فتح تطبيق الصالون نفسه فيبدو أن الصفحة «تعود لنفسها».
+ * على أندرويد نستخدم `googlechrome://navigate` لفرض Chrome الكامل.
  */
 export function openInExternalBrowser(url: string): boolean {
   if (typeof window === 'undefined') return false;
@@ -75,19 +94,20 @@ export function openInExternalBrowser(url: string): boolean {
 
     const ua = navigator.userAgent || '';
     if (/android/i.test(ua)) {
-      const parsed = new URL(absolute);
-      const pathAndQuery = `${parsed.pathname || '/'}${parsed.search}`;
-      const fragment = parsed.hash ? parsed.hash.replace(/^#/, '') : '';
-      // %23 بدل # حتى لا يتعارض مع فاصل Intent
-      const hostPath = fragment
-        ? `${parsed.host}${pathAndQuery}%23${fragment}`
-        : `${parsed.host}${pathAndQuery}`;
-      const fallback = encodeURIComponent(absolute);
-      const intent =
-        `intent://${hostPath}#Intent;scheme=https;action=android.intent.action.VIEW;` +
-        `package=com.android.chrome;S.browser_fallback_url=${fallback};end`;
-      window.location.href = intent;
-      return true;
+      const encoded = encodeURIComponent(absolute);
+      // 1) Chrome الكامل — يتجاوز ربط TWA لنفس النطاق
+      if (clickSchemeOrUrl(`googlechrome://navigate?url=${encoded}`)) {
+        return true;
+      }
+      // 2) Intent يفتح تطبيق Chrome صراحةً بمخطط googlechrome (لا https على النطاق المرتبط)
+      const chromeIntent =
+        `intent://navigate?url=${encoded}` +
+        `#Intent;scheme=googlechrome;package=com.android.chrome;` +
+        `S.browser_fallback_url=${encoded};end`;
+      if (clickSchemeOrUrl(chromeIntent)) {
+        return true;
+      }
+      return false;
     }
 
     const opened = window.open(absolute, '_blank', 'noopener,noreferrer');
@@ -100,16 +120,7 @@ export function openInExternalBrowser(url: string): boolean {
       return true;
     }
 
-    // iOS PWA غالباً يمنع window.open — رابط مؤقت بنفس إيماءة المستخدم
-    const anchor = document.createElement('a');
-    anchor.href = absolute;
-    anchor.target = '_blank';
-    anchor.rel = 'noopener noreferrer';
-    anchor.style.display = 'none';
-    document.body.appendChild(anchor);
-    anchor.click();
-    anchor.remove();
-    return true;
+    return clickSchemeOrUrl(absolute);
   } catch {
     return false;
   }
