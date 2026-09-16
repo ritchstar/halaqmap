@@ -112,7 +112,6 @@ import { ListingLicenseIssuePanel } from '@/components/admin/ListingLicenseIssue
 import { FounderCompActivatePanel } from '@/components/admin/FounderCompActivatePanel';
 import { BronzeTrialCodesPanel } from '@/components/admin/BronzeTrialCodesPanel';
 import { BronzeTrialApplicationsPanel } from '@/components/admin/BronzeTrialApplicationsPanel';
-import { EnterpriseAnchorCohortPanel } from '@/components/admin/EnterpriseAnchorCohortPanel';
 import { AmbassadorApplicationsPanel } from '@/components/admin/AmbassadorApplicationsPanel';
 import { StoreAffiliateApplicationsPanel } from '@/components/admin/StoreAffiliateApplicationsPanel';
 import { GoogleAdsCampaignPanel } from '@/components/admin/GoogleAdsCampaignPanel';
@@ -1246,7 +1245,6 @@ export default function AdminDashboard() {
                   تقييمات المتجر: النجوم والتعليق
                   {storeReviewCounts.unseen > 0 ? ` · غير مقروء ${storeReviewCounts.unseen}` : ''}
                 </button>
-                <EnterpriseAnchorCohortPanel accessToken={adminAccessToken} />
                 <BronzeTrialApplicationsPanel accessToken={adminAccessToken} />
                 <BronzeTrialCodesPanel accessToken={adminAccessToken} />
                 <ListingLicenseIssuePanel accessToken={adminAccessToken} />

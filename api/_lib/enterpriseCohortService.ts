@@ -5,10 +5,7 @@
  * خدمة برنامج الشريك المرجعي — منح مقاعد ماسي+مناوب مستقلة لكل فرع.
  */
 import type { SupabaseClient } from '@supabase/supabase-js';
-import {
-  ANCHOR_EXPIRY_WARN_DAYS,
-  ANCHOR_PARTNER_AL_ENWAN_SLUG,
-} from './enterpriseCohortPolicy.js';
+import { ANCHOR_EXPIRY_WARN_DAYS } from './enterpriseCohortPolicy.js';
 import {
   creditBarberListingEntitlement,
   enableDigitalShiftAddonForBarber,
@@ -628,6 +625,7 @@ export async function buildCohortHqReport(
   };
 }
 
+/** لا شريك افتراضي بعد إزالة صالون العنوان — المستدعي يستخدم أول مجموعة إن وُجدت. */
 export function resolveDefaultCohortSlug(): string {
-  return ANCHOR_PARTNER_AL_ENWAN_SLUG;
+  return '';
 }

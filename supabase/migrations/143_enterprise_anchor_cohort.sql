@@ -115,6 +115,7 @@ CREATE INDEX IF NOT EXISTS enterprise_cohort_seats_expires_idx
   WHERE status = 'activated' AND expires_at IS NOT NULL;
 
 -- بذرة صالون العنوان + 12 مقعداً
+-- ملاحظة: الشريك أُزيل لاحقاً بهجرة 208_remove_al_enwan_anchor_partner.sql
 INSERT INTO public.enterprise_partner_cohorts (
   slug,
   name_ar,
