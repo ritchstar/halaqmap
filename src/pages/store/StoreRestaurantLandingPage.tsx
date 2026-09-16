@@ -8,7 +8,6 @@ import { Link, Navigate } from 'react-router-dom';
 import { ChevronDown } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { StoreVisitorFooter, StoreVisitorHeader, StoreVisitorShell } from '@/components/store/StoreChrome';
-import { StoreEnterpriseDirectMail } from '@/components/store/StoreEnterpriseDirectMail';
 import { StoreProductBenefitsLink } from '@/components/store/StoreProductBenefitsLink';
 import { StoreProductSupportLink } from '@/components/store/StoreProductSupportLink';
 import { StoreProductReadLink } from '@/components/store/StoreProductReadLink';
@@ -97,11 +96,6 @@ export default function StoreRestaurantLandingPage() {
                 className="w-full justify-center border-[#e08a3c]/50 text-[#e08a3c] sm:w-auto"
               />
             </div>
-            <StoreEnterpriseDirectMail
-              className="mt-5 max-w-xl"
-              linkClassName="text-[#e08a3c]"
-              productTitleAr={STORE_RESTAURANT_LIVE.titleAr}
-            />
           </div>
           <figure className="overflow-hidden rounded-2xl border border-[#e08a3c]/35 bg-[#1a1008]">
             <StoreShot reel="restaurant" alt={STORE_RESTAURANT_LIVE.heroAltAr} className="aspect-[16/10] w-full" />

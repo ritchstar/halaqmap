@@ -8,7 +8,6 @@ import { Link, Navigate } from 'react-router-dom';
 import { ChevronDown } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { StoreVisitorFooter, StoreVisitorHeader, StoreVisitorShell } from '@/components/store/StoreChrome';
-import { StoreEnterpriseDirectMail } from '@/components/store/StoreEnterpriseDirectMail';
 import { StoreGrocersOrderForm } from '@/components/store/StoreGrocersOrderForm';
 import { StoreProductBenefitsLink } from '@/components/store/StoreProductBenefitsLink';
 import { StoreProductSupportLink } from '@/components/store/StoreProductSupportLink';
@@ -94,11 +93,6 @@ export default function StoreGrocersLandingPage() {
               <StoreProductBenefitsLink />
               <StoreProductSupportLink to={ROUTE_PATHS.STORE_GROCERS_SUPPORT} className="border-[#8fbf7a]/50 text-[#8fbf7a]" />
             </div>
-            <StoreEnterpriseDirectMail
-              className="mt-5 max-w-xl"
-              linkClassName="text-[#8fbf7a]"
-              productTitleAr={STORE_GROCERS_LIVE.titleAr}
-            />
           </div>
           <figure className="overflow-hidden rounded-2xl border border-[#8fbf7a]/35 bg-[#07140e]">
             <StoreShot reel="grocers" alt={STORE_GROCERS_LIVE.heroAltAr} className="aspect-[16/10] w-full" />

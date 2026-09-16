@@ -8,7 +8,6 @@ import { Link, Navigate } from 'react-router-dom';
 import { ChevronDown } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { StoreVisitorFooter, StoreVisitorHeader, StoreVisitorShell } from '@/components/store/StoreChrome';
-import { StoreEnterpriseDirectMail } from '@/components/store/StoreEnterpriseDirectMail';
 import { StoreHalanaOrderForm } from '@/components/store/StoreHalanaOrderForm';
 import { StoreProductBenefitsLink } from '@/components/store/StoreProductBenefitsLink';
 import { StoreProductSupportLink } from '@/components/store/StoreProductSupportLink';
@@ -73,11 +72,6 @@ export default function StoreHalanaLandingPage() {
               <StoreProductBenefitsLink />
               <StoreProductSupportLink to={ROUTE_PATHS.STORE_HALANA_SUPPORT} className="border-[#c45c7a]/50 text-[#c45c7a]" />
             </div>
-            <StoreEnterpriseDirectMail
-              className="mt-5 max-w-xl"
-              linkClassName="text-[#c45c7a]"
-              productTitleAr={STORE_HALANA_LIVE.titleAr}
-            />
           </div>
           <figure className="overflow-hidden rounded-2xl border border-[#c45c7a]/35 bg-[#1a0c10]">
             <StoreShot

@@ -8,7 +8,6 @@ import { Link, Navigate } from 'react-router-dom';
 import { ChevronDown } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { StoreVisitorFooter, StoreVisitorHeader, StoreVisitorShell } from '@/components/store/StoreChrome';
-import { StoreEnterpriseDirectMail } from '@/components/store/StoreEnterpriseDirectMail';
 import { StoreDatesOrderForm } from '@/components/store/StoreDatesOrderForm';
 import { StoreProductBenefitsLink } from '@/components/store/StoreProductBenefitsLink';
 import { StoreProductSupportLink } from '@/components/store/StoreProductSupportLink';
@@ -87,11 +86,6 @@ export default function StoreDatesLandingPage() {
                 className="border-[#8A6239]/50 text-[#8A6239]"
               />
             </div>
-            <StoreEnterpriseDirectMail
-              className="mt-5 max-w-xl"
-              linkClassName="text-[#8A6239]"
-              productTitleAr={STORE_DATES_LIVE.titleAr}
-            />
           </div>
           <figure className="overflow-hidden rounded-2xl border border-[#8A6239]/35 bg-[#1a140c]">
             <StoreShot reel="dates" alt={STORE_DATES_LIVE.heroAltAr} className="aspect-[16/10] w-full" />

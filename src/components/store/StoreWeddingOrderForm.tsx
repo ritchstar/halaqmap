@@ -5,7 +5,6 @@
  */
 import { useMemo, useState } from 'react';
 import { StoreCheckoutLegalConsent } from '@/components/store/StoreCheckoutLegalConsent';
-import { StoreEnterpriseDirectMail } from '@/components/store/StoreEnterpriseDirectMail';
 import {
   STORE_WEDDING_LIVE_CHECKOUT_ENABLED,
   STORE_WEDDING_LIVE_DEMO,
@@ -258,11 +257,6 @@ export function StoreWeddingOrderForm({ voice = 'men' }: { voice?: StoreWeddingL
       >
         {busy ? 'جاري تجهيز بوابة الدفع…' : `${copy.orderSubmitAr} · ${STORE_WEDDING_LIVE_PRICE_SAR} ر.س`}
       </button>
-      <StoreEnterpriseDirectMail
-        className="mt-4"
-        linkClassName={text}
-        productTitleAr={copy.titleAr}
-      />
     </form>
   );
 }

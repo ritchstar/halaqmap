@@ -4,7 +4,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { StoreCheckoutLegalConsent } from '@/components/store/StoreCheckoutLegalConsent';
-import { StoreEnterpriseDirectMail } from '@/components/store/StoreEnterpriseDirectMail';
 import { StoreVendorPathPicker } from '@/components/store/StoreVendorPathPicker';
 import {
   STORE_GROCERS_LIVE,
@@ -197,11 +196,6 @@ export function StoreGrocersOrderForm({
         {busy ? 'جاري تجهيز بوابة الدفع…' : `${STORE_GROCERS_LIVE.orderSubmitAr} · ${totalSar} ر.س`}
       </button>
       <p className="mt-2 text-xs leading-6 text-white/50">{STORE_GROCERS_LIVE.orderScopeAr}</p>
-      <StoreEnterpriseDirectMail
-        className="mt-4"
-        linkClassName="text-[#8fbf7a]"
-        productTitleAr={STORE_GROCERS_LIVE.titleAr}
-      />
     </form>
   );
 }

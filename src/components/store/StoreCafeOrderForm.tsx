@@ -3,7 +3,6 @@
  */
 import { useState } from 'react';
 import { StoreCheckoutLegalConsent } from '@/components/store/StoreCheckoutLegalConsent';
-import { StoreEnterpriseDirectMail } from '@/components/store/StoreEnterpriseDirectMail';
 import { StoreVendorPathPicker } from '@/components/store/StoreVendorPathPicker';
 import {
   STORE_CAFE_LIVE,
@@ -109,11 +108,6 @@ export function StoreCafeOrderForm({ renewToken = '' }: { renewToken?: string })
       >
         {busy ? 'جاري تجهيز بوابة الدفع…' : `${STORE_CAFE_LIVE.orderSubmitAr} · ${pack.priceSar} ر.س`}
       </button>
-      <StoreEnterpriseDirectMail
-        className="mt-4"
-        linkClassName="text-[#c48a4a]"
-        productTitleAr={STORE_CAFE_LIVE.titleAr}
-      />
     </form>
   );
 }

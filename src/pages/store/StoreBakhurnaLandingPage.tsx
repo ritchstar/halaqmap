@@ -10,7 +10,6 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { StoreVisitorFooter, StoreVisitorHeader, StoreVisitorShell } from '@/components/store/StoreChrome';
 import { StoreBakhurnaGiftPromoBanner } from '@/components/store/StoreBakhurnaGiftPromoBanner';
 import { StoreBakhurnaOrderForm } from '@/components/store/StoreBakhurnaOrderForm';
-import { StoreEnterpriseDirectMail } from '@/components/store/StoreEnterpriseDirectMail';
 import { StoreProductBenefitsLink } from '@/components/store/StoreProductBenefitsLink';
 import { StoreShot } from '@/components/store/StoreShot';
 import { StoreBakhurnaStudio } from '@/components/store/bakhurna/BakhurnaStudio';
@@ -80,11 +79,6 @@ export default function StoreBakhurnaLandingPage() {
               </Link>
               <StoreProductBenefitsLink />
             </div>
-            <StoreEnterpriseDirectMail
-              className="mt-5 max-w-xl"
-              linkClassName="text-[#6E4A26]"
-              productTitleAr={STORE_BAKHURNA_LIVE.titleAr}
-            />
           </div>
           <figure className="overflow-hidden rounded-2xl border border-[#6E4A26]/35 bg-[#1a140c]">
             <StoreShot reel="bakhurna" alt={STORE_BAKHURNA_LIVE.heroAltAr} className="aspect-[16/10] w-full" />

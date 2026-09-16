@@ -4,7 +4,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { StoreCheckoutLegalConsent } from '@/components/store/StoreCheckoutLegalConsent';
-import { StoreEnterpriseDirectMail } from '@/components/store/StoreEnterpriseDirectMail';
 import { StoreVendorPathPicker } from '@/components/store/StoreVendorPathPicker';
 import {
   STORE_BAKHURNA_LIVE,
@@ -126,11 +125,6 @@ export function StoreBakhurnaOrderForm({ renewToken = '' }: { renewToken?: strin
         {busy ? 'جاري تجهيز بوابة الدفع…' : `${STORE_BAKHURNA_LIVE.orderSubmitAr} · ${pack.priceSar} ر.س`}
       </button>
       <p className="mt-2 text-xs leading-6 text-white/50">لا يُخلط هذا الاشتراك بفاتورة الرخصة أو خضارنا1 أو تمويناتا1.</p>
-      <StoreEnterpriseDirectMail
-        className="mt-4"
-        linkClassName="text-[#6E4A26]"
-        productTitleAr={STORE_BAKHURNA_LIVE.titleAr}
-      />
     </form>
   );
 }

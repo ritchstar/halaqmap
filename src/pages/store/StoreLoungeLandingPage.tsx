@@ -12,7 +12,6 @@ import {
   StoreVisitorHeader,
   StoreVisitorShell,
 } from '@/components/store/StoreChrome';
-import { StoreEnterpriseDirectMail } from '@/components/store/StoreEnterpriseDirectMail';
 import { StoreProductBenefitsLink } from '@/components/store/StoreProductBenefitsLink';
 import { StoreProductSupportLink } from '@/components/store/StoreProductSupportLink';
 import { StoreProductReadLink } from '@/components/store/StoreProductReadLink';
@@ -105,11 +104,6 @@ export default function StoreLoungeLandingPage() {
               <StoreProductBenefitsLink />
               <StoreProductSupportLink to={ROUTE_PATHS.STORE_LOUNGE_SUPPORT} className="border-[#d4a574]/50 text-[#d4a574]" />
             </div>
-            <StoreEnterpriseDirectMail
-              className="mt-5 max-w-xl"
-              linkClassName="text-[#d4a574]"
-              productTitleAr={STORE_LOUNGE_LIVE.titleAr}
-            />
             <Collapsible open={termsOpen} onOpenChange={setTermsOpen} className="mt-6">
               <CollapsibleTrigger
                 type="button"

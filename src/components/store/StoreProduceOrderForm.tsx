@@ -4,7 +4,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { StoreCheckoutLegalConsent } from '@/components/store/StoreCheckoutLegalConsent';
-import { StoreEnterpriseDirectMail } from '@/components/store/StoreEnterpriseDirectMail';
 import { StoreVendorPathPicker } from '@/components/store/StoreVendorPathPicker';
 import {
   STORE_PRODUCE_LIVE,
@@ -126,11 +125,6 @@ export function StoreProduceOrderForm({ renewToken = '' }: { renewToken?: string
         {busy ? 'جاري تجهيز بوابة الدفع…' : `${STORE_PRODUCE_LIVE.orderSubmitAr} · ${pack.priceSar} ر.س`}
       </button>
       <p className="mt-2 text-xs leading-6 text-white/50">لا يُخلط هذا الاشتراك بفاتورة الرخصة أو تمويناتا1 أو طبختنا1.</p>
-      <StoreEnterpriseDirectMail
-        className="mt-4"
-        linkClassName="text-[#3d8b4a]"
-        productTitleAr={STORE_PRODUCE_LIVE.titleAr}
-      />
     </form>
   );
 }

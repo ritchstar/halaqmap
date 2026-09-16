@@ -5,7 +5,6 @@
  */
 import { useState } from 'react';
 import { StoreCheckoutLegalConsent } from '@/components/store/StoreCheckoutLegalConsent';
-import { StoreEnterpriseDirectMail } from '@/components/store/StoreEnterpriseDirectMail';
 import {
   STORE_LOUNGE_LIVE,
   STORE_LOUNGE_LIVE_CHECKOUT_ENABLED,
@@ -164,11 +163,6 @@ export function StoreLoungeOrderForm({ renewToken = '' }: { renewToken?: string 
       >
         {busy ? 'جاري تجهيز بوابة الدفع…' : `${STORE_LOUNGE_LIVE.orderSubmitAr} · ${pack.priceSar} ر.س`}
       </button>
-      <StoreEnterpriseDirectMail
-        className="mt-4"
-        linkClassName="text-[#d4a574]"
-        productTitleAr={STORE_LOUNGE_LIVE.titleAr}
-      />
     </form>
   );
 }

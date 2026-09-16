@@ -9,7 +9,6 @@ import { ChevronDown } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { StoreVisitorFooter, StoreVisitorHeader, StoreVisitorShell } from '@/components/store/StoreChrome';
 import { StoreKitchenGiftPromoBanner } from '@/components/store/StoreKitchenGiftPromoBanner';
-import { StoreEnterpriseDirectMail } from '@/components/store/StoreEnterpriseDirectMail';
 import { StoreKitchenOrderForm } from '@/components/store/StoreKitchenOrderForm';
 import { StoreProductBenefitsLink } from '@/components/store/StoreProductBenefitsLink';
 import { StoreProductSupportLink } from '@/components/store/StoreProductSupportLink';
@@ -125,11 +124,6 @@ export default function StoreKitchenLandingPage() {
               ))}
             </ul>
             </StoreLandingFold>
-            <StoreEnterpriseDirectMail
-              className="mt-4 max-w-xl"
-              linkClassName="text-[#b45a3c]"
-              productTitleAr={STORE_KITCHEN_LIVE.titleAr}
-            />
             <div className="mt-5 flex flex-wrap gap-2">
               {STORE_KITCHEN_LIVE_PACKS.map((pack) => (
                 <span key={pack.id} className="rounded-full border border-[#b45a3c]/35 px-3 py-1 text-xs text-[#b45a3c]">

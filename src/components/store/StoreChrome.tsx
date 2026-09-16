@@ -21,6 +21,7 @@ import { isStoreProductLandingPath } from '@/lib/storeHmTube';
 import { cn } from '@/lib/utils';
 import { useEffect, type ReactNode } from 'react';
 import { PlatformContinuousDevelopmentNotice } from '@/components/platform/PlatformContinuousDevelopmentNotice';
+import { StoreEnterpriseDirectMail } from '@/components/store/StoreEnterpriseDirectMail';
 
 export function StoreVisitorShell({ children }: { children: ReactNode }) {
   useEffect(() => {
@@ -162,6 +163,9 @@ export function StoreVisitorHeader() {
 }
 
 export function StoreVisitorFooter() {
+  const location = useLocation();
+  const onStoreLanding = location.pathname === ROUTE_PATHS.STORE_LANDING;
+
   return (
     <footer className="border-t border-white/10 px-4 py-8">
       <div className="mx-auto flex max-w-5xl flex-col gap-4">
@@ -241,6 +245,9 @@ export function StoreVisitorFooter() {
             <span dir="ltr">{STORE_CONTACT_X_HANDLE}</span>
           </a>
         </div>
+        {onStoreLanding ? (
+          <StoreEnterpriseDirectMail className="text-white/65" linkClassName="text-[#e8c547]" />
+        ) : null}
         <p className="text-xs leading-relaxed text-white/45">{STORE_LANDING_COPY.footerLegal}</p>
         <p className="text-xs leading-relaxed text-white/45">{STORE_SAIP_COPY.footerLeadAr}</p>
         <ul className="flex flex-wrap gap-x-4 gap-y-1 text-xs leading-6 text-white/40">

@@ -5,7 +5,6 @@
  */
 import { useState } from 'react';
 import { StoreCheckoutLegalConsent } from '@/components/store/StoreCheckoutLegalConsent';
-import { StoreEnterpriseDirectMail } from '@/components/store/StoreEnterpriseDirectMail';
 import {
   STORE_EVENT_LIVE_CHECKOUT_ENABLED,
   STORE_EVENT_LIVE_DEMO,
@@ -192,11 +191,6 @@ export function StoreEventOrderForm({ voice = 'men' }: { voice?: StoreEventLiveV
       >
         {busy ? 'جاري تجهيز بوابة الدفع…' : `${copy.orderSubmitAr} · ${STORE_EVENT_LIVE_PRICE_SAR} ر.س`}
       </button>
-      <StoreEnterpriseDirectMail
-        className="mt-4"
-        linkClassName={text}
-        productTitleAr={copy.titleAr}
-      />
     </form>
   );
 }

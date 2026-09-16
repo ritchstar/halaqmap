@@ -3,7 +3,6 @@
  */
 import { useState } from 'react';
 import { StoreCheckoutLegalConsent } from '@/components/store/StoreCheckoutLegalConsent';
-import { StoreEnterpriseDirectMail } from '@/components/store/StoreEnterpriseDirectMail';
 import {
   STORE_HALANA_LIVE,
   STORE_HALANA_LIVE_CHECKOUT_ENABLED,
@@ -113,11 +112,6 @@ export function StoreHalanaOrderForm({ renewToken = '' }: { renewToken?: string 
           </>
         )}
       </button>
-      <StoreEnterpriseDirectMail
-        className="mt-4"
-        linkClassName="text-[#c45c7a]"
-        productTitleAr={STORE_HALANA_LIVE.titleAr}
-      />
     </form>
   );
 }

@@ -12,7 +12,6 @@ import {
   StoreVisitorHeader,
   StoreVisitorShell,
 } from '@/components/store/StoreChrome';
-import { StoreEnterpriseDirectMail } from '@/components/store/StoreEnterpriseDirectMail';
 import { StoreGiftPromoBanner } from '@/components/store/StoreGiftPromoBanner';
 import { StoreProductBenefitsLink } from '@/components/store/StoreProductBenefitsLink';
 import { StoreProductSupportLink } from '@/components/store/StoreProductSupportLink';
@@ -127,11 +126,6 @@ export default function StoreWeddingLandingPage() {
                 {sisterLabel}
               </Link>
             </div>
-            <StoreEnterpriseDirectMail
-              className="mt-5 max-w-xl"
-              linkClassName={text}
-              productTitleAr={copy.titleAr}
-            />
           </div>
           <div className="space-y-4">
             <figure className="overflow-hidden rounded-2xl border border-white/12">

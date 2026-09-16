@@ -3,7 +3,6 @@
  */
 import { useEffect, useState } from 'react';
 import { StoreCheckoutLegalConsent } from '@/components/store/StoreCheckoutLegalConsent';
-import { StoreEnterpriseDirectMail } from '@/components/store/StoreEnterpriseDirectMail';
 import { StoreVendorPathPicker } from '@/components/store/StoreVendorPathPicker';
 import {
   STORE_RESTAURANT_LIVE,
@@ -146,11 +145,6 @@ export function StoreRestaurantOrderForm({ renewToken = '' }: { renewToken?: str
           </>
         )}
       </button>
-      <StoreEnterpriseDirectMail
-        className="mt-4"
-        linkClassName="text-[#e08a3c]"
-        productTitleAr={STORE_RESTAURANT_LIVE.titleAr}
-      />
     </form>
   );
 }
