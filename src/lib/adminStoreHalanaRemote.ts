@@ -2,11 +2,10 @@
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
 import { getSupabaseClient } from '@/integrations/supabase/client';
+import { resolveAdminApiEndpoint } from '@/lib/adminApiEndpoint';
 
 function adminEndpoint(): string {
-  const base = String(import.meta.env.VITE_VERCEL_API_ORIGIN || '').trim().replace(/\/$/, '');
-  if (base) return `${base}/api/admin-store-halana`;
-  return '/api/admin-store-halana';
+  return resolveAdminApiEndpoint('/api/admin-store-halana');
 }
 
 async function adminBearer(accessToken = ''): Promise<string | null> {

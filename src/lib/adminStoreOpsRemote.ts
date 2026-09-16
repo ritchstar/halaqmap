@@ -3,6 +3,7 @@
  */
 import { getSupabaseClient } from '@/integrations/supabase/client';
 import type { StoreProductTrialKey } from '@/config/storeProductTrial';
+import { resolveAdminApiEndpoint } from '@/lib/adminApiEndpoint';
 
 export type StoreOpsTrialLink = {
   titleAr: string;
@@ -32,9 +33,7 @@ export type StoreOpsTrialRow = {
 };
 
 function adminEndpoint(): string {
-  const base = String(import.meta.env.VITE_VERCEL_API_ORIGIN || '').trim().replace(/\/$/, '');
-  if (base) return `${base}/api/admin-store-ops`;
-  return '/api/admin-store-ops';
+  return resolveAdminApiEndpoint('/api/admin-store-ops');
 }
 
 async function adminBearer(accessToken = ''): Promise<string | null> {

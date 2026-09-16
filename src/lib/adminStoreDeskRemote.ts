@@ -2,6 +2,7 @@
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
 import { getSupabaseClient } from '@/integrations/supabase/client';
+import { resolveAdminApiEndpoint } from '@/lib/adminApiEndpoint';
 
 export type StoreDeskStatus = 'new' | 'studying' | 'offered' | 'closed';
 
@@ -37,8 +38,7 @@ export type StoreDeskListPayload =
 export type StoreDeskChatTurn = { role: 'user' | 'assistant'; content: string };
 
 function endpoint(): string {
-  const base = String(import.meta.env.VITE_VERCEL_API_ORIGIN || '').trim().replace(/\/$/, '');
-  return `${base || ''}/api/admin-store-desk`;
+  return resolveAdminApiEndpoint('/api/admin-store-desk');
 }
 
 async function authHeaders(): Promise<Record<string, string> | null> {

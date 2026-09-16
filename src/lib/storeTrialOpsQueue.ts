@@ -38,6 +38,8 @@ export function storeOpsListErrorAr(code: string): string {
   const httpMessage = adminOpsHttpErrorAr(code);
   if (httpMessage) return httpMessage;
   if (code === 'network_error') return 'تعذر الاتصال بالطابور.';
+  const raw = String(code || '').trim();
+  if (raw && !/^http_\d+$/i.test(raw)) return raw;
   return 'تعذر تحديث الطابور.';
 }
 
