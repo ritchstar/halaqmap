@@ -1,9 +1,8 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
- * الشاشة الأولى — تسلسل العنوان والصفحة المستقلة والركيزة التسويقية.
+ * الشاشة الأولى — عنوان سكاي، سطر ثقة، وأزرار المسارات والاختيار.
  */
-import { PanelTop } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { StoreInViewMount } from '@/components/store/StoreInViewMount';
 import { StoreShot } from '@/components/store/StoreShot';
@@ -25,30 +24,26 @@ export function StoreLandingPitchHero({ onExplore }: { onExplore: () => void }) 
         <p className="relative mx-auto mt-5 max-w-3xl text-base font-bold leading-8 text-white/90 md:text-lg">
           {STORE_LANDING_COPY.pitchDedicatedLineAr}
         </p>
-        <p className="store-pitch-trust relative mx-auto mt-4 inline-flex max-w-xl items-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-4 py-2 text-base leading-7 text-white/78">
-          <PanelTop className="h-4 w-4 shrink-0 text-[#e8c547]" aria-hidden />
-          <span>{STORE_LANDING_COPY.pitchNotMarketplaceAr}</span>
-        </p>
-        <p className="store-pitch-hook relative mx-auto mt-5 max-w-3xl text-base font-extrabold leading-8 text-[#e8c547] md:text-lg">
-          {STORE_LANDING_COPY.pitchTransformAr}
+        <p className="store-pitch-trust relative mx-auto mt-4 max-w-2xl text-base leading-7 text-white/78 md:text-[1.05rem]">
+          {STORE_LANDING_COPY.pitchNotMarketplaceAr}
         </p>
         <div className="relative mt-7 flex flex-wrap items-center justify-center gap-3">
-          <button
-            type="button"
-            onClick={onExplore}
-            className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full bg-[#e8c547] px-5 py-2.5 text-base font-extrabold text-[#061018] shadow-[0_12px_30px_-12px_rgba(232,197,71,0.8)] hover:bg-[#f0d36a]"
-          >
-            {STORE_LANDING_COPY.pitchExploreCtaAr}
-          </button>
           <Link
             to={ROUTE_PATHS.STORE_PATHS_LAB}
             onClick={() => StorePathEvents.homeEntryClick()}
-            aria-label={`${STORE_LANDING_COPY.pitchPathsCtaAr} — اضغط هنا للاختيار`}
-            className="store-pitch-paths-cta relative inline-flex min-h-11 min-w-11 items-center justify-center rounded-full border-2 border-[#e8c547]/85 bg-[#0d1a16] px-5 py-2.5 text-base font-extrabold text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e8c547]"
+            aria-label={STORE_LANDING_COPY.pitchPathsCtaAr}
+            className="store-pitch-paths-cta relative inline-flex min-h-11 min-w-11 items-center justify-center rounded-full bg-[#e8c547] px-5 py-2.5 text-base font-extrabold text-[#061018] shadow-[0_12px_30px_-12px_rgba(232,197,71,0.8)] hover:bg-[#f0d36a] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e8c547]"
           >
             <span className="store-pitch-paths-cta__ring" aria-hidden />
             <span className="relative z-[1]">{STORE_LANDING_COPY.pitchPathsCtaAr}</span>
           </Link>
+          <button
+            type="button"
+            onClick={onExplore}
+            className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full border-2 border-[#e8c547]/85 bg-[#0d1a16] px-5 py-2.5 text-base font-extrabold text-white"
+          >
+            {STORE_LANDING_COPY.pitchExploreCtaAr}
+          </button>
         </div>
       </div>
       <div className="relative mx-auto mt-8 max-w-3xl px-2">
