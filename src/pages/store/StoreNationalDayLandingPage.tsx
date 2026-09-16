@@ -6,6 +6,7 @@
 import { useEffect } from 'react';
 import { Navigate, Link, useLocation } from 'react-router-dom';
 import { PlatformContinuousDevelopmentNotice } from '@/components/platform/PlatformContinuousDevelopmentNotice';
+import { StoreBrandMark } from '@/components/store/StoreBrandMark';
 import { StoreNationalDayExplorer } from '@/components/store/StoreNationalDayExplorer';
 import {
   NATIONAL_DAY_EXPLORER_SCROLL_QUERY,
@@ -45,7 +46,18 @@ export default function StoreNationalDayLandingPage() {
     <div dir="rtl" className="store-national-day">
       <header className="store-national-day__header">
         <div className="store-national-day__header-inner">
-          <span className="store-national-day__brand">منصة خريطة الحل · المتجر</span>
+          <Link
+            to={ROUTE_PATHS.STORE_PATHS_LAB}
+            title="افتح منصة خريطة الحل"
+            aria-label="افتح منصة خريطة الحل"
+            className="store-national-day__brand-link"
+          >
+            <StoreBrandMark className="store-national-day__brand-mark" />
+            <span className="store-national-day__brand">
+              منصة خريطة الحل
+              <span className="store-national-day__brand-pulse" aria-hidden />
+            </span>
+          </Link>
           <Link to={ROUTE_PATHS.STORE_LANDING} className="store-national-day__nav-link">
             {copy.backStoreAr}
           </Link>

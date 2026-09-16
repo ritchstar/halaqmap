@@ -41,10 +41,58 @@
   padding: 0.75rem 1rem;
 }
 
+.store-national-day__brand-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 999px;
+  transition: opacity 0.2s ease;
+}
+
+.store-national-day__brand-link:hover {
+  opacity: 0.85;
+}
+
+.store-national-day__brand-mark {
+  height: 1.9rem;
+  width: 1.9rem;
+}
+
 .store-national-day__brand {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
   font-size: 0.95rem;
   font-weight: 800;
   color: var(--nd-green-deep);
+}
+
+.store-national-day__brand-pulse {
+  height: 0.42rem;
+  width: 0.42rem;
+  border-radius: 999px;
+  background: var(--nd-hero-accent);
+  box-shadow: 0 0 0 0 color-mix(in srgb, var(--nd-hero-accent) 60%, transparent);
+  animation: store-national-day-pulse 2s ease-in-out infinite;
+}
+
+@keyframes store-national-day-pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--nd-hero-accent) 55%, transparent);
+  }
+  50% {
+    opacity: 1;
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--nd-hero-accent) 0%, transparent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .store-national-day__brand-pulse {
+    animation: none;
+  }
 }
 
 .store-national-day__nav-link {
