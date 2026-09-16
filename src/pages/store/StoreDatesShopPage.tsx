@@ -5,22 +5,15 @@
  */
 import { useEffect, useState } from 'react';
 import { Navigate, useLocation, useParams } from 'react-router-dom';
-import { StoreDatesDesk } from '@/components/store/StoreDatesDesk';
-import { StoreDatesShop } from '@/components/store/StoreDatesShop';
 import { DatesChatlyDesk } from '@/components/store/dates/DatesChatlyDesk';
 import { DatesChatlyStorefront } from '@/components/store/dates/DatesChatlyStorefront';
-import { StoreLiveActivityCartShop } from '@/components/store/live/StoreLiveActivityCartShop';
-import { StoreShopHoursBanner } from '@/components/store/StoreShopHoursBanner';
-import { StoreDirectPayPublicMount } from '@/components/store/StoreDirectPayGuest';
 import { StorePurchasedShell } from '@/components/store/StorePurchasedShell';
 import {
   STORE_DATES_LIVE,
-  STORE_DATES_LIVE_ACCENT,
   STORE_DATES_LIVE_LAB_TOKEN,
   STORE_DATES_LIVE_PRODUCT,
   STORE_DATES_LIVE_PUBLIC_ENABLED,
 } from '@/config/storeDatesLive';
-import { isDatesChatlyUi } from '@/lib/storeDatesChatlyUi';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { useStoreShopPresence } from '@/hooks/useStoreShopPresence';
 import {
@@ -34,14 +27,12 @@ import { hydrateDeskTickets } from '@/lib/storeDeskOrderTicket';
 import { POLL_MS, scheduleVisiblePoll } from '@/lib/pollingPolicy';
 import { liveHostText, useStoreLiveDeskSync } from '@/lib/storeLiveDeskSync';
 import { nextStoreLivePublicGate, pickStoreLiveShelf } from '@/lib/storeLivePublicRead';
-import { isShopClosedNow, parseStoreShopHours } from '@/lib/storeShopHours';
-import { liveActivityCoverSrc, liveActivityTodayName, toLiveActivityShelf } from '@/lib/storeLiveActivityShelf';
+import { parseStoreShopHours } from '@/lib/storeShopHours';
 import { parseShopLogoSrc } from '@/lib/storeShopLogo';
 import { parseShopBackgroundFields } from '@/lib/storeShopBackground';
 import { parseShopPickupPlace } from '@/lib/storeShopPlace';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { storeLiveShopShareHref } from '@/lib/storeHostRedirect';
-import { cn } from '@/lib/utils';
 
 type Gate = 'loading' | 'ok' | 'expired' | 'missing';
 
@@ -170,72 +161,35 @@ export default function StoreDatesShopPage() {
     }
   };
 
-  const chatlyUi = isDatesChatlyUi(safeToken);
-  const chatlyStorefront = chatlyUi && !desk;
-  const chatlyDesk = chatlyUi && desk;
-
   return (
     <StorePurchasedShell
       product="dates"
       surface={desk ? 'workspace' : 'storefront'}
-      life={!chatlyStorefront}
+      life={false}
       showStoreLink={!desk}
-      showDevNotice={!chatlyStorefront && !chatlyDesk}
-      showLiveMark={!chatlyStorefront && !chatlyDesk}
-      pageBg={chatlyStorefront || chatlyDesk ? undefined : state.host.shopPageBg}
+      showDevNotice={false}
+      showLiveMark={false}
+      pageBg={undefined}
     >
-      <div className={chatlyDesk ? '-mx-3 sm:-mx-4' : desk ? 'mx-auto max-w-3xl px-3 py-5' : undefined}>
+      <div className="-mx-3 sm:-mx-4">
         {gate === 'loading' ? (
-          <p className={cn('pt-[30svh] text-center text-sm', chatlyStorefront || chatlyDesk ? 'text-[#6f6250]' : 'text-white/60')}>
-            جاري فتح المتجر…
-          </p>
+          <p className="pt-[30svh] text-center text-sm text-[#6f6250]">جاري فتح المتجر…</p>
         ) : null}
         {gate === 'missing' ? (
-          <p className={cn('pt-[30svh] text-center text-sm', chatlyStorefront || chatlyDesk ? 'text-[#6f6250]' : 'text-white/70')}>
-            الرابط غير صالح.
-          </p>
+          <p className="pt-[30svh] text-center text-sm text-[#6f6250]">الرابط غير صالح.</p>
         ) : null}
         {gate === 'ok' ? (
           desk ? (
-            chatlyUi ? (
-              <DatesChatlyDesk
-                state={state}
-                onChange={commit}
-                shopUrl={shopUrl}
-                token={safeToken}
-                showTrialNote={isTrial}
-                saveStatus={deskSync.saveStatus}
-              />
-            ) : (
-              <StoreDatesDesk
-                state={state}
-                onChange={commit}
-                shopUrl={shopUrl}
-                token={safeToken}
-                showTrialNote={isTrial}
-              />
-            )
-          ) : chatlyUi ? (
-            <div className="-mx-3 sm:-mx-4">
-              <DatesChatlyStorefront state={state} onChange={commit} token={safeToken} />
-            </div>
-          ) : (
-            <StoreLiveActivityCartShop
-              kind="dates"
+            <DatesChatlyDesk
+              state={state}
+              onChange={commit}
+              shopUrl={shopUrl}
               token={safeToken}
-              host={state.host}
-              shelf={toLiveActivityShelf(state.shelf)}
-              closed={isShopClosedNow(state.host)}
-              acceptingOrders={state.host.acceptingOrders}
-              todayName={liveActivityTodayName(state.shelf)}
-              coverSrc={liveActivityCoverSrc(state.shelf)}
-              hoursBanner={<StoreShopHoursBanner hours={state.host} accent={STORE_DATES_LIVE_ACCENT} />}
-              directPay={
-                <StoreDirectPayPublicMount product="store_dates_live" token={safeToken} accent={STORE_DATES_LIVE_ACCENT} />
-              }
-            >
-              <StoreDatesShop activityShell state={state} onChange={commit} token={safeToken} />
-            </StoreLiveActivityCartShop>
+              showTrialNote={isTrial}
+              saveStatus={deskSync.saveStatus}
+            />
+          ) : (
+            <DatesChatlyStorefront state={state} onChange={commit} token={safeToken} />
           )
         ) : null}
       </div>

@@ -3,8 +3,8 @@
  */
 import { useEffect, useState } from 'react';
 import { STORE_DATES_LIVE, STORE_DATES_LIVE_LAB_TOKEN } from '@/config/storeDatesLive';
-import { StoreDatesDesk } from '@/components/store/StoreDatesDesk';
-import { StoreDatesShop } from '@/components/store/StoreDatesShop';
+import { DatesChatlyDesk } from '@/components/store/dates/DatesChatlyDesk';
+import { DatesChatlyStorefront } from '@/components/store/dates/DatesChatlyStorefront';
 import { readDatesLabState, writeDatesLabState, type DatesLabState } from '@/lib/storeDatesLiveLab';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { cn } from '@/lib/utils';
@@ -60,8 +60,12 @@ export function StoreDatesStudio({ token = STORE_DATES_LIVE_LAB_TOKEN }: { token
           {STORE_DATES_LIVE.deskLinkAr}
         </button>
       </div>
-      <div className="mt-5 rounded-2xl border border-[#8A6239]/30 bg-[#1a140c]/80 p-4">
-        {tab === 'shop' ? <StoreDatesShop state={state} onChange={commit} token={token} /> : <StoreDatesDesk state={state} onChange={commit} shopUrl={shopUrl} token={token} />}
+      <div className="mt-5 overflow-hidden rounded-2xl border border-[#8A6239]/30">
+        {tab === 'shop' ? (
+          <DatesChatlyStorefront state={state} onChange={commit} token={token} />
+        ) : (
+          <DatesChatlyDesk state={state} onChange={commit} shopUrl={shopUrl} token={token} />
+        )}
       </div>
     </div>
   );

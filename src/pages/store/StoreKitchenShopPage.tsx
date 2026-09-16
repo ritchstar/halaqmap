@@ -5,17 +5,11 @@
  */
 import { useEffect, useState } from 'react';
 import { Navigate, useLocation, useParams } from 'react-router-dom';
-import { StoreKitchenDesk } from '@/components/store/StoreKitchenDesk';
-import { StoreKitchenShop } from '@/components/store/StoreKitchenShop';
 import { KitchenChatlyDesk } from '@/components/store/kitchen/KitchenChatlyDesk';
 import { KitchenChatlyStorefront } from '@/components/store/kitchen/KitchenChatlyStorefront';
-import { StoreLiveActivityCartShop } from '@/components/store/live/StoreLiveActivityCartShop';
-import { StoreShopHoursBanner } from '@/components/store/StoreShopHoursBanner';
-import { StoreDirectPayPublicMount } from '@/components/store/StoreDirectPayGuest';
 import { StorePurchasedShell } from '@/components/store/StorePurchasedShell';
 import {
   STORE_KITCHEN_LIVE,
-  STORE_KITCHEN_LIVE_ACCENT,
   STORE_KITCHEN_LIVE_LAB_TOKEN,
   STORE_KITCHEN_LIVE_PRODUCT,
   STORE_KITCHEN_LIVE_PUBLIC_ENABLED,
@@ -36,14 +30,10 @@ import { hydrateDeskTickets } from '@/lib/storeDeskOrderTicket';
 import { POLL_MS, scheduleVisiblePoll } from '@/lib/pollingPolicy';
 import { liveHostText, useStoreLiveDeskSync } from '@/lib/storeLiveDeskSync';
 import { nextStoreLivePublicGate, pickStoreLiveShelf } from '@/lib/storeLivePublicRead';
-import { isShopClosedNow, parseStoreShopHours } from '@/lib/storeShopHours';
-import { liveActivityCoverSrc, liveActivityTodayName, toLiveActivityShelf } from '@/lib/storeLiveActivityShelf';
+import { parseStoreShopHours } from '@/lib/storeShopHours';
 import { parseShopLogoSrc } from '@/lib/storeShopLogo';
 import { parseShopBackgroundFields } from '@/lib/storeShopBackground';
 import { ROUTE_PATHS } from '@/lib/routePaths';
-import { storeLiveShopShareHref } from '@/lib/storeHostRedirect';
-import { isKitchenChatlyUi } from '@/lib/storeKitchenChatlyUi';
-import { cn } from '@/lib/utils';
 
 type Gate = 'loading' | 'ok' | 'expired' | 'missing';
 
@@ -86,7 +76,6 @@ export default function StoreKitchenShopPage() {
   const { token = '' } = useParams<{ token: string }>();
   const safeToken = token.trim() || STORE_KITCHEN_LIVE_LAB_TOKEN;
   const isLab = safeToken === STORE_KITCHEN_LIVE_LAB_TOKEN;
-  const chatlyUi = isKitchenChatlyUi(safeToken);
   const [state, setState] = useState<KitchenLabState>(() =>
     isLab ? readKitchenLabState(safeToken) : defaultKitchenLabState(),
   );
@@ -188,77 +177,38 @@ export default function StoreKitchenShopPage() {
     }
   };
 
-  const chatlyStorefront = chatlyUi && !desk;
-  const chatlyDesk = chatlyUi && desk;
-
   return (
     <StorePurchasedShell
       product="kitchen"
       surface={desk ? 'workspace' : 'storefront'}
-      life={!chatlyStorefront}
+      life={false}
       showStoreLink={!desk}
-      showDevNotice={!chatlyStorefront && !chatlyDesk}
-      showLiveMark={!chatlyStorefront && !chatlyDesk}
-      pageBg={chatlyStorefront || chatlyDesk ? undefined : state.host.shopPageBg}
+      showDevNotice={false}
+      showLiveMark={false}
+      pageBg={undefined}
     >
-      <div className={chatlyDesk ? '-mx-3 sm:-mx-4' : desk ? 'mx-auto max-w-3xl px-3 py-5' : undefined}>
+      <div className="-mx-3 sm:-mx-4">
         {gate === 'loading' ? (
-          <p className={cn('pt-[30svh] text-center text-sm', chatlyStorefront || chatlyDesk ? 'text-[#8a7860]' : 'text-white/60')}>
-            جاري فتح الصفحة…
-          </p>
+          <p className="pt-[30svh] text-center text-sm text-[#8a7860]">جاري فتح الصفحة…</p>
         ) : null}
         {gate === 'missing' ? (
-          <p className={cn('pt-[30svh] text-center text-sm', chatlyStorefront || chatlyDesk ? 'text-[#8a7860]' : 'text-white/70')}>
-            الرابط غير صالح.
-          </p>
+          <p className="pt-[30svh] text-center text-sm text-[#8a7860]">الرابط غير صالح.</p>
         ) : null}
         {gate === 'ok' ? (
           !qrOk ? (
             <p className="pt-[30svh] text-center text-sm text-white/70">{STORE_KITCHEN_LIVE.qrRevokedAr}</p>
           ) : desk ? (
-            chatlyUi ? (
-              <KitchenChatlyDesk
-                state={state}
-                onChange={commit}
-                shopUrl={liveShopUrl}
-                token={safeToken}
-                gift={giftNotice}
-                showTrialNote={isTrial}
-                saveStatus={deskSync.saveStatus}
-              />
-            ) : (
-              <StoreKitchenDesk
-                state={state}
-                onChange={commit}
-                shopUrl={liveShopUrl}
-                token={safeToken}
-                gift={giftNotice}
-                showTrialNote={isTrial}
-              />
-            )
-          ) : chatlyUi ? (
-            <div className="-mx-3 sm:-mx-4">
-              <KitchenChatlyStorefront state={state} onChange={commit} token={safeToken} />
-            </div>
-          ) : (
-            <StoreLiveActivityCartShop
-              kind="kitchen"
+            <KitchenChatlyDesk
+              state={state}
+              onChange={commit}
+              shopUrl={liveShopUrl}
               token={safeToken}
-              initialTab={isLab ? 'order' : 'home'}
-              showIndependentStoreIdentity
-              host={state.host}
-              shelf={toLiveActivityShelf(state.shelf)}
-              closed={isShopClosedNow(state.host)}
-              acceptingOrders={state.host.acceptingOrders}
-              todayName={liveActivityTodayName(state.shelf)}
-              coverSrc={liveActivityCoverSrc(state.shelf)}
-              hoursBanner={<StoreShopHoursBanner hours={state.host} accent={STORE_KITCHEN_LIVE_ACCENT} />}
-              directPay={
-                <StoreDirectPayPublicMount product="store_kitchen_live" token={safeToken} accent={STORE_KITCHEN_LIVE_ACCENT} />
-              }
-            >
-              <StoreKitchenShop activityShell state={state} onChange={commit} token={safeToken} />
-            </StoreLiveActivityCartShop>
+              gift={giftNotice}
+              showTrialNote={isTrial}
+              saveStatus={deskSync.saveStatus}
+            />
+          ) : (
+            <KitchenChatlyStorefront state={state} onChange={commit} token={safeToken} />
           )
         ) : null}
       </div>

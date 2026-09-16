@@ -3,8 +3,8 @@
  */
 import { useEffect, useState } from 'react';
 import { STORE_RESTAURANT_LIVE, STORE_RESTAURANT_LIVE_LAB_TOKEN } from '@/config/storeRestaurantLive';
-import { StoreRestaurantDesk } from '@/components/store/StoreRestaurantDesk';
-import { StoreRestaurantShop } from '@/components/store/StoreRestaurantShop';
+import { RestaurantChatlyDesk } from '@/components/store/restaurant/RestaurantChatlyDesk';
+import { RestaurantChatlyStorefront } from '@/components/store/restaurant/RestaurantChatlyStorefront';
 import { readRestaurantLabState, writeRestaurantLabState, type RestaurantLabState } from '@/lib/storeRestaurantLiveLab';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { cn } from '@/lib/utils';
@@ -70,14 +70,14 @@ export function StoreRestaurantStudio({ token = STORE_RESTAURANT_LIVE_LAB_TOKEN 
       </p>
       <div
         className={cn(
-          'mt-3 rounded-2xl border border-[#e08a3c]/30 bg-[#1a1008]/80 p-4',
+          'mt-3 overflow-hidden rounded-2xl border border-[#e08a3c]/30',
           tab === 'desk' ? 'mx-auto max-w-[1180px]' : 'mx-auto max-w-md',
         )}
       >
         {tab === 'shop' ? (
-          <StoreRestaurantShop state={state} onChange={commit} token={token} />
+          <RestaurantChatlyStorefront state={state} onChange={commit} token={token} />
         ) : (
-          <StoreRestaurantDesk state={state} onChange={commit} shopUrl={shopUrl} token={token} maskPii={isLab} />
+          <RestaurantChatlyDesk state={state} onChange={commit} shopUrl={shopUrl} token={token} maskPii={isLab} />
         )}
       </div>
     </div>

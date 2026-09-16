@@ -3,8 +3,8 @@
  */
 import { useEffect, useState } from 'react';
 import { STORE_PRODUCE_LIVE, STORE_PRODUCE_LIVE_LAB_TOKEN } from '@/config/storeProduceLive';
-import { StoreProduceDesk } from '@/components/store/StoreProduceDesk';
-import { StoreProduceShop } from '@/components/store/StoreProduceShop';
+import { ProduceChatlyDesk } from '@/components/store/produce/ProduceChatlyDesk';
+import { ProduceChatlyStorefront } from '@/components/store/produce/ProduceChatlyStorefront';
 import { readProduceLabState, writeProduceLabState, type ProduceLabState } from '@/lib/storeProduceLiveLab';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { cn } from '@/lib/utils';
@@ -60,8 +60,12 @@ export function StoreProduceStudio({ token = STORE_PRODUCE_LIVE_LAB_TOKEN }: { t
           {STORE_PRODUCE_LIVE.deskLinkAr}
         </button>
       </div>
-      <div className="mt-5 rounded-2xl border border-[#3d8b4a]/30 bg-[#0b1a10]/80 p-4">
-        {tab === 'shop' ? <StoreProduceShop state={state} onChange={commit} token={token} /> : <StoreProduceDesk state={state} onChange={commit} shopUrl={shopUrl} token={token} />}
+      <div className="mt-5 overflow-hidden rounded-2xl border border-[#3d8b4a]/30">
+        {tab === 'shop' ? (
+          <ProduceChatlyStorefront state={state} onChange={commit} token={token} />
+        ) : (
+          <ProduceChatlyDesk state={state} onChange={commit} shopUrl={shopUrl} token={token} />
+        )}
       </div>
     </div>
   );

@@ -3,8 +3,8 @@
  */
 import { useEffect, useState } from 'react';
 import { STORE_GROCERS_LIVE, STORE_GROCERS_LIVE_LAB_TOKEN } from '@/config/storeGrocersLive';
-import { StoreGrocersDesk } from '@/components/store/StoreGrocersDesk';
-import { StoreGrocersShop } from '@/components/store/StoreGrocersShop';
+import { GrocersChatlyDesk } from '@/components/store/grocers/GrocersChatlyDesk';
+import { GrocersChatlyStorefront } from '@/components/store/grocers/GrocersChatlyStorefront';
 import { readGrocersLabState, writeGrocersLabState, type GrocersLabState } from '@/lib/storeGrocersLiveLab';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { cn } from '@/lib/utils';
@@ -70,14 +70,14 @@ export function StoreGrocersStudio({ token = STORE_GROCERS_LIVE_LAB_TOKEN }: { t
       </p>
       <div
         className={cn(
-          'mt-3 rounded-2xl border border-[#8fbf7a]/30 bg-[#07140e]/80 p-4',
+          'mt-3 overflow-hidden rounded-2xl border border-[#8fbf7a]/30',
           tab === 'desk' ? 'mx-auto max-w-[1180px]' : 'mx-auto max-w-md',
         )}
       >
         {tab === 'shop' ? (
-          <StoreGrocersShop state={state} onChange={commit} token={token} />
+          <GrocersChatlyStorefront state={state} onChange={commit} token={token} />
         ) : (
-          <StoreGrocersDesk state={state} onChange={commit} shopUrl={shopUrl} token={token} maskPii={isLab} />
+          <GrocersChatlyDesk state={state} onChange={commit} shopUrl={shopUrl} token={token} maskPii={isLab} />
         )}
       </div>
     </div>

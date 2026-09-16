@@ -3,9 +3,9 @@
  */
 import { useEffect, useState } from 'react';
 import { STORE_CAFE_LIVE, STORE_CAFE_LIVE_LAB_TOKEN } from '@/config/storeCafeLive';
-import { StoreCafeDesk } from '@/components/store/StoreCafeDesk';
+import { CafeChatlyDesk } from '@/components/store/cafe/CafeChatlyDesk';
+import { CafeChatlyStorefront } from '@/components/store/cafe/CafeChatlyStorefront';
 import { StoreCafeHallStage } from '@/components/store/StoreCafeHallStage';
-import { StoreCafeShop } from '@/components/store/StoreCafeShop';
 import { cafeLabRaw, readCafeLabState, writeCafeLabState, type CafeLabState } from '@/lib/storeCafeLiveLab';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { cn } from '@/lib/utils';
@@ -70,10 +70,21 @@ export function StoreCafeStudio({ token = STORE_CAFE_LIVE_LAB_TOKEN }: { token?:
           {STORE_CAFE_LIVE.displayLinkAr}
         </button>
       </div>
-      <div className="mt-5 rounded-2xl border border-[#c48a4a]/30 bg-[#1a1008]/80 p-4">
-        {tab === 'shop' ? <StoreCafeShop state={state} onChange={commit} token={token} /> : null}
-        {tab === 'desk' ? <StoreCafeDesk state={state} onChange={commit} shopUrl={shopUrl} token={token} /> : null}
-        {tab === 'screen' ? <StoreCafeHallStage state={state} mode="main" guestUrl={`${typeof window === 'undefined' ? '' : window.location.origin}/#/c/${encodeURIComponent(token)}/guest`} /> : null}
+      <div
+        className={cn(
+          'mt-5 overflow-hidden rounded-2xl border border-[#c48a4a]/30',
+          tab === 'screen' && 'bg-[#1a1008]/80 p-4',
+        )}
+      >
+        {tab === 'shop' ? <CafeChatlyStorefront state={state} onChange={commit} token={token} /> : null}
+        {tab === 'desk' ? <CafeChatlyDesk state={state} onChange={commit} shopUrl={shopUrl} token={token} /> : null}
+        {tab === 'screen' ? (
+          <StoreCafeHallStage
+            state={state}
+            mode="main"
+            guestUrl={`${typeof window === 'undefined' ? '' : window.location.origin}/#/c/${encodeURIComponent(token)}/guest`}
+          />
+        ) : null}
       </div>
     </div>
   );

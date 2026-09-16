@@ -5,17 +5,11 @@
  */
 import { useEffect, useState } from 'react';
 import { Navigate, useLocation, useParams } from 'react-router-dom';
-import { StoreRestaurantDesk } from '@/components/store/StoreRestaurantDesk';
-import { StoreRestaurantShop } from '@/components/store/StoreRestaurantShop';
 import { RestaurantChatlyDesk } from '@/components/store/restaurant/RestaurantChatlyDesk';
 import { RestaurantChatlyStorefront } from '@/components/store/restaurant/RestaurantChatlyStorefront';
-import { StoreLiveActivityCartShop } from '@/components/store/live/StoreLiveActivityCartShop';
-import { StoreShopHoursBanner } from '@/components/store/StoreShopHoursBanner';
-import { StoreDirectPayPublicMount } from '@/components/store/StoreDirectPayGuest';
 import { StorePurchasedShell } from '@/components/store/StorePurchasedShell';
 import {
   STORE_RESTAURANT_LIVE,
-  STORE_RESTAURANT_LIVE_ACCENT,
   STORE_RESTAURANT_LIVE_LAB_TOKEN,
   STORE_RESTAURANT_LIVE_PRODUCT,
   STORE_RESTAURANT_LIVE_PUBLIC_ENABLED,
@@ -38,15 +32,12 @@ import {
   fetchRestaurantLivePublic,
   saveRestaurantLiveHost,
 } from '@/lib/storeRestaurantLiveRemote';
-import { isShopClosedNow, parseStoreShopHours } from '@/lib/storeShopHours';
-import { liveActivityCoverSrc, liveActivityTodayName, toLiveActivityShelf } from '@/lib/storeLiveActivityShelf';
+import { parseStoreShopHours } from '@/lib/storeShopHours';
 import { parseShopLogoSrc } from '@/lib/storeShopLogo';
 import { parseShopBackgroundFields } from '@/lib/storeShopBackground';
 import { parseShopPickupPlace } from '@/lib/storeShopPlace';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { storeLiveShopShareHref } from '@/lib/storeHostRedirect';
-import { isRestaurantChatlyUi } from '@/lib/storeRestaurantChatlyUi';
-import { cn } from '@/lib/utils';
 
 type Gate = 'loading' | 'ok' | 'expired' | 'missing';
 
@@ -82,7 +73,6 @@ export default function StoreRestaurantShopPage() {
   const { token = '' } = useParams<{ token: string }>();
   const safeToken = token.trim() || STORE_RESTAURANT_LIVE_LAB_TOKEN;
   const isLab = safeToken === STORE_RESTAURANT_LIVE_LAB_TOKEN;
-  const chatlyUi = isRestaurantChatlyUi(safeToken);
   const [state, setState] = useState<RestaurantLabState>(() =>
     isLab ? readRestaurantLabState(safeToken) : defaultRestaurantLabState(),
   );
@@ -176,85 +166,35 @@ export default function StoreRestaurantShopPage() {
     }
   };
 
-  const chatlyStorefront = chatlyUi && !desk;
-  const chatlyDesk = chatlyUi && desk;
-
   return (
     <StorePurchasedShell
       product="restaurant"
       surface={desk ? 'workspace' : 'storefront'}
-      life={!chatlyStorefront}
+      life={false}
       showStoreLink={!desk}
-      showDevNotice={!chatlyStorefront}
-      showLiveMark={!chatlyStorefront}
-      pageBg={chatlyStorefront || chatlyDesk ? undefined : state.host.shopPageBg}
+      showDevNotice={false}
+      showLiveMark={false}
+      pageBg={undefined}
     >
-      <div
-        className={cn(
-          desk && !chatlyDesk && 'mx-auto max-w-3xl px-3 py-5',
-          chatlyDesk && '-mx-3 sm:-mx-4',
-          chatlyStorefront && '-mx-3 sm:-mx-4',
-        )}
-      >
+      <div className="-mx-3 sm:-mx-4">
         {gate === 'loading' ? (
-          <p
-            className={cn(
-              'pt-[30svh] text-center text-sm',
-              chatlyStorefront || chatlyDesk ? 'text-[#849284]' : 'text-white/60',
-            )}
-          >
-            جاري فتح الصفحة…
-          </p>
+          <p className="pt-[30svh] text-center text-sm text-[#849284]">جاري فتح الصفحة…</p>
         ) : null}
         {gate === 'missing' ? (
-          <p
-            className={cn(
-              'pt-[30svh] text-center text-sm',
-              chatlyStorefront || chatlyDesk ? 'text-[#586a5c]' : 'text-white/70',
-            )}
-          >
-            الرابط غير صالح.
-          </p>
+          <p className="pt-[30svh] text-center text-sm text-[#586a5c]">الرابط غير صالح.</p>
         ) : null}
         {gate === 'ok' ? (
           desk ? (
-            chatlyUi ? (
-              <RestaurantChatlyDesk
-                state={state}
-                onChange={commit}
-                shopUrl={shopUrl}
-                token={safeToken}
-                showTrialNote={isTrial}
-                saveStatus={deskSync.saveStatus}
-              />
-            ) : (
-              <StoreRestaurantDesk
-                state={state}
-                onChange={commit}
-                shopUrl={shopUrl}
-                token={safeToken}
-                showTrialNote={isTrial}
-              />
-            )
-          ) : chatlyUi ? (
-            <RestaurantChatlyStorefront state={state} onChange={commit} token={safeToken} />
-          ) : (
-            <StoreLiveActivityCartShop
-              kind="restaurant"
+            <RestaurantChatlyDesk
+              state={state}
+              onChange={commit}
+              shopUrl={shopUrl}
               token={safeToken}
-              host={state.host}
-              shelf={toLiveActivityShelf(state.shelf)}
-              closed={isShopClosedNow(state.host)}
-              acceptingOrders={state.host.acceptingOrders}
-              todayName={liveActivityTodayName(state.shelf)}
-              coverSrc={liveActivityCoverSrc(state.shelf)}
-              hoursBanner={<StoreShopHoursBanner hours={state.host} accent={STORE_RESTAURANT_LIVE_ACCENT} />}
-              directPay={
-                <StoreDirectPayPublicMount product="store_restaurant_live" token={safeToken} accent={STORE_RESTAURANT_LIVE_ACCENT} />
-              }
-            >
-              <StoreRestaurantShop activityShell state={state} onChange={commit} token={safeToken} />
-            </StoreLiveActivityCartShop>
+              showTrialNote={isTrial}
+              saveStatus={deskSync.saveStatus}
+            />
+          ) : (
+            <RestaurantChatlyStorefront state={state} onChange={commit} token={safeToken} />
           )
         ) : null}
       </div>

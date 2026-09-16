@@ -3,8 +3,8 @@
  */
 import { useEffect, useState } from 'react';
 import { STORE_KITCHEN_LIVE, STORE_KITCHEN_LIVE_LAB_TOKEN } from '@/config/storeKitchenLive';
-import { StoreKitchenDesk } from '@/components/store/StoreKitchenDesk';
-import { StoreKitchenShop } from '@/components/store/StoreKitchenShop';
+import { KitchenChatlyDesk } from '@/components/store/kitchen/KitchenChatlyDesk';
+import { KitchenChatlyStorefront } from '@/components/store/kitchen/KitchenChatlyStorefront';
 import {
   kitchenShopUrl,
   readKitchenLabState,
@@ -57,8 +57,12 @@ export function StoreKitchenStudio({ token = STORE_KITCHEN_LIVE_LAB_TOKEN }: { t
           {STORE_KITCHEN_LIVE.deskLinkAr}
         </button>
       </div>
-      <div className="mt-5 rounded-2xl border border-[#b45a3c]/30 bg-[#1a0c08]/80 p-4">
-        {tab === 'shop' ? <StoreKitchenShop state={state} onChange={commit} token={token} /> : <StoreKitchenDesk state={state} onChange={commit} shopUrl={shopUrl} token={token} />}
+      <div className="mt-5 overflow-hidden rounded-2xl border border-[#b45a3c]/30">
+        {tab === 'shop' ? (
+          <KitchenChatlyStorefront state={state} onChange={commit} token={token} />
+        ) : (
+          <KitchenChatlyDesk state={state} onChange={commit} shopUrl={shopUrl} token={token} />
+        )}
       </div>
     </div>
   );

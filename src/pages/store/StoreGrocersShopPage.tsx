@@ -5,17 +5,11 @@
  */
 import { useEffect, useState } from 'react';
 import { Navigate, useLocation, useParams } from 'react-router-dom';
-import { StoreGrocersDesk } from '@/components/store/StoreGrocersDesk';
-import { StoreGrocersShop } from '@/components/store/StoreGrocersShop';
 import { GrocersChatlyDesk } from '@/components/store/grocers/GrocersChatlyDesk';
 import { GrocersChatlyStorefront } from '@/components/store/grocers/GrocersChatlyStorefront';
-import { StoreLiveActivityCartShop } from '@/components/store/live/StoreLiveActivityCartShop';
-import { StoreShopHoursBanner } from '@/components/store/StoreShopHoursBanner';
-import { StoreDirectPayPublicMount } from '@/components/store/StoreDirectPayGuest';
 import { StorePurchasedShell } from '@/components/store/StorePurchasedShell';
 import {
   STORE_GROCERS_LIVE,
-  STORE_GROCERS_LIVE_ACCENT,
   STORE_GROCERS_LIVE_LAB_TOKEN,
   STORE_GROCERS_LIVE_PRODUCT,
   STORE_GROCERS_LIVE_PUBLIC_ENABLED,
@@ -33,15 +27,12 @@ import { hydrateDeskTickets } from '@/lib/storeDeskOrderTicket';
 import { POLL_MS, scheduleVisiblePoll } from '@/lib/pollingPolicy';
 import { liveHostText, useStoreLiveDeskSync } from '@/lib/storeLiveDeskSync';
 import { nextStoreLivePublicGate, pickStoreLiveShelf } from '@/lib/storeLivePublicRead';
-import { isShopClosedNow, parseStoreShopHours } from '@/lib/storeShopHours';
-import { liveActivityCoverSrc, liveActivityTodayName, toLiveActivityShelf } from '@/lib/storeLiveActivityShelf';
+import { parseStoreShopHours } from '@/lib/storeShopHours';
 import { parseShopLogoSrc } from '@/lib/storeShopLogo';
 import { parseShopBackgroundFields } from '@/lib/storeShopBackground';
 import { parseShopPickupPlace } from '@/lib/storeShopPlace';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { storeLiveShopShareHref } from '@/lib/storeHostRedirect';
-import { isGrocersChatlyUi } from '@/lib/storeGrocersChatlyUi';
-import { cn } from '@/lib/utils';
 
 type Gate = 'loading' | 'ok' | 'expired' | 'missing';
 
@@ -77,7 +68,6 @@ export default function StoreGrocersShopPage() {
   const { token = '' } = useParams<{ token: string }>();
   const safeToken = token.trim() || STORE_GROCERS_LIVE_LAB_TOKEN;
   const isLab = safeToken === STORE_GROCERS_LIVE_LAB_TOKEN;
-  const chatlyUi = isGrocersChatlyUi(safeToken);
   const [state, setState] = useState<GrocersLabState>(() =>
     isLab ? readGrocersLabState(safeToken) : defaultGrocersLabState(),
   );
@@ -171,87 +161,35 @@ export default function StoreGrocersShopPage() {
     }
   };
 
-  const chatlyStorefront = chatlyUi && !desk;
-  const chatlyDesk = chatlyUi && desk;
-
   return (
     <StorePurchasedShell
       product="grocers"
       surface={desk ? 'workspace' : 'storefront'}
-      life={!chatlyStorefront}
+      life={false}
       showStoreLink={!desk}
-      showDevNotice={!chatlyStorefront}
-      showLiveMark={!chatlyStorefront}
-      pageBg={chatlyStorefront || chatlyDesk ? undefined : state.host.shopPageBg}
+      showDevNotice={false}
+      showLiveMark={false}
+      pageBg={undefined}
     >
-      <div
-        className={cn(
-          desk && !chatlyDesk && 'mx-auto max-w-3xl px-3 py-5',
-          chatlyDesk && '-mx-3 sm:-mx-4',
-          chatlyStorefront && '-mx-3 sm:-mx-4',
-        )}
-      >
+      <div className="-mx-3 sm:-mx-4">
         {gate === 'loading' ? (
-          <p
-            className={cn(
-              'pt-[30svh] text-center text-sm',
-              chatlyStorefront || chatlyDesk ? 'text-[#849284]' : 'text-white/60',
-            )}
-          >
-            جاري فتح المتجر…
-          </p>
+          <p className="pt-[30svh] text-center text-sm text-[#849284]">جاري فتح المتجر…</p>
         ) : null}
         {gate === 'missing' ? (
-          <p
-            className={cn(
-              'pt-[30svh] text-center text-sm',
-              chatlyStorefront || chatlyDesk ? 'text-[#586a5c]' : 'text-white/70',
-            )}
-          >
-            الرابط غير صالح.
-          </p>
+          <p className="pt-[30svh] text-center text-sm text-[#586a5c]">الرابط غير صالح.</p>
         ) : null}
         {gate === 'ok' ? (
           desk ? (
-            chatlyUi ? (
-              <GrocersChatlyDesk
-                state={state}
-                onChange={commit}
-                shopUrl={shopUrl}
-                token={safeToken}
-                showTrialNote={isTrial}
-                saveStatus={deskSync.saveStatus}
-              />
-            ) : (
-              <StoreGrocersDesk
-                state={state}
-                onChange={commit}
-                shopUrl={shopUrl}
-                token={safeToken}
-                showTrialNote={isTrial}
-              />
-            )
-          ) : chatlyUi ? (
-            <GrocersChatlyStorefront state={state} onChange={commit} token={safeToken} />
-          ) : (
-            <StoreLiveActivityCartShop
-              kind="grocers"
+            <GrocersChatlyDesk
+              state={state}
+              onChange={commit}
+              shopUrl={shopUrl}
               token={safeToken}
-              initialTab={isLab ? 'order' : 'home'}
-              showIndependentStoreIdentity
-              host={state.host}
-              shelf={toLiveActivityShelf(state.shelf)}
-              closed={isShopClosedNow(state.host)}
-              acceptingOrders={state.host.acceptingOrders}
-              todayName={liveActivityTodayName(state.shelf)}
-              coverSrc={liveActivityCoverSrc(state.shelf)}
-              hoursBanner={<StoreShopHoursBanner hours={state.host} accent={STORE_GROCERS_LIVE_ACCENT} />}
-              directPay={
-                <StoreDirectPayPublicMount product="store_grocers_live" token={safeToken} accent={STORE_GROCERS_LIVE_ACCENT} />
-              }
-            >
-              <StoreGrocersShop activityShell state={state} onChange={commit} token={safeToken} />
-            </StoreLiveActivityCartShop>
+              showTrialNote={isTrial}
+              saveStatus={deskSync.saveStatus}
+            />
+          ) : (
+            <GrocersChatlyStorefront state={state} onChange={commit} token={safeToken} />
           )
         ) : null}
       </div>
