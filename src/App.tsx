@@ -14,6 +14,7 @@ import { ScrollToTop } from "@/components/ScrollToTop";
 import { AnalyticsRouteTracker } from "@/components/AnalyticsRouteTracker";
 import { PolicySectionHashRedirect } from "@/components/PolicySectionHashRedirect";
 import { StoreNationalDayHashRedirect } from "@/components/store/StoreNationalDayHashRedirect";
+import { StoreButtonContrastGuard } from "@/components/store/StoreButtonContrastGuard";
 import { DaleelakAssistant } from "@/components/store/DaleelakAssistant";
 import { MoyasarPaymentReturnGate } from "@/components/MoyasarPaymentReturnGate";
 import { ConsumerNativeShellGate } from "@/components/consumer/ConsumerNativeShellGate";
@@ -834,6 +835,7 @@ export function App() {
         <AnalyticsRouteTracker />
         <PolicySectionHashRedirect />
         <StoreNationalDayHashRedirect />
+        <StoreButtonContrastGuard />
         <DaleelakAssistant />
         <MoyasarPaymentReturnGate />
         <ConsumerNativeShellGate />
