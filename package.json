@@ -22,6 +22,7 @@
     "build:dev": "cross-env VITE_ENABLE_ROUTE_MESSAGING=true vite build --mode development --sourcemap",
     "build:map": "cross-env VITE_ENABLE_ROUTE_MESSAGING=true vite build --sourcemap",
     "pwa:icons": "node scripts/generate-pwa-icons.mjs",
+    "images:store": "node scripts/optimize-store-images.mjs",
     "ios:sync": "node scripts/prepare-consumer-ios-shell.mjs && npx cap sync ios",
     "ios:open": "npx cap open ios",
     "typecheck:api": "tsc -p api/tsconfig.json",
