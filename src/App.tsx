@@ -14,6 +14,7 @@ import { ScrollToTop } from "@/components/ScrollToTop";
 import { AnalyticsRouteTracker } from "@/components/AnalyticsRouteTracker";
 import { PolicySectionHashRedirect } from "@/components/PolicySectionHashRedirect";
 import { StoreNationalDayHashRedirect } from "@/components/store/StoreNationalDayHashRedirect";
+import { DaleelakAssistant } from "@/components/store/DaleelakAssistant";
 import { MoyasarPaymentReturnGate } from "@/components/MoyasarPaymentReturnGate";
 import { ConsumerNativeShellGate } from "@/components/consumer/ConsumerNativeShellGate";
 import { RouteScopedErrorBoundary } from "@/components/RouteScopedErrorBoundary";
@@ -833,6 +834,7 @@ export function App() {
         <AnalyticsRouteTracker />
         <PolicySectionHashRedirect />
         <StoreNationalDayHashRedirect />
+        <DaleelakAssistant />
         <MoyasarPaymentReturnGate />
         <ConsumerNativeShellGate />
         <Routes>

@@ -29,7 +29,8 @@ export type AgentPersonaId =
   | 'partner_assistant'
   | 'barber_support'
   | 'digital_shift_barber'
-  | 'coiffeur_wudd';
+  | 'coiffeur_wudd'
+  | 'daleelak_product_guide';
 
 export type AgentPersona = {
   id: AgentPersonaId;
@@ -159,6 +160,12 @@ export const AGENT_PERSONAS: Record<AgentPersonaId, AgentPersona> = {
     id: 'coiffeur_wudd',
     titleAr: 'ود',
     gender: 'female',
+    deployment: 'public',
+  },
+  daleelak_product_guide: {
+    id: 'daleelak_product_guide',
+    titleAr: 'دليلك',
+    gender: 'male',
     deployment: 'public',
   },
 };
