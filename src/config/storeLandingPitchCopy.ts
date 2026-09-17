@@ -8,11 +8,14 @@ import { STORE_LANDING_COPY } from '@/config/storeFront';
 
 export const STORE_LANDING_PITCH_COPY = {
   shopNameAr: STORE_LANDING_COPY.shopNameAr,
+  pitchKickerAr: STORE_LANDING_COPY.pitchKickerAr,
   pitchH1Ar: STORE_LANDING_COPY.pitchH1Ar,
   pitchDedicatedLineAr: STORE_LANDING_COPY.pitchDedicatedLineAr,
   pitchNotMarketplaceAr: STORE_LANDING_COPY.pitchNotMarketplaceAr,
   pitchTransformAr: STORE_LANDING_COPY.pitchTransformAr,
   pitchExploreCtaAr: STORE_LANDING_COPY.pitchExploreCtaAr,
+  pitchPathsCtaAr: STORE_LANDING_COPY.pitchPathsCtaAr,
+  pitchOperatorsAppCtaAr: STORE_LANDING_COPY.pitchOperatorsAppCtaAr,
   philosophyTitleAr: STORE_LANDING_COPY.philosophyTitleAr,
   philosophyBodyAr: STORE_LANDING_COPY.philosophyBodyAr,
   philosophyClosingAr: STORE_LANDING_COPY.philosophyClosingAr,
@@ -21,6 +24,6 @@ export const STORE_LANDING_PITCH_COPY = {
   neighborGuestShortAr: 'واجهة خاصة لنشاطك، يصل إليها زبائنك مباشرة.',
   previewBannerAr: 'معاينة تحريرية — لم تُنشر على صفحة المتجر الرئيسية بعد.',
   previewBridgeAr:
-    'في الإنتاج يوجّه زر «استكشف المسارات» إلى صفحة المسارات، وزر «ساعدني في الاختيار» إلى تصفّح المنتجات في المتجر.',
+    'في الإنتاج الزر الأساسي يفتح صفحة المسارات، والزر الثانوي يفتح تطبيق المشغّلين على Google Play. تحميل التطبيق لا ينشئ تشغيلاً دون تفعيل المنتج.',
   previewBridgeCtaAr: 'افتح التصفح الحالي للمقارنة',
 } as const;

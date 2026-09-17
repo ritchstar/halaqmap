@@ -8,13 +8,10 @@ import { Link } from 'react-router-dom';
 import { StoreVisitorFooter, StoreVisitorHeader, StoreVisitorShell } from '@/components/store/StoreChrome';
 import { StoreLandingPhilosophySection } from '@/components/store/StoreLandingPhilosophySection';
 import { StoreLandingPitchHero } from '@/components/store/StoreLandingPitchHero';
+import { StoreOperatorsAppLaunchBanner } from '@/components/store/StoreOperatorsAppLaunchBanner';
 import { STORE_LANDING_PITCH_COPY } from '@/config/storeLandingPitchCopy';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { ROUTE_PATHS } from '@/lib/routePaths';
-
-function scrollToPreviewSection(id: string) {
-  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
 
 export default function StoreLandingPitchPreviewPage() {
   useDocumentTitle('معاينة — واجهة متجر منصة خريطة الحل');
@@ -29,11 +26,12 @@ export default function StoreLandingPitchPreviewPage() {
 
   return (
     <StoreVisitorShell>
+      <StoreOperatorsAppLaunchBanner />
       <StoreVisitorHeader />
       <p className="mx-auto max-w-5xl px-4 pt-4 text-center text-sm font-bold leading-7 text-amber-200/90">
         {STORE_LANDING_PITCH_COPY.previewBannerAr}
       </p>
-      <StoreLandingPitchHero onExplore={() => scrollToPreviewSection('preview-product-bridge')} />
+      <StoreLandingPitchHero />
       <StoreLandingPhilosophySection />
       <section id="preview-definitions" className="scroll-mt-14 px-4 pb-6">
         <div className="mx-auto grid max-w-5xl gap-4 md:grid-cols-2">
