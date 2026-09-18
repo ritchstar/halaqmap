@@ -4,12 +4,13 @@
  * تعليمات ودعم المشغّل — رابط خفيف في الركن، والمحتوى في لوحة عائمة بلا تزاحم.
  */
 import { Headphones, MessageCircle, X } from 'lucide-react';
-import { lazy, Suspense, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { SiWhatsapp } from 'react-icons/si';
 import { StoreDeskCornerButton } from '@/components/store/StoreDeskCornerNav';
 import { STORE_DESK_HELP, STORE_DESK_HELP_COPY, type StoreDeskHelpProduct } from '@/config/storeDeskHelp';
 import { FOUNDER_DESK_WHATSAPP_E164 } from '@/config/founderDeskCopy';
 import { buildWhatsAppChatHref } from '@/lib/saudiWhatsAppPhone';
+import { onStoreDeskHelpOpenRequest } from '@/lib/storeDeskHelpBus';
 
 const FounderDeskVisitorChatLazy = lazy(() =>
   import('@/components/partner/FounderDeskVisitorChat').then((m) => ({ default: m.FounderDeskVisitorChat })),
@@ -22,6 +23,13 @@ export function StoreDeskHelpSupport({ product }: { product: StoreDeskHelpProduc
   const [pane, setPane] = useState<Pane>('help');
   const pack = STORE_DESK_HELP[product];
   const whatsappHref = buildWhatsAppChatHref(FOUNDER_DESK_WHATSAPP_E164, pack.whatsappPrefillAr);
+
+  /* يسمح لبطاقة «دليل القيادة» (بعد اكتمال التفعيل) بفتح هذه اللوحة نفسها
+     عبر زر «اطلب مساعدة»، بدل تكرار محتوى الدعم في مكوّن مستقل. */
+  useEffect(() => onStoreDeskHelpOpenRequest(() => {
+    setOpen(true);
+    setPane('help');
+  }), []);
 
   function close() {
     setOpen(false);

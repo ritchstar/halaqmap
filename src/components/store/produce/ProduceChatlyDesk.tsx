@@ -4,7 +4,7 @@
  * لوحة تشغيل خضارنا1 — هيكل Chatly مع منطق halaqmap الحقيقي.
  */
 import { useMemo, useRef, useState, type ReactNode } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   Archive,
   ArrowLeft,
@@ -59,6 +59,19 @@ import { StoreBrandMark } from '@/components/store/StoreBrandMark';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { useStoreShopPresence } from '@/hooks/useStoreShopPresence';
 import { cn } from '@/lib/utils';
+import {
+  StoreProductActivationChecklist,
+  type StoreActivationStepView,
+} from '@/components/store/StoreProductActivationChecklist';
+import { openStoreDeskHelp } from '@/lib/storeDeskHelpBus';
+
+/**
+ * نص الوصف الافتراضي الذي تكتبه الخادم تلقائياً عند الشراء إن لم يُدخل
+ * المشتري وصفاً في نموذج الطلب (انظر `parseProduceLiveOrderBody` في
+ * api/_lib/storeProduceLive.ts). يُستخدم هنا فقط للتمييز بين وصف حقيقي كتبه
+ * المشغّل ووصف افتراضي لم يُلمَس بعد — وليس مصدراً مستقلاً للنص نفسه.
+ */
+const PRODUCE_DEFAULT_BLURB_AR = 'خضارنا1: اطلب صندوق اليوم من جوالك.';
 
 type DeskSection = 'overview' | 'orders' | 'products' | 'location' | 'payment' | 'tools';
 
@@ -80,6 +93,8 @@ export function ProduceChatlyDesk({
   token,
   showTrialNote = false,
   saveStatus = 'idle',
+  activationEnabled = false,
+  hasSavedShelf = false,
 }: {
   state: ProduceLabState;
   onChange: (next: ProduceLabState) => void;
@@ -87,10 +102,22 @@ export function ProduceChatlyDesk({
   token: string;
   showTrialNote?: boolean;
   saveStatus?: StoreLiveDeskSaveStatus;
+  /**
+   * تُفعَّل فقط من لوحة الصندوق الحقيقية (وليس المعاينة التجريبية)، لأن قائمة
+   * «ابدأ قيادة منتجك» تتحقق من بيانات مشغّل حقيقي فعلاً موجود في القاعدة.
+   */
+  activationEnabled?: boolean;
+  /**
+   * هل يملك هذا الصندوق رفاً محفوظاً فعلياً على الخادم (قبل أي تعبئة عرض
+   * تجريبي محلية)؟ يُحسب في StoreProduceShopPage من payload الخادم مباشرة،
+   * لأن state.shelf هنا قد يكون مملوءاً بعرض تجريبي إن كان الرف الحقيقي فارغاً.
+   */
+  hasSavedShelf?: boolean;
 }) {
   const [section, setSection] = useState<DeskSection>('overview');
   const [mobileNav, setMobileNav] = useState(false);
   const alertRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
 
   const live = state.orders.filter(isLiveDeskTicket);
   const fresh = live.filter((item) => deskOrderPhase(item) === 'new');
@@ -110,6 +137,53 @@ export function ProduceChatlyDesk({
 
   const vendorLabel =
     state.host.vendorMode === 'mobile' ? STORE_MOBILE_VENDOR.mobileTitleAr : STORE_MOBILE_VENDOR.fixedTitleAr;
+
+  /*
+   * خطوات «ابدأ قيادة منتجك» — كل خطوة تتحقق من حقل حقيقي محفوظ فعلاً في
+   * state.host أو من hasSavedShelf (المحسوب من payload الخادم قبل الدمج مع
+   * عرض تجريبي). لا يوجد هنا أي علم «تم يدوياً» — التغيير الوحيد الذي يحرّك
+   * أي خطوة هو أن يحفظ المشغّل بيانات حقيقية من نفس اللوحة.
+   */
+  const activationSteps: StoreActivationStepView[] = [
+    {
+      id: 'identity',
+      titleAr: 'أكمل هوية نشاطك (شعار أو وصف حقيقي)',
+      actionLabelAr: 'إكمال الهوية',
+      onAction: () => setSection('tools'),
+      done: Boolean(state.host.logoSrc.trim()) || (state.host.blurbAr.trim() !== '' && state.host.blurbAr.trim() !== PRODUCE_DEFAULT_BLURB_AR),
+    },
+    {
+      id: 'shelf',
+      titleAr: 'اعرض أصنافك الحقيقية على الرف',
+      actionLabelAr: 'إدارة الرف',
+      onAction: () => setSection('products'),
+      done: hasSavedShelf,
+    },
+    {
+      id: 'location',
+      titleAr: 'حدّد موقع نشاطك وأبرزه للعميل',
+      actionLabelAr: 'تحديد الموقع',
+      onAction: () => setSection('location'),
+      done: state.host.pickupPlaceVisible && state.host.pickupMapsUrl.trim() !== '',
+    },
+    {
+      id: 'hours',
+      titleAr: 'فعّل ساعات العمل',
+      actionLabelAr: 'ضبط الساعات',
+      onAction: () => setSection('location'),
+      done: state.host.hoursEnabled,
+    },
+  ];
+
+  const drivingGuideActions = {
+    runAr: 'شغّل',
+    onRun: () => setSection('overview'),
+    marketAr: 'سوّق',
+    onMarket: () => navigate(ROUTE_PATHS.STORE_PRODUCE_SUPPORT),
+    growAr: 'طوّر',
+    onGrow: () => setSection('tools'),
+    onHelp: () => openStoreDeskHelp(),
+  };
 
   function receiveOrder(id: string) {
     onChange({ ...state, orders: receiveDeskTicket(state.orders, id) });
@@ -342,6 +416,15 @@ export function ProduceChatlyDesk({
 
           <div className="p-4 sm:p-8 lg:p-10">
             <div className="mx-auto max-w-[1420px]">
+              {activationEnabled ? (
+                <StoreProductActivationChecklist
+                  productNameAr={STORE_PRODUCE_LIVE.titleAr}
+                  accent={STORE_PRODUCE_LIVE_ACCENT}
+                  steps={activationSteps}
+                  guide={drivingGuideActions}
+                />
+              ) : null}
+
               {section === 'overview' ? (
                 <OverviewSection
                   fresh={fresh}
