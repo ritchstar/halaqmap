@@ -4,7 +4,7 @@
  * حفظ جلسة ساحة الشطرنج محلياً (localStorage) — بلا خادم وبلا حساب،
  * على نمط «Lab State» المستخدم في منتجات المتجر الأخرى.
  */
-import type { ChessDifficultyId } from '@/config/chessArena';
+import type { ChessDifficultyId, ChessTimeControlId } from '@/config/chessArena';
 import { CHESS_SESSION_STORAGE_KEY } from '@/config/chessArena';
 
 export type ChessGameStatus = 'playing' | 'player_won' | 'ai_won' | 'draw' | 'resigned' | 'timeout';
@@ -20,6 +20,8 @@ export interface ChessSessionState {
   updatedAt: number;
   /** الوقت المتبقي (مللي ثانية) في ساعة اللاعب الحقيقية عند آخر حفظ — اختياري للتوافق مع جلسات أقدم. */
   clockRemainingMs?: number;
+  /** طريقة اللعب (التحكم بالوقت) المختارة لهذه المباراة — اختياري، الافتراضي «عادية 10 دقائق» لجلسات أقدم. */
+  timeControl?: ChessTimeControlId;
 }
 
 function isBrowser(): boolean {
@@ -39,6 +41,10 @@ function isChessGameStatus(raw: unknown): raw is ChessGameStatus {
     raw === 'resigned' ||
     raw === 'timeout'
   );
+}
+
+function isChessTimeControlId(raw: unknown): raw is ChessTimeControlId {
+  return raw === 'bullet3' || raw === 'blitz5' || raw === 'rapid10' || raw === 'untimed';
 }
 
 export function readChessSession(): ChessSessionState | null {
@@ -68,6 +74,7 @@ export function readChessSession(): ChessSessionState | null {
       startedAt: typeof parsed.startedAt === 'number' ? parsed.startedAt : Date.now(),
       updatedAt: typeof parsed.updatedAt === 'number' ? parsed.updatedAt : Date.now(),
       clockRemainingMs: typeof parsed.clockRemainingMs === 'number' ? parsed.clockRemainingMs : undefined,
+      timeControl: isChessTimeControlId(parsed.timeControl) ? parsed.timeControl : undefined,
     };
   } catch {
     return null;

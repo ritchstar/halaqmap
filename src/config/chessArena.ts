@@ -61,6 +61,27 @@ export function getChessDifficultyLevel(id: ChessDifficultyId): ChessDifficultyL
   return CHESS_DIFFICULTY_LEVELS.find((level) => level.id === id) ?? CHESS_DIFFICULTY_LEVELS[0];
 }
 
+/** طرق اللعب الحقيقية من حيث الوقت — ساعة فعلية تحكم مسار المباراة، وليست ديكوراً. */
+export type ChessTimeControlId = 'bullet3' | 'blitz5' | 'rapid10' | 'untimed';
+
+export interface ChessTimeControl {
+  id: ChessTimeControlId;
+  labelAr: string;
+  /** المدة بالمللي ثانية، أو null لوضع «بلا وقت» (بلا ساعة إطلاقاً). */
+  ms: number | null;
+}
+
+export const CHESS_TIME_CONTROLS: readonly ChessTimeControl[] = [
+  { id: 'bullet3', labelAr: 'خاطفة · 3 دقائق', ms: 3 * 60_000 },
+  { id: 'blitz5', labelAr: 'سريعة · 5 دقائق', ms: 5 * 60_000 },
+  { id: 'rapid10', labelAr: 'عادية · 10 دقائق', ms: 10 * 60_000 },
+  { id: 'untimed', labelAr: 'بلا وقت', ms: null },
+] as const;
+
+export function getChessTimeControl(id: ChessTimeControlId): ChessTimeControl {
+  return CHESS_TIME_CONTROLS.find((tc) => tc.id === id) ?? CHESS_TIME_CONTROLS[2];
+}
+
 export const CHESS_ARENA_COPY = {
   documentTitle: 'ساحة الشطرنج — العب ضد الذكاء الاصطناعي | خريطة الحل',
   heroBadgeAr: 'ساحة الشطرنج',
@@ -116,6 +137,32 @@ export const CHESS_ARENA_COPY = {
   undoButtonAr: 'تراجع',
   yourClockLabelAr: 'وقتك',
   aiThinkBudgetLabelAr: 'ميزانية تفكير الذكاء الاصطناعي',
+  untimedLabelAr: 'بلا وقت',
+
+  // طرق اللعب (التحكم بالوقت)
+  pickTimeControlTitleAr: 'اختر طريقة اللعب',
+
+  // الإحصائيات الحقيقية (محفوظة محلياً)
+  statsCardTitleAr: 'إحصائياتك',
+  statsPlayedAr: 'مباريات',
+  statsWinsAr: 'فوز',
+  statsLossesAr: 'خسارة',
+  statsDrawsAr: 'تعادل',
+  statsByLevelTitleAr: 'حسب المستوى',
+
+  // أدوات (PGN/FEN)
+  toolsTitleAr: 'أدوات',
+  copyPgnButtonAr: 'نسخ PGN',
+  copyFenButtonAr: 'نسخ FEN',
+  copiedFeedbackAr: 'تم النسخ',
+  copyFailedFeedbackAr: 'تعذّر النسخ',
+
+  // مراجعة النقلات
+  reviewToStartAr: 'بداية المباراة',
+  reviewPrevAr: 'النقلة السابقة',
+  reviewNextAr: 'النقلة التالية',
+  reviewLiveAr: 'الوضع الحالي (مباشر)',
+  reviewingBadgeAr: 'أنت تستعرض نقلة سابقة',
 } as const;
 
 /** مدة ساعة اللاعب الافتراضية (10 دقائق) — عدّاد تنازلي حقيقي يعمل فقط أثناء دور اللاعب. */
