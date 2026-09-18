@@ -21,14 +21,14 @@ export function StoreLaterServicesSection({ onOpenForm, nested = false }: Props)
     <div>
       {nested ? null : (
         <>
-          <h2 className="text-2xl font-extrabold text-[#f4efe4]">{STORE_LATER_SERVICES_COPY.titleAr}</h2>
-          <p className="mt-2 max-w-3xl text-sm leading-relaxed text-white/70">
+          <h2 className="text-2xl font-extrabold text-[#2e2418]">{STORE_LATER_SERVICES_COPY.titleAr}</h2>
+          <p className="mt-2 max-w-3xl text-sm leading-relaxed text-[#3d3226]">
             {STORE_LATER_SERVICES_COPY.leadAr}
           </p>
         </>
       )}
       {nested ? (
-        <p className="max-w-3xl text-sm leading-relaxed text-white/70">{STORE_LATER_SERVICES_COPY.leadAr}</p>
+        <p className="max-w-3xl text-sm leading-relaxed text-[#3d3226]">{STORE_LATER_SERVICES_COPY.leadAr}</p>
       ) : null}
       <ul className="mt-5 grid gap-3 md:grid-cols-3">
         {STORE_LATER_SERVICES_COPY.doors.map((door) => {
@@ -59,19 +59,19 @@ export function StoreLaterServicesSection({ onOpenForm, nested = false }: Props)
           );
         })}
       </ul>
-      <p className="mt-4 text-sm leading-relaxed text-white/55">{STORE_LATER_SERVICES_COPY.outNoteAr}</p>
-      <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.03] p-4 md:p-5">
-        <p className="text-xs font-bold tracking-[0.14em] text-white/45">{STORE_COMMISSION_COPY.kickerAr}</p>
-        <p className="mt-1 text-base font-extrabold text-white/80">{STORE_COMMISSION_COPY.titleAr}</p>
-        <p className="mt-2 max-w-3xl text-sm leading-relaxed text-white/55">{STORE_COMMISSION_COPY.leadAr}</p>
+      <p className="mt-4 text-sm leading-relaxed text-[#6f6250]">{STORE_LATER_SERVICES_COPY.outNoteAr}</p>
+      <div className="mt-6 rounded-2xl border border-[#dac8aa] bg-[#fbf6ec] p-4 md:p-5">
+        <p className="text-xs font-bold tracking-[0.14em] text-[#6f6250]">{STORE_COMMISSION_COPY.kickerAr}</p>
+        <p className="mt-1 text-base font-extrabold text-[#2e2418]">{STORE_COMMISSION_COPY.titleAr}</p>
+        <p className="mt-2 max-w-3xl text-sm leading-relaxed text-[#3d3226]">{STORE_COMMISSION_COPY.leadAr}</p>
         <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-sm">
-          <a href={STORE_COMMISSION_COPY.halaqHref} className="text-white/70 underline-offset-4 hover:text-[#e8c547] hover:underline">
+          <a href={STORE_COMMISSION_COPY.halaqHref} className="text-[#5c4a1a] underline-offset-4 hover:underline">
             {STORE_COMMISSION_COPY.halaqLabelAr}
           </a>
-          <a href={STORE_COMMISSION_COPY.coiffeurHref} className="text-white/70 underline-offset-4 hover:text-[#e8c547] hover:underline">
+          <a href={STORE_COMMISSION_COPY.coiffeurHref} className="text-[#5c4a1a] underline-offset-4 hover:underline">
             {STORE_COMMISSION_COPY.coiffeurLabelAr}
           </a>
-          <a href={STORE_COMMISSION_COPY.storeHref} className="text-white/70 underline-offset-4 hover:text-[#e8c547] hover:underline">
+          <a href={STORE_COMMISSION_COPY.storeHref} className="text-[#5c4a1a] underline-offset-4 hover:underline">
             {STORE_COMMISSION_COPY.storeLabelAr}
           </a>
         </div>

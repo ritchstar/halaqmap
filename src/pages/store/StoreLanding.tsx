@@ -108,8 +108,8 @@ export default function StoreLanding() {
 
       <section id="store-browse-neighborhood" className="scroll-mt-14 px-4 pb-6 pt-4">
         <div className="mx-auto max-w-5xl">
-          <h2 className="text-lg font-extrabold text-white/90">{STORE_LANDING_COPY.browseNeighborhoodAr}</h2>
-          <p className="mt-2 max-w-3xl text-sm leading-7 text-white/72">
+          <h2 className="text-lg font-extrabold text-[#2e2418]">{STORE_LANDING_COPY.browseNeighborhoodAr}</h2>
+          <p className="mt-2 max-w-3xl text-sm leading-7 text-[#3d3226]">
             {STORE_DEDICATED_PAGE_COPY.storeBrowseNeighborhoodLeadAr}
           </p>
           <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -166,10 +166,10 @@ export default function StoreLanding() {
 
       <section id="store-browse-hospitality" className="scroll-mt-14 px-4 pb-8">
         <div className="mx-auto max-w-5xl">
-          <h2 className="text-lg font-extrabold text-white/90">
+          <h2 className="text-lg font-extrabold text-[#2e2418]">
             {STORE_LANDING_COPY.browseHospitalitySectionAr}
           </h2>
-          <p className="mt-2 max-w-3xl text-sm leading-7 text-white/72">
+          <p className="mt-2 max-w-3xl text-sm leading-7 text-[#3d3226]">
             {STORE_DEDICATED_PAGE_COPY.storeBrowseHospitalityLeadAr}
           </p>
           <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -239,7 +239,7 @@ export default function StoreLanding() {
 
       <section id="store-browse-halls" className="scroll-mt-14 px-4 pb-8">
         <div className="mx-auto max-w-5xl">
-          <h2 className="text-lg font-extrabold text-white/90">{STORE_LANDING_COPY.browseHallsSectionAr}</h2>
+          <h2 className="text-lg font-extrabold text-[#2e2418]">{STORE_LANDING_COPY.browseHallsSectionAr}</h2>
           <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {STORE_WEDDING_LIVE_PUBLIC_ENABLED ? (
               <StoreBrowseCard
@@ -324,9 +324,9 @@ export default function StoreLanding() {
 
       <section id="store-browse-works" className="scroll-mt-14 px-4 pb-10">
         <div className="mx-auto max-w-5xl">
-          <h2 className="text-lg font-extrabold text-white/90">{STORE_LANDING_COPY.browseWorksSectionAr}</h2>
-          <p className="mt-3 text-base font-extrabold text-white/90">{STORE_SECTOR_SPLIT_COPY.titleAr}</p>
-          <p className="mt-2 max-w-3xl text-sm leading-relaxed text-white/70">
+          <h2 className="text-lg font-extrabold text-[#2e2418]">{STORE_LANDING_COPY.browseWorksSectionAr}</h2>
+          <p className="mt-3 text-base font-extrabold text-[#2e2418]">{STORE_SECTOR_SPLIT_COPY.titleAr}</p>
+          <p className="mt-2 max-w-3xl text-sm leading-relaxed text-[#3d3226]">
             {STORE_SECTOR_SPLIT_COPY.leadAr}
           </p>
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
@@ -360,11 +360,11 @@ export default function StoreLanding() {
       <section className="px-4 pb-10">
         <div className="mx-auto grid max-w-5xl items-center gap-8 lg:grid-cols-[1.05fr_0.95fr]">
           <div>
-            <p className="text-sm font-bold tracking-wide text-[#e8c547]">{STORE_LANDING_COPY.kicker}</p>
-            <h2 className="mt-2 text-3xl font-extrabold leading-tight text-[#f4efe4] md:text-4xl">
+            <p className="text-sm font-bold tracking-wide text-[#5c4a1a]">{STORE_LANDING_COPY.kicker}</p>
+            <h2 className="mt-2 text-3xl font-extrabold leading-tight text-[#1a140c] md:text-4xl">
               {STORE_LANDING_COPY.shopNameAr}
             </h2>
-            <p className="mt-3 max-w-3xl text-base leading-relaxed text-white/78 md:text-lg">
+            <p className="mt-3 max-w-3xl text-base leading-relaxed text-[#3d3226] md:text-lg">
               {STORE_LANDING_COPY.roleLine}
             </p>
           </div>
@@ -421,7 +421,7 @@ export default function StoreLanding() {
           <div className="mt-6 flex flex-wrap gap-3">
             <Link
               to={ROUTE_PATHS.STORE_REQUEST}
-              className="inline-flex rounded-full bg-[#e8c547] px-5 py-2.5 text-sm font-extrabold text-[#061018] shadow-[0_12px_30px_-12px_rgba(232,197,71,0.8)] hover:bg-[#f0d36a]"
+              className="inline-flex rounded-full bg-[#e8c547] px-5 py-2.5 text-sm font-extrabold text-[#061018] shadow-[0_8px_20px_-14px_rgba(232,197,71,0.45)] hover:bg-[#f0d36a]"
               onClick={openRequestForm}
             >
               {STORE_LANDING_COPY.heroCta}
@@ -433,7 +433,7 @@ export default function StoreLanding() {
 
       <section className="px-4 pb-10">
         <div className="mx-auto max-w-5xl">
-          <h2 className="text-lg font-extrabold text-white/90">{STORE_LANDING_COPY.softwareStripTitle}</h2>
+          <h2 className="text-lg font-extrabold text-[#2e2418]">{STORE_LANDING_COPY.softwareStripTitle}</h2>
           <div className="mt-4 grid gap-3 sm:grid-cols-3">
             {STORE_SOFTWARE_SHOTS.map((shot, index) => (
               <figure
@@ -459,8 +459,8 @@ export default function StoreLanding() {
           </div>
 
           <div className="space-y-5">
-            <div className="rounded-2xl border border-white/12 bg-white/[0.04] p-5">
-              <h2 className="text-xl font-extrabold">المنتجات الحالية</h2>
+            <div className="rounded-2xl border border-[#dac8aa] bg-[#fbf6ec] p-5">
+              <h2 className="text-xl font-extrabold text-[#2e2418]">المنتجات الحالية</h2>
               <ul className="mt-4 space-y-3">
                 {STORE_LIVE_PRODUCTS.map((product) => (
                   <li key={product.id}>
@@ -565,8 +565,8 @@ export default function StoreLanding() {
 
       <section id="store-admin-chat" className="px-4 pb-10">
         <div className="mx-auto max-w-sm">
-          <h2 className="text-center text-lg font-extrabold text-white/90">{STORE_LANDING_COPY.deskChatTitle}</h2>
-          <p className="mt-2 text-center text-sm leading-relaxed text-white/70">{STORE_LANDING_COPY.deskChatLead}</p>
+          <h2 className="text-center text-lg font-extrabold text-[#2e2418]">{STORE_LANDING_COPY.deskChatTitle}</h2>
+          <p className="mt-2 text-center text-sm leading-relaxed text-[#3d3226]">{STORE_LANDING_COPY.deskChatLead}</p>
           <div className="mt-5">
             <StoreDeskChatCard />
           </div>

@@ -2,6 +2,7 @@
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
  * بنر منتج حلاق ماب — أحد أعمال المتجر، تحت الهيرو فقط.
+ * خلفية داكنة موحّدة تحت النص؛ بلا تدرّج ذهبي يغسل الكتابة.
  */
 import { Megaphone } from 'lucide-react';
 import { STORE_HALAQMAP_OPS_BANNER } from '@/config/storeFront';
@@ -12,12 +13,12 @@ export function StoreLiveOpsBanner() {
       className="px-4 pb-8"
       aria-label={STORE_HALAQMAP_OPS_BANNER.ariaAr}
     >
-      <h2 className="mx-auto mb-3 max-w-5xl text-center text-lg font-extrabold leading-8 text-[#e8c547] md:text-xl">
+      <h2 className="mx-auto mb-3 max-w-5xl text-center text-lg font-extrabold leading-8 text-[#2e2418] md:text-xl">
         {STORE_HALAQMAP_OPS_BANNER.headingAr}
       </h2>
-      <div className="mx-auto flex max-w-5xl flex-col items-start justify-between gap-4 rounded-2xl border border-[#e8c547]/40 bg-gradient-to-l from-[#e8c547]/16 via-[#0b1a24] to-teal-500/12 px-5 py-4 sm:flex-row sm:items-center">
+      <div className="mx-auto flex max-w-5xl flex-col items-start justify-between gap-4 rounded-2xl border border-[#e8c547]/40 bg-[#0b1a24] px-5 py-4 shadow-[0_12px_28px_-18px_rgba(6,16,24,0.5)] sm:flex-row sm:items-center">
         <div className="min-w-0">
-          <p className="inline-flex items-center gap-1.5 rounded-full border border-[#e8c547]/40 bg-[#e8c547]/15 px-2.5 py-0.5 text-[0.68rem] font-bold text-[#e8c547]">
+          <p className="inline-flex items-center gap-1.5 rounded-full border border-[#e8c547]/40 bg-[#e8c547]/12 px-2.5 py-0.5 text-[0.68rem] font-bold text-[#e8c547]">
             <Megaphone className="h-3.5 w-3.5" aria-hidden />
             {STORE_HALAQMAP_OPS_BANNER.badgeAr}
           </p>

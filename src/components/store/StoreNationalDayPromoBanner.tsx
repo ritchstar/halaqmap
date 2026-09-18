@@ -36,7 +36,7 @@ export function StoreNationalDayPromoBanner() {
         <span className="min-w-0 flex-1">
           <span className="block text-xs font-bold text-[#006c35]">{copy.kickerAr}</span>
           <span className="mt-1 block text-base font-extrabold text-[#004d27]">{copy.heroTitleAr}</span>
-          <span className="mt-2 block text-sm leading-7 text-[#5c6b65]">{copy.brandLineAr}</span>
+          <span className="mt-2 block text-sm leading-7 text-[#2e2418]">{copy.brandLineAr}</span>
           <span className="mt-3 inline-flex min-h-[2.5rem] items-center rounded-full bg-[#006c35] px-4 text-sm font-bold text-white">
             {copy.heroCtaAr}
           </span>

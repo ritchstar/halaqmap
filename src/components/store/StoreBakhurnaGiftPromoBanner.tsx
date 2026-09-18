@@ -23,7 +23,7 @@ export function StoreBakhurnaGiftPromoBanner({ compact = false }: { compact?: bo
       <Link
         to={ROUTE_PATHS.STORE_BAKHURNA_GIFT}
         className={cn(
-          'mx-auto flex max-w-5xl flex-col gap-4 rounded-2xl border border-[#6E4A26] bg-gradient-to-l from-[#6E4A26]/25 via-[#1a140c] to-[#061018] shadow-[0_24px_50px_-22px_rgba(110,74,38,0.75)] ring-1 ring-[#6E4A26]/40 hover:ring-[#8a6239]',
+          'mx-auto flex max-w-5xl flex-col gap-4 rounded-2xl border border-[#6E4A26]/55 bg-gradient-to-l from-[#061018] via-[#1a140c] to-[#1a140c] shadow-[0_12px_28px_-18px_rgba(6,16,24,0.55)] ring-1 ring-[#6E4A26]/25 hover:ring-[#8a6239]/50',
           compact
             ? 'px-4 py-3 sm:flex-row sm:items-center sm:justify-between'
             : 'px-5 py-5 sm:flex-row sm:items-center sm:justify-between md:px-6',

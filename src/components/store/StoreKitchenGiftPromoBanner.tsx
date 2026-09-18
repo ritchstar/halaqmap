@@ -23,7 +23,7 @@ export function StoreKitchenGiftPromoBanner({ compact = false }: { compact?: boo
       <Link
         to={ROUTE_PATHS.STORE_KITCHEN_GIFT}
         className={cn(
-          'mx-auto flex max-w-5xl flex-col gap-4 rounded-2xl border border-[#b45a3c] bg-gradient-to-l from-[#b45a3c]/25 via-[#1a0c08] to-[#061018] shadow-[0_24px_50px_-22px_rgba(180,90,60,0.75)] ring-1 ring-[#b45a3c]/40 hover:ring-[#d07a5c]',
+          'mx-auto flex max-w-5xl flex-col gap-4 rounded-2xl border border-[#b45a3c]/55 bg-gradient-to-l from-[#061018] via-[#1a0c08] to-[#1a0c08] shadow-[0_12px_28px_-18px_rgba(6,16,24,0.55)] ring-1 ring-[#b45a3c]/25 hover:ring-[#d07a5c]/50',
           compact
             ? 'px-4 py-3 sm:flex-row sm:items-center sm:justify-between'
             : 'px-5 py-5 sm:flex-row sm:items-center sm:justify-between md:px-6',

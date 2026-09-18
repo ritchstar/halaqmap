@@ -106,15 +106,15 @@ export function StoreVisitorHeader() {
           <Link to={ROUTE_PATHS.STORE_LANDING} className="flex min-w-0 items-center gap-3 me-auto md:gap-4">
             <StoreBrandMark />
             <span className="min-w-0">
-              <p className="text-[0.65rem] font-bold tracking-wide text-[#e8c547] md:text-[0.7rem]">{STORE_BRAND_LATIN}</p>
-              <p className="truncate text-base font-extrabold text-[#f4efe4] md:text-lg">{STORE_LANDING_COPY.shopNameAr}</p>
+              <p className="text-[0.65rem] font-bold tracking-wide text-[#6f6250] md:text-[0.7rem]">{STORE_BRAND_LATIN}</p>
+              <p className="truncate text-base font-extrabold text-[#2e2418] md:text-lg">{STORE_LANDING_COPY.shopNameAr}</p>
             </span>
           </Link>
           <nav className="flex shrink-0 items-center gap-1.5 text-sm font-bold md:gap-2">
             {showGiftCta ? (
             <Link
               to={ROUTE_PATHS.STORE_GIFT}
-              className="inline-flex rounded-full bg-[#e8c547] px-3 py-1.5 text-[#061018] shadow-[0_10px_24px_-12px_rgba(232,197,71,0.95)] hover:bg-[#f0d36a]"
+              className="inline-flex rounded-full bg-[#e8c547] px-3 py-1.5 text-[#061018] shadow-[0_8px_18px_-12px_rgba(232,197,71,0.55)] hover:bg-[#f0d36a]"
             >
               <span className="sm:hidden">{STORE_GIFT_COPY.headerShortAr}</span>
               <span className="hidden sm:inline">{STORE_GIFT_COPY.kickerAr}</span>
@@ -122,33 +122,33 @@ export function StoreVisitorHeader() {
             ) : null}
             <Link
               to={ROUTE_PATHS.STORE_PRODUCT_BENEFITS}
-              className="hidden rounded-full px-3 py-1.5 text-white/80 hover:text-[#e8c547] sm:inline-flex"
+              className="hidden rounded-full px-3 py-1.5 text-[#3d3226] hover:text-[#1a140c] sm:inline-flex"
             >
               {STORE_PRODUCT_BENEFITS_COPY.navAr}
             </Link>
             <Link
               to={ROUTE_PATHS.STORE_TRUST}
-              className="hidden rounded-full px-3 py-1.5 text-white/80 hover:text-[#e8c547] sm:inline-flex"
+              className="hidden rounded-full px-3 py-1.5 text-[#3d3226] hover:text-[#1a140c] sm:inline-flex"
             >
               {STORE_ABOUT_COPY.trustNavAr}
             </Link>
             {STORE_REVIEWS_PUBLIC_ENABLED ? (
             <Link
               to={ROUTE_PATHS.STORE_REVIEWS}
-              className="hidden rounded-full px-3 py-1.5 text-white/80 hover:text-[#e8c547] sm:inline-flex"
+              className="hidden rounded-full px-3 py-1.5 text-[#3d3226] hover:text-[#1a140c] sm:inline-flex"
             >
               {STORE_REVIEWS_COPY.navAr}
             </Link>
             ) : null}
             <Link
               to={ROUTE_PATHS.STORE_REQUEST}
-              className="hidden rounded-full border border-[#e8c547]/40 px-3 py-1.5 text-[#e8c547] sm:inline-flex"
+              className="hidden rounded-full border border-[#2e2418]/35 px-3 py-1.5 text-[#2e2418] sm:inline-flex"
             >
               طلب خدمة
             </Link>
             <Link
               to={ROUTE_PATHS.STORE_CARDS}
-              className="hidden rounded-full border border-[#e8c547]/40 px-3 py-1.5 text-[#e8c547] sm:inline-flex"
+              className="hidden rounded-full border border-[#2e2418]/35 px-3 py-1.5 text-[#2e2418] sm:inline-flex"
             >
               بطاقة مجانية
             </Link>
@@ -174,51 +174,51 @@ export function StoreVisitorFooter() {
       <div className="mx-auto flex max-w-5xl flex-col gap-4">
         <nav className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm font-bold">
           {STORE_GIFT_CAMPAIGN_PUBLIC_ENABLED ? (
-          <Link to={ROUTE_PATHS.STORE_GIFT} className="text-[#e8c547]">
+          <Link to={ROUTE_PATHS.STORE_GIFT} className="text-[#5c4a1a]">
             {STORE_GIFT_COPY.kickerAr}
           </Link>
           ) : null}
           {STORE_GENERAL_TRIAL_PUBLIC_ENABLED ? (
-          <Link to={ROUTE_PATHS.STORE_GENERAL_TRIAL} className="text-teal-300">
+          <Link to={ROUTE_PATHS.STORE_GENERAL_TRIAL} className="text-[#0f766e]">
             {STORE_GENERAL_TRIAL_COPY.kickerAr}
           </Link>
           ) : null}
-          <Link to={ROUTE_PATHS.STORE_ABOUT} className="text-[#e8c547]">
+          <Link to={ROUTE_PATHS.STORE_ABOUT} className="text-[#5c4a1a]">
             {STORE_LANDING_COPY.aboutNavAr}
           </Link>
-          <Link to={ROUTE_PATHS.STORE_PRODUCT_BENEFITS} className="text-[#e8c547]">
+          <Link to={ROUTE_PATHS.STORE_PRODUCT_BENEFITS} className="text-[#5c4a1a]">
             {STORE_PRODUCT_BENEFITS_COPY.navAr}
           </Link>
-          <Link to={ROUTE_PATHS.STORE_TRUST} className="text-[#e8c547]">
+          <Link to={ROUTE_PATHS.STORE_TRUST} className="text-[#5c4a1a]">
             {STORE_ABOUT_COPY.trustNavAr}
           </Link>
-          <Link to={ROUTE_PATHS.STORE_REQUEST} className="text-white/80">
+          <Link to={ROUTE_PATHS.STORE_REQUEST} className="text-[#3d3226]">
             طلب خدمة
           </Link>
           {STORE_REVIEWS_PUBLIC_ENABLED ? (
-          <Link to={ROUTE_PATHS.STORE_REVIEWS} className="text-[#e8c547]">
+          <Link to={ROUTE_PATHS.STORE_REVIEWS} className="text-[#5c4a1a]">
             {STORE_REVIEWS_COPY.navAr}
           </Link>
           ) : null}
-          <Link to={ROUTE_PATHS.STORE_LANDING} className="text-white/80">
+          <Link to={ROUTE_PATHS.STORE_LANDING} className="text-[#3d3226]">
             واجهة منصة خريطة الحل
           </Link>
-          <Link to={ROUTE_PATHS.STORE_INTRO_CARDS} className="text-white/80">
+          <Link to={ROUTE_PATHS.STORE_INTRO_CARDS} className="text-[#3d3226]">
             كروت تعريفية
           </Link>
-          <Link to={ROUTE_PATHS.STORE_ISSUED_CARDS_LEGAL} className="text-white/80">
+          <Link to={ROUTE_PATHS.STORE_ISSUED_CARDS_LEGAL} className="text-[#3d3226]">
             {STORE_LANDING_COPY.issuedCardsLegalAr}
           </Link>
           {STORE_OPERATORS_DESK_PUBLIC_ENABLED ? (
-          <Link to={ROUTE_PATHS.STORE_OPERATORS} className="text-white/40">
+          <Link to={ROUTE_PATHS.STORE_OPERATORS} className="text-[#6f6250]">
             {STORE_OPERATORS_DESK_COPY.footerNavAr}
           </Link>
           ) : null}
         </nav>
-        <p className="text-sm leading-relaxed text-white/70">{STORE_LANDING_COPY.roleLine}</p>
-        <p className="text-xs text-white/50">{STORE_ORIGIN}</p>
-        <p className="text-xs leading-relaxed text-white/55">{STORE_LANDING_COPY.mediaLicenseLineAr}</p>
-        <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-white/70">
+        <p className="text-sm leading-relaxed text-[#3d3226]">{STORE_LANDING_COPY.roleLine}</p>
+        <p className="text-xs text-[#6f6250]">{STORE_ORIGIN}</p>
+        <p className="text-xs leading-relaxed text-[#6f6250]">{STORE_LANDING_COPY.mediaLicenseLineAr}</p>
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-[#3d3226]">
           <a href={`mailto:${STORE_CONTACT_EMAIL}`} className="hover:text-[#e8c547]">
             {STORE_FOOTER_CONTACT.emailLabelAr}
             {' · '}
@@ -249,16 +249,16 @@ export function StoreVisitorFooter() {
           </a>
         </div>
         {onStoreLanding ? (
-          <StoreEnterpriseDirectMail className="text-white/65" linkClassName="text-[#e8c547]" />
+          <StoreEnterpriseDirectMail className="text-[#3d3226]" linkClassName="text-[#5c4a1a]" />
         ) : null}
-        <p className="text-xs leading-relaxed text-white/45">{STORE_LANDING_COPY.footerLegal}</p>
-        <p className="text-xs leading-relaxed text-white/45">{STORE_SAIP_COPY.footerLeadAr}</p>
-        <ul className="flex flex-wrap gap-x-4 gap-y-1 text-xs leading-6 text-white/40">
+        <p className="text-xs leading-relaxed text-[#6f6250]">{STORE_LANDING_COPY.footerLegal}</p>
+        <p className="text-xs leading-relaxed text-[#6f6250]">{STORE_SAIP_COPY.footerLeadAr}</p>
+        <ul className="flex flex-wrap gap-x-4 gap-y-1 text-xs leading-6 text-[#6f6250]">
           {STORE_SAIP_PUBLIC_WORKS.map((work) => (
             <li key={work.id}>
               {work.titleAr}
               {' '}
-              <code dir="ltr" className="inline-block font-semibold text-white/50">
+              <code dir="ltr" className="inline-block font-semibold text-[#3d3226]">
                 {work.certificateNo}
               </code>
             </li>

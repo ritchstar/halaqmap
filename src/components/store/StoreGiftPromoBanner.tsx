@@ -2,6 +2,7 @@
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
  * إبراز هدية منصة خريطة الحل على واجهة المتجر وصفحات افراحي1 واجواء1 فقط.
+ * خلفية داكنة تحت النص؛ لمسة ذهب خفيفة بجانب الزر فقط — بلا وهج يغسل الكتابة.
  */
 import { Link, useLocation } from 'react-router-dom';
 import { Gift } from 'lucide-react';
@@ -29,7 +30,7 @@ export function StoreGiftPromoBanner({
       <Link
         to={ROUTE_PATHS.STORE_GIFT}
         className={cn(
-          'mx-auto flex max-w-5xl flex-col gap-4 rounded-2xl border border-[#e8c547] bg-gradient-to-l from-[#e8c547]/25 via-[#0b1a24] to-[#061018] shadow-[0_24px_50px_-22px_rgba(232,197,71,0.75)] ring-1 ring-[#e8c547]/40 hover:ring-[#f0d36a]',
+          'mx-auto flex max-w-5xl flex-col gap-4 rounded-2xl border border-[#e8c547]/55 bg-gradient-to-l from-[#061018] via-[#0b1a24] to-[#0b1a24] shadow-[0_12px_28px_-18px_rgba(6,16,24,0.55)] ring-1 ring-[#e8c547]/25 hover:ring-[#e8c547]/45',
           ultraCompact
             ? 'flex-row items-center justify-between gap-2 px-3 py-2'
             : compact
@@ -39,7 +40,7 @@ export function StoreGiftPromoBanner({
       >
         <div className="min-w-0">
           {!ultraCompact ? (
-            <p className="inline-flex items-center gap-1.5 rounded-full border border-[#e8c547]/50 bg-[#e8c547]/20 px-2.5 py-0.5 text-[0.7rem] font-extrabold text-[#e8c547]">
+            <p className="inline-flex items-center gap-1.5 rounded-full border border-[#e8c547]/45 bg-[#e8c547]/12 px-2.5 py-0.5 text-[0.7rem] font-extrabold text-[#e8c547]">
               <Gift className="h-3.5 w-3.5" aria-hidden />
               {copy.promoBadgeAr}
             </p>
@@ -53,7 +54,7 @@ export function StoreGiftPromoBanner({
             {ultraCompact ? copy.promoBadgeAr : copy.promoTitleAr}
           </p>
           {compact || ultraCompact ? null : (
-            <p className="mt-2 max-w-2xl text-sm leading-7 text-white/75">{copy.promoLeadAr}</p>
+            <p className="mt-2 max-w-2xl text-sm leading-7 text-[#d9d0c0]">{copy.promoLeadAr}</p>
           )}
         </div>
         <span
