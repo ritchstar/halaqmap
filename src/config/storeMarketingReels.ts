@@ -48,6 +48,8 @@ const LOUNGE_GENERATED = [
   '/images/store/lounge/lounge-13.jpg',
   '/images/store/lounge/lounge-13.jpg',
   '/images/store/lounge/lounge-13.jpg',
+  // كوكتيل داكن على رخام أخضر — بلا تكرار، لم يُطلب إبرازها أكثر من غيرها.
+  '/images/store/lounge/lounge-14.jpg',
 ] as const;
 
 export const STORE_LOUNGE_MARKETING_FRAMES = [
@@ -59,7 +61,14 @@ export const STORE_LOUNGE_MARKETING_FRAMES = [
 // كافينا1 كان يستعير reel="lounge" (نفس مصفوفة لاونجا1 أعلاه) لعدم وجود صور
 // خاصة به. أضفنا هذا الشريط المستقل بأول صورتين مخصصتين فعلياً للمقهى، ولا
 // داعي لتكرارهما — هذا الشريط بأكمله جديد وليس فيه صورة أخرى تُنافَس.
-const CAFE_GENERATED = ['/images/store/cafe/cafe-01.jpg', '/images/store/cafe/cafe-02.jpg'] as const;
+const CAFE_GENERATED = [
+  '/images/store/cafe/cafe-01.jpg',
+  '/images/store/cafe/cafe-02.jpg',
+  '/images/store/cafe/cafe-03.jpg',
+  '/images/store/cafe/cafe-04.jpg',
+  '/images/store/cafe/cafe-05.jpg',
+  '/images/store/cafe/cafe-06.jpg',
+] as const;
 
 export const STORE_CAFE_MARKETING_FRAMES = [...CAFE_GENERATED] as const;
 
@@ -111,6 +120,10 @@ const DATES_GENERATED = [
   '/images/store/dates/dates-06.jpg',
   '/images/store/dates/dates-07.jpg',
   '/images/store/dates/dates-08.jpg',
+  // دلة قهوة عربية وتمر — بلا تكرار، لم يُطلب إبرازها أكثر من غيرها.
+  '/images/store/dates/dates-09.jpg',
+  '/images/store/dates/dates-10.jpg',
+  '/images/store/dates/dates-11.jpg',
 ] as const;
 
 /** صور تسويق تمرتنا1 — لقطة ميدانية حقيقية ثم أصناف التمر. */
