@@ -22,7 +22,6 @@ import { StoreLiveOpsBanner } from '@/components/store/StoreLiveOpsBanner';
 import { StoreProductBenefitsLink } from '@/components/store/StoreProductBenefitsLink';
 import { StoreLandingPhilosophySection } from '@/components/store/StoreLandingPhilosophySection';
 import { StoreLandingPitchHero } from '@/components/store/StoreLandingPitchHero';
-import { StoreOperatorsAppLaunchBanner } from '@/components/store/StoreOperatorsAppLaunchBanner';
 import { StoreInViewMount } from '@/components/store/StoreInViewMount';
 import { StoreShot } from '@/components/store/StoreShot';
 import { STORE_DEDICATED_PAGE_COPY } from '@/config/storeDedicatedPageCopy';
@@ -72,7 +71,6 @@ export default function StoreLanding() {
 
   return (
     <StoreVisitorShell>
-      <StoreOperatorsAppLaunchBanner />
       <StoreVisitorHeader />
 
       <StoreLandingPitchHero />

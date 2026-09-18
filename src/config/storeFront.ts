@@ -115,8 +115,6 @@ export const STORE_LANDING_COPY = {
   /** زر ثانوي — تطبيق المشغّلين على Google Play. */
   pitchOperatorsAppCtaAr: 'حمّل تطبيق المشغّلين',
   pitchOperatorsAppNoteAr: 'للمشغّلين المعتمدين فقط · متاح على Google Play',
-  pitchOperatorsLaunchBannerAr: 'جديد: تطبيق مشغّلي خريطة الحل متاح الآن على Google Play',
-  pitchOperatorsLaunchBannerCtaAr: 'حمّل التطبيق',
   philosophyTitleAr: 'ليس كل حضور رقمي يقود العميل إلى نشاطك',
   philosophyBodyAr: [
     'قد يكون عميلك قريباً منك؛ في حيّك أو مدينتك أو ضمن نطاق خدمتك، لكنه يحتاج طريقاً واضحاً يصل به إلى ما تقدمه.',

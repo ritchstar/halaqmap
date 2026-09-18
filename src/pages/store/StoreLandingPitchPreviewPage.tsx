@@ -8,7 +8,6 @@ import { Link } from 'react-router-dom';
 import { StoreVisitorFooter, StoreVisitorHeader, StoreVisitorShell } from '@/components/store/StoreChrome';
 import { StoreLandingPhilosophySection } from '@/components/store/StoreLandingPhilosophySection';
 import { StoreLandingPitchHero } from '@/components/store/StoreLandingPitchHero';
-import { StoreOperatorsAppLaunchBanner } from '@/components/store/StoreOperatorsAppLaunchBanner';
 import { STORE_LANDING_PITCH_COPY } from '@/config/storeLandingPitchCopy';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { ROUTE_PATHS } from '@/lib/routePaths';
@@ -26,7 +25,6 @@ export default function StoreLandingPitchPreviewPage() {
 
   return (
     <StoreVisitorShell>
-      <StoreOperatorsAppLaunchBanner />
       <StoreVisitorHeader />
       <p className="mx-auto max-w-5xl px-4 pt-4 text-center text-sm font-bold leading-7 text-amber-200/90">
         {STORE_LANDING_PITCH_COPY.previewBannerAr}
