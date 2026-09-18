@@ -23,6 +23,7 @@ import {
   Cpu,
   Crown,
   Flag,
+  GraduationCap,
   Lightbulb,
   RefreshCcw,
   SkipBack,
@@ -544,7 +545,25 @@ export default function ChessArenaPage() {
 
             <ChessStatsSummary stats={chessStats} />
 
-            <div className="mx-auto mt-10 flex max-w-xl items-start gap-3 rounded-2xl border border-dashed border-[#00d6c8]/40 bg-[#0b1f26]/60 p-4">
+            <div className="mx-auto mt-6 flex max-w-xl items-start gap-3 rounded-2xl border border-[#d8ac52]/40 bg-[#d8ac52]/10 p-4">
+              <GraduationCap className="mt-0.5 h-4 w-4 shrink-0 text-[#d8ac52]" />
+              <div className="flex-1">
+                <p className="text-xs font-black text-[#d8ac52]">مدرسة الشطرنج الاحترافية — منتج تعليمي مستقل</p>
+                <p className="mt-1 text-xs leading-relaxed text-[#8aa6a8]">
+                  منهج كامل (افتتاحيات، تكتيك، استراتيجية، نهايات) مع صفحة خاصة بك تعود إليها دائماً — 175 ر.س، دفعة
+                  واحدة.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => navigate(ROUTE_PATHS.CHESS_SCHOOL_LANDING)}
+                  className="mt-2 rounded-lg bg-[#d8ac52] px-3 py-1.5 text-[0.65rem] font-black text-[#0b1f26]"
+                >
+                  اكتشف المدرسة
+                </button>
+              </div>
+            </div>
+
+            <div className="mx-auto mt-4 flex max-w-xl items-start gap-3 rounded-2xl border border-dashed border-[#00d6c8]/40 bg-[#0b1f26]/60 p-4">
               <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-[#00d6c8]" />
               <div>
                 <p className="text-xs font-black text-[#00d6c8]">
