@@ -85,8 +85,9 @@ async function handleConfirm(token: string, headers: Record<string, string>): Pr
       ok: true,
       registrationId: result.registrationId,
       fullName: result.fullName,
+      payPath: `/chess/school/pay/${encodeURIComponent(result.registrationId)}`,
       messageAr:
-        'تم تأكيد بريدك بنجاح وتفعيل حسابك. خطوة الاشتراك (175 ر.س — دفعة واحدة، وصول دائم) قيد التفعيل حالياً وسنرسل لك رابطها على هذا البريد خلال أيام قليلة.',
+        'تم تأكيد بريدك بنجاح وتفعيل حسابك. الخطوة الأخيرة هي دفع الاشتراك (175 ر.س — دفعة واحدة، وصول دائم) لتفعيل مدرسة الشطرنج الاحترافية باسمك.',
     },
     { status: 200, headers },
   );

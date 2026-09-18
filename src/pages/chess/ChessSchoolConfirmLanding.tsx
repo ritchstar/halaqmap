@@ -60,6 +60,7 @@ export default function ChessSchoolConfirmLanding() {
   const [state, setState] = useState<'loading' | 'ok' | 'error'>('loading');
   const [message, setMessage] = useState('');
   const [fullName, setFullName] = useState('');
+  const [registrationId, setRegistrationId] = useState('');
 
   useEffect(() => {
     if (!token) {
@@ -79,6 +80,7 @@ export default function ChessSchoolConfirmLanding() {
       setState('ok');
       setMessage(res.messageAr);
       setFullName(res.fullName);
+      setRegistrationId(res.registrationId);
     })();
     return () => {
       cancelled = true;
@@ -107,9 +109,13 @@ export default function ChessSchoolConfirmLanding() {
             <AlertDescription className="space-y-3 text-sm leading-relaxed">
               <p>{message}</p>
               <div className="flex flex-wrap gap-2 pt-1">
-                <Button asChild variant="outline">
-                  <Link to={ROUTE_PATHS.CHESS_SCHOOL_LANDING}>العودة لصفحة المدرسة</Link>
-                </Button>
+                {registrationId ? (
+                  <Button asChild>
+                    <Link to={ROUTE_PATHS.CHESS_SCHOOL_PAY.replace(':rid', encodeURIComponent(registrationId))}>
+                      ادفع الآن (175 ر.س)
+                    </Link>
+                  </Button>
+                ) : null}
                 <Button asChild variant="ghost">
                   <Link to={ROUTE_PATHS.CHESS_ARENA}>جرّب ساحة الشطرنج المجانية الآن</Link>
                 </Button>

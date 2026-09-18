@@ -397,6 +397,11 @@ export const ROUTE_PATHS = {
   CHESS_SCHOOL_LANDING: '/chess/school',
   /** تأكيد بريد تسجيل مدرسة الشطرنج (?c=token) */
   CHESS_SCHOOL_CONFIRM: '/chess/school/confirm',
+  /**
+   * المرحلة ٢: دفع مدرسة الشطرنج الحقيقي عبر Moyasar (175 ر.س، دفعة واحدة).
+   * لا تُفتح إلا بعد تأكيد البريد؛ :rid هو معرّف التسجيل نفسه.
+   */
+  CHESS_SCHOOL_PAY: '/chess/school/pay/:rid',
   /** صفحة هبوط تجريبية — Roo Landing Lab Experiment */
   ROO_LANDING_LAB: '/lab/roo-landing',
   /** مخيم النجوم الصامت — معمل تصميم مستقل (فلك صحراوي) */

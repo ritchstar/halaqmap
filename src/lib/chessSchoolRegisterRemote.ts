@@ -63,7 +63,10 @@ export async function submitChessSchoolRegistrationRemote(input: {
 
 export async function confirmChessSchoolEmailRemote(
   token: string,
-): Promise<{ ok: true; fullName: string; messageAr: string } | { ok: false; error: string }> {
+): Promise<
+  | { ok: true; registrationId: string; fullName: string; messageAr: string }
+  | { ok: false; error: string }
+> {
   try {
     const resp = await fetch(CONFIRM_URL, {
       method: 'POST',
@@ -73,6 +76,7 @@ export async function confirmChessSchoolEmailRemote(
     const json = (await resp.json().catch(() => ({}))) as {
       ok?: boolean;
       error?: string;
+      registrationId?: string;
       fullName?: string;
       messageAr?: string;
     };
@@ -82,6 +86,7 @@ export async function confirmChessSchoolEmailRemote(
     }
     return {
       ok: true,
+      registrationId: String(json.registrationId ?? ''),
       fullName: String(json.fullName ?? ''),
       messageAr: String(json.messageAr ?? 'تم تأكيد البريد.'),
     };
