@@ -233,7 +233,7 @@ export const STORE_BAKHURNA_LIVE = {
   labDemoNameAr: 'عميل تجريبي',
   labDemoPhoneAr: '05XXXXXXXX',
   labDemoPlaceAr: 'موقع تجريبي داخل نطاق التوصيل',
-  heroImage: '/images/store/bakhurna/gallery/01.jpg',
+  heroImage: '/images/store/bakhurna/gallery/25.jpg',
   heroCaptionAr: 'من محل البخور إلى جوال الحي',
   heroAltAr: 'بخور وعود من رفوف المحل جاهز للطلب من الجوال',
   checkoutClosedAr: 'بوابة الدفع غير مفتوحة لهذا المنتج بعد.',

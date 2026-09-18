@@ -252,7 +252,7 @@ export const STORE_GROCERS_LIVE = {
   labDeskMaskedNameAr: 'عميل تجريبي',
   labDeskMaskedPhoneAr: '05XXXXXXXX',
   labDeskMaskedPlaceAr: 'موقع تجريبي',
-  heroImage: '/images/store/grocers-hero-marketing.jpg',
+  heroImage: '/images/store/grocers/grocers-09.jpg',
   heroAltAr: 'رف تموينات حي بسلع يومية جاهزة للطلب من الجوال',
   heroCaptionAr: 'من جوال العميل إلى باب البيت',
   checkoutClosedAr: 'بوابة الدفع غير مفتوحة لهذا المنتج بعد.',

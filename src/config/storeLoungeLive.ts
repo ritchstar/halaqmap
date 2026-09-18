@@ -166,7 +166,7 @@ export const STORE_LOUNGE_LIVE = {
   labLeadAr: 'اختَر فعالية، امسح الرمز أو أرسل ترحيباً باسم الزبون، واكتب تنويهاً كما في ليلة التشغيل.',
   expiredTitleAr: 'انتهت مدة التشغيل',
   expiredLeadAr: 'الرابط ما زال لديكم. اختاروا المدة وأتمّوا الشراء لتمديد نفس الشاشة.',
-  heroImage: '/images/store/lounge-hero-marketing.jpg',
+  heroImage: '/images/store/lounge/lounge-13.jpg',
   heroAltAr: 'لاونج ليلي بشاشة حائط مضيئة ومقاعد فاخرة',
   heroCaptionAr: 'هكذا تبدو ليلة التشغيل على شاشة اللاونج',
 } as const;

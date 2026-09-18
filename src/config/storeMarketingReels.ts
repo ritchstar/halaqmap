@@ -30,6 +30,11 @@ export type StoreMarketingReelId =
   | 'ops';
 
 const LOUNGE_GENERATED = [
+  // في المقدمة: أول ما يظهر في الرئيسية وصفحة المنتج (StoreShot يبدأ من 0).
+  '/images/store/lounge/lounge-13.jpg',
+  '/images/store/lounge/lounge-13.jpg',
+  '/images/store/lounge/lounge-13.jpg',
+  '/images/store/lounge/lounge-14.jpg',
   '/images/store/lounge/lounge-01.jpg',
   '/images/store/lounge/lounge-02.jpg',
   '/images/store/lounge/lounge-03.jpg',
@@ -42,20 +47,12 @@ const LOUNGE_GENERATED = [
   '/images/store/lounge/lounge-10.jpg',
   '/images/store/lounge/lounge-11.jpg',
   '/images/store/lounge/lounge-12.jpg',
-  // مكرّرة عمداً 3 مرات لإبرازها أكثر من أي صورة أخرى (طلب صريح)، بنفس
-  // منطق تمويناتا1 وبخورنا1 أعلاه. اللاونج ليست ضمن BANKS في
-  // storeShopSky.ts فلا قيد على ترتيب الفهارس هنا.
-  '/images/store/lounge/lounge-13.jpg',
-  '/images/store/lounge/lounge-13.jpg',
-  '/images/store/lounge/lounge-13.jpg',
-  // كوكتيل داكن على رخام أخضر — بلا تكرار، لم يُطلب إبرازها أكثر من غيرها.
-  '/images/store/lounge/lounge-14.jpg',
 ] as const;
 
 export const STORE_LOUNGE_MARKETING_FRAMES = [
+  ...LOUNGE_GENERATED,
   '/images/store/lounge-hero-marketing.jpg',
   '/images/store/lab/lab-lounge-interior.jpg',
-  ...LOUNGE_GENERATED,
 ] as const;
 
 // كافينا1 كان يستعير reel="lounge" (نفس مصفوفة لاونجا1 أعلاه) لعدم وجود صور
@@ -78,6 +75,8 @@ const CAFE_GENERATED = [
 
 export const STORE_CAFE_MARKETING_FRAMES = [...CAFE_GENERATED] as const;
 
+// الفهارس 1-8 تبقى grocers-01..08 لـ STORE_SHOP_SKY_PHASE_INDEXES.
+// الفهرس 0 = صورة مسح QR (أول ظهور في الرئيسية وصفحة المنتج).
 const GROCERS_GENERATED = [
   '/images/store/grocers/grocers-01.jpg',
   '/images/store/grocers/grocers-02.jpg',
@@ -87,18 +86,14 @@ const GROCERS_GENERATED = [
   '/images/store/grocers/grocers-06.jpg',
   '/images/store/grocers/grocers-07.jpg',
   '/images/store/grocers/grocers-08.jpg',
-  // مكرّرة عمداً 3 مرات لإبرازها في الشريط أكثر من أي صورة أخرى (طلب صريح) —
-  // أُضيفت في الذيل حصراً حتى لا تُزحزح الفهارس 0-8 التي يعتمد عليها
-  // STORE_SHOP_SKY_PHASE_INDEXES في storeShopSky.ts (يختار صوراً بموضعها
-  // الرقمي ضمن هذه المصفوفة نفسها لخلفية «سماء» المتجر).
-  '/images/store/grocers/grocers-09.jpg',
-  '/images/store/grocers/grocers-09.jpg',
-  '/images/store/grocers/grocers-09.jpg',
 ] as const;
 
 export const STORE_GROCERS_MARKETING_FRAMES = [
-  '/images/store/grocers-hero-marketing.jpg',
+  '/images/store/grocers/grocers-09.jpg',
   ...GROCERS_GENERATED,
+  '/images/store/grocers/grocers-09.jpg',
+  '/images/store/grocers/grocers-09.jpg',
+  '/images/store/grocers-hero-marketing.jpg',
 ] as const;
 
 const PRODUCE_GENERATED = [
@@ -118,6 +113,9 @@ export const STORE_PRODUCE_MARKETING_FRAMES = [
 ] as const;
 
 const DATES_GENERATED = [
+  '/images/store/dates/dates-09.jpg',
+  '/images/store/dates/dates-10.jpg',
+  '/images/store/dates/dates-11.jpg',
   '/images/store/dates/dates-01.jpg',
   '/images/store/dates/dates-02.jpg',
   '/images/store/dates/dates-03.jpg',
@@ -126,20 +124,19 @@ const DATES_GENERATED = [
   '/images/store/dates/dates-06.jpg',
   '/images/store/dates/dates-07.jpg',
   '/images/store/dates/dates-08.jpg',
-  // دلة قهوة عربية وتمر — بلا تكرار، لم يُطلب إبرازها أكثر من غيرها.
-  '/images/store/dates/dates-09.jpg',
-  '/images/store/dates/dates-10.jpg',
-  '/images/store/dates/dates-11.jpg',
 ] as const;
 
-/** صور تسويق تمرتنا1 — لقطة ميدانية حقيقية ثم أصناف التمر. */
+/** صور تسويق تمرتنا1 — الضيافة الجديدة أولاً ثم اللقطة الميدانية والأصناف. */
 export const STORE_DATES_MARKETING_FRAMES = [
-  '/images/store/dates/dates-field-snapshot-scene.jpg',
   ...DATES_GENERATED,
+  '/images/store/dates/dates-field-snapshot-scene.jpg',
 ] as const;
 
 /** صور تسويق بخورنا1 — من معرض الأصناف الحقيقي (مجلد gallery). */
 export const STORE_BAKHURNA_MARKETING_FRAMES = [
+  '/images/store/bakhurna/gallery/25.jpg',
+  '/images/store/bakhurna/gallery/25.jpg',
+  '/images/store/bakhurna/gallery/25.jpg',
   '/images/store/bakhurna/gallery/01.jpg',
   '/images/store/bakhurna/gallery/05.jpg',
   '/images/store/bakhurna/gallery/08.jpg',
@@ -148,24 +145,18 @@ export const STORE_BAKHURNA_MARKETING_FRAMES = [
   '/images/store/bakhurna/gallery/15.jpg',
   '/images/store/bakhurna/gallery/20.jpg',
   '/images/store/bakhurna/gallery/22.jpg',
-  // مكرّرة عمداً 3 مرات لإبرازها أكثر من أي صورة أخرى (طلب صريح)، بنفس
-  // منطق صورة تمويناتا1 أعلاه. بخورنا1 ليست ضمن BANKS في storeShopSky.ts
-  // فلا قيد على ترتيب الفهارس هنا، لكن أُضيفت في الذيل للاتساق.
-  '/images/store/bakhurna/gallery/25.jpg',
-  '/images/store/bakhurna/gallery/25.jpg',
-  '/images/store/bakhurna/gallery/25.jpg',
 ] as const;
 
 export const STORE_RESTAURANT_MARKETING_FRAMES = [
+  '/images/store/restaurant/restaurant-03.jpg',
+  '/images/store/restaurant/restaurant-03.jpg',
+  '/images/store/restaurant/restaurant-03.jpg',
   '/images/store/restaurant-hero-marketing.jpg',
   '/images/store/restaurant/restaurant-02.jpg',
-  // مكرّرة عمداً 3 مرات لإبرازها أكثر من أي صورة أخرى (طلب صريح)، بنفس
-  // منطق تمويناتا1 وبخورنا1 ولاونجا1 أعلاه.
-  '/images/store/restaurant/restaurant-03.jpg',
-  '/images/store/restaurant/restaurant-03.jpg',
-  '/images/store/restaurant/restaurant-03.jpg',
 ] as const;
 
+// الفهارس 1-8 تبقى كما كانت (سماء + 01..06 ثم 07) لـ STORE_SHOP_SKY_PHASE_INDEXES.
+// الفهرس 0 = صورة مسح QR في السوق (أول ظهور).
 const KITCHEN_GENERATED = [
   '/images/store/kitchen/kitchen-01.jpg',
   '/images/store/kitchen/kitchen-02.jpg',
@@ -177,7 +168,7 @@ const KITCHEN_GENERATED = [
 ] as const;
 
 export const STORE_KITCHEN_MARKETING_FRAMES = [
-  '/images/store/kitchen-hero-marketing.jpg',
+  '/images/store/kitchen/kitchen-07.jpg',
   '/images/store/kitchen/kitchen-sky-ambient.jpg',
   ...KITCHEN_GENERATED,
 ] as const;
@@ -226,6 +217,8 @@ export const STORE_OCCASION_MARKETING_FRAMES = [
 ] as const;
 
 export const STORE_WEDDING_MARKETING_FRAMES = [
+  // أول ظهور: القاعة الحقيقية بدل الألوان التجريدية.
+  '/images/store/wedding/wedding-01.jpg',
   '/images/store/lab/lab-luxury-gold.jpg',
   '/images/store/lab/lab-luxury-ivory.jpg',
   '/images/store/lab/lab-luxury-emerald.jpg',
@@ -236,11 +229,6 @@ export const STORE_WEDDING_MARKETING_FRAMES = [
   '/images/store/lab/lab-luxury-silver.jpg',
   '/images/store/lab/lab-wedding-panorama.jpg',
   ...STORE_LIVE_PANORAMAS,
-  // أول صورة حقيقية لقاعة أفراح لهذا الشريط (بدلاً من الألوان التجريدية فقط):
-  // قاعة فخمة بشاشة عرض فارغة قابلة للتخصيص وطاولات مستديرة بكراسي ذهبية.
-  // الصورة عامة الطابع ولا تحدد جنس المدعوين، والمستخدم اختار وضعها في
-  // النسخة الرجالية (wedding) تحديداً دون النسائية أو اجواء1.
-  '/images/store/wedding/wedding-01.jpg',
 ] as const;
 
 export const STORE_WEDDING_WOMEN_MARKETING_FRAMES = [

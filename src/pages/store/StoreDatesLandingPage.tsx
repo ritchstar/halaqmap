@@ -20,7 +20,6 @@ import { StoreLandingFold } from '@/components/store/StoreLandingFold';
 import {
   STORE_DATES_LIVE,
   STORE_DATES_LIVE_FEATURES,
-  STORE_DATES_ITEM_IMAGES,
   STORE_DATES_LIVE_LAB_TOKEN,
   STORE_DATES_LIVE_PUBLIC_ENABLED,
 } from '@/config/storeDatesLive';
@@ -90,7 +89,7 @@ export default function StoreDatesLandingPage() {
           </div>
           <figure className="overflow-hidden rounded-2xl border border-[#8A6239]/35 bg-[#1a140c]">
             <StoreShot
-              srcs={[STORE_DATES_LIVE.heroImage, ...STORE_DATES_ITEM_IMAGES]}
+              reel="dates"
               alt={STORE_DATES_LIVE.heroAltAr}
               className="aspect-[16/10] w-full"
             />

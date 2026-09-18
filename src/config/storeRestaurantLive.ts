@@ -250,7 +250,7 @@ export const STORE_RESTAURANT_LIVE = {
   labDeskMaskedNameAr: 'ضيف تجريبي',
   labDeskMaskedPhoneAr: '05XXXXXXXX',
   labDeskMaskedPlaceAr: 'موقع تجريبي',
-  heroImage: '/images/store/restaurant-hero-marketing.jpg',
+  heroImage: '/images/store/restaurant/restaurant-03.jpg',
   heroAltAr: 'مطعم حي بأطباق جاهزة للطلب من الجوال',
   heroCaptionAr: 'من انتظار ضيف الحي إلى طلبه من جواله',
   checkoutClosedAr: 'بوابة الدفع غير مفتوحة لهذا المنتج بعد.',

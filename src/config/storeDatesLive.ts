@@ -274,7 +274,7 @@ export const STORE_DATES_LIVE = {
   labDemoNameAr: 'عميل تجريبي',
   labDemoPhoneAr: '05XXXXXXXX',
   labDemoPlaceAr: 'موقع تجريبي داخل نطاق التوصيل',
-  heroImage: '/images/store/dates/dates-field-snapshot-scene.jpg',
+  heroImage: '/images/store/dates/dates-09.jpg',
   heroCaptionAr: 'من الصندوق إلى جوال الحي',
   heroAltAr: 'صناديق تمر مع رمز QR للطلب من الجوال',
   checkoutClosedAr: 'بوابة الدفع غير مفتوحة لهذا المنتج بعد.',
@@ -338,6 +338,9 @@ export const STORE_DATES_LIVE_DEMO = {
 } as const;
 
 export const STORE_DATES_ITEM_IMAGES = [
+  '/images/store/dates/dates-09.jpg',
+  '/images/store/dates/dates-10.jpg',
+  '/images/store/dates/dates-11.jpg',
   '/images/store/dates/dates-01.jpg',
   '/images/store/dates/dates-02.jpg',
   '/images/store/dates/dates-03.jpg',
