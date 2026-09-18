@@ -37,6 +37,7 @@ import { ProductEvents } from '@/lib/analytics/productAnalytics';
 import { defaultEventLiveLabState, eventLiveDefaultStyle } from '@/lib/storeEventLiveLab';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { cn } from '@/lib/utils';
+import { StoreHypotheticalSuccessStory } from '@/components/store/StoreHypotheticalSuccessStory';
 
 const FEATURES_MEN = [
   'قاعة تفاعلية حية تتصل بشاشة العرض، فيرسل الضيوف التهاني لتظهر فوراً في وسط الشاشة.',
@@ -159,6 +160,7 @@ export default function StoreEventLandingPage() {
           </div>
         </div>
       </section>
+      <StoreHypotheticalSuccessStory productKey="event" />
       <StoreVisitorFooter />
     </StoreVisitorShell>
   );

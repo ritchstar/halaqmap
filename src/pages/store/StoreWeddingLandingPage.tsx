@@ -37,6 +37,7 @@ import { ProductEvents } from '@/lib/analytics/productAnalytics';
 import { defaultWeddingLiveLabState, weddingLiveDefaultStyle } from '@/lib/storeWeddingLiveLab';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { cn } from '@/lib/utils';
+import { StoreHypotheticalSuccessStory } from '@/components/store/StoreHypotheticalSuccessStory';
 
 export default function StoreWeddingLandingPage() {
   const location = useLocation();
@@ -261,6 +262,7 @@ export default function StoreWeddingLandingPage() {
         </div>
       </aside>
       <div className="pb-24">
+        <StoreHypotheticalSuccessStory productKey="wedding" />
         <StoreVisitorFooter />
       </div>
     </StoreVisitorShell>

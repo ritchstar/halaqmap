@@ -28,6 +28,7 @@ import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { readHashQueryParam } from '@/lib/hashQueryParams';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { cn } from '@/lib/utils';
+import { StoreHypotheticalSuccessStory } from '@/components/store/StoreHypotheticalSuccessStory';
 
 const prose = 'max-w-xl text-base leading-[1.75] text-white/78';
 const proseSm = 'max-w-xl text-sm leading-[1.75] text-white/75';
@@ -265,6 +266,7 @@ export default function StoreGrocersLandingPage() {
           </Collapsible>
         </div>
       </section>
+      <StoreHypotheticalSuccessStory productKey="grocers" />
       <StoreVisitorFooter />
     </StoreVisitorShell>
   );

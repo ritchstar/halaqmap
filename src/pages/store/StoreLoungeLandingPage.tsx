@@ -32,6 +32,7 @@ import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { readHashQueryParam } from '@/lib/hashQueryParams';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { cn } from '@/lib/utils';
+import { StoreHypotheticalSuccessStory } from '@/components/store/StoreHypotheticalSuccessStory';
 
 export default function StoreLoungeLandingPage() {
   const [termsOpen, setTermsOpen] = useState(false);
@@ -154,6 +155,7 @@ export default function StoreLoungeLandingPage() {
           </div>
         </div>
       </section>
+      <StoreHypotheticalSuccessStory productKey="lounge" />
       <StoreVisitorFooter />
       </div>
     </StoreVisitorShell>
