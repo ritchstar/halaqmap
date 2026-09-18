@@ -58,6 +58,13 @@ const GROCERS_GENERATED = [
   '/images/store/grocers/grocers-06.jpg',
   '/images/store/grocers/grocers-07.jpg',
   '/images/store/grocers/grocers-08.jpg',
+  // مكرّرة عمداً 3 مرات لإبرازها في الشريط أكثر من أي صورة أخرى (طلب صريح) —
+  // أُضيفت في الذيل حصراً حتى لا تُزحزح الفهارس 0-8 التي يعتمد عليها
+  // STORE_SHOP_SKY_PHASE_INDEXES في storeShopSky.ts (يختار صوراً بموضعها
+  // الرقمي ضمن هذه المصفوفة نفسها لخلفية «سماء» المتجر).
+  '/images/store/grocers/grocers-09.jpg',
+  '/images/store/grocers/grocers-09.jpg',
+  '/images/store/grocers/grocers-09.jpg',
 ] as const;
 
 export const STORE_GROCERS_MARKETING_FRAMES = [
