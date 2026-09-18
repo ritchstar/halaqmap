@@ -10,6 +10,7 @@ import { Navigate } from 'react-router-dom';
 import { PathsBackHeader } from '@/components/store/paths/PathsBackHeader';
 import { PathsHero } from '@/components/store/paths/PathsHero';
 import { PathSearch } from '@/components/store/paths/PathSearch';
+import { PathsPlatformIntro } from '@/components/store/paths/PathsPlatformIntro';
 import { OperatingModelFilter } from '@/components/store/paths/OperatingModelFilter';
 import { ProductPathGrid } from '@/components/store/paths/ProductPathGrid';
 import { PathHelpBanner } from '@/components/store/paths/PathHelpBanner';
@@ -82,6 +83,7 @@ export default function StorePathsLabPage() {
 
         <div id={GRID_ANCHOR_ID} className="flex flex-col gap-5 scroll-mt-6">
           <PathSearch value={query} onChange={setQuery} />
+          <PathsPlatformIntro />
           <OperatingModelFilter options={PRODUCT_PATH_OPERATING_MODEL_OPTIONS} active={model} onChange={setModel} />
           <ProductPathGrid
             paths={filtered}
