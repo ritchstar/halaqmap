@@ -4,17 +4,37 @@
  * ساحة الشطرنج — صفحة الهبوط ولعب المرحلة الأولى (مطوَّرة): ضد الذكاء
  * الاصطناعي بثلاث مستويات (محرك Stockfish الحقيقي لمستوى «محترف» مع
  * تراجع تلقائي للمحرك المحلي)، رقعة بإحداثيات وتظليل آخر نقلة، شريط قطع
- * مأسورة، سجل نقلات مُرقَّم، بطاقة نتيجة، وأصوات خفيفة قابلة للكتم — كل
- * ذلك بجلسة محفوظة محلياً. المرحلتان التشاركية والاشتراكات غير مفعّلتين
- * بعد. Route: /chess
+ * مأسورة، سجل نقلات مُرقَّم بتبويب تحليل حقيقي، تراجع حقيقي، تلميح حقيقي
+ * (نفس محرك المستوى الحالي)، ساعة لاعب حقيقية تنازلية (تخسر المباراة عند
+ * نفادها)، بطاقة خصم صادقة (مستوى + حالة محرك حقيقية — بلا اسم أو تقييم
+ * وهميين)، بطاقة نتيجة، وأصوات خفيفة قابلة للكتم — كل ذلك بجلسة محفوظة
+ * محلياً. المرحلتان التشاركية والاشتراكات غير مفعّلتين بعد. Route: /chess
  */
 import { useEffect, useRef, useState } from 'react';
 import { Chess } from 'chess.js';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Cpu, Crown, Flag, RefreshCcw, Sparkles, Volume2, VolumeX } from 'lucide-react';
+import {
+  ArrowLeft,
+  BookOpen,
+  Clock,
+  Cpu,
+  Crown,
+  Flag,
+  Lightbulb,
+  RefreshCcw,
+  Sparkles,
+  Undo2,
+  Volume2,
+  VolumeX,
+} from 'lucide-react';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
-import { CHESS_ARENA_COPY, type ChessDifficultyId, getChessDifficultyLevel } from '@/config/chessArena';
+import {
+  CHESS_ARENA_COPY,
+  CHESS_CLOCK_START_MS,
+  type ChessDifficultyId,
+  getChessDifficultyLevel,
+} from '@/config/chessArena';
 import {
   clearChessSession,
   readChessSession,
@@ -33,10 +53,13 @@ import { ChessResultOverlay } from '@/components/chess/ChessResultOverlay';
 
 type ChessArenaView = 'landing' | 'playing';
 type LastMove = { from: string; to: string } | null;
+type MatchLogTab = 'moves' | 'analysis';
 
 interface MoveResultLike {
   captured?: string;
 }
+
+const MATERIAL_POINT_VALUES: Record<string, number> = { p: 1, n: 3, b: 3, r: 5, q: 9, k: 0 };
 
 function deriveStatusAfterMove(chess: Chess): ChessGameStatus {
   if (chess.isCheckmate()) {
@@ -45,6 +68,31 @@ function deriveStatusAfterMove(chess: Chess): ChessGameStatus {
   }
   if (chess.isDraw()) return 'draw';
   return 'playing';
+}
+
+/** رصيد المادة الحقيقي من سجل النقلات فعلياً — موجب لصالح اللاعب، سالب لصالح الذكاء الاصطناعي. */
+function computeMaterialBalance(chess: Chess): number {
+  const history = chess.history({ verbose: true }) as unknown as { color: 'w' | 'b'; captured?: string }[];
+  let playerMaterial = 0;
+  let aiMaterial = 0;
+  for (const m of history) {
+    if (!m.captured) continue;
+    if (m.color === 'w') playerMaterial += MATERIAL_POINT_VALUES[m.captured] ?? 0;
+    else aiMaterial += MATERIAL_POINT_VALUES[m.captured] ?? 0;
+  }
+  return playerMaterial - aiMaterial;
+}
+
+function formatClock(ms: number): string {
+  const totalSeconds = Math.max(0, Math.ceil(ms / 1000));
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+}
+
+/** ميزانية تفكير المستوى الحقيقية (من إعداداته الفعلية) — بصيغة ثوانٍ مقروءة، لا رقماً وهمياً. */
+function formatThinkBudget(ms: number): string {
+  return `${(ms / 1000).toFixed(2)} ث`;
 }
 
 export default function ChessArenaPage() {
@@ -63,8 +111,12 @@ export default function ChessArenaPage() {
   const [status, setStatus] = useState<ChessGameStatus>('playing');
   const [aiThinking, setAiThinking] = useState(false);
   const [lastMove, setLastMove] = useState<LastMove>(null);
+  const [hintMove, setHintMove] = useState<LastMove>(null);
+  const [hintLoading, setHintLoading] = useState(false);
   const [engineStatus, setEngineStatus] = useState<ChessEngineKind | 'checking' | null>(null);
   const [soundOn, setSoundOn] = useState(true);
+  const [playerClockMs, setPlayerClockMs] = useState<number>(CHESS_CLOCK_START_MS);
+  const [matchLogTab, setMatchLogTab] = useState<MatchLogTab>('moves');
 
   useEffect(() => {
     setSoundOn(isChessSoundEnabled());
@@ -96,6 +148,23 @@ export default function ChessArenaPage() {
     };
   }, [view, level]);
 
+  // ساعة اللاعب الحقيقية — تُعدّ تنازلياً فقط أثناء دور اللاعب الفعلي (لا أثناء تفكير الذكاء الاصطناعي).
+  useEffect(() => {
+    if (view !== 'playing' || status !== 'playing' || aiThinking) return;
+    const interval = window.setInterval(() => {
+      setPlayerClockMs((prev) => Math.max(0, prev - 1000));
+    }, 1000);
+    return () => window.clearInterval(interval);
+  }, [view, status, aiThinking]);
+
+  // نفاد الوقت الحقيقي — خسارة صادقة بالوقت، لا مجرد عرض بصري.
+  useEffect(() => {
+    if (view !== 'playing' || status !== 'playing' || playerClockMs > 0) return;
+    setStatus('timeout');
+    playChessSound('gameEnd');
+    clearChessSession();
+  }, [playerClockMs, view, status]);
+
   function forceRerender() {
     setFenTick((n) => n + 1);
   }
@@ -106,7 +175,12 @@ export default function ChessArenaPage() {
     setChessSoundEnabled(next);
   }
 
-  function persistSession(chess: Chess, currentLevel: ChessDifficultyId, currentStatus: ChessGameStatus) {
+  function persistSession(
+    chess: Chess,
+    currentLevel: ChessDifficultyId,
+    currentStatus: ChessGameStatus,
+    clockRemainingMs: number,
+  ) {
     if (currentStatus !== 'playing') {
       clearChessSession();
       return;
@@ -118,6 +192,7 @@ export default function ChessArenaPage() {
       sanHistory: chess.history(),
       status: currentStatus,
       startedAt: sessionStartedAtRef.current,
+      clockRemainingMs,
     });
   }
 
@@ -127,9 +202,12 @@ export default function ChessArenaPage() {
     setLevel(resumableSession.level);
     setStatus('playing');
     sessionStartedAtRef.current = resumableSession.startedAt;
+    setPlayerClockMs(resumableSession.clockRemainingMs ?? CHESS_CLOCK_START_MS);
     setResumableSession(null);
     setAiThinking(false);
     setLastMove(null);
+    setHintMove(null);
+    setMatchLogTab('moves');
     setView('playing');
     forceRerender();
   }
@@ -147,8 +225,11 @@ export default function ChessArenaPage() {
     setStatus('playing');
     setAiThinking(false);
     setLastMove(null);
+    setHintMove(null);
+    setPlayerClockMs(CHESS_CLOCK_START_MS);
+    setMatchLogTab('moves');
     setResumableSession(null);
-    persistSession(chessRef.current, pendingLevel, 'playing');
+    persistSession(chessRef.current, pendingLevel, 'playing', CHESS_CLOCK_START_MS);
     setView('playing');
     forceRerender();
   }
@@ -165,6 +246,7 @@ export default function ChessArenaPage() {
       return;
     }
 
+    setHintMove(null);
     setLastMove({ from, to });
     playChessSound(moveResult.captured ? 'capture' : 'move');
     forceRerender();
@@ -173,7 +255,7 @@ export default function ChessArenaPage() {
     if (statusAfterPlayer === 'playing' && chess.isCheck()) playChessSound('check');
     if (statusAfterPlayer !== 'playing') playChessSound('gameEnd');
     setStatus(statusAfterPlayer);
-    persistSession(chess, level, statusAfterPlayer);
+    persistSession(chess, level, statusAfterPlayer, playerClockMs);
 
     if (statusAfterPlayer !== 'playing') return;
 
@@ -198,10 +280,38 @@ export default function ChessArenaPage() {
       if (statusAfterAi === 'playing' && chess.isCheck()) playChessSound('check');
       if (statusAfterAi !== 'playing') playChessSound('gameEnd');
       setStatus(statusAfterAi);
-      persistSession(chess, level, statusAfterAi);
+      persistSession(chess, level, statusAfterAi, playerClockMs);
       setAiThinking(false);
       forceRerender();
     });
+  }
+
+  /** تراجع حقيقي (تراجع دبلن — نقلتك ونقلة الذكاء الاصطناعي معاً) ليعود الدور إليك فعلياً، لا مجرد عرض. */
+  function handleUndo() {
+    if (status !== 'playing' || aiThinking) return;
+    const chess = chessRef.current;
+    if (chess.history().length < 2) return;
+    chess.undo();
+    chess.undo();
+    setHintMove(null);
+    const verboseHistory = chess.history({ verbose: true }) as unknown as { from: string; to: string }[];
+    const previous = verboseHistory[verboseHistory.length - 1];
+    setLastMove(previous ? { from: previous.from, to: previous.to } : null);
+    setStatus('playing');
+    persistSession(chess, level, 'playing', playerClockMs);
+    forceRerender();
+  }
+
+  /** تلميح حقيقي — يسأل نفس محرك المستوى الحالي عن أفضل نقلة لدورك الآن، ويعرضها فقط بلا تنفيذ تلقائي. */
+  async function handleHint() {
+    if (status !== 'playing' || aiThinking || hintLoading) return;
+    setHintLoading(true);
+    try {
+      const outcome = await resolveAiMove(chessRef.current, level);
+      if (outcome) setHintMove({ from: outcome.move.from, to: outcome.move.to });
+    } finally {
+      setHintLoading(false);
+    }
   }
 
   function handleResign() {
@@ -220,6 +330,7 @@ export default function ChessArenaPage() {
     setResumableSession(null);
     setPendingLevel(null);
     setLastMove(null);
+    setHintMove(null);
     setView('landing');
   }
 
@@ -230,6 +341,7 @@ export default function ChessArenaPage() {
     if (status === 'ai_won') return CHESS_ARENA_COPY.checkmateAiWinsAr;
     if (status === 'draw') return CHESS_ARENA_COPY.drawAr;
     if (status === 'resigned') return CHESS_ARENA_COPY.resignedAr;
+    if (status === 'timeout') return CHESS_ARENA_COPY.timeoutAr;
     if (aiThinking) return CHESS_ARENA_COPY.turnAiAr;
     if (isCheck) return CHESS_ARENA_COPY.checkAr;
     return CHESS_ARENA_COPY.turnPlayerAr;
@@ -243,13 +355,15 @@ export default function ChessArenaPage() {
   }
 
   const isGameOver = status !== 'playing';
+  const isInteractiveNow = status === 'playing' && !aiThinking;
   const sanHistory = chessRef.current.history();
   const engineBadgeLabel = getEngineBadgeLabel();
+  const materialBalance = computeMaterialBalance(chessRef.current);
 
   return (
     <div dir="rtl" className="min-h-screen" style={{ background: 'linear-gradient(180deg, #05141a 0%, #0a1f26 100%)' }}>
       <div className="sticky top-0 z-30 border-b border-[#1f4a52] bg-[#05141a]/90 backdrop-blur-md">
-        <div className="mx-auto flex max-w-3xl items-center justify-between gap-3 px-4 py-3">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3">
           <button
             type="button"
             onClick={() => navigate(ROUTE_PATHS.HOME)}
@@ -273,9 +387,9 @@ export default function ChessArenaPage() {
         </div>
       </div>
 
-      <main className="mx-auto max-w-3xl px-4 pb-16 pt-8">
+      <main className="w-full px-4 pb-16 pt-8">
         {view === 'landing' && (
-          <>
+          <div className="mx-auto max-w-3xl">
             <header className="mb-8 text-center">
               <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-[#d8ac52]/40 bg-[#d8ac52]/10">
                 <Crown className="h-7 w-7 text-[#d8ac52]" />
@@ -320,80 +434,214 @@ export default function ChessArenaPage() {
                 <p className="mt-1 text-xs leading-relaxed text-[#8aa6a8]">{CHESS_ARENA_COPY.comingSoonBodyAr}</p>
               </div>
             </div>
-          </>
+          </div>
         )}
 
         {view === 'playing' && (
-          <>
-            <div className="mb-4 flex items-center justify-between gap-3 rounded-xl border border-[#1f4a52] bg-[#0b1f26]/70 px-4 py-3">
-              <span className="flex items-center gap-2 text-xs font-bold text-[#8aa6a8]">
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-[#00d6c8]/30 bg-[#00d6c8]/10 text-[#00d6c8]">
-                  <Cpu className="h-3 w-3" />
-                </span>
-                {CHESS_ARENA_COPY.aiLabelAr} — {getChessDifficultyLevel(level).titleAr}
-                {engineBadgeLabel && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-[#d8ac52]/10 px-2 py-0.5 text-[0.6rem] font-bold text-[#d8ac52] ring-1 ring-[#d8ac52]/30">
-                    <Cpu className="h-2.5 w-2.5" />
-                    {engineBadgeLabel}
+          <div className="mx-auto grid max-w-6xl gap-4 lg:grid-cols-[260px_1fr_260px] lg:items-start">
+            {/* العمود الأيسر (يمين الشاشة بصرياً بحكم RTL): سجل المباراة + تبويب التحليل الحقيقي */}
+            <aside className="order-3 lg:order-1">
+              <div className="rounded-2xl border border-[#1f4a52] bg-[#0b1f26]/70 p-4">
+                <div className="mb-3 flex items-center gap-2">
+                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-[#d8ac52]/30 bg-[#d8ac52]/10 text-[#d8ac52]">
+                    <BookOpen className="h-3.5 w-3.5" />
                   </span>
+                  <p className="text-sm font-black text-[#e7f4f2]">{CHESS_ARENA_COPY.matchLogTitleAr}</p>
+                </div>
+
+                <div className="mb-3 flex gap-1 rounded-lg bg-[#05141a]/60 p-1">
+                  <button
+                    type="button"
+                    onClick={() => setMatchLogTab('moves')}
+                    className={[
+                      'flex-1 rounded-md px-2 py-1 text-xs font-bold transition-colors',
+                      matchLogTab === 'moves' ? 'bg-[#0e262d] text-[#e7f4f2]' : 'text-[#8aa6a8] hover:text-[#e7f4f2]',
+                    ].join(' ')}
+                  >
+                    {CHESS_ARENA_COPY.movesLabelAr}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setMatchLogTab('analysis')}
+                    className={[
+                      'flex-1 rounded-md px-2 py-1 text-xs font-bold transition-colors',
+                      matchLogTab === 'analysis' ? 'bg-[#0e262d] text-[#e7f4f2]' : 'text-[#8aa6a8] hover:text-[#e7f4f2]',
+                    ].join(' ')}
+                  >
+                    {CHESS_ARENA_COPY.analysisTabLabelAr}
+                  </button>
+                </div>
+
+                {matchLogTab === 'moves' ? (
+                  sanHistory.length === 0 ? (
+                    <p className="text-xs leading-relaxed text-[#8aa6a8]">لم تُلعب أي نقلة بعد.</p>
+                  ) : (
+                    <ChessMoveList sanHistory={sanHistory} embedded />
+                  )
+                ) : (
+                  <div className="space-y-2 text-xs">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-[#8aa6a8]">{CHESS_ARENA_COPY.turnIndicatorLabelAr}</span>
+                      <span className="font-bold text-[#e7f4f2]">
+                        {aiThinking ? CHESS_ARENA_COPY.aiLabelAr : CHESS_ARENA_COPY.playerLabelAr}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-[#8aa6a8]">{CHESS_ARENA_COPY.checkAr}</span>
+                      <span className={['font-bold', isCheck ? 'text-rose-400' : 'text-[#e7f4f2]'].join(' ')}>
+                        {isCheck ? CHESS_ARENA_COPY.checkAr : '—'}
+                      </span>
+                    </div>
+                    <p className="pt-1 text-[#8aa6a8]">
+                      {materialBalance === 0
+                        ? CHESS_ARENA_COPY.materialEvenAr
+                        : materialBalance > 0
+                          ? `${CHESS_ARENA_COPY.materialAdvantagePlayerAr} +${materialBalance}`
+                          : `${CHESS_ARENA_COPY.materialAdvantageAiAr} +${Math.abs(materialBalance)}`}
+                    </p>
+                  </div>
                 )}
-              </span>
-              <span
-                className={[
-                  'text-sm font-black',
-                  status === 'player_won'
-                    ? 'text-emerald-400'
-                    : status === 'ai_won' || status === 'resigned'
-                      ? 'text-rose-400'
-                      : isCheck
-                        ? 'text-rose-300'
-                        : 'text-[#e7f4f2]',
-                ].join(' ')}
-              >
-                {getStatusMessage()}
-              </span>
-            </div>
+              </div>
+            </aside>
 
-            <div className="relative mx-auto max-w-[500px]">
-              <ChessBoardView
-                chess={chessRef.current}
-                playerColor="w"
-                interactive={status === 'playing' && !aiThinking}
-                lastMove={lastMove}
-                onPlayerMove={handlePlayerMove}
-              />
-              {isGameOver && (
-                <ChessResultOverlay
-                  status={status as Exclude<ChessGameStatus, 'playing'>}
-                  onNewGame={handleBackToPicker}
+            {/* العمود الأوسط: شريط الحالة، ساعتك، الرقعة، شريط القطع المأسورة */}
+            <div className="order-1 lg:order-2">
+              <div className="mb-3 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2 rounded-xl border border-[#1f4a52] bg-[#0b1f26]/70 px-3 py-2">
+                  <Clock className="h-3.5 w-3.5 text-[#00d6c8]" />
+                  <span className="text-[0.65rem] font-bold text-[#8aa6a8]">{CHESS_ARENA_COPY.yourClockLabelAr}</span>
+                  <span
+                    dir="ltr"
+                    className={[
+                      'font-mono text-sm font-black',
+                      playerClockMs < 60_000 ? 'text-rose-400' : 'text-[#e7f4f2]',
+                    ].join(' ')}
+                  >
+                    {formatClock(playerClockMs)}
+                  </span>
+                </div>
+              </div>
+
+              <div className="mb-4 flex items-center justify-between gap-3 rounded-xl border border-[#1f4a52] bg-[#0b1f26]/70 px-4 py-3">
+                <span className="flex items-center gap-2 text-xs font-bold text-[#8aa6a8]">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-[#00d6c8]/30 bg-[#00d6c8]/10 text-[#00d6c8]">
+                    <Cpu className="h-3 w-3" />
+                  </span>
+                  {CHESS_ARENA_COPY.aiLabelAr} — {getChessDifficultyLevel(level).titleAr}
+                  {engineBadgeLabel && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-[#d8ac52]/10 px-2 py-0.5 text-[0.6rem] font-bold text-[#d8ac52] ring-1 ring-[#d8ac52]/30">
+                      <Cpu className="h-2.5 w-2.5" />
+                      {engineBadgeLabel}
+                    </span>
+                  )}
+                </span>
+                <span
+                  className={[
+                    'text-sm font-black',
+                    status === 'player_won'
+                      ? 'text-emerald-400'
+                      : status === 'ai_won' || status === 'resigned' || status === 'timeout'
+                        ? 'text-rose-400'
+                        : isCheck
+                          ? 'text-rose-300'
+                          : 'text-[#e7f4f2]',
+                  ].join(' ')}
+                >
+                  {getStatusMessage()}
+                </span>
+              </div>
+
+              <div className="relative mx-auto max-w-[500px]">
+                <ChessBoardView
+                  key={sanHistory.length}
+                  chess={chessRef.current}
+                  playerColor="w"
+                  interactive={isInteractiveNow}
+                  lastMove={lastMove}
+                  hintMove={hintMove}
+                  onPlayerMove={handlePlayerMove}
                 />
-              )}
+                {isGameOver && (
+                  <ChessResultOverlay
+                    status={status as Exclude<ChessGameStatus, 'playing'>}
+                    onNewGame={handleBackToPicker}
+                  />
+                )}
+              </div>
+
+              <ChessCapturedTray chess={chessRef.current} playerColor="w" />
             </div>
 
-            <ChessCapturedTray chess={chessRef.current} playerColor="w" />
-            <ChessMoveList sanHistory={sanHistory} />
+            {/* العمود الأيمن (يسار الشاشة بصرياً بحكم RTL): بطاقة الخصم الصادقة + لوحة القيادة */}
+            <aside className="order-2 space-y-4 lg:order-3">
+              <div className="rounded-2xl border border-[#1f4a52] bg-[#0b1f26]/70 p-4">
+                <p className="mb-3 text-xs font-bold text-[#8aa6a8]">{CHESS_ARENA_COPY.opponentCardTitleAr}</p>
+                <div className="flex items-center gap-3">
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[#00d6c8]/30 bg-[#00d6c8]/10 text-[#00d6c8]">
+                    <Cpu className="h-5 w-5" />
+                  </span>
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-black text-[#e7f4f2]">{CHESS_ARENA_COPY.aiLabelAr}</p>
+                    <p className="mt-0.5 text-xs text-[#8aa6a8]">{getChessDifficultyLevel(level).titleAr}</p>
+                  </div>
+                </div>
+                {engineBadgeLabel && (
+                  <div className="mt-3 inline-flex items-center gap-1 rounded-full bg-[#d8ac52]/10 px-2.5 py-1 text-[0.65rem] font-bold text-[#d8ac52] ring-1 ring-[#d8ac52]/30">
+                    <Cpu className="h-3 w-3" />
+                    {engineBadgeLabel}
+                  </div>
+                )}
+                <div className="mt-3 flex items-center justify-between gap-2 rounded-lg border border-[#1f4a52] bg-[#05141a]/60 px-3 py-2">
+                  <span className="text-[0.65rem] font-bold text-[#8aa6a8]">{CHESS_ARENA_COPY.aiThinkBudgetLabelAr}</span>
+                  <span dir="ltr" className="text-xs font-bold text-[#e7f4f2]">
+                    {formatThinkBudget(getChessDifficultyLevel(level).timeBudgetMs)}
+                  </span>
+                </div>
+              </div>
 
-            <div className="mx-auto mt-6 flex max-w-[500px] flex-col justify-center gap-2 sm:flex-row">
-              {!isGameOver && (
+              <div className="rounded-2xl border border-[#1f4a52] bg-[#0b1f26]/70 p-4">
+                <p className="mb-3 text-xs font-bold text-[#8aa6a8]">{CHESS_ARENA_COPY.controlPadTitleAr}</p>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => void handleHint()}
+                    disabled={!isInteractiveNow || hintLoading}
+                    className="flex items-center justify-center gap-1.5 rounded-xl border border-[#00d6c8]/30 bg-[#00d6c8]/10 px-2 py-2.5 text-xs font-bold text-[#00d6c8] transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    <Lightbulb className="h-3.5 w-3.5" />
+                    {hintLoading ? CHESS_ARENA_COPY.hintLoadingAr : CHESS_ARENA_COPY.hintButtonAr}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleUndo}
+                    disabled={!isInteractiveNow || sanHistory.length < 2}
+                    className="flex items-center justify-center gap-1.5 rounded-xl border border-[#1f4a52] bg-[#05141a]/60 px-2 py-2.5 text-xs font-bold text-[#e7f4f2] transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    <Undo2 className="h-3.5 w-3.5" />
+                    {CHESS_ARENA_COPY.undoButtonAr}
+                  </button>
+                </div>
                 <button
                   type="button"
-                  onClick={handleResign}
-                  className="flex items-center justify-center gap-2 rounded-xl border border-rose-500/30 bg-rose-500/10 px-5 py-2.5 text-sm font-bold text-rose-300"
+                  onClick={handleBackToPicker}
+                  className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-[#d8ac52] px-5 py-2.5 text-sm font-black text-[#0b1f26]"
                 >
-                  <Flag className="h-4 w-4" />
-                  {CHESS_ARENA_COPY.resignButtonAr}
+                  <RefreshCcw className="h-4 w-4" />
+                  {CHESS_ARENA_COPY.newGameButtonAr}
                 </button>
-              )}
-              <button
-                type="button"
-                onClick={handleBackToPicker}
-                className="flex items-center justify-center gap-2 rounded-xl bg-[#d8ac52] px-5 py-2.5 text-sm font-black text-[#0b1f26]"
-              >
-                <RefreshCcw className="h-4 w-4" />
-                {CHESS_ARENA_COPY.newGameButtonAr}
-              </button>
-            </div>
-          </>
+                {!isGameOver && (
+                  <button
+                    type="button"
+                    onClick={handleResign}
+                    className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl border border-rose-500/30 bg-rose-500/10 px-5 py-2.5 text-sm font-bold text-rose-300"
+                  >
+                    <Flag className="h-4 w-4" />
+                    {CHESS_ARENA_COPY.resignButtonAr}
+                  </button>
+                )}
+              </div>
+            </aside>
+          </div>
         )}
       </main>
     </div>

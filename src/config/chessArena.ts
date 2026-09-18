@@ -90,21 +90,36 @@ export const CHESS_ARENA_COPY = {
   checkmateAiWinsAr: 'كش ملك! فاز الذكاء الاصطناعي هذه المرة',
   drawAr: 'تعادل',
   resignedAr: 'استسلمت — انتهت المباراة',
+  timeoutAr: 'انتهى وقتك — خسرت المباراة',
   promotionTitleAr: 'اختر الترقية',
   confirmResignAr: 'هل تريد الاستسلام وإنهاء هذه المباراة؟',
   confirmNewGameWhilePlayingAr: 'ستفقد تقدّم المباراة الحالية إن بدأت مباراة جديدة. متابعة؟',
   movesLabelAr: 'النقلات',
+  analysisTabLabelAr: 'التحليل',
+  matchLogTitleAr: 'سجل المباراة',
   capturedByPlayerAr: 'قطع كسبتها',
   capturedByAiAr: 'قطع خسرتها',
   materialAdvantagePlayerAr: 'أنت متقدّم بمقدار',
   materialAdvantageAiAr: 'الذكاء الاصطناعي متقدّم بمقدار',
+  materialEvenAr: 'المواد متعادلة بين الطرفين الآن',
+  turnIndicatorLabelAr: 'الدور الآن',
   soundOnAr: 'الصوت مُفعَّل',
   soundOffAr: 'الصوت مُعطَّل',
   engineStockfishActiveAr: 'محرك Stockfish نشط',
   engineLocalFallbackAr: 'المحرك المحلي (Stockfish غير متاح الآن)',
   engineCheckingAr: 'جاري التحقق من المحرك…',
   resultOverlayNewGameAr: 'مباراة جديدة',
+  opponentCardTitleAr: 'الخصم',
+  controlPadTitleAr: 'لوحة القيادة',
+  hintButtonAr: 'تلميح',
+  hintLoadingAr: 'يفكّر…',
+  undoButtonAr: 'تراجع',
+  yourClockLabelAr: 'وقتك',
+  aiThinkBudgetLabelAr: 'ميزانية تفكير الذكاء الاصطناعي',
 } as const;
+
+/** مدة ساعة اللاعب الافتراضية (10 دقائق) — عدّاد تنازلي حقيقي يعمل فقط أثناء دور اللاعب. */
+export const CHESS_CLOCK_START_MS = 10 * 60_000;
 
 /** مفتاح تخزين جلسة اللعب المحلية — نمط «Lab» المتّبع في بقية المنتجات. */
 export const CHESS_SESSION_STORAGE_KEY = 'halaqmap-chess-arena:v1';

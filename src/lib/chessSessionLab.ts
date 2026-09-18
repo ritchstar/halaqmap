@@ -7,7 +7,7 @@
 import type { ChessDifficultyId } from '@/config/chessArena';
 import { CHESS_SESSION_STORAGE_KEY } from '@/config/chessArena';
 
-export type ChessGameStatus = 'playing' | 'player_won' | 'ai_won' | 'draw' | 'resigned';
+export type ChessGameStatus = 'playing' | 'player_won' | 'ai_won' | 'draw' | 'resigned' | 'timeout';
 
 export interface ChessSessionState {
   version: 1;
@@ -18,6 +18,8 @@ export interface ChessSessionState {
   status: ChessGameStatus;
   startedAt: number;
   updatedAt: number;
+  /** الوقت المتبقي (مللي ثانية) في ساعة اللاعب الحقيقية عند آخر حفظ — اختياري للتوافق مع جلسات أقدم. */
+  clockRemainingMs?: number;
 }
 
 function isBrowser(): boolean {
@@ -34,7 +36,8 @@ function isChessGameStatus(raw: unknown): raw is ChessGameStatus {
     raw === 'player_won' ||
     raw === 'ai_won' ||
     raw === 'draw' ||
-    raw === 'resigned'
+    raw === 'resigned' ||
+    raw === 'timeout'
   );
 }
 
@@ -64,6 +67,7 @@ export function readChessSession(): ChessSessionState | null {
       status: parsed.status,
       startedAt: typeof parsed.startedAt === 'number' ? parsed.startedAt : Date.now(),
       updatedAt: typeof parsed.updatedAt === 'number' ? parsed.updatedAt : Date.now(),
+      clockRemainingMs: typeof parsed.clockRemainingMs === 'number' ? parsed.clockRemainingMs : undefined,
     };
   } catch {
     return null;

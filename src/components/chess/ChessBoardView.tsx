@@ -41,6 +41,8 @@ export interface ChessBoardViewProps {
   playerColor: 'w' | 'b';
   interactive: boolean;
   lastMove?: { from: string; to: string } | null;
+  /** النقلة المقترحة من زر «تلميح» — تُرسم كإطار متقطع، حقيقية من نفس محرك المستوى الحالي، بلا تنفيذ تلقائي. */
+  hintMove?: { from: string; to: string } | null;
   onPlayerMove: (from: string, to: string, promotion?: string) => void;
 }
 
@@ -49,7 +51,7 @@ function squareAt(rowFromTop: number, file: number): string {
   return `${FILES[file]}${rank}`;
 }
 
-export function ChessBoardView({ chess, playerColor, interactive, lastMove, onPlayerMove }: ChessBoardViewProps) {
+export function ChessBoardView({ chess, playerColor, interactive, lastMove, hintMove, onPlayerMove }: ChessBoardViewProps) {
   const [selected, setSelected] = useState<string | null>(null);
   const [promotionPending, setPromotionPending] = useState<{ from: string; to: string } | null>(null);
 
@@ -122,6 +124,7 @@ export function ChessBoardView({ chess, playerColor, interactive, lastMove, onPl
                 const isSelected = selected === square;
                 const isTarget = legalTargets.has(square);
                 const isLastMoveSquare = lastMove && (lastMove.from === square || lastMove.to === square);
+                const isHintSquare = hintMove && (hintMove.from === square || hintMove.to === square);
                 const glyph = piece ? PIECE_GLYPHS[`${piece.color}${piece.type}`] : '';
 
                 return (
@@ -140,6 +143,9 @@ export function ChessBoardView({ chess, playerColor, interactive, lastMove, onPl
                   >
                     {isLastMoveSquare && !isSelected && (
                       <span className="pointer-events-none absolute inset-0 bg-[#d8ac52]/18" />
+                    )}
+                    {isHintSquare && (
+                      <span className="pointer-events-none absolute inset-0.5 z-10 rounded-[3px] border-2 border-dashed border-[#00d6c8]" />
                     )}
                     <span
                       aria-hidden="true"

@@ -3,7 +3,7 @@
  *
  * بطاقة نتيجة المباراة — تظهر فوق الرقعة عند انتهاء اللعب.
  */
-import { Flag, Frown, Handshake, RefreshCcw, Trophy } from 'lucide-react';
+import { Clock, Flag, Frown, Handshake, RefreshCcw, Trophy } from 'lucide-react';
 import { CHESS_ARENA_COPY } from '@/config/chessArena';
 import type { ChessGameStatus } from '@/lib/chessSessionLab';
 
@@ -23,6 +23,8 @@ export function ChessResultOverlay({ status, onNewGame }: ChessResultOverlayProp
         return { icon: Handshake, iconClass: 'text-[#8aa6a8]', message: CHESS_ARENA_COPY.drawAr };
       case 'resigned':
         return { icon: Flag, iconClass: 'text-rose-400', message: CHESS_ARENA_COPY.resignedAr };
+      case 'timeout':
+        return { icon: Clock, iconClass: 'text-rose-400', message: CHESS_ARENA_COPY.timeoutAr };
       default:
         return { icon: Handshake, iconClass: 'text-[#8aa6a8]', message: '' };
     }
