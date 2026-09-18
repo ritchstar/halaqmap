@@ -30,9 +30,29 @@ function TypingDots() {
 
 const MAX_HISTORY = 8;
 const ASSISTANT_NAME = 'دليلك';
+const ASSISTANT_DIALOG_ID = 'daleelak-assistant';
 
 function isStorePath(pathname: string): boolean {
   return pathname === '/store' || pathname.startsWith('/store/');
+}
+
+/**
+ * يتحقق إن كان هناك أي نافذة Radix Dialog أخرى مفتوحة حالياً في الصفحة (غير
+ * نافذة دليلك نفسها) — مثل نافذة إتمام الطلب أو اختيار طريقة الاستلام في
+ * واجهات ChatlyDesk. زر «دليلك» العائم ثابت (`position: fixed`) بطبقة
+ * `z-[60]` أعلى من طبقة `z-50` التي تستخدمها كل نوافذ الـDialog في المتجر،
+ * فيظهر فوقها ويغطي جزءاً من أزرارها (مثل زر إرسال الطلب) حين تكون مفتوحة
+ * في الوقت نفسه — مؤكَّد بالفحص المباشر على الموقع الفعلي. الحل هنا حارس
+ * وقت التشغيل (بنفس فلسفة حرّاس التباين الأخرى في المتجر): إخفاء الزر
+ * العائم تلقائياً طالما توجد نافذة أخرى مفتوحة، دون الحاجة لتعديل كل نوافذ
+ * الـDialog في كل منتج على حدة.
+ */
+function hasOtherOpenDialog(): boolean {
+  const openDialogs = document.querySelectorAll('[role="dialog"][data-state="open"]');
+  for (const dialog of Array.from(openDialogs)) {
+    if (dialog.id !== ASSISTANT_DIALOG_ID) return true;
+  }
+  return false;
 }
 
 export function DaleelakAssistant() {
@@ -43,6 +63,7 @@ export function DaleelakAssistant() {
   const [draft, setDraft] = useState('');
   const [isSending, setIsSending] = useState(false);
   const [chatError, setChatError] = useState<string | null>(null);
+  const [otherDialogOpen, setOtherDialogOpen] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const messagesRef = useRef<HTMLDivElement>(null);
   const [messages, setMessages] = useState<DaleelakChatMessage[]>([
@@ -54,6 +75,19 @@ export function DaleelakAssistant() {
   useEffect(() => {
     if (!visible && open) setOpen(false);
   }, [visible, open]);
+
+  useEffect(() => {
+    if (!visible) return undefined;
+    const syncOtherDialogState = () => setOtherDialogOpen(hasOtherOpenDialog());
+    syncOtherDialogState();
+    const observer = new MutationObserver(syncOtherDialogState);
+    observer.observe(document.body, {
+      attributes: true,
+      attributeFilter: ['data-state'],
+      subtree: true,
+    });
+    return () => observer.disconnect();
+  }, [visible]);
 
   useEffect(() => {
     if (!open) return;
@@ -255,7 +289,7 @@ export function DaleelakAssistant() {
         className="pointer-events-none fixed bottom-[calc(4.5rem+env(safe-area-inset-bottom,0px))] left-4 z-[60] flex flex-col items-start md:bottom-6 md:left-6"
         data-daleelak-assistant="1"
       >
-        {!open ? (
+        {!open && !otherDialogOpen ? (
           <div className="pointer-events-auto relative shrink-0">
             <motion.button
               type="button"
