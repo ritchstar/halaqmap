@@ -108,8 +108,11 @@ const PRODUCE_GENERATED = [
 ] as const;
 
 export const STORE_PRODUCE_MARKETING_FRAMES = [
-  '/images/store/produce-hero-marketing.jpg',
+  '/images/store/produce/produce-09.jpg',
   ...PRODUCE_GENERATED,
+  '/images/store/produce/produce-09.jpg',
+  '/images/store/produce/produce-09.jpg',
+  '/images/store/produce-hero-marketing.jpg',
 ] as const;
 
 const DATES_GENERATED = [
