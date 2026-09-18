@@ -55,6 +55,71 @@ function hasOtherOpenDialog(): boolean {
   return false;
 }
 
+// نفس المسافة الافتراضية المكتوبة في className أدناه (4.5rem بجذر خط 16px) —
+// تُستخدم كحدٍّ أدنى آمن إن جاء القياس الحي صفراً أو قبل استقرار التخطيط.
+const DEFAULT_TRIGGER_CLEARANCE_PX = 72;
+// مسافة أمان إضافية فوق حافة أيقونتي «قيّم/شارك».
+const ENGAGE_CLEARANCE_GAP_PX = 12;
+
+/**
+ * أيقونتا «قيّم منصة خريطة الحل» و«شارك منصة خريطة الحل»
+ * (`StoreVisitorEngage.tsx`) تشغلان نفس الزاوية السفلية اليسرى، بارتفاع
+ * يتغيّر حسب الصفحة (نسخة مضغوطة بزر واحد «تفاعل» في صفحات هبوط المنتج على
+ * الجوال، أو زران مكدَّسان في بقية الصفحات) — كلا المكوّنين مستقل تماماً عن
+ * الآخر ولا يعرف بوجوده، فمسافة دليلك الثابتة (4.5rem) كانت تكفي فقط للنسخة
+ * المضغوطة، وتترك الزرّين المكدَّسين متداخلين مع أيقونة دليلك — مؤكَّد
+ * بالقياس المباشر على الموقع الفعلي (تداخل ~30px). بدل تخمين قيمة ثابتة
+ * جديدة قد تكسر مرة أخرى عند أي تغيير مستقبلي في تصميم تلك الأيقونتين، تقرأ
+ * هذه الدالة الارتفاع الفعلي المعروض لهما وقت التشغيل (نفس فلسفة حرّاس
+ * التباين: حقيقة الـDOM لا افتراض ثابت) وتُبقي دليلك فوقهما دائماً بمسافة
+ * أمان، بصرف النظر عن أي نسخة أو حجم شاشة.
+ */
+function useDaleelakTriggerClearance(active: boolean, routeKey: string): number | null {
+  const [clearancePx, setClearancePx] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!active) {
+      setClearancePx(null);
+      return undefined;
+    }
+
+    const engageEl = document.querySelector('[data-store-visitor-engage]');
+    if (!engageEl) {
+      setClearancePx(null);
+      return undefined;
+    }
+
+    const recompute = () => {
+      const rect = engageEl.getBoundingClientRect();
+      const distanceFromBottom = window.innerHeight - rect.top;
+      setClearancePx(Math.max(DEFAULT_TRIGGER_CLEARANCE_PX, Math.round(distanceFromBottom + ENGAGE_CLEARANCE_GAP_PX)));
+    };
+
+    recompute();
+
+    // يرصد تغيّر ارتفاع أيقونتَي قيّم/شارك نفسه وقت التشغيل — مثل فتح لوحة
+    // المشاركة فوقها (يضيف عنصراً يرفع ارتفاع الحاوية)، أو تبدّل النسخة
+    // المضغوطة/الكاملة عند تغيّر حجم الشاشة.
+    let resizeObserver: ResizeObserver | undefined;
+    if (typeof ResizeObserver !== 'undefined') {
+      resizeObserver = new ResizeObserver(recompute);
+      resizeObserver.observe(engageEl);
+    }
+    window.addEventListener('resize', recompute);
+
+    return () => {
+      resizeObserver?.disconnect();
+      window.removeEventListener('resize', recompute);
+    };
+    // routeKey (pathname) مُدرَج عمداً: وجود أيقونتَي قيّم/شارك ونسختهما
+    // يعتمدان على المسار (`hideForStickyBuy`, `compactProductLanding`)، فيُعاد
+    // البحث عن العنصر وربط المراقبين من جديد عند كل تنقّل داخل المتجر.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [active, routeKey]);
+
+  return clearancePx;
+}
+
 export function DaleelakAssistant() {
   const { pathname } = useLocation();
   const visible = isStorePath(pathname);
@@ -64,6 +129,7 @@ export function DaleelakAssistant() {
   const [isSending, setIsSending] = useState(false);
   const [chatError, setChatError] = useState<string | null>(null);
   const [otherDialogOpen, setOtherDialogOpen] = useState(false);
+  const triggerClearancePx = useDaleelakTriggerClearance(visible, pathname);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const messagesRef = useRef<HTMLDivElement>(null);
   const [messages, setMessages] = useState<DaleelakChatMessage[]>([
@@ -287,6 +353,7 @@ export function DaleelakAssistant() {
 
       <div
         className="pointer-events-none fixed bottom-[calc(4.5rem+env(safe-area-inset-bottom,0px))] left-4 z-[60] flex flex-col items-start md:bottom-6 md:left-6"
+        style={triggerClearancePx !== null ? { bottom: `${triggerClearancePx}px` } : undefined}
         data-daleelak-assistant="1"
       >
         {!open && !otherDialogOpen ? (

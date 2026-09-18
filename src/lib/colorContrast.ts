@@ -142,17 +142,67 @@ export function pickReadableTextColor(bg: RGBA): string {
 }
 
 /**
+ * يستخرج ألوان توقفات تدرّج CSS (gradient stops) من قيمة `background-image`
+ * محسوبة — يدعم `rgb()/rgba()` وأيضاً `oklab()/oklch()` (نفس الأنماط التي
+ * تدعمها `parseCssColor`)، لأن Tailwind v4 يولّد توقفات تدرّج بصيغة Oklab
+ * تماماً كما يولّد ألوان النص بالشفافية الجزئية — مثال حقيقي من بطاقة
+ * «هدية» في المتجر: `linear-gradient(to left, oklab(0.44 0.03 0.06 / 0.25)
+ * 0%, rgb(26, 20, 12) 50%, rgb(6, 16, 24) 100%)`.
+ */
+export function extractGradientStopColors(backgroundImage: string): RGBA[] {
+  if (!backgroundImage || backgroundImage === 'none') return [];
+  const matches = backgroundImage.match(/(?:rgba?|oklab|oklch)\([^)]*\)/gi) || [];
+  return matches.map(parseCssColor).filter((c): c is RGBA => !!c);
+}
+
+/**
+ * يُلخّص عدة توقفات تدرّج إلى لون واحد تمثيلي (متوسط مرجّح بشفافية كل
+ * توقف)، ليُستخدم كطبقة خلفية معتمة تقريبية عند حساب التباين — كافٍ لتحديد
+ * إن كانت الخلفية فاتحة أو داكنة إجمالاً دون الحاجة لمحاكاة التدرّج بصرياً.
+ */
+function averageGradientColor(stops: RGBA[]): RGBA {
+  let rSum = 0;
+  let gSum = 0;
+  let bSum = 0;
+  let wSum = 0;
+  for (const stop of stops) {
+    const w = Math.max(stop.a, 0.05);
+    rSum += stop.r * w;
+    gSum += stop.g * w;
+    bSum += stop.b * w;
+    wSum += w;
+  }
+  if (wSum <= 0) return { r: 255, g: 255, b: 255, a: 1 };
+  return { r: rSum / wSum, g: gSum / wSum, b: bSum / wSum, a: 1 };
+}
+
+/**
  * يحسب الخلفية الفعّالة المُركَّبة (composited) لعنصر عبر تسلّق آباء DOM
  * الحقيقيين وتركيب أي طبقات شفافة جزئياً فوق بعضها — لا يفترض أن أول أب
  * يحمل لوناً هو الصحيح، بل يمزج كل الطبقات الشفافة حتى يصل لطبقة معتمة
  * كاملة (alpha = 1) أو ينفد الآباء (فيُرجع أبيض كاحتياط أخير: خلفية المتصفح
  * الافتراضية). مشتركة بين كل حرّاس التباين لتفادي ازدواج المنطق.
+ *
+ * يتحقق أيضاً من `background-image` (تدرّجات) في كل مستوى من مستويات
+ * الآباء، وليس فقط `background-color` — بطاقات مثل «هدية بخورنا1» تستخدم
+ * `bg-gradient-to-*` بخلفية `background-color` شفافة تماماً (`rgba(0,0,0,0)`)
+ * مع تدرّج داكن فعلي في `background-image`؛ بدون هذا الفحص كان الحارس يتخطى
+ * الطبقة الداكنة الحقيقية بالكامل ويصل إلى خلفية المتجر البيج الفاتحة خلفها،
+ * فيُحوّل نص البطاقة الفاتح المصمَّم أصلاً لهذا التدرّج الداكن إلى لون داكن
+ * — أي يزيد اختفاءه بدل إصلاحه. مؤكَّد بالفحص المباشر على الموقع الفعلي.
  */
 export function resolveEffectiveBackground(el: Element): RGBA {
   const layers: RGBA[] = [];
   let node: Element | null = el;
   while (node) {
     const style = window.getComputedStyle(node);
+
+    const gradientStops = extractGradientStopColors(style.backgroundImage);
+    if (gradientStops.length) {
+      layers.push(averageGradientColor(gradientStops));
+      break;
+    }
+
     const parsed = parseCssColor(style.backgroundColor);
     if (parsed && parsed.a > 0) {
       layers.push(parsed);
@@ -164,11 +214,4 @@ export function resolveEffectiveBackground(el: Element): RGBA {
   let composed = layers[layers.length - 1];
   for (let i = layers.length - 2; i >= 0; i -= 1) composed = compositeOver(layers[i], composed);
   return composed;
-}
-
-/** يستخرج ألوان توقفات تدرّج CSS (gradient stops) من قيمة `background-image` محسوبة. */
-export function extractGradientStopColors(backgroundImage: string): RGBA[] {
-  if (!backgroundImage || backgroundImage === 'none') return [];
-  const matches = backgroundImage.match(/rgba?\([^)]+\)/gi) || [];
-  return matches.map(parseCssColor).filter((c): c is RGBA => !!c);
 }

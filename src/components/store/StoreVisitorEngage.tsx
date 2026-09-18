@@ -60,7 +60,10 @@ export function StoreVisitorEngage() {
 
   if (compactProductLanding) {
     return (
-      <div className="fixed bottom-4 left-4 z-40 pb-[env(safe-area-inset-bottom,0px)] sm:bottom-6 sm:left-6">
+      <div
+        className="fixed bottom-4 left-4 z-40 pb-[env(safe-area-inset-bottom,0px)] sm:bottom-6 sm:left-6"
+        data-store-visitor-engage="1"
+      >
         {panel === 'share' ? (
           <div
             className="mb-2 w-[min(18rem,calc(100vw-2rem))] rounded-2xl border border-[#e8c547]/35 bg-[#061018]/95 p-4 shadow-2xl backdrop-blur-md"
@@ -144,7 +147,10 @@ export function StoreVisitorEngage() {
   }
 
   return (
-    <div className="fixed bottom-4 left-4 z-40 flex flex-col items-start gap-2 pb-[env(safe-area-inset-bottom,0px)] sm:bottom-6 sm:left-6">
+    <div
+      className="fixed bottom-4 left-4 z-40 flex flex-col items-start gap-2 pb-[env(safe-area-inset-bottom,0px)] sm:bottom-6 sm:left-6"
+      data-store-visitor-engage="1"
+    >
       {panel === 'share' ? (
         <div
           className="mb-1 w-[min(18rem,calc(100vw-2rem))] rounded-2xl border border-[#e8c547]/35 bg-[#061018]/95 p-4 shadow-2xl backdrop-blur-md"
