@@ -6,61 +6,16 @@
 import { Link } from 'react-router-dom';
 import { Smartphone } from 'lucide-react';
 import { STORE_LANDING_COPY } from '@/config/storeFront';
-import {
-  STORE_OPERATORS_HERO_PHONE_SRC,
-  STORE_OPERATORS_PLAY_STORE_SHARE_URL,
-} from '@/config/storeOperatorsAppShell';
-import { storeResponsiveWebpSrcSet } from '@/lib/storeResponsiveImage';
+import { STORE_OPERATORS_PLAY_STORE_SHARE_URL } from '@/config/storeOperatorsAppShell';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { StorePathEvents } from '@/lib/storePathAnalytics';
-
-const PHONE_SIZES = '(max-width: 768px) 70vw, 280px';
-
-function OperatorsPhoneMock({ alt }: { alt: string }) {
-  const webpSrcSet = storeResponsiveWebpSrcSet(STORE_OPERATORS_HERO_PHONE_SRC);
-  return (
-    <div className="relative mx-auto w-[min(100%,17.5rem)]">
-      <div className="relative overflow-hidden rounded-[1.85rem] border border-white/15 bg-[#0a1218] p-2 shadow-[0_28px_60px_-28px_rgba(0,0,0,0.85)] ring-1 ring-[#e8c547]/25">
-        <div className="overflow-hidden rounded-[1.45rem] bg-black">
-          {webpSrcSet ? (
-            <picture>
-              <source type="image/webp" srcSet={webpSrcSet} sizes={PHONE_SIZES} />
-              <img
-                src={STORE_OPERATORS_HERO_PHONE_SRC}
-                alt={alt}
-                width={1080}
-                height={1920}
-                className="block h-auto w-full"
-                sizes={PHONE_SIZES}
-                loading="eager"
-                fetchPriority="high"
-                decoding="async"
-              />
-            </picture>
-          ) : (
-            <img
-              src={STORE_OPERATORS_HERO_PHONE_SRC}
-              alt={alt}
-              width={1080}
-              height={1920}
-              className="block h-auto w-full"
-              loading="eager"
-              fetchPriority="high"
-              decoding="async"
-            />
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
 
 export function StoreLandingPitchHero() {
   return (
     <section id="store-pitch-hero" className="overflow-x-clip px-4 pb-8 pt-6 md:pb-10 md:pt-10">
-      <div className="relative mx-auto grid max-w-5xl items-center gap-8 md:grid-cols-[1.15fr_0.85fr] md:gap-10 md:text-start">
+      <div className="relative mx-auto max-w-3xl text-center md:text-start">
         <span className="store-pitch-aura" aria-hidden />
-        <div className="relative text-center md:text-start">
+        <div className="relative">
           <p className="text-xl font-black text-[#f4efe4] md:text-2xl">{STORE_LANDING_COPY.shopNameAr}</p>
           <p className="mt-2 text-sm font-bold tracking-wide text-[#e8c547]/95 md:text-base">
             {STORE_LANDING_COPY.pitchKickerAr}
@@ -98,10 +53,6 @@ export function StoreLandingPitchHero() {
               {STORE_LANDING_COPY.pitchOperatorsAppNoteAr}
             </p>
           </div>
-        </div>
-
-        <div className="relative">
-          <OperatorsPhoneMock alt={STORE_LANDING_COPY.pitchOperatorsPhoneAltAr} />
         </div>
       </div>
     </section>
