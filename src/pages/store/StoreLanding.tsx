@@ -563,6 +563,24 @@ export default function StoreLanding() {
         </div>
       </section>
 
+      <section id="store-chess-door" className="px-4 pb-14" aria-label={STORE_LANDING_COPY.chessDoorTitleAr}>
+        <div className="mx-auto max-w-5xl rounded-2xl border border-[#e8c547]/25 bg-[#0b1a24]/70 p-5 md:p-6">
+          <a
+            href={STORE_LANDING_COPY.chessDoorHref}
+            className="group block focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#e8c547]"
+          >
+            <h2 className="text-2xl font-extrabold text-[#f4efe4] transition group-hover:text-[#e8c547]">
+              {STORE_LANDING_COPY.chessDoorTitleAr}
+            </h2>
+            <p className="mt-2 max-w-3xl text-sm leading-relaxed text-white/70">{STORE_LANDING_COPY.chessDoorLeadAr}</p>
+            <span className="mt-4 inline-flex items-center gap-1 text-sm font-bold text-[#e8c547]">
+              {STORE_LANDING_COPY.chessDoorCtaAr}
+              <ArrowLeft className="h-4 w-4" />
+            </span>
+          </a>
+        </div>
+      </section>
+
       <section id="store-admin-chat" className="px-4 pb-10">
         <div className="mx-auto max-w-sm">
           <h2 className="text-center text-lg font-extrabold text-[#2e2418]">{STORE_LANDING_COPY.deskChatTitle}</h2>
