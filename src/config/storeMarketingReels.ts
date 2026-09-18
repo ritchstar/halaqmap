@@ -122,6 +122,7 @@ const KITCHEN_GENERATED = [
   '/images/store/kitchen/kitchen-04.jpg',
   '/images/store/kitchen/kitchen-05.jpg',
   '/images/store/kitchen/kitchen-06.jpg',
+  '/images/store/kitchen/kitchen-07.jpg',
 ] as const;
 
 export const STORE_KITCHEN_MARKETING_FRAMES = [
