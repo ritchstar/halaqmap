@@ -137,12 +137,32 @@ export const STORE_BAKHURNA_MARKETING_FRAMES = [
   '/images/store/bakhurna/gallery/25.jpg',
 ] as const;
 
+// الأطباق الاحترافية (restaurant-04..19) أُضيفت في الذيل — طُلب توزيعها على
+// مطعمنا1 لا طبختنا1 لأنها أطباق متنوعة (لحم مروق، حلا، مأكولات بحرية...)
+// خارج نطاق طبختنا1 المقصور على أصناف بيتية تراثية ثابتة (راجع تعليق
+// storeKitchenMenu.ts: «لا أطباق مطاعم»)، بينما مطعمنا1 قائمته متنوعة أصلاً.
 export const STORE_RESTAURANT_MARKETING_FRAMES = [
   '/images/store/restaurant/restaurant-03.jpg',
   '/images/store/restaurant/restaurant-03.jpg',
   '/images/store/restaurant/restaurant-03.jpg',
   '/images/store/restaurant-hero-marketing.jpg',
   '/images/store/restaurant/restaurant-02.jpg',
+  '/images/store/restaurant/restaurant-04.jpg',
+  '/images/store/restaurant/restaurant-05.jpg',
+  '/images/store/restaurant/restaurant-06.jpg',
+  '/images/store/restaurant/restaurant-07.jpg',
+  '/images/store/restaurant/restaurant-08.jpg',
+  '/images/store/restaurant/restaurant-09.jpg',
+  '/images/store/restaurant/restaurant-10.jpg',
+  '/images/store/restaurant/restaurant-11.jpg',
+  '/images/store/restaurant/restaurant-12.jpg',
+  '/images/store/restaurant/restaurant-13.jpg',
+  '/images/store/restaurant/restaurant-14.jpg',
+  '/images/store/restaurant/restaurant-15.jpg',
+  '/images/store/restaurant/restaurant-16.jpg',
+  '/images/store/restaurant/restaurant-17.jpg',
+  '/images/store/restaurant/restaurant-18.jpg',
+  '/images/store/restaurant/restaurant-19.jpg',
 ] as const;
 
 // الفهارس 1-8 تبقى كما كانت (سماء + 01..06 ثم 07) لـ STORE_SHOP_SKY_PHASE_INDEXES.
