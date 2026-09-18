@@ -4,7 +4,7 @@
  * لوحة تشغيل مطعمنا1 — هيكل Chatly مع منطق halaqmap الحقيقي.
  */
 import { useMemo, useRef, useState, type ReactNode } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   Archive,
   ArrowLeft,
@@ -63,6 +63,18 @@ import { StoreBrandMark } from '@/components/store/StoreBrandMark';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { useStoreShopPresence } from '@/hooks/useStoreShopPresence';
 import { cn } from '@/lib/utils';
+import {
+  StoreProductActivationChecklist,
+  type StoreActivationStepView,
+} from '@/components/store/StoreProductActivationChecklist';
+import { openStoreDeskHelp } from '@/lib/storeDeskHelpBus';
+
+/**
+ * نص الوصف الافتراضي الذي تكتبه الخادم تلقائياً عند الشراء إن لم يُدخل
+ * المشتري وصفاً في نموذج الطلب (انظر `parseRestaurantLiveOrderBody` في
+ * api/_lib/storeRestaurantLive.ts).
+ */
+const RESTAURANT_DEFAULT_BLURB_AR = 'مطعمنا1: اطلب من جوالك.';
 
 type DeskSection = 'overview' | 'orders' | 'products' | 'location' | 'payment' | 'tools';
 
@@ -85,6 +97,8 @@ export function RestaurantChatlyDesk({
   showTrialNote = false,
   maskPii = false,
   saveStatus = 'idle',
+  activationEnabled = false,
+  hasSavedShelf = false,
 }: {
   state: RestaurantLabState;
   onChange: (next: RestaurantLabState) => void;
@@ -93,10 +107,15 @@ export function RestaurantChatlyDesk({
   showTrialNote?: boolean;
   maskPii?: boolean;
   saveStatus?: StoreLiveDeskSaveStatus;
+  /** تُفعَّل فقط من لوحة الصندوق الحقيقية (وليس المعاينة التجريبية). */
+  activationEnabled?: boolean;
+  /** هل يملك هذا الصندوق رفاً محفوظاً فعلياً على الخادم (قبل أي دمج مع عرض تجريبي)؟ */
+  hasSavedShelf?: boolean;
 }) {
   const [section, setSection] = useState<DeskSection>('overview');
   const [mobileNav, setMobileNav] = useState(false);
   const alertRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
 
   const live = state.orders.filter(isLiveDeskTicket);
   const fresh = live.filter((item) => deskOrderPhase(item) === 'new');
@@ -117,6 +136,47 @@ export function RestaurantChatlyDesk({
 
   const vendorLabel =
     state.host.vendorMode === 'mobile' ? STORE_MOBILE_VENDOR.mobileTitleAr : STORE_MOBILE_VENDOR.fixedTitleAr;
+
+  const activationSteps: StoreActivationStepView[] = [
+    {
+      id: 'identity',
+      titleAr: 'أكمل هوية نشاطك (شعار أو وصف حقيقي)',
+      actionLabelAr: 'إكمال الهوية',
+      onAction: () => setSection('tools'),
+      done: Boolean(state.host.logoSrc.trim()) || (state.host.blurbAr.trim() !== '' && state.host.blurbAr.trim() !== RESTAURANT_DEFAULT_BLURB_AR),
+    },
+    {
+      id: 'shelf',
+      titleAr: 'اعرض قائمة أطباقك الحقيقية',
+      actionLabelAr: 'إدارة القائمة',
+      onAction: () => setSection('products'),
+      done: hasSavedShelf,
+    },
+    {
+      id: 'location',
+      titleAr: 'حدّد موقع نشاطك وأبرزه للعميل',
+      actionLabelAr: 'تحديد الموقع',
+      onAction: () => setSection('location'),
+      done: state.host.pickupPlaceVisible && state.host.pickupMapsUrl.trim() !== '',
+    },
+    {
+      id: 'hours',
+      titleAr: 'فعّل ساعات العمل',
+      actionLabelAr: 'ضبط الساعات',
+      onAction: () => setSection('location'),
+      done: state.host.hoursEnabled,
+    },
+  ];
+
+  const drivingGuideActions = {
+    runAr: 'شغّل',
+    onRun: () => setSection('overview'),
+    marketAr: 'سوّق',
+    onMarket: () => navigate(ROUTE_PATHS.STORE_RESTAURANT_SUPPORT),
+    growAr: 'طوّر',
+    onGrow: () => setSection('tools'),
+    onHelp: () => openStoreDeskHelp(),
+  };
 
   function receiveOrder(id: string) {
     onChange({ ...state, orders: receiveDeskTicket(state.orders, id) });
@@ -358,6 +418,15 @@ export function RestaurantChatlyDesk({
 
           <div className="p-4 sm:p-8 lg:p-10">
             <div className="mx-auto max-w-[1420px]">
+              {activationEnabled ? (
+                <StoreProductActivationChecklist
+                  productNameAr={STORE_RESTAURANT_LIVE.titleAr}
+                  accent={STORE_RESTAURANT_LIVE_ACCENT}
+                  steps={activationSteps}
+                  guide={drivingGuideActions}
+                />
+              ) : null}
+
               {section === 'overview' ? (
                 <OverviewSection
                   maskPii={maskPii}

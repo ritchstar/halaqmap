@@ -4,6 +4,7 @@
  * استوديو لوحة حلانا1 — تحرير + معاينة مباشرة.
  */
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ExternalLink, ImagePlus, Loader2 } from 'lucide-react';
 import { toast } from '@/components/ui/sonner';
 import {
@@ -47,6 +48,11 @@ import { postHalanaAction } from '@/lib/storeHalanaLiveRemote';
 import { compressImageFile } from '@/lib/storeWeddingLiveLab';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { cn } from '@/lib/utils';
+import {
+  StoreProductActivationChecklist,
+  type StoreActivationStepView,
+} from '@/components/store/StoreProductActivationChecklist';
+import { openStoreDeskHelp } from '@/lib/storeDeskHelpBus';
 
 type RequestRow = {
   id: string;
@@ -109,32 +115,6 @@ function HalanaField({ label, children }: { label: string; children: ReactNode }
       <span className="halana-desk-field__label">{label}</span>
       {children}
     </label>
-  );
-}
-
-function DeskProgress({ shopName, logoSrc, galleryCount, textsReady }: {
-  shopName: string;
-  logoSrc: string;
-  galleryCount: number;
-  textsReady: boolean;
-}) {
-  const copy = STORE_HALANA_LIVE_COPY;
-  const steps = [
-    { id: 'identity', label: copy.deskProgressIdentityAr, done: shopName.trim().length >= 2 },
-    { id: 'gallery', label: copy.deskProgressContentAr, done: galleryCount > 0 },
-    { id: 'texts', label: copy.deskProgressTextsAr, done: textsReady },
-    { id: 'review', label: copy.deskProgressReviewAr, done: shopName.trim().length >= 2 && galleryCount > 0 },
-  ] as const;
-
-  return (
-    <div className="halana-desk-progress" aria-label="تقدم الإعداد">
-      {steps.map((step) => (
-        <div key={step.id} className={cn('halana-desk-progress__step', step.done && 'halana-desk-progress__step--done')}>
-          <span className="halana-desk-progress__dot" aria-hidden />
-          <span>{step.label}</span>
-        </div>
-      ))}
-    </div>
   );
 }
 
@@ -319,6 +299,7 @@ export function HalanaDeskStudio({
   onSaved: () => void;
 }) {
   const copy = STORE_HALANA_LIVE_COPY;
+  const navigate = useNavigate();
   const [tab, setTab] = useState<DeskTab>('edit');
   const [shopName, setShopName] = useState(payload.shopName);
   const [logoSrc, setLogoSrc] = useState(payload.logoSrc);
@@ -365,7 +346,51 @@ export function HalanaDeskStudio({
 
   const previewUrl = payload.shopUrl || (payload.shopToken ? `https://store.halaqmap.com/#/h/${encodeURIComponent(payload.shopToken)}` : '#');
   const previewToken = payload.shopToken || token;
-  const textsReady = Boolean(promoTitleAr.trim() || promoAr.trim() || policyAr.trim());
+
+  /*
+   * خطوات «ابدأ قيادة منتجك» لحلانا1 — نموذج بيانات مختلف تماماً عن باقي
+   * المنتجات (لا رف، لا موقع، لا ساعات عمل)، لذا لا يُعاد استخدام صيغة
+   * الخطوات القياسية. كل خطوة هنا مبنية على حقل حقيقي يبدأ فارغاً من
+   * الخادم عند الشراء ولا قيمة افتراضية معروضة كأنها إنجاز:
+   * - الشعار: يبدأ فارغاً (parseShopLogoSrc على '' في صفحة المتجر).
+   * - المعرض: gallery تبدأ [] فعلياً على الخادم، لا صور تجريبية بديلة.
+   * - العربون: payDesk.iban يبدأ '' حتى يُحفظ عبر StoreDirectPayDesk.
+   * لاحظ أن الحقل القديم «shopName.trim().length >= 2» أُسقط من هنا لأنه
+   * حقل إلزامي عند الشراء ويكون صحيحاً دائماً — لا يقيس أي إنجاز حقيقي.
+   */
+  const activationSteps: StoreActivationStepView[] = [
+    {
+      id: 'identity',
+      titleAr: 'أضف شعار نشاطك الحقيقي',
+      actionLabelAr: 'إضافة الشعار',
+      onAction: () => setTab('edit'),
+      done: Boolean(logoSrc.trim()),
+    },
+    {
+      id: 'gallery',
+      titleAr: 'اعرض أعمالك الحقيقية في المعرض',
+      actionLabelAr: 'إدارة المعرض',
+      onAction: () => setTab('edit'),
+      done: gallery.length > 0,
+    },
+    {
+      id: 'payment',
+      titleAr: 'فعّل طريقة استلام العربون',
+      actionLabelAr: 'إعداد الدفع',
+      onAction: () => setTab('edit'),
+      done: Boolean(payload.payDesk.iban.trim()),
+    },
+  ];
+
+  const drivingGuideActions = {
+    runAr: 'شغّل',
+    onRun: () => setTab('edit'),
+    marketAr: 'سوّق',
+    onMarket: () => navigate(ROUTE_PATHS.STORE_HALANA_SUPPORT),
+    growAr: 'طوّر',
+    onGrow: () => setTab('edit'),
+    onHelp: () => openStoreDeskHelp(),
+  };
 
   function toggleOccasionVisible(id: HalanaOccasionId) {
     setOccasionsVisible((prev) => {
@@ -493,7 +518,6 @@ export function HalanaDeskStudio({
   const editor = (
     <div className="halana-desk-editor space-y-6">
       <p className="halana-desk-lead">{copy.deskStudioLeadAr}</p>
-      <DeskProgress shopName={shopName} logoSrc={logoSrc} galleryCount={gallery.length} textsReady={textsReady} />
 
       <StoreOpsSection titleAr={STORE_SHOP_LOGO_COPY.sectionAr} accent={STORE_HALANA_LIVE_ACCENT} defaultOpen>
         <div className="grid gap-3 sm:grid-cols-2">
@@ -634,6 +658,13 @@ export function HalanaDeskStudio({
           void saveHost({ acceptingOrders: next });
         }}
         onSave={() => void saveHost()}
+      />
+
+      <StoreProductActivationChecklist
+        productNameAr={copy.titleAr}
+        accent={STORE_HALANA_LIVE_ACCENT}
+        steps={activationSteps}
+        guide={drivingGuideActions}
       />
 
       <div className="halana-desk-tabs lg:hidden">

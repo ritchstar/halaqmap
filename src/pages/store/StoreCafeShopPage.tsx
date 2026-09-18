@@ -127,6 +127,12 @@ export default function StoreCafeShopPage() {
   const [screenLive, setScreenLive] = useState(true);
   const [asDisplay, setAsDisplay] = useState(false);
   const [isTrial, setIsTrial] = useState(false);
+  /*
+   * هل يملك هذا الصندوق رفاً محفوظاً فعلياً على الخادم؟ يُحسب من payload
+   * الخادم مباشرة قبل أن يدمجه payloadToState مع رف عرض تجريبي عند الفراغ،
+   * حتى لا تقرأ قائمة «ابدأ قيادة منتجك» رفاً وهمياً كأنه رف حقيقي.
+   */
+  const [hasSavedShelf, setHasSavedShelf] = useState(false);
   const deskSync = useStoreLiveDeskSync((mode === 'desk' || mode === 'host') && !isLab);
   const neighborhoodShop = mode === 'shop' && !displayMode && !asDisplay;
   useDocumentTitle(STORE_CAFE_LIVE.documentTitle);
@@ -178,9 +184,9 @@ export default function StoreCafeShopPage() {
           setGate((current) => nextStoreLivePublicGate(current, result).gate);
           return;
         }
-        setState((current) =>
-          deskSync.applyPoll(current, payloadToState(result.payload as Record<string, unknown>, current)),
-        );
+        const payload = result.payload as Record<string, unknown>;
+        setState((current) => deskSync.applyPoll(current, payloadToState(payload, current)));
+        setHasSavedShelf(Array.isArray(payload.shelf) && payload.shelf.length > 0);
         if (typeof result.shopUrl === 'string' && result.shopUrl) setShopUrl(result.shopUrl);
         if (typeof result.guestUrl === 'string') setGuestUrl(result.guestUrl);
         if (typeof result.displayUrl === 'string') setDisplayUrl(result.displayUrl);
@@ -308,6 +314,8 @@ export default function StoreCafeShopPage() {
                 showTrialNote={isTrial}
                 token={safeToken}
                 saveStatus={deskSync.saveStatus}
+                activationEnabled={!isLab}
+                hasSavedShelf={hasSavedShelf}
               />
             ) : null}
             {mode === 'host' ? (

@@ -85,6 +85,12 @@ export default function StoreKitchenShopPage() {
   const [giftNotice, setGiftNotice] = useState<{ expiresAt: string; shopToken: string } | null>(null);
   const [isTrial, setIsTrial] = useState(false);
   const [shopUrl, setShopUrl] = useState(kitchenShopUrl(safeToken, ''));
+  /*
+   * هل يملك هذا الصندوق رفاً محفوظاً فعلياً على الخادم؟ يُحسب من payload
+   * الخادم مباشرة قبل أن يدمجه payloadToState مع رف عرض تجريبي عند الفراغ،
+   * حتى لا تقرأ قائمة «ابدأ قيادة منتجك» رفاً وهمياً كأنه رف حقيقي.
+   */
+  const [hasSavedShelf, setHasSavedShelf] = useState(false);
   const qrParam = readHashQueryParam('qr') || '';
   const qrOk = desk || kitchenQrMatches(state.host, qrParam);
   useDocumentTitle(STORE_KITCHEN_LIVE.documentTitle);
@@ -122,6 +128,7 @@ export default function StoreKitchenShopPage() {
         }
         const payload = result.payload as Record<string, unknown>;
         setState((current) => deskSync.applyPoll(current, payloadToState(payload, current)));
+        setHasSavedShelf(Array.isArray(payload.shelf) && payload.shelf.length > 0);
         if (typeof result.shopUrl === 'string' && result.shopUrl) setShopUrl(result.shopUrl);
         setIsTrial(result.isTrial === true);
         if (payload.gift === true) {
@@ -206,6 +213,8 @@ export default function StoreKitchenShopPage() {
               gift={giftNotice}
               showTrialNote={isTrial}
               saveStatus={deskSync.saveStatus}
+              activationEnabled={!isLab}
+              hasSavedShelf={hasSavedShelf}
             />
           ) : (
             <KitchenChatlyStorefront state={state} onChange={commit} token={safeToken} />

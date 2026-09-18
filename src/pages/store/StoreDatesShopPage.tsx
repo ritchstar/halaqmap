@@ -78,6 +78,12 @@ export default function StoreDatesShopPage() {
   const [renewToken, setRenewToken] = useState('');
   const [isTrial, setIsTrial] = useState(false);
   const [shopUrl, setShopUrl] = useState(storeLiveShopShareHref('dates', safeToken));
+  /*
+   * هل يملك هذا الصندوق رفاً محفوظاً فعلياً على الخادم؟ يُحسب من payload
+   * الخادم مباشرة قبل أن يدمجه payloadToState مع رف عرض تجريبي عند الفراغ،
+   * حتى لا تقرأ قائمة «ابدأ قيادة منتجك» رفاً وهمياً كأنه رف حقيقي.
+   */
+  const [hasSavedShelf, setHasSavedShelf] = useState(false);
   useDocumentTitle(STORE_DATES_LIVE.documentTitle);
   useStoreShopPresence({
     role: 'shop',
@@ -111,9 +117,9 @@ export default function StoreDatesShopPage() {
           setGate((current) => nextStoreLivePublicGate(current, result).gate);
           return;
         }
-        setState((current) =>
-          deskSync.applyPoll(current, payloadToState(result.payload as Record<string, unknown>, current)),
-        );
+        const payload = result.payload as Record<string, unknown>;
+        setState((current) => deskSync.applyPoll(current, payloadToState(payload, current)));
+        setHasSavedShelf(Array.isArray(payload.shelf) && payload.shelf.length > 0);
         if (typeof result.shopUrl === 'string' && result.shopUrl) setShopUrl(result.shopUrl);
         setIsTrial(result.isTrial === true);
         setGate('ok');
@@ -189,6 +195,8 @@ export default function StoreDatesShopPage() {
               token={safeToken}
               showTrialNote={isTrial}
               saveStatus={deskSync.saveStatus}
+              activationEnabled={!isLab}
+              hasSavedShelf={hasSavedShelf}
             />
           ) : (
             <DatesChatlyStorefront state={state} onChange={commit} token={safeToken} />

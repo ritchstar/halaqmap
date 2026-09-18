@@ -4,7 +4,7 @@
  * لوحة تشغيل كافينا1 — هيكل Chatly مع منطق halaqmap الحقيقي.
  */
 import { useMemo, useRef, useState, type ReactNode } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   Archive,
   ArrowLeft,
@@ -58,6 +58,19 @@ import { StoreBrandMark } from '@/components/store/StoreBrandMark';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { useStoreShopPresence } from '@/hooks/useStoreShopPresence';
 import { cn } from '@/lib/utils';
+import {
+  StoreProductActivationChecklist,
+  type StoreActivationStepView,
+} from '@/components/store/StoreProductActivationChecklist';
+import { openStoreDeskHelp } from '@/lib/storeDeskHelpBus';
+
+/**
+ * نص الوصف الافتراضي الذي تكتبه الخادم تلقائياً عند الشراء إن لم يُدخل
+ * المشتري وصفاً في نموذج الطلب (انظر `parseCafeLiveOrderBody` في
+ * api/_lib/storeCafeLive.ts). يُستخدم هنا فقط للتمييز بين وصف حقيقي كتبه
+ * المشغّل ووصف افتراضي لم يُلمَس بعد.
+ */
+const CAFE_DEFAULT_BLURB_AR = 'كافينا1: اطلب من جوالك.';
 
 type DeskSection = 'overview' | 'orders' | 'products' | 'location' | 'payment' | 'tools';
 
@@ -79,6 +92,8 @@ export function CafeChatlyDesk({
   token,
   showTrialNote = false,
   saveStatus = 'idle',
+  activationEnabled = false,
+  hasSavedShelf = false,
 }: {
   state: CafeLabState;
   onChange: (next: CafeLabState) => void;
@@ -86,7 +101,10 @@ export function CafeChatlyDesk({
   token: string;
   showTrialNote?: boolean;
   saveStatus?: StoreLiveDeskSaveStatus;
+  activationEnabled?: boolean;
+  hasSavedShelf?: boolean;
 }) {
+  const navigate = useNavigate();
   const [section, setSection] = useState<DeskSection>('overview');
   const [mobileNav, setMobileNav] = useState(false);
   const alertRef = useRef<HTMLDivElement>(null);
@@ -110,6 +128,49 @@ export function CafeChatlyDesk({
 
   const vendorLabel =
     state.host.vendorMode === 'mobile' ? STORE_MOBILE_VENDOR.mobileTitleAr : STORE_MOBILE_VENDOR.fixedTitleAr;
+
+  const activationSteps: StoreActivationStepView[] = [
+    {
+      id: 'identity',
+      titleAr: 'أكمل هوية نشاطك (شعار أو وصف حقيقي)',
+      actionLabelAr: 'إكمال الهوية',
+      onAction: () => setSection('tools'),
+      done:
+        Boolean(state.host.logoSrc.trim()) ||
+        (state.host.blurbAr.trim() !== '' && state.host.blurbAr.trim() !== CAFE_DEFAULT_BLURB_AR),
+    },
+    {
+      id: 'shelf',
+      titleAr: 'اعرض قائمة مقهاك الحقيقية',
+      actionLabelAr: 'إدارة القائمة',
+      onAction: () => setSection('products'),
+      done: hasSavedShelf,
+    },
+    {
+      id: 'location',
+      titleAr: 'حدّد موقع نشاطك وأبرزه للعميل',
+      actionLabelAr: 'تحديد الموقع',
+      onAction: () => setSection('location'),
+      done: state.host.pickupPlaceVisible && state.host.pickupMapsUrl.trim() !== '',
+    },
+    {
+      id: 'hours',
+      titleAr: 'فعّل ساعات العمل',
+      actionLabelAr: 'ضبط الساعات',
+      onAction: () => setSection('location'),
+      done: state.host.hoursEnabled,
+    },
+  ];
+
+  const drivingGuideActions = {
+    runAr: 'شغّل',
+    onRun: () => setSection('overview'),
+    marketAr: 'سوّق',
+    onMarket: () => navigate(ROUTE_PATHS.STORE_CAFE_SUPPORT),
+    growAr: 'طوّر',
+    onGrow: () => setSection('tools'),
+    onHelp: () => openStoreDeskHelp(),
+  };
 
   function receiveOrder(id: string) {
     onChange({ ...state, orders: receiveDeskTicket(state.orders, id) });
@@ -335,6 +396,14 @@ export function CafeChatlyDesk({
 
           <div className="p-4 sm:p-8 lg:p-10">
             <div className="mx-auto max-w-[1420px]">
+              {activationEnabled ? (
+                <StoreProductActivationChecklist
+                  productNameAr={STORE_CAFE_LIVE.titleAr}
+                  accent={STORE_CAFE_LIVE_ACCENT}
+                  steps={activationSteps}
+                  guide={drivingGuideActions}
+                />
+              ) : null}
               {section === 'overview' ? (
                 <OverviewSection
                   fresh={fresh}
