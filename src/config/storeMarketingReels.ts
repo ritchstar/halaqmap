@@ -68,6 +68,12 @@ const CAFE_GENERATED = [
   '/images/store/cafe/cafe-04.jpg',
   '/images/store/cafe/cafe-05.jpg',
   '/images/store/cafe/cafe-06.jpg',
+  // إسبريسو مع كعكة فستق وكوب ماء — بلا تكرار، لم يُطلب إبرازها أكثر من غيرها.
+  '/images/store/cafe/cafe-07.jpg',
+  // لاتيه آرت بجانب نافذة مع حبوب بن — بلا تكرار.
+  '/images/store/cafe/cafe-08.jpg',
+  // آيس كوفي بطبقات حليب مع معجنات على رخام داكن — بلا تكرار.
+  '/images/store/cafe/cafe-09.jpg',
 ] as const;
 
 export const STORE_CAFE_MARKETING_FRAMES = [...CAFE_GENERATED] as const;
@@ -230,6 +236,11 @@ export const STORE_WEDDING_MARKETING_FRAMES = [
   '/images/store/lab/lab-luxury-silver.jpg',
   '/images/store/lab/lab-wedding-panorama.jpg',
   ...STORE_LIVE_PANORAMAS,
+  // أول صورة حقيقية لقاعة أفراح لهذا الشريط (بدلاً من الألوان التجريدية فقط):
+  // قاعة فخمة بشاشة عرض فارغة قابلة للتخصيص وطاولات مستديرة بكراسي ذهبية.
+  // الصورة عامة الطابع ولا تحدد جنس المدعوين، والمستخدم اختار وضعها في
+  // النسخة الرجالية (wedding) تحديداً دون النسائية أو اجواء1.
+  '/images/store/wedding/wedding-01.jpg',
 ] as const;
 
 export const STORE_WEDDING_WOMEN_MARKETING_FRAMES = [
