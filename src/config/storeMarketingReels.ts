@@ -115,6 +115,12 @@ export const STORE_BAKHURNA_MARKETING_FRAMES = [
   '/images/store/bakhurna/gallery/15.jpg',
   '/images/store/bakhurna/gallery/20.jpg',
   '/images/store/bakhurna/gallery/22.jpg',
+  // مكرّرة عمداً 3 مرات لإبرازها أكثر من أي صورة أخرى (طلب صريح)، بنفس
+  // منطق صورة تمويناتا1 أعلاه. بخورنا1 ليست ضمن BANKS في storeShopSky.ts
+  // فلا قيد على ترتيب الفهارس هنا، لكن أُضيفت في الذيل للاتساق.
+  '/images/store/bakhurna/gallery/25.jpg',
+  '/images/store/bakhurna/gallery/25.jpg',
+  '/images/store/bakhurna/gallery/25.jpg',
 ] as const;
 
 export const STORE_RESTAURANT_MARKETING_FRAMES = [
