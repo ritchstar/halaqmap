@@ -3,6 +3,7 @@
  */
 import { useMemo, useState } from 'react';
 import { STORE_EVENT_LIVE_CANNED, eventLiveCopy, eventLiveFillClass } from '@/config/storeEventLive';
+import { ProductEvents } from '@/lib/analytics/productAnalytics';
 import type { EventLiveBlessing, EventLiveLabState } from '@/lib/storeEventLiveLab';
 import { cn } from '@/lib/utils';
 
@@ -39,6 +40,7 @@ export function StoreEventGuestForm({
       at: new Date().toISOString(),
     };
     onChange({ ...state, blessings: [...state.blessings, blessing] });
+    ProductEvents.storeEventBlessingSend({ voice });
     setGuestName('');
     setExtra('');
     setSent(true);

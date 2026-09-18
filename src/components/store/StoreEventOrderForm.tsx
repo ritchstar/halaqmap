@@ -22,6 +22,7 @@ import { normalizeEventHostRole, normalizeEventVenueKind, type EventLiveHostRole
 import type { StoreEventVenueKind } from '@/config/storeEventLive';
 import { buildStorePurchaseLegalConsentFields } from '@/lib/storePurchaseLegalConsent';
 import { rememberStoreAffiliateRef } from '@/lib/storeAffiliateRef';
+import { ProductEvents } from '@/lib/analytics/productAnalytics';
 import { createEventLivePending } from '@/lib/storeEventLiveRemote';
 import { eventLivePayHref } from '@/lib/storeHostRedirect';
 import { cn } from '@/lib/utils';
@@ -51,6 +52,7 @@ export function StoreEventOrderForm({ voice = 'men' }: { voice?: StoreEventLiveV
       setError('الموافقة على شروط الخدمة مطلوبة قبل الدفع.');
       return;
     }
+    ProductEvents.storeEventPayClick({ voice });
     setBusy(true);
     setError('');
     const result = await createEventLivePending({

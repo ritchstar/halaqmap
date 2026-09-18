@@ -3,7 +3,7 @@
  *
  * هبوط الدعوة الحرة بعد تصنيف الستايل.
  */
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, Navigate, useLocation } from 'react-router-dom';
 import { ChevronDown } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -33,6 +33,7 @@ import {
   type StoreEventLiveVoice,
 } from '@/config/storeEventLive';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
+import { ProductEvents } from '@/lib/analytics/productAnalytics';
 import { defaultEventLiveLabState, eventLiveDefaultStyle } from '@/lib/storeEventLiveLab';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { cn } from '@/lib/utils';
@@ -56,6 +57,10 @@ export default function StoreEventLandingPage() {
   const demo = defaultEventLiveLabState(voice);
   const [termsOpen, setTermsOpen] = useState(false);
   useDocumentTitle(copy.documentTitle);
+
+  useEffect(() => {
+    ProductEvents.storeEventLandingView({ voice });
+  }, [voice]);
 
   if (!STORE_EVENT_LIVE_PUBLIC_ENABLED) {
     return <Navigate to={ROUTE_PATHS.STORE_LANDING} replace />;
@@ -92,6 +97,7 @@ export default function StoreEventLandingPage() {
                 className={cn('rounded-full px-5 py-2.5 text-sm font-bold', fill)}
                 onClick={(event) => {
                   event.preventDefault();
+                  ProductEvents.storeEventTryClick({ voice });
                   document.getElementById('live-preview')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }}
               >
@@ -102,6 +108,7 @@ export default function StoreEventLandingPage() {
                 className="rounded-full border border-white/20 px-5 py-2.5 text-sm font-bold text-white/80"
                 onClick={(event) => {
                   event.preventDefault();
+                  ProductEvents.storeEventOrderOpen({ voice });
                   document.getElementById('event-order')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }}
               >

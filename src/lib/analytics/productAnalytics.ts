@@ -278,4 +278,14 @@ export const ProductEvents = {
     trackProductEvent('store_wedding_order_open', { voice: props.voice }),
   storeWeddingPayClick: (props: { voice: 'men' | 'women' }) =>
     trackProductEvent('store_wedding_pay_click', { voice: props.voice }),
+  storeEventLandingView: (props: { voice: 'men' | 'women' }) =>
+    trackProductEvent('store_event_landing_view', { voice: props.voice }),
+  storeEventTryClick: (props: { voice: 'men' | 'women' }) =>
+    trackProductEvent('store_event_try_click', { voice: props.voice }),
+  storeEventBlessingSend: (props: { voice: 'men' | 'women' }) =>
+    trackProductEvent('store_event_blessing_send', { voice: props.voice }),
+  storeEventOrderOpen: (props: { voice: 'men' | 'women' }) =>
+    trackProductEvent('store_event_order_open', { voice: props.voice }),
+  storeEventPayClick: (props: { voice: 'men' | 'women' }) =>
+    trackProductEvent('store_event_pay_click', { voice: props.voice }),
 } as const;
