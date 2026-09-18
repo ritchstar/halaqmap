@@ -212,7 +212,7 @@ export default function StoreLanding() {
             {STORE_CAFE_LIVE_PUBLIC_ENABLED ? (
               <StoreBrowseCard
                 to={ROUTE_PATHS.STORE_CAFE}
-                reel="lounge"
+                reel="cafe"
                 alt={STORE_CAFE_LIVE.heroAltAr}
                 titleAr={STORE_LANDING_COPY.cafeLiveTitleAr}
                 leadAr={STORE_LANDING_COPY.cafeLiveLeadAr}

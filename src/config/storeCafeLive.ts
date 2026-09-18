@@ -192,7 +192,7 @@ export const STORE_CAFE_LIVE = {
   labKickerAr: 'معاينة حيّة داخل الصفحة',
   labTitleAr: 'هكذا يطلب جار الحي وتظهر الشاشات داخل المقهى',
   labLeadAr: 'فعّل صنفاً، أرسل طلباً تجريبياً، وعاين الشاشات الثلاث كما في ساعة الذروة.',
-  heroImage: '/images/store/lounge-hero-marketing.jpg',
+  heroImage: '/images/store/cafe/cafe-01.jpg',
   heroAltAr: 'مقهى حي بشاشات ومشروبات جاهزة للطلب من الجوال',
   heroCaptionAr: 'من رمز QR إلى الكاشير، وعلى شاشات المقهى',
   checkoutClosedAr: 'بوابة الدفع غير مفتوحة لهذا المنتج بعد.',

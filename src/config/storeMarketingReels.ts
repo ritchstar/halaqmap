@@ -12,6 +12,7 @@ export const STORE_MARKETING_REEL_MS = 5200;
 export type StoreMarketingReelId =
   | 'landing'
   | 'lounge'
+  | 'cafe'
   | 'grocers'
   | 'produce'
   | 'dates'
@@ -41,6 +42,12 @@ const LOUNGE_GENERATED = [
   '/images/store/lounge/lounge-10.jpg',
   '/images/store/lounge/lounge-11.jpg',
   '/images/store/lounge/lounge-12.jpg',
+  // مكرّرة عمداً 3 مرات لإبرازها أكثر من أي صورة أخرى (طلب صريح)، بنفس
+  // منطق تمويناتا1 وبخورنا1 أعلاه. اللاونج ليست ضمن BANKS في
+  // storeShopSky.ts فلا قيد على ترتيب الفهارس هنا.
+  '/images/store/lounge/lounge-13.jpg',
+  '/images/store/lounge/lounge-13.jpg',
+  '/images/store/lounge/lounge-13.jpg',
 ] as const;
 
 export const STORE_LOUNGE_MARKETING_FRAMES = [
@@ -48,6 +55,13 @@ export const STORE_LOUNGE_MARKETING_FRAMES = [
   '/images/store/lab/lab-lounge-interior.jpg',
   ...LOUNGE_GENERATED,
 ] as const;
+
+// كافينا1 كان يستعير reel="lounge" (نفس مصفوفة لاونجا1 أعلاه) لعدم وجود صور
+// خاصة به. أضفنا هذا الشريط المستقل بأول صورتين مخصصتين فعلياً للمقهى، ولا
+// داعي لتكرارهما — هذا الشريط بأكمله جديد وليس فيه صورة أخرى تُنافَس.
+const CAFE_GENERATED = ['/images/store/cafe/cafe-01.jpg', '/images/store/cafe/cafe-02.jpg'] as const;
+
+export const STORE_CAFE_MARKETING_FRAMES = [...CAFE_GENERATED] as const;
 
 const GROCERS_GENERATED = [
   '/images/store/grocers/grocers-01.jpg',
@@ -126,6 +140,11 @@ export const STORE_BAKHURNA_MARKETING_FRAMES = [
 export const STORE_RESTAURANT_MARKETING_FRAMES = [
   '/images/store/restaurant-hero-marketing.jpg',
   '/images/store/restaurant/restaurant-02.jpg',
+  // مكرّرة عمداً 3 مرات لإبرازها أكثر من أي صورة أخرى (طلب صريح)، بنفس
+  // منطق تمويناتا1 وبخورنا1 ولاونجا1 أعلاه.
+  '/images/store/restaurant/restaurant-03.jpg',
+  '/images/store/restaurant/restaurant-03.jpg',
+  '/images/store/restaurant/restaurant-03.jpg',
 ] as const;
 
 const KITCHEN_GENERATED = [
@@ -297,6 +316,7 @@ export const STORE_LANDING_MARKETING_FRAMES = [
 const REELS: Record<StoreMarketingReelId, readonly string[]> = {
   landing: STORE_LANDING_MARKETING_FRAMES,
   lounge: STORE_LOUNGE_MARKETING_FRAMES,
+  cafe: STORE_CAFE_MARKETING_FRAMES,
   grocers: STORE_GROCERS_MARKETING_FRAMES,
   produce: STORE_PRODUCE_MARKETING_FRAMES,
   dates: STORE_DATES_MARKETING_FRAMES,

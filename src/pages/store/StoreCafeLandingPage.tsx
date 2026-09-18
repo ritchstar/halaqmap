@@ -176,7 +176,7 @@ export default function StoreCafeLandingPage() {
           </div>
           <figure className="overflow-hidden rounded-2xl border border-[#c48a4a]/35 bg-[#1a1008]">
             <StoreShot
-              reel="lounge"
+              reel="cafe"
               alt={STORE_CAFE_LIVE.heroAltAr}
               className="aspect-[16/10] w-full"
             />

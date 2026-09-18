@@ -5,7 +5,7 @@
  */
 import QRCode from 'react-qr-code';
 import { STORE_CAFE_LIVE, STORE_CAFE_LIVE_ACCENT } from '@/config/storeCafeLive';
-import { STORE_LOUNGE_MARKETING_FRAMES } from '@/config/storeMarketingReels';
+import { STORE_CAFE_MARKETING_FRAMES } from '@/config/storeMarketingReels';
 import { StoreHallNoticePlaque } from '@/components/store/StoreHallNoticePlaque';
 import { StoreHallVideoWell } from '@/components/store/StoreHallVideoWell';
 import { StoreLivePanoramaCycle } from '@/components/store/StoreLivePanoramaCycle';
@@ -55,7 +55,7 @@ export function StoreCafeHallStage({
         className,
       )}
     >
-      <StoreLivePanoramaCycle frames={STORE_LOUNGE_MARKETING_FRAMES} />
+      <StoreLivePanoramaCycle frames={STORE_CAFE_MARKETING_FRAMES} />
       <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/78" />
 
       <div className={cn('relative z-10 flex flex-col gap-4 p-4 pt-5 sm:p-6 sm:pt-7 md:p-8', immersive ? 'min-h-[100svh]' : 'min-h-[20rem] md:min-h-[36rem]')}>
@@ -115,7 +115,7 @@ export function StoreCafeHallStage({
                   state.host.panoramaSrc.startsWith('data:') ? (
                     <img src={state.host.panoramaSrc} alt="" />
                   ) : (
-                    <StoreShot reel="lounge" alt="" className="h-full w-full" eager />
+                    <StoreShot reel="cafe" alt="" className="h-full w-full" eager />
                   )
                 }
               />
