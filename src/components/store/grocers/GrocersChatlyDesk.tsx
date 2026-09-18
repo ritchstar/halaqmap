@@ -662,8 +662,8 @@ function OverviewSection({
 
       <PageHeading
         eyebrow="لوحة اليوم"
-        title="كاشيرك، طلباتك، وموقعك — واضحين"
-        copy="تمويناتا1 يعمل بنفس سرعة السوق: شوف الجديد، استلم الطلب، وخلّ الجار يعرف أين أنت."
+        title="الكاشير، الطلبات، والموقع في واجهة واحدة"
+        copy="تمويناتا1 يعمل بسرعة السوق؛ يُعرَض الجديد، وتُستلم الطلبات، ويُطلَع الجار على الموقع الحالي."
         action={
           <a
             href={shopUrl}
@@ -806,7 +806,7 @@ function OrdersSection({
       <PageHeading
         eyebrow="الطلبات"
         title="مساران واضحان، ولا طلب يضيع"
-        copy="استلم التذكرة، تواصل مع العميل، ثم أنهِها عندما يخرج الطلب."
+        copy="تُستلم التذكرة، ويجري التواصل مع العميل، ثم تُنهى التذكرة عند خروج الطلب."
       />
 
       <div className="mt-7 grid gap-5 lg:grid-cols-2">
@@ -895,7 +895,7 @@ function ProductsSection({
     <>
       <PageHeading
         eyebrow="المنتجات والمخزون"
-        title="حدّث الرف من مكان واحد"
+        title="تحديث الرف من مكان واحد"
         copy="إيقاف الصنف، وإدخال مجموعة سلع دفعة واحدة."
       />
 
@@ -959,7 +959,7 @@ function LocationSection({
     <>
       <PageHeading
         eyebrow="الموقع والساعات"
-        title="خلّي الوصول واضحاً"
+        title="توضيح آلية الوصول"
         copy="عرض النمط الحالي للقراءة فقط، وتحديث الموقع وساعات العمل من الأدوات الحقيقية."
       />
 
@@ -981,7 +981,7 @@ function PaymentSection({ paySlot }: { paySlot: ReactNode }) {
     <>
       <PageHeading
         eyebrow="الدفع المباشر"
-        title="اجعل التحويل بسيطاً"
+        title="بساطة التحويل المباشر"
         copy="التعليمات تظهر بعد إرسال الطلب، مع التحقّقات الكاملة وحفظ حقيقي على الخادم."
       />
       <div className="mt-7 rounded-2xl border border-[#dfe4d6] bg-[#fffdf5] p-5">{paySlot}</div>
@@ -1006,7 +1006,7 @@ function ToolsSection({
     <>
       <PageHeading
         eyebrow="الإعدادات"
-        title="كل إعدادات نشاطك من هنا"
+        title="جميع إعدادات النشاط من هنا"
         copy="هوية المتجر، ملصق QR، وعرض الفلاش — كلها من نفس الأدوات الحقيقية."
       />
 

@@ -431,7 +431,7 @@ export function DatesChatlyDesk({
                   <PageHeading
                     eyebrow="المزاد العلني"
                     title="حراج صناديق التمر"
-                    copy="أنشئ صناديق بصور وفيديو، انشر الرابط لمن تعتمدهم، وأغلق المزاد يدوياً عند استقرار السومة."
+                    copy="تُنشأ الصناديق بصور وفيديو، ويُنشر الرابط لمن يُعتمَد، ويُغلَق المزاد يدوياً عند استقرار السومة."
                   />
                   <div className="mt-7">
                     <DatesAuctionDesk deskToken={token} shopToken={token} shopUrl={shopUrl} />
@@ -663,7 +663,7 @@ function OverviewSection({
 
       <PageHeading
         eyebrow="لوحة اليوم"
-        title="الطلبات، أصنافك، وموقع الصندوق — واضحين"
+        title="الطلبات، الأصناف، وموقع الصندوق في واجهة واحدة"
         copy="تمرتنا1 يجمع أصناف اليوم والطلبات والموقع في مكان واحد."
         action={
           <a
@@ -808,7 +808,7 @@ function OrdersSection({
       <PageHeading
         eyebrow="الطلبات"
         title="مساران واضحان، ولا طلب يضيع"
-        copy="استلم التذكرة، وأنهِها بعد التسليم أو الاستلام."
+        copy="تُستلم التذكرة، وتُنهى بعد التسليم أو الاستلام."
       />
 
       <div className="mt-7 grid gap-5 lg:grid-cols-2">
@@ -897,8 +897,8 @@ function ProductsSection({
     <>
       <PageHeading
         eyebrow="الأصناف والمخزون"
-        title="حدّث ما وصل اليوم من مكان واحد"
-        copy="أبرز ما وصل اليوم، وأوقف الصنف النافد، وأدر المكتبة من مكان واحد."
+        title="تحديث الوارد اليومي من مكان واحد"
+        copy="يُبرَز ما وصل اليوم، ويُوقَف الصنف النافد، وتُدار المكتبة من مكان واحد."
       />
 
       <div className="mt-7 rounded-2xl border border-[#dac8aa] bg-[#f9f4ea] p-5">
@@ -949,8 +949,8 @@ function LocationSection({
     <>
       <PageHeading
         eyebrow="الموقع وساعات العمل"
-        title="خلّي موقعك واضحاً لجيران الحي"
-        copy="حدّد موقع الصندوق أو العربة، وتحكم بساعات العمل والمسار المتحرك من هنا. الشحن خارج النطاق اختياري بحقول تملؤها أنت."
+        title="توضيح الموقع لجيران الحي"
+        copy="يُحدَّد موقع الصندوق أو العربة، وتُضبَط ساعات العمل والمسار المتحرك من هنا. شحن ما هو خارج النطاق اختياري عبر حقول مخصصة لذلك."
       />
 
       <div className="mt-7 grid gap-6">
@@ -967,7 +967,7 @@ function PaymentSection({ paySlot }: { paySlot: ReactNode }) {
     <>
       <PageHeading
         eyebrow="الدفع المباشر"
-        title="اجعل التحويل بسيطاً"
+        title="بساطة التحويل المباشر"
         copy="التعليمات تظهر بعد إرسال الطلب، مع التحقّقات الكاملة وحفظ حقيقي على الخادم."
       />
       <div className="mt-7 rounded-2xl border border-[#dac8aa] bg-[#f9f4ea] p-5">{paySlot}</div>
@@ -992,7 +992,7 @@ function ToolsSection({
     <>
       <PageHeading
         eyebrow="الإعدادات"
-        title="كل إعدادات نشاطك من هنا"
+        title="جميع إعدادات النشاط من هنا"
         copy="هوية النشاط، ملصق QR، وشريط وصل اليوم — كلها من نفس الأدوات الحقيقية."
       />
 
