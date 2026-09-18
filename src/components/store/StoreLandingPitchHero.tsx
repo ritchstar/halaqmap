@@ -2,6 +2,7 @@
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
  * الشاشة الأولى — ربط اختيار المسار بتشغيله من الجوال، مع فصل مسار الزائر عن المشغّل.
+ * ألوان النص على لوحة الغلاف الفاتحة (`store-light-canvas`) — حبر غامق لا أبيض.
  */
 import { Link } from 'react-router-dom';
 import { Smartphone } from 'lucide-react';
@@ -16,14 +17,14 @@ export function StoreLandingPitchHero() {
       <div className="relative mx-auto max-w-3xl text-center md:text-start">
         <span className="store-pitch-aura" aria-hidden />
         <div className="relative">
-          <p className="text-xl font-black text-[#f4efe4] md:text-2xl">{STORE_LANDING_COPY.shopNameAr}</p>
-          <p className="mt-2 text-sm font-bold tracking-wide text-[#e8c547]/95 md:text-base">
+          <p className="text-xl font-black text-[#2e2418] md:text-2xl">{STORE_LANDING_COPY.shopNameAr}</p>
+          <p className="mt-2 text-sm font-bold tracking-wide text-[#6f6250] md:text-base">
             {STORE_LANDING_COPY.pitchKickerAr}
           </p>
-          <h1 className="store-pitch-headline relative mx-auto mt-3 max-w-3xl text-[1.55rem] font-black leading-snug text-[#e8c547] sm:text-3xl sm:leading-tight md:mx-0 md:text-[2.35rem]">
+          <h1 className="store-pitch-headline relative mx-auto mt-3 max-w-3xl text-[1.7rem] font-black leading-snug text-[#1a140c] sm:text-3xl sm:leading-tight md:mx-0 md:text-[2.35rem]">
             {STORE_LANDING_COPY.pitchH1Ar}
           </h1>
-          <p className="relative mx-auto mt-5 max-w-2xl text-base font-bold leading-8 text-white/90 md:mx-0 md:text-lg">
+          <p className="relative mx-auto mt-5 max-w-2xl text-base font-bold leading-8 text-[#3d3226] md:mx-0 md:text-lg">
             {STORE_LANDING_COPY.pitchDedicatedLineAr}
           </p>
 
@@ -43,13 +44,13 @@ export function StoreLandingPitchHero() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={STORE_LANDING_COPY.pitchOperatorsAppCtaAr}
-                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border-2 border-[#e8c547]/85 bg-[#0d1a16] px-5 py-2.5 text-base font-extrabold text-white hover:border-[#e8c547] hover:bg-[#12241e]"
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border-2 border-[#2e2418]/35 bg-[#0d1a16] px-5 py-2.5 text-base font-extrabold text-white hover:border-[#2e2418] hover:bg-[#12241e]"
               >
                 <Smartphone className="h-4 w-4 shrink-0 text-[#e8c547]" aria-hidden />
                 {STORE_LANDING_COPY.pitchOperatorsAppCtaAr}
               </a>
             </div>
-            <p className="max-w-md text-center text-[0.78rem] leading-6 text-white/55 md:text-start">
+            <p className="max-w-md text-center text-sm leading-6 text-[#6f6250] md:text-start">
               {STORE_LANDING_COPY.pitchOperatorsAppNoteAr}
             </p>
           </div>

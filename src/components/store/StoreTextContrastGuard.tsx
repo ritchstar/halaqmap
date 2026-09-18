@@ -10,7 +10,7 @@
  * مصمَّمة لتُقرأ فوق كحلي داكن، ولا يمكن تصحيحها كلها يدوياً بأمان بمرور واحد
  * عبر عشرات الملفات — فبدل ذلك يقرأ هذا الحارس الخلفية الفعلية المحسوبة فعلياً
  * (لا افتراضاً) لكل عنصر نص، ويعكس المنطق تلقائياً: خلفية فاتحة ← نص غامق
- * (كحلي الهوية)، خلفية داكنة (مثل شارة أو بطاقة داكنة متعمّدة فوق الصفحة
+ * (حبر الغلاف)، خلفية داكنة (مثل شارة أو بطاقة داكنة متعمّدة فوق الصفحة
  * الفاتحة) ← يبقى النص الفاتح كما هو دون تغيير، لأنه يقرأ بشكل صحيح أصلاً.
  *
  * يشارك نفس أدوات حساب WCAG ونفس نطاق مسارات `/store/*` مع حارس الأزرار
@@ -20,16 +20,20 @@ import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import {
   contrastRatio,
+  isLightBackground,
   parseCssColor,
   pickReadableTextColor,
   resolveEffectiveBackground,
 } from '@/lib/colorContrast';
 import { isStoreCustomerSurface } from '@/lib/storeCustomerSurface';
 
-/** نفس حد WCAG 2.1 الأدنى لعناصر الواجهة (SC 1.4.11) — يشترك مع حارس الأزرار. */
-const FIX_RATIO = 3;
-const SCAN_DEBOUNCE_MS = 220;
+/** WCAG 2.1 AA لنص عادي (SC 1.4.3) — أشد من حد الواجهة 3:1 المستخدم للأزرار. */
+const FIX_RATIO = 4.5;
+/** حد أدنى لحجم الخط المقروء على الجوال عند التصحيح على خلفية فاتحة. */
+const MIN_LIGHT_BG_FONT_PX = 15;
+const SCAN_DEBOUNCE_MS = 180;
 const FIXED_ATTR = 'data-text-contrast-guard-fixed';
+const SIZE_ATTR = 'data-text-contrast-guard-size';
 
 /**
  * عناصر النص العادية المستهدفة — الوصلات والأزرار مغطّاة أصلاً بحارس الأزرار،
@@ -37,7 +41,7 @@ const FIXED_ATTR = 'data-text-contrast-guard-fixed';
  * حاوية لعناصر أخرى) لتفادي فحص آلاف الـ div/section الفارغة من نص مباشر.
  */
 const TEXT_SELECTOR =
-  'p, span, h1, h2, h3, h4, h5, h6, li, dt, dd, small, strong, em, b, caption, figcaption, blockquote, th, td, legend';
+  'p, span, h1, h2, h3, h4, h5, h6, li, dt, dd, small, strong, em, b, caption, figcaption, blockquote, th, td, legend, label';
 
 function hasOwnVisibleText(el: Element): boolean {
   for (const node of Array.from(el.childNodes)) {
@@ -50,30 +54,45 @@ function checkElement(el: HTMLElement): void {
   if (!hasOwnVisibleText(el)) return;
 
   const style = window.getComputedStyle(el);
+  if (style.visibility === 'hidden' || style.display === 'none') return;
+
   const textColor = parseCssColor(style.color);
   if (!textColor || textColor.a === 0) return;
 
-  // خلفيات متدرّجة خلف نص عادي نادرة جداً في هذا السياق (بخلاف الأزرار)
-  // ولا يمكن أخذ عيّنة بكسل فعلية منها بلا Canvas — تُستثنى كما في حارس الأزرار.
-  const hasGradient = Boolean(style.backgroundImage && style.backgroundImage !== 'none');
-  if (hasGradient) return;
-
+  // خلفية متدرّجة على عنصر النص نفسه نادرة؛ إن وُجدت نستخدم عيّنة التدرّج
+  // عبر resolveEffectiveBackground بدل التخطّي الصامت (كان يترك نصاً أبيض
+  // فوق بيج بلا إصلاح).
   const bg = resolveEffectiveBackground(el);
   const ratio = contrastRatio(bg, textColor);
-  if (ratio >= FIX_RATIO) return;
+  const lightBg = isLightBackground(bg);
 
-  const safe = pickReadableTextColor(bg);
-  if (style.color === safe) return;
+  if (ratio < FIX_RATIO) {
+    const safe = pickReadableTextColor(bg);
+    if (style.color !== safe) {
+      el.style.setProperty('color', safe, 'important');
+      el.setAttribute(FIXED_ATTR, '1');
+      if (import.meta.env.DEV) {
+        console.warn('[text-contrast-guard] صُحِّح لون نص كان شبه مختفٍ عن الزوار', el, {
+          originalColor: style.color,
+          background: style.backgroundColor,
+          ratio: ratio.toFixed(2),
+          lightBg,
+          correctedTo: safe,
+        });
+      }
+    }
+  }
 
-  el.style.setProperty('color', safe, 'important');
-  el.setAttribute(FIXED_ATTR, '1');
-  if (import.meta.env.DEV) {
-    console.warn('[text-contrast-guard] صُحِّح لون نص كان شبه مختفٍ عن الزوار', el, {
-      originalColor: style.color,
-      background: style.backgroundColor,
-      ratio: ratio.toFixed(2),
-      correctedTo: safe,
-    });
+  // على الخلفية الفاتحة: لا يُقبل خط أصغر من الحد الأدنى للقراءة على الجوال.
+  if (lightBg) {
+    const fontPx = parseFloat(style.fontSize) || 0;
+    if (fontPx > 0 && fontPx < MIN_LIGHT_BG_FONT_PX && !el.closest('button, a[class*="rounded-full"]')) {
+      const tag = el.tagName.toLowerCase();
+      if (tag === 'p' || tag === 'li' || tag === 'span' || tag === 'small' || tag === 'label') {
+        el.style.setProperty('font-size', `${MIN_LIGHT_BG_FONT_PX}px`, 'important');
+        el.setAttribute(SIZE_ATTR, '1');
+      }
+    }
   }
 }
 
@@ -97,6 +116,8 @@ export function StoreTextContrastGuard(): null {
     };
 
     schedule();
+    // مسح إضافي بعد اكتمال التخطيط/الخطوط (الجوال أبطأ).
+    const late = window.setTimeout(scanNow, 700);
 
     const observer = new MutationObserver(schedule);
     observer.observe(document.body, {
@@ -110,6 +131,7 @@ export function StoreTextContrastGuard(): null {
     return () => {
       observer.disconnect();
       if (timerRef.current) window.clearTimeout(timerRef.current);
+      window.clearTimeout(late);
     };
   }, [location.pathname]);
 

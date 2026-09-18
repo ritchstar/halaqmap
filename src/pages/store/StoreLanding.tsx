@@ -77,7 +77,7 @@ export default function StoreLanding() {
       <StoreLandingPhilosophySection />
 
       <section id="store-newest-products" className="scroll-mt-14 px-4 pb-2 pt-2">
-        <p className="mx-auto max-w-5xl pb-3 text-center text-base font-extrabold text-white/85 md:text-lg">
+        <p className="mx-auto max-w-5xl pb-3 text-center text-base font-extrabold text-[#2e2418] md:text-lg">
           {STORE_LANDING_COPY.pitchProductsBridgeAr}
         </p>
         <nav

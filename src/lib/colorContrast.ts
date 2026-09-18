@@ -52,22 +52,75 @@ function parsePercentOrNumber(token: string, percentBase: number): number {
 }
 
 /**
- * يحلّل قيمة لون CSS محسوبة (كما تُعيدها getComputedStyle) — يدعم `rgb()`/
- * `rgba()` (الصيغة الأشيع)، وأيضاً `oklab()`/`oklch()` التي يعيدها المتصفح
- * فعلياً لأي لون Tailwind v4 بشفافية جزئية (انظر التوثيق أعلى `oklabToRgba`).
+ * يحلّل قناة لون في `rgb()` الحديثة: رقم 0–255 أو نسبة مئوية.
+ * الشفافية: رقم 0–1 أو نسبة مئوية.
+ */
+function parseRgbChannel(token: string): number {
+  const t = token.trim();
+  if (t.endsWith('%')) return clampByte((parseFloat(t) / 100) * 255);
+  return clampByte(parseFloat(t));
+}
+
+function parseAlphaChannel(token: string | undefined): number {
+  if (token === undefined) return 1;
+  const t = token.trim();
+  if (t.endsWith('%')) return Math.min(1, Math.max(0, parseFloat(t) / 100));
+  return Math.min(1, Math.max(0, parseFloat(t)));
+}
+
+/**
+ * يحلّل قيمة لون CSS محسوبة (كما تُعيدها getComputedStyle) — يدعم:
+ * - `rgb()`/`rgba()` بالفواصل القديمة
+ * - `rgb(r g b / a)` بصيغة CSS Color 4 (مسافات بدل فواصل) التي يعيدها Chrome الحديث
+ * - `color(srgb …)`
+ * - `oklab()`/`oklch()` لألوان Tailwind v4 ذات الشفافية الجزئية
+ *
+ * بدون صيغة المسافات يفشل الحارس بصمت على ألوان كثيرة (نص أبيض فوق بيج
+ * المتجر يبقى غير مقروء لأن `parseCssColor` يعيد null فيُتخطّى العنصر).
  */
 export function parseCssColor(value: string | null | undefined): RGBA | null {
   if (!value) return null;
   const v = value.trim();
+  if (v === 'transparent') return { r: 0, g: 0, b: 0, a: 0 };
 
-  const rgbMatch = v.match(/^rgba?\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)\s*(?:,\s*([\d.]+))?\s*\)$/i);
-  if (rgbMatch) {
-    const [, r, g, b, a] = rgbMatch;
+  const rgbComma = v.match(
+    /^rgba?\(\s*([\d.]+%?)\s*,\s*([\d.]+%?)\s*,\s*([\d.]+%?)\s*(?:,\s*([\d.]+%?))?\s*\)$/i,
+  );
+  if (rgbComma) {
+    const [, r, g, b, a] = rgbComma;
     return {
-      r: clampByte(parseFloat(r)),
-      g: clampByte(parseFloat(g)),
-      b: clampByte(parseFloat(b)),
-      a: a === undefined ? 1 : Math.min(1, Math.max(0, parseFloat(a))),
+      r: parseRgbChannel(r),
+      g: parseRgbChannel(g),
+      b: parseRgbChannel(b),
+      a: parseAlphaChannel(a),
+    };
+  }
+
+  const rgbSpace = v.match(
+    /^rgba?\(\s*([\d.]+%?)\s+([\d.]+%?)\s+([\d.]+%?)(?:\s*\/\s*([\d.]+%?))?\s*\)$/i,
+  );
+  if (rgbSpace) {
+    const [, r, g, b, a] = rgbSpace;
+    return {
+      r: parseRgbChannel(r),
+      g: parseRgbChannel(g),
+      b: parseRgbChannel(b),
+      a: parseAlphaChannel(a),
+    };
+  }
+
+  const srgb = v.match(
+    /^color\(\s*srgb\s+([\d.]+%?)\s+([\d.]+%?)\s+([\d.]+%?)(?:\s*\/\s*([\d.]+%?))?\s*\)$/i,
+  );
+  if (srgb) {
+    const [, r, g, b, a] = srgb;
+    const toByte = (t: string) =>
+      t.trim().endsWith('%') ? parseRgbChannel(t) : clampByte(parseFloat(t) * 255);
+    return {
+      r: toByte(r),
+      g: toByte(g),
+      b: toByte(b),
+      a: parseAlphaChannel(a),
     };
   }
 
@@ -134,11 +187,20 @@ export function contrastRatio(a: RGBA, b: RGBA): number {
   return (lighter + 0.05) / (darker + 0.05);
 }
 
-/** يختار لوناً آمناً (أبيض أو كحلي هوية المنصة) بأفضل تباين فوق خلفية معيّنة. */
+/**
+ * يختار لوناً آمناً بأفضل تباين فوق خلفية معيّنة.
+ * خلفية فاتحة ← حبر الغلاف `#2e2418` (مقروء على بيج المتجر).
+ * خلفية داكنة ← أبيض.
+ */
 export function pickReadableTextColor(bg: RGBA): string {
   const white: RGBA = { r: 255, g: 255, b: 255, a: 1 };
-  const dark: RGBA = { r: 6, g: 16, b: 24, a: 1 }; // #061018 — نفس الكحلي المعتمد في هوية المتجر
-  return contrastRatio(bg, white) >= contrastRatio(bg, dark) ? '#ffffff' : '#061018';
+  const dark: RGBA = { r: 46, g: 36, b: 24, a: 1 }; // #2e2418 — --slc-ink
+  return contrastRatio(bg, white) >= contrastRatio(bg, dark) ? '#ffffff' : '#2e2418';
+}
+
+/** هل الخلفية فاتحة إجمالاً؟ (عتبة إضاءة WCAG تقريبية للبيج/الأبيض). */
+export function isLightBackground(bg: RGBA): boolean {
+  return relativeLuminance(bg) >= 0.55;
 }
 
 /**

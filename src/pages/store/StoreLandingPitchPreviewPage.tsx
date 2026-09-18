@@ -26,25 +26,25 @@ export default function StoreLandingPitchPreviewPage() {
   return (
     <StoreVisitorShell>
       <StoreVisitorHeader />
-      <p className="mx-auto max-w-5xl px-4 pt-4 text-center text-sm font-bold leading-7 text-amber-200/90">
+      <p className="mx-auto max-w-5xl px-4 pt-4 text-center text-sm font-bold leading-7 text-[#5c4a1a]">
         {STORE_LANDING_PITCH_COPY.previewBannerAr}
       </p>
       <StoreLandingPitchHero />
       <StoreLandingPhilosophySection />
       <section id="preview-definitions" className="scroll-mt-14 px-4 pb-6">
         <div className="mx-auto grid max-w-5xl gap-4 md:grid-cols-2">
-          <article className="rounded-2xl border border-[#e8c547]/25 bg-[#e8c547]/[0.05] p-5">
-            <h3 className="text-base font-extrabold text-[#e8c547]">صفحة زبائنك الخاصة</h3>
-            <p className="mt-3 text-base leading-8 text-white/78">
+          <article className="rounded-2xl border border-[#dac8aa] bg-[#fbf6ec] p-5">
+            <h3 className="text-base font-extrabold text-[#1a140c]">صفحة زبائنك الخاصة</h3>
+            <p className="mt-3 text-base leading-8 text-[#3d3226]">
               {STORE_LANDING_PITCH_COPY.dedicatedPageDefinitionAr}
             </p>
           </article>
-          <article className="rounded-2xl border border-teal-300/20 bg-teal-400/[0.04] p-5">
-            <h3 className="text-base font-extrabold text-teal-100">تعريف «جار الحي»</h3>
-            <p className="mt-3 text-base leading-8 text-white/78">
+          <article className="rounded-2xl border border-[#dac8aa] bg-[#fbf6ec] p-5">
+            <h3 className="text-base font-extrabold text-[#1a140c]">تعريف «جار الحي»</h3>
+            <p className="mt-3 text-base leading-8 text-[#3d3226]">
               {STORE_LANDING_PITCH_COPY.neighborGuestDefinitionAr}
             </p>
-            <p className="mt-3 text-sm font-bold leading-7 text-white/65">
+            <p className="mt-3 text-sm font-bold leading-7 text-[#6f6250]">
               {STORE_LANDING_PITCH_COPY.neighborGuestShortAr}
             </p>
           </article>
