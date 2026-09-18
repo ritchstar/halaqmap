@@ -8,7 +8,7 @@ import { useCallback, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Share2, Star, X, Check, Copy, MessageCircle } from 'lucide-react';
 import { STORE_ENGAGE_COPY, STORE_ORIGIN, STORE_PUBLIC_NAME_AR } from '@/config/storeFront';
-import { STORE_REVIEWS_COPY } from '@/config/storeReviews';
+import { STORE_REVIEWS_COPY, STORE_REVIEWS_PUBLIC_ENABLED } from '@/config/storeReviews';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { isStoreProductLandingPath } from '@/lib/storeHmTube';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -110,7 +110,7 @@ export function StoreVisitorEngage() {
         ) : null}
         {panel === 'menu' ? (
           <div className="mb-2 flex w-[min(14rem,calc(100vw-2rem))] flex-col gap-2 rounded-2xl border border-[#e8c547]/35 bg-[#061018]/95 p-3 shadow-2xl backdrop-blur-md">
-            {onReviewsPage ? null : (
+            {!STORE_REVIEWS_PUBLIC_ENABLED || onReviewsPage ? null : (
               <Link
                 to={`${ROUTE_PATHS.STORE_REVIEWS}?write=1`}
                 onClick={close}
@@ -197,7 +197,7 @@ export function StoreVisitorEngage() {
       ) : null}
 
       <div className="flex flex-col gap-2">
-        {onReviewsPage ? null : (
+        {!STORE_REVIEWS_PUBLIC_ENABLED || onReviewsPage ? null : (
           <Link
             to={`${ROUTE_PATHS.STORE_REVIEWS}?write=1`}
             aria-label={STORE_ENGAGE_COPY.rateAr}
