@@ -245,6 +245,8 @@ export async function sendStoreResendEmail(input: {
   to: string;
   subject: string;
   html: string;
+  /** مرفقات اختيارية (مثل نسخة JSON من سجل قاعدة البيانات قبل إتلافه). content بصيغة base64. */
+  attachments?: { filename: string; content: string }[];
 }): Promise<boolean> {
   const apiKey = (process.env.RESEND_API_KEY || '').trim();
   const from = resolveResendFromAddress();
@@ -263,6 +265,7 @@ export async function sendStoreResendEmail(input: {
       to: [input.to],
       subject: input.subject,
       html: input.html,
+      ...(input.attachments && input.attachments.length ? { attachments: input.attachments } : {}),
     }),
   });
   if (!resp.ok) {

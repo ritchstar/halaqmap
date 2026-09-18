@@ -53,6 +53,7 @@ import {
 import { sendWeddingLiveLinksEmail } from './_lib/storeWeddingLiveMail.js';
 import { parseShopBackgroundSave } from './_lib/storeShopBackground.js';
 import { applyStoreTrialClock, markStoreTrialConverted } from './_lib/storeProductTrial.js';
+import { applyStoreLiveRetentionClock } from './_lib/storeLiveRetention.js';
 
 export const config = { maxDuration: 20 };
 
@@ -205,6 +206,10 @@ async function readByRole(db: Db, token: string, role: string, headers: Record<s
       200,
       headers,
     );
+  }
+  const retention = await applyStoreLiveRetentionClock(db, 'wedding', data);
+  if (retention.deleted) {
+    return json({ ok: true, expired: true, deletedForRetention: true, expiresAt: data.expires_at }, 200, headers);
   }
   if (data.status !== 'live') return json({ error: 'الدعوة لم تُفعَّل بعد' }, 403, headers);
   return json(
@@ -614,8 +619,14 @@ async function addBlessing(db: Db, body: Record<string, unknown>, headers: Recor
 async function saveHost(db: Db, body: Record<string, unknown>, headers: Record<string, string>) {
   const token = String(body.token || '').trim();
   if (!token) return json({ error: 'رابط المضيف غير صالح' }, 400, headers);
-  const { data } = await db.from(STORE_WEDDING_LIVE_TABLE).select('id, status, payload').eq('host_token', token).maybeSingle();
+  const { data } = await db
+    .from(STORE_WEDDING_LIVE_TABLE)
+    .select('id, status, payload, expires_at, is_trial, deleted_at, buyer_email, buyer_name, created_at, price_halalas, moyasar_payment_id, moyasar_invoice_id, policy_version')
+    .eq('host_token', token)
+    .maybeSingle();
   if (!data || data.status !== 'live') return json({ error: 'رابط المضيف غير صالح' }, 404, headers);
+  const retentionGuard = await applyStoreLiveRetentionClock(db, 'wedding', data);
+  if (retentionGuard.deleted) return json({ error: 'انتهت مدة تفعيل الدعوة وأُتلف محتواها' }, 404, headers);
   const current = { ...(data.payload as WeddingLiveOrderPayload) };
   const voice = parseWeddingVoice(current.voice);
   const next: WeddingLiveOrderPayload = {

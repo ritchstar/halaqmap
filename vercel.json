@@ -1064,6 +1064,10 @@
     {
       "path": "/api/cron-wallet-drain-recovery",
       "schedule": "15 */6 * * *"
+    },
+    {
+      "path": "/api/cron-store-live-retention",
+      "schedule": "30 3 * * *"
     }
   ]
 }

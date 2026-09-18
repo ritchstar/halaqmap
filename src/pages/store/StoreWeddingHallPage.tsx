@@ -32,7 +32,7 @@ import { parseShopBackgroundFields } from '@/lib/storeShopBackground';
 import { addWeddingLiveBlessing, fetchWeddingLivePublic, saveWeddingLiveHost } from '@/lib/storeWeddingLiveRemote';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { StoreGuestDeviceBlocked } from '@/components/store/StoreGuestDeviceBlocked';
-import { StoreTrialGiftEnded } from '@/components/store/StoreTrialOpsNote';
+import { StoreLiveRetentionExpired, StoreTrialGiftEnded } from '@/components/store/StoreTrialOpsNote';
 import { useGuestDeviceGate } from '@/hooks/useGuestDeviceGate';
 
 type HallMode = 'display' | 'guest' | 'host';
@@ -144,6 +144,7 @@ export default function StoreWeddingHallPage() {
   });
   const { state, commit } = useWeddingLabState(safeToken, mode, gate);
   const [giftEnded, setGiftEnded] = useState(false);
+  const [retentionExpired, setRetentionExpired] = useState(false);
   const voice = state.host.voice === 'women' ? 'women' : 'men';
   const copy = weddingLiveCopy(voice);
   useDocumentTitle(copy.documentTitle);
@@ -162,6 +163,7 @@ export default function StoreWeddingHallPage() {
     void fetchWeddingLivePublic(safeToken, mode).then((result) => {
       if (cancelled) return;
       if (result.trialGiftEnded === true) setGiftEnded(true);
+      if (result.deletedForRetention === true) setRetentionExpired(true);
     });
     return () => {
       cancelled = true;
@@ -183,6 +185,13 @@ export default function StoreWeddingHallPage() {
     return (
       <StorePurchasedShell product="wedding" surface="storefront" showStoreLink={false}>
         <StoreTrialGiftEnded titleAr={copy.titleAr} />
+      </StorePurchasedShell>
+    );
+  }
+  if (retentionExpired) {
+    return (
+      <StorePurchasedShell product="wedding" surface="storefront" showStoreLink={false}>
+        <StoreLiveRetentionExpired titleAr={copy.titleAr} />
       </StorePurchasedShell>
     );
   }

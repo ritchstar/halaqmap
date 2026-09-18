@@ -27,3 +27,20 @@ export function StoreTrialGiftEnded({ titleAr }: { titleAr: string }) {
     </div>
   );
 }
+
+/**
+ * تُعرَض عندما تنتهي مدة تفعيل طلب مدفوع (٩٠ يوماً) ويُتلَف محتواه فعلياً
+ * من قاعدة البيانات (راجع api/_lib/storeLiveRetention.ts). لا علاقة لها
+ * بالنماذج التجريبية أعلاه.
+ */
+export function StoreLiveRetentionExpired({ titleAr }: { titleAr: string }) {
+  return (
+    <div className="px-4 pt-[28svh] text-center">
+      <h1 className="text-2xl font-extrabold text-white">{titleAr}</h1>
+      <p className="mx-auto mt-4 max-w-md text-sm leading-8 text-white/75">
+        انتهت مدة تفعيل هذه الدعوة (٩٠ يوماً من الشراء)، وتم إتلاف محتواها تلقائياً من أنظمتنا وفق سياسة الاحتفاظ
+        بالبيانات المعلَنة عند الشراء. أُرسلت نسخة كاملة من المحتوى إلى بريد المشتري المسجَّل وقت إتمام الدعوة.
+      </p>
+    </div>
+  );
+}
