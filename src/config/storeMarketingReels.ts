@@ -132,19 +132,9 @@ export const STORE_DATES_MARKETING_FRAMES = [
   '/images/store/dates/dates-field-snapshot-scene.jpg',
 ] as const;
 
-/** صور تسويق بخورنا1 — من معرض الأصناف الحقيقي (مجلد gallery). */
+/** صور تسويق بخورنا1 — الحديثة فقط (مسح QR في المحل)؛ بلا صور المعرض القديمة. */
 export const STORE_BAKHURNA_MARKETING_FRAMES = [
   '/images/store/bakhurna/gallery/25.jpg',
-  '/images/store/bakhurna/gallery/25.jpg',
-  '/images/store/bakhurna/gallery/25.jpg',
-  '/images/store/bakhurna/gallery/01.jpg',
-  '/images/store/bakhurna/gallery/05.jpg',
-  '/images/store/bakhurna/gallery/08.jpg',
-  '/images/store/bakhurna/gallery/12.jpg',
-  '/images/store/bakhurna/gallery/03.jpg',
-  '/images/store/bakhurna/gallery/15.jpg',
-  '/images/store/bakhurna/gallery/20.jpg',
-  '/images/store/bakhurna/gallery/22.jpg',
 ] as const;
 
 export const STORE_RESTAURANT_MARKETING_FRAMES = [
