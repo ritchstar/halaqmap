@@ -25,22 +25,13 @@
 import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import {
-  compositeOver,
   contrastRatio,
+  extractGradientStopColors,
   parseCssColor,
   pickReadableTextColor,
-  type RGBA,
+  resolveEffectiveBackground,
 } from '@/lib/colorContrast';
-import { ROUTE_PATHS } from '@/lib/routePaths';
-
-const STORE_PATH_PREFIX = (ROUTE_PATHS as { STORE_LANDING?: string }).STORE_LANDING || '/store';
-
-/** مسارات المتجر الحية + اللوحات — ليست كلها تحت `/store` (مثل `/b/:token/desk`). */
-function isStoreCustomerSurface(pathname: string): boolean {
-  if (pathname === STORE_PATH_PREFIX || pathname.startsWith(`${STORE_PATH_PREFIX}/`)) return true;
-  if (pathname.startsWith('/pay/')) return true;
-  return /^\/(b|g|r|c|k|v|t|h|e|w|l|oc)(\/|$)/i.test(pathname);
-}
+import { isStoreCustomerSurface } from '@/lib/storeCustomerSurface';
 
 /**
  * أدنى نسبة تباين قبل الإصلاح التلقائي الفوري — 3:1 هو الحد الأدنى الذي تفرضه
@@ -53,30 +44,6 @@ const FIX_RATIO = 3;
 const WARN_RATIO = 4.5;
 const SCAN_DEBOUNCE_MS = 220;
 const FIXED_ATTR = 'data-contrast-guard-fixed';
-
-function resolveEffectiveBackground(el: Element): RGBA {
-  const layers: RGBA[] = [];
-  let node: Element | null = el;
-  while (node) {
-    const style = window.getComputedStyle(node);
-    const parsed = parseCssColor(style.backgroundColor);
-    if (parsed && parsed.a > 0) {
-      layers.push(parsed);
-      if (parsed.a >= 1) break;
-    }
-    node = node.parentElement;
-  }
-  if (!layers.length) return { r: 255, g: 255, b: 255, a: 1 }; // احتياط أخير: خلفية المتصفح الافتراضية
-  let composed = layers[layers.length - 1];
-  for (let i = layers.length - 2; i >= 0; i -= 1) composed = compositeOver(layers[i], composed);
-  return composed;
-}
-
-function extractGradientStopColors(backgroundImage: string): RGBA[] {
-  if (!backgroundImage || backgroundImage === 'none') return [];
-  const matches = backgroundImage.match(/rgba?\([^)]+\)/gi) || [];
-  return matches.map(parseCssColor).filter((c): c is RGBA => !!c);
-}
 
 function checkElement(el: HTMLElement): void {
   const style = window.getComputedStyle(el);

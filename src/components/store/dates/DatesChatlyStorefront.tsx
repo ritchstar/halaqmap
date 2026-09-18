@@ -542,7 +542,7 @@ export function DatesChatlyStorefront({
       ) : null}
 
       <Dialog open={cartOpen} onOpenChange={setCartOpen}>
-        <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto border-[#dac8aa] bg-[#fbf6ec] p-0 text-right" dir="rtl">
+        <DialogContent className="dates-chatly-root max-h-[90vh] max-w-lg overflow-y-auto border-[#dac8aa] bg-[#fbf6ec] p-0 text-right" dir="rtl">
           <div className="p-5 sm:p-6">
             <DialogHeader>
               <div className="flex items-center justify-between gap-3">
@@ -599,7 +599,7 @@ export function DatesChatlyStorefront({
       </Dialog>
 
       <Dialog open={serviceOpen} onOpenChange={setServiceOpen}>
-        <DialogContent className="max-w-xl border-[#dac8aa] bg-[#fbf6ec] text-right" dir="rtl">
+        <DialogContent className="dates-chatly-root max-w-xl border-[#dac8aa] bg-[#fbf6ec] text-right" dir="rtl">
           <DialogHeader>
             <DialogTitle className="text-2xl font-black text-[#2e2418]">كيف توصلك مشترياتك؟</DialogTitle>
             <DialogDescription className="mt-2 text-sm leading-6 text-[#79674f]">
@@ -664,7 +664,7 @@ export function DatesChatlyStorefront({
       </Dialog>
 
       <Dialog open={checkoutOpen} onOpenChange={setCheckoutOpen}>
-        <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto border-[#dac8aa] bg-[#fbf6ec] text-right" dir="rtl">
+        <DialogContent className="dates-chatly-root max-h-[90vh] max-w-lg overflow-y-auto border-[#dac8aa] bg-[#fbf6ec] text-right" dir="rtl">
           <DialogHeader>
             <DialogTitle className="text-2xl font-black text-[#2e2418]">
               {preorder ? STORE_SHOP_HOURS_COPY.preorderTitleAr : STORE_DATES_LIVE.checkoutTitleAr}

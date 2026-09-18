@@ -521,7 +521,7 @@ export function ProduceChatlyStorefront({
       ) : null}
 
       <Dialog open={cartOpen} onOpenChange={setCartOpen}>
-        <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto border-[#d4dfcc] bg-[#fffdf5] p-0 text-right" dir="rtl">
+        <DialogContent className="produce-chatly-root max-h-[90vh] max-w-lg overflow-y-auto border-[#d4dfcc] bg-[#fffdf5] p-0 text-right" dir="rtl">
           <div className="p-5 sm:p-6">
             <DialogHeader>
               <div className="flex items-center justify-between gap-3">
@@ -575,7 +575,7 @@ export function ProduceChatlyStorefront({
       </Dialog>
 
       <Dialog open={serviceOpen} onOpenChange={setServiceOpen}>
-        <DialogContent className="max-w-xl border-[#d4dfcc] bg-[#fffdf5] text-right" dir="rtl">
+        <DialogContent className="produce-chatly-root max-w-xl border-[#d4dfcc] bg-[#fffdf5] text-right" dir="rtl">
           <DialogHeader>
             <DialogTitle className="text-2xl font-black text-[#20352b]">كيف توصلك مشترياتك؟</DialogTitle>
             <DialogDescription className="mt-2 text-sm leading-6 text-[#758374]">
@@ -635,7 +635,7 @@ export function ProduceChatlyStorefront({
       </Dialog>
 
       <Dialog open={checkoutOpen} onOpenChange={setCheckoutOpen}>
-        <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto border-[#d4dfcc] bg-[#fffdf5] text-right" dir="rtl">
+        <DialogContent className="produce-chatly-root max-h-[90vh] max-w-lg overflow-y-auto border-[#d4dfcc] bg-[#fffdf5] text-right" dir="rtl">
           <DialogHeader>
             <DialogTitle className="text-2xl font-black text-[#20352b]">
               {preorder ? STORE_SHOP_HOURS_COPY.preorderTitleAr : STORE_PRODUCE_LIVE.checkoutTitleAr}

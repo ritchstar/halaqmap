@@ -12,6 +12,7 @@
 @import "./styles/bakhurnaChatly.css";
 @import "./styles/neighbor-shop.css";
 @import "./styles/storeNationalDay.css";
+@import "./styles/storeLightCanvas.css";
 
 @custom-variant dark (&:is(.dark *));
 

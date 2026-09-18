@@ -3,7 +3,7 @@
  */
 import { Link, useLocation } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/lib/routePaths';
-import { lockPartnerDarkCanvas } from '@/lib/partnerDarkCanvas';
+import { lockStoreLightCanvas } from '@/lib/storeLightCanvas';
 import { STORE_PRODUCT_BENEFITS_COPY } from '@/config/storeProductBenefitsCopy';
 import { STORE_GIFT_CAMPAIGN_PUBLIC_ENABLED, STORE_GIFT_COPY } from '@/config/storeGiftCampaign';
 import { STORE_GENERAL_TRIAL_COPY, STORE_GENERAL_TRIAL_PUBLIC_ENABLED } from '@/config/storeProductTrial';
@@ -25,11 +25,14 @@ import { StoreEnterpriseDirectMail } from '@/components/store/StoreEnterpriseDir
 
 export function StoreVisitorShell({ children }: { children: ReactNode }) {
   useEffect(() => {
-    lockPartnerDarkCanvas();
+    lockStoreLightCanvas();
     rememberStoreAffiliateRef();
   }, []);
   return (
-    <div dir="rtl" className="store-product-shell min-h-[100svh] overflow-x-clip bg-[#061018] text-[#f4efe4]">
+    <div
+      dir="rtl"
+      className="store-light-canvas store-product-shell min-h-[100svh] overflow-x-clip bg-[#eee2ce] text-[#2e2418]"
+    >
       {children}
     </div>
   );
@@ -96,7 +99,7 @@ export function StoreVisitorHeader() {
   const showGiftCta = STORE_GIFT_CAMPAIGN_PUBLIC_ENABLED && !onGiftPage;
   const showHmTube = isStoreProductLandingPath(location.pathname);
   return (
-    <div className="border-b border-white/10 bg-[#061018]/90">
+    <div className="border-b border-[#dac8aa] bg-[#eee2ce]/92">
       {!isMobile ? <KSACityClocksBar /> : null}
       <header className="backdrop-blur">
         <div className="store-visitor-header__row mx-auto flex max-w-5xl min-w-0 items-center gap-2 overflow-x-clip px-3 py-2 md:flex-wrap md:gap-3 md:px-4 md:py-3">
@@ -167,7 +170,7 @@ export function StoreVisitorFooter() {
   const onStoreLanding = location.pathname === ROUTE_PATHS.STORE_LANDING;
 
   return (
-    <footer className="border-t border-white/10 px-4 py-8">
+    <footer className="border-t border-[#dac8aa] px-4 py-8">
       <div className="mx-auto flex max-w-5xl flex-col gap-4">
         <nav className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm font-bold">
           {STORE_GIFT_CAMPAIGN_PUBLIC_ENABLED ? (

@@ -471,7 +471,7 @@ export function KitchenChatlyStorefront({
       ) : null}
 
       <Dialog open={cartOpen} onOpenChange={setCartOpen}>
-        <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto border-[#e3cfa8] bg-[#fff8ef] p-0 text-right" dir="rtl">
+        <DialogContent className="kitchen-chatly-root max-h-[90vh] max-w-lg overflow-y-auto border-[#e3cfa8] bg-[#fff8ef] p-0 text-right" dir="rtl">
           <div className="p-5 sm:p-6">
             <DialogHeader>
               <div className="flex items-center justify-between gap-3">
@@ -527,7 +527,7 @@ export function KitchenChatlyStorefront({
       </Dialog>
 
       <Dialog open={serviceOpen} onOpenChange={setServiceOpen}>
-        <DialogContent className="max-w-xl border-[#e3cfa8] bg-[#fff8ef] text-right" dir="rtl">
+        <DialogContent className="kitchen-chatly-root max-w-xl border-[#e3cfa8] bg-[#fff8ef] text-right" dir="rtl">
           <DialogHeader>
             <DialogTitle className="text-2xl font-black text-[#2a1e14]">كيف يصلك طلبك؟</DialogTitle>
             <DialogDescription className="mt-2 text-sm leading-6 text-[#79674f]">
@@ -592,7 +592,7 @@ export function KitchenChatlyStorefront({
       </Dialog>
 
       <Dialog open={checkoutOpen} onOpenChange={setCheckoutOpen}>
-        <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto border-[#e3cfa8] bg-[#fff8ef] text-right" dir="rtl">
+        <DialogContent className="kitchen-chatly-root max-h-[90vh] max-w-lg overflow-y-auto border-[#e3cfa8] bg-[#fff8ef] text-right" dir="rtl">
           <DialogHeader>
             <DialogTitle className="text-2xl font-black text-[#2a1e14]">
               {closed ? STORE_SHOP_HOURS_COPY.preorderTitleAr : STORE_KITCHEN_LIVE.checkoutTitleAr}
