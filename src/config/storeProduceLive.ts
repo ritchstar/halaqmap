@@ -227,7 +227,7 @@ export const STORE_PRODUCE_LIVE = {
   labDemoNameAr: 'عميل تجريبي',
   labDemoPhoneAr: '05XXXXXXXX',
   labDemoPlaceAr: 'موقع تجريبي داخل نطاق التوصيل',
-  heroImage: '/images/store/produce-hero-marketing.jpg',
+  heroImage: '/images/store/produce/produce-09.jpg',
   heroCaptionAr: 'من المحل إلى جوال الحي',
   heroAltAr: 'محل خضار وفواكه جاهز للطلب من الجوال',
   checkoutClosedAr: 'بوابة الدفع غير مفتوحة لهذا المنتج بعد.',
