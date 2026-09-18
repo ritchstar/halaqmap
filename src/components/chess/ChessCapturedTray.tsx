@@ -50,10 +50,10 @@ export function ChessCapturedTray({ chess, playerColor }: ChessCapturedTrayProps
   if (capturedByPlayer.length === 0 && capturedByAi.length === 0) return null;
 
   return (
-    <div dir="rtl" className="mx-auto mt-3 max-w-[500px] rounded-xl border border-[#e3d5b8] bg-white/70 p-3">
+    <div dir="rtl" className="mx-auto mt-3 max-w-[500px] rounded-xl border border-[#1f4a52] bg-[#0b1f26]/70 p-3">
       <div className="flex items-center justify-between gap-2">
-        <span className="text-[0.65rem] font-bold text-[#7a6a4f]">{CHESS_ARENA_COPY.capturedByPlayerAr}</span>
-        <div className="flex flex-wrap justify-end gap-0.5 text-lg leading-none">
+        <span className="text-[0.65rem] font-bold text-[#8aa6a8]">{CHESS_ARENA_COPY.capturedByPlayerAr}</span>
+        <div className="flex flex-wrap justify-end gap-0.5 text-lg leading-none text-[#e7f4f2]">
           {capturedByPlayer.map((t, i) => (
             <span key={`${t}-${i}`} aria-hidden="true">
               {CAPTURED_GLYPHS[`${opponentColor}${t}`]}
@@ -62,8 +62,8 @@ export function ChessCapturedTray({ chess, playerColor }: ChessCapturedTrayProps
         </div>
       </div>
       <div className="mt-2 flex items-center justify-between gap-2">
-        <span className="text-[0.65rem] font-bold text-[#7a6a4f]">{CHESS_ARENA_COPY.capturedByAiAr}</span>
-        <div className="flex flex-wrap justify-end gap-0.5 text-lg leading-none">
+        <span className="text-[0.65rem] font-bold text-[#8aa6a8]">{CHESS_ARENA_COPY.capturedByAiAr}</span>
+        <div className="flex flex-wrap justify-end gap-0.5 text-lg leading-none text-[#e7f4f2]">
           {capturedByAi.map((t, i) => (
             <span key={`${t}-${i}`} aria-hidden="true">
               {CAPTURED_GLYPHS[`${playerColor}${t}`]}
@@ -72,7 +72,7 @@ export function ChessCapturedTray({ chess, playerColor }: ChessCapturedTrayProps
         </div>
       </div>
       {advantage !== 0 && (
-        <p className="mt-2 text-center text-[0.65rem] font-bold text-emerald-700">
+        <p className="mt-2 text-center text-[0.65rem] font-bold text-[#00d6c8]">
           {advantage > 0
             ? `${CHESS_ARENA_COPY.materialAdvantagePlayerAr} +${advantage}`
             : `${CHESS_ARENA_COPY.materialAdvantageAiAr} +${Math.abs(advantage)}`}

@@ -24,13 +24,13 @@ export function ChessMoveList({ sanHistory }: ChessMoveListProps) {
   }
 
   return (
-    <div dir="rtl" className="mx-auto mt-3 max-w-[500px] rounded-xl border border-[#e3d5b8] bg-white/70 p-3">
-      <p className="mb-2 text-xs font-bold text-[#7a6a4f]">{CHESS_ARENA_COPY.movesLabelAr}</p>
-      <div dir="ltr" className="max-h-32 overflow-y-auto text-xs leading-relaxed text-[#3a2c1a]">
+    <div dir="rtl" className="mx-auto mt-3 max-w-[500px] rounded-xl border border-[#1f4a52] bg-[#0b1f26]/70 p-3">
+      <p className="mb-2 text-xs font-bold text-[#8aa6a8]">{CHESS_ARENA_COPY.movesLabelAr}</p>
+      <div dir="ltr" className="max-h-32 overflow-y-auto text-xs leading-relaxed text-[#e7f4f2]">
         <div className="grid grid-cols-[2rem_1fr_1fr] gap-x-2 gap-y-1">
           {pairs.map((pair) => (
             <div key={pair.number} className="contents">
-              <span className="text-[#8a7a5f]">{pair.number}.</span>
+              <span className="text-[#d8ac52]">{pair.number}.</span>
               <span>{pair.white}</span>
               <span>{pair.black ?? ''}</span>
             </div>

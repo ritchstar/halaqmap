@@ -247,26 +247,26 @@ export default function ChessArenaPage() {
   const engineBadgeLabel = getEngineBadgeLabel();
 
   return (
-    <div dir="rtl" className="min-h-screen" style={{ background: 'linear-gradient(180deg, #faf3e6 0%, #f0e2c4 100%)' }}>
-      <div className="sticky top-0 z-30 border-b border-[#e3d5b8] bg-[#faf3e6]/90 backdrop-blur-md">
+    <div dir="rtl" className="min-h-screen" style={{ background: 'linear-gradient(180deg, #05141a 0%, #0a1f26 100%)' }}>
+      <div className="sticky top-0 z-30 border-b border-[#1f4a52] bg-[#05141a]/90 backdrop-blur-md">
         <div className="mx-auto flex max-w-3xl items-center justify-between gap-3 px-4 py-3">
           <button
             type="button"
             onClick={() => navigate(ROUTE_PATHS.HOME)}
-            className="flex items-center gap-2 text-sm font-bold text-[#7a6a4f] transition-colors hover:text-[#3a2c1a]"
+            className="flex items-center gap-2 text-sm font-bold text-[#8aa6a8] transition-colors hover:text-[#e7f4f2]"
           >
             <ArrowLeft className="h-4 w-4 rotate-180" />
             {CHESS_ARENA_COPY.backHomeAr}
           </button>
           <div className="flex items-center gap-2">
-            <Crown className="h-4 w-4 text-amber-700" />
-            <span className="text-sm font-black text-[#3a2c1a]">{CHESS_ARENA_COPY.heroBadgeAr}</span>
+            <Crown className="h-4 w-4 text-[#d8ac52]" />
+            <span className="text-sm font-black text-[#e7f4f2]">{CHESS_ARENA_COPY.heroBadgeAr}</span>
           </div>
           <button
             type="button"
             onClick={toggleSound}
             aria-label={soundOn ? CHESS_ARENA_COPY.soundOnAr : CHESS_ARENA_COPY.soundOffAr}
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-[#7a6a4f] transition-colors hover:bg-amber-100"
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-[#8aa6a8] transition-colors hover:bg-[#0e262d] hover:text-[#e7f4f2]"
           >
             {soundOn ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
           </button>
@@ -277,31 +277,31 @@ export default function ChessArenaPage() {
         {view === 'landing' && (
           <>
             <header className="mb-8 text-center">
-              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-amber-400/40 bg-amber-500/10">
-                <Crown className="h-7 w-7 text-amber-700" />
+              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-[#d8ac52]/40 bg-[#d8ac52]/10">
+                <Crown className="h-7 w-7 text-[#d8ac52]" />
               </div>
-              <h1 className="text-2xl font-black text-[#3a2c1a] sm:text-3xl">{CHESS_ARENA_COPY.heroTitleAr}</h1>
-              <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-[#7a6a4f] sm:text-base">
+              <h1 className="text-2xl font-black text-[#e7f4f2] sm:text-3xl">{CHESS_ARENA_COPY.heroTitleAr}</h1>
+              <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-[#8aa6a8] sm:text-base">
                 {CHESS_ARENA_COPY.heroSubtitleAr}
               </p>
-              <p className="mx-auto mt-2 max-w-xl text-xs text-amber-800/70">{CHESS_ARENA_COPY.heroNoteAr}</p>
+              <p className="mx-auto mt-2 max-w-xl text-xs text-[#d8ac52]/70">{CHESS_ARENA_COPY.heroNoteAr}</p>
             </header>
 
             {resumableSession && (
-              <div className="mb-8 rounded-2xl border-2 border-amber-500 bg-amber-50 p-4 text-center shadow-sm">
-                <p className="mb-3 text-sm font-black text-[#3a2c1a]">{CHESS_ARENA_COPY.resumeBannerAr}</p>
+              <div className="mb-8 rounded-2xl border-2 border-[#d8ac52] bg-[#d8ac52]/10 p-4 text-center shadow-[0_0_24px_rgba(216,172,82,0.12)]">
+                <p className="mb-3 text-sm font-black text-[#e7f4f2]">{CHESS_ARENA_COPY.resumeBannerAr}</p>
                 <div className="flex flex-col justify-center gap-2 sm:flex-row">
                   <button
                     type="button"
                     onClick={handleResume}
-                    className="rounded-xl bg-[#3a2c1a] px-5 py-2.5 text-sm font-black text-white"
+                    className="rounded-xl bg-[#d8ac52] px-5 py-2.5 text-sm font-black text-[#0b1f26]"
                   >
                     {CHESS_ARENA_COPY.resumeButtonAr}
                   </button>
                   <button
                     type="button"
                     onClick={handleDiscardResume}
-                    className="rounded-xl border border-[#d8c6a1] bg-white px-5 py-2.5 text-sm font-bold text-[#7a6a4f]"
+                    className="rounded-xl border border-[#1f4a52] bg-[#0b1f26] px-5 py-2.5 text-sm font-bold text-[#8aa6a8]"
                   >
                     {CHESS_ARENA_COPY.newGameFromResumeAr}
                   </button>
@@ -311,13 +311,13 @@ export default function ChessArenaPage() {
 
             <ChessLevelPicker selected={pendingLevel} onSelect={setPendingLevel} onStart={handleStartNewGame} />
 
-            <div className="mx-auto mt-10 flex max-w-xl items-start gap-3 rounded-2xl border border-dashed border-amber-400/50 bg-white/60 p-4">
-              <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-amber-700" />
+            <div className="mx-auto mt-10 flex max-w-xl items-start gap-3 rounded-2xl border border-dashed border-[#00d6c8]/40 bg-[#0b1f26]/60 p-4">
+              <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-[#00d6c8]" />
               <div>
-                <p className="text-xs font-black text-amber-900">
+                <p className="text-xs font-black text-[#00d6c8]">
                   {CHESS_ARENA_COPY.comingSoonBadgeAr} — {CHESS_ARENA_COPY.comingSoonTitleAr}
                 </p>
-                <p className="mt-1 text-xs leading-relaxed text-[#8a7a5f]">{CHESS_ARENA_COPY.comingSoonBodyAr}</p>
+                <p className="mt-1 text-xs leading-relaxed text-[#8aa6a8]">{CHESS_ARENA_COPY.comingSoonBodyAr}</p>
               </div>
             </div>
           </>
@@ -325,11 +325,14 @@ export default function ChessArenaPage() {
 
         {view === 'playing' && (
           <>
-            <div className="mb-4 flex items-center justify-between gap-3 rounded-xl border border-[#e3d5b8] bg-white/70 px-4 py-3">
-              <span className="flex items-center gap-2 text-xs font-bold text-[#7a6a4f]">
+            <div className="mb-4 flex items-center justify-between gap-3 rounded-xl border border-[#1f4a52] bg-[#0b1f26]/70 px-4 py-3">
+              <span className="flex items-center gap-2 text-xs font-bold text-[#8aa6a8]">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-[#00d6c8]/30 bg-[#00d6c8]/10 text-[#00d6c8]">
+                  <Cpu className="h-3 w-3" />
+                </span>
                 {CHESS_ARENA_COPY.aiLabelAr} — {getChessDifficultyLevel(level).titleAr}
                 {engineBadgeLabel && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-[#3a2c1a]/10 px-2 py-0.5 text-[0.6rem] font-bold text-[#3a2c1a]">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-[#d8ac52]/10 px-2 py-0.5 text-[0.6rem] font-bold text-[#d8ac52] ring-1 ring-[#d8ac52]/30">
                     <Cpu className="h-2.5 w-2.5" />
                     {engineBadgeLabel}
                   </span>
@@ -339,12 +342,12 @@ export default function ChessArenaPage() {
                 className={[
                   'text-sm font-black',
                   status === 'player_won'
-                    ? 'text-emerald-700'
+                    ? 'text-emerald-400'
                     : status === 'ai_won' || status === 'resigned'
-                      ? 'text-red-700'
+                      ? 'text-rose-400'
                       : isCheck
-                        ? 'text-red-600'
-                        : 'text-[#3a2c1a]',
+                        ? 'text-rose-300'
+                        : 'text-[#e7f4f2]',
                 ].join(' ')}
               >
                 {getStatusMessage()}
@@ -375,7 +378,7 @@ export default function ChessArenaPage() {
                 <button
                   type="button"
                   onClick={handleResign}
-                  className="flex items-center justify-center gap-2 rounded-xl border border-red-300 bg-red-50 px-5 py-2.5 text-sm font-bold text-red-700"
+                  className="flex items-center justify-center gap-2 rounded-xl border border-rose-500/30 bg-rose-500/10 px-5 py-2.5 text-sm font-bold text-rose-300"
                 >
                   <Flag className="h-4 w-4" />
                   {CHESS_ARENA_COPY.resignButtonAr}
@@ -384,7 +387,7 @@ export default function ChessArenaPage() {
               <button
                 type="button"
                 onClick={handleBackToPicker}
-                className="flex items-center justify-center gap-2 rounded-xl bg-[#3a2c1a] px-5 py-2.5 text-sm font-black text-white"
+                className="flex items-center justify-center gap-2 rounded-xl bg-[#d8ac52] px-5 py-2.5 text-sm font-black text-[#0b1f26]"
               >
                 <RefreshCcw className="h-4 w-4" />
                 {CHESS_ARENA_COPY.newGameButtonAr}

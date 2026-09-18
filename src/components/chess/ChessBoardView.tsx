@@ -101,17 +101,17 @@ export function ChessBoardView({ chess, playerColor, interactive, lastMove, onPl
 
   return (
     <div className="relative mx-auto w-full max-w-[500px]">
-      <div className="rounded-2xl border border-[#d8c6a1] bg-[#efe0bf] p-2 shadow-xl sm:p-3">
+      <div className="rounded-2xl border border-[#1f4a52] bg-[#0b2025]/90 p-2 shadow-[0_20px_60px_rgba(0,0,0,0.45)] sm:p-3">
         <div className="flex">
           <div className="flex flex-col justify-around pe-1 sm:pe-1.5">
             {displayRanks.map((rank) => (
-              <span key={rank} className="flex h-full items-center text-[0.6rem] font-bold text-[#8a7550] sm:text-xs">
+              <span key={rank} className="flex h-full items-center text-[0.6rem] font-bold text-[#5f8a8d] sm:text-xs">
                 {rank}
               </span>
             ))}
           </div>
 
-          <div className="grid flex-1 grid-cols-8 overflow-hidden rounded-lg border border-[#c8b384] shadow-inner">
+          <div className="grid flex-1 grid-cols-8 overflow-hidden rounded-xl border border-[#1f4a52]/70 shadow-inner">
             {displayRows.map((row, rIdx) => {
               const actualRowFromTop = flipped ? 7 - rIdx : rIdx;
               const displayCols = flipped ? [...row].reverse() : row;
@@ -132,21 +132,29 @@ export function ChessBoardView({ chess, playerColor, interactive, lastMove, onPl
                     disabled={!interactive}
                     aria-label={square}
                     className={[
-                      'relative flex aspect-square select-none items-center justify-center text-2xl leading-none transition-colors sm:text-3xl',
-                      isDark ? 'bg-[#b58863]' : 'bg-[#f0d9b5]',
-                      isLastMoveSquare && !isSelected ? (isDark ? 'bg-[#9d9339]' : 'bg-[#cdd26a]') : '',
-                      isSelected ? 'ring-4 ring-inset ring-amber-500' : '',
+                      'relative flex aspect-square select-none items-center justify-center text-2xl leading-none transition-colors duration-200 sm:text-3xl',
+                      isDark ? 'bg-[#0e262d]' : 'bg-[#15343c]',
+                      isSelected ? 'ring-2 ring-inset ring-[#d8ac52]' : '',
                       interactive ? 'cursor-pointer' : 'cursor-default',
                     ].join(' ')}
                   >
-                    <span aria-hidden="true" className="drop-shadow-sm">
+                    {isLastMoveSquare && !isSelected && (
+                      <span className="pointer-events-none absolute inset-0 bg-[#d8ac52]/18" />
+                    )}
+                    <span
+                      aria-hidden="true"
+                      className={[
+                        'relative z-10 select-none leading-none drop-shadow-[0_2px_2px_rgba(0,0,0,0.5)]',
+                        piece?.color === 'b' ? 'text-[#d8ac52]' : 'text-[#eef7f5]',
+                      ].join(' ')}
+                    >
                       {glyph}
                     </span>
                     {isTarget && !piece && (
-                      <span className="pointer-events-none absolute h-3 w-3 rounded-full bg-emerald-700/60 sm:h-3.5 sm:w-3.5" />
+                      <span className="pointer-events-none absolute z-10 h-3 w-3 rounded-full bg-[#00d6c8]/85 shadow-[0_0_14px_rgba(0,214,200,0.85)] sm:h-3.5 sm:w-3.5" />
                     )}
                     {isTarget && piece && (
-                      <span className="pointer-events-none absolute inset-0 ring-4 ring-inset ring-red-600/70" />
+                      <span className="pointer-events-none absolute inset-0 z-10 ring-4 ring-inset ring-rose-400/70" />
                     )}
                   </button>
                 );
@@ -159,7 +167,7 @@ export function ChessBoardView({ chess, playerColor, interactive, lastMove, onPl
           {displayFiles.map((file) => (
             <span
               key={file}
-              className="flex flex-1 items-center justify-center text-[0.6rem] font-bold text-[#8a7550] sm:text-xs"
+              className="flex flex-1 items-center justify-center text-[0.6rem] font-bold text-[#5f8a8d] sm:text-xs"
             >
               {file}
             </span>
@@ -168,16 +176,16 @@ export function ChessBoardView({ chess, playerColor, interactive, lastMove, onPl
       </div>
 
       {promotionPending && (
-        <div className="absolute inset-0 z-10 flex items-center justify-center rounded-2xl bg-black/60">
-          <div dir="rtl" className="rounded-2xl bg-white p-4 text-center shadow-xl">
-            <p className="mb-3 text-sm font-bold text-slate-800">اختر الترقية</p>
+        <div className="absolute inset-0 z-10 flex items-center justify-center rounded-2xl bg-black/65">
+          <div dir="rtl" className="rounded-2xl border border-[#1f4a52] bg-[#0b1f26] p-4 text-center shadow-2xl">
+            <p className="mb-3 text-sm font-bold text-[#e7f4f2]">اختر الترقية</p>
             <div className="flex gap-2">
               {['q', 'r', 'b', 'n'].map((p) => (
                 <button
                   key={p}
                   type="button"
                   onClick={() => handlePromotionPick(p)}
-                  className="flex h-12 w-12 items-center justify-center rounded-lg border border-slate-300 text-2xl hover:bg-slate-100"
+                  className="flex h-12 w-12 items-center justify-center rounded-lg border border-[#296269]/60 bg-[#0e262d] text-2xl text-[#eef7f5] transition-colors hover:border-[#d8ac52]/60 hover:bg-[#15343c]"
                 >
                   <span aria-hidden="true">{PIECE_GLYPHS[`${playerColor}${p}`]}</span>
                 </button>
