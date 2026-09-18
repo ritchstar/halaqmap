@@ -9,6 +9,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { CheckCircle2, Crown, Loader2, XCircle } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
+import { ChessMotifBackground } from '@/components/chess/ChessMotifBackground';
 import { ROUTE_PATHS } from '@/lib';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { chessSchoolConfirmErrorAr, confirmChessSchoolEmailRemote } from '@/lib/chessSchoolRegisterRemote';
@@ -88,8 +89,9 @@ export default function ChessSchoolConfirmLanding() {
   }, [token]);
 
   return (
-    <div dir="rtl" className="min-h-screen bg-background">
-      <div className="container mx-auto max-w-xl px-4 py-16">
+    <div dir="rtl" className="relative min-h-screen overflow-hidden bg-background">
+      <ChessMotifBackground />
+      <div className="relative z-10 container mx-auto max-w-xl px-4 py-16">
         <div className="mb-8 flex items-center justify-center gap-2 text-primary">
           <Crown className="h-6 w-6" />
           <span className="text-sm font-bold">مدرسة الشطرنج الاحترافية</span>

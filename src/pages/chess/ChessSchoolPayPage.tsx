@@ -12,6 +12,7 @@ import { CheckCircle2, Crown, Loader2, ShieldCheck, XCircle } from 'lucide-react
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { ChessMotifBackground } from '@/components/chess/ChessMotifBackground';
 import { MoyasarOfficialTrustChip } from '@/components/billing/MoyasarOfficialTrustChip';
 import { LEGAL_ECOMMERCE_STORE_NAME } from '@/config/partnerLegal';
 import { CHESS_SCHOOL_PAY_COPY, CHESS_SCHOOL_PRICE_HALALAS, CHESS_SCHOOL_PRODUCT } from '@/config/chessSchoolPay';
@@ -182,8 +183,9 @@ export default function ChessSchoolPayPage() {
   }, [payable, activating, publishableKey, rid]);
 
   return (
-    <div dir="rtl" className="min-h-screen bg-background">
-      <div className="container mx-auto max-w-xl px-4 py-16">
+    <div dir="rtl" className="relative min-h-screen overflow-hidden bg-background">
+      <ChessMotifBackground />
+      <div className="relative z-10 container mx-auto max-w-xl px-4 py-16">
         <div className="mb-8 flex items-center justify-center gap-2 text-primary">
           <Crown className="h-6 w-6" />
           <span className="text-sm font-bold">مدرسة الشطرنج الاحترافية</span>

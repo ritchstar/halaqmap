@@ -31,6 +31,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { ChessMotifBackground } from '@/components/chess/ChessMotifBackground';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -117,7 +118,7 @@ const FAQ = [
   {
     qAr: 'متى تُفعَّل خطوة الدفع؟',
     aAr:
-      'التسجيل وتأكيد البريد مُفعَّلان الآن بالكامل. خطوة الدفع الإلكتروني الفعلي قيد التفعيل حالياً — بعد تأكيد بريدك سنرسل لك رابطها على نفس البريد فور جاهزيتها خلال أيام قليلة، دون أي إجراء إضافي منك.',
+      'التسجيل وتأكيد البريد ثم الدفع الإلكتروني الفعلي (175 ر.س، بوابة دفع آمنة) مُفعَّلون الآن بالكامل. بعد تأكيد بريدك تنتقل مباشرة لصفحة الدفع الحقيقية لإتمام اشتراكك.',
   },
   {
     qAr: 'هل هذا مناسب للمبتدئين تماماً أم يحتاج خبرة سابقة؟',
@@ -183,7 +184,9 @@ export default function ChessSchoolLandingPage() {
   };
 
   return (
-    <div dir="rtl" className="min-h-screen bg-background">
+    <div dir="rtl" className="relative min-h-screen overflow-hidden bg-background">
+      <ChessMotifBackground />
+      <div className="relative z-10">
       {/* Hero */}
       <section className="border-b border-border bg-gradient-to-b from-primary/10 via-background to-background py-14 md:py-20">
         <div className="container mx-auto max-w-4xl px-4 text-center">
@@ -406,6 +409,7 @@ export default function ChessSchoolLandingPage() {
             ))}
           </div>
         </section>
+      </div>
       </div>
     </div>
   );
