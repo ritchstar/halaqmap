@@ -155,7 +155,8 @@ export const STORE_SOLUTION_CATALOG_PRODUCTS: readonly SolutionCatalogProduct[] 
       'صفحة رقمية تساعد التموينات على عرض المنتجات واستقبال طلبات سكان الحي بطريقة سهلة ومباشرة.',
     tags: ['سلة جار الحي', 'كاشير', 'QR'],
     stripe: 'yellow',
-    logoSrc: solutionCatalogMarkSrc('B-02'),
+    // أيقونة B-02 لم تُصمَّم بعد؛ الملف الذي كان هنا (بيت وصينية طعام) يخص طبختنا1 (B-03) وتم نقله إليه.
+    logoSrc: null,
     cardImageSrc: solutionCatalogCardImageSrc('B-02'),
     href: ROUTE_PATHS.STORE_GROCERS,
     pathItems: ['بنك أصناف', 'مذكرة توصيل', 'ملصق QR'],

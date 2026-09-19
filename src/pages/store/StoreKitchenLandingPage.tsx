@@ -19,6 +19,8 @@ import { StoreInViewMount } from '@/components/store/StoreInViewMount';
 import { StoreDedicatedPageCallout, StoreDedicatedPageReelCaption } from '@/components/store/StoreDedicatedPageCallout';
 import { StoreLandingFold } from '@/components/store/StoreLandingFold';
 import { StoreShot } from '@/components/store/StoreShot';
+import { StoreProductBrandMark } from '@/components/store/StoreProductBrandMark';
+import { solutionCatalogMarkSrc } from '@/config/storeSolutionCatalog';
 import { STORE_BRAND_LATIN } from '@/config/storeFront';
 import {
   STORE_KITCHEN_LIVE,
@@ -49,6 +51,7 @@ export default function StoreKitchenLandingPage() {
       <section className="px-4 py-10 md:py-14">
         <div className="mx-auto grid max-w-5xl items-start gap-8 lg:grid-cols-[1.05fr_0.95fr]">
           <div>
+            <StoreProductBrandMark src={solutionCatalogMarkSrc('B-03')} nameAr="طبختنا1" />
             <p className="text-sm font-bold leading-7 tracking-wide text-[#b45a3c]">{STORE_KITCHEN_LIVE.kickerAr}</p>
             <h1 className="mt-2 text-3xl font-extrabold leading-tight md:text-4xl">{STORE_KITCHEN_LIVE.titleAr}</h1>
             <p className="mt-4 max-w-xl text-base leading-8 text-white/78">{STORE_KITCHEN_LIVE.leadAr}</p>

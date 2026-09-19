@@ -29,7 +29,10 @@ assert.match(config, /solutionCatalogMarkSrc\('B-03'\)/);
 assert.match(config, /solutionCatalogCardImageSrc\('B-04'\)/);
 assert.match(config, /solutionCatalogMarkSrc\('A-01'\)/);
 assert.match(config, /solutionCatalogMarkSrc\('E-01'\)/);
-assert.doesNotMatch(config, /logoSrc: null/);
+// أيقونة تمويناتا1 (B-02) لم تُصمَّم بعد بعد تصحيح خطأ إسناد أيقونة طبختنا1 (B-03) إليها خطأً.
+const logoNullMatches = config.match(/logoSrc: null/g) ?? [];
+assert.equal(logoNullMatches.length, 1, 'logoSrc: null يجب أن يظهر لمنتج واحد فقط حالياً (B-02)');
+assert.match(config, /code: 'B-02',[\s\S]*?logoSrc: null,/);
 assert.match(config, /STORE_SOLUTION_CATALOG_MARK_BASE/);
 assert.match(config, /stripe: 'brick'/);
 assert.match(config, /stripe: 'blue'/);
@@ -50,9 +53,13 @@ assert.match(ui, /STORE_REQUEST/);
 assert.doesNotMatch(landing, /SolutionCatalogApp/);
 assert.doesNotMatch(landing, /storeSolutionCatalog/);
 
+// B-02 (تمويناتا1) مستثناة مؤقتاً من شرط وجود ملف الأيقونة: logoSrc لديها null بانتظار أيقونة سكاي الخاصة بها.
+const CODES_WITHOUT_MARK_YET = new Set(['B-02']);
 for (const code of ['A-01', 'A-02', 'B-01', 'B-02', 'B-03', 'B-04', 'C-01', 'C-02', 'D-01', 'D-02', 'D-03', 'E-01']) {
-  const markPath = join(root, 'public/images/store/catalog', `halaqmap-${code.toLowerCase()}.webp`);
-  assert.ok(existsSync(markPath), `missing catalog mark: ${markPath}`);
+  if (!CODES_WITHOUT_MARK_YET.has(code)) {
+    const markPath = join(root, 'public/images/store/catalog', `halaqmap-${code.toLowerCase()}.webp`);
+    assert.ok(existsSync(markPath), `missing catalog mark: ${markPath}`);
+  }
   const cardPath = join(root, 'public/images/store/catalog/cards', `${code.toLowerCase()}.webp`);
   assert.ok(existsSync(cardPath), `missing catalog card: ${cardPath}`);
 }
