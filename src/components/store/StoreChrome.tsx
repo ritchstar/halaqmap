@@ -99,7 +99,7 @@ export function StoreVisitorHeader() {
   const showGiftCta = STORE_GIFT_CAMPAIGN_PUBLIC_ENABLED && !onGiftPage;
   const showHmTube = isStoreProductLandingPath(location.pathname);
   return (
-    <div className="border-b border-[#dac8aa] bg-[#eee2ce]/92">
+    <div className="border-b border-[#dac8aa] bg-[#eee2ce]/92" data-store-visitor-header="1">
       {!isMobile ? <KSACityClocksBar /> : null}
       <header className="backdrop-blur">
         <div className="store-visitor-header__row mx-auto flex max-w-5xl min-w-0 items-center gap-2 overflow-x-clip px-3 py-2 md:flex-wrap md:gap-3 md:px-4 md:py-3">
