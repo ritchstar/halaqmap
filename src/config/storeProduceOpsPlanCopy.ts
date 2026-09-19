@@ -67,6 +67,8 @@ export type ProduceOpsStep = {
   fieldScriptAr?: string;
   comeClarificationAr?: string;
   visual?: ProduceOpsVisualId;
+  /** صورة توضيحية خفيفة (غير واقعية) تحل محل أيقونة SVG الافتراضية عند توفرها. */
+  imageUrl?: string;
 };
 
 export type ProduceOpsDayBlock = {
@@ -221,6 +223,7 @@ export const STORE_PRODUCE_OPS_PLAN_COPY = {
             'عدم نشر الرابط قبل استكمال بيانات النشاط وإجراء طلب تجريبي.',
           ],
           visual: 'activation',
+          imageUrl: '/images/store/produce/ops/activation.jpg',
         },
       ],
     },
@@ -252,6 +255,7 @@ export const STORE_PRODUCE_OPS_PLAN_COPY = {
           alertAr:
             'قبل نشر الصفحة: افتحها من جوال آخر، تحقق من الاسم والصور والأسعار، نفّذ طلباً تجريبياً، وتأكد من وصوله إلى القناة الصحيحة واختبر خيارات الاستلام أو التوصيل و«تعال» بحسب ما هو مفعّل فعلياً.',
           visual: 'desk-page',
+          imageUrl: '/images/store/produce/ops/desk-page.jpg',
         },
       ],
     },
@@ -286,6 +290,7 @@ export const STORE_PRODUCE_OPS_PLAN_COPY = {
             'رسالة تأكيد الطلب عند توفرها.',
           ],
           visual: 'qr',
+          imageUrl: '/images/store/produce/ops/qr.jpg',
         },
       ],
     },
@@ -305,6 +310,7 @@ export const STORE_PRODUCE_OPS_PLAN_COPY = {
           alertAr:
             'هذا رسم تشغيلي يدوي للتخطيط. خضارنا1 لا يرسم هذا النطاق تلقائياً على خريطة حقيقية ما لم تكن الميزة مفعّلة لديك.',
           visual: 'radius',
+          imageUrl: '/images/store/produce/ops/radius.jpg',
         },
       ],
     },
@@ -332,6 +338,7 @@ export const STORE_PRODUCE_OPS_PLAN_COPY = {
             'فتح الصفحة من جوال آخر للمراجعة الأخيرة.',
           ],
           visual: 'day-prep',
+          imageUrl: '/images/store/produce/ops/day-prep.jpg',
         },
         {
           stepNumber: 6,
@@ -344,6 +351,7 @@ export const STORE_PRODUCE_OPS_PLAN_COPY = {
             'هذه صفحتي على خضارنا1. امسح الرمز لتشوف المتوفر والأسعار، وإذا احتجت بعدين اطلب من جوالك وحدّد الاستلام أو الطريقة المناسبة لك.',
           comeClarificationAr: 'يجيك البائع إلى موقعك',
           visual: 'field-sale',
+          imageUrl: '/images/store/produce/ops/field-sale.jpg',
         },
         {
           stepNumber: 7,
@@ -362,6 +370,7 @@ export const STORE_PRODUCE_OPS_PLAN_COPY = {
             'يكون التعريف مختصراً ومحترماً وخارج نطاق العبادة.',
           ],
           visual: 'community',
+          imageUrl: '/images/store/produce/ops/community.jpg',
         },
       ],
     },
@@ -386,6 +395,7 @@ export const STORE_PRODUCE_OPS_PLAN_COPY = {
           ],
           alertAr: 'اليوم قابلتني هنا، وغداً تعرف المتوفر وتطلب من صفحتي.',
           visual: 'return-customer',
+          imageUrl: '/images/store/produce/ops/return-customer.jpg',
         },
         {
           stepNumber: 9,
@@ -405,6 +415,7 @@ export const STORE_PRODUCE_OPS_PLAN_COPY = {
             'أغلق الطلب وفق الحالة الموجودة فعلياً في النظام.',
           ],
           visual: 'order-flow',
+          imageUrl: '/images/store/produce/ops/order-flow.jpg',
         },
       ],
     },
@@ -431,6 +442,7 @@ export const STORE_PRODUCE_OPS_PLAN_COPY = {
             'قدرة البائع على الالتزام بالتوصيل أو الحضور داخل النطاق.',
           ],
           visual: 'review',
+          imageUrl: '/images/store/produce/ops/review.jpg',
         },
       ],
     },

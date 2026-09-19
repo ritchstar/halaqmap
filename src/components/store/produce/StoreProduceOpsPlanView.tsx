@@ -193,9 +193,20 @@ export function StoreProduceOpsPlanView({ preview = false }: { preview?: boolean
                         ) : null}
                       </div>
 
-                      {step.visual ? (
+                      {step.imageUrl || step.visual ? (
                         <div className="mx-auto w-full max-w-xs md:mx-0">
-                          <StoreProduceOpsIllustration visual={step.visual} />
+                          {step.imageUrl ? (
+                            <div className="overflow-hidden rounded-xl border border-white/10">
+                              <img
+                                src={step.imageUrl}
+                                alt={step.headlineAr}
+                                loading="lazy"
+                                className="aspect-[8/5] w-full object-cover"
+                              />
+                            </div>
+                          ) : step.visual ? (
+                            <StoreProduceOpsIllustration visual={step.visual} />
+                          ) : null}
                           {step.visual === 'radius' ? (
                             <p className="mt-3 flex flex-wrap justify-center gap-3 text-sm font-bold text-white/55">
                               <span>شمال</span>

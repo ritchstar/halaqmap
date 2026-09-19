@@ -45,6 +45,13 @@ assert.equal(allSteps.length, 10);
 assert.equal(allSteps[0]?.stepNumber, 1);
 assert.equal(allSteps[9]?.stepNumber, 10);
 
+// جميع الخطوات العشر لديها الآن صورة سكاي حقيقية.
+for (const step of allSteps) {
+  assert.ok(step.imageUrl, `step ${step.stepNumber} must have imageUrl`);
+  assert.ok(existsSync(join(root, 'public', step.imageUrl.replace(/^\//, ''))), `${step.imageUrl} must exist`);
+}
+assert.match(view, /step\.imageUrl/);
+
 const joinedCopy = JSON.stringify(STORE_PRODUCE_OPS_PLAN_COPY);
 assert.doesNotMatch(joinedCopy, /احتل حيك|\/v\/|\/desk|000029176[^1]/);
 assert.match(joinedCopy, /ثبّت حضورك في حيّك/);
