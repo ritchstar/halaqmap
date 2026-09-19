@@ -14,7 +14,7 @@ import { STORE_OPERATORS_DESK_COPY, STORE_OPERATORS_DESK_PUBLIC_ENABLED } from '
 import { STORE_HMTUBE } from '@/config/storeHmTube';
 import { KSACityClocksBar } from '@/components/KSACityClocksBar';
 import { StoreBrandMark } from '@/components/store/StoreBrandMark';
-import { StoreVisitorEngage } from '@/components/store/StoreVisitorEngage';
+import { StoreLandingFooterShare, StoreVisitorEngage } from '@/components/store/StoreVisitorEngage';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { rememberStoreAffiliateRef } from '@/lib/storeAffiliateRef';
 import { isStoreProductLandingPath } from '@/lib/storeHmTube';
@@ -215,6 +215,7 @@ export function StoreVisitorFooter() {
           </Link>
           ) : null}
         </nav>
+        {onStoreLanding ? <StoreLandingFooterShare /> : null}
         <p className="text-sm leading-relaxed text-[#3d3226]">{STORE_LANDING_COPY.roleLine}</p>
         <p className="text-xs text-[#6f6250]">{STORE_ORIGIN}</p>
         <p className="text-xs leading-relaxed text-[#6f6250]">{STORE_LANDING_COPY.mediaLicenseLineAr}</p>

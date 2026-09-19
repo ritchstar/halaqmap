@@ -1,8 +1,9 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
- * أيقونتا تقييم المتجر ومشاركته — أسفل يسار واجهة المتجر.
- * التقييم يفتح صفحة النجوم والتعليق. المشاركة تبقى هنا.
+ * أيقونة تقييم المتجر — أسفل يسار واجهة المتجر.
+ * المشاركة على الرئيسية للجوال في الفوتر (`StoreLandingFooterShare`).
+ * على بقية الصفحات تبقى المشاركة هنا (أو داخل قائمة «تفاعل» على هبوط المنتج).
  */
 import { useCallback, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
@@ -10,11 +11,121 @@ import { Share2, Star, X, Check, Copy, MessageCircle } from 'lucide-react';
 import { STORE_ENGAGE_COPY, STORE_ORIGIN, STORE_PUBLIC_NAME_AR } from '@/config/storeFront';
 import { STORE_REVIEWS_COPY, STORE_REVIEWS_PUBLIC_ENABLED } from '@/config/storeReviews';
 import { ROUTE_PATHS } from '@/lib/routePaths';
-import { isStoreProductLandingPath } from '@/lib/storeHmTube';
+import { isStoreHomePath, isStoreProductLandingPath } from '@/lib/storeHmTube';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 
 const SHARE_URL = `${STORE_ORIGIN}/#${ROUTE_PATHS.STORE_LANDING}`;
+
+async function copyStoreShareLink(onCopied: () => void) {
+  try {
+    await navigator.clipboard.writeText(SHARE_URL);
+    onCopied();
+  } catch {
+    /* silent */
+  }
+}
+
+async function nativeStoreShare(onFallback: () => void) {
+  if (typeof navigator.share !== 'function') {
+    onFallback();
+    return;
+  }
+  try {
+    await navigator.share({
+      title: STORE_PUBLIC_NAME_AR,
+      text: STORE_ENGAGE_COPY.shareTextAr,
+      url: SHARE_URL,
+    });
+  } catch (error) {
+    if ((error as { name?: string } | null)?.name === 'AbortError') return;
+    onFallback();
+  }
+}
+
+/** مشاركة ثابتة في فوتر الرئيسية على الجوال فقط — بديل الأيقونة العائمة. */
+export function StoreLandingFooterShare() {
+  const location = useLocation();
+  const isMobile = useIsMobile();
+  const [open, setOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  if (!isMobile || !isStoreHomePath(location.pathname)) return null;
+
+  const close = () => {
+    setOpen(false);
+    setCopied(false);
+  };
+
+  return (
+    <div className="flex flex-col gap-2">
+      {open ? (
+        <div
+          className="rounded-xl border border-[#dac8aa] bg-[#f7f0e4] p-3"
+          role="dialog"
+          aria-labelledby="store-footer-share-title"
+        >
+          <div className="mb-2 flex items-center justify-between gap-2">
+            <h3 id="store-footer-share-title" className="text-sm font-extrabold text-[#2e2418]">
+              {STORE_ENGAGE_COPY.shareTitleAr}
+            </h3>
+            <button type="button" onClick={close} aria-label="إغلاق" className="rounded-full p-1 text-[#6f6250] hover:text-[#2e2418]">
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+          <p className="text-xs leading-6 text-[#6f6250]">{STORE_ENGAGE_COPY.shareLeadAr}</p>
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            <a
+              href={`https://wa.me/?text=${encodeURIComponent(`${STORE_ENGAGE_COPY.shareTextAr} ${SHARE_URL}`)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-xl border border-[#dac8aa] bg-white/60 px-3 py-2 text-center text-xs font-bold text-[#3d3226] hover:border-[#8A6239]"
+            >
+              {STORE_ENGAGE_COPY.whatsappAr}
+            </a>
+            <button
+              type="button"
+              onClick={() => {
+                void copyStoreShareLink(() => {
+                  setCopied(true);
+                  window.setTimeout(() => setCopied(false), 1800);
+                });
+              }}
+              className="rounded-xl border border-[#dac8aa] bg-white/60 px-3 py-2 text-xs font-bold text-[#3d3226] hover:border-[#8A6239]"
+            >
+              {copied ? (
+                <span className="inline-flex items-center justify-center gap-1">
+                  <Check className="h-3.5 w-3.5 text-[#8A6239]" />
+                  {STORE_ENGAGE_COPY.copiedAr}
+                </span>
+              ) : (
+                <span className="inline-flex items-center justify-center gap-1">
+                  <Copy className="h-3.5 w-3.5" />
+                  {STORE_ENGAGE_COPY.copyAr}
+                </span>
+              )}
+            </button>
+          </div>
+        </div>
+      ) : null}
+      <button
+        type="button"
+        onClick={() => {
+          if (open) {
+            close();
+            return;
+          }
+          void nativeStoreShare(() => setOpen(true));
+        }}
+        aria-label={STORE_ENGAGE_COPY.shareAr}
+        className="inline-flex items-center gap-2 text-sm font-bold text-[#5c4a1a] hover:text-[#8A6239]"
+      >
+        <Share2 className="h-4 w-4 shrink-0" aria-hidden />
+        {STORE_ENGAGE_COPY.shareAr}
+      </button>
+    </div>
+  );
+}
 
 export function StoreVisitorEngage() {
   const location = useLocation();
@@ -24,6 +135,8 @@ export function StoreVisitorEngage() {
   const onReviewsPage = location.pathname === ROUTE_PATHS.STORE_REVIEWS;
   const hideForStickyBuy = location.pathname.includes('/store/wedding');
   const compactProductLanding = isMobile && isStoreProductLandingPath(location.pathname);
+  /** على الرئيسية للجوال تنتقل المشاركة إلى الفوتر. */
+  const hideFloatingShare = isMobile && isStoreHomePath(location.pathname);
   if (hideForStickyBuy) return null;
 
   const close = useCallback(() => {
@@ -32,30 +145,14 @@ export function StoreVisitorEngage() {
   }, []);
 
   const copyLink = async () => {
-    try {
-      await navigator.clipboard.writeText(SHARE_URL);
+    await copyStoreShareLink(() => {
       setCopied(true);
       window.setTimeout(() => setCopied(false), 1800);
-    } catch {
-      /* silent */
-    }
+    });
   };
 
   const nativeShare = async () => {
-    if (typeof navigator.share !== 'function') {
-      setPanel('share');
-      return;
-    }
-    try {
-      await navigator.share({
-        title: STORE_PUBLIC_NAME_AR,
-        text: STORE_ENGAGE_COPY.shareTextAr,
-        url: SHARE_URL,
-      });
-    } catch (error) {
-      if ((error as { name?: string } | null)?.name === 'AbortError') return;
-      setPanel('share');
-    }
+    await nativeStoreShare(() => setPanel('share'));
   };
 
   if (compactProductLanding) {
@@ -146,12 +243,17 @@ export function StoreVisitorEngage() {
     );
   }
 
+  const showRateLink = STORE_REVIEWS_PUBLIC_ENABLED && !onReviewsPage;
+  const showRateOnReviews = onReviewsPage;
+  const showShare = !hideFloatingShare;
+  if (!showRateLink && !showRateOnReviews && !showShare && panel !== 'share') return null;
+
   return (
     <div
       className="fixed bottom-4 left-4 z-40 flex flex-col items-start gap-2 pb-[env(safe-area-inset-bottom,0px)] sm:bottom-6 sm:left-6"
       data-store-visitor-engage="1"
     >
-      {panel === 'share' ? (
+      {panel === 'share' && showShare ? (
         <div
           className="mb-1 w-[min(18rem,calc(100vw-2rem))] rounded-2xl border border-[#e8c547]/35 bg-[#061018]/95 p-4 shadow-2xl backdrop-blur-md"
           role="dialog"
@@ -197,7 +299,7 @@ export function StoreVisitorEngage() {
       ) : null}
 
       <div className="flex flex-col gap-2">
-        {!STORE_REVIEWS_PUBLIC_ENABLED || onReviewsPage ? null : (
+        {showRateLink ? (
           <Link
             to={`${ROUTE_PATHS.STORE_REVIEWS}?write=1`}
             aria-label={STORE_ENGAGE_COPY.rateAr}
@@ -206,8 +308,8 @@ export function StoreVisitorEngage() {
             <Star className="h-4 w-4 fill-[#e8c547]" />
             {STORE_ENGAGE_COPY.rateAr}
           </Link>
-        )}
-        {onReviewsPage ? (
+        ) : null}
+        {showRateOnReviews ? (
           <button
             type="button"
             onClick={() => {
@@ -220,23 +322,25 @@ export function StoreVisitorEngage() {
             {STORE_ENGAGE_COPY.rateAr}
           </button>
         ) : null}
-        <button
-          type="button"
-          onClick={() => {
-            if (panel === 'share') {
-              setPanel(null);
-              return;
-            }
-            void nativeShare();
-          }}
-          aria-label={STORE_ENGAGE_COPY.shareAr}
-          className={cn(
-            'inline-flex items-center gap-2 rounded-full border border-white/20 bg-[#061018]/90 px-3 py-2 text-sm font-extrabold text-[#f4efe4] shadow-lg backdrop-blur-md hover:border-[#e8c547]/40 hover:text-[#e8c547]',
-          )}
-        >
-          <Share2 className="h-4 w-4" />
-          {STORE_ENGAGE_COPY.shareAr}
-        </button>
+        {showShare ? (
+          <button
+            type="button"
+            onClick={() => {
+              if (panel === 'share') {
+                setPanel(null);
+                return;
+              }
+              void nativeShare();
+            }}
+            aria-label={STORE_ENGAGE_COPY.shareAr}
+            className={cn(
+              'inline-flex items-center gap-2 rounded-full border border-white/20 bg-[#061018]/90 px-3 py-2 text-sm font-extrabold text-[#f4efe4] shadow-lg backdrop-blur-md hover:border-[#e8c547]/40 hover:text-[#e8c547]',
+            )}
+          >
+            <Share2 className="h-4 w-4" />
+            {STORE_ENGAGE_COPY.shareAr}
+          </button>
+        ) : null}
       </div>
     </div>
   );
