@@ -43,6 +43,12 @@ assert.equal(allSteps.length, 12);
 assert.equal(allSteps[0]?.stepNumber, 1);
 assert.equal(allSteps[11]?.stepNumber, 12);
 
+for (const step of allSteps) {
+  assert.ok(step.imageUrl, `step ${step.stepNumber} must have imageUrl`);
+  assert.ok(existsSync(join(root, 'public', step.imageUrl.replace(/^\//, ''))), `${step.imageUrl} must exist`);
+}
+assert.match(view, /step\.imageUrl/);
+
 const joinedCopy = JSON.stringify(STORE_KITCHEN_OPS_PLAN_COPY);
 assert.doesNotMatch(joinedCopy, /احتل حيك|تعال|بسطة|جولة|كيلو|خضارنا1/);
 assert.match(joinedCopy, /من مطبخك إلى جوال زبونك/);

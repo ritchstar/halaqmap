@@ -47,6 +47,8 @@ export type KitchenOpsStep = {
   quoteAr?: string;
   marketingTemplatesAr?: string[];
   visual?: KitchenOpsVisualId;
+  /** صورة توضيحية خفيفة (غير واقعية) تحل محل أيقونة SVG الافتراضية عند توفرها. */
+  imageUrl?: string;
 };
 
 export type KitchenOpsStage = {
@@ -230,6 +232,7 @@ export const STORE_KITCHEN_OPS_PLAN_COPY = {
           alertAr:
             'إذا دخلت عبر تجربة معتمدة، فهذا مسار مستقل عن الشراء المدفوع؛ لا تخلط بينهما في نشرك أو في توقع مدة التشغيل.',
           visual: 'activation',
+          imageUrl: '/images/store/kitchen/ops/activation.jpg',
         },
       ],
     },
@@ -247,6 +250,7 @@ export const STORE_KITCHEN_OPS_PLAN_COPY = {
           alertAr:
             'لا يدير طبختنا1 الطاقة الاستيعابية تلقائياً. استخدم إيقاف استقبال الطلبات، أو إخفاء الصنف، أو وضعه «نفد»، كإجراء تشغيلي يدوي.',
           visual: 'rules',
+          imageUrl: '/images/store/kitchen/ops/rules.jpg',
         },
       ],
     },
@@ -272,6 +276,7 @@ export const STORE_KITCHEN_OPS_PLAN_COPY = {
             'إخفاء ما لم يعد متاحاً قبل وصول طلب جديد.',
           ],
           visual: 'menu',
+          imageUrl: '/images/store/kitchen/ops/menu.jpg',
         },
         {
           stepNumber: 4,
@@ -282,6 +287,7 @@ export const STORE_KITCHEN_OPS_PLAN_COPY = {
             'راجع الصفحة من جوال الزبون. إذا لم توجد حقول كمية أو وقت توقف تلقائي، أدِر ذلك يدوياً بإخفاء الصنف أو تغيير حالته.',
           ],
           visual: 'capacity',
+          imageUrl: '/images/store/kitchen/ops/capacity.jpg',
         },
       ],
     },
@@ -306,6 +312,7 @@ export const STORE_KITCHEN_OPS_PLAN_COPY = {
             'إغلاق الطلب التجريبي.',
           ],
           visual: 'test',
+          imageUrl: '/images/store/kitchen/ops/test.jpg',
         },
       ],
     },
@@ -331,6 +338,7 @@ export const STORE_KITCHEN_OPS_PLAN_COPY = {
             'بطاقة شكر ترفق مع الطلب.',
           ],
           visual: 'qr',
+          imageUrl: '/images/store/kitchen/ops/qr.jpg',
         },
         {
           stepNumber: 7,
@@ -347,6 +355,7 @@ export const STORE_KITCHEN_OPS_PLAN_COPY = {
           ],
           alertAr: 'لا تستخدم «نضمن وصول طلبات أكثر» أو «الصفحة تسوّق عنك تلقائياً».',
           visual: 'social',
+          imageUrl: '/images/store/kitchen/ops/social.jpg',
         },
       ],
     },
@@ -371,6 +380,7 @@ export const STORE_KITCHEN_OPS_PLAN_COPY = {
             'بدء التجهيز بعد وضوح الطلب.',
           ],
           visual: 'order-review',
+          imageUrl: '/images/store/kitchen/ops/order-review.jpg',
         },
         {
           stepNumber: 9,
@@ -382,6 +392,7 @@ export const STORE_KITCHEN_OPS_PLAN_COPY = {
           alertAr:
             'تمرير بطاقة الطلب يتم يدوياً من الجهاز وبقرار صاحب النشاط عبر «مذكرة واتساب للتسليم» — وليس إرسالاً آلياً من خادم المنصة.',
           visual: 'whatsapp',
+          imageUrl: '/images/store/kitchen/ops/whatsapp.jpg',
         },
       ],
     },
@@ -406,6 +417,7 @@ export const STORE_KITCHEN_OPS_PLAN_COPY = {
             'التحقق من اسم الطلب عند التسليم.',
           ],
           visual: 'delivery',
+          imageUrl: '/images/store/kitchen/ops/delivery.jpg',
         },
       ],
     },
@@ -423,6 +435,7 @@ export const STORE_KITCHEN_OPS_PLAN_COPY = {
           ],
           quoteAr: 'أعجبك الطلب؟ احتفظ بصفحتنا لتعرف المتوفر في المرة القادمة.',
           visual: 'return',
+          imageUrl: '/images/store/kitchen/ops/return.jpg',
         },
         {
           stepNumber: 12,
@@ -441,6 +454,7 @@ export const STORE_KITCHEN_OPS_PLAN_COPY = {
             'عدد الأصناف المناسب للطاقة الحالية.',
           ],
           visual: 'review',
+          imageUrl: '/images/store/kitchen/ops/review.jpg',
         },
       ],
     },
