@@ -17,6 +17,8 @@ import { StoreProduceStudio } from '@/components/store/StoreProduceStudio';
 import { StoreInViewMount } from '@/components/store/StoreInViewMount';
 import { StoreDedicatedPageCallout, StoreDedicatedPageReelCaption } from '@/components/store/StoreDedicatedPageCallout';
 import { StoreLandingFold } from '@/components/store/StoreLandingFold';
+import { StoreProductBrandMark } from '@/components/store/StoreProductBrandMark';
+import { solutionCatalogMarkSrc } from '@/config/storeSolutionCatalog';
 import {
   STORE_PRODUCE_LIVE,
   STORE_PRODUCE_LIVE_FEATURES,
@@ -50,6 +52,7 @@ export default function StoreProduceLandingPage() {
       <section className="px-4 py-10 md:py-14">
         <div className="mx-auto grid max-w-5xl items-start gap-8 lg:grid-cols-[1.05fr_0.95fr]">
           <div>
+            <StoreProductBrandMark src={solutionCatalogMarkSrc('B-01')} nameAr="خضارنا1" />
             <p className="text-sm font-bold leading-7 tracking-wide text-[#3d8b4a]">{STORE_PRODUCE_LIVE.kickerAr}</p>
             <h1 className="mt-2 text-3xl font-extrabold leading-tight md:text-4xl">{STORE_PRODUCE_LIVE.titleAr}</h1>
             <p className={`mt-4 ${prose} font-extrabold text-[#f4efe4]`}>{STORE_PRODUCE_LIVE.hookAr}</p>

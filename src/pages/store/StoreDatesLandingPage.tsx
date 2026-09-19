@@ -17,6 +17,8 @@ import { StoreDatesStudio } from '@/components/store/StoreDatesStudio';
 import { StoreInViewMount } from '@/components/store/StoreInViewMount';
 import { StoreDedicatedPageCallout, StoreDedicatedPageReelCaption } from '@/components/store/StoreDedicatedPageCallout';
 import { StoreLandingFold } from '@/components/store/StoreLandingFold';
+import { StoreProductBrandMark } from '@/components/store/StoreProductBrandMark';
+import { solutionCatalogMarkSrc } from '@/config/storeSolutionCatalog';
 import {
   STORE_DATES_LIVE,
   STORE_DATES_LIVE_FEATURES,
@@ -50,6 +52,7 @@ export default function StoreDatesLandingPage() {
       <section className="px-4 py-10 md:py-14">
         <div className="mx-auto grid max-w-5xl items-start gap-8 lg:grid-cols-[1.05fr_0.95fr]">
           <div>
+            <StoreProductBrandMark src={solutionCatalogMarkSrc('B-05')} nameAr="تمرتنا1" />
             <p className="text-sm font-bold leading-7 tracking-wide text-[#8A6239]">{STORE_DATES_LIVE.kickerAr}</p>
             <h1 className="mt-2 text-3xl font-extrabold leading-tight md:text-4xl">{STORE_DATES_LIVE.titleAr}</h1>
             <p className={`mt-4 ${prose} font-extrabold text-[#f4efe4]`}>{STORE_DATES_LIVE.hookAr}</p>

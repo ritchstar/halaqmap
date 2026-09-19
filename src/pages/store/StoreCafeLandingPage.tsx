@@ -18,8 +18,10 @@ import { StoreCafeStudio } from '@/components/store/StoreCafeStudio';
 import { StoreInViewMount } from '@/components/store/StoreInViewMount';
 import { StoreDedicatedPageCallout, StoreDedicatedPageReelCaption } from '@/components/store/StoreDedicatedPageCallout';
 import { StoreLandingFold } from '@/components/store/StoreLandingFold';
+import { StoreProductBrandMark } from '@/components/store/StoreProductBrandMark';
 import { STORE_BRAND_LATIN } from '@/config/storeFront';
 import { STORE_MOBILE_VENDOR } from '@/config/storeMobileVendor';
+import { solutionCatalogMarkSrc } from '@/config/storeSolutionCatalog';
 import {
   STORE_CAFE_LIVE,
   STORE_CAFE_LIVE_FEATURES,
@@ -48,6 +50,7 @@ export default function StoreCafeLandingPage() {
       <section className="px-4 py-10 md:py-14">
         <div className="mx-auto grid max-w-5xl items-start gap-8 lg:grid-cols-[1.05fr_0.95fr]">
           <div>
+            <StoreProductBrandMark src={solutionCatalogMarkSrc('C-02')} nameAr="كافينا1" />
             <p className="text-sm font-bold leading-7 tracking-wide text-[#c48a4a]">{STORE_CAFE_LIVE.kickerAr}</p>
             <h1 className="mt-2 text-3xl font-extrabold leading-tight md:text-4xl">{STORE_CAFE_LIVE.titleAr}</h1>
             <p className="mt-4 max-w-xl text-base leading-8 text-white/78">{STORE_CAFE_LIVE.leadAr}</p>

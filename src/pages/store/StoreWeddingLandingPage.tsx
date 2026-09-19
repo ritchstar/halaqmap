@@ -21,8 +21,10 @@ import { StoreWeddingInviteCard } from '@/components/store/StoreWeddingInviteCar
 import { StoreWeddingLiveStudio } from '@/components/store/StoreWeddingLiveStudio';
 import { StoreInViewMount } from '@/components/store/StoreInViewMount';
 import { StoreLandingFold } from '@/components/store/StoreLandingFold';
+import { StoreProductBrandMark } from '@/components/store/StoreProductBrandMark';
 import { StoreWeddingOrderForm } from '@/components/store/StoreWeddingOrderForm';
 import { STORE_BRAND_LATIN } from '@/config/storeFront';
+import { solutionCatalogMarkSrc } from '@/config/storeSolutionCatalog';
 import {
   STORE_WEDDING_LIVE_LAB_TOKEN,
   STORE_WEDDING_LIVE_LAB_TOKEN_WOMEN,
@@ -87,6 +89,7 @@ export default function StoreWeddingLandingPage() {
       <section className="px-4 py-10 md:py-14" data-voice={voice}>
         <div className="mx-auto grid max-w-5xl items-start gap-8 lg:grid-cols-[1.05fr_0.95fr]">
           <div>
+            <StoreProductBrandMark src={solutionCatalogMarkSrc('D-02')} nameAr="أفراحي1" />
             <p className={cn('text-sm font-bold tracking-wide', text)}>{copy.kickerAr}</p>
             <h1 className="mt-2 text-3xl font-extrabold leading-tight text-[#f4efe4] md:text-4xl">
               <bdi>{copy.titleAr}</bdi>

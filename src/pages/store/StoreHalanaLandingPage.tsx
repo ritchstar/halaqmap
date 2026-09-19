@@ -14,7 +14,9 @@ import { StoreProductSupportLink } from '@/components/store/StoreProductSupportL
 import { StoreProductReadLink } from '@/components/store/StoreProductReadLink';
 import { StoreDedicatedPageCallout, StoreDedicatedPageReelCaption } from '@/components/store/StoreDedicatedPageCallout';
 import { StoreLandingFold } from '@/components/store/StoreLandingFold';
+import { StoreProductBrandMark } from '@/components/store/StoreProductBrandMark';
 import { StoreShot } from '@/components/store/StoreShot';
+import { solutionCatalogMarkSrc } from '@/config/storeSolutionCatalog';
 import {
   STORE_HALANA_ATMOSPHERE,
   STORE_HALANA_LIVE,
@@ -46,6 +48,7 @@ export default function StoreHalanaLandingPage() {
       <section className="px-4 py-10 md:py-14">
         <div className="mx-auto grid max-w-5xl items-start gap-8 lg:grid-cols-[1.05fr_0.95fr]">
           <div>
+            <StoreProductBrandMark src={solutionCatalogMarkSrc('B-04')} nameAr="حلانا1" />
             <p className="text-sm font-bold leading-7 tracking-wide text-[#c45c7a]">{STORE_HALANA_LIVE.kickerAr}</p>
             <h1 className="mt-2 text-3xl font-extrabold leading-tight md:text-4xl">
               <bdi>{STORE_HALANA_LIVE.titleAr}</bdi>

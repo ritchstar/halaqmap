@@ -507,8 +507,14 @@ export default function ChessArenaPage() {
         {view === 'landing' && (
           <div className="mx-auto max-w-3xl">
             <header className="mb-8 text-center">
-              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-[#d8ac52]/40 bg-[#d8ac52]/10">
-                <Crown className="h-7 w-7 text-[#d8ac52]" />
+              <div className="mx-auto mb-4 flex justify-center">
+                <img
+                  src="/images/chess/chess-knight-brand-mark.webp"
+                  alt="العلامة الرسمية لساحة الشطرنج"
+                  loading="eager"
+                  decoding="async"
+                  className="h-24 w-24 rounded-2xl border border-[#d8ac52]/40 bg-black/25 object-contain p-2 shadow-[0_8px_24px_rgba(0,0,0,0.35)] md:h-28 md:w-28"
+                />
               </div>
               <h1 className="text-2xl font-black text-[#e7f4f2] sm:text-3xl">{CHESS_ARENA_COPY.heroTitleAr}</h1>
               <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-[#8aa6a8] sm:text-base">

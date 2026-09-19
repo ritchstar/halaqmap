@@ -11,9 +11,11 @@ import {
 } from '@/components/store/StoreChrome';
 import { StoreGiftPromoBanner } from '@/components/store/StoreGiftPromoBanner';
 import { StoreProductBenefitsLink } from '@/components/store/StoreProductBenefitsLink';
+import { StoreProductBrandMark } from '@/components/store/StoreProductBrandMark';
 import { StoreProductSupportLink } from '@/components/store/StoreProductSupportLink';
 import { StoreShot } from '@/components/store/StoreShot';
 import { STORE_EVENT_LIVE, STORE_EVENT_LIVE_PUBLIC_ENABLED } from '@/config/storeEventLive';
+import { solutionCatalogMarkSrc } from '@/config/storeSolutionCatalog';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 
@@ -30,6 +32,7 @@ export default function StoreEventHubPage() {
       <StoreGiftPromoBanner compact />
       <section className="px-4 py-12 md:py-16">
         <div className="mx-auto max-w-4xl text-center">
+          <StoreProductBrandMark src={solutionCatalogMarkSrc('D-03')} nameAr="أجواء1" className="justify-center" />
           <p className="text-sm font-bold tracking-wide text-[#e8c547]">{STORE_EVENT_LIVE.hubKickerAr}</p>
           <h1 className="mt-2 text-4xl font-extrabold leading-tight text-[#f4efe4]">{STORE_EVENT_LIVE.hubTitleAr}</h1>
           <p className="mx-auto mt-4 max-w-2xl text-base leading-8 text-white/75">{STORE_EVENT_LIVE.hubLeadAr}</p>

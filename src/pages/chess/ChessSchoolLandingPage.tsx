@@ -191,6 +191,15 @@ export default function ChessSchoolLandingPage() {
       <section className="border-b border-border bg-gradient-to-b from-primary/10 via-background to-background py-14 md:py-20">
         <div className="container mx-auto max-w-4xl px-4 text-center">
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }}>
+            <div className="mb-4 flex justify-center">
+              <img
+                src="/images/chess/chess-knight-brand-mark.webp"
+                alt="العلامة الرسمية لمدرسة الشطرنج"
+                loading="eager"
+                decoding="async"
+                className="h-24 w-24 rounded-2xl border border-primary/25 bg-black/25 object-contain p-2 shadow-[0_8px_24px_rgba(0,0,0,0.35)] md:h-28 md:w-28"
+              />
+            </div>
             <div className="mx-auto mb-5 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-sm font-semibold text-primary">
               <Crown className="h-4 w-4" />
               مدرسة الشطرنج الاحترافية — منتج تعليمي رقمي مستقل

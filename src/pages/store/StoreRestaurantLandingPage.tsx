@@ -17,7 +17,9 @@ import { StoreRestaurantStudio } from '@/components/store/StoreRestaurantStudio'
 import { StoreInViewMount } from '@/components/store/StoreInViewMount';
 import { StoreDedicatedPageCallout, StoreDedicatedPageReelCaption } from '@/components/store/StoreDedicatedPageCallout';
 import { StoreLandingFold } from '@/components/store/StoreLandingFold';
+import { StoreProductBrandMark } from '@/components/store/StoreProductBrandMark';
 import { STORE_MOBILE_VENDOR } from '@/config/storeMobileVendor';
+import { solutionCatalogMarkSrc } from '@/config/storeSolutionCatalog';
 import {
   STORE_RESTAURANT_EXTENSION_PRICING,
   STORE_RESTAURANT_LIVE,
@@ -50,6 +52,7 @@ export default function StoreRestaurantLandingPage() {
       <section className="px-4 py-10 pb-24 md:py-14 md:pb-14">
         <div className="mx-auto grid max-w-5xl items-start gap-8 lg:grid-cols-[1.05fr_0.95fr]">
           <div>
+            <StoreProductBrandMark src={solutionCatalogMarkSrc('C-01')} nameAr="مطعمنا1" />
             <p className="text-sm font-bold leading-7 tracking-wide text-[#e08a3c]">{STORE_RESTAURANT_LIVE.kickerAr}</p>
             <h1 className="mt-2 text-3xl font-extrabold leading-tight md:text-4xl">
               <bdi>{STORE_RESTAURANT_LIVE.titleAr}</bdi>
