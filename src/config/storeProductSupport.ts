@@ -158,7 +158,7 @@ export const STORE_KITCHEN_SUPPORT: StoreProductSupportGuide = {
     },
     {
       id: 'neighborhood',
-      titleAr: 'احتل حيك',
+      titleAr: 'افرض وجودك',
       sections: [
         {
           headingAr: 'دائرة الجيران',
@@ -253,7 +253,7 @@ export const STORE_GROCERS_SUPPORT: StoreProductSupportGuide = {
     },
     {
       id: 'neighborhood',
-      titleAr: 'احتل حيك',
+      titleAr: 'افرض وجودك',
       sections: [
         {
           headingAr: 'دائرة الحي',
@@ -371,7 +371,7 @@ export const STORE_PRODUCE_SUPPORT: StoreProductSupportGuide = {
     },
     {
       id: 'neighborhood',
-      titleAr: 'احتل حيك',
+      titleAr: 'افرض وجودك',
       sections: [
         {
           headingAr: 'محيط كيلومتر واحد',
@@ -532,7 +532,7 @@ export const STORE_DATES_SUPPORT: StoreProductSupportGuide = {
     },
     {
       id: 'neighborhood',
-      titleAr: 'احتل حيك',
+      titleAr: 'افرض وجودك',
       sections: [
         {
           headingAr: 'محيط قريب',
@@ -633,7 +633,7 @@ export const STORE_RESTAURANT_SUPPORT: StoreProductSupportGuide = {
     },
     {
       id: 'neighborhood',
-      titleAr: 'احتل حيك',
+      titleAr: 'افرض وجودك',
       sections: [
         {
           headingAr: 'دائرة الحي',
@@ -714,7 +714,7 @@ export const STORE_CAFE_SUPPORT: StoreProductSupportGuide = {
     },
     {
       id: 'neighborhood',
-      titleAr: 'احتل حيك',
+      titleAr: 'افرض وجودك',
       sections: [
         {
           headingAr: 'دائرة الحي',
