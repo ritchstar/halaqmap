@@ -421,6 +421,7 @@ export const STORE_GROCERS_OPS_PLAN_COPY = {
             'بدء التجهيز بعد وضوح الطلب.',
           ],
           visual: 'order-review',
+          imageUrl: '/images/store/grocers/ops/order-review.jpg',
         },
         {
           stepNumber: 10,

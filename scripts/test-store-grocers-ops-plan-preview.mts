@@ -42,10 +42,9 @@ assert.deepEqual(navTitles, [
 const allSteps = STORE_GROCERS_OPS_PLAN_COPY.stages.flatMap((s) => s.steps);
 assert.equal(allSteps.length, 12);
 
-// 11 من 12 خطوة لديها صورة سكاي حقيقية حالياً؛ خطوة "استقبل السلة وراجعها" (order-review)
-// ما زالت تعتمد على أيقونة SVG الاحتياطية بانتظار صورة إضافية.
+// جميع الاثنتي عشرة خطوة لديها الآن صورة سكاي حقيقية.
 const stepsWithImage = allSteps.filter((s) => s.imageUrl);
-assert.equal(stepsWithImage.length, 11);
+assert.equal(stepsWithImage.length, 12);
 for (const step of stepsWithImage) {
   assert.ok(existsSync(join(root, 'public', step.imageUrl!.replace(/^\//, ''))), `${step.imageUrl} must exist`);
 }
