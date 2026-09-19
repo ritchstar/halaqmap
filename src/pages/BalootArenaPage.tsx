@@ -8,7 +8,7 @@
  */
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Crown, RefreshCcw } from 'lucide-react';
+import { ArrowLeft, Crown, GraduationCap, RefreshCcw } from 'lucide-react';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { BALOOT_ARENA_COPY, BALOOT_MATCH_TARGET_SCORE, BALOOT_SEAT_LABELS_AR, BALOOT_SUIT_LABELS_AR, BALOOT_SUIT_SYMBOLS } from '@/config/balootArena';
@@ -196,6 +196,23 @@ export default function BalootArenaPage() {
                 {BALOOT_ARENA_COPY.comingSoonBadgeAr} — {BALOOT_ARENA_COPY.comingSoonTitleAr}
               </p>
               <p className="mt-1 text-xs leading-relaxed text-[#8aa6a8]">{BALOOT_ARENA_COPY.comingSoonBodyAr}</p>
+            </div>
+
+            <div className="mx-auto mt-4 flex max-w-xl items-start gap-3 rounded-2xl border border-[#d8ac52]/40 bg-[#d8ac52]/10 p-4">
+              <GraduationCap className="mt-0.5 h-4 w-4 shrink-0 text-[#d8ac52]" />
+              <div className="flex-1">
+                <p className="text-xs font-black text-[#d8ac52]">مدرسة البلوت — منتج تعليمي مستقل</p>
+                <p className="mt-1 text-xs leading-relaxed text-[#8aa6a8]">
+                  القواعد وترتيب الورق والحسبة بالتفصيل، مع صفحة خاصة بك تعود إليها دائماً — 199 ر.س، دفعة واحدة.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => navigate(ROUTE_PATHS.BALOOT_SCHOOL_LANDING)}
+                  className="mt-2 rounded-lg bg-[#d8ac52] px-3 py-1.5 text-[0.65rem] font-black text-[#0b1f26]"
+                >
+                  اكتشف المدرسة
+                </button>
+              </div>
             </div>
           </div>
         </main>
