@@ -63,7 +63,7 @@ export type AiRecommendationRow = {
 };
 
 const DIGITAL_SHIFT_GREETING_BARBER =
-  'افتح بترحيب سعودي: «يا عمنا، تفضل — وش مهام اليوم اللي راح تضيفها عشان أشتغل معك؟»';
+  'افتح بترحيب رسمي مهذّب بلا مناداة عامية (بدون «يا عمنا» أو ما شابهها): «تفضل — وش مهام اليوم اللي راح تضيفها عشان أشتغل معك؟»';
 
 function resolveProvider(): 'openai' | 'anthropic' | null {
   const pref = (process.env.DIGITAL_SHIFT_ASSISTANT_PROVIDER || process.env.PARTNER_ASSISTANT_PROVIDER || '')
@@ -96,7 +96,7 @@ export function buildDigitalShiftSystemPrompt(
       ? `Represent the salon professionally in the customer's language (${supported}). Do not default to Arabic.`
       : mode === 'customer'
         ? `Reply in the customer's last language (${supported}) with a warm professional tone.`
-        : 'Address the barber in warm Saudi commercial Arabic.';
+        : 'Address the barber in formal, professional Arabic — no informal greetings such as "ya 3amna".';
 
   const base = [
     ...(mode === 'customer' && customerLang
@@ -107,7 +107,7 @@ export function buildDigitalShiftSystemPrompt(
     `You are «${ctx.assistantName}» — digital shift assistant for ${ctx.barberName} on Halaq Map (men's barbershop only).`,
     mode === 'customer' && customerLang && customerLang !== 'ar'
       ? 'Tone: warm, professional, concise — adapted to the customer culture, not Saudi Arabic phrases.'
-      : 'Tone: warm Saudi commercial style — «ya 3amna», «tifaddal» — without exaggeration.',
+      : 'Tone: formal, respectful, professional Arabic — «tifaddal» is fine, but never «ya 3amna» or any informal kinship greeting.',
     langHint,
     'Do not promise discounts or paid booking through the platform.',
     mode === 'customer'
@@ -900,8 +900,8 @@ export async function refreshHeuristicRecommendations(
       dedupeKey: 'balance_low',
       title: 'تأمين الشحن — رصيد منخفض ⚡',
       body: lowListing
-        ? `يا عمنا، أيام حزمة رخصة النفاذ المتبقية (${ctx.listingDaysRemaining}) قليلة. تأمين الشحن الآن يضمن استمرار استجابتك قبل موجة الطلب القريب.`
-        : `يا عمنا، رصيد محفظة المناوب (${(ctx.walletBalanceHalalas / 100).toFixed(2)} ر.س) قارب على النفاد. شحن الرصيد من لوحة التحكم يضمن استمرار المناوبة الذكية.`,
+        ? `أيام حزمة رخصة النفاذ المتبقية (${ctx.listingDaysRemaining}) قليلة. تأمين الشحن الآن يضمن استمرار استجابتك قبل موجة الطلب القريب.`
+        : `رصيد محفظة المناوب (${(ctx.walletBalanceHalalas / 100).toFixed(2)} ر.س) قارب على النفاد. شحن الرصيد من لوحة التحكم يضمن استمرار المناوبة الذكية.`,
       metadata: {
         listingDaysRemaining: ctx.listingDaysRemaining,
         walletBalanceHalalas: ctx.walletBalanceHalalas,
@@ -915,7 +915,7 @@ export async function refreshHeuristicRecommendations(
       priority: 40,
       dedupeKey: 'balance_ok',
       title: 'الرصيد مستقر — استمر بالتأمين الدوري ✅',
-      body: 'تفضل يا عمنا، رصيدك وحزمة رخصة النفاذ بحالة جيدة. نوصي بتأمين شحن إضافي قبل مواسم الذروة — نمو الطلب القريب على حلاق ماب مسألة وقت.',
+      body: 'تفضل، رصيدك وحزمة رخصة النفاذ بحالة جيدة. نوصي بتأمين شحن إضافي قبل مواسم الذروة — نمو الطلب القريب على حلاق ماب مسألة وقت.',
       metadata: { listingDaysRemaining: ctx.listingDaysRemaining },
     });
   }
@@ -966,7 +966,7 @@ export async function refreshHeuristicRecommendations(
       priority: 75,
       dedupeKey: 'gallery_empty',
       title: 'معرض الصور فارغ',
-      body: 'يا عمنا، معرض أعمالك فارغ. أضف صوراً حديثة لأعمالك — العملاء يقررون من أول نظرة على المعرض.',
+      body: 'معرض أعمالك فارغ. أضف صوراً حديثة لأعمالك — العملاء يقررون من أول نظرة على المعرض.',
       metadata: { galleryCount: 0 },
     });
   } else if (stale.length > 0) {
@@ -988,7 +988,7 @@ export async function refreshHeuristicRecommendations(
       priority: 35,
       dedupeKey: 'gallery_fresh',
       title: 'معرض الصور محدّث 👍',
-      body: `تفضل يا عمنا، معرضك يحتوي ${gallery.length} صورة بحالة جيدة. حافظ على تجديد صورة كل 30–45 يوم.`,
+      body: `تفضل، معرضك يحتوي ${gallery.length} صورة بحالة جيدة. حافظ على تجديد صورة كل 30–45 يوم.`,
       metadata: { galleryCount: gallery.length },
     });
   }
@@ -1060,9 +1060,11 @@ function getBarberShiftFallback(ctx: DigitalShiftContext, userText: string): str
   const t = userText.trim();
   const codeMatch = t.match(/^(تعليمة|عرض|جدول|خدمة|موقع|رد|تنبيه|مهمة|تذكير)[:：]\s*(.+)$/s);
   if (codeMatch) {
-    return `تم يا عمنا ✅ حفظت «${codeMatch[1]}» وسأطبّقها مع الزبائن. تبي تضيف شيء ثاني؟`;
+    return `تم ✅ حفظت «${codeMatch[1]}» وسأطبّقها مع الزبائن. تبي تضيف شيء ثاني؟`;
   }
-  return `يا عمنا تفضل، أنا ${ctx.assistantName} من حلاق ماب. ${DIGITAL_SHIFT_GREETING_BARBER}`;
+  // ملاحظة: لا نُلحق نص DIGITAL_SHIFT_GREETING_BARBER هنا لأنه تعليمة نظام
+  // موجّهة للنموذج (تصف كيف يفتح الرد)، وليست نصاً جاهزاً للعرض على الحلاق.
+  return `تفضل، أنا ${ctx.assistantName} من حلاق ماب — وش مهام اليوم اللي راح تضيفها عشان أشتغل معك؟`;
 }
 
 async function callOpenAI(system: string, turns: ChatTurn[]): Promise<string> {

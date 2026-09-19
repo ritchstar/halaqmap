@@ -49,4 +49,4 @@ export const DIGITAL_SHIFT_PRODUCT_FEATURES_AR: readonly string[] = [
 ] as const;
 
 export const DIGITAL_SHIFT_GREETING_PROMPT =
-  'وش مهام اليوم اللي راح تضيفها عشان أشتغل معك يا عمنا؟';
+  'وش مهام اليوم اللي راح تضيفها عشان أشتغل معك؟';

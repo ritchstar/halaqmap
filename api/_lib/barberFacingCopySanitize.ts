@@ -30,12 +30,26 @@ const BARBER_FACING_COPY_REPLACEMENTS: ReadonlyArray<readonly [string, string]> 
   ['القناة السرية', 'توجيهات تشغيلية'],
 ];
 
+/**
+ * إزالة نداء «يا عمنا» العامي أينما ورد — كل النصوص الظاهرة للحلاق يجب أن
+ * تبقى إجابات رسمية دون مناداة شعبية، بصرف النظر عن مصدر النص (توصية
+ * مولّدة، قالب ثابت، أو رد مناوب مباشر). شبكة أمان مركزية: أي نص جديد يمرّ
+ * من هنا يُنظَّف تلقائياً حتى لو نسي مصدره إزالة النداء بنفسه.
+ */
+function stripInformalUncleAddressAr(text: string): string {
+  let out = text.replace(/\s*يا\s+عمنا\s*[،,]?\s*/g, ' ');
+  out = out.replace(/[ \t]{2,}/g, ' ');
+  out = out.replace(/\s+([؟!.,،])/g, '$1');
+  return out.trim();
+}
+
 export function sanitizeBarberFacingCopyAr(text: string): string {
   let out = String(text ?? '');
   if (!out.trim()) return out;
   for (const [from, to] of BARBER_FACING_COPY_REPLACEMENTS) {
     out = out.split(from).join(to);
   }
+  out = stripInformalUncleAddressAr(out);
   return out;
 }
 
@@ -43,7 +57,7 @@ export const MARKET_STAGNATION_RECOMMENDATION_TITLE_AR =
   '📉 حركة هادئة في حيّك — توصية تشغيلية من المناوب';
 
 export const MARKET_STAGNATION_RECOMMENDATION_BODY_AR =
-  'يا عمنا، الشات هادئ في الأيام الأخيرة — وهذا لا يعني انعدام الطلب في منطقتك. المنصة تواصل دعم ظهورك على الخريطة والبحث.\n\n' +
+  'الشات هادئ في الأيام الأخيرة — وهذا لا يعني انعدام الطلب في منطقتك. المنصة تواصل دعم ظهورك على الخريطة والبحث.\n\n' +
   '• راجع البنر والمعرض وفعّل عرضاً موسمياً\n' +
   '• تأكد أن المحل «مفتوح للزبائن» في لوحة التحكم\n' +
   '• سجّلنا ملاحظة تشغيلية لدعم ظهورك في حيّك — دون وعود بعدد زبائن';

@@ -72,7 +72,7 @@ export const PARTNER_CONSULTABLE_AGENTS: readonly PartnerCouncilAgentDef[] = [
       `- ${DIGITAL_SHIFT_LANGUAGE_DETECTION_FEATURE_AR}`,
       `- اللغات: ${LANGS}.`,
       `- ${DIGITAL_SHIFT_TRANSLATED_CHAT_FEATURE_AR}`,
-      '- أسلوب: آداب سعودية تجارية («يا عمنا»، «تفضل») — مختصر ومحترم.',
+      '- أسلوب: آداب سعودية تجارية رسمية («تفضل») — بدون مناداة عامية مثل «يا عمنا» — مختصر ومحترم.',
       '- ممنوع: تغيير أسعار الخدمة، حجز مدفوع، أو التلاعب بمحفظة العميل.',
       '- التفعيل: شراء Add-on مع الماسية (+50 ر.س/حزمة) → لوحة الحلاق → تبويب المناوب الذكي.',
     ],

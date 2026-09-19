@@ -152,7 +152,7 @@ export function DigitalShiftPrivateOffice({
   // ── Chat state ──
   const [turns, setTurns] = useState<ChatTurn[]>([{
     role: 'assistant',
-    content: `أهلاً يا عمنا ${barberName}! 🌙\n\nأنا ${assistantName} — مناوبك الرقمي الخاص.\n\nأقدر أساعدك في:\n• حفظ تعليماتك وتنفيذها مع العملاء\n• تتبع مهامك وتذكيرك بها\n• الاطلاع على رصيد حزمتك ومتى تنتهي\n• الوصول لروابط الدفع والدعم فوراً\n\nوش تبي يا عمنا؟`,
+    content: `أهلاً ${barberName}! 🌙\n\nأنا ${assistantName} — مناوبك الرقمي الخاص.\n\nأقدر أساعدك في:\n• حفظ تعليماتك وتنفيذها مع العملاء\n• تتبع مهامك وتذكيرك بها\n• الاطلاع على رصيد حزمتك ومتى تنتهي\n• الوصول لروابط الدفع والدعم فوراً\n\nوش تبي؟`,
     ts: nowTs(),
   }]);
   const [draft, setDraft] = useState('');
@@ -294,7 +294,7 @@ export function DigitalShiftPrivateOffice({
         ...p,
         {
           role: 'assistant',
-          content: `تم يا عمنا ✅ حفظت «${code}» وسأطبّقها مع الزبائن. تبي تضيف شيء ثاني؟`,
+          content: `تم ✅ حفظت «${code}» وسأطبّقها مع الزبائن. تبي تضيف شيء ثاني؟`,
           ts: nowTs(),
         },
       ]);
