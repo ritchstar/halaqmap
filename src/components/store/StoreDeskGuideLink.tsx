@@ -20,9 +20,17 @@ export function StoreDeskGuideLink({
   ctaAr?: string;
 }) {
   const label = leadAr || labelAr;
+  /*
+   * HashRouter: المسار التقني مثل `/store/.../support` يجب أن يُفتح كـ
+   * `/#/store/...` وإلا يغادر المتصفح الهاش ويفقد مسار React.
+   */
+  const href =
+    to.startsWith('http') || to.startsWith('#')
+      ? to
+      : `#${to.startsWith('/') ? to : `/${to}`}`;
   return (
     <a
-      href={to}
+      href={href}
       target="_blank"
       rel="noopener noreferrer"
       className="store-live-store-link pointer-events-auto relative inline-flex items-center gap-1.5"
