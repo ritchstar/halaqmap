@@ -174,7 +174,16 @@ export function StoreGrocersOpsPlanView({ preview = false }: { preview?: boolean
                         ) : null}
                       </div>
 
-                      {step.visual ? (
+                      {step.imageUrl ? (
+                        <div className="mx-auto w-full max-w-xs overflow-hidden rounded-xl border border-white/10 md:mx-0">
+                          <img
+                            src={step.imageUrl}
+                            alt={step.headlineAr}
+                            loading="lazy"
+                            className="aspect-[8/5] w-full object-cover"
+                          />
+                        </div>
+                      ) : step.visual ? (
                         <div className="mx-auto w-full max-w-xs md:mx-0">
                           <StoreGrocersOpsIllustration visual={step.visual} />
                         </div>

@@ -51,6 +51,8 @@ export type GrocersOpsStep = {
   quoteAr?: string;
   marketingTemplatesAr?: string[];
   visual?: GrocersOpsVisualId;
+  /** صورة توضيحية خفيفة (غير واقعية) تحل محل أيقونة SVG الافتراضية عند توفرها. */
+  imageUrl?: string;
 };
 
 export type GrocersOpsStage = {
@@ -241,6 +243,7 @@ export const STORE_GROCERS_OPS_PLAN_COPY = {
           alertAr:
             'إذا دخلت عبر تجربة معتمدة، فهذا مسار مستقل عن الشراء المدفوع؛ لا تخلط بينهما في نشرك أو في توقع مدة التشغيل.',
           visual: 'activation',
+          imageUrl: '/images/store/grocers/ops/activation.jpg',
         },
       ],
     },
@@ -265,6 +268,7 @@ export const STORE_GROCERS_OPS_PLAN_COPY = {
           alertAr:
             'لا تعد جار الحي بتوصيل خارج نطاقك الفعلي، سواء كنت ثابتاً أو متحركاً.',
           visual: 'path',
+          imageUrl: '/images/store/grocers/ops/path.jpg',
         },
       ],
     },
@@ -289,6 +293,7 @@ export const STORE_GROCERS_OPS_PLAN_COPY = {
             'مراجعة الفئات والبحث في المكتبة.',
           ],
           visual: 'shelf',
+          imageUrl: '/images/store/grocers/ops/shelf.jpg',
         },
         {
           stepNumber: 4,
@@ -301,6 +306,7 @@ export const STORE_GROCERS_OPS_PLAN_COPY = {
           alertAr:
             'لا يغلق النظام الطلبات تلقائياً عند بلوغ سقف يومي. أدِر ذلك بإيقاف الاستقبال أو إخفاء السلع يدوياً.',
           visual: 'daily',
+          imageUrl: '/images/store/grocers/ops/daily.jpg',
         },
       ],
     },
@@ -325,6 +331,7 @@ export const STORE_GROCERS_OPS_PLAN_COPY = {
             'إغلاق الطلب التجريبي.',
           ],
           visual: 'test',
+          imageUrl: '/images/store/grocers/ops/test.jpg',
         },
       ],
     },
@@ -349,6 +356,7 @@ export const STORE_GROCERS_OPS_PLAN_COPY = {
             'بطاقة داخل الكيس.',
           ],
           visual: 'qr',
+          imageUrl: '/images/store/grocers/ops/qr.jpg',
         },
         {
           stepNumber: 7,
@@ -364,6 +372,7 @@ export const STORE_GROCERS_OPS_PLAN_COPY = {
           ],
           alertAr: 'لا تستخدم «نضمن وصول طلبات أكثر» أو «الصفحة تسوّق عنك تلقائياً».',
           visual: 'social',
+          imageUrl: '/images/store/grocers/ops/social.jpg',
         },
       ],
     },
@@ -387,6 +396,7 @@ export const STORE_GROCERS_OPS_PLAN_COPY = {
             'توسّع اتجاهاً واحداً في كل مرة.',
           ],
           visual: 'neighborhood',
+          imageUrl: '/images/store/grocers/ops/neighborhood.jpg',
         },
       ],
     },
@@ -420,6 +430,7 @@ export const STORE_GROCERS_OPS_PLAN_COPY = {
             'جهّز السلة حسب ما اختاره جار الحي. للتوصيل: تأكد من العنوان قبل الخروج. للاستلام: حدّد نقطة الاستلام بوضوح. نفّذ المحاسبة مباشرة بينك وبين جار الحي — منصة خريطة الحل لا تحصّل قيمة السلة.',
           ],
           visual: 'cart-prep',
+          imageUrl: '/images/store/grocers/ops/cart-prep.jpg',
         },
       ],
     },
@@ -440,6 +451,7 @@ export const STORE_GROCERS_OPS_PLAN_COPY = {
           alertAr:
             'مشاركة ملخص التوصيل تتم يدوياً من جهاز الكاشير — وليس إرسالاً آلياً من خادم المنصة.',
           visual: 'whatsapp',
+          imageUrl: '/images/store/grocers/ops/whatsapp.jpg',
         },
         {
           stepNumber: 12,
@@ -457,6 +469,7 @@ export const STORE_GROCERS_OPS_PLAN_COPY = {
             'عدد السلع المناسب للطاقة الحالية.',
           ],
           visual: 'review',
+          imageUrl: '/images/store/grocers/ops/review.jpg',
         },
       ],
     },
