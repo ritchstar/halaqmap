@@ -2,9 +2,12 @@
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
  * رابط دليل التشغيل والتسويق — ضمن ركن النمو والدعم أسفل يسار اللوحة.
+ *
+ * يفتح عمداً في تبويب متصفح جديد (بدل التنقل الداخلي عبر react-router) حتى
+ * لا يغادر المشغّل لوحة التشغيل نفسها: صفحة الدليل لا تملك زر عودة إلى
+ * اللوحة، وكانت `StoreDeskCornerLink` (تنقّل داخلي عبر `<Link>`) تستبدل
+ * لوحة التشغيل بالكامل بصفحة الدليل بلا طريقة للرجوع إليها.
  */
-import { StoreDeskCornerLink } from '@/components/store/StoreDeskCornerNav';
-
 export function StoreDeskGuideLink({
   to,
   leadAr,
@@ -16,5 +19,17 @@ export function StoreDeskGuideLink({
   accent?: string;
   ctaAr?: string;
 }) {
-  return <StoreDeskCornerLink to={to} labelAr={labelAr} ariaLabel={leadAr} />;
+  const label = leadAr || labelAr;
+  return (
+    <a
+      href={to}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="store-live-store-link pointer-events-auto relative inline-flex items-center gap-1.5"
+      aria-label={`${label} (يفتح في تبويب جديد)`}
+      title={label}
+    >
+      {labelAr}
+    </a>
+  );
 }
