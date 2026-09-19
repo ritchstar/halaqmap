@@ -482,7 +482,12 @@ export default function BarberDashboard({
         showAppointments: false,
         showMessages: true,
         showPosts: true,
-        showSettings: false,
+        // نسخة مبسّطة من الإعدادات متاحة للذهبي: SettingsSection تُخفي من تلقاء
+        // نفسها كل ما هو حصري لماسي (تجهيز عريس، جدولة المواعيد) عبر فحوصات
+        // subscriptionTier === DIAMOND الداخلية، فتظهر للذهبي فقط البنر
+        // وأوقات العمل الأسبوعية والزيارة المنزلية والرعاية الشاملة ومعلومات
+        // الصالون — دون أي تعديل إضافي مطلوب على المكوّن نفسه.
+        showSettings: true,
         showServicesMenu: true,
         showQrRatings: true,
         showDigitalShift: true,
@@ -1174,6 +1179,15 @@ export default function BarberDashboard({
             اختر قسماً من التبويبات أدناه — كل إطار يفتح أدوات ومحتوى خاص به.
           </p>
           <TabsList className={DASHBOARD_VITAL_TAB_LIST}>
+            {/* المجموعة ١ — نظرة عامة: نقطة انطلاق وتوجّه سريعة قبل أي أدوات أخرى */}
+            {tierTabs.showOverview ? (
+              <TabsTrigger value="overview" className={DASHBOARD_VITAL_TAB_TRIGGER}>
+                <TrendingUp className="h-5 w-5 shrink-0" />
+                <span>نظرة عامة</span>
+              </TabsTrigger>
+            ) : null}
+
+            {/* المجموعة ٢ — التشغيل اليومي: أدوات يعود لها المشغل كل يوم */}
             {tierTabs.showMessages ? (
               <TabsTrigger
                 value="messages"
@@ -1248,6 +1262,8 @@ export default function BarberDashboard({
                 <span>الحجز بالاسم</span>
               </TabsTrigger>
             ) : null}
+
+            {/* المجموعة ٣ — صفحتي وعروضي: كل ما يبنى عليه العرض للزبون */}
             {tierTabs.showSalonPrivatePage ? (
               <TabsTrigger
                 value="salon-page"
@@ -1258,6 +1274,38 @@ export default function BarberDashboard({
               >
                 <LayoutTemplate className="h-5 w-5 shrink-0" />
                 <span>صفحة خاصة</span>
+              </TabsTrigger>
+            ) : null}
+            {tierTabs.showServicesMenu ? (
+              <TabsTrigger
+                value="services-menu"
+                className={cn(
+                  DASHBOARD_VITAL_TAB_TRIGGER,
+                  'data-[state=active]:border-primary data-[state=active]:bg-primary/12',
+                )}
+              >
+                <Scissors className="h-5 w-5 shrink-0" />
+                <span>قائمة أسعاري</span>
+              </TabsTrigger>
+            ) : null}
+            {tierTabs.showPosts ? (
+              <TabsTrigger value="posts" className={DASHBOARD_VITAL_TAB_TRIGGER}>
+                <ImageIcon className="h-5 w-5 shrink-0" />
+                <span>معرض الأعمال</span>
+              </TabsTrigger>
+            ) : null}
+
+            {/* المجموعة ٤ — النمو والتسويق: أدوات جذب وكسب عملاء جدد */}
+            {tierTabs.showQrRatings ? (
+              <TabsTrigger value="qr-ratings" className={DASHBOARD_VITAL_TAB_TRIGGER}>
+                <QrCode className="h-5 w-5 shrink-0" />
+                <span>QR والتقييمات</span>
+              </TabsTrigger>
+            ) : null}
+            {tierTabs.showQrRatings ? (
+              <TabsTrigger value="social-share" className={DASHBOARD_VITAL_TAB_TRIGGER}>
+                <Share2 className="h-5 w-5 shrink-0" />
+                <span>مشاركة السوشيال</span>
               </TabsTrigger>
             ) : null}
             {tierTabs.showDigitalShift ? (
@@ -1283,18 +1331,8 @@ export default function BarberDashboard({
                 ) : null}
               </TabsTrigger>
             ) : null}
-            {tierTabs.showQrRatings ? (
-              <TabsTrigger value="qr-ratings" className={DASHBOARD_VITAL_TAB_TRIGGER}>
-                <QrCode className="h-5 w-5 shrink-0" />
-                <span>QR والتقييمات</span>
-              </TabsTrigger>
-            ) : null}
-            {tierTabs.showOverview ? (
-              <TabsTrigger value="overview" className={DASHBOARD_VITAL_TAB_TRIGGER}>
-                <TrendingUp className="h-5 w-5 shrink-0" />
-                <span>نظرة عامة</span>
-              </TabsTrigger>
-            ) : null}
+
+            {/* المجموعة ٥ — خدمات متخصصة إضافية (تظهر فقط عند تفعيلها) */}
             {tierTabs.showChildrenSpecialistTab ? (
               <TabsTrigger
                 value="children-specialist"
@@ -1325,34 +1363,12 @@ export default function BarberDashboard({
                 ) : null}
               </TabsTrigger>
             ) : null}
-            {tierTabs.showServicesMenu ? (
-              <TabsTrigger
-                value="services-menu"
-                className={cn(
-                  DASHBOARD_VITAL_TAB_TRIGGER,
-                  'data-[state=active]:border-primary data-[state=active]:bg-primary/12',
-                )}
-              >
-                <Scissors className="h-5 w-5 shrink-0" />
-                <span>قائمة أسعاري</span>
-              </TabsTrigger>
-            ) : null}
+
+            {/* المجموعة ٦ — الإعدادات: تُضبط غالباً مرة عند البداية ثم نادراً ما تُفتح، فموضعها الأخير مقصود */}
             {tierTabs.showSettings ? (
               <TabsTrigger value="settings" className={DASHBOARD_VITAL_TAB_TRIGGER}>
                 <Settings className="h-5 w-5 shrink-0" />
                 <span>الإعدادات</span>
-              </TabsTrigger>
-            ) : null}
-            {tierTabs.showPosts ? (
-              <TabsTrigger value="posts" className={DASHBOARD_VITAL_TAB_TRIGGER}>
-                <ImageIcon className="h-5 w-5 shrink-0" />
-                <span>معرض الأعمال</span>
-              </TabsTrigger>
-            ) : null}
-            {tierTabs.showQrRatings ? (
-              <TabsTrigger value="social-share" className={DASHBOARD_VITAL_TAB_TRIGGER}>
-                <Share2 className="h-5 w-5 shrink-0" />
-                <span>مشاركة السوشيال</span>
               </TabsTrigger>
             ) : null}
           </TabsList>
