@@ -20,7 +20,7 @@ export function StoreProductSupportGuideView({ guide }: { guide: StoreProductSup
         {guide.kickerAr}
       </p>
       <h1 className="mt-2 text-3xl font-extrabold leading-tight">{guide.titleAr}</h1>
-      <p className="mt-4 text-base leading-8 text-white/78">{guide.leadAr}</p>
+      <p className="mt-4 text-base leading-8 text-[#6f6250]">{guide.leadAr}</p>
       {guide.landingPath ? (
         <Link to={guide.landingPath} className="mt-4 inline-flex text-sm font-bold" style={{ color: guide.accent }}>
           {STORE_PRODUCT_SUPPORT_SHELL.backAr}
@@ -35,7 +35,7 @@ export function StoreProductSupportGuideView({ guide }: { guide: StoreProductSup
             onClick={() => setTab(item.id)}
             className={cn(
               'shrink-0 rounded-full px-4 py-2 text-sm font-bold',
-              item.id === tab ? 'text-[#061018]' : 'border border-white/20 text-white/80',
+              item.id === tab ? 'text-[#061018]' : 'border border-[#dac8aa] text-[#6f6250]',
             )}
             style={item.id === tab ? { backgroundColor: guide.accent } : undefined}
           >
@@ -47,37 +47,37 @@ export function StoreProductSupportGuideView({ guide }: { guide: StoreProductSup
       {current ? (
         <div className="mt-6 space-y-6">
           {current.sections.map((section) => (
-            <section key={section.headingAr} className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-              <h2 className="text-lg font-extrabold">{section.headingAr}</h2>
+            <section key={section.headingAr} className="rounded-2xl border border-[#dac8aa] bg-white/70 p-4">
+              <h2 className="text-lg font-extrabold text-[#2e2418]">{section.headingAr}</h2>
               {section.bodyAr.map((line) => (
-                <p key={line} className="mt-2 text-sm leading-7 text-white/75">
+                <p key={line} className="mt-2 text-sm leading-7 text-[#3a2e20]">
                   {line}
                 </p>
               ))}
               {section.itemsAr?.length ? (
-                <ul className="mt-2 list-disc space-y-1 pr-5 text-sm leading-7 text-white/75">
+                <ul className="mt-2 list-disc space-y-1 pr-5 text-sm leading-7 text-[#3a2e20]">
                   {section.itemsAr.map((item) => (
                     <li key={item}>{item}</li>
                   ))}
                 </ul>
               ) : null}
               {section.tableRowsAr?.length ? (
-                <div className="mt-4 overflow-x-auto rounded-xl border border-white/10">
-                  <table className="min-w-full text-sm leading-7 text-white/78">
-                    <thead className="bg-white/[0.04] text-right">
+                <div className="mt-4 overflow-x-auto rounded-xl border border-[#dac8aa]">
+                  <table className="min-w-full text-sm leading-7 text-[#3a2e20]">
+                    <thead className="bg-[#f3ecdc] text-right">
                       <tr>
-                        <th className="px-4 py-3 font-extrabold">
+                        <th className="px-4 py-3 font-extrabold text-[#2e2418]">
                           {section.tableHeadAr?.[0] || 'التصنيف'}
                         </th>
-                        <th className="px-4 py-3 font-extrabold">
+                        <th className="px-4 py-3 font-extrabold text-[#2e2418]">
                           {section.tableHeadAr?.[1] || 'أمثلة'}
                         </th>
                       </tr>
                     </thead>
                     <tbody>
                       {section.tableRowsAr.map((row) => (
-                        <tr key={row.labelAr} className="border-t border-white/10">
-                          <td className="px-4 py-3 font-bold text-white/88">{row.labelAr}</td>
+                        <tr key={row.labelAr} className="border-t border-[#dac8aa]">
+                          <td className="px-4 py-3 font-bold text-[#2e2418]">{row.labelAr}</td>
                           <td className="px-4 py-3">{row.examplesAr}</td>
                         </tr>
                       ))}
