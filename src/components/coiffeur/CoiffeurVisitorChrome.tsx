@@ -20,7 +20,6 @@ import {
   COIFFEUR_UMBRELLA_LINE_AR,
 } from '@/config/coiffeurMapUmbrella';
 import { SUMMI_HUB_PATH, SUMMI_SITE_ORIGIN } from '@/config/summiCoiffeurRegistry';
-import { KSACityClocksBar } from '@/components/KSACityClocksBar';
 import { CoiffeurStatusTicker } from '@/components/coiffeur/CoiffeurStatusTicker';
 import { cn } from '@/lib/utils';
 
@@ -58,7 +57,6 @@ export function CoiffeurVisitorHeader({ brandTo, sticky = true }: HeaderProps) {
       )}
     >
       <CoiffeurStatusTicker />
-      {!isMobile ? <KSACityClocksBar /> : null}
       <div
         className={cn(
           'mx-auto flex max-w-6xl items-center px-4',

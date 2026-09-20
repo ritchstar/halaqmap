@@ -47,7 +47,6 @@ import { findFilterIntentLandingBySlug } from '@/config/filterIntentLandingRegis
 import { findGeoNearByPathKey } from '@/config/geoNearRegistry';
 import { readHashQueryParam } from '@/lib/hashQueryParams';
 import { LocationStatusBar } from '@/components/LocationStatusBar';
-import { KSACityClocksBar } from '@/components/KSACityClocksBar';
 import { PlatformTlsTrustBadge } from '@/components/PlatformTlsTrustBadge';
 import { PlatformAmbientToggle } from '@/components/PlatformAmbientToggle';
 import { usePlatformAmbient } from '@/context/PlatformAmbientContext';
@@ -898,11 +897,6 @@ export default function LandingPreview() {
               ? 'bg-[#020912]/92'
               : 'bg-[#020912]/85 backdrop-blur-xl'
         }`} />
-
-        {/* ── شريط مدن المملكة — ارتفاع محجوز على سطح المكتب لتفادي CLS ── */}
-        <div className="relative min-h-0 border-b border-teal-400/10 md:min-h-[72px]">
-          {!isMobile ? <KSACityClocksBar /> : null}
-        </div>
 
         {/* ── التنقل الرئيسي ─────────────────────────────── */}
         <div className="relative min-h-[3.5rem] md:min-h-[4rem]">

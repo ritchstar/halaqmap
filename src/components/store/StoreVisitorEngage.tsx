@@ -10,8 +10,9 @@ import { Link, useLocation } from 'react-router-dom';
 import { Share2, Star, X, Check, Copy, MessageCircle } from 'lucide-react';
 import { STORE_ENGAGE_COPY, STORE_ORIGIN, STORE_PUBLIC_NAME_AR } from '@/config/storeFront';
 import { STORE_REVIEWS_COPY, STORE_REVIEWS_PUBLIC_ENABLED } from '@/config/storeReviews';
+import { STORE_GENERAL_TRIAL_PUBLIC_ENABLED } from '@/config/storeProductTrial';
 import { ROUTE_PATHS } from '@/lib/routePaths';
-import { isStoreHomePath, isStoreProductLandingPath } from '@/lib/storeHmTube';
+import { isStoreHomePath, isStoreProductLandingPath, storeTrialLandingKeyForPath } from '@/lib/storeHmTube';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 
@@ -137,6 +138,9 @@ export function StoreVisitorEngage() {
   const compactProductLanding = isMobile && isStoreProductLandingPath(location.pathname);
   /** على الرئيسية للجوال تنتقل المشاركة إلى الفوتر. */
   const hideFloatingShare = isMobile && isStoreHomePath(location.pathname);
+  // بنر «اطلب تجربتك المجانية الآن» عائم بعرض كامل أسفل الشاشة على هذه الصفحات
+  // نفسها — نرفع مجموعة التفاعل فوقه لتفادي التداخل.
+  const showsTrialBanner = STORE_GENERAL_TRIAL_PUBLIC_ENABLED && Boolean(storeTrialLandingKeyForPath(location.pathname));
   if (hideForStickyBuy) return null;
 
   const close = useCallback(() => {
@@ -158,7 +162,10 @@ export function StoreVisitorEngage() {
   if (compactProductLanding) {
     return (
       <div
-        className="fixed bottom-4 left-4 z-40 pb-[env(safe-area-inset-bottom,0px)] sm:bottom-6 sm:left-6"
+        className={cn(
+          'fixed left-4 z-40 pb-[env(safe-area-inset-bottom,0px)] sm:left-6',
+          showsTrialBanner ? 'bottom-20 sm:bottom-24' : 'bottom-4 sm:bottom-6',
+        )}
         data-store-visitor-engage="1"
       >
         {panel === 'share' ? (
@@ -250,7 +257,10 @@ export function StoreVisitorEngage() {
 
   return (
     <div
-      className="fixed bottom-4 left-4 z-40 flex flex-col items-start gap-2 pb-[env(safe-area-inset-bottom,0px)] sm:bottom-6 sm:left-6"
+      className={cn(
+        'fixed left-4 z-40 flex flex-col items-start gap-2 pb-[env(safe-area-inset-bottom,0px)] sm:left-6',
+        showsTrialBanner ? 'bottom-20 sm:bottom-24' : 'bottom-4 sm:bottom-6',
+      )}
       data-store-visitor-engage="1"
     >
       {panel === 'share' && showShare ? (

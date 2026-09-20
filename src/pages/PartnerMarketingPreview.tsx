@@ -25,7 +25,6 @@ import { ROUTE_PATHS } from '@/lib/index';
 import { STORE_ORIGIN } from '@/lib/storeHostRedirect';
 import { PUBLIC_PULSE_EXPERIENCE_ENABLED } from '@/config/publicPulseExperience';
 import { PULSE_MAP_LINK_LABEL_AR } from '@/config/pulseMapConfig';
-import { KSACityClocksBar } from '@/components/KSACityClocksBar';
 import { FloatingPlatformActions } from '@/components/FloatingPlatformActions';
 import { useIsMobile } from '@/hooks/use-mobile';
 import {
@@ -679,13 +678,6 @@ export default function PartnerMarketingPreview() {
           'pointer-events-none absolute inset-0 -z-10 border-b border-white/10 bg-[#020912]/90 shadow-[0_12px_40px_rgba(0,0,0,0.35)]',
           isMobile ? 'backdrop-blur-0' : 'backdrop-blur-2xl',
         )} />
-
-        {/* ── شريط مدن المملكة ────────────────────────────────────────── */}
-        {!isMobile ? (
-          <div className="relative min-h-[72px] border-b border-white/10">
-            <KSACityClocksBar />
-          </div>
-        ) : null}
 
         {/* ── التنقل الرئيسي ──────────────────────────────────────────── */}
         <div className="relative">

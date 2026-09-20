@@ -15,7 +15,7 @@ export type KsaCityGeo = {
   baseTemp: number;
 };
 
-/** المدن الـ 10 الظاهرة في `KSACityClocksBar` — ليست قائمة التغطية الكاملة */
+/** مدن مرجعية لتقدير حرارة زائر المتجر — ليست قائمة التغطية الكاملة */
 export const KSA_CITIES_GEO: readonly KsaCityGeo[] = [
   { id: 'riyadh', nameAr: 'الرياض', emoji: '🏙️', accent: 'text-orange-300', lat: 24.7136, lng: 46.6753, baseTemp: 34 },
   { id: 'buraidah', nameAr: 'بريدة', emoji: '🌾', accent: 'text-lime-300', lat: 26.326, lng: 43.975, baseTemp: 33 },

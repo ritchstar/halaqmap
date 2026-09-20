@@ -12,10 +12,9 @@ import { STORE_ABOUT_COPY, STORE_BRAND_LATIN, STORE_CONTACT_EMAIL, STORE_CONTACT
 import { STORE_SAIP_COPY, STORE_SAIP_PUBLIC_WORKS } from '@/config/storeSaipRegistry';
 import { STORE_OPERATORS_DESK_COPY, STORE_OPERATORS_DESK_PUBLIC_ENABLED } from '@/config/storeOperatorsDesk';
 import { STORE_HMTUBE } from '@/config/storeHmTube';
-import { KSACityClocksBar } from '@/components/KSACityClocksBar';
 import { StoreBrandMark } from '@/components/store/StoreBrandMark';
 import { StoreLandingFooterShare, StoreVisitorEngage } from '@/components/store/StoreVisitorEngage';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { StoreTrialCtaBanner } from '@/components/store/StoreTrialCtaBanner';
 import { rememberStoreAffiliateRef } from '@/lib/storeAffiliateRef';
 import { isStoreProductLandingPath } from '@/lib/storeHmTube';
 import { cn } from '@/lib/utils';
@@ -93,14 +92,12 @@ export function StoreHmTubeHero() {
 }
 
 export function StoreVisitorHeader() {
-  const isMobile = useIsMobile();
   const location = useLocation();
   const onGiftPage = location.pathname.startsWith(ROUTE_PATHS.STORE_GIFT);
   const showGiftCta = STORE_GIFT_CAMPAIGN_PUBLIC_ENABLED && !onGiftPage;
   const showHmTube = isStoreProductLandingPath(location.pathname);
   return (
     <div className="border-b border-[#dac8aa] bg-[#eee2ce]/92" data-store-visitor-header="1">
-      {!isMobile ? <KSACityClocksBar /> : null}
       <header className="backdrop-blur">
         <div className="store-visitor-header__row mx-auto flex max-w-5xl min-w-0 items-center gap-2 overflow-x-clip px-3 py-2 md:flex-wrap md:gap-3 md:px-4 md:py-3">
           <Link to={ROUTE_PATHS.STORE_LANDING} className="flex min-w-0 items-center gap-3 me-auto md:gap-4">
@@ -161,6 +158,7 @@ export function StoreVisitorHeader() {
         </div>
       </header>
       <StoreVisitorEngage />
+      <StoreTrialCtaBanner />
     </div>
   );
 }

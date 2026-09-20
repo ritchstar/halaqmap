@@ -800,36 +800,6 @@
     0 0 0 1px color-mix(in srgb, var(--roo-accent-from) 22%, white) !important;
 }
 
-/* City clocks bar hard override: remove dark shell */
-.roo-light-clone .platform-dark.platform-ambient .ksa-clocks-bar {
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--roo-surface-2) 84%, white) 0%,
-    color-mix(in srgb, var(--roo-surface-1) 94%, white) 55%,
-    color-mix(in srgb, var(--roo-surface-2) 82%, white) 100%
-  ) !important;
-  border-bottom: 1px solid color-mix(in srgb, var(--roo-accent-from) 35%, white) !important;
-  box-shadow: 0 10px 24px -20px rgba(15, 23, 42, 0.25) !important;
-}
-
-.roo-light-clone .platform-dark.platform-ambient .ksa-clocks-bar .ksa-clocks-time-main {
-  color: var(--roo-text-strong) !important;
-}
-
-.roo-light-clone .platform-dark.platform-ambient .ksa-clocks-bar :is(
-  .ksa-clocks-time-sec,
-  .ksa-clocks-live-label,
-  .ksa-clocks-city-name,
-  .ksa-clocks-weather-unit,
-  .ksa-clocks-weather-meta
-) {
-  color: var(--roo-text-normal) !important;
-}
-
-.roo-light-clone .platform-dark.platform-ambient .ksa-clocks-bar .ksa-clocks-weather-city {
-  color: var(--roo-text-strong) !important;
-}
-
 /* Lab radar mood: comfort + safety (not military) */
 .roo-light-clone .pulse-map-page--lab {
   background: linear-gradient(
@@ -3374,27 +3344,9 @@ html.platform-radar-fullscreen #root {
   will-change: transform;
 }
 
-@keyframes ksa-clocks-scan-sweep {
-  0% {
-    transform: translateX(-32%);
-  }
-  100% {
-    transform: translateX(132%);
-  }
-}
-
-.ksa-clocks-scanline {
-  left: -22%;
-  animation: ksa-clocks-scan-sweep 18s linear infinite;
-  will-change: transform;
-}
-
 @media (prefers-reduced-motion: reduce) {
   .tactical-sweep-rotor,
   .tactical-heartbeat-ring {
-    animation: none;
-  }
-  .ksa-clocks-scanline {
     animation: none;
   }
   .store-halaqmap-ops-marquee-track,

@@ -18,7 +18,6 @@ import { PLATFORM_IDENTITY_BOILERPLATE_AR } from '@/config/platformIdentity';
 import { PlatformTrustStrip } from '@/components/PlatformTrustStrip';
 import { SOFTWARE_SERVICES_PORTAL_LABEL } from '@/config/partnerPortal';
 import { LicenseRechargeWidget } from '@/components/billing/LicenseRechargeWidget';
-import { KSACityClocksBar } from '@/components/KSACityClocksBar';
 import { FloatingPlatformActions } from '@/components/FloatingPlatformActions';
 import { PlatformVoluntaryEngagementStrip } from '@/components/platformEngagement/PlatformVoluntaryEngagementStrip';
 import { PlatformContinuousDevelopmentNotice } from '@/components/platform/PlatformContinuousDevelopmentNotice';
@@ -91,9 +90,6 @@ export function Layout({ children }: LayoutProps) {
       />
 
       {deferMobileExtras ? <PlatformAmbientBackground variant="default" /> : null}
-
-      {/* شريط توقيت مدن المملكة */}
-      {!isMobile || deferMobileExtras ? <KSACityClocksBar /> : null}
 
       {/* ── التنقل الرئيسي — داكن زجاجي ──────────────────────────────── */}
       <header className={cn(
