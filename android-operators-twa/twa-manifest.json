@@ -2,7 +2,7 @@
   "packageId": "com.halaqmap.operators",
   "host": "store.halaqmap.com",
   "name": "لوحة مشغّلي خريطة الحل",
-  "launcherName": "لوحة المشغّلين",
+  "launcherName": "HMOps",
   "display": "standalone",
   "themeColor": "#E8C547",
   "themeColorDark": "#061018",

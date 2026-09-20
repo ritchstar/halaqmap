@@ -17,6 +17,9 @@ export const OPERATORS_APP_DISPLAY_NAME_AR = 'لوحة مشغّلي منصة خ�
 /** الاسم المختصر تحت الأيقونة */
 export const OPERATORS_APP_LAUNCHER_NAME_AR = 'لوحة المشغّلين' as const;
 
+/** الاسم اللاتيني المختصر — يظهر تحت أيقونة التطبيق (iOS/Android) وكـ short_name للـ PWA */
+export const OPERATORS_APP_NAME_LATIN = 'HMOps' as const;
+
 /** نقطة الدخول الحيّة للغلاف */
 export const OPERATORS_APP_LIVE_ORIGIN = 'https://store.halaqmap.com' as const;
 

@@ -25,3 +25,6 @@ export const STORE_OPERATORS_PLAY_STORE_SHARE_URL =
 export const STORE_OPERATORS_APP_DISPLAY_NAME_AR = 'لوحة مشغّلي منصة خريطة الحل' as const;
 
 export const STORE_OPERATORS_APP_LAUNCHER_NAME_AR = 'لوحة المشغّلين' as const;
+
+/** الاسم اللاتيني المختصر — يظهر تحت أيقونة التطبيق (iOS/Android) وكـ short_name للـ PWA */
+export const STORE_OPERATORS_APP_NAME_LATIN = 'HMOps' as const;

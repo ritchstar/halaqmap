@@ -9,14 +9,15 @@ import type { CapacitorConfig } from '@capacitor/cli';
 import {
   OPERATORS_APP_ALLOWED_HOSTS,
   OPERATORS_APP_BACKGROUND_COLOR,
-  OPERATORS_APP_DISPLAY_NAME_AR,
   OPERATORS_APP_LIVE_URL,
+  OPERATORS_APP_NAME_LATIN,
   OPERATORS_APP_PACKAGE_ID,
 } from '../src/config/operatorsAppShell';
 
 const config: CapacitorConfig = {
   appId: OPERATORS_APP_PACKAGE_ID,
-  appName: OPERATORS_APP_DISPLAY_NAME_AR,
+  // اسم لاتيني مختصر (HMOps) بدل النص العربي الطويل، ليظهر بوضوح تحت أيقونة iOS.
+  appName: OPERATORS_APP_NAME_LATIN,
   webDir: 'web',
   backgroundColor: OPERATORS_APP_BACKGROUND_COLOR,
   server: {
