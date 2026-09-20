@@ -128,4 +128,39 @@ for (const relPath of [
   );
 }
 
+// طلب المستخدم: نقل الرادار (رادار المملكة) بالكامل إلى ما بعد نتائج
+// البحث في تسلسل الصفحة (بدل عمود ثالث بجانب الهيرو)، وتوسيط زر تحديد
+// الموقع (GeoRadarButton — "أيقونة البحث") في عرض الصفحة كاملاً بدل حصره
+// داخل عمود النص الضيق.
+{
+  const source = readFileSync(join(root, 'src/pages/LandingPreview.tsx'), 'utf8');
+  const searchResultsIdx = source.indexOf('<LandingSearchResults');
+  const radarIdx = source.indexOf('<LandingPulseRadarHero');
+  assert.ok(
+    searchResultsIdx > -1 && radarIdx > -1,
+    'الصفحة الرئيسية: يجب أن يوجد كل من نتائج البحث والرادار',
+  );
+  assert.ok(
+    radarIdx > searchResultsIdx,
+    'الرادار (رادار المملكة) يجب أن يظهر في تسلسل الصفحة بعد نتائج البحث، لا قبلها أو بجانبها',
+  );
+  // الرادار يجب ألا يعود عموداً ثالثاً داخل شبكة الهيرو ثلاثية الأعمدة القديمة.
+  assert.doesNotMatch(
+    source,
+    /grid-cols-\[minmax\(0,1\.2fr\)_auto_minmax\(0,440px\)\]/,
+    'شبكة الهيرو يجب ألا تحجز عموداً ثالثاً للرادار بعد نقله خارج الهيرو',
+  );
+  // زر تحديد الموقع (أيقونة البحث) يجب أن يكون داخل حاوية بعرض الصفحة
+  // كاملاً (max-w-7xl) وموسَّطة، بدل الانحصار داخل عمود النص الضيق كما كان سابقاً.
+  const geoButtonIdx = source.indexOf('<GeoRadarButton');
+  const wideCenteredWrapperIdx = source.lastIndexOf(
+    'mx-auto mt-2 flex w-full max-w-7xl flex-col items-center gap-4 px-5 pb-4',
+    geoButtonIdx,
+  );
+  assert.ok(
+    wideCenteredWrapperIdx > -1,
+    'زر تحديد الموقع (GeoRadarButton) يجب أن يكون داخل حاوية موسّعة (max-w-7xl) وموسَّطة في عرض الصفحة',
+  );
+}
+
 console.log('landing-partners-light-theme: ok');

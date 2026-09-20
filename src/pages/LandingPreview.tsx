@@ -1023,10 +1023,10 @@ export default function LandingPreview() {
             'relative z-10 mx-auto grid w-full min-w-0 max-w-7xl items-center px-5',
             isMobile
               ? 'gap-6 py-6'
-              : 'gap-6 py-12 lg:grid-cols-[minmax(0,1.2fr)_auto_minmax(0,440px)] lg:gap-5 lg:py-20 xl:gap-8',
+              : 'gap-6 py-12 lg:grid-cols-[minmax(0,1.2fr)_auto] lg:gap-5 lg:py-20 xl:gap-8',
           )}
         >
-          {/* عمود النص (يمين في RTL) — min-w-0 يمنع انهيار العمود أمام الرادار */}
+          {/* عمود النص (يمين في RTL) — min-w-0 يمنع انهيار العمود */}
           <motion.div
             initial={false}
             animate={{ opacity: 1, x: 0 }}
@@ -1068,31 +1068,6 @@ export default function LandingPreview() {
             </p>
             ) : null}
 
-            {/* زر الاستعلام — موضعه الأساسي قبل الفلاتر (سطح المكتب) */}
-            {!isMobile ? (
-            <div className="mb-5 flex w-full flex-col items-center gap-4">
-              <GeoRadarButton
-                onLocationDetected={handleLocationDetected}
-                onLocationReset={() => setUserLocation(null)}
-              />
-              {userLocation && (
-                <div className="flex flex-col items-center gap-2.5">
-                  <motion.button
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    onClick={() => resultsRef.current?.scrollIntoView({ behavior: 'smooth' })}
-                    className="flex items-center gap-2 rounded-2xl border border-teal-400/30 bg-teal-500/10 px-5 py-2.5 text-sm font-semibold text-teal-700 hover:bg-teal-500/20 transition-all"
-                  >
-                    <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-teal-400" />
-                    {remoteStatus === 'loading'
-                      ? 'يجري تصنيف الخدمات…'
-                      : 'اعرض الخدمات المتاحة'}
-                  </motion.button>
-                </div>
-              )}
-            </div>
-            ) : null}
-
             {isMobile ? (
             <div className="mb-3">
               <VisitorTrustTriad variant="chips" />
@@ -1113,7 +1088,7 @@ export default function LandingPreview() {
             ) : null}
           </motion.div>
 
-          {/* عمود الفلاتر الرأسي — بين الاستعلام والرادار */}
+          {/* عمود الفلاتر الرأسي */}
           {!isMobile ? (
           <motion.div
             initial={skipHeroMotion ? false : { opacity: 0, y: 12 }}
@@ -1131,38 +1106,32 @@ export default function LandingPreview() {
           </motion.div>
           ) : null}
 
-          {/* الرادار — يسار الهيرو في RTL */}
-          {!isMobile ? (
-          <motion.div
-            initial={skipHeroMotion ? false : { opacity: 0, scale: 0.92 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: skipHeroMotion ? 0 : 0.3, duration: skipHeroMotion ? 0 : 0.8 }}
-            className="relative min-w-0 w-full"
-          >
-            <div className="relative mx-auto w-full max-w-[440px] min-w-0 overflow-hidden">
-              <LandingLazyBoundary
-                fallback={
-                  <div
-                    className="aspect-square w-full max-w-[440px] rounded-full bg-teal-500/[0.06] ring-1 ring-teal-400/15"
-                    aria-hidden
-                  />
-                }
-              >
-                <Suspense
-                  fallback={
-                    <div
-                      className="aspect-square w-full max-w-[440px] rounded-full bg-teal-500/[0.06] ring-1 ring-teal-400/15"
-                      aria-hidden
-                    />
-                  }
-                >
-                  <LandingPulseRadarHero />
-                </Suspense>
-              </LandingLazyBoundary>
-            </div>
-          </motion.div>
-          ) : null}
         </div>
+
+        {/* زر الاستعلام — منتصف الصفحة أسفل الهيرو (سطح المكتب) */}
+        {!isMobile ? (
+        <div className="relative z-10 mx-auto mt-2 flex w-full max-w-7xl flex-col items-center gap-4 px-5 pb-4">
+          <GeoRadarButton
+            onLocationDetected={handleLocationDetected}
+            onLocationReset={() => setUserLocation(null)}
+          />
+          {userLocation && (
+            <div className="flex flex-col items-center gap-2.5">
+              <motion.button
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                onClick={() => resultsRef.current?.scrollIntoView({ behavior: 'smooth' })}
+                className="flex items-center gap-2 rounded-2xl border border-teal-400/30 bg-teal-500/10 px-5 py-2.5 text-sm font-semibold text-teal-700 hover:bg-teal-500/20 transition-all"
+              >
+                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-teal-400" />
+                {remoteStatus === 'loading'
+                  ? 'يجري تصنيف الخدمات…'
+                  : 'اعرض الخدمات المتاحة'}
+              </motion.button>
+            </div>
+          )}
+        </div>
+        ) : null}
 
         {/* Scroll indicator */}
         {!isMobile && !skipHeroMotion ? (
@@ -1216,6 +1185,33 @@ export default function LandingPreview() {
             </div>
           ) : null}
         </div>
+      ) : null}
+
+      {/* ── رادار المملكة — بعد نتائج البحث مباشرة (سطح المكتب) ──────────── */}
+      {!isMobile ? (
+        <section className="relative z-10 bg-[#fbf6ec] py-14">
+          <div className="mx-auto w-full max-w-[440px] px-5">
+            <LandingLazyBoundary
+              fallback={
+                <div
+                  className="aspect-square w-full max-w-[440px] rounded-full bg-teal-500/[0.06] ring-1 ring-teal-400/15"
+                  aria-hidden
+                />
+              }
+            >
+              <Suspense
+                fallback={
+                  <div
+                    className="aspect-square w-full max-w-[440px] rounded-full bg-teal-500/[0.06] ring-1 ring-teal-400/15"
+                    aria-hidden
+                  />
+                }
+              >
+                <LandingPulseRadarHero />
+              </Suspense>
+            </LandingLazyBoundary>
+          </div>
+        </section>
       ) : null}
 
       {selectedBarber ? (
