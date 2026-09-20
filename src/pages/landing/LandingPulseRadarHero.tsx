@@ -32,7 +32,7 @@ export function LandingPulseRadarHero() {
   );
 
   return (
-    <div className="relative overflow-hidden rounded-3xl border border-teal-400/20 bg-[#030d1a] p-5 shadow-2xl shadow-teal-500/10">
+    <div className="relative overflow-hidden rounded-3xl border border-teal-400/20 bg-[#fbf6ec] p-5 shadow-2xl shadow-teal-500/10">
       <div className="flex items-start justify-between gap-3">
         <div>
           <div className="inline-flex items-center gap-2 rounded-full border border-teal-400/25 bg-teal-500/10 px-3 py-1 text-[0.72rem] font-bold text-teal-100">
@@ -44,8 +44,8 @@ export function LandingPulseRadarHero() {
             </span>
             نبض المنصة
           </div>
-          <h3 className="mt-3 text-xl font-black leading-snug text-white">رادار المملكة — نبض حي</h3>
-          <p className="mt-2 text-sm leading-relaxed text-slate-300">
+          <h3 className="mt-3 text-xl font-black leading-snug text-[#2e2418]">رادار المملكة — نبض حي</h3>
+          <p className="mt-2 text-sm leading-relaxed text-[#3d3226]">
             إشارات خفيفة من مدن المملكة — نظام الرصد الذكي يعمل في الخلفية بينما تبحث عن خدمتك.
           </p>
         </div>
@@ -53,7 +53,7 @@ export function LandingPulseRadarHero() {
       </div>
 
       <div
-        className="relative mt-4 w-full overflow-hidden rounded-2xl border border-white/8 bg-black shadow-inner"
+        className="relative mt-4 w-full overflow-hidden rounded-2xl border border-[#dac8aa] bg-[#2e2418] shadow-inner"
         style={{ height: MAP_HEIGHT_PX }}
       >
         <div

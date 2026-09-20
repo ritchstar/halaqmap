@@ -27,12 +27,12 @@ export function VisitorTrustTriad({ compact = false, variant = 'cards' }: Props)
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 + i * 0.05 }}
               title={item.description}
-              className="flex min-w-0 flex-1 flex-col items-center gap-1 rounded-lg border border-white/8 bg-white/[0.03] px-1 py-2"
+              className="flex min-w-0 flex-1 flex-col items-center gap-1 rounded-lg border border-[#dac8aa] bg-[#fbf6ec] px-1 py-2"
             >
               <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-teal-500/15">
                 <Icon className="h-3 w-3 text-teal-300" aria-hidden />
               </div>
-              <span className="w-full truncate text-center text-[0.62rem] font-bold leading-tight text-white/90">
+              <span className="w-full truncate text-center text-[0.62rem] font-bold leading-tight text-[#2e2418]/90">
                 {item.chipLabel}
               </span>
             </motion.div>
@@ -55,15 +55,15 @@ export function VisitorTrustTriad({ compact = false, variant = 'cards' }: Props)
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15 + i * 0.06 }}
-            className="rounded-xl border border-white/8 bg-white/[0.03] px-4 py-3"
+            className="rounded-xl border border-[#dac8aa] bg-[#fbf6ec] px-4 py-3"
           >
             <div className="mb-2 flex items-center gap-2">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-teal-500/15">
                 <Icon className="h-4 w-4 text-teal-300" />
               </div>
-              <p className={cn('font-bold text-white', compact ? 'text-xs' : 'text-sm')}>{item.title}</p>
+              <p className={cn('font-bold text-[#2e2418]', compact ? 'text-xs' : 'text-sm')}>{item.title}</p>
             </div>
-            <p className={cn('leading-relaxed text-slate-400', compact ? 'text-[0.68rem]' : 'text-xs')}>
+            <p className={cn('leading-relaxed text-[#6f6250]', compact ? 'text-[0.68rem]' : 'text-xs')}>
               {item.description}
             </p>
           </motion.div>

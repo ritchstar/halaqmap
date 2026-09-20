@@ -53,13 +53,13 @@ export function LandingSearchResults({
             onIntentChange={(next) => onFilterChange(next)}
           />
         ) : null}
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-3 md:p-4">
+        <div className="rounded-2xl border border-[#dac8aa] bg-[#fbf6ec] p-3 md:p-4">
           <FilterBar filters={filters} onFilterChange={onFilterChange} defaultExpanded={isMobile} />
         </div>
       </div>
 
       <div className="mx-auto max-w-7xl px-5 pb-4">
-        <div className="overflow-hidden rounded-2xl border border-white/10 shadow-2xl shadow-teal-500/5">
+        <div className="overflow-hidden rounded-2xl border border-[#dac8aa] shadow-2xl shadow-teal-500/5">
           <BarberMap
             barbers={mapBarbers}
             userLocation={userLocation}
@@ -106,7 +106,7 @@ export function LandingSearchResults({
               >
                 <MapPin className="h-10 w-10 text-teal-400" />
               </motion.div>
-              <h3 className="mb-2 text-xl font-bold text-white">
+              <h3 className="mb-2 text-xl font-bold text-[#2e2418]">
                 {remoteStatus === 'loading' ? 'جارٍ عرض الخدمات المتاحة…' : 'لا نتائج متاحة في هذا النطاق'}
               </h3>
               <p className="text-sm text-slate-400">جرّب توسيع نطاق البحث من شريط الفلاتر أعلاه</p>

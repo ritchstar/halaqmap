@@ -86,9 +86,7 @@ import {
   OWNER_WATCH_LISTING_GOLD_HIGHLIGHT_AR,
 } from '@/config/ownerWatchFeatureCopy';
 import { routeToBuyPackage } from '@/lib/buyPackageRouter';
-import { PlatformAmbientToggle } from '@/components/PlatformAmbientToggle';
 import { PlatformTrustStrip } from '@/components/PlatformTrustStrip';
-import { usePlatformAmbient } from '@/context/PlatformAmbientContext';
 import { cn } from '@/lib/utils';
 import { MOBILE_PARTNER_ACTION_DOCK_CLEARANCE } from '@/lib/mobilePageShell';
 
@@ -143,7 +141,7 @@ function FeatureCard({ icon: Icon, title, desc, color, delay = 0, badge }: {
       initial={{ opacity: 0, y: 20 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
       transition={{ delay, duration: 0.5 }}
-      className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] p-5 shadow-[0_16px_40px_rgba(2,9,18,0.35)] transition-all hover:border-cyan-400/30 hover:shadow-[0_18px_42px_rgba(20,184,166,0.12)]"
+      className="group relative overflow-hidden rounded-2xl border border-[#dac8aa] bg-[#fbf6ec] p-5 shadow-[0_16px_40px_rgba(2,9,18,0.35)] transition-all hover:border-cyan-400/30 hover:shadow-[0_18px_42px_rgba(20,184,166,0.12)]"
       dir="rtl"
     >
       {badge && (
@@ -152,10 +150,10 @@ function FeatureCard({ icon: Icon, title, desc, color, delay = 0, badge }: {
         </div>
       )}
       <div className={`mb-3 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br ${color}`}>
-        <Icon className="h-5 w-5 text-white" />
+        <Icon className="h-5 w-5 text-[#2e2418]" />
       </div>
-      <h3 className="mb-1.5 text-base font-bold text-white">{title}</h3>
-      <p className="text-sm leading-relaxed text-slate-300">{desc}</p>
+      <h3 className="mb-1.5 text-base font-bold text-[#2e2418]">{title}</h3>
+      <p className="text-sm leading-relaxed text-[#3d3226]">{desc}</p>
       <div className={`absolute -bottom-8 -left-8 h-24 w-24 rounded-full bg-gradient-to-br ${color} opacity-0 blur-3xl transition-opacity duration-500 group-hover:opacity-15`} />
     </motion.div>
   );
@@ -231,7 +229,7 @@ function PricingCard({
               className="text-[0.6rem] text-violet-700 underline transition-colors hover:text-violet-900">
               دليل الاستخدام ←
             </button>
-            <span className="text-slate-300">·</span>
+            <span className="text-[#3d3226]">·</span>
             <button onClick={() => navigate(ROUTE_PATHS.DIGITAL_SHIFT_FEATURE)}
               className="text-[0.6rem] text-violet-700 underline transition-colors hover:text-violet-900">
               شرح تقني ←
@@ -391,7 +389,7 @@ const CERTIFICATE_MOCK_DATA: Record<
   diamond: {
     accentBorder: 'border-cyan-300/60',
     accentGlow: 'shadow-cyan-400/28',
-    badgeTone: 'border border-cyan-200/50 bg-cyan-500/18 text-white',
+    badgeTone: 'border border-cyan-200/50 bg-cyan-500/18 text-[#2e2418]',
     statusTone: 'text-cyan-50',
     footerTone: 'border-cyan-200/30 bg-cyan-500/14',
     statusLabel: 'نشطة',
@@ -531,15 +529,6 @@ export default function PartnerMarketingPreview() {
   const isMobile = useIsMobile();
   const isStrictPartnerPath =
     location.pathname === ROUTE_PATHS.BARBERS_LANDING || location.pathname.startsWith('/partners/');
-  useEffect(() => {
-    document.documentElement.classList.add('hm-app-dark-canvas');
-    document.documentElement.style.background = '#020912';
-    return () => {
-      document.documentElement.classList.remove('hm-app-dark-canvas');
-      document.documentElement.style.background = '';
-    };
-  }, []);
-  const { effectivePhase, control } = usePlatformAmbient();
   const [activeTab, setActiveTab] = useState<'bronze' | 'gold' | 'diamond'>('gold');
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [ideaBriefOpen, setIdeaBriefOpen] = useState(false);
@@ -598,30 +587,28 @@ export default function PartnerMarketingPreview() {
   return (
     <div
       dir="rtl"
-      className="platform-dark platform-ambient relative min-h-screen overflow-x-hidden bg-[linear-gradient(160deg,#020912_0%,#040d1a_50%,#020912_100%)] text-slate-100"
+      className="store-light-canvas relative min-h-screen overflow-x-hidden bg-[linear-gradient(160deg,#eee2ce_0%,#f3e9d4_50%,#eee2ce_100%)] text-[#2e2418]"
       style={{ fontFamily: 'Tajawal, system-ui' }}
-      data-ambient-phase={effectivePhase}
-      data-ambient-control={control}
     >
       <PartnerLandingSeoHead />
       <Dialog open={ideaBriefOpen} onOpenChange={setIdeaBriefOpen}>
         <DialogContent
           dir="rtl"
-          className="max-h-[85vh] overflow-y-auto border-teal-400/30 bg-[#041018] text-slate-100 sm:max-w-lg"
+          className="max-h-[85vh] overflow-y-auto border-teal-400/30 bg-[#fbf6ec] text-[#2e2418] sm:max-w-lg"
         >
           <DialogHeader className="space-y-3 text-right">
-            <DialogTitle className="text-right text-xl font-black leading-8 text-white">
+            <DialogTitle className="text-right text-xl font-black leading-8 text-[#2e2418]">
               الفكرة باختصار
             </DialogTitle>
-            <DialogDescription className="text-right text-sm leading-8 text-slate-300">
+            <DialogDescription className="text-right text-sm leading-8 text-[#3d3226]">
               {PARTNER_HERO_MATCH_CLARIFICATION_AR}
             </DialogDescription>
           </DialogHeader>
           <ol className="space-y-3">
             {PARTNER_JOIN_JOURNEY_STEPS.map((point) => (
-              <li key={point.title} className="rounded-xl border border-white/10 bg-white/5 px-4 py-3">
+              <li key={point.title} className="rounded-xl border border-[#dac8aa] bg-[#fbf6ec] px-4 py-3">
                 <p className="text-sm font-black text-teal-200">{point.title}</p>
-                <p className="mt-1 text-sm leading-7 text-slate-300">{point.body}</p>
+                <p className="mt-1 text-sm leading-7 text-[#3d3226]">{point.body}</p>
               </li>
             ))}
           </ol>
@@ -639,7 +626,7 @@ export default function PartnerMarketingPreview() {
             <Link
               to={ROUTE_PATHS.PARTNER_SALES_OFFICE}
               onClick={() => setIdeaBriefOpen(false)}
-              className="inline-flex flex-1 items-center justify-center rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm font-bold text-slate-100"
+              className="inline-flex flex-1 items-center justify-center rounded-xl border border-[#dac8aa] bg-[#fbf6ec] px-4 py-3 text-sm font-bold text-[#2e2418]"
             >
               التفاصيل في مكتب المبيعات
             </Link>
@@ -675,7 +662,7 @@ export default function PartnerMarketingPreview() {
         <div className="relative isolate">
         {/* خلفية زجاجية — خلف التنقل فقط، لا تغطي شريط الفحص */}
         <div className={cn(
-          'pointer-events-none absolute inset-0 -z-10 border-b border-white/10 bg-[#020912]/90 shadow-[0_12px_40px_rgba(0,0,0,0.35)]',
+          'pointer-events-none absolute inset-0 -z-10 border-b border-[#dac8aa] bg-[#eee2ce]/90 shadow-[0_12px_40px_rgba(0,0,0,0.35)]',
           isMobile ? 'backdrop-blur-0' : 'backdrop-blur-2xl',
         )} />
 
@@ -704,14 +691,14 @@ export default function PartnerMarketingPreview() {
               </div>
               <div className="leading-tight">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-[0.95rem] font-black tracking-wide text-white">حلاق ماب</span>
+                  <span className="text-[0.95rem] font-black tracking-wide text-[#2e2418]">حلاق ماب</span>
                   <motion.div
                     animate={{ opacity: [0.4, 1, 0.4] }}
                     transition={{ duration: 2.5, repeat: Infinity }}
                     className="h-1.5 w-1.5 rounded-full bg-teal-500"
                   />
                 </div>
-                <div className="text-[0.48rem] font-bold tracking-[0.25em] text-slate-400">مسار الشركاء · B2B</div>
+                <div className="text-[0.48rem] font-bold tracking-[0.25em] text-[#6f6250]">مسار الشركاء · B2B</div>
               </div>
               {/* شارة الشركاء */}
               <div className="hidden items-center gap-1 rounded-full border border-emerald-400/30 bg-emerald-500/10 px-2.5 py-1 sm:flex">
@@ -727,17 +714,17 @@ export default function PartnerMarketingPreview() {
               <button
                 type="button"
                 onClick={goToIdeaBrief}
-                className="group flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-[0.78rem] font-semibold text-slate-300 transition-all hover:bg-white/10 hover:text-white cursor-pointer"
+                className="group flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-[0.78rem] font-semibold text-[#3d3226] transition-all hover:bg-[#fbf6ec] hover:text-[#2e2418] cursor-pointer"
               >
-                <Sparkles className="h-3.5 w-3.5 text-teal-300/80 transition-colors group-hover:text-teal-200" />
+                <Sparkles className="h-3.5 w-3.5 text-teal-600 transition-colors group-hover:text-teal-700" />
                 الفكرة باختصار
               </button>
               <button
                 type="button"
                 onClick={() => scrollToSection('الأسعار')}
-                className="group flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-[0.78rem] font-semibold text-slate-300 transition-all hover:bg-white/10 hover:text-white cursor-pointer"
+                className="group flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-[0.78rem] font-semibold text-[#3d3226] transition-all hover:bg-[#fbf6ec] hover:text-[#2e2418] cursor-pointer"
               >
-                <Crown className="h-3.5 w-3.5 text-teal-300/80 transition-colors group-hover:text-teal-200" />
+                <Crown className="h-3.5 w-3.5 text-teal-600 transition-colors group-hover:text-teal-700" />
                 الأسعار
               </button>
               <Link
@@ -756,14 +743,14 @@ export default function PartnerMarketingPreview() {
                 <SiWhatsapp className="h-3.5 w-3.5" />
                 واتساب
               </a>
-              <div className="mx-1 h-5 w-px bg-white/15" />
+              <div className="mx-1 h-5 w-px bg-[#fbf6ec]" />
               <Link
                 to={ROUTE_PATHS.HOME}
                 onMouseEnter={warmHomeRoute}
                 onFocus={warmHomeRoute}
                 onPointerDown={warmHomeRoute}
                 onTouchStart={warmHomeRoute}
-                className="group flex items-center gap-1.5 rounded-xl border border-white/15 bg-white/5 px-3.5 py-2 text-[0.78rem] font-semibold text-slate-200 transition-all hover:bg-white/10 hover:text-white"
+                className="group flex items-center gap-1.5 rounded-xl border border-[#dac8aa] bg-[#fbf6ec] px-3.5 py-2 text-[0.78rem] font-semibold text-[#3d3226] transition-all hover:bg-[#f0e6d0] hover:text-[#2e2418]"
               >
                 <Globe2 className="h-3.5 w-3.5" />
                 للمستخدمين
@@ -772,7 +759,6 @@ export default function PartnerMarketingPreview() {
             </nav>
 
             <div className="flex items-center gap-2">
-              <PlatformAmbientToggle variant="partner" className="inline-flex" />
               {!isMobile ? (
               <motion.button
                 onMouseEnter={warmRegisterRoute}
@@ -801,7 +787,7 @@ export default function PartnerMarketingPreview() {
               <button
                 type="button"
                 onClick={() => setMobileNavOpen((open) => !open)}
-                className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/15 bg-white/5 text-white hover:bg-white/10 md:hidden"
+                className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#dac8aa] bg-[#fbf6ec] text-[#2e2418] hover:bg-[#f0e6d0] md:hidden"
                 aria-label="القائمة"
               >
                 <Menu className="h-4 w-4" />
@@ -816,20 +802,20 @@ export default function PartnerMarketingPreview() {
             {mobileNavOpen && (
               <motion.div
                 initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
-                className="relative border-t border-white/10 bg-[#020912]/95 px-4 py-3 md:hidden"
+                className="relative border-t border-[#dac8aa] bg-[#eee2ce]/95 px-4 py-3 md:hidden"
               >
                 <div className="flex flex-col gap-1">
                   <button
                     type="button"
                     onClick={goToIdeaBrief}
-                    className="rounded-xl px-4 py-2.5 text-right text-sm font-semibold text-slate-200 hover:bg-white/10 hover:text-white transition-all"
+                    className="rounded-xl px-4 py-2.5 text-right text-sm font-semibold text-[#3d3226] hover:bg-[#fbf6ec] hover:text-[#2e2418] transition-all"
                   >
                     الفكرة باختصار
                   </button>
                   <button
                     type="button"
                     onClick={() => { setMobileNavOpen(false); scrollToSection('الأسعار'); }}
-                    className="rounded-xl px-4 py-2.5 text-right text-sm font-semibold text-slate-200 hover:bg-white/10 hover:text-white transition-all"
+                    className="rounded-xl px-4 py-2.5 text-right text-sm font-semibold text-[#3d3226] hover:bg-[#fbf6ec] hover:text-[#2e2418] transition-all"
                   >
                     الأسعار
                   </button>
@@ -907,7 +893,7 @@ export default function PartnerMarketingPreview() {
             </div>
 
             <h1 className={cn(
-              'mb-3 font-black leading-[1.1] text-white',
+              'mb-3 font-black leading-[1.1] text-[#2e2418]',
               isMobile ? 'text-[clamp(2rem,8vw,2.6rem)]' : 'mb-4 text-[clamp(2.6rem,5.5vw,4rem)]',
             )}>
               {PARTNER_JOIN_PATH_HERO_TITLE_AR}
@@ -920,7 +906,7 @@ export default function PartnerMarketingPreview() {
               {PARTNER_JOIN_PATH_HERO_HEADLINE_AR}
             </p>
 
-            <div className="mb-5 max-w-xl rounded-2xl border border-cyan-400/25 bg-cyan-500/10 px-4 py-4 text-sm leading-7 text-slate-200">
+            <div className="mb-5 max-w-xl rounded-2xl border border-cyan-400/25 bg-cyan-500/10 px-4 py-4 text-sm leading-7 text-[#3d3226]">
               {PARTNER_HERO_MATCH_CLARIFICATION_AR}
             </div>
 
@@ -932,7 +918,7 @@ export default function PartnerMarketingPreview() {
             </p>
 
             {!isMobile ? (
-              <PlatformTrustStrip variant="strip" tone="dark" className="mb-6 max-w-xl" />
+              <PlatformTrustStrip variant="strip" className="mb-6 max-w-xl" />
             ) : null}
 
             <div className={cn('flex flex-col gap-3', !isMobile && 'sm:flex-row sm:flex-wrap')}>
@@ -964,7 +950,7 @@ export default function PartnerMarketingPreview() {
                 </Link>
               ) : null}
             </div>
-            <p className="mt-3 max-w-xl text-xs leading-relaxed text-slate-400 sm:text-sm">
+            <p className="mt-3 max-w-xl text-xs leading-relaxed text-[#6f6250] sm:text-sm">
               {PARTNER_JOIN_PATH_APP_HINT_AR}
             </p>
 
@@ -986,7 +972,7 @@ export default function PartnerMarketingPreview() {
             transition={{ delay: 0.35, duration: 0.7 }}
             className="relative flex flex-col gap-4 overflow-visible"
           >
-            <p className="mb-4 text-center text-sm font-semibold text-slate-300">
+            <p className="mb-4 text-center text-sm font-semibold text-[#3d3226]">
               هكذا يظهر صالونك للمستعلم بعد التفعيل
             </p>
             <div className="mb-4 flex items-center justify-center gap-2">
@@ -1021,7 +1007,7 @@ export default function PartnerMarketingPreview() {
                 </motion.div>
               );
             })()}
-            <p className="mt-3 text-center text-[0.65rem] text-slate-400">
+            <p className="mt-3 text-center text-[0.65rem] text-[#6f6250]">
               معاينة ثابتة — اختر الباقة · للتفاصيل انتقل لقسم الأسعار
             </p>
           </motion.div>
@@ -1039,16 +1025,16 @@ export default function PartnerMarketingPreview() {
 
       {isMobile && !deferMobilePartnerContent ? null : (
       <>
-      <section id={PARTNER_CORE_VALUE_SECTION.id} className="relative z-10 border-b border-white/10 py-12 md:py-16">
+      <section id={PARTNER_CORE_VALUE_SECTION.id} className="relative z-10 border-b border-[#dac8aa] py-12 md:py-16">
         <div className="mx-auto max-w-4xl px-5 text-right" dir="rtl">
-          <h2 className="text-2xl font-black text-white md:text-3xl">{PARTNER_CORE_VALUE_SECTION.title}</h2>
-          <p className="mt-4 text-base leading-8 text-slate-300">{PARTNER_CORE_VALUE_SECTION.body}</p>
+          <h2 className="text-2xl font-black text-[#2e2418] md:text-3xl">{PARTNER_CORE_VALUE_SECTION.title}</h2>
+          <p className="mt-4 text-base leading-8 text-[#3d3226]">{PARTNER_CORE_VALUE_SECTION.body}</p>
         </div>
       </section>
 
-      <section id="رحلة-الشريك" className="relative z-10 border-b border-white/10 bg-white/[0.02] py-12 md:py-16">
+      <section id="رحلة-الشريك" className="relative z-10 border-b border-[#dac8aa] bg-[#fbf6ec] py-12 md:py-16">
         <div className="mx-auto max-w-5xl px-5" dir="rtl">
-          <h2 className="mb-8 text-center text-2xl font-black text-white md:text-3xl">رحلة الانضمام في ثلاث خطوات</h2>
+          <h2 className="mb-8 text-center text-2xl font-black text-[#2e2418] md:text-3xl">رحلة الانضمام في ثلاث خطوات</h2>
           <div className="grid gap-4 md:grid-cols-3">
             {PARTNER_JOIN_JOURNEY_STEPS.map((step, index) => (
               <motion.div
@@ -1057,11 +1043,11 @@ export default function PartnerMarketingPreview() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.08 }}
-                className="flex min-h-[180px] flex-col rounded-2xl border border-white/10 bg-white/[0.04] p-5"
+                className="flex min-h-[180px] flex-col rounded-2xl border border-[#dac8aa] bg-[#fbf6ec] p-5"
               >
                 <span className="mb-3 inline-flex h-9 w-9 items-center justify-center rounded-full bg-teal-500/15 text-sm font-black text-teal-200">{step.step}</span>
-                <h3 className="text-base font-bold text-white">{step.title}</h3>
-                <p className="mt-2 text-sm leading-7 text-slate-400">{step.body}</p>
+                <h3 className="text-base font-bold text-[#2e2418]">{step.title}</h3>
+                <p className="mt-2 text-sm leading-7 text-[#6f6250]">{step.body}</p>
               </motion.div>
             ))}
           </div>
@@ -1078,10 +1064,10 @@ export default function PartnerMarketingPreview() {
               <Crown className="h-3 w-3" /> حزم <DigitalAccessLicenseHint />
             </motion.div>
             <motion.h2 initial={{ opacity: 0, y: 14 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-              className="mb-3 text-3xl font-black text-white md:text-4xl">
+              className="mb-3 text-3xl font-black text-[#2e2418] md:text-4xl">
               {PARTNER_SECTION_INTROS.plans.title}
             </motion.h2>
-            <p className="text-slate-300">{PARTNER_SECTION_INTROS.plans.lead}</p>
+            <p className="text-[#3d3226]">{PARTNER_SECTION_INTROS.plans.lead}</p>
             {isPartnerSharedTrialOfferLive() ? (
               <p className="mx-auto mt-4 max-w-2xl rounded-xl border border-amber-300/25 bg-amber-500/10 px-4 py-3 text-sm leading-7 text-amber-100">
                 <span className="font-bold">{PARTNER_SHARED_TRIAL_OFFER.headline}</span>
@@ -1153,11 +1139,11 @@ export default function PartnerMarketingPreview() {
             <p className="text-[0.72rem] font-black tracking-[0.16em] text-amber-200">
               تنبيه امتثال لمحتوى الفيديو
             </p>
-            <p className="mt-2 text-sm leading-7 text-slate-300">
+            <p className="mt-2 text-sm leading-7 text-[#3d3226]">
               عند تفعيل المزايا التي تتضمن عرض الفيديو، يلتزم الصالون بأن تكون المقاطع خالية من أي مخالفات تشريعية أو ملاحظات تمس الذوق العام، بما في ذلك الموسيقى الصاخبة أو تصوير أي زبون أو شخص آخر دون موافقته الخطية الصريحة. وتبقى المسؤولية كاملة على الصالون بوصفه الناشر والمتحكم بمحتوى ملفه، مع خضوع المواد المعروضة لرقابة تقنية صارمة من المنصة.
             </p>
           </div>
-          <p className="mt-5 text-center text-[0.68rem] text-slate-400">
+          <p className="mt-5 text-center text-[0.68rem] text-[#6f6250]">
             كل حزمة صالحة ٣٠ يوماً · لا وساطة تجارية · لا عمولة على الخدمة · لا بيانات حكومية مطلوبة للتسجيل
           </p>
           <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
@@ -1174,7 +1160,7 @@ export default function PartnerMarketingPreview() {
             </button>
             <Link
               to={ROUTE_PATHS.REGISTER_GUIDE}
-              className="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-6 py-3 text-sm font-semibold text-slate-200 hover:bg-white/10"
+              className="inline-flex items-center gap-2 rounded-xl border border-[#dac8aa] bg-[#fbf6ec] px-6 py-3 text-sm font-semibold text-[#3d3226] hover:bg-[#f0e6d0]"
             >
               {PARTNER_JOIN_PATH_SECONDARY_LINKS.guide}
             </Link>
@@ -1182,22 +1168,22 @@ export default function PartnerMarketingPreview() {
         </div>
       </section>
 
-      <section id={PARTNER_CUSTOMER_VIEW_SECTION.id} className="relative z-10 border-y border-white/10 bg-white/[0.02] py-20 md:py-24">
+      <section id={PARTNER_CUSTOMER_VIEW_SECTION.id} className="relative z-10 border-y border-[#dac8aa] bg-[#fbf6ec] py-20 md:py-24">
         <div className="mx-auto max-w-6xl px-5" dir="rtl">
           <div className="mb-12 text-center">
             <motion.h2 initial={{ opacity: 0, y: 14 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-              className="text-3xl font-black text-white md:text-4xl">
+              className="text-3xl font-black text-[#2e2418] md:text-4xl">
               {PARTNER_CUSTOMER_VIEW_SECTION.title}
             </motion.h2>
-            <p className="mt-3 text-slate-300">{PARTNER_CUSTOMER_VIEW_SECTION.lead}</p>
+            <p className="mt-3 text-[#3d3226]">{PARTNER_CUSTOMER_VIEW_SECTION.lead}</p>
           </div>
 
           <div className="mb-12 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {PARTNER_CUSTOMER_VIEW_SECTION.steps.map((step, index) => (
-              <div key={step.title} className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
+              <div key={step.title} className="rounded-2xl border border-[#dac8aa] bg-[#fbf6ec] p-5">
                 <span className="text-xs font-black text-teal-300">الخطوة {index + 1}</span>
-                <h3 className="mt-2 text-base font-bold text-white">{step.title}</h3>
-                <p className="mt-2 text-sm leading-7 text-slate-400">{step.body}</p>
+                <h3 className="mt-2 text-base font-bold text-[#2e2418]">{step.title}</h3>
+                <p className="mt-2 text-sm leading-7 text-[#6f6250]">{step.body}</p>
               </div>
             ))}
           </div>
@@ -1210,7 +1196,7 @@ export default function PartnerMarketingPreview() {
                 index={index}
                 bannerMode="static"
                 showCta={false}
-                className="border-b border-white/5 pb-12 last:border-b-0 last:pb-0"
+                className="border-b border-[#dac8aa] pb-12 last:border-b-0 last:pb-0"
               />
             ))}
           </div>
@@ -1227,15 +1213,15 @@ export default function PartnerMarketingPreview() {
         </div>
       </section>
 
-      <section id={PARTNER_FREEDOM_TOOLS_SECTION.id} className="relative z-10 border-b border-white/10 py-20 md:py-24">
+      <section id={PARTNER_FREEDOM_TOOLS_SECTION.id} className="relative z-10 border-b border-[#dac8aa] py-20 md:py-24">
         <div className="pointer-events-none absolute left-0 top-0 h-96 w-96 rounded-full bg-violet-300/8 blur-[84px]" />
         <div className="mx-auto max-w-6xl px-5">
           <div className="mb-10 text-center">
             <motion.h2 initial={{ opacity: 0, y: 14 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-              className="text-3xl font-black text-white md:text-4xl">
+              className="text-3xl font-black text-[#2e2418] md:text-4xl">
               {PARTNER_FREEDOM_TOOLS_SECTION.title}
             </motion.h2>
-            <p className="mt-3 text-slate-300">{PARTNER_FREEDOM_TOOLS_SECTION.lead}</p>
+            <p className="mt-3 text-[#3d3226]">{PARTNER_FREEDOM_TOOLS_SECTION.lead}</p>
           </div>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             <FeatureCard icon={Navigation2} title="ظهور عند الطلب" desc="تُفعَّل برمجياً عند تطابق الطلب والموقع والفلاتر — لا إشغال دائم للمساحة الرقمية." color="from-amber-500 to-yellow-500" delay={0} />
@@ -1251,12 +1237,12 @@ export default function PartnerMarketingPreview() {
         </div>
       </section>
 
-      <section id="ما-يقدمه-حلاق-ماب" className="relative z-10 border-b border-white/10 bg-white/[0.02] py-16 md:py-20">
+      <section id="ما-يقدمه-حلاق-ماب" className="relative z-10 border-b border-[#dac8aa] bg-[#fbf6ec] py-16 md:py-20">
         <div className="mx-auto max-w-4xl px-5 text-right" dir="rtl">
-          <h2 className="text-center text-2xl font-black text-white md:text-3xl">ما الذي يقدمه حلاق ماب فعلياً؟</h2>
+          <h2 className="text-center text-2xl font-black text-[#2e2418] md:text-3xl">ما الذي يقدمه حلاق ماب فعلياً؟</h2>
           <ul className="mt-8 space-y-4">
             {PARTNER_WHAT_WE_OFFER_POINTS.map((point) => (
-              <li key={point} className="flex items-start gap-3 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm leading-7 text-slate-300">
+              <li key={point} className="flex items-start gap-3 rounded-xl border border-[#dac8aa] bg-[#fbf6ec] px-4 py-3 text-sm leading-7 text-[#3d3226]">
                 <CheckCircle2 className="mt-1 h-4 w-4 shrink-0 text-teal-300" aria-hidden />
                 {point}
               </li>
@@ -1265,14 +1251,14 @@ export default function PartnerMarketingPreview() {
         </div>
       </section>
 
-      <section id={PARTNER_ADMIN_OVERSIGHT_SECTION.id} className="relative z-10 border-b border-white/10 py-16 md:py-20">
+      <section id={PARTNER_ADMIN_OVERSIGHT_SECTION.id} className="relative z-10 border-b border-[#dac8aa] py-16 md:py-20">
         <div className="mx-auto max-w-4xl px-5 text-right" dir="rtl">
-          <h2 className="text-2xl font-black text-white md:text-3xl">{PARTNER_ADMIN_OVERSIGHT_SECTION.title}</h2>
-          <p className="mt-4 text-base leading-8 text-slate-300">{PARTNER_ADMIN_OVERSIGHT_SECTION.body}</p>
+          <h2 className="text-2xl font-black text-[#2e2418] md:text-3xl">{PARTNER_ADMIN_OVERSIGHT_SECTION.title}</h2>
+          <p className="mt-4 text-base leading-8 text-[#3d3226]">{PARTNER_ADMIN_OVERSIGHT_SECTION.body}</p>
           <div className="mt-6 rounded-2xl border border-violet-300/25 bg-violet-500/10 px-5 py-4">
-            <p className="text-sm font-bold text-violet-100">المكتب الخاص — إضافة اختيارية مع الباقة الماسية</p>
-            <p className="mt-2 text-sm leading-7 text-slate-300">{PARTNER_PRODUCT_HUB_OFFICE_ADDON_LINE}</p>
-            <p className="mt-2 text-xs text-slate-400">
+            <p className="text-sm font-bold text-violet-800">المكتب الخاص — إضافة اختيارية مع الباقة الماسية</p>
+            <p className="mt-2 text-sm leading-7 text-[#3d3226]">{PARTNER_PRODUCT_HUB_OFFICE_ADDON_LINE}</p>
+            <p className="mt-2 text-xs text-[#6f6250]">
               +{DIGITAL_SHIFT_MONTHLY_ADDON_SAR} ر.س/حزمة — غير مشمول تلقائياً في سعر الباقة الماسية.
             </p>
           </div>
@@ -1287,11 +1273,11 @@ export default function PartnerMarketingPreview() {
               <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-amber-300/30 bg-amber-500/10 px-4 py-1.5 text-xs font-semibold text-amber-200">
                 <FileCheck className="h-3 w-3" /> بعد اكتمال الاشتراك والتفعيل
               </div>
-              <h2 className="mb-5 text-3xl font-black text-white">{PARTNER_ACTIVATION_CERTIFICATE_SECTION.title}</h2>
-              <p className="mb-4 text-base leading-relaxed text-slate-300">
+              <h2 className="mb-5 text-3xl font-black text-[#2e2418]">{PARTNER_ACTIVATION_CERTIFICATE_SECTION.title}</h2>
+              <p className="mb-4 text-base leading-relaxed text-[#3d3226]">
                 {PARTNER_ACTIVATION_CERTIFICATE_SECTION.body}
               </p>
-              <p className="mb-6 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm leading-7 text-slate-400">
+              <p className="mb-6 rounded-xl border border-[#dac8aa] bg-[#fbf6ec] px-4 py-3 text-sm leading-7 text-[#6f6250]">
                 {PARTNER_ACTIVATION_CERTIFICATE_SECTION.separationNote}
               </p>
               <div className="flex flex-col gap-2.5">
@@ -1301,7 +1287,7 @@ export default function PartnerMarketingPreview() {
                   'اسم المنشأة والباقة وصلاحية الرخصة موضحة',
                   'مرجع للتحقق والدعم ولوحة التحكم داخل المنصة',
                 ].map((item) => (
-                  <div key={item} className="flex items-center gap-2 text-sm text-slate-200">
+                  <div key={item} className="flex items-center gap-2 text-sm text-[#3d3226]">
                     <CheckCircle2 className="h-4 w-4 shrink-0 text-amber-300" />
                     {item}
                   </div>
@@ -1315,28 +1301,27 @@ export default function PartnerMarketingPreview() {
         </div>
       </section>
 
-      <section className="relative z-10 border-t border-white/10 py-20">
+      <section className="relative z-10 border-t border-[#dac8aa] py-20">
         <div className="mx-auto max-w-3xl px-5">
           <PartnerLandingFaqAccordion
             kicker={PARTNER_SECTION_INTROS.faq.kicker}
             lead={PARTNER_SECTION_INTROS.faq.lead}
             items={PARTNER_LANDING_FAQ_CONDENSED_AR}
-            variant="dark"
           />
         </div>
       </section>
 
-      <section className="relative z-10 overflow-hidden border-t border-white/10 py-24">
+      <section className="relative z-10 overflow-hidden border-t border-[#dac8aa] py-24">
         <div className="pointer-events-none absolute inset-0">
           <div className="absolute -right-40 top-0 h-[500px] w-[500px] rounded-full bg-amber-300/10 blur-[96px]" />
           <div className="absolute -left-40 bottom-0 h-[400px] w-[400px] rounded-full bg-teal-300/9 blur-[84px]" />
         </div>
         <div className="relative mx-auto max-w-3xl px-5 text-center" dir="rtl">
           <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-            <h2 className="mb-4 text-3xl font-black leading-snug text-white md:text-4xl">
+            <h2 className="mb-4 text-3xl font-black leading-snug text-[#2e2418] md:text-4xl">
               {PARTNER_FINAL_CTA_SECTION.title}
             </h2>
-            <p className="mx-auto mb-6 max-w-xl text-base leading-relaxed text-slate-300">
+            <p className="mx-auto mb-6 max-w-xl text-base leading-relaxed text-[#3d3226]">
               {PARTNER_FINAL_CTA_SECTION.body}
             </p>
             {isPartnerSharedTrialOfferLive() ? (
@@ -1358,7 +1343,7 @@ export default function PartnerMarketingPreview() {
               <button
                 type="button"
                 onClick={() => scrollToSection('الأسعار')}
-                className="inline-flex min-h-[44px] items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-8 py-4 font-semibold text-slate-100 hover:bg-white/10 transition-all"
+                className="inline-flex min-h-[44px] items-center gap-2 rounded-xl border border-[#dac8aa] bg-[#fbf6ec] px-8 py-4 font-semibold text-[#2e2418] hover:bg-[#f0e6d0] transition-all"
               >
                 {PARTNER_FINAL_CTA_SECTION.secondaryCta}
               </button>
@@ -1369,7 +1354,7 @@ export default function PartnerMarketingPreview() {
 
       {/* ── Footer ───────────────────────────────────────────────────────── */}
       <footer className={cn(
-        'relative z-10 border-t border-white/10 bg-[#020912]/80 pt-12 backdrop-blur-sm',
+        'relative z-10 border-t border-[#dac8aa] bg-[#eee2ce]/80 pt-12 backdrop-blur-sm',
         isMobile
           ? MOBILE_PARTNER_ACTION_DOCK_CLEARANCE
           : 'pb-[max(3rem,calc(1.5rem+env(safe-area-inset-bottom,0px)))]',
@@ -1381,9 +1366,9 @@ export default function PartnerMarketingPreview() {
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-amber-400 to-amber-700">
                   <Scissors className="h-4 w-4 text-black" />
                 </div>
-                <span className="text-base font-black text-white">حلاق ماب — مسار الشركاء</span>
+                <span className="text-base font-black text-[#2e2418]">حلاق ماب — مسار الشركاء</span>
               </div>
-              <p className="text-xs leading-relaxed text-slate-400">
+              <p className="text-xs leading-relaxed text-[#6f6250]">
                 {PLATFORM_B2B_TECHNICAL_PARTNER_ROLE_AR}
                 <span className="mt-2 block">
                   مزوّد حلول تقنية · {PARTNER_TECHNICAL_PARTNER_LABEL_AR} · ISIC4 474151 · المملكة العربية السعودية — ليست وسيطاً تجارياً.
@@ -1391,8 +1376,8 @@ export default function PartnerMarketingPreview() {
               </p>
             </div>
             <div dir="rtl">
-              <h4 className="mb-4 text-xs font-bold uppercase tracking-wider text-slate-400">مسار الشركاء</h4>
-              <div className="flex flex-col gap-2.5 text-sm text-slate-300">
+              <h4 className="mb-4 text-xs font-bold uppercase tracking-wider text-[#6f6250]">مسار الشركاء</h4>
+              <div className="flex flex-col gap-2.5 text-sm text-[#3d3226]">
                 <a href={STORE_ORIGIN} className="hover:text-amber-200 transition-colors">
                   المتجر الإلكتروني
                 </a>
@@ -1419,7 +1404,7 @@ export default function PartnerMarketingPreview() {
               </div>
             </div>
             <div dir="rtl">
-              <h4 className="mb-4 text-xs font-bold uppercase tracking-wider text-slate-400">المستخدمون</h4>
+              <h4 className="mb-4 text-xs font-bold uppercase tracking-wider text-[#6f6250]">المستخدمون</h4>
               <div className="flex flex-col gap-2.5">
                 <Link
                   to={ROUTE_PATHS.HOME}
@@ -1427,25 +1412,25 @@ export default function PartnerMarketingPreview() {
                   onFocus={warmHomeRoute}
                   onPointerDown={warmHomeRoute}
                   onTouchStart={warmHomeRoute}
-                  className="text-sm text-slate-300 hover:text-teal-200 transition-colors"
+                  className="text-sm text-[#3d3226] hover:text-teal-200 transition-colors"
                 >
                   ابحث عن حلاق ↗
                 </Link>
-                <Link to={ROUTE_PATHS.USER_PRIVACY_POLICY} className="text-sm text-slate-300 hover:text-teal-200">سياسة الخصوصية</Link>
-                <Link to={ROUTE_PATHS.TERMS_OF_SERVICE} className="text-sm text-slate-300 hover:text-teal-200">شروط الاستخدام</Link>
+                <Link to={ROUTE_PATHS.USER_PRIVACY_POLICY} className="text-sm text-[#3d3226] hover:text-teal-200">سياسة الخصوصية</Link>
+                <Link to={ROUTE_PATHS.TERMS_OF_SERVICE} className="text-sm text-[#3d3226] hover:text-teal-200">شروط الاستخدام</Link>
                 {PUBLIC_PULSE_EXPERIENCE_ENABLED ? (
-                  <Link to={ROUTE_PATHS.RADAR_SHOWCASE} className="text-sm text-slate-300 hover:text-teal-200 transition-colors">
+                  <Link to={ROUTE_PATHS.RADAR_SHOWCASE} className="text-sm text-[#3d3226] hover:text-teal-200 transition-colors">
                     {PULSE_MAP_LINK_LABEL_AR}
                   </Link>
                 ) : null}
               </div>
             </div>
           </div>
-          <div className="mt-10 flex flex-col items-center gap-2 border-t border-white/10 pt-8 text-center text-[0.7rem] text-slate-500 md:flex-row md:justify-between">
+          <div className="mt-10 flex flex-col items-center gap-2 border-t border-[#dac8aa] pt-8 text-center text-[0.7rem] text-[#6f6250] md:flex-row md:justify-between">
             <span>© ٢٠٢٦ حلاق ماب — جميع الحقوق محفوظة</span>
-            <span className="text-slate-500">مزوّد حلول تقنية · ISIC4 474151 · المملكة العربية السعودية</span>
+            <span className="text-[#6f6250]">مزوّد حلول تقنية · ISIC4 474151 · المملكة العربية السعودية</span>
           </div>
-          <div className="mt-2 text-center text-sm font-bold text-slate-200 sm:text-base">
+          <div className="mt-2 text-center text-sm font-bold text-[#3d3226] sm:text-base">
             تراخيص الهيئة العامة لتنظيم الإعلام 167220 - 167221 - 167222
           </div>
         </div>

@@ -107,7 +107,7 @@ export function LocationStatusBar({ lat, lng }: Props) {
       dir="rtl"
     >
         <div
-          className="relative cursor-pointer overflow-hidden rounded-xl border border-teal-400/20 bg-[#030d1a]/80 shadow-lg shadow-teal-500/10 backdrop-blur-xl transition-all duration-300 hover:border-teal-400/40"
+          className="relative cursor-pointer overflow-hidden rounded-xl border border-teal-400/20 bg-[#fbf6ec]/90 shadow-lg shadow-teal-500/10 backdrop-blur-xl transition-all duration-300 hover:border-teal-400/40"
           onClick={() => setDetailOpen((o) => !o)}
           style={{ minWidth: '130px' }}
         >

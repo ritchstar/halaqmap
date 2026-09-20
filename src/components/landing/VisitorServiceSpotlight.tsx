@@ -35,7 +35,7 @@ export function VisitorServiceSpotlight({
             initial={{ opacity: 0, y: 12 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-3xl font-black text-white md:text-4xl"
+            className="text-3xl font-black text-[#2e2418] md:text-4xl"
           >
             {VISITOR_SERVICE_SPOTLIGHT_TITLE_AR}
           </motion.h2>
@@ -43,7 +43,7 @@ export function VisitorServiceSpotlight({
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            className="mt-3 max-w-2xl text-sm leading-relaxed text-white/80 sm:mx-0 mx-auto"
+            className="mt-3 max-w-2xl text-sm leading-relaxed text-[#2e2418]/80 sm:mx-0 mx-auto"
           >
             {VISITOR_SERVICE_SPOTLIGHT_SUBTITLE_AR}
           </motion.p>
@@ -67,12 +67,12 @@ export function VisitorServiceSpotlight({
                   onScrollToSearch();
                 }}
                 className={`group relative overflow-hidden rounded-2xl border bg-gradient-to-br p-5 text-right transition-all ${card.border} ${card.accent} ${
-                  active ? 'ring-2 ring-teal-400/50' : 'hover:border-white/20'
+                  active ? 'ring-2 ring-teal-400/50' : 'hover:border-[#dac8aa]'
                 }`}
               >
                 <span className="text-2xl">{intent?.emoji ?? '✂️'}</span>
-                <h3 className="mt-3 text-base font-bold text-white">{card.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-slate-300">{card.benefit}</p>
+                <h3 className="mt-3 text-base font-bold text-[#2e2418]">{card.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-[#3d3226]">{card.benefit}</p>
                 <span className="mt-4 inline-flex text-xs font-semibold text-teal-300 group-hover:text-teal-200">
                   {active ? VISITOR_SERVICE_SPOTLIGHT_ACTIVE_CTA_AR : VISITOR_SERVICE_SPOTLIGHT_CTA_AR}
                 </span>

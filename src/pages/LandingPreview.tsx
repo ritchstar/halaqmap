@@ -48,8 +48,6 @@ import { findGeoNearByPathKey } from '@/config/geoNearRegistry';
 import { readHashQueryParam } from '@/lib/hashQueryParams';
 import { LocationStatusBar } from '@/components/LocationStatusBar';
 import { PlatformTlsTrustBadge } from '@/components/PlatformTlsTrustBadge';
-import { PlatformAmbientToggle } from '@/components/PlatformAmbientToggle';
-import { usePlatformAmbient } from '@/context/PlatformAmbientContext';
 import { isSupabaseConfigured } from '@/integrations/supabase/client';
 import { fetchNearbyPublicBarbersFromSupabase, fetchPublicBarberById } from '@/lib/publicBarbersFromSupabase';
 import { resolveShowcaseForEmptyDisplay } from '@/lib/platformShowcaseRemote';
@@ -62,7 +60,6 @@ import {
   LandingAgentPanelBody,
   LandingBarberDetailModal,
   LandingFloatingPlatformActions,
-  LandingPlatformAmbientBackground,
   LandingPulseRadarHero,
   LandingSearchResults,
 } from '@/pages/landing/lazyLandingParts';
@@ -206,7 +203,7 @@ function LandingAgentPanel({
           <button
             type="button"
             aria-label="إغلاق اللوحة"
-            className="absolute inset-0 bg-black/45 backdrop-blur-[2px]"
+            className="absolute inset-0 bg-[#2e2418]/45 backdrop-blur-[2px]"
             onClick={onClose}
           />
           <motion.aside
@@ -221,20 +218,20 @@ function LandingAgentPanel({
             <button
               type="button"
               onClick={onClose}
-              className="mb-2 rounded-xl border border-white/10 bg-black/70 px-3 py-1.5 text-xs font-bold text-slate-300 backdrop-blur-md hover:text-white"
+              className="mb-2 rounded-xl border border-[#dac8aa] bg-[#fbf6ec]/95 px-3 py-1.5 text-xs font-bold text-[#3d3226] backdrop-blur-md hover:text-[#2e2418]"
             >
               إغلاق
             </button>
             <LandingLazyBoundary
               fallback={
-                <div className="rounded-3xl border border-white/10 bg-[#071426]/95 p-6 text-sm text-slate-300">
+                <div className="rounded-3xl border border-[#dac8aa] bg-[#fbf6ec]/95 p-6 text-sm text-[#3d3226]">
                   تعذّر تحميل لوحة الوكلاء مؤقتاً.
                 </div>
               }
             >
               <Suspense
                 fallback={
-                  <div className="rounded-3xl border border-white/10 bg-[#071426]/95 p-6 text-sm text-slate-300">
+                  <div className="rounded-3xl border border-[#dac8aa] bg-[#fbf6ec]/95 p-6 text-sm text-[#3d3226]">
                     جاري تحميل لوحة الوكلاء…
                   </div>
                 }
@@ -286,11 +283,11 @@ function MobileHeroLite() {
   const openCount = DEMO_BEACONS.filter((b) => b.open).length;
 
   return (
-    <div className="relative h-full overflow-hidden rounded-2xl border border-teal-400/15 bg-[radial-gradient(circle_at_top,rgba(20,184,166,0.18),transparent_42%),linear-gradient(180deg,#071426_0%,#030d1a_100%)] p-4">
+    <div className="relative h-full overflow-hidden rounded-2xl border border-teal-400/15 bg-[radial-gradient(circle_at_top,rgba(232,197,71,0.16),transparent_42%),linear-gradient(180deg,#fbf6ec_0%,#f3e7cf_100%)] p-4">
       <div className="mb-4 flex items-center justify-between gap-3">
         <div>
           <p className="text-[0.64rem] font-black tracking-[0.22em] text-teal-300/70">FAST MOBILE MODE</p>
-          <h3 className="mt-1 text-lg font-black text-white">إتاحة الوصول إلى مقدم الخدمة المناسب</h3>
+          <h3 className="mt-1 text-lg font-black text-[#2e2418]">إتاحة الوصول إلى مقدم الخدمة المناسب</h3>
         </div>
         <div className="rounded-2xl border border-emerald-400/20 bg-emerald-500/10 px-3 py-2 text-center">
           <p className="text-[0.58rem] text-emerald-300/70">المتاح الآن</p>
@@ -305,14 +302,14 @@ function MobileHeroLite() {
           { label: 'النتائج', value: 'حقيقية' },
           { label: 'التواصل', value: 'مباشر' },
         ].map((item) => (
-          <div key={item.label} className="rounded-2xl border border-white/8 bg-white/[0.04] px-3 py-3">
-            <p className="text-[0.62rem] text-slate-400">{item.label}</p>
-            <p className="mt-1 text-sm font-bold text-white">{item.value}</p>
+          <div key={item.label} className="rounded-2xl border border-[#dac8aa] bg-[#fbf6ec] px-3 py-3">
+            <p className="text-[0.62rem] text-[#6f6250]">{item.label}</p>
+            <p className="mt-1 text-sm font-bold text-[#2e2418]">{item.value}</p>
           </div>
         ))}
       </div>
 
-      <div className="mt-4 rounded-2xl border border-teal-400/10 bg-teal-500/[0.06] px-4 py-3 text-sm leading-6 text-slate-200">
+      <div className="mt-4 rounded-2xl border border-teal-400/10 bg-teal-500/[0.06] px-4 py-3 text-sm leading-6 text-[#3d3226]">
         تم تبسيط البطل على الجوال لتقليل زمن التحميل ورفع سرعة التصفح في الصفحة الرئيسية.
       </div>
     </div>
@@ -402,7 +399,7 @@ function MobileSearchDock({
 }) {
   return (
     <div
-      className="fixed inset-x-0 bottom-0 z-[60] border-t border-teal-400/20 bg-[#020912]/97 px-3 pt-2.5 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-8px_32px_rgba(0,0,0,0.45)] backdrop-blur-xl md:hidden"
+      className="fixed inset-x-0 bottom-0 z-[60] border-t border-teal-400/20 bg-[#eee2ce]/97 px-3 pt-2.5 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-8px_32px_rgba(0,0,0,0.45)] backdrop-blur-xl md:hidden"
       dir="rtl"
     >
       <div className="mx-auto max-w-lg">
@@ -446,10 +443,10 @@ function BarberPopup({ beacon, onClose }: { beacon: typeof DEMO_BEACONS[0]; onCl
       initial={{ opacity: 0, scale: 0.9, y: 10 }}
       animate={{ opacity: 1, scale: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.9, y: 10 }}
-      className="absolute left-1/2 top-1/4 z-20 w-56 -translate-x-1/2 rounded-2xl border border-white/15 bg-[#0a1628]/90 p-4 shadow-2xl backdrop-blur-xl"
+      className="absolute left-1/2 top-1/4 z-20 w-56 -translate-x-1/2 rounded-2xl border border-[#dac8aa] bg-[#fbf6ec]/90 p-4 shadow-2xl backdrop-blur-xl"
       dir="rtl"
     >
-      <button type="button" onClick={onClose} aria-label="إغلاق" className="absolute left-2 top-2 rounded-full bg-white/10 p-1 text-white/60 hover:text-white">
+      <button type="button" onClick={onClose} aria-label="إغلاق" className="absolute left-2 top-2 rounded-full bg-[#fbf6ec] p-1 text-[#2e2418]/60 hover:text-[#2e2418]">
         <X className="h-3 w-3" />
       </button>
       <div className="mb-2 flex items-center gap-2">
@@ -457,7 +454,7 @@ function BarberPopup({ beacon, onClose }: { beacon: typeof DEMO_BEACONS[0]; onCl
           ✂️
         </div>
         <div>
-          <div className="text-[0.75rem] font-bold text-white">{beacon.name}</div>
+          <div className="text-[0.75rem] font-bold text-[#2e2418]">{beacon.name}</div>
           <div className="flex items-center gap-1">
             <Star className="h-2.5 w-2.5 fill-amber-400 text-amber-400" />
             <span className="text-[0.65rem] text-amber-300">{beacon.rating}</span>
@@ -510,13 +507,13 @@ function StatsStrip() {
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ delay: i * 0.1, duration: 0.5 }}
-          className="flex flex-col items-center gap-2 rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur-sm"
+          className="flex flex-col items-center gap-2 rounded-2xl border border-[#dac8aa] bg-[#fbf6ec] p-5 backdrop-blur-sm"
         >
           <s.icon className={`h-6 w-6 ${s.color}`} />
           <div className={`text-3xl font-black tabular-nums ${s.color}`}>
             {s.value.toLocaleString('ar-SA-u-ca-gregory-nu-latn')}{s.suffix}
           </div>
-          <div className="text-center text-xs text-white/88 [text-shadow:0_0_10px_rgba(255,255,255,0.12)]">{s.label}</div>
+          <div className="text-center text-xs text-[#2e2418]/88">{s.label}</div>
         </motion.div>
       ))}
     </div>
@@ -531,7 +528,6 @@ export default function LandingPreview() {
   const reduceMotion = useReducedMotion();
   const isMobile = useIsMobile();
   const skipHeroMotion = reduceMotion || isMobile;
-  const { effectivePhase, control } = usePlatformAmbient();
   const [selectedBeacon, setSelectedBeacon] = useState<number | null>(null);
   const [scrolled, setScrolled] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
@@ -736,10 +732,8 @@ export default function LandingPreview() {
   const mobilePreSearch = isMobile && !userLocation;
 
   useEffect(() => {
-    document.documentElement.classList.add('hm-app-dark-canvas');
     releaseLandingScrollLock();
     return () => {
-      document.documentElement.classList.remove('hm-app-dark-canvas');
       releaseLandingScrollLock();
     };
   }, []);
@@ -832,9 +826,7 @@ export default function LandingPreview() {
   return (
     <div
       dir="rtl"
-      className="platform-dark platform-ambient relative min-h-[100svh] overflow-x-hidden bg-[#020912] font-[Tajawal,system-ui] text-slate-100 md:min-h-screen"
-      data-ambient-phase={effectivePhase}
-      data-ambient-control={control}
+      className="store-light-canvas relative min-h-[100svh] overflow-x-hidden bg-[#eee2ce] font-[Tajawal,system-ui] text-[#2e2418] md:min-h-screen"
     >
 
       {/* شريط موقع المستخدم */}
@@ -874,14 +866,6 @@ export default function LandingPreview() {
         }}
       />
 
-      {!isMobile && deferMobileExtras ? (
-        <LandingLazyBoundary>
-          <Suspense fallback={null}>
-            <LandingPlatformAmbientBackground variant="default" />
-          </Suspense>
-        </LandingLazyBoundary>
-      ) : null}
-
       {/* ══════════════════════════════════════════════════════════════════
           الهيدر الموحّد — شريط المدن + التنقل الرئيسي
           ══════════════════════════════════════════════════════════════════ */}
@@ -891,11 +875,11 @@ export default function LandingPreview() {
         <div className={`absolute inset-0 transition-all duration-500 ${
           scrolled
             ? isMobile
-              ? 'bg-[#020912]/97 shadow-[0_4px_22px_rgba(0,0,0,0.42)]'
-              : 'bg-[#020912]/96 backdrop-blur-2xl shadow-[0_4px_40px_rgba(0,0,0,0.6)]'
+              ? 'bg-[#eee2ce]/97 shadow-[0_4px_22px_rgba(0,0,0,0.42)]'
+              : 'bg-[#eee2ce]/96 backdrop-blur-2xl shadow-[0_4px_40px_rgba(0,0,0,0.6)]'
             : isMobile
-              ? 'bg-[#020912]/92'
-              : 'bg-[#020912]/85 backdrop-blur-xl'
+              ? 'bg-[#eee2ce]/92'
+              : 'bg-[#eee2ce]/85 backdrop-blur-xl'
         }`} />
 
         {/* ── التنقل الرئيسي ─────────────────────────────── */}
@@ -903,11 +887,11 @@ export default function LandingPreview() {
           {isMobile ? (
             <div className="mx-auto flex h-[3.5rem] max-w-7xl items-center justify-between gap-3 px-4">
               <Link to={ROUTE_PATHS.HOME} className="flex items-center gap-2 no-underline">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-teal-400/25 bg-[#071426]">
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-teal-400/30 bg-gradient-to-br from-[#0d2a28] to-[#020912] shadow-[0_0_16px_rgba(20,184,166,0.22)]">
                   <Scissors className="h-4 w-4 text-teal-300" />
                 </div>
                 <div className="leading-tight">
-                  <div className="text-[1rem] font-black tracking-wide text-white">حلاق ماب</div>
+                  <div className="text-[1rem] font-black tracking-wide text-[#2e2418]">حلاق ماب</div>
                   <div className="text-[0.58rem] font-bold text-teal-400/70">ابحث عن حلاق قريب</div>
                 </div>
               </Link>
@@ -932,7 +916,7 @@ export default function LandingPreview() {
                 {/* اسم المنصة */}
                 <div className="leading-tight">
                   <div className="flex items-center gap-1.5">
-                    <span className="text-[1.19rem] font-black tracking-wide text-white">حلاق ماب</span>
+                    <span className="text-[1.19rem] font-black tracking-wide text-[#2e2418]">حلاق ماب</span>
                     {skipHeroMotion ? (
                       <div className="h-1.5 w-1.5 rounded-full bg-teal-400" />
                     ) : (
@@ -971,7 +955,7 @@ export default function LandingPreview() {
                     key={item.label}
                     type="button"
                     onClick={() => document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-                    className="group flex h-10 items-center gap-1.5 whitespace-nowrap rounded-xl px-3.5 text-[0.98rem] font-semibold text-white/82 [text-shadow:0_0_10px_rgba(255,255,255,0.10)] transition-colors duration-200 hover:bg-teal-500/8 hover:text-teal-200 cursor-pointer"
+                    className="group flex h-10 items-center gap-1.5 whitespace-nowrap rounded-xl px-3.5 text-[0.98rem] font-semibold text-[#2e2418]/82 transition-colors duration-200 hover:bg-teal-500/8 hover:text-teal-200 cursor-pointer"
                   >
                     <item.icon className="h-3.5 w-3.5 shrink-0 text-teal-500/50 transition-colors group-hover:text-teal-400" />
                     {item.label}
@@ -979,10 +963,8 @@ export default function LandingPreview() {
                 ))}
               </nav>
 
-              {/* ── زر البحث + تبديل الإضاءة ── */}
+              {/* ── زر البحث ── */}
               <div className="flex h-10 items-center gap-2">
-                <PlatformAmbientToggle className="hidden md:inline-flex" />
-
                 <motion.button
                   onClick={() => {
                     const el = document.getElementById('search-anchor');
@@ -1071,7 +1053,7 @@ export default function LandingPreview() {
             )}
 
             <h1 className={cn(
-              'mb-4 font-black leading-[1.1] text-white',
+              'mb-4 font-black leading-[1.1] text-[#2e2418]',
               isMobile ? 'text-[clamp(1.75rem,8vw,2.25rem)]' : 'text-[clamp(2rem,5.5vw,4rem)]',
             )}>
               {VISITOR_HERO_TITLE_AR}
@@ -1081,7 +1063,7 @@ export default function LandingPreview() {
             </h1>
 
             {(isMobile ? VISITOR_HERO_LEAD_MOBILE_AR : VISITOR_HERO_LEAD_DESKTOP_AR) ? (
-            <p className="mb-5 max-w-lg text-base leading-relaxed text-white/88 [text-shadow:0_0_14px_rgba(255,255,255,0.14)]">
+            <p className="mb-5 max-w-lg text-base leading-relaxed text-[#2e2418]/88">
               {isMobile ? VISITOR_HERO_LEAD_MOBILE_AR : VISITOR_HERO_LEAD_DESKTOP_AR}
             </p>
             ) : null}
@@ -1126,7 +1108,7 @@ export default function LandingPreview() {
 
             {!isMobile ? (
             <div className="mb-4 flex flex-wrap items-center gap-4">
-              <PlatformTlsTrustBadge variant="compact" tone="dark" />
+              <PlatformTlsTrustBadge variant="compact" />
             </div>
             ) : null}
           </motion.div>
@@ -1198,7 +1180,7 @@ export default function LandingPreview() {
       {userLocation ? (
         <div
           ref={resultsRef}
-          className="relative z-10 border-y border-teal-400/15 bg-[#020912]"
+          className="relative z-10 border-y border-teal-400/15 bg-[#eee2ce]"
         >
           <LandingLazyBoundary
             fallback={
@@ -1264,7 +1246,7 @@ export default function LandingPreview() {
 
       {/* ── Stats strip ──────────────────────────────────────────────────── */}
       {!isMobile ? (
-        <section className="relative z-10 border-y border-white/5 bg-white/[0.02] py-14">
+        <section className="relative z-10 border-y border-[#dac8aa] bg-[#fbf6ec] py-14">
           <div className="mx-auto max-w-4xl px-5">
             <StatsStrip />
           </div>
@@ -1297,7 +1279,7 @@ export default function LandingPreview() {
               initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="text-3xl font-black text-white md:text-4xl"
+              className="text-3xl font-black text-[#2e2418] md:text-4xl"
             >
               ٣ خطوات للوصول لحلاقك
             </motion.h2>
@@ -1336,7 +1318,7 @@ export default function LandingPreview() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: step.delay, duration: 0.5 }}
-                className="relative rounded-2xl border border-white/10 bg-gradient-to-b from-white/5 to-transparent p-6"
+                className="relative rounded-2xl border border-[#dac8aa] bg-gradient-to-b from-white/5 to-transparent p-6"
               >
                 <div className={`mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br ${step.color} font-black text-white shadow-lg`}>
                   <step.icon className="h-5 w-5" />
@@ -1344,8 +1326,8 @@ export default function LandingPreview() {
                 <div className={`absolute left-5 top-5 text-[2.5rem] font-black leading-none opacity-10 bg-gradient-to-br ${step.color} bg-clip-text text-transparent`}>
                   {step.step}
                 </div>
-                <h3 className="mb-2 text-base font-bold text-white">{step.title}</h3>
-                <p className="text-sm leading-relaxed text-white/86 [text-shadow:0_0_12px_rgba(255,255,255,0.12)]">{step.desc}</p>
+                <h3 className="mb-2 text-base font-bold text-[#2e2418]">{step.title}</h3>
+                <p className="text-sm leading-relaxed text-[#2e2418]/86">{step.desc}</p>
               </motion.div>
             ))}
           </div>
@@ -1390,13 +1372,13 @@ export default function LandingPreview() {
 
       {/* ── FAQ ──────────────────────────────────────────────────────────── */}
       {!isMobile ? (
-      <section className="relative z-10 border-t border-white/5 py-20">
+      <section className="relative z-10 border-t border-[#dac8aa] py-20">
         <div className="mx-auto max-w-3xl px-5">
           <motion.h2
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            className="mb-10 text-center text-2xl font-black text-white"
+            className="mb-10 text-center text-2xl font-black text-[#2e2418]"
           >
             أسئلة شائعة
           </motion.h2>
@@ -1429,10 +1411,10 @@ export default function LandingPreview() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.06 }}
-                className="overflow-hidden rounded-xl border border-white/10 bg-white/[0.03]"
+                className="overflow-hidden rounded-xl border border-[#dac8aa] bg-[#fbf6ec]"
               >
                 <button
-                  className="flex w-full items-center justify-between px-5 py-4 text-right text-sm font-semibold text-slate-200 hover:text-white"
+                  className="flex w-full items-center justify-between px-5 py-4 text-right text-sm font-semibold text-[#3d3226] hover:text-[#2e2418]"
                   onClick={() => setOpenFaq(openFaq === i ? null : i)}
                 >
                   {item.q}
@@ -1440,7 +1422,7 @@ export default function LandingPreview() {
                 </button>
                 {openFaq === i ? (
                   <div>
-                    <p className="border-t border-white/8 px-5 py-4 text-sm leading-relaxed text-white/86 [text-shadow:0_0_12px_rgba(255,255,255,0.10)]">
+                    <p className="border-t border-[#dac8aa] px-5 py-4 text-sm leading-relaxed text-[#2e2418]/86">
                       {item.a}
                     </p>
                   </div>
@@ -1456,7 +1438,7 @@ export default function LandingPreview() {
       {!mobilePreSearch ? (
       <footer
         className={cn(
-          'relative z-10 border-t border-white/8 bg-[#020912] py-8 md:py-12',
+          'relative z-10 border-t border-[#dac8aa] bg-[#eee2ce] py-8 md:py-12',
           isMobile && MOBILE_SAFE_BOTTOM_MIN,
         )}
       >
@@ -1465,9 +1447,9 @@ export default function LandingPreview() {
             <div className="space-y-6">
               <div className="flex items-center gap-2">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-teal-400 to-teal-700">
-                  <Scissors className="h-4 w-4 text-white" />
+                  <Scissors className="h-4 w-4 text-[#2e2418]" />
                 </div>
-                <span className="text-base font-black text-white">حلاق ماب</span>
+                <span className="text-base font-black text-[#2e2418]">حلاق ماب</span>
               </div>
               <div className="grid grid-cols-2 gap-2">
                 {[
@@ -1480,7 +1462,7 @@ export default function LandingPreview() {
                     <Link
                       key={item.label}
                       to={item.to}
-                      className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-3 text-center text-sm font-semibold text-white/85 transition active:bg-white/10"
+                      className="rounded-xl border border-[#dac8aa] bg-[#fbf6ec] px-3 py-3 text-center text-sm font-semibold text-[#2e2418]/85 transition active:bg-[#f0e6d0]"
                     >
                       {item.label}
                     </Link>
@@ -1489,7 +1471,7 @@ export default function LandingPreview() {
                       key={item.label}
                       type="button"
                       onClick={'action' in item ? item.action : undefined}
-                      className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-3 text-center text-sm font-semibold text-white/85 transition active:bg-white/10"
+                      className="rounded-xl border border-[#dac8aa] bg-[#fbf6ec] px-3 py-3 text-center text-sm font-semibold text-[#2e2418]/85 transition active:bg-[#f0e6d0]"
                     >
                       {item.label}
                     </button>
@@ -1503,23 +1485,23 @@ export default function LandingPreview() {
             <div>
               <div className="mb-3 flex items-center gap-2">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-teal-400 to-teal-700">
-                  <Scissors className="h-4 w-4 text-white" />
+                  <Scissors className="h-4 w-4 text-[#2e2418]" />
                 </div>
-                <span className="text-base font-black text-white">حلاق ماب</span>
+                <span className="text-base font-black text-[#2e2418]">حلاق ماب</span>
               </div>
-              <p className="text-xs leading-relaxed text-white/78 [text-shadow:0_0_10px_rgba(255,255,255,0.10)]">
+              <p className="text-xs leading-relaxed text-[#2e2418]/78">
                 منصة رقمية ذكية تتيح الوصول إلى مقدم الخدمة المناسب وتسهّل التواصل المباشر — مجانية للمستخدمين.
               </p>
             </div>
 
             {/* For users */}
             <div>
-              <h4 className="mb-4 text-xs font-bold uppercase tracking-wider text-white/84 [text-shadow:0_0_10px_rgba(255,255,255,0.10)]">روابط</h4>
+              <h4 className="mb-4 text-xs font-bold uppercase tracking-wider text-[#2e2418]/84">روابط</h4>
               <div className="flex flex-col gap-2.5">
                 <button
                   type="button"
                   onClick={() => document.getElementById('search-anchor')?.scrollIntoView({ behavior: 'smooth' })}
-                  className="text-right text-sm text-white/76 [text-shadow:0_0_10px_rgba(255,255,255,0.08)] hover:text-teal-300 transition-colors"
+                  className="text-right text-sm text-[#2e2418]/76 hover:text-teal-300 transition-colors"
                 >
                   ابحث عن حلاق الآن
                 </button>
@@ -1530,18 +1512,18 @@ export default function LandingPreview() {
                   { label: 'سياسة الخصوصية', to: ROUTE_PATHS.USER_PRIVACY_POLICY },
                   { label: 'شروط الاستخدام', to: ROUTE_PATHS.TERMS_OF_SERVICE },
                 ].map((link) => (
-                  <Link key={link.label} to={link.to} className="text-sm text-white/76 [text-shadow:0_0_10px_rgba(255,255,255,0.08)] hover:text-teal-300">{link.label}</Link>
+                  <Link key={link.label} to={link.to} className="text-sm text-[#2e2418]/76 hover:text-teal-300">{link.label}</Link>
                 ))}
               </div>
             </div>
 
             {/* Platform sections — مسار الشركاء في الفوتر فقط */}
             <div>
-              <h4 className="mb-4 text-xs font-bold uppercase tracking-wider text-white/84 [text-shadow:0_0_10px_rgba(255,255,255,0.10)]">أقسام المنصة</h4>
+              <h4 className="mb-4 text-xs font-bold uppercase tracking-wider text-[#2e2418]/84">أقسام المنصة</h4>
               <div className="flex flex-col gap-2.5">
                 <Link
                   to={ROUTE_PATHS.BARBERS_LANDING}
-                  className="text-sm text-white/76 [text-shadow:0_0_10px_rgba(255,255,255,0.08)] hover:text-teal-300 transition-colors"
+                  className="text-sm text-[#2e2418]/76 hover:text-teal-300 transition-colors"
                 >
                   مسار الشركاء — تسجيل الصالونات
                 </Link>
@@ -1550,8 +1532,8 @@ export default function LandingPreview() {
 
             {/* Contact */}
             <div>
-              <h4 className="mb-4 text-xs font-bold uppercase tracking-wider text-white/84 [text-shadow:0_0_10px_rgba(255,255,255,0.10)]">تواصل</h4>
-              <div className="flex flex-col gap-2.5 text-sm text-white/76 [text-shadow:0_0_10px_rgba(255,255,255,0.08)]">
+              <h4 className="mb-4 text-xs font-bold uppercase tracking-wider text-[#2e2418]/84">تواصل</h4>
+              <div className="flex flex-col gap-2.5 text-sm text-[#2e2418]/76">
                 <span>📍 الرياض، المملكة العربية السعودية</span>
                 <span>🌐 halaqmap.com</span>
               </div>
@@ -1559,14 +1541,14 @@ export default function LandingPreview() {
           </div>
           )}
 
-          <div className="mt-10 flex flex-col items-center gap-2 border-t border-white/8 pt-8 text-center text-[0.7rem] text-white/76 [text-shadow:0_0_10px_rgba(255,255,255,0.08)] md:flex-row md:justify-between md:text-right">
+          <div className="mt-10 flex flex-col items-center gap-2 border-t border-[#dac8aa] pt-8 text-center text-[0.7rem] text-[#2e2418]/76 md:flex-row md:justify-between md:text-right">
             <span>© ٢٠٢٦ حلاق ماب — جميع الحقوق محفوظة</span>
-            <span className="text-white/70 [text-shadow:0_0_10px_rgba(255,255,255,0.08)]">نشاط تقني رقم ISIC4 474151 · المملكة العربية السعودية</span>
+            <span className="text-[#2e2418]/70">نشاط تقني رقم ISIC4 474151 · المملكة العربية السعودية</span>
           </div>
-          <div className="mt-2 text-center text-sm font-bold text-white/85 [text-shadow:0_0_10px_rgba(255,255,255,0.08)] sm:text-base">
+          <div className="mt-2 text-center text-sm font-bold text-[#2e2418]/85 sm:text-base">
             تراخيص الهيئة العامة لتنظيم الإعلام 167220 - 167221 - 167222
           </div>
-          <AppBuildStamp variant="dark" className="mt-4 opacity-60" />
+          <AppBuildStamp className="mt-4 opacity-60" />
         </div>
       </footer>
       ) : null}

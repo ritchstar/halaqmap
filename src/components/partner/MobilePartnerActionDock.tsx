@@ -18,7 +18,7 @@ export function MobilePartnerActionDock({ onRegister, onSalesOffice, className }
   return (
     <div
       className={cn(
-        'fixed inset-x-0 bottom-0 z-[60] border-t border-white/10 bg-[#020912]/96 px-4 pt-3 shadow-[0_-10px_36px_rgba(0,0,0,0.45)] backdrop-blur-xl md:hidden',
+        'fixed inset-x-0 bottom-0 z-[60] border-t border-[#dac8aa] bg-[#eee2ce]/96 px-4 pt-3 shadow-[0_-10px_36px_rgba(46,36,24,0.18)] backdrop-blur-xl md:hidden',
         MOBILE_FIXED_NAV_SAFE,
         className,
       )}
@@ -36,7 +36,7 @@ export function MobilePartnerActionDock({ onRegister, onSalesOffice, className }
         <button
           type="button"
           onClick={onSalesOffice}
-          className="flex shrink-0 items-center justify-center gap-2 rounded-2xl border border-white/15 bg-white/5 px-3 py-3.5 text-sm font-bold text-white transition active:bg-white/10"
+          className="flex shrink-0 items-center justify-center gap-2 rounded-2xl border border-[#dac8aa] bg-[#fbf6ec] px-3 py-3.5 text-sm font-bold text-[#2e2418] transition active:bg-[#f0e6d0]"
         >
           <BriefcaseBusiness className="h-4 w-4 shrink-0 text-amber-300" />
           المبيعات

@@ -120,10 +120,10 @@ export function GeoRadarButton({ onLocationDetected, onLocationReset }: Props) {
 
   // Theme by state
   const theme = {
-    idle:      { ring: 'rgba(20,184,166,', border: 'rgba(20,184,166,0.40)', glow: 'rgba(20,184,166,0.28)', bg: 'radial-gradient(circle at 42% 38%, #0d2a28 0%, #061a18 45%, #020912 100%)', icon: '#2dd4bf', text: 'text-white', sub: 'text-teal-400/65' },
-    searching: { ring: 'rgba(20,184,166,', border: 'rgba(20,184,166,0.55)', glow: 'rgba(20,184,166,0.40)', bg: 'radial-gradient(circle at 42% 38%, #0d2a28 0%, #061a18 45%, #020912 100%)', icon: '#14b8a6', text: 'text-teal-100', sub: 'text-teal-400/65' },
-    found:     { ring: 'rgba(16,185,129,', border: 'rgba(16,185,129,0.55)', glow: 'rgba(16,185,129,0.38)', bg: 'radial-gradient(circle at 42% 38%, #052e1f 0%, #031a12 45%, #020912 100%)', icon: '#34d399', text: 'text-emerald-100', sub: 'text-emerald-400/70' },
-    denied:    { ring: 'rgba(239,68,68,',  border: 'rgba(239,68,68,0.50)',  glow: 'rgba(239,68,68,0.32)',  bg: 'radial-gradient(circle at 42% 38%, #2d0a0a 0%, #1a0505 45%, #020912 100%)', icon: '#f87171', text: 'text-rose-100', sub: 'text-rose-400/65' },
+    idle:      { ring: 'rgba(20,184,166,', border: 'rgba(20,184,166,0.40)', glow: 'rgba(20,184,166,0.28)', bg: 'radial-gradient(circle at 42% 38%, #e3f5ef 0%, #cdeee2 45%, #eee2ce 100%)', icon: '#0d9488', text: 'text-[#2e2418]', sub: 'text-teal-700/75' },
+    searching: { ring: 'rgba(20,184,166,', border: 'rgba(20,184,166,0.55)', glow: 'rgba(20,184,166,0.40)', bg: 'radial-gradient(circle at 42% 38%, #e3f5ef 0%, #cdeee2 45%, #eee2ce 100%)', icon: '#0f766e', text: 'text-teal-800', sub: 'text-teal-700/75' },
+    found:     { ring: 'rgba(16,185,129,', border: 'rgba(16,185,129,0.55)', glow: 'rgba(16,185,129,0.38)', bg: 'radial-gradient(circle at 42% 38%, #dcf5e9 0%, #c3ecd9 45%, #eee2ce 100%)', icon: '#059669', text: 'text-emerald-800', sub: 'text-emerald-700/75' },
+    denied:    { ring: 'rgba(239,68,68,',  border: 'rgba(239,68,68,0.50)',  glow: 'rgba(239,68,68,0.32)',  bg: 'radial-gradient(circle at 42% 38%, #fbe2e2 0%, #f6c9c9 45%, #eee2ce 100%)', icon: '#dc2626', text: 'text-rose-800', sub: 'text-rose-700/75' },
   }[phase];
 
   const SIZE = isMobile ? 184 : 220;
