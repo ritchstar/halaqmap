@@ -24,6 +24,7 @@ import { StoreLandingPhilosophySection } from '@/components/store/StoreLandingPh
 import { StoreLandingPitchHero } from '@/components/store/StoreLandingPitchHero';
 import { StoreInViewMount } from '@/components/store/StoreInViewMount';
 import { StoreShot } from '@/components/store/StoreShot';
+import { STORE_SHOT_SIZES, storeResponsiveWebpSrcSet } from '@/lib/storeResponsiveImage';
 import { STORE_DEDICATED_PAGE_COPY } from '@/config/storeDedicatedPageCopy';
 import type { StoreMarketingReelId } from '@/config/storeMarketingReels';
 import {
@@ -553,11 +554,24 @@ export default function StoreLanding() {
               </Link>
             </div>
             <figure className="border-t border-white/10 bg-white lg:border-t-0 lg:border-s">
-              <img
-                src={STORE_TRUST_COPY.sslImage}
-                alt={STORE_TRUST_COPY.sslAltAr}
-                className="aspect-[16/9] w-full bg-white object-contain object-top"
-              />
+              {(() => {
+                const sslWebpSrcSet = storeResponsiveWebpSrcSet(STORE_TRUST_COPY.sslImage);
+                const sslImgClassName = 'aspect-[16/9] w-full bg-white object-contain object-top';
+                if (!sslWebpSrcSet) {
+                  return <img src={STORE_TRUST_COPY.sslImage} alt={STORE_TRUST_COPY.sslAltAr} className={sslImgClassName} />;
+                }
+                return (
+                  <picture>
+                    <source type="image/webp" srcSet={sslWebpSrcSet} sizes={STORE_SHOT_SIZES} />
+                    <img
+                      src={STORE_TRUST_COPY.sslImage}
+                      alt={STORE_TRUST_COPY.sslAltAr}
+                      className={sslImgClassName}
+                      sizes={STORE_SHOT_SIZES}
+                    />
+                  </picture>
+                );
+              })()}
             </figure>
           </div>
         </div>

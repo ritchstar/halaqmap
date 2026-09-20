@@ -19,8 +19,33 @@ import { arabicInitials, eventSignatureSeed, fitArabicNameClass, fnv1a } from '@
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { cn } from '@/lib/utils';
+import { STORE_SHOT_SIZES, storeResponsiveWebpSrcSet } from '@/lib/storeResponsiveImage';
 
 type Palette = (typeof LAB_PALETTES.quick)[number];
+
+/** صور المخطط اللوني (palette.image) مُخزَّنة تحت /images/store/lab/ مع نسخ WebP متجاوبة جاهزة على القرص. */
+function LabResponsiveImage({
+  src,
+  alt,
+  className,
+  sizes = STORE_SHOT_SIZES,
+}: {
+  src: string;
+  alt: string;
+  className: string;
+  sizes?: string;
+}) {
+  const webpSrcSet = storeResponsiveWebpSrcSet(src);
+  if (!webpSrcSet) {
+    return <img src={src} alt={alt} className={className} />;
+  }
+  return (
+    <picture>
+      <source type="image/webp" srcSet={webpSrcSet} sizes={sizes} />
+      <img src={src} alt={alt} className={className} sizes={sizes} />
+    </picture>
+  );
+}
 
 function SignatureMark({ seed, accent, ink }: { seed: string; accent: string; ink: string }) {
   const h = fnv1a(seed);
@@ -184,7 +209,7 @@ export default function StoreOccasionCardLabPage() {
                 )}
               >
                 <span className="flex items-center gap-2 pe-3">
-                  <img src={item.image} alt="" className="h-8 w-8 object-cover" />
+                  <LabResponsiveImage src={item.image} alt="" className="h-8 w-8 object-cover" sizes="32px" />
                   {item.labelAr}
                 </span>
               </button>
@@ -232,7 +257,7 @@ export default function StoreOccasionCardLabPage() {
               <div className="rounded-xl border border-white/12 p-3">
                 <p className="text-[11px] text-white/45">معاينة واتساب مربعة</p>
                 <div className="relative mt-2 aspect-square overflow-hidden rounded-lg">
-                  <img src={palette.image} alt="" className="h-full w-full object-cover" />
+                  <LabResponsiveImage src={palette.image} alt="" className="h-full w-full object-cover" sizes="(max-width: 640px) 45vw, 220px" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
                   <div className="absolute inset-x-0 bottom-0 p-3 text-[#f8f1e6]">
                     <p className="text-xs">{occasion}</p>
@@ -243,7 +268,7 @@ export default function StoreOccasionCardLabPage() {
               <div className="rounded-xl border border-white/12 p-3">
                 <p className="text-[11px] text-white/45">قصة عمودية</p>
                 <div className="relative mt-2 aspect-[9/16] max-h-48 overflow-hidden rounded-lg">
-                  <img src={palette.image} alt="" className="h-full w-full object-cover" />
+                  <LabResponsiveImage src={palette.image} alt="" className="h-full w-full object-cover" sizes="(max-width: 640px) 45vw, 220px" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
                   <p className="absolute inset-x-3 bottom-3 text-xs text-white">{ogLine}</p>
                 </div>
@@ -260,7 +285,12 @@ export default function StoreOccasionCardLabPage() {
               tier === 'featured' && 'ring-1 ring-white/20',
             )}
           >
-            <img src={palette.image} alt="" className="absolute inset-0 h-full w-full object-cover object-center" />
+            <LabResponsiveImage
+              src={palette.image}
+              alt=""
+              className="absolute inset-0 h-full w-full object-cover object-center"
+              sizes="(max-width: 640px) 90vw, 384px"
+            />
             <div
               className={cn(
                 'pointer-events-none absolute inset-0',
@@ -285,7 +315,12 @@ export default function StoreOccasionCardLabPage() {
                 className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3"
                 onClick={() => setOpened(true)}
               >
-                <img src={palette.image} alt="" className="absolute inset-0 h-full w-full object-cover" />
+                <LabResponsiveImage
+                  src={palette.image}
+                  alt=""
+                  className="absolute inset-0 h-full w-full object-cover"
+                  sizes="(max-width: 640px) 90vw, 384px"
+                />
                 <div className="absolute inset-0 bg-black/55" />
                 <span className="relative flex flex-col items-center gap-3 text-[#f8f1e6]">
                   <SignatureMark seed={seed} accent={palette.accent} ink="#f8f1e6" />
@@ -421,7 +456,7 @@ export default function StoreOccasionCardLabPage() {
           <div className="mt-4 w-full max-w-sm overflow-hidden rounded-xl border border-white/10 bg-[#111b22]">
             <p className="px-3 pt-3 text-[11px] text-white/45">غلاف المشاركة في المحادثة</p>
             <div className="mt-2">
-              <img src={palette.image} alt="" className="h-28 w-full object-cover" />
+              <LabResponsiveImage src={palette.image} alt="" className="h-28 w-full object-cover" sizes="384px" />
               <div className="p-3 text-sm">
                 <p className="font-bold text-white">{ogLine}</p>
                 <p className="mt-1 text-xs text-white/55">store.halaqmap.com</p>

@@ -30,6 +30,7 @@ import { LEGAL_ECOMMERCE_INQUIRY_URL } from '@/config/partnerLegal';
 import { STORE_SAIP_COPY, STORE_SAIP_PUBLIC_WORKS, type StoreSaipWork } from '@/config/storeSaipRegistry';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { ROUTE_PATHS } from '@/lib/routePaths';
+import { STORE_SHOT_SIZES, storeResponsiveWebpSrcSet } from '@/lib/storeResponsiveImage';
 
 const REPUTATION_SCANS = PLATFORM_EXTERNAL_TRUST_SCANS.filter((scan) => scan.id !== 'ssl-labs');
 
@@ -37,6 +38,28 @@ type CertPreview = StoreSaipWork;
 type ImagePreview = { src: string; titleAr: string; alt: string; productPath?: string };
 
 const proseClass = 'max-w-[42rem] text-base leading-[1.75] text-white/78';
+
+/** شهادات SAIP وصورة تقرير SSL Labs مُخزَّنة تحت /images/store/ مع نسخ WebP متجاوبة جاهزة على القرص. */
+function TrustResponsiveImage({
+  src,
+  alt,
+  className,
+}: {
+  src: string;
+  alt: string;
+  className: string;
+}) {
+  const webpSrcSet = storeResponsiveWebpSrcSet(src);
+  if (!webpSrcSet) {
+    return <img src={src} alt={alt} className={className} />;
+  }
+  return (
+    <picture>
+      <source type="image/webp" srcSet={webpSrcSet} sizes={STORE_SHOT_SIZES} />
+      <img src={src} alt={alt} className={className} sizes={STORE_SHOT_SIZES} />
+    </picture>
+  );
+}
 
 function StoreProductName({ children }: { children: string }) {
   return (
@@ -165,7 +188,7 @@ export default function StoreTrustPage() {
                       onClick={() => setCertPreview(work)}
                       className="mt-3 block w-full overflow-hidden rounded-xl border border-white/10 bg-white transition hover:border-[#e8c547]/35"
                     >
-                      <img
+                      <TrustResponsiveImage
                         src={work.certImage}
                         alt={`${work.titleAr} — ${STORE_SAIP_COPY.certImageAltAr}`}
                         className="aspect-[5/3] w-full object-contain object-top p-1"
@@ -229,7 +252,7 @@ export default function StoreTrustPage() {
                   }
                   className="shrink-0 overflow-hidden rounded-xl border border-white/10 bg-white sm:w-40"
                 >
-                  <img
+                  <TrustResponsiveImage
                     src={STORE_TRUST_COPY.sslImage}
                     alt={STORE_TRUST_COPY.sslAltAr}
                     className="aspect-[16/10] w-full object-contain object-top"
@@ -288,7 +311,7 @@ export default function StoreTrustPage() {
                 <X className="h-4 w-4" aria-hidden />
                 <span className="sr-only">إغلاق</span>
               </DialogClose>
-              <img
+              <TrustResponsiveImage
                 src={certPreview.certImage}
                 alt={`${certPreview.titleAr} — ${STORE_SAIP_COPY.certImageAltAr}`}
                 className="mt-2 w-full rounded-xl border border-white/10 bg-white object-contain"
@@ -325,7 +348,7 @@ export default function StoreTrustPage() {
                 <X className="h-4 w-4" aria-hidden />
                 <span className="sr-only">إغلاق</span>
               </DialogClose>
-              <img
+              <TrustResponsiveImage
                 src={imagePreview.src}
                 alt={imagePreview.alt}
                 className="mt-2 w-full rounded-xl border border-white/10 bg-white object-contain"
