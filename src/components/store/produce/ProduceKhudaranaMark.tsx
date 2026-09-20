@@ -1,14 +1,16 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
- * دمغة خضارنا1 — مستوحاة من تصميم Chatly.
+ * دمغة خضارنا1 — أيقونة العلامة الرسمية (نفس أيقونة فهرس المتجر
+ * halaqmap-b-01.webp)، بدل شارة الورقة العامة (Leaf) القديمة.
  */
-import { Leaf } from 'lucide-react';
+import { solutionCatalogMarkSrc } from '@/config/storeSolutionCatalog';
 import { cn } from '@/lib/utils';
 
 type ProduceKhudaranaMarkProps = {
   className?: string;
   size?: 'sm' | 'md' | 'lg';
+  /** @deprecated الأيقونة الرسمية تحمل خلفيتها الداكنة وحدودها الذهبية دائماً — لم تعد بحاجة لنسخة معكوسة. */
   inverse?: boolean;
 };
 
@@ -18,23 +20,20 @@ const sizeClasses = {
   lg: 'size-14 rounded-2xl',
 };
 
-export function ProduceKhudaranaMark({ className, size = 'md', inverse = false }: ProduceKhudaranaMarkProps) {
-  const iconSize = size === 'sm' ? 17 : size === 'md' ? 21 : 27;
+const KHUDARANA_MARK_SRC = solutionCatalogMarkSrc('B-01');
 
+export function ProduceKhudaranaMark({ className, size = 'md' }: ProduceKhudaranaMarkProps) {
   return (
     <span
-      aria-label="دمغة خضارنا1"
-      className={cn(
-        'relative inline-flex shrink-0 items-center justify-center overflow-hidden border shadow-sm',
-        sizeClasses[size],
-        inverse
-          ? 'border-white/20 bg-white/10 text-[#cbe4b8]'
-          : 'border-[#c4d4b9] bg-[#eaf1e4] text-[#4f813f]',
-        className,
-      )}
+      className={cn('relative inline-flex shrink-0 items-center justify-center overflow-hidden shadow-sm', sizeClasses[size], className)}
     >
-      <span className="absolute inset-x-1.5 bottom-1.5 h-1 rounded-full bg-current opacity-25" />
-      <Leaf size={iconSize} strokeWidth={2} className="relative" />
+      <img
+        src={KHUDARANA_MARK_SRC}
+        alt="دمغة خضارنا1"
+        className="h-full w-full object-cover"
+        loading="lazy"
+        decoding="async"
+      />
     </span>
   );
 }
