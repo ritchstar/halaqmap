@@ -54,9 +54,13 @@ import {
 import { neighborVendorState } from '@/lib/storeMobileVendor';
 import { isShopClosedNow, shopHoursLinesAr } from '@/lib/storeShopHours';
 import { liveActivityCoverSrc } from '@/lib/storeLiveActivityShelf';
+import { STORE_SHOT_SIZES, storeResponsiveWebpSrcSet } from '@/lib/storeResponsiveImage';
 import { cn } from '@/lib/utils';
 
 type ShelfRow = CafeLabState['shelf'][number];
+
+/** بطاقات الشبكة: عمود واحد على الجوال، عمودان sm، أربعة lg. */
+const CAFE_GRID_IMAGE_SIZES = '(max-width: 640px) 92vw, (max-width: 1024px) 46vw, 23vw';
 
 export function CafeChatlyStorefront({
   state,
@@ -308,14 +312,33 @@ export function CafeChatlyStorefront({
           <div className="relative">
             <div className="absolute -left-8 -top-8 size-24 rounded-full border border-dashed border-[#e0c4a0]" />
             <div className="relative overflow-hidden rounded-[2rem] border-[9px] border-[#fffdf5] bg-[#f0e0cc] shadow-[0_22px_60px_rgba(196,138,74,0.15)]">
-              <img
-                src={heroSrc}
-                alt=""
-                className="aspect-square w-full object-cover"
-                loading="eager"
-                decoding="async"
-              />
-              
+              {(() => {
+                const heroWebpSrcSet = storeResponsiveWebpSrcSet(heroSrc);
+                if (!heroWebpSrcSet) {
+                  return (
+                    <img
+                      src={heroSrc}
+                      alt=""
+                      className="aspect-square w-full object-cover"
+                      loading="eager"
+                      decoding="async"
+                    />
+                  );
+                }
+                return (
+                  <picture>
+                    <source type="image/webp" srcSet={heroWebpSrcSet} sizes={STORE_SHOT_SIZES} />
+                    <img
+                      src={heroSrc}
+                      alt=""
+                      className="aspect-square w-full object-cover"
+                      sizes={STORE_SHOT_SIZES}
+                      loading="eager"
+                      decoding="async"
+                    />
+                  </picture>
+                );
+              })()}
             </div>
           </div>
         </section>
@@ -345,7 +368,25 @@ export function CafeChatlyStorefront({
             <p className="text-xs font-bold tracking-[0.16em] text-[#b87a3a]">{STORE_CAFE_LIVE.todayTitleAr}</p>
             <div className="mt-4 overflow-hidden rounded-2xl border border-[#f0c9a8] bg-[#fffdf5]">
               {today.photoSrc ? (
-                <img src={today.photoSrc} alt={today.nameAr} className="aspect-[16/9] w-full object-cover" loading="lazy" />
+                (() => {
+                  const todayWebpSrcSet = storeResponsiveWebpSrcSet(today.photoSrc);
+                  const todayImgClassName = 'aspect-[16/9] w-full object-cover';
+                  if (!todayWebpSrcSet) {
+                    return <img src={today.photoSrc} alt={today.nameAr} className={todayImgClassName} loading="lazy" />;
+                  }
+                  return (
+                    <picture>
+                      <source type="image/webp" srcSet={todayWebpSrcSet} sizes={STORE_SHOT_SIZES} />
+                      <img
+                        src={today.photoSrc}
+                        alt={today.nameAr}
+                        className={todayImgClassName}
+                        sizes={STORE_SHOT_SIZES}
+                        loading="lazy"
+                      />
+                    </picture>
+                  );
+                })()
               ) : null}
               <div className="flex items-center justify-between gap-3 px-4 py-4">
                 <div>
@@ -773,18 +814,29 @@ function ProductCard({
 
 function ProductVisual({ item, small = false }: { item: ShelfRow; small?: boolean }) {
   const src = item.photoSrc || STORE_CAFE_LIVE.heroImage;
+  const webpSrcSet = storeResponsiveWebpSrcSet(src);
+  const visualSizes = small ? '64px' : CAFE_GRID_IMAGE_SIZES;
+  const imgClassName = cn(
+    'object-cover',
+    small ? 'size-16' : 'aspect-square w-full transition-transform duration-500 group-hover:scale-105',
+  );
   return (
     <div className={cn('relative overflow-hidden bg-[#f0e4d4]', small ? 'size-16 shrink-0 rounded-lg' : '')}>
-      <img
-        src={src}
-        alt={item.nameAr}
-        className={cn(
-          'object-cover',
-          small ? 'size-16' : 'aspect-square w-full transition-transform duration-500 group-hover:scale-105',
-        )}
-        loading="lazy"
-        decoding="async"
-      />
+      {webpSrcSet ? (
+        <picture>
+          <source type="image/webp" srcSet={webpSrcSet} sizes={visualSizes} />
+          <img
+            src={src}
+            alt={item.nameAr}
+            className={imgClassName}
+            sizes={visualSizes}
+            loading="lazy"
+            decoding="async"
+          />
+        </picture>
+      ) : (
+        <img src={src} alt={item.nameAr} className={imgClassName} loading="lazy" decoding="async" />
+      )}
       {!small && item.featured ? (
         <span className="absolute right-3 top-3 rounded-full bg-[#fffdf5]/90 px-2 py-1 text-[10px] font-black text-[#c48a4a]">
           {STORE_CAFE_LIVE.featuredTitleAr}

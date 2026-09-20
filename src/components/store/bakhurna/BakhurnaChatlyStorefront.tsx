@@ -42,6 +42,7 @@ import { BakhurnaMabkharaMark } from '@/components/store/bakhurna/BakhurnaMabkha
 import { STORE_BAKHURNA_LIVE, STORE_BAKHURNA_LIVE_ACCENT, bakhurnaCatalogImage } from '@/config/storeBakhurnaLive';
 import { STORE_BAKHURNA_UNIT_AR } from '@/config/storeBakhurnaCatalog';
 import { sanitizeStoreProductImageSrc } from '@/lib/storeDisallowedImagery';
+import { STORE_SHOT_SIZES, storeResponsiveWebpSrcSet } from '@/lib/storeResponsiveImage';
 import { STORE_MOBILE_VENDOR } from '@/config/storeMobileVendor';
 import { STORE_SHOP_HOURS_COPY } from '@/config/storeShopHours';
 import {
@@ -64,6 +65,9 @@ import { isShopClosedNow, shopHoursLinesAr } from '@/lib/storeShopHours';
 import { cn } from '@/lib/utils';
 
 type ShelfRow = BakhurnaLabState['shelf'][number];
+
+/** بطاقات الشبكة: عمود واحد على الجوال، عمودان sm، أربعة lg. */
+const BAKHURNA_GRID_IMAGE_SIZES = '(max-width: 640px) 92vw, (max-width: 1024px) 46vw, 23vw';
 
 export function BakhurnaChatlyStorefront({
   state,
@@ -372,13 +376,35 @@ export function BakhurnaChatlyStorefront({
           <div className="relative">
             <div className="absolute -left-8 -top-8 size-24 rounded-full border border-dashed border-[#d8c19c]" />
             <div className="relative overflow-hidden rounded-[2rem] border-[9px] border-[#fdf9f0] bg-[#e9dcc0] shadow-[0_22px_60px_rgba(110,74,38,0.15)]">
-              <img
-                src={sanitizeStoreProductImageSrc(arrived[0]?.photoSrc || featured[0]?.photoSrc) || bakhurnaCatalogImage(0)}
-                alt=""
-                className="aspect-square w-full object-cover"
-                loading="eager"
-                decoding="async"
-              />
+              {(() => {
+                const heroSrc =
+                  sanitizeStoreProductImageSrc(arrived[0]?.photoSrc || featured[0]?.photoSrc) || bakhurnaCatalogImage(0);
+                const heroWebpSrcSet = storeResponsiveWebpSrcSet(heroSrc);
+                if (!heroWebpSrcSet) {
+                  return (
+                    <img
+                      src={heroSrc}
+                      alt=""
+                      className="aspect-square w-full object-cover"
+                      loading="eager"
+                      decoding="async"
+                    />
+                  );
+                }
+                return (
+                  <picture>
+                    <source type="image/webp" srcSet={heroWebpSrcSet} sizes={STORE_SHOT_SIZES} />
+                    <img
+                      src={heroSrc}
+                      alt=""
+                      className="aspect-square w-full object-cover"
+                      sizes={STORE_SHOT_SIZES}
+                      loading="eager"
+                      decoding="async"
+                    />
+                  </picture>
+                );
+              })()}
             </div>
           </div>
         </section>
@@ -872,18 +898,29 @@ function ProductVisual({
   small?: boolean;
 }) {
   const src = sanitizeStoreProductImageSrc(item.photoSrc) || bakhurnaCatalogImage(imageIndex);
+  const webpSrcSet = storeResponsiveWebpSrcSet(src);
+  const visualSizes = small ? '64px' : BAKHURNA_GRID_IMAGE_SIZES;
+  const imgClassName = cn(
+    'object-cover',
+    small ? 'size-16' : 'aspect-square w-full transition-transform duration-500 group-hover:scale-105',
+  );
   return (
     <div className={cn('relative overflow-hidden bg-[#e9dcc0]', small ? 'size-16 shrink-0 rounded-lg' : '')}>
-      <img
-        src={src}
-        alt={item.nameAr}
-        className={cn(
-          'object-cover',
-          small ? 'size-16' : 'aspect-square w-full transition-transform duration-500 group-hover:scale-105',
-        )}
-        loading="lazy"
-        decoding="async"
-      />
+      {webpSrcSet ? (
+        <picture>
+          <source type="image/webp" srcSet={webpSrcSet} sizes={visualSizes} />
+          <img
+            src={src}
+            alt={item.nameAr}
+            className={imgClassName}
+            sizes={visualSizes}
+            loading="lazy"
+            decoding="async"
+          />
+        </picture>
+      ) : (
+        <img src={src} alt={item.nameAr} className={imgClassName} loading="lazy" decoding="async" />
+      )}
       {!small && item.arrivedToday ? (
         <span className="absolute right-3 top-3 rounded-full bg-[#fdf9f0]/90 px-2 py-1 text-[10px] font-black text-[#8a6239]">
           {STORE_BAKHURNA_LIVE.arrivedOnAr}

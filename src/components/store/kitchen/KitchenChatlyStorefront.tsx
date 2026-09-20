@@ -48,9 +48,13 @@ import {
 } from '@/lib/storeKitchenLiveLab';
 import { isShopClosedNow, shopHoursLinesAr } from '@/lib/storeShopHours';
 import { liveActivityCoverSrc } from '@/lib/storeLiveActivityShelf';
+import { STORE_SHOT_SIZES, storeResponsiveWebpSrcSet } from '@/lib/storeResponsiveImage';
 import { cn } from '@/lib/utils';
 
 type ShelfRow = KitchenLabState['shelf'][number];
+
+/** بطاقات الشبكة: عمود واحد على الجوال، عمودان sm، أربعة lg. */
+const KITCHEN_GRID_IMAGE_SIZES = '(max-width: 640px) 92vw, (max-width: 1024px) 46vw, 23vw';
 
 export function KitchenChatlyStorefront({
   state,
@@ -301,13 +305,33 @@ export function KitchenChatlyStorefront({
           <div className="relative">
             <div className="absolute -left-8 -top-8 size-24 rounded-full border border-dashed border-[#e0b47c]" />
             <div className="relative overflow-hidden rounded-[2rem] border-[9px] border-[#fff8ef] bg-[#f0dcc0] shadow-[0_22px_60px_rgba(194,65,12,0.15)]">
-              <img
-                src={heroSrc}
-                alt=""
-                className="aspect-square w-full object-cover"
-                loading="eager"
-                decoding="async"
-              />
+              {(() => {
+                const heroWebpSrcSet = storeResponsiveWebpSrcSet(heroSrc);
+                if (!heroWebpSrcSet) {
+                  return (
+                    <img
+                      src={heroSrc}
+                      alt=""
+                      className="aspect-square w-full object-cover"
+                      loading="eager"
+                      decoding="async"
+                    />
+                  );
+                }
+                return (
+                  <picture>
+                    <source type="image/webp" srcSet={heroWebpSrcSet} sizes={STORE_SHOT_SIZES} />
+                    <img
+                      src={heroSrc}
+                      alt=""
+                      className="aspect-square w-full object-cover"
+                      sizes={STORE_SHOT_SIZES}
+                      loading="eager"
+                      decoding="async"
+                    />
+                  </picture>
+                );
+              })()}
             </div>
           </div>
         </section>
@@ -335,7 +359,25 @@ export function KitchenChatlyStorefront({
             <p className="text-xs font-bold tracking-[0.16em] text-[#b23a0f]">{STORE_KITCHEN_LIVE.todayTitleAr}</p>
             <div className="mt-4 overflow-hidden rounded-2xl border border-[#f0c8a0] bg-[#fff8ef]">
               {today.photoSrc ? (
-                <img src={today.photoSrc} alt={today.nameAr} className="aspect-[16/9] w-full object-cover" loading="lazy" />
+                (() => {
+                  const todayWebpSrcSet = storeResponsiveWebpSrcSet(today.photoSrc);
+                  const todayImgClassName = 'aspect-[16/9] w-full object-cover';
+                  if (!todayWebpSrcSet) {
+                    return <img src={today.photoSrc} alt={today.nameAr} className={todayImgClassName} loading="lazy" />;
+                  }
+                  return (
+                    <picture>
+                      <source type="image/webp" srcSet={todayWebpSrcSet} sizes={STORE_SHOT_SIZES} />
+                      <img
+                        src={today.photoSrc}
+                        alt={today.nameAr}
+                        className={todayImgClassName}
+                        sizes={STORE_SHOT_SIZES}
+                        loading="lazy"
+                      />
+                    </picture>
+                  );
+                })()
               ) : null}
               <div className="flex items-center justify-between gap-3 px-4 py-4">
                 <div>
@@ -851,18 +893,29 @@ function ProductCard({
 
 function ProductVisual({ item, small = false }: { item: ShelfRow; small?: boolean }) {
   const src = item.photoSrc || STORE_KITCHEN_LIVE.heroImage;
+  const webpSrcSet = storeResponsiveWebpSrcSet(src);
+  const visualSizes = small ? '64px' : KITCHEN_GRID_IMAGE_SIZES;
+  const imgClassName = cn(
+    'object-cover',
+    small ? 'size-16' : 'aspect-square w-full transition-transform duration-500 group-hover:scale-105',
+  );
   return (
     <div className={cn('relative overflow-hidden bg-[#f0dcc0]', small ? 'size-16 shrink-0 rounded-lg' : '')}>
-      <img
-        src={src}
-        alt={item.nameAr}
-        className={cn(
-          'object-cover',
-          small ? 'size-16' : 'aspect-square w-full transition-transform duration-500 group-hover:scale-105',
-        )}
-        loading="lazy"
-        decoding="async"
-      />
+      {webpSrcSet ? (
+        <picture>
+          <source type="image/webp" srcSet={webpSrcSet} sizes={visualSizes} />
+          <img
+            src={src}
+            alt={item.nameAr}
+            className={imgClassName}
+            sizes={visualSizes}
+            loading="lazy"
+            decoding="async"
+          />
+        </picture>
+      ) : (
+        <img src={src} alt={item.nameAr} className={imgClassName} loading="lazy" decoding="async" />
+      )}
       {!small && item.featured ? (
         <span className="absolute right-3 top-3 rounded-full bg-[#fff8ef]/90 px-2 py-1 text-[10px] font-black text-[#c2410c]">
           {STORE_KITCHEN_LIVE.featuredTitleAr}

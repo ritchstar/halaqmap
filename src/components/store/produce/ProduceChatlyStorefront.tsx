@@ -65,6 +65,7 @@ import {
 import { neighborVendorState } from '@/lib/storeMobileVendor';
 import { isShopClosedNow, shopHoursLinesAr } from '@/lib/storeShopHours';
 import { liveActivityCoverSrc } from '@/lib/storeLiveActivityShelf';
+import { STORE_SHOT_SIZES, storeResponsiveWebpSrcSet } from '@/lib/storeResponsiveImage';
 import {
   clearNeighborCartQty,
   readNeighborCartQty,
@@ -74,6 +75,9 @@ import { NeighborShopEvents } from '@/lib/neighborShopAnalytics';
 import { cn } from '@/lib/utils';
 
 type ShelfRow = ProduceLabState['shelf'][number];
+
+/** بطاقات الشبكة: عمود واحد على الجوال، عمودان sm، أربعة lg. */
+const PRODUCE_GRID_IMAGE_SIZES = '(max-width: 640px) 92vw, (max-width: 1024px) 46vw, 23vw';
 
 export function ProduceChatlyStorefront({
   state,
@@ -372,13 +376,33 @@ export function ProduceChatlyStorefront({
           <div className="relative">
             <div className="absolute -left-8 -top-8 size-24 rounded-full border border-dashed border-[#b6c8aa]" />
             <div className="relative overflow-hidden rounded-[2rem] border-[9px] border-[#fffdf5] bg-[#dfe8d8] shadow-[0_22px_60px_rgba(44,72,42,0.15)]">
-              <img
-                src={heroSrc}
-                alt=""
-                className="aspect-square w-full object-cover"
-                loading="eager"
-                decoding="async"
-              />
+              {(() => {
+                const heroWebpSrcSet = storeResponsiveWebpSrcSet(heroSrc);
+                if (!heroWebpSrcSet) {
+                  return (
+                    <img
+                      src={heroSrc}
+                      alt=""
+                      className="aspect-square w-full object-cover"
+                      loading="eager"
+                      decoding="async"
+                    />
+                  );
+                }
+                return (
+                  <picture>
+                    <source type="image/webp" srcSet={heroWebpSrcSet} sizes={STORE_SHOT_SIZES} />
+                    <img
+                      src={heroSrc}
+                      alt=""
+                      className="aspect-square w-full object-cover"
+                      sizes={STORE_SHOT_SIZES}
+                      loading="eager"
+                      decoding="async"
+                    />
+                  </picture>
+                );
+              })()}
               {arrivedCount ? (
                 <div className="absolute bottom-4 right-4 left-4 rounded-2xl border border-white/20 bg-[#20352b]/88 px-4 py-3 text-white backdrop-blur-sm">
                   <p className="text-[10px] font-bold text-[#cbe4b8]">محصول اليوم</p>
@@ -826,18 +850,29 @@ function ProductCard({
 
 function ProductVisual({ item, imageIndex, small = false }: { item: ShelfRow; imageIndex: number; small?: boolean }) {
   const src = item.photoSrc?.trim() || produceCatalogImage(imageIndex);
+  const webpSrcSet = storeResponsiveWebpSrcSet(src);
+  const visualSizes = small ? '64px' : PRODUCE_GRID_IMAGE_SIZES;
+  const imgClassName = cn(
+    'object-cover',
+    small ? 'size-16' : 'aspect-square w-full transition-transform duration-500 group-hover:scale-105',
+  );
   return (
     <div className={cn('relative overflow-hidden bg-[#e0eadb]', small ? 'size-16 shrink-0 rounded-lg' : '')}>
-      <img
-        src={src}
-        alt={item.nameAr}
-        className={cn(
-          'object-cover',
-          small ? 'size-16' : 'aspect-square w-full transition-transform duration-500 group-hover:scale-105',
-        )}
-        loading="lazy"
-        decoding="async"
-      />
+      {webpSrcSet ? (
+        <picture>
+          <source type="image/webp" srcSet={webpSrcSet} sizes={visualSizes} />
+          <img
+            src={src}
+            alt={item.nameAr}
+            className={imgClassName}
+            sizes={visualSizes}
+            loading="lazy"
+            decoding="async"
+          />
+        </picture>
+      ) : (
+        <img src={src} alt={item.nameAr} className={imgClassName} loading="lazy" decoding="async" />
+      )}
       {!small && item.arrivedToday ? (
         <span className="absolute right-3 top-3 rounded-full bg-[#fffdf5]/90 px-2 py-1 text-[10px] font-black text-[#477141]">
           وصل اليوم
