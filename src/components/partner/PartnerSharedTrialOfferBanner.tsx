@@ -19,7 +19,7 @@ export function PartnerSharedTrialOfferBanner({ onRegister }: Props) {
     <aside
       id={copy.id}
       dir="rtl"
-      className="relative mb-6 overflow-hidden rounded-[1.6rem] border border-amber-300/55 bg-[linear-gradient(145deg,rgba(69,26,3,0.55),rgba(4,16,24,0.92)_42%,rgba(8,47,73,0.55))] px-4 py-5 shadow-[0_0_48px_rgba(251,191,36,0.28)] md:mb-8 md:px-6 md:py-6"
+      className="relative mb-6 overflow-hidden rounded-[1.6rem] border border-amber-300/55 bg-[linear-gradient(145deg,#2a1608_0%,#040f18_42%,#062035_100%)] px-4 py-5 shadow-[0_0_48px_rgba(251,191,36,0.28)] md:mb-8 md:px-6 md:py-6"
     >
       <div className="pointer-events-none absolute -left-10 top-0 h-28 w-28 animate-pulse rounded-full bg-amber-300/35 blur-3xl" />
       <div className="pointer-events-none absolute -right-6 bottom-0 h-24 w-24 animate-pulse rounded-full bg-yellow-200/25 blur-3xl" />
