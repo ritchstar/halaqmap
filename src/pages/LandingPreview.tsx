@@ -1018,6 +1018,31 @@ export default function LandingPreview() {
           </>
         ) : null}
 
+        {/* زر الاستعلام — أعلى الهيرو، موسَّط في عرض الصفحة (سطح المكتب) */}
+        {!isMobile ? (
+        <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-col items-center gap-4 px-5 pt-4">
+          <GeoRadarButton
+            onLocationDetected={handleLocationDetected}
+            onLocationReset={() => setUserLocation(null)}
+          />
+          {userLocation && (
+            <div className="flex flex-col items-center gap-2.5">
+              <motion.button
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                onClick={() => resultsRef.current?.scrollIntoView({ behavior: 'smooth' })}
+                className="flex items-center gap-2 rounded-2xl border border-teal-400/30 bg-teal-500/10 px-5 py-2.5 text-sm font-semibold text-teal-700 hover:bg-teal-500/20 transition-all"
+              >
+                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-teal-400" />
+                {remoteStatus === 'loading'
+                  ? 'يجري تصنيف الخدمات…'
+                  : 'اعرض الخدمات المتاحة'}
+              </motion.button>
+            </div>
+          )}
+        </div>
+        ) : null}
+
         <div
           className={cn(
             'relative z-10 mx-auto grid w-full min-w-0 max-w-7xl items-center px-5',
@@ -1107,31 +1132,6 @@ export default function LandingPreview() {
           ) : null}
 
         </div>
-
-        {/* زر الاستعلام — منتصف الصفحة أسفل الهيرو (سطح المكتب) */}
-        {!isMobile ? (
-        <div className="relative z-10 mx-auto mt-2 flex w-full max-w-7xl flex-col items-center gap-4 px-5 pb-4">
-          <GeoRadarButton
-            onLocationDetected={handleLocationDetected}
-            onLocationReset={() => setUserLocation(null)}
-          />
-          {userLocation && (
-            <div className="flex flex-col items-center gap-2.5">
-              <motion.button
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                onClick={() => resultsRef.current?.scrollIntoView({ behavior: 'smooth' })}
-                className="flex items-center gap-2 rounded-2xl border border-teal-400/30 bg-teal-500/10 px-5 py-2.5 text-sm font-semibold text-teal-700 hover:bg-teal-500/20 transition-all"
-              >
-                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-teal-400" />
-                {remoteStatus === 'loading'
-                  ? 'يجري تصنيف الخدمات…'
-                  : 'اعرض الخدمات المتاحة'}
-              </motion.button>
-            </div>
-          )}
-        </div>
-        ) : null}
 
         {/* Scroll indicator */}
         {!isMobile && !skipHeroMotion ? (

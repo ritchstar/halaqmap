@@ -153,13 +153,29 @@ for (const relPath of [
   // زر تحديد الموقع (أيقونة البحث) يجب أن يكون داخل حاوية بعرض الصفحة
   // كاملاً (max-w-7xl) وموسَّطة، بدل الانحصار داخل عمود النص الضيق كما كان سابقاً.
   const geoButtonIdx = source.indexOf('<GeoRadarButton');
-  const wideCenteredWrapperIdx = source.lastIndexOf(
-    'mx-auto mt-2 flex w-full max-w-7xl flex-col items-center gap-4 px-5 pb-4',
-    geoButtonIdx,
+  const wrapperClassBeforeButton = source.slice(Math.max(0, geoButtonIdx - 400), geoButtonIdx);
+  assert.match(
+    wrapperClassBeforeButton,
+    /max-w-7xl flex-col items-center/,
+    'زر تحديد الموقع (GeoRadarButton) يجب أن يكون داخل حاوية موسّعة (max-w-7xl) وموسَّطة في عرض الصفحة',
+  );
+}
+
+// طلب متابعة من المستخدم (بصورة توضح موضعاً مطلوباً بدائرة صفراء): زر
+// تحديد الموقع يجب أن يظهر أعلى قسم الهيرو — قبل شبكة عمودي النص والفلاتر
+// مباشرة — لا أسفلها كما كان في الإصلاح السابق، حتى يظهر في الفراغ
+// الموسَّط أعلى الصفحة بدل الظهور أسفل كل محتوى الهيرو.
+{
+  const source = readFileSync(join(root, 'src/pages/LandingPreview.tsx'), 'utf8');
+  const geoButtonIdx = source.indexOf('<GeoRadarButton');
+  const heroGridIdx = source.indexOf("'relative z-10 mx-auto grid w-full min-w-0 max-w-7xl items-center px-5'");
+  assert.ok(
+    geoButtonIdx > -1 && heroGridIdx > -1,
+    'الصفحة الرئيسية: يجب أن يوجد كل من زر تحديد الموقع وشبكة الهيرو',
   );
   assert.ok(
-    wideCenteredWrapperIdx > -1,
-    'زر تحديد الموقع (GeoRadarButton) يجب أن يكون داخل حاوية موسّعة (max-w-7xl) وموسَّطة في عرض الصفحة',
+    geoButtonIdx < heroGridIdx,
+    'زر تحديد الموقع (GeoRadarButton) يجب أن يظهر أعلى شبكة الهيرو (عمودي النص والفلاتر)، لا أسفلها',
   );
 }
 
