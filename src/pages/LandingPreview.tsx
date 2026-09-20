@@ -286,12 +286,12 @@ function MobileHeroLite() {
     <div className="relative h-full overflow-hidden rounded-2xl border border-teal-400/15 bg-[radial-gradient(circle_at_top,rgba(232,197,71,0.16),transparent_42%),linear-gradient(180deg,#fbf6ec_0%,#f3e7cf_100%)] p-4">
       <div className="mb-4 flex items-center justify-between gap-3">
         <div>
-          <p className="text-[0.64rem] font-black tracking-[0.22em] text-teal-300/70">FAST MOBILE MODE</p>
+          <p className="text-[0.64rem] font-black tracking-[0.22em] text-teal-700/70">FAST MOBILE MODE</p>
           <h3 className="mt-1 text-lg font-black text-[#2e2418]">إتاحة الوصول إلى مقدم الخدمة المناسب</h3>
         </div>
         <div className="rounded-2xl border border-emerald-400/20 bg-emerald-500/10 px-3 py-2 text-center">
-          <p className="text-[0.58rem] text-emerald-300/70">المتاح الآن</p>
-          <p className="text-xl font-black text-emerald-200">{openCount}</p>
+          <p className="text-[0.58rem] text-emerald-700/70">المتاح الآن</p>
+          <p className="text-xl font-black text-emerald-700">{openCount}</p>
         </div>
       </div>
 
@@ -415,7 +415,7 @@ function MobileSearchDock({
               type="button"
               onClick={onUseStored}
               disabled={geoBusy}
-              className="flex w-full items-center justify-center gap-2 rounded-2xl border border-teal-400/35 bg-teal-500/10 px-4 py-3 text-sm font-bold text-teal-100 transition active:bg-teal-500/20 disabled:opacity-70"
+              className="flex w-full items-center justify-center gap-2 rounded-2xl border border-teal-400/35 bg-teal-500/10 px-4 py-3 text-sm font-bold text-teal-800 transition active:bg-teal-500/20 disabled:opacity-70"
             >
               <MapPin className="h-4 w-4 shrink-0" />
               اختبر البحث بموقعك المحفوظ
@@ -457,8 +457,8 @@ function BarberPopup({ beacon, onClose }: { beacon: typeof DEMO_BEACONS[0]; onCl
           <div className="text-[0.75rem] font-bold text-[#2e2418]">{beacon.name}</div>
           <div className="flex items-center gap-1">
             <Star className="h-2.5 w-2.5 fill-amber-400 text-amber-400" />
-            <span className="text-[0.65rem] text-amber-300">{beacon.rating}</span>
-            <span className={`ms-1 rounded-full px-1.5 py-0.5 text-[0.55rem] font-bold ${beacon.open ? 'bg-emerald-500/20 text-emerald-300' : 'bg-red-500/20 text-red-300'}`}>
+            <span className="text-[0.65rem] text-amber-700">{beacon.rating}</span>
+            <span className={`ms-1 rounded-full px-1.5 py-0.5 text-[0.55rem] font-bold ${beacon.open ? 'bg-emerald-500/20 text-emerald-700' : 'bg-red-500/20 text-red-700'}`}>
               {beacon.open ? 'مفتوح' : 'مغلق'}
             </span>
           </div>
@@ -467,13 +467,13 @@ function BarberPopup({ beacon, onClose }: { beacon: typeof DEMO_BEACONS[0]; onCl
       <div className="flex gap-2">
         <button
           onClick={() => document.getElementById('search-anchor')?.scrollIntoView({ behavior: 'smooth' })}
-          className="flex flex-1 items-center justify-center gap-1 rounded-lg bg-teal-500/20 px-2 py-1.5 text-[0.65rem] font-semibold text-teal-200 hover:bg-teal-500/35 transition-colors"
+          className="flex flex-1 items-center justify-center gap-1 rounded-lg bg-teal-500/20 px-2 py-1.5 text-[0.65rem] font-semibold text-teal-700 hover:bg-teal-500/35 transition-colors"
         >
           <Navigation2 className="h-3 w-3" /> ابحث قريبك
         </button>
         <button
           onClick={() => document.getElementById('search-anchor')?.scrollIntoView({ behavior: 'smooth' })}
-          className="flex flex-1 items-center justify-center gap-1 rounded-lg bg-emerald-500/20 px-2 py-1.5 text-[0.65rem] font-semibold text-emerald-200 hover:bg-emerald-500/35 transition-colors"
+          className="flex flex-1 items-center justify-center gap-1 rounded-lg bg-emerald-500/20 px-2 py-1.5 text-[0.65rem] font-semibold text-emerald-700 hover:bg-emerald-500/35 transition-colors"
         >
           <Phone className="h-3 w-3" /> تواصل
         </button>
@@ -832,7 +832,7 @@ export default function LandingPreview() {
       {/* شريط موقع المستخدم */}
       {userLocation && <LocationStatusBar lat={userLocation.lat} lng={userLocation.lng} />}
       {seoFunnelHintAr && (
-        <div className="border-b border-teal-500/20 bg-teal-500/10 px-4 py-2 text-center text-sm text-teal-100">
+        <div className="border-b border-teal-500/20 bg-teal-500/10 px-4 py-2 text-center text-sm text-teal-800">
           استعلام مضبوط من صفحة الهبوط: <strong>{seoFunnelHintAr}</strong>
         </div>
       )}
@@ -941,7 +941,7 @@ export default function LandingPreview() {
                       className="h-1.5 w-1.5 rounded-full bg-emerald-400"
                     />
                   )}
-                  <span className="text-[0.69rem] font-bold text-emerald-300/80">نبض نشط</span>
+                  <span className="text-[0.69rem] font-bold text-emerald-700/80">نبض نشط</span>
                 </div>
               </Link>
 
@@ -955,7 +955,7 @@ export default function LandingPreview() {
                     key={item.label}
                     type="button"
                     onClick={() => document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-                    className="group flex h-10 items-center gap-1.5 whitespace-nowrap rounded-xl px-3.5 text-[0.98rem] font-semibold text-[#2e2418]/82 transition-colors duration-200 hover:bg-teal-500/8 hover:text-teal-200 cursor-pointer"
+                    className="group flex h-10 items-center gap-1.5 whitespace-nowrap rounded-xl px-3.5 text-[0.98rem] font-semibold text-[#2e2418]/82 transition-colors duration-200 hover:bg-teal-500/8 hover:text-teal-700 cursor-pointer"
                   >
                     <item.icon className="h-3.5 w-3.5 shrink-0 text-teal-500/50 transition-colors group-hover:text-teal-400" />
                     {item.label}
@@ -1035,7 +1035,7 @@ export default function LandingPreview() {
           >
             {isMobile ? (
               <div className="mb-4 flex flex-wrap items-center gap-2">
-                <span className="inline-flex items-center rounded-full border border-emerald-400/25 bg-emerald-500/10 px-3 py-1.5 text-xs font-semibold text-emerald-200">
+                <span className="inline-flex items-center rounded-full border border-emerald-400/25 bg-emerald-500/10 px-3 py-1.5 text-xs font-semibold text-emerald-700">
                   {VISITOR_HERO_BADGE_AR}
                 </span>
               </div>
@@ -1046,7 +1046,7 @@ export default function LandingPreview() {
               transition={{ delay: skipHeroMotion ? 0 : 0.2 }}
               className="mb-5"
             >
-              <span className="inline-flex items-center rounded-full border border-emerald-400/25 bg-emerald-500/10 px-3 py-1.5 text-xs font-semibold text-emerald-200">
+              <span className="inline-flex items-center rounded-full border border-emerald-400/25 bg-emerald-500/10 px-3 py-1.5 text-xs font-semibold text-emerald-700">
                 {VISITOR_HERO_BADGE_AR}
               </span>
             </motion.div>
@@ -1057,7 +1057,7 @@ export default function LandingPreview() {
               isMobile ? 'text-[clamp(1.75rem,8vw,2.25rem)]' : 'text-[clamp(2rem,5.5vw,4rem)]',
             )}>
               {VISITOR_HERO_TITLE_AR}
-              <span className="block bg-gradient-to-l from-teal-300 to-cyan-400 bg-clip-text text-transparent">
+              <span className="block bg-gradient-to-l from-teal-600 to-cyan-600 bg-clip-text text-transparent">
                 {VISITOR_HERO_TITLE_ACCENT_AR}
               </span>
             </h1>
@@ -1081,7 +1081,7 @@ export default function LandingPreview() {
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     onClick={() => resultsRef.current?.scrollIntoView({ behavior: 'smooth' })}
-                    className="flex items-center gap-2 rounded-2xl border border-teal-400/30 bg-teal-500/10 px-5 py-2.5 text-sm font-semibold text-teal-200 hover:bg-teal-500/20 transition-all"
+                    className="flex items-center gap-2 rounded-2xl border border-teal-400/30 bg-teal-500/10 px-5 py-2.5 text-sm font-semibold text-teal-700 hover:bg-teal-500/20 transition-all"
                   >
                     <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-teal-400" />
                     {remoteStatus === 'loading'
@@ -1184,14 +1184,14 @@ export default function LandingPreview() {
         >
           <LandingLazyBoundary
             fallback={
-              <div className="flex min-h-[40vh] items-center justify-center px-4 py-16 text-sm text-teal-200/75">
+              <div className="flex min-h-[40vh] items-center justify-center px-4 py-16 text-sm text-teal-700/75">
                 تعذّر تحميل النتائج مؤقتاً — أعد التحميل بعد لحظات.
               </div>
             }
           >
             <Suspense
               fallback={
-                <div className="flex min-h-[40vh] items-center justify-center px-4 py-16 text-sm text-teal-200/75">
+                <div className="flex min-h-[40vh] items-center justify-center px-4 py-16 text-sm text-teal-700/75">
                   جاري تجهيز النتائج…
                 </div>
               }
@@ -1271,7 +1271,7 @@ export default function LandingPreview() {
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
-              className="mb-3 inline-flex items-center gap-2 rounded-full border border-cyan-400/30 bg-cyan-500/10 px-4 py-1.5 text-xs font-semibold text-cyan-300"
+              className="mb-3 inline-flex items-center gap-2 rounded-full border border-cyan-400/30 bg-cyan-500/10 px-4 py-1.5 text-xs font-semibold text-cyan-700"
             >
               <Zap className="h-3 w-3" /> بسيط وسريع
             </motion.div>
@@ -1349,7 +1349,7 @@ export default function LandingPreview() {
               <p className="mt-4">
                 <Link
                   to={ROUTE_PATHS.RADAR_SHOWCASE}
-                  className="text-sm font-medium text-cyan-300/80 transition-colors hover:text-cyan-200"
+                  className="text-sm font-medium text-cyan-700/80 transition-colors hover:text-cyan-800"
                 >
                   {PULSE_MAP_LINK_LABEL_AR}
                 </Link>
@@ -1501,7 +1501,7 @@ export default function LandingPreview() {
                 <button
                   type="button"
                   onClick={() => document.getElementById('search-anchor')?.scrollIntoView({ behavior: 'smooth' })}
-                  className="text-right text-sm text-[#2e2418]/76 hover:text-teal-300 transition-colors"
+                  className="text-right text-sm text-[#2e2418]/76 hover:text-teal-700 transition-colors"
                 >
                   ابحث عن حلاق الآن
                 </button>
@@ -1512,7 +1512,7 @@ export default function LandingPreview() {
                   { label: 'سياسة الخصوصية', to: ROUTE_PATHS.USER_PRIVACY_POLICY },
                   { label: 'شروط الاستخدام', to: ROUTE_PATHS.TERMS_OF_SERVICE },
                 ].map((link) => (
-                  <Link key={link.label} to={link.to} className="text-sm text-[#2e2418]/76 hover:text-teal-300">{link.label}</Link>
+                  <Link key={link.label} to={link.to} className="text-sm text-[#2e2418]/76 hover:text-teal-700">{link.label}</Link>
                 ))}
               </div>
             </div>
@@ -1523,7 +1523,7 @@ export default function LandingPreview() {
               <div className="flex flex-col gap-2.5">
                 <Link
                   to={ROUTE_PATHS.BARBERS_LANDING}
-                  className="text-sm text-[#2e2418]/76 hover:text-teal-300 transition-colors"
+                  className="text-sm text-[#2e2418]/76 hover:text-teal-700 transition-colors"
                 >
                   مسار الشركاء — تسجيل الصالونات
                 </Link>

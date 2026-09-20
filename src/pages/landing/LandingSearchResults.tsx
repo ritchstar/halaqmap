@@ -73,7 +73,7 @@ export function LandingSearchResults({
         <>
           <ShowcaseEducationBanner intro={showcaseFallback.intro} showTierSamplesHint />
           <div className="mx-auto max-w-lg px-5 pb-12">
-            <p className="mb-2 text-sm font-bold text-teal-200">نموذج الماسي</p>
+            <p className="mb-2 text-sm font-bold text-teal-700">نموذج الماسي</p>
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -109,7 +109,7 @@ export function LandingSearchResults({
               <h3 className="mb-2 text-xl font-bold text-[#2e2418]">
                 {remoteStatus === 'loading' ? 'جارٍ عرض الخدمات المتاحة…' : 'لا نتائج متاحة في هذا النطاق'}
               </h3>
-              <p className="text-sm text-slate-400">جرّب توسيع نطاق البحث من شريط الفلاتر أعلاه</p>
+              <p className="text-sm text-[#6f6250]">جرّب توسيع نطاق البحث من شريط الفلاتر أعلاه</p>
               {remoteStatus !== 'loading' ? (
                 <div className="mx-auto mt-6 max-w-lg text-right">
                   <CoverageNominateCta />
@@ -120,8 +120,8 @@ export function LandingSearchResults({
           ) : (
             <>
               <div className="mb-4 flex items-center justify-between">
-                <p className="text-sm text-slate-400">
-                  <span className="font-bold text-teal-300">{filteredBarbers.length}</span> نتيجة متاحة
+                <p className="text-sm text-[#6f6250]">
+                  <span className="font-bold text-teal-700">{filteredBarbers.length}</span> نتيجة متاحة
                 </p>
                 <div className="flex items-center gap-1.5 text-[0.65rem] text-teal-400/70">
                   <div className="h-1.5 w-1.5 animate-pulse rounded-full bg-teal-400" />

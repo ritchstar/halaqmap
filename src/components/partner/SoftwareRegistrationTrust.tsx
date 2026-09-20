@@ -36,14 +36,14 @@ export function SoftwareRegistrationTrust({ className, id = 'تسجيل-المص
               className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-teal-300/30 bg-teal-500/10"
               aria-hidden
             >
-              <FileText className="h-7 w-7 text-teal-200/90" />
+              <FileText className="h-7 w-7 text-teal-700/90" />
             </div>
 
             <div className="min-w-0 flex-1">
               <h2 id={`${id}-heading`} className="text-xl font-black text-[#2e2418] md:text-2xl">
                 {workNameAr} مصنف برمجي مسجل
               </h2>
-              <p className="mt-1 text-sm font-semibold text-teal-100/90">لدى {authorityAr}</p>
+              <p className="mt-1 text-sm font-semibold text-teal-800/90">لدى {authorityAr}</p>
 
               <dl className="mt-5 grid gap-3 sm:grid-cols-2">
                 <div className="rounded-xl border border-[#dac8aa] bg-[#f3ead1] px-4 py-3">
@@ -53,7 +53,7 @@ export function SoftwareRegistrationTrust({ className, id = 'تسجيل-المص
                 <div className="rounded-xl border border-[#dac8aa] bg-[#f3ead1] px-4 py-3">
                   <dt className="text-[0.68rem] font-bold text-[#6f6250]">رقم التسجيل</dt>
                   <dd className="mt-1">
-                    <bdi dir="ltr" className="inline-block font-mono text-sm font-bold tabular-nums text-teal-100">
+                    <bdi dir="ltr" className="inline-block font-mono text-sm font-bold tabular-nums text-teal-800">
                       {registrationNumber}
                     </bdi>
                   </dd>
@@ -73,7 +73,7 @@ export function SoftwareRegistrationTrust({ className, id = 'تسجيل-المص
                   href={publicCertificateUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-5 inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl border border-teal-300/35 bg-teal-500/10 px-5 py-2.5 text-sm font-bold text-teal-100 transition-colors hover:border-teal-300/55 hover:bg-teal-500/18"
+                  className="mt-5 inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl border border-teal-300/35 bg-teal-500/10 px-5 py-2.5 text-sm font-bold text-teal-800 transition-colors hover:border-teal-300/55 hover:bg-teal-500/18"
                 >
                   <ExternalLink className="h-4 w-4 shrink-0" aria-hidden />
                   عرض شهادة تسجيل المصنف

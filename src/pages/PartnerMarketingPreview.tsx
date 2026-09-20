@@ -145,7 +145,7 @@ function FeatureCard({ icon: Icon, title, desc, color, delay = 0, badge }: {
       dir="rtl"
     >
       {badge && (
-        <div className="absolute left-3 top-3 rounded-full border border-amber-300/30 bg-amber-500/10 px-2 py-0.5 text-[0.55rem] font-bold text-amber-200">
+        <div className="absolute left-3 top-3 rounded-full border border-amber-300/30 bg-amber-500/10 px-2 py-0.5 text-[0.55rem] font-bold text-amber-800">
           {badge}
         </div>
       )}
@@ -607,7 +607,7 @@ export default function PartnerMarketingPreview() {
           <ol className="space-y-3">
             {PARTNER_JOIN_JOURNEY_STEPS.map((point) => (
               <li key={point.title} className="rounded-xl border border-[#dac8aa] bg-[#fbf6ec] px-4 py-3">
-                <p className="text-sm font-black text-teal-200">{point.title}</p>
+                <p className="text-sm font-black text-teal-700">{point.title}</p>
                 <p className="mt-1 text-sm leading-7 text-[#3d3226]">{point.body}</p>
               </li>
             ))}
@@ -653,10 +653,10 @@ export default function PartnerMarketingPreview() {
           الهيدر الموحّد — شريط المدن + التنقل (مسار الشركاء)
           ══════════════════════════════════════════════════════════════════ */}
       <header className="fixed inset-x-0 top-0 z-50 pt-[env(safe-area-inset-top)] transition-all duration-500">
-        <PartnerPlatformLaunchTicker surface="partner-dark" forceShow />
-        <PartnerPlatformInspectionTicker surface="partner-dark" />
+        <PartnerPlatformLaunchTicker surface="partner-light" forceShow />
+        <PartnerPlatformInspectionTicker surface="partner-light" />
         <div className="relative z-20">
-          <PartnerOrderReceptionTicker surface="partner-dark" />
+          <PartnerOrderReceptionTicker surface="partner-light" />
         </div>
 
         <div className="relative isolate">
@@ -707,7 +707,7 @@ export default function PartnerMarketingPreview() {
                   transition={{ duration: 2.5, repeat: Infinity }}
                   className="h-1.5 w-1.5 rounded-full bg-emerald-400"
                 />
-                <span className="text-[0.55rem] font-bold text-emerald-200">مسار نشط</span>
+                <span className="text-[0.55rem] font-bold text-emerald-700">مسار نشط</span>
               </div>
             </Link>
             <nav className="hidden items-center gap-1 md:flex" dir="rtl">
@@ -729,7 +729,7 @@ export default function PartnerMarketingPreview() {
               </button>
               <Link
                 to={ROUTE_PATHS.PARTNER_MARKETING}
-                className="group flex items-center gap-1.5 rounded-xl border border-amber-300/30 bg-amber-500/10 px-3.5 py-2 text-[0.78rem] font-semibold text-amber-100 transition-all hover:bg-amber-500/20"
+                className="group flex items-center gap-1.5 rounded-xl border border-amber-300/30 bg-amber-500/10 px-3.5 py-2 text-[0.78rem] font-semibold text-amber-800 transition-all hover:bg-amber-500/20"
               >
                 <Megaphone className="h-3.5 w-3.5" />
                 {PARTNER_JOIN_PATH_SECONDARY_LINKS.marketing}
@@ -738,7 +738,7 @@ export default function PartnerMarketingPreview() {
                 href={`${PARTNER_SUPPORT_WHATSAPP_URL}?text=${encodeURIComponent('مرحباً، أريد تسجيل صالوني في حلاق ماب.')}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group flex items-center gap-1.5 rounded-xl border border-emerald-400/30 bg-emerald-500/10 px-3.5 py-2 text-[0.78rem] font-semibold text-emerald-100 transition-all hover:bg-emerald-500/20"
+                className="group flex items-center gap-1.5 rounded-xl border border-emerald-400/30 bg-emerald-500/10 px-3.5 py-2 text-[0.78rem] font-semibold text-emerald-800 transition-all hover:bg-emerald-500/20"
               >
                 <SiWhatsapp className="h-3.5 w-3.5" />
                 واتساب
@@ -822,7 +822,7 @@ export default function PartnerMarketingPreview() {
                   <Link
                     to={ROUTE_PATHS.PARTNER_MARKETING}
                     onClick={() => setMobileNavOpen(false)}
-                    className="mt-1 flex w-full items-center justify-center gap-2 rounded-xl border border-amber-300/30 bg-amber-500/10 py-2.5 text-sm font-bold text-amber-100"
+                    className="mt-1 flex w-full items-center justify-center gap-2 rounded-xl border border-amber-300/30 bg-amber-500/10 py-2.5 text-sm font-bold text-amber-800"
                   >
                     <Megaphone className="h-4 w-4" />
                     {PARTNER_JOIN_PATH_SECONDARY_LINKS.marketing}
@@ -831,7 +831,7 @@ export default function PartnerMarketingPreview() {
                     href={`${PARTNER_SUPPORT_WHATSAPP_URL}?text=${encodeURIComponent('مرحباً، أريد تسجيل صالوني في حلاق ماب.')}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="mt-1 flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-400/30 bg-emerald-500/10 py-2.5 text-sm font-bold text-emerald-100"
+                    className="mt-1 flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-400/30 bg-emerald-500/10 py-2.5 text-sm font-bold text-emerald-800"
                   >
                     <SiWhatsapp className="h-4 w-4" />
                     تواصل واتساب
@@ -842,14 +842,14 @@ export default function PartnerMarketingPreview() {
                     onPointerDown={warmRegisterRoute}
                     onTouchStart={warmRegisterRoute}
                     onClick={() => { setMobileNavOpen(false); goRegister('mobile_nav'); }}
-                    className="mt-1 flex w-full items-center justify-center gap-2 rounded-xl border border-teal-400/40 bg-teal-500/15 py-2.5 text-sm font-black text-teal-100">
+                    className="mt-1 flex w-full items-center justify-center gap-2 rounded-xl border border-teal-400/40 bg-teal-500/15 py-2.5 text-sm font-black text-teal-900">
                     <RegisterSalonGlowIcon size="sm" tone="gold" />
                     {PARTNER_JOIN_PATH_PRIMARY_CTA_AR}
                   </button>
                   <Link
                     to={ROUTE_PATHS.PARTNER_APP}
                     onClick={() => setMobileNavOpen(false)}
-                    className="mt-1 flex w-full items-center justify-center gap-2 rounded-xl border border-teal-400/30 bg-teal-500/10 py-2.5 text-sm font-bold text-teal-100"
+                    className="mt-1 flex w-full items-center justify-center gap-2 rounded-xl border border-teal-400/30 bg-teal-500/10 py-2.5 text-sm font-bold text-teal-800"
                   >
                     <Smartphone className="h-4 w-4" />
                     {PARTNER_JOIN_PATH_SECONDARY_LINKS.app}
@@ -887,7 +887,7 @@ export default function PartnerMarketingPreview() {
           <motion.div initial={false} animate={{ opacity: 1, x: 0 }}>
 
             <div
-              className="mb-4 inline-flex items-center gap-2 rounded-full border border-teal-400/30 bg-teal-500/10 px-4 py-1.5 text-[0.68rem] font-semibold text-teal-100 sm:text-xs">
+              className="mb-4 inline-flex items-center gap-2 rounded-full border border-teal-400/30 bg-teal-500/10 px-4 py-1.5 text-[0.68rem] font-semibold text-teal-800 sm:text-xs">
               <Sparkles className="h-3 w-3 shrink-0" />
               {PARTNER_JOIN_PATH_BADGE_AR}
             </div>
@@ -900,7 +900,7 @@ export default function PartnerMarketingPreview() {
             </h1>
 
             <p className={cn(
-              'mb-5 max-w-xl font-bold leading-snug text-teal-200',
+              'mb-5 max-w-xl font-bold leading-snug text-teal-700',
               isMobile ? 'text-[1.05rem]' : 'mb-4 text-xl md:text-2xl',
             )}>
               {PARTNER_JOIN_PATH_HERO_HEADLINE_AR}
@@ -910,10 +910,10 @@ export default function PartnerMarketingPreview() {
               {PARTNER_HERO_MATCH_CLARIFICATION_AR}
             </div>
 
-            <p className="mb-3 text-sm font-semibold text-amber-200/90">
+            <p className="mb-3 text-sm font-semibold text-amber-800/90">
               يقتصر الاشتراك على المنشآت فقط · بوابة الدفع بعد اكتمال التعهدات
             </p>
-            <p className="mb-5 max-w-xl text-sm font-semibold text-teal-100/90">
+            <p className="mb-5 max-w-xl text-sm font-semibold text-teal-800/90">
               {PARTNER_JOIN_PATH_TRUST_LINE_AR}
             </p>
 
@@ -936,14 +936,14 @@ export default function PartnerMarketingPreview() {
                 href={`${PARTNER_SUPPORT_WHATSAPP_URL}?text=${encodeURIComponent('مرحباً، أريد تسجيل صالوني في حلاق ماب.')}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 rounded-xl border border-emerald-400/40 bg-emerald-500/10 px-6 py-4 font-semibold text-emerald-100 hover:bg-emerald-500/20"
+                className="flex items-center justify-center gap-2 rounded-xl border border-emerald-400/40 bg-emerald-500/10 px-6 py-4 font-semibold text-emerald-800 hover:bg-emerald-500/20"
               >
                 <SiWhatsapp className="h-4 w-4" /> تواصل واتساب مباشر
               </a>
               {isStrictPartnerPath && !isMobile ? (
                 <Link
                   to={ROUTE_PATHS.PARTNER_SALES_OFFICE}
-                  className="flex items-center justify-center gap-2 rounded-xl border border-amber-300/30 bg-amber-500/10 px-5 py-3 text-sm font-semibold text-amber-100 hover:bg-amber-500/20"
+                  className="flex items-center justify-center gap-2 rounded-xl border border-amber-300/30 bg-amber-500/10 px-5 py-3 text-sm font-semibold text-amber-800 hover:bg-amber-500/20"
                 >
                   <BriefcaseBusiness className="h-4 w-4" />
                   مكتب المبيعات
@@ -1045,7 +1045,7 @@ export default function PartnerMarketingPreview() {
                 transition={{ delay: index * 0.08 }}
                 className="flex min-h-[180px] flex-col rounded-2xl border border-[#dac8aa] bg-[#fbf6ec] p-5"
               >
-                <span className="mb-3 inline-flex h-9 w-9 items-center justify-center rounded-full bg-teal-500/15 text-sm font-black text-teal-200">{step.step}</span>
+                <span className="mb-3 inline-flex h-9 w-9 items-center justify-center rounded-full bg-teal-500/15 text-sm font-black text-teal-700">{step.step}</span>
                 <h3 className="text-base font-bold text-[#2e2418]">{step.title}</h3>
                 <p className="mt-2 text-sm leading-7 text-[#6f6250]">{step.body}</p>
               </motion.div>
@@ -1060,7 +1060,7 @@ export default function PartnerMarketingPreview() {
         <div className="mx-auto max-w-5xl px-5">
           <div className="mb-14 text-center">
             <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
-              className="mb-3 inline-flex items-center gap-2 rounded-full border border-amber-300/30 bg-amber-500/10 px-4 py-1.5 text-xs font-semibold text-amber-200">
+              className="mb-3 inline-flex items-center gap-2 rounded-full border border-amber-300/30 bg-amber-500/10 px-4 py-1.5 text-xs font-semibold text-amber-800">
               <Crown className="h-3 w-3" /> حزم <DigitalAccessLicenseHint />
             </motion.div>
             <motion.h2 initial={{ opacity: 0, y: 14 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
@@ -1069,7 +1069,7 @@ export default function PartnerMarketingPreview() {
             </motion.h2>
             <p className="text-[#3d3226]">{PARTNER_SECTION_INTROS.plans.lead}</p>
             {isPartnerSharedTrialOfferLive() ? (
-              <p className="mx-auto mt-4 max-w-2xl rounded-xl border border-amber-300/25 bg-amber-500/10 px-4 py-3 text-sm leading-7 text-amber-100">
+              <p className="mx-auto mt-4 max-w-2xl rounded-xl border border-amber-300/25 bg-amber-500/10 px-4 py-3 text-sm leading-7 text-amber-800">
                 <span className="font-bold">{PARTNER_SHARED_TRIAL_OFFER.headline}</span>
                 {' — '}
                 {PARTNER_SHARED_TRIAL_OFFER.untilAr}
@@ -1136,7 +1136,7 @@ export default function PartnerMarketingPreview() {
           </div>
           </div>
           <div className="mt-6 rounded-2xl border border-amber-300/25 bg-amber-500/10 px-5 py-4 text-right">
-            <p className="text-[0.72rem] font-black tracking-[0.16em] text-amber-200">
+            <p className="text-[0.72rem] font-black tracking-[0.16em] text-amber-900">
               تنبيه امتثال لمحتوى الفيديو
             </p>
             <p className="mt-2 text-sm leading-7 text-[#3d3226]">
@@ -1181,7 +1181,7 @@ export default function PartnerMarketingPreview() {
           <div className="mb-12 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {PARTNER_CUSTOMER_VIEW_SECTION.steps.map((step, index) => (
               <div key={step.title} className="rounded-2xl border border-[#dac8aa] bg-[#fbf6ec] p-5">
-                <span className="text-xs font-black text-teal-300">الخطوة {index + 1}</span>
+                <span className="text-xs font-black text-teal-700">الخطوة {index + 1}</span>
                 <h3 className="mt-2 text-base font-bold text-[#2e2418]">{step.title}</h3>
                 <p className="mt-2 text-sm leading-7 text-[#6f6250]">{step.body}</p>
               </div>
@@ -1205,7 +1205,7 @@ export default function PartnerMarketingPreview() {
             <button
               type="button"
               onClick={() => navigate(ROUTE_PATHS.PARTNERS_BANNERS_PREVIEW)}
-              className="inline-flex min-h-[44px] items-center gap-2 rounded-xl border border-amber-300/30 bg-amber-500/10 px-6 py-3 text-sm font-semibold text-amber-100 transition-all hover:border-amber-300/50 hover:bg-amber-500/20"
+              className="inline-flex min-h-[44px] items-center gap-2 rounded-xl border border-amber-300/30 bg-amber-500/10 px-6 py-3 text-sm font-semibold text-amber-800 transition-all hover:border-amber-300/50 hover:bg-amber-500/20"
             >
               <ImageIcon className="h-4 w-4" /> معاينة تفصيلية للبنرات والمكتب الخاص
             </button>
@@ -1243,7 +1243,7 @@ export default function PartnerMarketingPreview() {
           <ul className="mt-8 space-y-4">
             {PARTNER_WHAT_WE_OFFER_POINTS.map((point) => (
               <li key={point} className="flex items-start gap-3 rounded-xl border border-[#dac8aa] bg-[#fbf6ec] px-4 py-3 text-sm leading-7 text-[#3d3226]">
-                <CheckCircle2 className="mt-1 h-4 w-4 shrink-0 text-teal-300" aria-hidden />
+                <CheckCircle2 className="mt-1 h-4 w-4 shrink-0 text-teal-600" aria-hidden />
                 {point}
               </li>
             ))}
@@ -1270,7 +1270,7 @@ export default function PartnerMarketingPreview() {
         <div className="mx-auto max-w-5xl px-5">
           <div className="grid items-center gap-12 lg:grid-cols-2">
             <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} dir="rtl">
-              <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-amber-300/30 bg-amber-500/10 px-4 py-1.5 text-xs font-semibold text-amber-200">
+              <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-amber-300/30 bg-amber-500/10 px-4 py-1.5 text-xs font-semibold text-amber-800">
                 <FileCheck className="h-3 w-3" /> بعد اكتمال الاشتراك والتفعيل
               </div>
               <h2 className="mb-5 text-3xl font-black text-[#2e2418]">{PARTNER_ACTIVATION_CERTIFICATE_SECTION.title}</h2>
@@ -1288,7 +1288,7 @@ export default function PartnerMarketingPreview() {
                   'مرجع للتحقق والدعم ولوحة التحكم داخل المنصة',
                 ].map((item) => (
                   <div key={item} className="flex items-center gap-2 text-sm text-[#3d3226]">
-                    <CheckCircle2 className="h-4 w-4 shrink-0 text-amber-300" />
+                    <CheckCircle2 className="h-4 w-4 shrink-0 text-amber-600" />
                     {item}
                   </div>
                 ))}
@@ -1325,7 +1325,7 @@ export default function PartnerMarketingPreview() {
               {PARTNER_FINAL_CTA_SECTION.body}
             </p>
             {isPartnerSharedTrialOfferLive() ? (
-              <p className="mx-auto mb-6 max-w-md text-sm text-amber-200/90">
+              <p className="mx-auto mb-6 max-w-md text-sm text-amber-800/90">
                 {PARTNER_SHARED_TRIAL_OFFER.headline} — {PARTNER_SHARED_TRIAL_OFFER.untilAr}
               </p>
             ) : null}
@@ -1378,7 +1378,7 @@ export default function PartnerMarketingPreview() {
             <div dir="rtl">
               <h4 className="mb-4 text-xs font-bold uppercase tracking-wider text-[#6f6250]">مسار الشركاء</h4>
               <div className="flex flex-col gap-2.5 text-sm text-[#3d3226]">
-                <a href={STORE_ORIGIN} className="hover:text-amber-200 transition-colors">
+                <a href={STORE_ORIGIN} className="hover:text-amber-700 transition-colors">
                   المتجر الإلكتروني
                 </a>
                 {[
@@ -1396,7 +1396,7 @@ export default function PartnerMarketingPreview() {
                     key={link.label}
                     to={link.to}
                     onClick={link.source ? () => ProductEvents.partnerJoinCtaClick({ source: link.source }) : undefined}
-                    className="hover:text-amber-200 transition-colors"
+                    className="hover:text-amber-700 transition-colors"
                   >
                     {link.label}
                   </Link>
@@ -1412,14 +1412,14 @@ export default function PartnerMarketingPreview() {
                   onFocus={warmHomeRoute}
                   onPointerDown={warmHomeRoute}
                   onTouchStart={warmHomeRoute}
-                  className="text-sm text-[#3d3226] hover:text-teal-200 transition-colors"
+                  className="text-sm text-[#3d3226] hover:text-teal-700 transition-colors"
                 >
                   ابحث عن حلاق ↗
                 </Link>
-                <Link to={ROUTE_PATHS.USER_PRIVACY_POLICY} className="text-sm text-[#3d3226] hover:text-teal-200">سياسة الخصوصية</Link>
-                <Link to={ROUTE_PATHS.TERMS_OF_SERVICE} className="text-sm text-[#3d3226] hover:text-teal-200">شروط الاستخدام</Link>
+                <Link to={ROUTE_PATHS.USER_PRIVACY_POLICY} className="text-sm text-[#3d3226] hover:text-teal-700">سياسة الخصوصية</Link>
+                <Link to={ROUTE_PATHS.TERMS_OF_SERVICE} className="text-sm text-[#3d3226] hover:text-teal-700">شروط الاستخدام</Link>
                 {PUBLIC_PULSE_EXPERIENCE_ENABLED ? (
-                  <Link to={ROUTE_PATHS.RADAR_SHOWCASE} className="text-sm text-[#3d3226] hover:text-teal-200 transition-colors">
+                  <Link to={ROUTE_PATHS.RADAR_SHOWCASE} className="text-sm text-[#3d3226] hover:text-teal-700 transition-colors">
                     {PULSE_MAP_LINK_LABEL_AR}
                   </Link>
                 ) : null}

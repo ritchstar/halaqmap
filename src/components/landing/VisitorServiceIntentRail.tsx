@@ -84,7 +84,7 @@ export function VisitorServiceIntentRail({
             اسحب ←
           </span>
         ) : (
-          <span className="rounded-full border border-teal-400/20 bg-teal-500/10 px-2.5 py-0.5 text-[0.62rem] font-semibold text-teal-200">
+          <span className="rounded-full border border-teal-400/20 bg-teal-500/10 px-2.5 py-0.5 text-[0.62rem] font-semibold text-teal-700">
             {hasLocation ? 'فلترة نشطة' : 'اختر ثم حدّد الموقع'}
           </span>
         )}

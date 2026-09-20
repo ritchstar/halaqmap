@@ -54,7 +54,7 @@ export function VisitorMobileQueryLens({ filters, hasLocation, onIntentChange }:
   return (
     <div className="mb-2.5 space-y-2" dir="rtl">
       <div className="flex items-center justify-between gap-2 px-0.5">
-        <p className="text-[0.62rem] font-black tracking-wide text-teal-300/90">
+        <p className="text-[0.62rem] font-black tracking-wide text-teal-700/90">
           {VISITOR_MOBILE_QUERY_KICKER_AR}
         </p>
         <p className="truncate text-[0.68rem] font-bold text-[#2e2418]/90">
@@ -94,7 +94,7 @@ export function VisitorMobileQueryLens({ filters, hasLocation, onIntentChange }:
                 <span
                   className={cn(
                     'mt-1 block truncate text-[0.62rem] font-bold leading-tight',
-                    active ? 'text-teal-100' : 'text-[#2e2418]/80',
+                    active ? 'text-teal-800' : 'text-[#2e2418]/80',
                   )}
                 >
                   {intent.shortLabel}
@@ -134,7 +134,7 @@ export function VisitorMobileQueryLens({ filters, hasLocation, onIntentChange }:
                 <span
                   className={cn(
                     'mt-0.5 block truncate text-[0.52rem] font-bold leading-tight',
-                    active ? 'text-teal-100' : 'text-[#2e2418]/70',
+                    active ? 'text-teal-800' : 'text-[#2e2418]/70',
                   )}
                 >
                   {intent.shortLabel}

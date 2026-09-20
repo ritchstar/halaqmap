@@ -38,7 +38,7 @@ export function MobilePartnerActionDock({ onRegister, onSalesOffice, className }
           onClick={onSalesOffice}
           className="flex shrink-0 items-center justify-center gap-2 rounded-2xl border border-[#dac8aa] bg-[#fbf6ec] px-3 py-3.5 text-sm font-bold text-[#2e2418] transition active:bg-[#f0e6d0]"
         >
-          <BriefcaseBusiness className="h-4 w-4 shrink-0 text-amber-300" />
+          <BriefcaseBusiness className="h-4 w-4 shrink-0 text-amber-700" />
           المبيعات
         </button>
       </div>

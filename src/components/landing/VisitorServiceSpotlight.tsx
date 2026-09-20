@@ -73,7 +73,7 @@ export function VisitorServiceSpotlight({
                 <span className="text-2xl">{intent?.emoji ?? '✂️'}</span>
                 <h3 className="mt-3 text-base font-bold text-[#2e2418]">{card.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-[#3d3226]">{card.benefit}</p>
-                <span className="mt-4 inline-flex text-xs font-semibold text-teal-300 group-hover:text-teal-200">
+                <span className="mt-4 inline-flex text-xs font-semibold text-teal-700 group-hover:text-teal-800">
                   {active ? VISITOR_SERVICE_SPOTLIGHT_ACTIVE_CTA_AR : VISITOR_SERVICE_SPOTLIGHT_CTA_AR}
                 </span>
               </motion.button>

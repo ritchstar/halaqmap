@@ -100,4 +100,32 @@ for (const relPath of [
   );
 }
 
+// حارس ضد "علّة الشارات الباهتة": نصوص شارات/كيكرات بلون فاتح جداً
+// (مثل text-emerald-200 أو text-amber-100) كانت مصمَّمة لتبرز فوق كانفاس
+// داكن، وأصبحت شبه غير مرئية فوق الخلفية البيج بعد التحويل — هذا بالضبط ما
+// اشتكى منه المستخدم في هيدر صفحة مسار الشركاء (شارة "مسار نشط"، روابط
+// "خطط التسويق" و"واتساب"). ثبّت هنا أن الشارات الأساسية في الهيدر تستخدم
+// درجات نص غامقة بما يكفي للقراءة فوق خلفية فاتحة.
+{
+  const source = readFileSync(join(root, 'src/pages/PartnerMarketingPreview.tsx'), 'utf8');
+  assert.match(
+    source,
+    /text-emerald-700">مسار نشط/,
+    'شارة "مسار نشط" في الهيدر يجب أن تستخدم نص غامق (emerald-700) لا شديد الشحوب',
+  );
+  assert.doesNotMatch(
+    source,
+    /text-emerald-(?:100|200)">مسار نشط/,
+    'شارة "مسار نشط" لا يجب أن تعود لنص باهت (emerald-100/200) فوق الخلفية الفاتحة',
+  );
+  // شريط التذكير العلوي (PartnerPlatformLaunchTicker وأخواته) له متغيّر
+  // "partner-light" مخصّص بالضبط لهذه الحالة — يجب استخدامه بدل partner-dark
+  // الآن أن الصفحة نفسها فاتحة (PartnerSalesOfficePage.tsx يستخدمه بالفعل).
+  assert.doesNotMatch(
+    source,
+    /surface="partner-dark"/,
+    'أشرطة التذكير العلوية في صفحة مسار الشركاء يجب أن تستخدم surface="partner-light" لا "partner-dark" بعد تفتيح الصفحة',
+  );
+}
+
 console.log('landing-partners-light-theme: ok');

@@ -30,7 +30,7 @@ export function VisitorTrustTriad({ compact = false, variant = 'cards' }: Props)
               className="flex min-w-0 flex-1 flex-col items-center gap-1 rounded-lg border border-[#dac8aa] bg-[#fbf6ec] px-1 py-2"
             >
               <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-teal-500/15">
-                <Icon className="h-3 w-3 text-teal-300" aria-hidden />
+                <Icon className="h-3 w-3 text-teal-700" aria-hidden />
               </div>
               <span className="w-full truncate text-center text-[0.62rem] font-bold leading-tight text-[#2e2418]/90">
                 {item.chipLabel}
@@ -59,7 +59,7 @@ export function VisitorTrustTriad({ compact = false, variant = 'cards' }: Props)
           >
             <div className="mb-2 flex items-center gap-2">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-teal-500/15">
-                <Icon className="h-4 w-4 text-teal-300" />
+                <Icon className="h-4 w-4 text-teal-700" />
               </div>
               <p className={cn('font-bold text-[#2e2418]', compact ? 'text-xs' : 'text-sm')}>{item.title}</p>
             </div>

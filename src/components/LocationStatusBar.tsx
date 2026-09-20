@@ -123,7 +123,7 @@ export function LocationStatusBar({ lat, lng }: Props) {
               <Navigation2 className="h-2.5 w-2.5 text-teal-400" />
             </motion.div>
             <div className="flex min-w-0 flex-col">
-              <span className="truncate text-[0.65rem] font-bold leading-tight text-teal-200">
+              <span className="truncate text-[0.65rem] font-bold leading-tight text-teal-700">
                 {city}
               </span>
               <span className="font-mono text-[0.55rem] leading-tight text-teal-400/70">
@@ -132,7 +132,7 @@ export function LocationStatusBar({ lat, lng }: Props) {
             </div>
             <button
               onClick={(e) => { e.stopPropagation(); setDismissed(true); }}
-              className="ms-1 rounded p-0.5 text-slate-600 hover:text-slate-400"
+              className="ms-1 rounded p-0.5 text-[#6f6250] hover:text-[#3d3226]"
             >
               <X className="h-2.5 w-2.5" />
             </button>
@@ -142,15 +142,15 @@ export function LocationStatusBar({ lat, lng }: Props) {
           {detailOpen ? (
             <div className="overflow-hidden border-t border-teal-400/10">
               <div className="flex flex-col gap-0.5 px-2.5 py-2">
-                <div className="flex items-center gap-1 text-[0.55rem] text-slate-400">
+                <div className="flex items-center gap-1 text-[0.55rem] text-[#6f6250]">
                   <MapPin className="h-2 w-2 text-teal-500" />
                   <span className="font-mono">{latStr}</span>
                 </div>
-                <div className="flex items-center gap-1 text-[0.55rem] text-slate-400">
+                <div className="flex items-center gap-1 text-[0.55rem] text-[#6f6250]">
                   <MapPin className="h-2 w-2 text-teal-500" />
                   <span className="font-mono">{lngStr}</span>
                 </div>
-                <div className="flex items-center gap-1 text-[0.55rem] text-slate-500">
+                <div className="flex items-center gap-1 text-[0.55rem] text-[#6f6250]">
                   <Clock className="h-2 w-2" />
                   <span>UTC+3 · توقيت المملكة</span>
                 </div>
