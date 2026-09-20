@@ -40,6 +40,7 @@ import { PARTNER_BANNERS_PREVIEW_TIERS } from '@/config/partnerBannersPreviewCop
 import { PARTNER_PRODUCT_HUB_OFFICE_ADDON_LINE } from '@/config/partnerProductHubCopy';
 import { PARTNER_TECHNICAL_PARTNER_LABEL_AR } from '@/config/partnerTechnicalPartnerDoctrine';
 import { PLATFORM_B2B_TECHNICAL_PARTNER_ROLE_AR } from '@/config/platformIdentity';
+import { FOUNDER_DESK_COPY } from '@/config/founderDeskCopy';
 import {
   PARTNER_SECTION_INTROS,
 } from '@/config/partnerFieldSalesCopy';
@@ -954,14 +955,6 @@ export default function PartnerMarketingPreview() {
               {PARTNER_JOIN_PATH_APP_HINT_AR}
             </p>
 
-            <div className="mt-8">
-              <SilentBannerGuard>
-                <Suspense fallback={null}>
-                  <FounderDeskBannerLazy origin="partners" />
-                </Suspense>
-              </SilentBannerGuard>
-            </div>
-
           </motion.div>
 
           {/* Card preview */}
@@ -1349,6 +1342,23 @@ export default function PartnerMarketingPreview() {
               </button>
             </div>
           </motion.div>
+        </div>
+      </section>
+
+      {/* ── محادثة خاصة مع الإدارة — أسفل الصفحة قبل الفوتر ─────────────── */}
+      <section className="relative z-10 py-16 md:py-20">
+        <div className="mx-auto max-w-5xl px-5 text-center">
+          <h2 className="mb-2 text-2xl font-black text-[#2e2418] md:text-3xl">
+            {FOUNDER_DESK_COPY.subtitleAr}
+          </h2>
+          <p className="mx-auto mb-8 max-w-xl text-sm leading-relaxed text-[#3d3226]">
+            {FOUNDER_DESK_COPY.chatIntroAr}
+          </p>
+          <SilentBannerGuard>
+            <Suspense fallback={null}>
+              <FounderDeskBannerLazy origin="partners" />
+            </Suspense>
+          </SilentBannerGuard>
         </div>
       </section>
 
