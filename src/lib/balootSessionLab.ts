@@ -26,6 +26,11 @@ function looksLikeValidMatch(raw: unknown): raw is BalootMatchState {
   if (!candidate.hand || typeof candidate.hand !== 'object') return false;
   if (!isBalootSeat(candidate.hand.dealerSeat) || !isBalootSeat(candidate.hand.turnSeat)) return false;
   if (!Array.isArray(candidate.hand.tricks)) return false;
+  // جلسات محفوظة قبل إضافة صن والمضاعفة لا تحمل هذين الحقلين — نرفضها هنا
+  // عمداً (بدل تعويض قيم افتراضية بصمت) لمنع تشغيل شوط بحالة ناقصة بعد نشر
+  // هذا التحديث؛ اللاعب يبدأ مباراة جديدة بدل استكمال جلسة قديمة غير متوافقة.
+  if (candidate.hand.mode !== 'hokum' && candidate.hand.mode !== 'sun') return false;
+  if (candidate.hand.doubleLevel !== 1 && candidate.hand.doubleLevel !== 2 && candidate.hand.doubleLevel !== 4) return false;
   if (candidate.status !== 'playing' && candidate.status !== 'player_team_won' && candidate.status !== 'opponent_team_won') {
     return false;
   }

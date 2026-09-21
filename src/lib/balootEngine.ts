@@ -9,8 +9,12 @@
  * (سعودي/خليجي). كل قيمة معرّفة كثابت مسمّى بمكان واحد ليسهل ضبطها لاحقاً
  * بعد مراجعة المستخدم دون المساس بمنطق المحرك.
  *
- * لا تُطبَّق بعد: صن (اللعب بلا حكم)، المضاعفة (دبل/ريدبل)، وقاعدة
- * «الإجبار على التغطية» الصارمة عند العجز عن اللحاق بالبذلة (تُترك حرة).
+ * الإصدار 1.1: أُضيف صن (اللعب بلا حكم — كل البذل الأربع بقيم البذلة
+ * العادية، ولا مكافأة بلوت لأنها تعتمد شايب/كوز الحكم تحديداً) والمضاعفة
+ * (دبل ×٢ من فريق الدفاع، ريدبل ×٤ من فريق المزايدة بعد الدبل). كلاهما
+ * اصطلاح شائع منشور بانتظار اعتماد نهائي من مرجع بشري — انظر تفاصيل الخيار
+ * المعتمد في docs/baloot-rules-v1.md. لا تزال «الإجبار على التغطية»
+ * الصارمة عند العجز عن اللحاق بالبذلة غير مُطبَّقة (تُترك حرة).
  *
  * التوثيق الرسمي المقابل لكل قاعدة هنا: docs/baloot-rules-v1.md — أي
  * تعديل على قيمة أو منطق في هذا الملف يجب أن يُحدَّث في تلك الوثيقة
@@ -79,7 +83,13 @@ export const BALOOT_BALOOT_BONUS_POINTS = 20;
 /** مكافأة الكبّوت (فوز فريق واحد بكل الأشواط الثمانية) — قيمة قابلة للضبط لاحقاً. */
 export const BALOOT_KABOOT_BONUS_POINTS = 10;
 
-export function cardValue(card: BalootCard, trumpSuit: BalootSuit): number {
+/**
+ * قيمة ورقة بالنقاط. `trumpSuit = null` تعني «لا حكم إطلاقاً» (وضع صن) —
+ * حينها كل البذل الأربع تُحسب بقيم البذلة العادية تلقائياً، لأن المقارنة
+ * `card.suit === null` تكون دوماً خاطئة فتسقط على الفرع العادي بلا حاجة
+ * لفرع منطقي إضافي.
+ */
+export function cardValue(card: BalootCard, trumpSuit: BalootSuit | null): number {
   return card.suit === trumpSuit ? TRUMP_RANK_VALUE[card.rank] : PLAIN_RANK_VALUE[card.rank];
 }
 
@@ -88,8 +98,8 @@ function rankStrengthIndex(rank: BalootRank, isTrumpSuit: boolean): number {
   return order.indexOf(rank);
 }
 
-/** قوة ورقة نسبية (للمقارنة بين ورقتين من نفس الفئة: حكم مع حكم، أو بذلة مفتوحة مع نفسها). */
-export function cardStrengthIndex(card: BalootCard, trumpSuit: BalootSuit): number {
+/** قوة ورقة نسبية (للمقارنة بين ورقتين من نفس الفئة: حكم مع حكم، أو بذلة مفتوحة مع نفسها). `trumpSuit = null` = وضع صن. */
+export function cardStrengthIndex(card: BalootCard, trumpSuit: BalootSuit | null): number {
   return rankStrengthIndex(card.rank, card.suit === trumpSuit);
 }
 
@@ -132,13 +142,24 @@ export interface BalootTrick {
   winnerSeat: BalootSeat;
 }
 
+/** اختيار المزايدة: بذلة حكم، أو 'sun' (صن — بلا حكم)، أو null (تمرير). */
+export type BalootBidChoice = BalootSuit | 'sun' | null;
+
 export interface BalootBidEntry {
   seat: BalootSeat;
+  /** null لكل من «تمرير» و«صن» — استخدم الحقل `sun` للتفريق بينهما. */
   trumpSuit: BalootSuit | null;
+  /** true فقط حين كان هذا الإعلان صن (بلا حكم). غائب/false يعني تمرير أو حكم عادي. */
+  sun?: boolean;
   forced?: boolean;
 }
 
-export type BalootPhase = 'bidding' | 'playing' | 'hand_scored' | 'match_over';
+export type BalootGameMode = 'hokum' | 'sun';
+
+export type BalootPhase = 'bidding' | 'doubling' | 'playing' | 'hand_scored' | 'match_over';
+
+/** مستوى المضاعفة الحالي: ١ = بلا دبلة، ٢ = دبلة من فريق الدفاع، ٤ = ريدبل من فريق المزايدة. */
+export type BalootDoubleLevel = 1 | 2 | 4;
 
 export interface BalootSiraResult {
   seat: BalootSeat;
@@ -161,8 +182,11 @@ export interface BalootHandState {
   hands: Record<BalootSeat, BalootCard[]>;
   bids: BalootBidEntry[];
   trumpSuit: BalootSuit | null;
+  /** 'hokum' افتراضياً حتى تكتمل المزايدة — لا معنى له فعلياً قبل ذلك. */
+  mode: BalootGameMode;
   biddingTeam: BalootTeam | null;
   bonuses: BalootHandBonuses | null;
+  doubleLevel: BalootDoubleLevel;
   tricks: BalootTrick[];
   currentTrick: BalootTrickCard[];
   turnSeat: BalootSeat;
@@ -191,8 +215,10 @@ export function startBalootHand(handNumber: number, dealerSeat: BalootSeat, rng:
     hands: dealBalootHands(rng),
     bids: [],
     trumpSuit: null,
+    mode: 'hokum',
     biddingTeam: null,
     bonuses: null,
+    doubleLevel: 1,
     tricks: [],
     currentTrick: [],
     turnSeat: firstBidderSeat(dealerSeat),
@@ -220,25 +246,32 @@ export function isBiddingComplete(hand: BalootHandState): boolean {
 }
 
 /**
- * تسجيل مزايدة مقعد: trumpSuit = بذلة يعلن بها الحكم، أو null للتمرير.
- * إن أعلن أحد الحكم تنتهي المزايدة فوراً. إن مرّر الأربعة، يُجبر الموزّع
- * على إعلان الحكم في مزايدة تالية إضافية (forced: true).
+ * تسجيل مزايدة مقعد: choice = بذلة يعلن بها الحكم، أو 'sun' لإعلان صن
+ * (بلا حكم إطلاقاً)، أو null للتمرير. إن أعلن أحد حكماً أو صن تنتهي
+ * المزايدة فوراً وتبدأ نافذة المضاعفة (phase: 'doubling') قبل اللعب —
+ * انظر canDeclareDouble/declareBalootDouble. إن مرّر الأربعة، يُجبر
+ * الموزّع على إعلان الحكم في مزايدة تالية إضافية (forced: true) — الإجبار
+ * حكم دوماً، لا صن (لا يوجد أساس منشور لإجبار الموزّع على صن تحديداً).
  */
-export function applyBalootBid(hand: BalootHandState, seat: BalootSeat, trumpSuit: BalootSuit | null): BalootHandState {
+export function applyBalootBid(hand: BalootHandState, seat: BalootSeat, choice: BalootBidChoice): BalootHandState {
   if (hand.phase !== 'bidding' || hand.turnSeat !== seat || hand.trumpSuit !== null) return hand;
 
-  const bids = [...hand.bids, { seat, trumpSuit }];
+  const isSun = choice === 'sun';
+  const trumpSuit: BalootSuit | null = isSun ? null : choice;
+  const bids = [...hand.bids, { seat, trumpSuit, ...(isSun ? { sun: true as const } : {}) }];
 
-  if (trumpSuit !== null) {
+  if (choice !== null) {
     const leader = firstBidderSeat(hand.dealerSeat);
     return {
       ...hand,
       bids,
       trumpSuit,
+      mode: isSun ? 'sun' : 'hokum',
       biddingTeam: BALOOT_SEAT_TEAM[seat],
       bonuses: computeBalootHandBonuses(hand.hands, trumpSuit),
+      doubleLevel: 1,
       turnSeat: leader,
-      phase: 'playing',
+      phase: 'doubling',
     };
   }
 
@@ -251,14 +284,44 @@ export function applyBalootBid(hand: BalootHandState, seat: BalootSeat, trumpSui
       ...hand,
       bids: [...bids, { seat: hand.dealerSeat, trumpSuit: forcedSuit, forced: true }],
       trumpSuit: forcedSuit,
+      mode: 'hokum',
       biddingTeam: BALOOT_SEAT_TEAM[hand.dealerSeat],
       bonuses: computeBalootHandBonuses(hand.hands, forcedSuit),
+      doubleLevel: 1,
       turnSeat: leader,
-      phase: 'playing',
+      phase: 'doubling',
     };
   }
 
   return { ...hand, bids, turnSeat: nextSeat(seat) };
+}
+
+/** هل يحق لفريق الدفاع إعلان دبلة الآن (قبل أول ورقة، ولم تُعلَن دبلة بعد)؟ */
+export function canDeclareDouble(hand: BalootHandState, seat: BalootSeat): boolean {
+  return hand.phase === 'doubling' && hand.doubleLevel === 1 && hand.biddingTeam !== null && BALOOT_SEAT_TEAM[seat] !== hand.biddingTeam;
+}
+
+/** هل يحق لفريق المزايدة إعلان ريدبل الآن (بعد أن ضاعف فريق الدفاع بالفعل)؟ */
+export function canDeclareRedouble(hand: BalootHandState, seat: BalootSeat): boolean {
+  return hand.phase === 'doubling' && hand.doubleLevel === 2 && hand.biddingTeam !== null && BALOOT_SEAT_TEAM[seat] === hand.biddingTeam;
+}
+
+/** فريق الدفاع يضاعف رهان الشوط ×٢. لا ينهي نافذة المضاعفة — فريق المزايدة يملك حق الريدبل بعدها. */
+export function declareBalootDouble(hand: BalootHandState, seat: BalootSeat): BalootHandState {
+  if (!canDeclareDouble(hand, seat)) return hand;
+  return { ...hand, doubleLevel: 2 };
+}
+
+/** فريق المزايدة يعيد مضاعفة الرهان ×٤ بعد دبلة الخصم — ينهي نافذة المضاعفة فوراً ويبدأ اللعب. */
+export function declareBalootRedouble(hand: BalootHandState, seat: BalootSeat): BalootHandState {
+  if (!canDeclareRedouble(hand, seat)) return hand;
+  return { ...hand, doubleLevel: 4, phase: 'playing', turnSeat: firstBidderSeat(hand.dealerSeat) };
+}
+
+/** إنهاء نافذة المضاعفة بلا مزيد من التصعيد (تجاهل الطرف الآخر) — تبدأ اللعبة بالمضاعف الحالي كما هو. */
+export function startBalootPlayAfterDoubling(hand: BalootHandState): BalootHandState {
+  if (hand.phase !== 'doubling') return hand;
+  return { ...hand, phase: 'playing', turnSeat: firstBidderSeat(hand.dealerSeat) };
 }
 
 /** قيمة أوراق مقعد ضمن بذلة معيّنة لو صارت هي الحكم — أساس تقييم قوة المزايدة. */
@@ -309,10 +372,15 @@ function siraPoints(length: number): number {
   return BALOOT_SIRA_BONUS_BY_LENGTH[length] ?? 0;
 }
 
-/** يحسب مكافآت السرى (الأقوى فقط على الطاولة) والبلوت (شايب+بيبي الحكم) عند بداية الشوط. */
+/**
+ * يحسب مكافآت السرى (الأقوى فقط على الطاولة) والبلوت (شايب+بيبي الحكم) عند
+ * بداية الشوط. `trumpSuit = null` (وضع صن) يجعل بلوت مستحيلاً تلقائياً —
+ * لا بذلة حكم إطلاقاً فلا معنى لامتلاك «شايب وبيبي الحكم» — بينما السرى
+ * يبقى محتسباً بلا تغيير (لا يعتمد على وجود حكم أصلاً).
+ */
 export function computeBalootHandBonuses(
   hands: Record<BalootSeat, BalootCard[]>,
-  trumpSuit: BalootSuit,
+  trumpSuit: BalootSuit | null,
 ): BalootHandBonuses {
   let winningSira: BalootSiraResult | null = null;
   for (const seat of BALOOT_SEAT_ORDER) {
@@ -344,12 +412,17 @@ export function computeBalootHandBonuses(
   return { winningSira, balootSeats };
 }
 
-/** فائز الشوط الفرعي — يعمل أيضاً على شوط غير مكتمل (لمعرفة من يتصدّر حالياً أثناء اللعب). */
-export function trickWinnerSoFar(trick: readonly BalootTrickCard[], trumpSuit: BalootSuit): BalootSeat {
+/**
+ * فائز الشوط الفرعي — يعمل أيضاً على شوط غير مكتمل (لمعرفة من يتصدّر حالياً
+ * أثناء اللعب). `trumpSuit = null` (صن) يجعل مقارنة `card.suit === trumpSuit`
+ * خاطئة دوماً فلا تُختار أي ورقة كحكم — يفوز أعلى ورقة من بذلة الشوط المفتوح
+ * فقط، بلا أي بذلة متفوّقة، بلا حاجة لفرع منطقي إضافي.
+ */
+export function trickWinnerSoFar(trick: readonly BalootTrickCard[], trumpSuit: BalootSuit | null): BalootSeat {
   return trickWinner(trick as BalootTrickCard[], trumpSuit);
 }
 
-function trickWinner(trick: BalootTrickCard[], trumpSuit: BalootSuit): BalootSeat {
+function trickWinner(trick: BalootTrickCard[], trumpSuit: BalootSuit | null): BalootSeat {
   const ledSuit = trick[0].card.suit;
   const trumpsPlayed = trick.filter((t) => t.card.suit === trumpSuit);
   const pool = trumpsPlayed.length > 0 ? trumpsPlayed : trick.filter((t) => t.card.suit === ledSuit);
@@ -374,7 +447,10 @@ export function legalBalootMoves(hand: BalootHandState, seat: BalootSeat): Baloo
 
 /** يلعب ورقة لمقعد ما، ويغلق الشوط الفرعي (trick) تلقائياً عند اكتمال ٤ أوراق. */
 export function playBalootCard(hand: BalootHandState, seat: BalootSeat, cardId: string): BalootHandState {
-  if (hand.phase !== 'playing' || hand.turnSeat !== seat || !hand.trumpSuit) return hand;
+  // ملاحظة: لا نتحقق من `hand.trumpSuit` هنا — في وضع صن يبقى null طوال
+  // الشوط عن قصد (لا بذلة حكم إطلاقاً)، فالتحقق الصحيح من «هل انتهت
+  // المزايدة فعلاً؟» هو phase==='playing' مع biddingTeam مُحدَّد لا trumpSuit.
+  if (hand.phase !== 'playing' || hand.turnSeat !== seat || !hand.biddingTeam) return hand;
   const legal = legalBalootMoves(hand, seat);
   const card = legal.find((c) => c.id === cardId);
   if (!card) return hand;
@@ -408,16 +484,22 @@ export function playBalootCard(hand: BalootHandState, seat: BalootSeat, cardId: 
   };
 }
 
-/** يحسب نقاط الفريقين النهائية لشوط مكتمل (٨ أشواط فرعية)، متضمّناً قاعدة «الكبس» والمكافآت. */
+/**
+ * يحسب نقاط الفريقين النهائية لشوط مكتمل (٨ أشواط فرعية)، متضمّناً قاعدة
+ * «الكبس» والمكافآت والمضاعفة (doubleLevel). لا نتحقق من `hand.trumpSuit`
+ * هنا — يبقى null طوال شوط صن عن قصد؛ الفحص الصحيح لاكتمال المزايدة هو
+ * `hand.biddingTeam`.
+ */
 export function scoreCompletedBalootHand(hand: BalootHandState): Record<BalootTeam, number> {
-  if (!hand.trumpSuit || !hand.biddingTeam || hand.tricks.length < 8) {
+  if (!hand.biddingTeam || hand.tricks.length < 8) {
     return { playerTeam: 0, opponentTeam: 0 };
   }
+  const multiplier = hand.doubleLevel ?? 1;
 
   const rawCardPoints: Record<BalootTeam, number> = { playerTeam: 0, opponentTeam: 0 };
   for (const trick of hand.tricks) {
     const team = BALOOT_SEAT_TEAM[trick.winnerSeat];
-    const trickPoints = trick.cards.reduce((sum, entry) => sum + cardValue(entry.card, hand.trumpSuit as BalootSuit), 0);
+    const trickPoints = trick.cards.reduce((sum, entry) => sum + cardValue(entry.card, hand.trumpSuit), 0);
     rawCardPoints[team] += trickPoints;
   }
 
@@ -446,13 +528,18 @@ export function scoreCompletedBalootHand(hand: BalootHandState): Record<BalootTe
 
   const biddingTeam = hand.biddingTeam;
   const defendingTeam = otherTeam(biddingTeam);
+  // ملاحظة: المضاعفة (multiplier) تُطبَّق على الناتج النهائي فقط — لا تدخل
+  // مقارنة الكبس نفسها، فمن حقق النقاط الأعلى فعلياً لا يتغيّر بمضاعفة الرهان.
   if (total[biddingTeam] <= total[defendingTeam]) {
     // «كبس»: فريق المزايدة لم يحقق الأغلبية — يخسر شوطه كاملاً لصالح الخصم.
-    const handTotal = total.playerTeam + total.opponentTeam;
+    const handTotal = (total.playerTeam + total.opponentTeam) * multiplier;
     return { [biddingTeam]: 0, [defendingTeam]: handTotal } as Record<BalootTeam, number>;
   }
 
-  return total;
+  return {
+    playerTeam: total.playerTeam * multiplier,
+    opponentTeam: total.opponentTeam * multiplier,
+  };
 }
 
 export function applyHandScoreToMatch(match: BalootMatchState): BalootMatchState {

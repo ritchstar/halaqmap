@@ -1,9 +1,10 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
- * ساحة بلوت — المرحلة الأولى التأسيسية: لعب حكم فريق حقيقي ٢ ضد ٢ (اللاعب
- * وشريك آلي مقابل خصمين آليين) ضد بوتات قاعدية، مجاني بالكامل، بجلسة
- * محفوظة محلياً. لا صن ولا مضاعفة بعد — انظر التعليق أعلى balootEngine.ts.
+ * ساحة بلوت — لعب حكم أو صن، فريق حقيقي ٢ ضد ٢ (اللاعب وشريك آلي مقابل
+ * خصمين آليين) ضد بوتات قاعدية، مع دبلة وريدبل، مجاني بالكامل، بجلسة
+ * محفوظة محلياً. اللعب الحقيقي مع الأصدقاء لم يُطبَّق بعد — انظر التعليق
+ * أعلى balootEngine.ts.
  * Route: /baloot
  */
 import { useEffect, useRef, useState } from 'react';
@@ -15,19 +16,27 @@ import { BALOOT_ARENA_COPY, BALOOT_MATCH_TARGET_SCORE, BALOOT_SEAT_LABELS_AR, BA
 import {
   applyBalootBid,
   applyHandScoreToMatch,
+  BALOOT_SEAT_TEAM,
+  canDeclareDouble,
+  canDeclareRedouble,
+  declareBalootDouble,
+  declareBalootRedouble,
   legalBalootMoves,
   playBalootCard,
   startBalootMatch,
+  startBalootPlayAfterDoubling,
   startNextBalootHand,
+  type BalootBidChoice,
   type BalootMatchState,
   type BalootSeat,
   type BalootSuit,
 } from '@/lib/balootEngine';
-import { chooseBalootBotBid, chooseBalootBotCard } from '@/lib/balootBotAi';
+import { chooseBalootBotBid, chooseBalootBotCard, shouldBalootBotDouble, shouldBalootBotRedouble } from '@/lib/balootBotAi';
 import { clearBalootSession, readBalootSession, writeBalootSession } from '@/lib/balootSessionLab';
 import { BalootCardFace } from '@/components/baloot/BalootCardFace';
 import { BalootHandFan } from '@/components/baloot/BalootHandFan';
 import { BalootBiddingPanel } from '@/components/baloot/BalootBiddingPanel';
+import { BalootDoublingPanel } from '@/components/baloot/BalootDoublingPanel';
 import { BalootScoreboard } from '@/components/baloot/BalootScoreboard';
 
 type BalootArenaView = 'landing' | 'playing';
@@ -94,13 +103,46 @@ export default function BalootArenaPage() {
       };
     }
 
+    // نافذة المضاعفة قرار على مستوى الفريق لا المقعد: نتحقق فقط حين يكون
+    // القرار بأكمله لفريق البوتات (لا يشمل south إطلاقاً) — غير ذلك يبقى
+    // القرار للاعب عبر BalootDoublingPanel بلا أي فعل تلقائي هنا.
+    if (hand.phase === 'doubling') {
+      const southOnBiddingTeam = hand.biddingTeam !== null && BALOOT_SEAT_TEAM.south === hand.biddingTeam;
+
+      if (hand.doubleLevel === 1 && southOnBiddingTeam) {
+        botTimerRef.current = window.setTimeout(() => {
+          const defenders = BOT_SEATS.filter((s) => BALOOT_SEAT_TEAM[s] !== hand.biddingTeam);
+          const willDouble = defenders.some((s) => shouldBalootBotDouble(hand.hands[s], hand.trumpSuit));
+          const nextHand = willDouble ? declareBalootDouble(hand, defenders[0]) : startBalootPlayAfterDoubling(hand);
+          persist({ ...match, hand: nextHand, updatedAt: Date.now() });
+        }, BOT_MOVE_DELAY_MS);
+        return () => {
+          if (botTimerRef.current !== null) window.clearTimeout(botTimerRef.current);
+        };
+      }
+
+      if (hand.doubleLevel === 2 && !southOnBiddingTeam) {
+        botTimerRef.current = window.setTimeout(() => {
+          const bidders = BOT_SEATS.filter((s) => BALOOT_SEAT_TEAM[s] === hand.biddingTeam);
+          const willRedouble = bidders.some((s) => shouldBalootBotRedouble(hand.hands[s], hand.trumpSuit));
+          const nextHand = willRedouble ? declareBalootRedouble(hand, bidders[0]) : startBalootPlayAfterDoubling(hand);
+          persist({ ...match, hand: nextHand, updatedAt: Date.now() });
+        }, BOT_MOVE_DELAY_MS);
+        return () => {
+          if (botTimerRef.current !== null) window.clearTimeout(botTimerRef.current);
+        };
+      }
+
+      return;
+    }
+
     const isBotTurn = BOT_SEATS.includes(hand.turnSeat) && (hand.phase === 'bidding' || hand.phase === 'playing');
     if (!isBotTurn) return;
 
     botTimerRef.current = window.setTimeout(() => {
       if (hand.phase === 'bidding') {
-        const suit = chooseBalootBotBid(hand.hands[hand.turnSeat]);
-        persist({ ...match, hand: applyBalootBid(hand, hand.turnSeat, suit), updatedAt: Date.now() });
+        const choice = chooseBalootBotBid(hand.hands[hand.turnSeat]);
+        persist({ ...match, hand: applyBalootBid(hand, hand.turnSeat, choice), updatedAt: Date.now() });
         return;
       }
       const cardId = chooseBalootBotCard(hand, hand.turnSeat);
@@ -111,16 +153,36 @@ export default function BalootArenaPage() {
       if (botTimerRef.current !== null) window.clearTimeout(botTimerRef.current);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [view, match?.hand.turnSeat, match?.hand.phase, match?.hand.currentTrick.length, match?.status]);
+  }, [view, match?.hand.turnSeat, match?.hand.phase, match?.hand.currentTrick.length, match?.hand.doubleLevel, match?.status]);
 
-  function handlePlayerBid(trumpSuit: BalootSuit | null) {
+  function handlePlayerBid(choice: Exclude<BalootBidChoice, null>) {
     if (!match || match.hand.turnSeat !== 'south' || match.hand.phase !== 'bidding') return;
-    persist({ ...match, hand: applyBalootBid(match.hand, 'south', trumpSuit), updatedAt: Date.now() });
+    persist({ ...match, hand: applyBalootBid(match.hand, 'south', choice), updatedAt: Date.now() });
+  }
+
+  function handlePass() {
+    if (!match || match.hand.turnSeat !== 'south' || match.hand.phase !== 'bidding') return;
+    persist({ ...match, hand: applyBalootBid(match.hand, 'south', null), updatedAt: Date.now() });
   }
 
   function handlePlayerCard(cardId: string) {
     if (!match || match.hand.turnSeat !== 'south' || match.hand.phase !== 'playing') return;
     persist({ ...match, hand: playBalootCard(match.hand, 'south', cardId), updatedAt: Date.now() });
+  }
+
+  function handlePlayerDouble() {
+    if (!match || !canDeclareDouble(match.hand, 'south')) return;
+    persist({ ...match, hand: declareBalootDouble(match.hand, 'south'), updatedAt: Date.now() });
+  }
+
+  function handlePlayerRedouble() {
+    if (!match || !canDeclareRedouble(match.hand, 'south')) return;
+    persist({ ...match, hand: declareBalootRedouble(match.hand, 'south'), updatedAt: Date.now() });
+  }
+
+  function handleSkipDoubling() {
+    if (!match || match.hand.phase !== 'doubling') return;
+    persist({ ...match, hand: startBalootPlayAfterDoubling(match.hand), updatedAt: Date.now() });
   }
 
   if (view === 'landing') {
@@ -297,11 +359,16 @@ export default function BalootArenaPage() {
                 ))}
               </div>
 
-              {hand.trumpSuit && (
+              {hand.biddingTeam && (
                 <p className="mt-3 text-center text-xs font-bold text-[#d8ac52]">
-                  الحكم: {BALOOT_SUIT_SYMBOLS[hand.trumpSuit]} {BALOOT_SUIT_LABELS_AR[hand.trumpSuit]}
-                  {hand.biddingTeam && (
-                    <span className="text-[#8aa6a8]"> — أعلن {hand.biddingTeam === 'playerTeam' ? BALOOT_ARENA_COPY.playerTeamLabelAr : BALOOT_ARENA_COPY.opponentTeamLabelAr}</span>
+                  {hand.mode === 'sun'
+                    ? BALOOT_ARENA_COPY.sunModeLabelAr
+                    : `الحكم: ${BALOOT_SUIT_SYMBOLS[hand.trumpSuit as BalootSuit]} ${BALOOT_SUIT_LABELS_AR[hand.trumpSuit as BalootSuit]}`}
+                  <span className="text-[#8aa6a8]"> — أعلن {hand.biddingTeam === 'playerTeam' ? BALOOT_ARENA_COPY.playerTeamLabelAr : BALOOT_ARENA_COPY.opponentTeamLabelAr}</span>
+                  {hand.doubleLevel > 1 && (
+                    <span className="mr-1 rounded-full border border-[#c45c7a]/60 bg-[#c45c7a]/10 px-2 py-0.5 text-[10px] font-black text-[#c45c7a]">
+                      {hand.doubleLevel === 4 ? BALOOT_ARENA_COPY.redoubledBadgeAr : BALOOT_ARENA_COPY.doubledBadgeAr}
+                    </span>
                   )}
                 </p>
               )}
@@ -316,12 +383,27 @@ export default function BalootArenaPage() {
 
             {isPlayerBidTurn && (
               <div className="mt-4">
-                <BalootBiddingPanel onDeclare={(suit) => handlePlayerBid(suit)} onPass={() => handlePlayerBid(null)} />
+                <BalootBiddingPanel onDeclare={(choice) => handlePlayerBid(choice)} onPass={handlePass} />
               </div>
             )}
 
             {!isPlayerBidTurn && hand.phase === 'bidding' && (
               <p className="mt-4 text-center text-sm text-[#8aa6a8]">{BALOOT_ARENA_COPY.waitingForBidAr}</p>
+            )}
+
+            {hand.phase === 'doubling' && (
+              <div className="mt-4">
+                <BalootDoublingPanel
+                  canDouble={canDeclareDouble(hand, 'south')}
+                  canRedouble={canDeclareRedouble(hand, 'south')}
+                  onDouble={handlePlayerDouble}
+                  onRedouble={handlePlayerRedouble}
+                  onSkip={handleSkipDoubling}
+                />
+                {!canDeclareDouble(hand, 'south') && !canDeclareRedouble(hand, 'south') && (
+                  <p className="mt-2 text-center text-sm text-[#8aa6a8]">{BALOOT_ARENA_COPY.waitingForDoublingAr}</p>
+                )}
+              </div>
             )}
 
             <div className="mt-6">

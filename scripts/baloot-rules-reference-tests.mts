@@ -24,12 +24,17 @@ import {
   BALOOT_SIRA_BONUS_BY_LENGTH,
   BALOOT_SIRA_BONUS_FIVE_PLUS,
   buildBalootDeck,
+  canDeclareDouble,
+  canDeclareRedouble,
   cardStrengthIndex,
   cardValue,
   computeBalootHandBonuses,
+  declareBalootDouble,
+  declareBalootRedouble,
   isBiddingComplete,
   legalBalootMoves,
   scoreCompletedBalootHand,
+  startBalootPlayAfterDoubling,
   trickWinnerSoFar,
   type BalootCard,
   type BalootHandState,
@@ -118,8 +123,10 @@ group('٢) وجوب اتباع النوع (Follow Suit)', () => {
     },
     bids: [],
     trumpSuit: 'spades',
+    mode: 'hokum',
     biddingTeam: 'playerTeam',
     bonuses: null,
+    doubleLevel: 1,
     tricks: [],
     currentTrick: [{ seat: 'south', card: card('cLead', 'clubs', 'K') }],
     turnSeat: 'west',
@@ -213,8 +220,8 @@ group('٥) الكبّوت والكبس واحتساب المكافآت داخل 
   }));
   const kabootHand: BalootHandState = {
     handNumber: 1, dealerSeat: 'south', hands: emptyHands(), bids: [],
-    trumpSuit: 'spades', biddingTeam: 'playerTeam',
-    bonuses: { winningSira: null, balootSeats: [] },
+    trumpSuit: 'spades', mode: 'hokum', biddingTeam: 'playerTeam',
+    bonuses: { winningSira: null, balootSeats: [] }, doubleLevel: 1,
     tricks: kabootTricks, currentTrick: [], turnSeat: 'south', phase: 'hand_scored', handPoints: null,
   };
   eq(
@@ -237,11 +244,12 @@ group('٥) الكبّوت والكبس واحتساب المكافآت داخل 
   ];
   const bonusHand: BalootHandState = {
     handNumber: 1, dealerSeat: 'south', hands: emptyHands(), bids: [],
-    trumpSuit: 'spades', biddingTeam: 'playerTeam',
+    trumpSuit: 'spades', mode: 'hokum', biddingTeam: 'playerTeam',
     bonuses: {
       winningSira: { seat: 'south', suit: 'hearts', length: 3, topRankIndex: BALOOT_NATURAL_RANK_ORDER.indexOf('9'), points: BALOOT_SIRA_BONUS_BY_LENGTH[3] },
       balootSeats: ['north'],
     },
+    doubleLevel: 1,
     tricks: preciseBonusTricks, currentTrick: [], turnSeat: 'south', phase: 'hand_scored', handPoints: null,
   };
   // playerTeam: خام 39 + سرى ٢٠ + بلوت ٢٠ = ٧٩. opponentTeam: خام ٢١ + صفر = ٢١. ٧٩ > ٢١ فلا كبس.
@@ -264,8 +272,8 @@ group('٥) الكبّوت والكبس واحتساب المكافآت داخل 
   ];
   const kabsHand: BalootHandState = {
     handNumber: 1, dealerSeat: 'south', hands: emptyHands(), bids: [],
-    trumpSuit: 'spades', biddingTeam: 'playerTeam',
-    bonuses: { winningSira: null, balootSeats: [] },
+    trumpSuit: 'spades', mode: 'hokum', biddingTeam: 'playerTeam',
+    bonuses: { winningSira: null, balootSeats: [] }, doubleLevel: 1,
     tricks: kabsTricks, currentTrick: [], turnSeat: 'south', phase: 'hand_scored', handPoints: null,
   };
   // playerTeam خام=4 <= opponentTeam خام=28 → كبس: playerTeam=0, opponentTeam=4+28=32.
@@ -280,7 +288,7 @@ group('٦) تمرير الجميع وإجبار الموزّع', () => {
   };
   let hand: BalootHandState = {
     handNumber: 1, dealerSeat: 'south', hands, bids: [],
-    trumpSuit: null, biddingTeam: null, bonuses: null,
+    trumpSuit: null, mode: 'hokum', biddingTeam: null, bonuses: null, doubleLevel: 1,
     tricks: [], currentTrick: [], turnSeat: 'west', phase: 'bidding', handPoints: null,
   };
 
@@ -294,7 +302,8 @@ group('٦) تمرير الجميع وإجبار الموزّع', () => {
   eq('البذلة المُجبَرة = الأقوى في يد الموزّع (سبيد، ٢٠ > هارت ٧)', hand.trumpSuit, 'spades');
   eq('فريق المزايدة = فريق الموزّع (south → playerTeam)', hand.biddingTeam, 'playerTeam');
   eq('آخر مزايدة مُعلَّمة forced:true لمقعد الموزّع', hand.bids[hand.bids.length - 1], { seat: 'south', trumpSuit: 'spades', forced: true });
-  eq('الطور بعد الإجبار = playing', hand.phase, 'playing');
+  eq('الطور بعد الإجبار = doubling (نافذة المضاعفة قبل اللعب)', hand.phase, 'doubling');
+  eq('الإجبار حكم دوماً لا صن', hand.mode, 'hokum');
 });
 
 // ───────────────────────────────────────────────────────────────────────────
@@ -303,8 +312,8 @@ group('٧) تراكم نقاط المباراة وتحديد الفائز', () =
     return {
       version: 1, targetScore: 152, matchScore: { playerTeam, opponentTeam },
       hand: {
-        handNumber: 1, dealerSeat: 'south', hands: emptyHands(), bids: [], trumpSuit: 'spades',
-        biddingTeam: 'playerTeam', bonuses: null, tricks: [], currentTrick: [], turnSeat: 'south',
+        handNumber: 1, dealerSeat: 'south', hands: emptyHands(), bids: [], trumpSuit: 'spades', mode: 'hokum',
+        biddingTeam: 'playerTeam', bonuses: null, doubleLevel: 1, tricks: [], currentTrick: [], turnSeat: 'south',
         phase: 'hand_scored', handPoints,
       },
       status: 'playing', startedAt: 0, updatedAt: 0,
@@ -322,6 +331,147 @@ group('٧) تراكم نقاط المباراة وتحديد الفائز', () =
 
   const tie = applyHandScoreToMatch(matchWith(150, 150, { playerTeam: 2, opponentTeam: 2 }));
   eq('تعادل عند بلوغ الهدف معاً → لا فائز بعد، المباراة مستمرة', tie.status, 'playing');
+});
+
+// ───────────────────────────────────────────────────────────────────────────
+group('٨) صن (بلا حكم)', () => {
+  const hands: Record<BalootSeat, BalootCard[]> = {
+    south: [card('sJ', 'spades', 'J'), card('hK', 'hearts', 'K')],
+    west: [], north: [], east: [],
+  };
+  let hand: BalootHandState = {
+    handNumber: 1, dealerSeat: 'south', hands, bids: [],
+    trumpSuit: null, mode: 'hokum', biddingTeam: null, bonuses: null, doubleLevel: 1,
+    tricks: [], currentTrick: [], turnSeat: 'west', phase: 'bidding', handPoints: null,
+  };
+  hand = applyBalootBid(hand, 'west', 'sun');
+  eq('إعلان صن: mode = sun', hand.mode, 'sun');
+  eq('إعلان صن: trumpSuit يبقى null (لا حكم إطلاقاً)', hand.trumpSuit, null);
+  eq('إعلان صن: فريق المزايدة = فريق مُعلن الصن (west → opponentTeam)', hand.biddingTeam, 'opponentTeam');
+  eq('إعلان صن: الطور ينتقل لنافذة المضاعفة مثل حكم تماماً', hand.phase, 'doubling');
+  eq('آخر مزايدة معلَّمة sun:true', hand.bids[hand.bids.length - 1], { seat: 'west', trumpSuit: null, sun: true });
+
+  // فائز الشوط الفرعي في صن: أعلى ورقة من بذلة الشوط المفتوح فقط، بلا أي بذلة متفوّقة.
+  const sunTrick: BalootTrickCard[] = [
+    { seat: 'south', card: card('t1', 'hearts', 'K') },
+    { seat: 'west', card: card('t2', 'spades', 'J') }, // أعلى ورقة بذلة أخرى مطلقاً — لا تدخل المنافسة لأنها ليست بذلة الشوط المفتوح ولا حكم (لا حكم أصلاً)
+    { seat: 'north', card: card('t3', 'hearts', 'A') },
+    { seat: 'east', card: card('t4', 'hearts', '9') },
+  ];
+  eq('صن: يفوز أعلى ورقة من البذلة المفتوحة (الآص)، بذلة الجاك الأخرى لا تدخل المنافسة', trickWinnerSoFar(sunTrick, null), 'north');
+
+  // بلوت لا يُحتسب في صن حتى لو امتلك لاعب شايب وكوز نفس البذلة معاً (لا بذلة حكم لتحديد "بلوت" أصلاً).
+  const balootLikeHands: Record<BalootSeat, BalootCard[]> = {
+    south: [card('hK2', 'hearts', 'K'), card('hQ2', 'hearts', 'Q')],
+    west: [], north: [], east: [],
+  };
+  const sunBonuses = computeBalootHandBonuses(balootLikeHands, null);
+  eq('صن: لا بلوت إطلاقاً حتى مع شايب+كوز نفس البذلة معاً', sunBonuses.balootSeats, []);
+
+  // احتساب شوط صن مكتمل: كل الأوراق بقيم البذلة العادية، بلا كبّوت ولا كبس هنا.
+  function sunFillerTrick(mainSuit: BalootSuit, mainRank: BalootRank): BalootTrickCard[] {
+    return [
+      { seat: 'south', card: card('m', mainSuit, mainRank) },
+      { seat: 'west', card: card('f1', 'clubs', '7') },
+      { seat: 'north', card: card('f2', 'diamonds', '7') },
+      { seat: 'east', card: card('f3', 'spades', '7') },
+    ];
+  }
+  const sunTricks: BalootTrick[] = [
+    { leaderSeat: 'south', cards: sunFillerTrick('hearts', 'A'), winnerSeat: 'south' }, // 11 (لا مضاعفة حكم — قيمة عادية)
+    { leaderSeat: 'south', cards: sunFillerTrick('hearts', '10'), winnerSeat: 'south' }, // 10
+    { leaderSeat: 'south', cards: sunFillerTrick('hearts', 'K'), winnerSeat: 'south' }, // 4 → playerTeam خام = 25
+    { leaderSeat: 'west', cards: sunFillerTrick('clubs', 'A'), winnerSeat: 'west' }, // 11
+    { leaderSeat: 'west', cards: sunFillerTrick('clubs', '10'), winnerSeat: 'west' }, // 10 → opponentTeam خام = 21
+    { leaderSeat: 'west', cards: sunFillerTrick('clubs', '7'), winnerSeat: 'west' }, // 0
+    { leaderSeat: 'west', cards: sunFillerTrick('clubs', '7'), winnerSeat: 'west' }, // 0
+    { leaderSeat: 'west', cards: sunFillerTrick('clubs', '7'), winnerSeat: 'west' }, // 0
+  ];
+  const sunHand: BalootHandState = {
+    handNumber: 1, dealerSeat: 'south', hands: emptyHands(), bids: [],
+    trumpSuit: null, mode: 'sun', biddingTeam: 'playerTeam',
+    bonuses: { winningSira: null, balootSeats: [] }, doubleLevel: 1,
+    tricks: sunTricks, currentTrick: [], turnSeat: 'south', phase: 'hand_scored', handPoints: null,
+  };
+  // playerTeam خام=25 > opponentTeam خام=21 → لا كبس.
+  eq('صن: احتساب شوط مكتمل بقيم عادية لكل البذل، لا كبس لأن فريق المزايدة متفوّق', scoreCompletedBalootHand(sunHand), { playerTeam: 25, opponentTeam: 21 });
+});
+
+// ───────────────────────────────────────────────────────────────────────────
+group('٩) المضاعفة (دبلة ×٢، ريدبل ×٤)', () => {
+  const hands: Record<BalootSeat, BalootCard[]> = {
+    south: [], west: [card('h7', 'hearts', '7')], north: [], east: [],
+  };
+  let hand: BalootHandState = {
+    handNumber: 1, dealerSeat: 'south', hands, bids: [],
+    trumpSuit: null, mode: 'hokum', biddingTeam: null, bonuses: null, doubleLevel: 1,
+    tricks: [], currentTrick: [], turnSeat: 'west', phase: 'bidding', handPoints: null,
+  };
+  hand = applyBalootBid(hand, 'west', 'hearts'); // west (opponentTeam) يعلن الحكم — south/north (playerTeam) هم فريق الدفاع.
+
+  eq('بعد إعلان الحكم مباشرة: doubleLevel = 1 (بلا دبلة بعد)', hand.doubleLevel, 1);
+  ok('فريق الدفاع (south) يحق له الدبلة الآن', canDeclareDouble(hand, 'south'));
+  ok('فريق المزايدة (west) لا يحق له الدبلة (لا يضاعف فريقه نفسه)', !canDeclareDouble(hand, 'west'));
+  ok('فريق المزايدة (west) لا يحق له الريدبل قبل أي دبلة أصلاً', !canDeclareRedouble(hand, 'west'));
+
+  const afterIneligibleAttempt = declareBalootDouble(hand, 'west'); // west من فريق المزايدة — محاولة غير صالحة يجب أن تُتجاهل بصمت.
+  eq('محاولة دبلة من فريق المزايدة تُتجاهل بصمت (لا تغيير في doubleLevel)', afterIneligibleAttempt.doubleLevel, 1);
+
+  hand = declareBalootDouble(hand, 'south');
+  eq('بعد دبلة فريق الدفاع: doubleLevel = 2', hand.doubleLevel, 2);
+  eq('الطور يبقى doubling بعد الدبلة (فريق المزايدة يملك حق الريدبل الآن)', hand.phase, 'doubling');
+  ok('فريق المزايدة (west) يحق له الريدبل الآن', canDeclareRedouble(hand, 'west'));
+  ok('فريق الدفاع (south) لم يعد يحق له دبلة إضافية بعد أن ضاعف مرة', !canDeclareDouble(hand, 'south'));
+
+  const afterRedouble = declareBalootRedouble(hand, 'west');
+  eq('بعد ريدبل فريق المزايدة: doubleLevel = 4', afterRedouble.doubleLevel, 4);
+  eq('الريدبل ينهي نافذة المضاعفة فوراً: الطور = playing', afterRedouble.phase, 'playing');
+
+  // مسار «تجاهل والعب» بلا أي تصعيد إطلاقاً — يبدأ اللعب بمضاعف ١ كما هو.
+  const skipped = startBalootPlayAfterDoubling(hand); // hand هنا لا تزال عند doubleLevel=2 قبل تطبيق afterRedouble
+  eq('تجاهل بعد دبلة واحدة: اللعب يبدأ بالمضاعف الحالي (٢) دون ريدبل', skipped.doubleLevel, 2);
+  eq('تجاهل ينهي نافذة المضاعفة: الطور = playing', skipped.phase, 'playing');
+
+  // أثر المضاعفة على احتساب النقاط النهائية: نفس بنية الشوط بمضاعفات مختلفة.
+  function fillerTrick(mainSuit: BalootSuit, mainRank: BalootRank): BalootTrickCard[] {
+    return [
+      { seat: 'south', card: card('m', mainSuit, mainRank) },
+      { seat: 'west', card: card('f1', 'clubs', '7') },
+      { seat: 'north', card: card('f2', 'clubs', '7') },
+      { seat: 'east', card: card('f3', 'clubs', '7') },
+    ];
+  }
+  const tricks: BalootTrick[] = [
+    { leaderSeat: 'south', cards: fillerTrick('spades', 'A'), winnerSeat: 'south' }, // 11
+    { leaderSeat: 'south', cards: fillerTrick('spades', '10'), winnerSeat: 'south' }, // 10 → playerTeam خام = 21
+    { leaderSeat: 'west', cards: fillerTrick('clubs', 'A'), winnerSeat: 'west' }, // 11
+    { leaderSeat: 'west', cards: fillerTrick('clubs', '7'), winnerSeat: 'west' }, // 0
+    { leaderSeat: 'west', cards: fillerTrick('clubs', '7'), winnerSeat: 'west' }, // 0
+    { leaderSeat: 'west', cards: fillerTrick('clubs', '7'), winnerSeat: 'west' }, // 0
+    { leaderSeat: 'west', cards: fillerTrick('clubs', '7'), winnerSeat: 'west' }, // 0
+    { leaderSeat: 'west', cards: fillerTrick('clubs', '7'), winnerSeat: 'west' }, // 0 → opponentTeam خام = 11
+  ];
+  const baseScoreHand: BalootHandState = {
+    handNumber: 1, dealerSeat: 'south', hands: emptyHands(), bids: [],
+    trumpSuit: 'spades', mode: 'hokum', biddingTeam: 'playerTeam',
+    bonuses: { winningSira: null, balootSeats: [] }, doubleLevel: 1,
+    tricks, currentTrick: [], turnSeat: 'south', phase: 'hand_scored', handPoints: null,
+  };
+  eq('بلا مضاعفة (×١): playerTeam=21، opponentTeam=11 كما هي', scoreCompletedBalootHand(baseScoreHand), { playerTeam: 21, opponentTeam: 11 });
+  eq('دبلة (×٢): النتيجة نفسها مضاعفة تماماً', scoreCompletedBalootHand({ ...baseScoreHand, doubleLevel: 2 }), { playerTeam: 42, opponentTeam: 22 });
+  eq('ريدبل (×٤): النتيجة نفسها مضاعفة أربع مرات', scoreCompletedBalootHand({ ...baseScoreHand, doubleLevel: 4 }), { playerTeam: 84, opponentTeam: 44 });
+
+  // المضاعفة مع الكبس: المضاعفة تُطبَّق على مجموع الشوط الذي يأخذه الخصم بالكامل، لا على المقارنة نفسها.
+  const kabsWithDoubleHand: BalootHandState = {
+    ...baseScoreHand,
+    biddingTeam: 'opponentTeam', // نقلب فريق المزايدة ليصبح opponentTeam (خامه ١١ أقل من playerTeam ٢١) → كبس على opponentTeam
+    doubleLevel: 2,
+  };
+  eq(
+    'كبس مع دبلة (×٢): فريق المزايدة (opponentTeam) يخسر صفر، وfريق الدفاع (playerTeam) يأخذ (٢١+١١)×٢=٦٤',
+    scoreCompletedBalootHand(kabsWithDoubleHand),
+    { opponentTeam: 0, playerTeam: 64 },
+  );
 });
 
 // ───────────────────────────────────────────────────────────────────────────

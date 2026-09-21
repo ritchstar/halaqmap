@@ -13,6 +13,7 @@ import {
   evaluateSuitAsTrump,
   legalBalootMoves,
   trickWinnerSoFar,
+  type BalootBidChoice,
   type BalootCard,
   type BalootHandState,
   type BalootSeat,
@@ -23,22 +24,65 @@ import {
 const BID_DECLARE_THRESHOLD = 24;
 /** وزن إضافي لكل ورقة من بذلة المرشّح — يكافئ التحكم الطويل بالبذلة لا القيمة فقط. */
 const SUIT_LENGTH_WEIGHT = 3;
+/**
+ * حد أدنى لمجموع قيم اليد كاملة بقيم البذلة العادية (بلا حكم) كي يفضّل
+ * البوت صن. قابل للضبط لاحقاً بعد ملاحظات لعب فعلية — مثل BID_DECLARE_THRESHOLD.
+ */
+const SUN_DECLARE_THRESHOLD = 28;
 
-/** يقيّم البوت يده ويقرر: بذلة حكم يعلنها، أو null للتمرير. */
-export function chooseBalootBotBid(cards: readonly BalootCard[]): BalootSuit | null {
-  let best: BalootSuit | null = null;
-  let bestScore = -1;
+/**
+ * يقيّم البوت يده ويقرر: بذلة حكم يعلنها، أو 'sun' (صن)، أو null للتمرير.
+ * منطق الاختيار بين حكم وصن: يُحسب أفضل بذلة حكم كالمعتاد، ثم يُحسب مجموع
+ * قيمة اليد كاملة كأوراق عادية (بلا حكم) — إن كان هذا المجموع قوياً بذاته
+ * ولم تصل أفضل بذلة حكم لعتبة الإعلان (أي لا تركّز قوي في بذلة واحدة)، يُفضَّل
+ * صن. خلاف ذلك يُفضَّل الحكم كالمعتاد.
+ */
+export function chooseBalootBotBid(cards: readonly BalootCard[]): BalootBidChoice {
+  let bestSuit: BalootSuit | null = null;
+  let bestSuitScore = -1;
   for (const suit of BALOOT_SUITS) {
     const suitLength = cards.filter((c) => c.suit === suit).length;
     if (suitLength === 0) continue;
     const score = evaluateSuitAsTrump(cards, suit) + suitLength * SUIT_LENGTH_WEIGHT;
-    if (score > bestScore) {
-      bestScore = score;
-      best = suit;
+    if (score > bestSuitScore) {
+      bestSuitScore = score;
+      bestSuit = suit;
     }
   }
-  if (best === null || bestScore < BID_DECLARE_THRESHOLD) return null;
-  return best;
+
+  const sunScore = cards.reduce((sum, c) => sum + cardValue(c, null), 0);
+  const hokumWorthDeclaring = bestSuit !== null && bestSuitScore >= BID_DECLARE_THRESHOLD;
+  if (sunScore >= SUN_DECLARE_THRESHOLD && !hokumWorthDeclaring) return 'sun';
+
+  if (!hokumWorthDeclaring) return null;
+  return bestSuit;
+}
+
+/** حد أدنى لقوة يد فريق الدفاع في بذلة الحكم (أو قيمتها الكلية في صن) كي يقرر البوت مضاعفة الرهان. */
+const DOUBLE_DECLARE_THRESHOLD = 20;
+/** حد أعلى — إعادة المضاعفة بعد دبلة الخصم تصعيد حقيقي، يحتاج ثقة أكبر من عتبة الدبلة نفسها. */
+const REDOUBLE_DECLARE_THRESHOLD = 30;
+
+function handStrengthForDoubling(cards: readonly BalootCard[], trumpSuit: BalootSuit | null): number {
+  return trumpSuit ? evaluateSuitAsTrump(cards, trumpSuit) : cards.reduce((sum, c) => sum + cardValue(c, null), 0);
+}
+
+/**
+ * قرار بوت في فريق الدفاع: هل يضاعف رهان الشوط (دبلة ×٢)؟ يرى البوت يده هو
+ * فقط (لا يد الخصم ولا الشريك) — قوة يده في بذلة الحكم نفسها (أو قيمتها
+ * الكلية في صن) مؤشر تقريبي على أن فريق المزايدة قد يواجه صعوبة رغم إعلانه.
+ */
+export function shouldBalootBotDouble(cards: readonly BalootCard[], trumpSuit: BalootSuit | null): boolean {
+  return handStrengthForDoubling(cards, trumpSuit) >= DOUBLE_DECLARE_THRESHOLD;
+}
+
+/**
+ * قرار بوت في فريق المزايدة: هل يعيد مضاعفة الرهان (ريدبل ×٤) بعد أن ضاعف
+ * الخصم؟ يُشترط ثقة أعلى من عتبة الدبلة نفسها — تصعيد حقيقي للمخاطرة لا
+ * قرار افتراضي.
+ */
+export function shouldBalootBotRedouble(cards: readonly BalootCard[], trumpSuit: BalootSuit | null): boolean {
+  return handStrengthForDoubling(cards, trumpSuit) >= REDOUBLE_DECLARE_THRESHOLD;
 }
 
 function lowestCard(cards: readonly BalootCard[], trumpSuit: BalootSuit): BalootCard {
