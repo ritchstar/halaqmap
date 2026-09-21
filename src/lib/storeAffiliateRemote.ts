@@ -31,6 +31,7 @@ export type StoreAffiliateMarketer = {
     produce: string;
     dates: string;
     halana: string;
+    bakhurna?: string;
   };
   ledger: StoreAffiliateLedgerRow[];
 };

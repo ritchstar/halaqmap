@@ -429,7 +429,7 @@ export function DigitalShiftPrivateOffice({
                   className="flex-1 rounded-xl border border-violet-300/35 bg-violet-950/60 px-3 py-2.5 text-sm text-white placeholder:text-violet-200/45 outline-none focus:border-violet-300/70"
                   dir="rtl"
                 />
-                <button onClick={addInstruction}
+                <button onClick={addInstruction} aria-label="إضافة تعليمة"
                   className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-violet-500/30 border border-violet-300/40 text-violet-100 hover:bg-violet-500/45 transition-all">
                   <Plus className="h-4 w-4" />
                 </button>
@@ -572,7 +572,7 @@ export function DigitalShiftPrivateOffice({
                   className="flex-1 rounded-xl border border-amber-300/35 bg-amber-950/40 px-3 py-2.5 text-sm text-white placeholder:text-amber-100/45 outline-none focus:border-amber-300/65"
                   dir="rtl"
                 />
-                <button onClick={addTask}
+                <button onClick={addTask} aria-label="إضافة مهمة"
                   className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-amber-500/25 border border-amber-300/40 text-amber-100 hover:bg-amber-500/40 transition-all">
                   <Plus className="h-4 w-4" />
                 </button>

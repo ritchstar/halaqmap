@@ -6,7 +6,8 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import { liveActivityCopy, type LiveActivityKind } from '@/config/storeLiveActivity';
 import { loadLiveActivityDraft, saveLiveActivityDraft } from '@/lib/storeLiveActivityDraft';
-import { isShopClosedNow, type StoreShopHoursState } from '@/lib/storeShopHours';
+import { isShopClosedNow } from '@/lib/storeShopHours';
+import type { StoreShopHoursState } from '@/config/storeShopHours';
 import { resolveShopHeaderCover, resolveShopHeaderCoverStyle } from '@/lib/storeShopBackground';
 import { IndependentStoreIdentity } from '@/components/store/neighbor/IndependentStoreIdentity';
 import { StoreLiveActivityShell } from '@/components/store/live/StoreLiveActivityShell';

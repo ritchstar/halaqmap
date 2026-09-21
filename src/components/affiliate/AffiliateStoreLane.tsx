@@ -181,6 +181,7 @@ export function AffiliateStoreLane({ hideCatalog = false }: { hideCatalog?: bool
               produce: marketer.links.produce || '',
               dates: marketer.links.dates || '',
               halana: marketer.links.halana || '',
+              bakhurna: marketer.links.bakhurna || '',
             }}
             onPick={(href) => void copyLink(href)}
           />

@@ -75,7 +75,12 @@ export default function StoreDatesAuctionPage() {
       cancelled = true;
       stop();
     };
-  }, [safeToken, isLab, phone, shopName]);
+    // shopName يُقرأ فقط كقيمة احتياطية عند غياب اسم من الـAPI، وهو نفسه ما
+    // يُحدَّثه هذا الأثر (setShopName) — إدراجه في الاعتماديات كان يُعيد
+    // تشغيل الأثر بالكامل (إلغاء الاستطلاع الحالي وجدولته من الصفر + طلب
+    // فوري إضافي) في كل مرة يصل فيها اسم المتجر من الخادم.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [safeToken, isLab, phone]);
 
   const openLots = useMemo(() => lots.filter((lot) => lot.status === 'open'), [lots]);
   const closedLots = useMemo(() => lots.filter((lot) => lot.status === 'closed'), [lots]);

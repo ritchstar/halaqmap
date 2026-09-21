@@ -8,9 +8,9 @@ import {
   parseVendorMode,
   parseWeekPlan,
   type StorePickupHistoryRow,
-  type StoreVendorMode,
 } from '@/lib/storeMobileVendor';
 import { isMobileVendorStale } from '@/lib/storeMobileVendor';
+import type { StoreVendorMode } from '@/config/storeMobileVendor';
 
 export type ShopPickupPlace = {
   pickupLat: number;

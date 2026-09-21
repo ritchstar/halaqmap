@@ -109,6 +109,15 @@ export const STORE_MAIL_PRODUCT_ICONS: readonly StoreMailIconTheme[] = [
     canvas: '#1a0c10',
     ring: '#e08aa0',
   },
+  {
+    id: 'bakhurna',
+    markAr: STORE_PRODUCT_EMOJI.bakhurna,
+    titleAr: 'بخورنا1',
+    accent: '#6E4A26',
+    ink: '#241708',
+    canvas: '#160f08',
+    ring: '#b98f5c',
+  },
 ] as const;
 
 export const STORE_MAIL_AFFILIATE_ICON: StoreMailIconTheme = {

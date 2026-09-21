@@ -189,6 +189,7 @@ export const STORE_RESTAURANT_LIVE = {
   saveBuyerHintAr: 'يُحفظ على هذا الجهاز فقط، بعد موافقتك.',
   submitOrderAr: 'إرسال الطلب',
   orderSentAr: 'تم إرسال طلبك إلى المطعم. احتفظ برقم الطلب لمتابعته.',
+  priceEstimateNoteAr: 'السعر المعروض تقديري حتى يؤكد المطعم توفر الأصناف والكمية.',
   locateMeAr: 'استخدم موقعي الحالي',
   locatingAr: 'جاري تحديد الموقع…',
   locateFailAr: 'تعذّر تحديد الموقع. أعد المحاولة بعد موافقة المتصفح.',

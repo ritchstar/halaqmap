@@ -9,11 +9,13 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ROUTE_PATHS } from '@/lib';
 import { PARTNER_WHY_PAGE } from '@/lib/partnerMarketingCopy';
+import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { NoGuaranteedCustomersNoteIf } from '@/components/partner/NoGuaranteedCustomersNote';
 import { PlatformIdentityCard } from '@/components/PlatformIdentityCard';
 import { LegalObserverChat } from '@/components/LegalObserverChat';
 
 export default function PartnerWhyPage() {
+  useDocumentTitle(`${PARTNER_WHY_PAGE.heroTitle} | حلاق ماب`);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   return (

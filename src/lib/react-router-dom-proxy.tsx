@@ -15,6 +15,30 @@ export * from "react-router-dom-original";
 
 const EXTERNAL_TO_PATTERN = /^(?:[a-z][a-z0-9+.-]*:|\/\/)/i;
 
+/**
+ * تسجيل تشخيصي لجسر التنقّل عبر postMessage (RouterBridge) — للتطوير فقط.
+ * كانت هذه الاستدعاءات تُطبع في كونسول الإنتاج لأي زائر يفتح أدوات المطوّر،
+ * فتُسرّب تفاصيل التكامل مع الإطار الأب (أوامر التنقّل الداخلية وقيمها).
+ */
+function routeBridgeDebugLog(...args: unknown[]) {
+  if (process.env.NODE_ENV === 'development') {
+    // eslint-disable-next-line no-console
+    console.log(...args);
+  }
+}
+function routeBridgeDebugWarn(...args: unknown[]) {
+  if (process.env.NODE_ENV === 'development') {
+    // eslint-disable-next-line no-console
+    console.warn(...args);
+  }
+}
+function routeBridgeDebugError(...args: unknown[]) {
+  if (process.env.NODE_ENV === 'development') {
+    // eslint-disable-next-line no-console
+    console.error(...args);
+  }
+}
+
 type ToValue = React.ComponentProps<typeof RRD.Link>["to"];
 
 function isExternalLikeTo(to: ToValue): boolean {
@@ -232,46 +256,46 @@ function RouterBridge(): null {
         if (data.type === "ROUTE_CONTROL") {
           const { action, path, replace = false } = data;
           
-          console.log('Received route control command:', data);
+          routeBridgeDebugLog('Received route control command:', data);
 
           switch (action) {
             case 'navigate':
               if (path) {
                 navigate(path, { replace });
-                console.log(`Navigated to: ${path} (replace: ${replace})`);
+                routeBridgeDebugLog(`Navigated to: ${path} (replace: ${replace})`);
               } else {
-                console.error('Route control: path is required for navigate action');
+                routeBridgeDebugError('Route control: path is required for navigate action');
               }
               break;
               
             case 'back':
               navigate(-1);
-              console.log('Navigated back');
+              routeBridgeDebugLog('Navigated back');
               break;
               
             case 'forward':
               navigate(1);
-              console.log('Navigated forward');
+              routeBridgeDebugLog('Navigated forward');
               break;
               
             case 'replace':
               if (path) {
                 navigate(path, { replace: true });
-                console.log(`Replaced route with: ${path}`);
+                routeBridgeDebugLog(`Replaced route with: ${path}`);
               } else {
-                console.error('Route control: path is required for replace action');
+                routeBridgeDebugError('Route control: path is required for replace action');
               }
               break;
               
             default:
-              console.warn('Route control: unknown action', action);
+              routeBridgeDebugWarn('Route control: unknown action', action);
           }
         } else if (data.type === "RELOAD") {
           window.location.reload();
-          console.log('Reloaded');
+          routeBridgeDebugLog('Reloaded');
         }
       } catch (error) {
-        console.error('Route control error:', error);
+        routeBridgeDebugError('Route control error:', error);
       }
     }
     window.addEventListener("message", onMessage);

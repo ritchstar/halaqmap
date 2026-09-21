@@ -145,7 +145,6 @@ import { formatBarberMemberNumber } from '@/lib/barberMemberNumber';
 import { mapCoordinateSaveError, parseMapCoordinates } from '@/lib/parseMapCoordinates';
 import { nearestPlatformCity, resolvePlatformCity } from '@/config/platformCoveredCities';
 import { DIGITAL_SHIFT_MONTHLY_ADDON_SAR, TIER_MONTHLY_SAR } from '@/config/subscriptionPricing';
-import { SubscriptionTier } from '@/lib/index';
 import { fetchPublicPaymentPageConfig } from '@/lib/publicPaymentPageConfigRemote';
 import { ZatcaTaxActivationAlert } from '@/components/admin/ZatcaTaxActivationAlert';
 import { toast } from '@/hooks/use-toast';

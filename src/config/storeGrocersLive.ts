@@ -196,6 +196,7 @@ export const STORE_GROCERS_LIVE = {
   saveBuyerAr: 'حفظ بيانات التسليم على هذا الجهاز لتسهيل الطلب القادم',
   submitOrderAr: 'إرسال الطلب',
   orderSentAr: 'يظهر الطلب في لوحة الكاشير بعد إرساله.',
+  priceEstimateNoteAr: 'السعر المعروض تقديري حتى يؤكد صاحب النشاط توفر الأصناف والكمية.',
   locateMeAr: 'تحديد موقعي',
   locatingAr: 'جاري تحديد الموقع…',
   locateFailAr: 'تعذّر تحديد الموقع. أعد المحاولة بعد موافقة المتصفح.',

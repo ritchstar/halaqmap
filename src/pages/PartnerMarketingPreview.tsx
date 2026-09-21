@@ -12,6 +12,7 @@
 
 import { Component, useState, useRef, useEffect, useCallback, lazy, Suspense, type ReactNode } from 'react';
 import { pickPageComponent } from '@/lib/resolveLazyPage';
+import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { motion, useInView } from 'framer-motion';
 import {
   Scissors, Star, CheckCircle2, Clock,
@@ -525,6 +526,7 @@ function CertificateMockup({ tier }: { tier: CertificateMockTier }) {
 
 // ─── Main page ───────────────────────────────────────────────────────────────
 export default function PartnerMarketingPreview() {
+  useDocumentTitle('انضم كشريك حلاق · مسار انضمام المنشآت | حلاق ماب');
   const navigate = useNavigate();
   const location = useLocation();
   const isMobile = useIsMobile();

@@ -34,7 +34,7 @@ export function QuickAddProductCard({
       >
         <div className="neighbor-product-card__media neighbor-product-card__media--row">
           {photo ? (
-            <img src={photo} alt="" loading="lazy" className="neighbor-product-card__img" />
+            <img src={photo} alt={item.nameAr} loading="lazy" className="neighbor-product-card__img" />
           ) : (
             <HonestProductPlaceholder nameAr={item.nameAr} category={item.category} />
           )}
@@ -58,7 +58,7 @@ export function QuickAddProductCard({
     >
       <div className="neighbor-product-card__media">
         {photo ? (
-          <img src={photo} alt="" loading="lazy" className="neighbor-product-card__img" />
+          <img src={photo} alt={item.nameAr} loading="lazy" className="neighbor-product-card__img" />
         ) : (
           <HonestProductPlaceholder nameAr={item.nameAr} category={item.category} />
         )}
