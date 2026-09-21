@@ -1050,37 +1050,12 @@ export default function LandingPreview() {
           </>
         ) : null}
 
-        {/* زر الاستعلام — أعلى الهيرو، موسَّط في عرض الصفحة (سطح المكتب) */}
-        {!isMobile ? (
-        <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-col items-center gap-4 px-5 pt-4">
-          <GeoRadarButton
-            onLocationDetected={handleLocationDetected}
-            onLocationReset={() => setUserLocation(null)}
-          />
-          {userLocation && (
-            <div className="flex flex-col items-center gap-2.5">
-              <motion.button
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                onClick={() => resultsRef.current?.scrollIntoView({ behavior: 'smooth' })}
-                className="flex items-center gap-2 rounded-2xl border border-teal-300/35 bg-black/25 backdrop-blur-sm px-5 py-2.5 text-sm font-semibold text-teal-100 hover:bg-black/35 transition-all"
-              >
-                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-teal-400" />
-                {remoteStatus === 'loading'
-                  ? 'يجري تصنيف الخدمات…'
-                  : 'اعرض الخدمات المتاحة'}
-              </motion.button>
-            </div>
-          )}
-        </div>
-        ) : null}
-
         <div
           className={cn(
             'relative z-10 mx-auto grid w-full min-w-0 max-w-7xl items-center px-5',
             isMobile
               ? 'gap-6 py-6'
-              : 'gap-6 py-12 lg:grid-cols-[minmax(0,1.2fr)_auto] lg:gap-5 lg:py-20 xl:gap-8',
+              : 'gap-6 pb-4 pt-10 lg:grid-cols-[minmax(0,1.2fr)_auto] lg:gap-5 lg:pb-6 lg:pt-16 xl:gap-8',
           )}
         >
           {/* عمود النص (يمين في RTL) — min-w-0 يمنع انهيار العمود */}
@@ -1136,15 +1111,8 @@ export default function LandingPreview() {
             </div>
             ) : null}
 
-            {/* ثلاثية الثقة — بطاقات كاملة على سطح المكتب */}
-            {!isMobile && deferMobileExtras ? (
-            <div className="mb-2 drop-shadow-[0_8px_28px_rgba(0,0,0,0.3)]">
-              <VisitorTrustTriad />
-            </div>
-            ) : null}
-
             {!isMobile ? (
-            <div className="mb-4 flex flex-wrap items-center gap-4">
+            <div className="mb-2 flex flex-wrap items-center gap-4">
               <PlatformTlsTrustBadge variant="compact" tone="dark" />
             </div>
             ) : null}
@@ -1169,6 +1137,37 @@ export default function LandingPreview() {
           ) : null}
 
         </div>
+
+        {/* أيقونة الاستعلام — وسط أسفل العنوان/الفلاتر وفوق ثلاثية الثقة (موضع السهم الأصفر) */}
+        {!isMobile ? (
+        <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-col items-center gap-5 px-5 pb-4 pt-2">
+          <GeoRadarButton
+            surface="hero"
+            onLocationDetected={handleLocationDetected}
+            onLocationReset={() => setUserLocation(null)}
+          />
+          {userLocation && (
+            <div className="flex flex-col items-center gap-2.5">
+              <motion.button
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                onClick={() => resultsRef.current?.scrollIntoView({ behavior: 'smooth' })}
+                className="flex items-center gap-2 rounded-2xl border border-teal-300/35 bg-black/25 backdrop-blur-sm px-5 py-2.5 text-sm font-semibold text-teal-100 hover:bg-black/35 transition-all"
+              >
+                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-teal-400" />
+                {remoteStatus === 'loading'
+                  ? 'يجري تصنيف الخدمات…'
+                  : 'اعرض الخدمات المتاحة'}
+              </motion.button>
+            </div>
+          )}
+          {deferMobileExtras ? (
+            <div className="w-full max-w-3xl drop-shadow-[0_8px_28px_rgba(0,0,0,0.3)]">
+              <VisitorTrustTriad />
+            </div>
+          ) : null}
+        </div>
+        ) : null}
 
         {/* Scroll indicator */}
         {!isMobile && !skipHeroMotion ? (
