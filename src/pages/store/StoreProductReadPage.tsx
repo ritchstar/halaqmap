@@ -10,6 +10,7 @@ import { Link, useLocation, Navigate } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { StoreVisitorFooter, StoreVisitorHeader, StoreVisitorShell } from '@/components/store/StoreChrome';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
+import { useMetaDescription } from '@/hooks/useMetaDescription';
 import { ROUTE_PATHS } from '@/lib/routePaths';
 import { storeProductReadByPath } from '@/config/storeProductRead';
 import { StoreSaipTrustLine } from '@/components/store/StoreSaipTrustLine';
@@ -18,6 +19,7 @@ export default function StoreProductReadPage() {
   const { pathname } = useLocation();
   const entry = useMemo(() => storeProductReadByPath(pathname), [pathname]);
   useDocumentTitle(entry?.documentTitle ?? 'منصة خريطة الحل');
+  useMetaDescription(entry?.metaDescriptionAr);
 
   if (!entry) {
     return <Navigate to={ROUTE_PATHS.STORE_LANDING} replace />;

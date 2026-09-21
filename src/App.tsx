@@ -12,6 +12,7 @@ import LandingPreview from "@/pages/LandingPreview";
 import { PlatformAmbientProvider } from "@/context/PlatformAmbientContext";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { AnalyticsRouteTracker } from "@/components/AnalyticsRouteTracker";
+import { SeoRouteSync } from "@/components/SeoRouteSync";
 import { PolicySectionHashRedirect } from "@/components/PolicySectionHashRedirect";
 import { StoreNationalDayHashRedirect } from "@/components/store/StoreNationalDayHashRedirect";
 import { StoreButtonContrastGuard } from "@/components/store/StoreButtonContrastGuard";
@@ -842,6 +843,7 @@ export function App() {
         <AdminAuthHashGate>
         <ScrollToTop />
         <AnalyticsRouteTracker />
+        <SeoRouteSync />
         <PolicySectionHashRedirect />
         <StoreNationalDayHashRedirect />
         <StoreButtonContrastGuard />
