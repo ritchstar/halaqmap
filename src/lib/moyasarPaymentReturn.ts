@@ -5,7 +5,6 @@ import { ROUTE_PATHS, SubscriptionTier } from '@/lib';
 import { clampListingLicenseQuantity, computeListingLicenseTotalSar, isDigitalShiftAddonAllowed, parseDigitalShiftAddonParam } from '@/config/listingLicenseQuantity';
 import { calcVatBreakdown, type PlatformVatSettings } from '@/lib/platformVatSettings';
 import { CHESS_SCHOOL_PRODUCT } from '@/config/chessSchoolPay';
-import { BALOOT_SCHOOL_PRODUCT } from '@/config/balootSchoolPay';
 
 export const MOYASAR_PAYMENT_CONTEXT_STORAGE_KEY = 'hm-moyasar-payment-context-v1';
 export const MOYASAR_LAST_PAYMENT_ID_STORAGE_KEY = 'hm-moyasar-last-payment-id-v1';
@@ -506,7 +505,7 @@ function datesLiveReturnPath(params: URLSearchParams): string | null {
 }
 
 /**
- * مدرسة الشطرنج/البلوت: عودة ميسر (3-D Secure) تهبط على أصل الموقع `/` بلا
+ * مدرسة الشطرنج: عودة ميسر (3-D Secure) تهبط على أصل الموقع `/` بلا
  * أي حالة معروفة هنا سابقاً — كانت تسقط في مسار الشراكة العام
  * (/partners/payment) بدل صفحة الدفع الفعلية لكل مدرسة، فيُتحقَّق من الدفع
  * فعلاً (يُقيَّد كمدفوع لدى ميسر) لكنه لا يُفعِّل تسجيل الطالب إطلاقاً —
@@ -517,13 +516,6 @@ function chessSchoolReturnPath(params: URLSearchParams): string | null {
   const rid = (params.get('chess_school_rid') || '').trim();
   if (purpose !== CHESS_SCHOOL_PRODUCT || !rid) return null;
   return ROUTE_PATHS.CHESS_SCHOOL_PAY.replace(':rid', encodeURIComponent(rid));
-}
-
-function balootSchoolReturnPath(params: URLSearchParams): string | null {
-  const purpose = (params.get('purpose') || '').trim();
-  const rid = (params.get('baloot_school_rid') || '').trim();
-  if (purpose !== BALOOT_SCHOOL_PRODUCT || !rid) return null;
-  return ROUTE_PATHS.BALOOT_SCHOOL_PAY.replace(':rid', encodeURIComponent(rid));
 }
 
 function storePayReturnPath(params: URLSearchParams | null): string | null {
@@ -540,8 +532,7 @@ function storePayReturnPath(params: URLSearchParams | null): string | null {
     produceLiveReturnPath(params) ||
     halanaLiveReturnPath(params) ||
     datesLiveReturnPath(params) ||
-    chessSchoolReturnPath(params) ||
-    balootSchoolReturnPath(params)
+    chessSchoolReturnPath(params)
   );
 }
 

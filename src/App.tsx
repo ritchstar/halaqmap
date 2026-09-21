@@ -485,11 +485,6 @@ const ChessArenaPage = lazy(() => import("@/pages/ChessArenaPage"));
 const ChessSchoolLandingPage = lazy(() => import("@/pages/chess/ChessSchoolLandingPage"));
 const ChessSchoolConfirmLanding = lazy(() => import("@/pages/chess/ChessSchoolConfirmLanding"));
 const ChessSchoolPayPage = lazy(() => import("@/pages/chess/ChessSchoolPayPage"));
-const BalootArenaPage = lazy(() => import("@/pages/BalootArenaPage"));
-const BalootSchoolLandingPage = lazy(() => import("@/pages/baloot/BalootSchoolLandingPage"));
-const BalootSchoolConfirmLanding = lazy(() => import("@/pages/baloot/BalootSchoolConfirmLanding"));
-const BalootSchoolPayPage = lazy(() => import("@/pages/baloot/BalootSchoolPayPage"));
-const BalootSchoolStudentPage = lazy(() => import("@/pages/baloot/BalootSchoolStudentPage"));
 const DigitalShiftFeaturePage = lazy(() => import("@/pages/DigitalShiftFeaturePage"));
 const PrivateOfficeGuide = lazy(() => import("@/pages/PrivateOfficeGuide"));
 const SematLegalHub = lazy(() => import("@/pages/semat/SematLegalHub"));
@@ -862,11 +857,6 @@ export function App() {
           <Route path={ROUTE_PATHS.CHESS_SCHOOL_LANDING} element={<LazyRoute><ChessSchoolLandingPage /></LazyRoute>} />
           <Route path={ROUTE_PATHS.CHESS_SCHOOL_CONFIRM} element={<LazyRoute><ChessSchoolConfirmLanding /></LazyRoute>} />
           <Route path={ROUTE_PATHS.CHESS_SCHOOL_PAY} element={<LazyRoute><ChessSchoolPayPage /></LazyRoute>} />
-          <Route path={ROUTE_PATHS.BALOOT_ARENA} element={<LazyRoute><BalootArenaPage /></LazyRoute>} />
-          <Route path={ROUTE_PATHS.BALOOT_SCHOOL_LANDING} element={<LazyRoute><BalootSchoolLandingPage /></LazyRoute>} />
-          <Route path={ROUTE_PATHS.BALOOT_SCHOOL_CONFIRM} element={<LazyRoute><BalootSchoolConfirmLanding /></LazyRoute>} />
-          <Route path={ROUTE_PATHS.BALOOT_SCHOOL_PAY} element={<LazyRoute><BalootSchoolPayPage /></LazyRoute>} />
-          <Route path={ROUTE_PATHS.BALOOT_SCHOOL_STUDENT} element={<LazyRoute><BalootSchoolStudentPage /></LazyRoute>} />
           <Route path={ROUTE_PATHS.SAUDI_AGENT} element={<LazyRoute><SaudiAgentLanding /></LazyRoute>} />
           <Route
             path={ROUTE_PATHS.RADAR_SHOWCASE}

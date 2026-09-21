@@ -617,7 +617,6 @@
             var earlyProduce = (earlyParams.get('store_produce_token') || '').trim();
             var earlyDates = (earlyParams.get('store_dates_token') || '').trim();
             var earlyChessRid = (earlyParams.get('chess_school_rid') || '').trim();
-            var earlyBalootRid = (earlyParams.get('baloot_school_rid') || '').trim();
             var earlyPath =
               earlyPurpose === 'store_occasion_card' && earlyToken
                 ? '/pay/occasion-card/' + encodeURIComponent(earlyToken)
@@ -643,8 +642,6 @@
                         ? '/pay/dates/' + encodeURIComponent(earlyDates || earlyToken)
                       : earlyPurpose === 'chess_school' && earlyChessRid
                         ? '/chess/school/pay/' + encodeURIComponent(earlyChessRid)
-                      : earlyPurpose === 'baloot_school' && earlyBalootRid
-                        ? '/baloot/school/pay/' + encodeURIComponent(earlyBalootRid)
                       : paymentPath;
             var paymentTarget = window.location.origin + '/#' + earlyPath + search;
             if (window.location.href !== paymentTarget) {
@@ -742,13 +739,6 @@
             window.location.replace(window.location.origin + '/#' + chessSchoolPath + search);
             return;
           }
-          var balootSchoolRid = (params.get('baloot_school_rid') || '').trim();
-          if (purpose === 'baloot_school' && balootSchoolRid) {
-            var balootSchoolPath = '/baloot/school/pay/' + encodeURIComponent(balootSchoolRid);
-            if (hashPath === balootSchoolPath) return;
-            window.location.replace(window.location.origin + '/#' + balootSchoolPath + search);
-            return;
-          }
           var hasMoyasarReturn =
             params.get('id') || params.get('status') === 'failed' || params.get('message');
           if (!hasMoyasarReturn) return;
@@ -764,7 +754,6 @@
           if (hashPath.indexOf('/pay/produce/') === 0) return;
           if (hashPath.indexOf('/pay/dates/') === 0) return;
           if (hashPath.indexOf('/chess/school/pay/') === 0) return;
-          if (hashPath.indexOf('/baloot/school/pay/') === 0) return;
           if (hashPath === paymentPath) return;
           window.location.replace(window.location.origin + '/#' + paymentPath + search);
         } catch (e) {}
