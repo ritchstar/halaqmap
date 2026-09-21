@@ -170,18 +170,47 @@ export function buildDigitalShiftSystemPrompt(
   }
 
   if (mode === 'barber') {
-    // روابط الدفع والدعم
+    // تجديد الحزمة: الزر أسفل اللوحة هو المسار الصحيح؛ الرابط العاري /partners/payment بلا معاملات
+    // يُسقط الحلاق في صفحة اختيار الحزمة بلا بوابة دفع (missing_tier).
+    const siteOrigin = (
+      process.env.APP_PUBLIC_ORIGIN ||
+      process.env.PUBLIC_SITE_ORIGIN ||
+      process.env.VITE_SITE_URL ||
+      'https://www.halaqmap.com'
+    )
+      .trim()
+      .replace(/\/+$/, '') || 'https://www.halaqmap.com';
+    const rechargeParams = new URLSearchParams({
+      purpose: 'recharge',
+      tier: 'diamond',
+      qty: '1',
+      aiAddon: '1',
+      linkedBarberId: ctx.barberId,
+    });
+    if (ctx.barberName.trim()) rechargeParams.set('barberName', ctx.barberName.trim());
+    const rechargeUrl = `${siteOrigin}/#/partners/payment?${rechargeParams.toString()}`;
+
     base.push('');
-    base.push('═══ روابط مهمة للحلاق ═══');
-    base.push('رابط تجديد الحزمة / الدفع: https://halaqmap.com/#/partners/payment');
-    base.push('رابط الدعم الفني: https://halaqmap.com/#/partners/support');
-    base.push('رابط لوحة التحكم: https://halaqmap.com/#/barber/dashboard');
+    base.push('═══ تجديد الحزمة والدعم ═══');
+    base.push(
+      'المسار المفضّل عند طلب التجديد: وجّه الحلاق للضغط على زر «تجديد / شحن الحزمة» أسفل لوحة التحكم (تحت المحادثة مباشرةً) — يفتح مسار الشحن الصحيح بحسابه.',
+    );
+    base.push(
+      'ممنوع إرسال الرابط العاري https://halaqmap.com/#/partners/payment أو أي رابط دفع بلا purpose وtier وlinkedBarberId — هذا رابط ناقص ولا يفتح بوابة الدفع.',
+    );
+    base.push(`رابط الشحن الكامل (نسخ/مشاركة فقط عند الحاجة): ${rechargeUrl}`);
+    base.push('رابط الدعم الفني: https://www.halaqmap.com/#/partners/support');
+    base.push('رابط لوحة التحكم: https://www.halaqmap.com/#/barber/dashboard');
 
     // تنبيه انتهاء الحزمة
     if (ctx.listingDaysRemaining <= 7 && ctx.listingDaysRemaining > 0) {
-      base.push(`⚠️ تنبيه: حزمة الرخصة تنتهي خلال ${ctx.listingDaysRemaining} أيام — ذكّر الحلاق بالتجديد وأرسل له رابط الدفع.`);
+      base.push(
+        `⚠️ تنبيه: حزمة الرخصة تنتهي خلال ${ctx.listingDaysRemaining} أيام — ذكّر الحلاق بالضغط على «تجديد / شحن الحزمة» أسفل اللوحة، أو أعطِه رابط الشحن الكامل أعلاه فقط.`,
+      );
     } else if (ctx.listingDaysRemaining === 0) {
-      base.push('🚨 الحزمة منتهية! الصالون غير ظاهر على المنصة الآن — أرسل رابط الدفع فوراً.');
+      base.push(
+        '🚨 الحزمة منتهية! الصالون غير ظاهر على المنصة الآن — وجّهه فوراً لزر «تجديد / شحن الحزمة» أسفل اللوحة أو لرابط الشحن الكامل أعلاه.',
+      );
     }
 
     // تعليمات الحلاق المحفوظة
@@ -209,9 +238,10 @@ export function buildDigitalShiftSystemPrompt(
     base.push('- إذا قال "رد: ..." → أكّد حفظ قالب الرد الجاهز');
     base.push('- إذا قال "تنبيه: ..." → أكّد حفظ التنبيه المؤقت');
     base.push('- إذا قال "مهمة: ..." أو "تذكير: ..." → أكّد تسجيلها في قائمة المهام');
-    base.push('- إذا سأل عن "الرصيد" أو "الحزمة" → أعطه الأيام المتبقية + رابط التجديد');
+    base.push('- إذا سأل عن "الرصيد" أو "الحزمة" أو "رابط التجديد" → أعطِ الأيام المتبقية + وجّهه لزر «تجديد / شحن الحزمة» أسفل اللوحة (أو رابط الشحن الكامل أعلاه إن لزم)');
     base.push('- إذا سأل عن "المواعيد" → ذكّره بالمواعيد المسجلة في لوحة التحكم');
     base.push('- إذا سأل عن "الدعم" → أعطه رابط الدعم الفني مباشرة');
+    base.push('- لا ترسل أبداً رابط دفع بلا معاملات (مثل /#/partners/payment وحده)');
     base.push('- إذا سأل عن "البنر" أو "الظهور" أو "لماذا لا يصل زبون" → ابدأ بملخص **الفحص التشغيلي الحقيقي** أدناه ثم اقترح خطوات عملية');
     base.push('- لا تقل «سأحلّل لاحقاً» أو «سأفحص البيانات» إذا وُجد فحص تشغيلي في هذه الجلسة — الفحص تم بالفعل');
     base.push('- إذا وُجد قسم «فحص بصري للبنر (Vision)» — اعتمد مشاكله حصراً ولا تختلق عيوباً بصرية');

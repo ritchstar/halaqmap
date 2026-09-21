@@ -656,7 +656,7 @@ export function DigitalShiftPrivateOffice({
           <div className="flex flex-wrap gap-2">
             {[
               'كم يوم باقي في حزمتي؟',
-              'أرسل لي رابط التجديد',
+              'كيف أجدّد الحزمة؟',
               'وين رابط الدعم؟',
               'ما هي تعليماتي الحالية؟',
               'كيف أستخدم رمز «تعليمة:»؟',

@@ -211,6 +211,19 @@ export default function Payment() {
     if (purchasePurpose !== 'new') return true;
     return REGISTRATION_STORAGE_ORDER_ID_RE.test(requestId);
   }, [purchasePurpose, requestId]);
+
+  /** رابط إكمال التسجيل عند فتح الدفع بلا رقم طلب (حالة شراء أول ناقصة). */
+  const incompleteRegistrationHref = useMemo(() => {
+    const q = new URLSearchParams();
+    q.set('tier', tier);
+    q.set('qty', String(licenseQuantity));
+    q.set('purpose', 'new');
+    if (digitalShiftAddonSelected) q.set('aiAddon', '1');
+    const surface = (searchParams.get('surface') || '').trim();
+    if (surface) q.set('surface', surface);
+    return `${ROUTE_PATHS.REGISTER}?${q.toString()}`;
+  }, [tier, licenseQuantity, digitalShiftAddonSelected, searchParams]);
+
   const [pubPayConfig, setPubPayConfig] = useState<PublicPaymentPageConfig | null>(null);
 
   useEffect(() => {
@@ -1419,73 +1432,110 @@ export default function Payment() {
 
                   {paymentMethod === 'moyasar' && showMoyasarCheckout && (
                     <div className="space-y-4 rounded-lg border border-primary/30 bg-primary/5 p-4 sm:p-5">
-                      <PaymentCheckoutAcknowledgment
-                        checked={checkoutAcknowledged}
-                        onCheckedChange={setCheckoutAcknowledged}
-                        gateway="moyasar"
-                        idPrefix="moyasar-checkout"
-                      />
-
-                      {!moyasarKeyOk && (
-                        <Alert>
-                          <AlertCircle className="h-4 w-4" />
-                          <AlertDescription className="text-base">
-                            لإظهار نموذج الدفع أضف{' '}
-                            <code className="rounded bg-muted px-1">VITE_MOYSAR_PUBLISHABLE_TEST_API_KEY</code> (أو{' '}
-                            <code className="rounded bg-muted px-1">VITE_MOYSAR_PUBLISHABLE_LIVE_API_KEY</code> في الإنتاج)
-                            في Vercel — مفتاح يبدأ بـ <span dir="ltr">pk_test_</span> أو <span dir="ltr">pk_live_</span> — ثم
-                            أعد نشر الواجهة.
+                      {!registrationRequestReady ? (
+                        <Alert className="border-amber-500/50 bg-amber-500/10">
+                          <AlertCircle className="h-4 w-4 text-amber-600" />
+                          <AlertDescription className="space-y-3 text-sm leading-relaxed">
+                            <p>
+                              لإظهار نموذج الدفع لشراء أول يلزم إكمال طلب التسجيل أولاً (رقم طلب بصيغة{' '}
+                              <span dir="ltr" className="font-mono">
+                                HM-…
+                              </span>
+                              ). بعدها يُفتح النموذج من رابط نجاح التسجيل مباشرة.
+                            </p>
+                            <Button asChild>
+                              <Link to={incompleteRegistrationHref}>إكمال طلب التسجيل</Link>
+                            </Button>
                           </AlertDescription>
                         </Alert>
-                      )}
+                      ) : (
+                        <>
+                          <PaymentCheckoutAcknowledgment
+                            checked={checkoutAcknowledged}
+                            onCheckedChange={setCheckoutAcknowledged}
+                            gateway="moyasar"
+                            idPrefix="moyasar-checkout"
+                          />
 
-                      {moyasarKeyOk && checkoutAcknowledged && registrationRequestReady && (
-                        <div className="space-y-3">
-                          {moyasarFormError && (
-                            <Alert variant="destructive">
+                          {!moyasarKeyOk && (
+                            <Alert>
                               <AlertCircle className="h-4 w-4" />
-                              <AlertDescription>{moyasarFormError}</AlertDescription>
+                              <AlertDescription className="text-base">
+                                لإظهار نموذج الدفع أضف{' '}
+                                <code className="rounded bg-muted px-1">VITE_MOYSAR_PUBLISHABLE_TEST_API_KEY</code> (أو{' '}
+                                <code className="rounded bg-muted px-1">VITE_MOYSAR_PUBLISHABLE_LIVE_API_KEY</code> في الإنتاج)
+                                في Vercel — مفتاح يبدأ بـ <span dir="ltr">pk_test_</span> أو <span dir="ltr">pk_live_</span> — ثم
+                                أعد نشر الواجهة.
+                              </AlertDescription>
                             </Alert>
                           )}
-                          <div
-                            ref={moyasarHostRef}
-                            className="min-h-[280px] w-full max-w-full overflow-x-auto rounded-md border border-border bg-background p-2"
-                            dir="ltr"
-                          />
-                        </div>
+
+                          {moyasarKeyOk && checkoutAcknowledged && (
+                            <div className="space-y-3">
+                              {moyasarFormError && (
+                                <Alert variant="destructive">
+                                  <AlertCircle className="h-4 w-4" />
+                                  <AlertDescription>{moyasarFormError}</AlertDescription>
+                                </Alert>
+                              )}
+                              <div
+                                ref={moyasarHostRef}
+                                className="min-h-[280px] w-full max-w-full overflow-x-auto rounded-md border border-border bg-background p-2"
+                                dir="ltr"
+                              />
+                            </div>
+                          )}
+                        </>
                       )}
                     </div>
                   )}
 
-                  {showSabCheckout && registrationRequestReady && (
+                  {showSabCheckout && (
                     <div className="space-y-4 rounded-lg border border-border bg-muted/30 p-4 sm:p-5">
-                      <PaymentCheckoutAcknowledgment
-                        checked={checkoutAcknowledged}
-                        onCheckedChange={setCheckoutAcknowledged}
-                        gateway="sab"
-                        idPrefix="sab-checkout"
-                      />
+                      {!registrationRequestReady ? (
+                        <Alert className="border-amber-500/50 bg-amber-500/10">
+                          <AlertCircle className="h-4 w-4 text-amber-600" />
+                          <AlertDescription className="space-y-3 text-sm leading-relaxed">
+                            <p>
+                              لإظهار نموذج الدفع لشراء أول يلزم إكمال طلب التسجيل أولاً. أكمل التسجيل ثم عد من رابط
+                              نجاح الطلب.
+                            </p>
+                            <Button asChild>
+                              <Link to={incompleteRegistrationHref}>إكمال طلب التسجيل</Link>
+                            </Button>
+                          </AlertDescription>
+                        </Alert>
+                      ) : (
+                        <>
+                          <PaymentCheckoutAcknowledgment
+                            checked={checkoutAcknowledged}
+                            onCheckedChange={setCheckoutAcknowledged}
+                            gateway="sab"
+                            idPrefix="sab-checkout"
+                          />
 
-                      {checkoutAcknowledged && (
-                        <div className="space-y-3">
-                          {sabCheckoutLoading && (
-                            <div className="flex items-center gap-2 text-base text-foreground/80">
-                              <Loader2 className="h-4 w-4 animate-spin" />
-                              جاري تجهيز جلسة الدفع…
+                          {checkoutAcknowledged && (
+                            <div className="space-y-3">
+                              {sabCheckoutLoading && (
+                                <div className="flex items-center gap-2 text-base text-foreground/80">
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                  جاري تجهيز جلسة الدفع…
+                                </div>
+                              )}
+                              {sabFormError && (
+                                <Alert variant="destructive">
+                                  <AlertCircle className="h-4 w-4" />
+                                  <AlertDescription>{sabFormError}</AlertDescription>
+                                </Alert>
+                              )}
+                              <div
+                                ref={sabHostRef}
+                                className="min-h-[280px] w-full max-w-full overflow-x-auto rounded-md border border-border bg-background p-2"
+                                dir="ltr"
+                              />
                             </div>
                           )}
-                          {sabFormError && (
-                            <Alert variant="destructive">
-                              <AlertCircle className="h-4 w-4" />
-                              <AlertDescription>{sabFormError}</AlertDescription>
-                            </Alert>
-                          )}
-                          <div
-                            ref={sabHostRef}
-                            className="min-h-[280px] w-full max-w-full overflow-x-auto rounded-md border border-border bg-background p-2"
-                            dir="ltr"
-                          />
-                        </div>
+                        </>
                       )}
                     </div>
                   )}

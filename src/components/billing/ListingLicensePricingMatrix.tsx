@@ -5,7 +5,7 @@ import { useMemo, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { Check, ChevronDown, ChevronUp, Minus, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { ROUTE_PATHS, SubscriptionTier } from '@/lib';
+import { SubscriptionTier } from '@/lib';
 import {
   DIAMOND_PRODUCT_SMART_LABEL_AR,
   DIAMOND_PRODUCT_STANDARD_LABEL_AR,
@@ -37,6 +37,7 @@ import {
   MadaBadgeIcon,
   VisaMastercardBadgeIcon,
 } from '@/components/billing/PaymentMethodBadgeIcons';
+import { buildListingCheckoutUrl } from '@/lib/buyPackageRouter';
 import { cn } from '@/lib/utils';
 import { BannerRadiationField, type BannerRadiationTier } from '@/components/BannerRadiationField';
 
@@ -75,15 +76,23 @@ type Props = {
   extraPaymentSearch?: Record<string, string>;
 };
 
-function paymentHref(base: URLSearchParams, extra?: Record<string, string>): string {
-  const merged = new URLSearchParams(base);
-  if (extra) {
-    for (const [key, value] of Object.entries(extra)) {
-      const v = value?.trim();
-      if (v && !merged.has(key)) merged.set(key, v);
-    }
-  }
-  return `${ROUTE_PATHS.PAYMENT}?${merged.toString()}`;
+function checkoutHref(
+  tier: 'bronze' | 'gold' | 'diamond',
+  qty: number,
+  digitalShiftAddon: boolean,
+  licenseSurface: SoftwareLicenseFormSurface,
+  extra?: Record<string, string>,
+): string {
+  return buildListingCheckoutUrl(
+    {
+      tier,
+      licenseMonths: qty,
+      digitalShiftAddon,
+      surface: licenseSurface === 'coiffeur' ? 'coiffeur' : undefined,
+      plan: qty >= 12 ? 'annual' : 'monthly',
+    },
+    extra,
+  );
 }
 
 export function ListingLicensePricingMatrix({
@@ -152,13 +161,17 @@ export function ListingLicensePricingMatrix({
           const totalSar = computeListingLicenseTotalSar(card.tier, qty, pricingOptions);
           const summaryAr = formatListingLicenseQuantitySummaryAr(qty);
           const ctaLabel = listingLicenseCtaLabelAr(qty, totalSar);
-          const paymentParams = new URLSearchParams({
-            tier: card.tierQuery,
-            qty: String(qty),
-          });
-          if (diamondAddonActive) paymentParams.set('aiAddon', '1');
-          if (licenseSurface === 'coiffeur') paymentParams.set('surface', 'coiffeur');
-          const paymentTo = paymentHref(paymentParams, extraPaymentSearch);
+          const paymentTo = checkoutHref(
+            card.tier === SubscriptionTier.GOLD
+              ? 'gold'
+              : card.tier === SubscriptionTier.DIAMOND
+                ? 'diamond'
+                : 'bronze',
+            qty,
+            diamondAddonActive,
+            licenseSurface,
+            extraPaymentSearch,
+          );
           const radiationTier: BannerRadiationTier =
             card.accent === 'diamond' ? 'diamond' : card.accent === 'gold' ? 'gold' : 'bronze';
           const featuresExpanded = featuresOpen[card.tier] === true;
@@ -330,7 +343,6 @@ export function ListingLicensePricingMatrix({
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {(() => {
             const annualPrice = computeListingLicenseTotalSar(SubscriptionTier.BRONZE, 12);
-            const params = new URLSearchParams({ tier: 'bronze', qty: '12' });
             return (
               <div className="flex flex-col gap-2 rounded-lg border border-slate-600 bg-slate-900 p-3.5 text-right">
                 <div className="flex items-center justify-between gap-1">
@@ -342,7 +354,7 @@ export function ListingLicensePricingMatrix({
                   <span className="text-xs text-slate-400">ر.س</span>
                 </div>
                 <p className="text-[11px] text-slate-500">360 يوم · {TIER_MONTHLY_SAR[SubscriptionTier.BRONZE]} ر.س/شهر</p>
-                <NavLink to={paymentHref(params, extraPaymentSearch)}>
+                <NavLink to={checkoutHref('bronze', 12, false, licenseSurface, extraPaymentSearch)}>
                   <button type="button" className="mt-1 w-full rounded-md border border-slate-600 bg-slate-700 py-2 text-xs font-semibold text-slate-100 transition-colors hover:bg-slate-600">
                     اشترِ السنوية
                   </button>
@@ -353,7 +365,6 @@ export function ListingLicensePricingMatrix({
 
           {(() => {
             const annualPrice = computeListingLicenseTotalSar(SubscriptionTier.GOLD, 12);
-            const params = new URLSearchParams({ tier: 'gold', qty: '12' });
             return (
               <div className="flex flex-col gap-2 rounded-lg border border-slate-500 bg-slate-900 p-3.5 text-right">
                 <div className="flex items-center justify-between gap-1">
@@ -365,7 +376,7 @@ export function ListingLicensePricingMatrix({
                   <span className="text-xs text-slate-400">ر.س</span>
                 </div>
                 <p className="text-[11px] text-slate-500">360 يوم · {TIER_MONTHLY_SAR[SubscriptionTier.GOLD]} ر.س/شهر</p>
-                <NavLink to={paymentHref(params, extraPaymentSearch)}>
+                <NavLink to={checkoutHref('gold', 12, false, licenseSurface, extraPaymentSearch)}>
                   <button type="button" className="mt-1 w-full rounded-md border border-amber-600/60 bg-amber-900/30 py-2 text-xs font-semibold text-amber-200 transition-colors hover:bg-amber-800/40">
                     اشترِ السنوية
                   </button>
@@ -376,7 +387,6 @@ export function ListingLicensePricingMatrix({
 
           {(() => {
             const annualPrice = computeListingLicenseTotalSar(SubscriptionTier.DIAMOND, 12);
-            const params = new URLSearchParams({ tier: 'diamond', qty: '12' });
             return (
               <div className="flex flex-col gap-2 rounded-lg border border-slate-400 bg-slate-900 p-3.5 text-right">
                 <div className="flex items-center justify-between gap-1">
@@ -388,7 +398,7 @@ export function ListingLicensePricingMatrix({
                   <span className="text-xs text-slate-400">ر.س</span>
                 </div>
                 <p className="text-[11px] text-slate-500">360 يوم · {TIER_MONTHLY_SAR[SubscriptionTier.DIAMOND]} ر.س/شهر</p>
-                <NavLink to={paymentHref(params, extraPaymentSearch)}>
+                <NavLink to={checkoutHref('diamond', 12, false, licenseSurface, extraPaymentSearch)}>
                   <button type="button" className="mt-1 w-full rounded-md border border-slate-300 bg-slate-100 py-2 text-xs font-semibold text-slate-900 transition-colors hover:bg-white">
                     اشترِ السنوية
                   </button>
@@ -399,7 +409,6 @@ export function ListingLicensePricingMatrix({
 
           {(() => {
             const annualPrice = computeListingLicenseTotalSar(SubscriptionTier.DIAMOND, 12, { digitalShiftAddon: true });
-            const params = new URLSearchParams({ tier: 'diamond', qty: '12', aiAddon: '1' });
             return (
               <div className="flex flex-col gap-2 rounded-lg border border-violet-500/50 bg-violet-950/40 p-3.5 text-right">
                 <div className="flex items-center justify-between gap-1">
@@ -412,7 +421,7 @@ export function ListingLicensePricingMatrix({
                 </div>
                 <p className="text-[11px] text-violet-400/80">360 يوم · {DIAMOND_WITH_ADDON_MONTHLY_SAR} ر.س/شهر</p>
                 <p className="text-[10px] text-slate-600">يشمل Add-on المناوب الرقمي</p>
-                <NavLink to={paymentHref(params, extraPaymentSearch)}>
+                <NavLink to={checkoutHref('diamond', 12, true, licenseSurface, extraPaymentSearch)}>
                   <button type="button" className="mt-1 w-full rounded-md border border-violet-500/60 bg-violet-800/40 py-2 text-xs font-semibold text-violet-200 transition-colors hover:bg-violet-700/50">
                     اشترِ السنوية
                   </button>
