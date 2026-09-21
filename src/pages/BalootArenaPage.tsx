@@ -27,6 +27,8 @@ import {
   startBalootPlayAfterDoubling,
   startNextBalootHand,
   type BalootBidChoice,
+  type BalootCard,
+  type BalootHandState,
   type BalootMatchState,
   type BalootSeat,
   type BalootSuit,
@@ -44,6 +46,30 @@ type BalootArenaView = 'landing' | 'playing';
 const BOT_SEATS: readonly BalootSeat[] = ['west', 'north', 'east'];
 const BOT_MOVE_DELAY_MS = 700;
 const HAND_SCORED_PAUSE_MS = 2200;
+
+/**
+ * خانة ثابتة لمقعد واحد داخل عرض الشوط الفرعي الحالي — بطاقته إن لعبها،
+ * وإلا فراغ معلَّم (—)، مع عدد أوراقه المتبقية للمقاعد الثلاثة الأخرى.
+ * ثابتة الموضع دوماً (لا تتحرك حسب ترتيب اللعب)، لتبقى تسمية كل مقعد فوق
+ * ورقته الصحيحة طوال الوقت.
+ */
+function renderBalootTrickSlot(seat: BalootSeat, hand: BalootHandState) {
+  const played = hand.currentTrick.find((entry) => entry.seat === seat)?.card as BalootCard | undefined;
+  const cardCount = seat === 'south' ? null : hand.hands[seat].length;
+  return (
+    <div key={seat} className="flex flex-col items-center gap-1">
+      {cardCount !== null && <span className="text-[10px] text-[#8aa6a8]">{cardCount} أوراق</span>}
+      {played ? (
+        <BalootCardFace card={played} trumpSuit={hand.trumpSuit} size="md" />
+      ) : (
+        <div className="flex h-20 w-14 items-center justify-center rounded-lg border border-dashed border-[#2a565e] text-xs text-[#4d6f73]">
+          —
+        </div>
+      )}
+      <span className="text-[10px] font-bold text-[#8aa6a8]">{BALOOT_SEAT_LABELS_AR[seat]}</span>
+    </div>
+  );
+}
 
 export default function BalootArenaPage() {
   useDocumentTitle(BALOOT_ARENA_COPY.documentTitle);
@@ -336,28 +362,27 @@ export default function BalootArenaPage() {
         ) : (
           <>
             <div className="mt-6 rounded-2xl border border-[#1f4a52] bg-[#0a1f26]/70 p-4">
-              <div className="mb-3 flex items-center justify-between text-xs text-[#8aa6a8]">
-                <span>{BALOOT_SEAT_LABELS_AR.north} (شريكك)</span>
-                <span>{BALOOT_SEAT_LABELS_AR.west}</span>
-                <span>{BALOOT_SEAT_LABELS_AR.east}</span>
-              </div>
-              <div className="mb-4 flex items-center justify-center gap-6 text-[10px] text-[#8aa6a8]">
-                <span>{hand.hands.north.length} أوراق</span>
-                <span>{hand.hands.west.length} أوراق</span>
-                <span>{hand.hands.east.length} أوراق</span>
+              {/*
+                عرض ثابت بترتيب المقاعد الفعلي (شمال أعلى، شريككم يمين
+                ويسار حسب اسميهما، جنوب أنتم أسفل الوسط) بدل ترتيب اللعب
+                الزمني السابق — كانت عناوين الأعمدة أعلى الصف تبقى ثابتة
+                بينما الأوراق تحتها تصطف حسب مَن لعب أولاً، فتنزاح
+                التسميات عن الأوراق الصحيحة كل شوط وتُربك لاعباً يعرف
+                البلوت جيداً. كل مقعد الآن له خانة ثابتة، فارغة (—) حتى
+                يلعب صاحبها.
+              */}
+              <div className="flex flex-col items-center gap-3">
+                {renderBalootTrickSlot('north', hand)}
+                <div className="flex items-start justify-center gap-8">
+                  {renderBalootTrickSlot('east', hand)}
+                  {renderBalootTrickSlot('south', hand)}
+                  {renderBalootTrickSlot('west', hand)}
+                </div>
               </div>
 
-              <div className="flex min-h-[7rem] items-center justify-center gap-3">
-                {hand.currentTrick.length === 0 && hand.phase === 'playing' && (
-                  <p className="text-xs text-[#8aa6a8]">بانتظار أول ورقة في هذا الشوط…</p>
-                )}
-                {hand.currentTrick.map((entry) => (
-                  <div key={entry.seat} className="flex flex-col items-center gap-1">
-                    <BalootCardFace card={entry.card} trumpSuit={hand.trumpSuit} size="md" />
-                    <span className="text-[10px] text-[#8aa6a8]">{BALOOT_SEAT_LABELS_AR[entry.seat]}</span>
-                  </div>
-                ))}
-              </div>
+              {hand.currentTrick.length === 0 && hand.phase === 'playing' && (
+                <p className="mt-3 text-center text-xs text-[#8aa6a8]">بانتظار أول ورقة في هذا الشوط…</p>
+              )}
 
               {hand.biddingTeam && (
                 <p className="mt-3 text-center text-xs font-bold text-[#d8ac52]">

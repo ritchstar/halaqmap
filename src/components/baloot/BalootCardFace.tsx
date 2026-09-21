@@ -52,6 +52,12 @@ export function BalootCardFace({
 
   const isRed = RED_SUITS.includes(card.suit);
   const isTrump = trumpSuit ? card.suit === trumpSuit : false;
+  // «قابلة للّعب الآن» شيء مختلف تماماً عن «من بذلة الحكم» — كانا يتشاركان
+  // نفس الإطار الذهبي سابقاً فيلتبس اللاعب: يظن أن ورقة الحكم هي المسموح
+  // لعبها بينما القانون يُلزمه بمتابعة البذلة المفتوحة إن توفرت في يده.
+  // الآن: الذهبي (لون الفعل/CTA في كل الواجهة) محصور بالورقة القابلة للنقر
+  // فعلياً، وورقة الحكم تُميَّز فقط بخلفية فاتحة محايدة بلا إطار «فعل».
+  const isClickable = Boolean(onClick) && !disabled;
 
   return (
     <button
@@ -60,15 +66,16 @@ export function BalootCardFace({
       onClick={onClick}
       className={cn(
         SIZE_CLASS[size],
-        'flex flex-col items-center justify-between rounded-lg border bg-white px-1.5 py-1 font-black shadow-md transition-transform',
+        'flex flex-col items-center justify-between rounded-lg border px-1.5 py-1 font-black shadow-md transition-transform',
         isRed ? 'text-[#b2233a]' : 'text-[#141414]',
-        isTrump ? 'border-[#d8ac52] ring-2 ring-[#d8ac52]/60' : 'border-black/15',
+        isTrump ? 'bg-[#fbf3e2]' : 'bg-white',
+        isClickable ? 'border-[#d8ac52] ring-2 ring-[#d8ac52]/60' : 'border-black/15',
         onClick && !disabled ? 'cursor-pointer hover:-translate-y-1.5' : 'cursor-default',
         disabled ? 'opacity-40' : '',
         selected ? '-translate-y-2 ring-2 ring-[#3d8b4a]' : '',
         className,
       )}
-      aria-label={`${card.rank} ${BALOOT_SUIT_SYMBOLS[card.suit]}`}
+      aria-label={`${card.rank} ${BALOOT_SUIT_SYMBOLS[card.suit]}${isTrump ? ' — ورقة حكم' : ''}`}
     >
       <span className="self-start leading-none">{card.rank}</span>
       <span className="text-xl leading-none">{BALOOT_SUIT_SYMBOLS[card.suit]}</span>
