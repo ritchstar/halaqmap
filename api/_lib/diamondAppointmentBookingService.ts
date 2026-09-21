@@ -384,6 +384,118 @@ export async function updateBarberBookingStatus(
   return { ok: true, booking: updated as BookingRow };
 }
 
+/**
+ * حالة حجز الزائر — مؤمَّنة بمطابقة رقم الجوال مع الحجز (بلا كشف بيانات حساسة أخرى).
+ */
+export async function getCustomerBookingStatus(
+  supabase: SupabaseClient,
+  input: { bookingId: string; customerPhone: string },
+): Promise<
+  | {
+      ok: true;
+      booking: {
+        id: string;
+        status: BookingStatus;
+        bookingDate: string;
+        bookingTime: string;
+        canCancel: boolean;
+      };
+    }
+  | { ok: false; error: string; status: number }
+> {
+  const bookingId = input.bookingId.trim();
+  const phone = input.customerPhone.trim();
+  if (!UUID_RE.test(bookingId)) return { ok: false, error: 'Invalid booking id', status: 400 };
+  if (!SA_PHONE_RE.test(phone)) return { ok: false, error: 'Invalid Saudi mobile number', status: 400 };
+
+  const { data, error } = await supabase
+    .from('bookings')
+    .select('id, status, booking_date, booking_time, customer_phone')
+    .eq('id', bookingId)
+    .maybeSingle();
+
+  if (error) return { ok: false, error: error.message || 'lookup_failed', status: 500 };
+  if (!data) return { ok: false, error: 'Booking not found', status: 404 };
+
+  const row = data as Pick<BookingRow, 'id' | 'status' | 'booking_date' | 'booking_time' | 'customer_phone'>;
+  if (String(row.customer_phone || '').trim() !== phone) {
+    return { ok: false, error: 'Booking not found', status: 404 };
+  }
+
+  const status = row.status;
+  const canCancel = status === 'pending' || status === 'confirmed';
+  return {
+    ok: true,
+    booking: {
+      id: row.id,
+      status,
+      bookingDate: String(row.booking_date),
+      bookingTime: String(row.booking_time).slice(0, 5),
+      canCancel,
+    },
+  };
+}
+
+/**
+ * إلغاء الزائر لموعده (قيد الانتظار أو مؤكَّد) — بمطابقة رقم الجوال.
+ */
+export async function cancelCustomerBooking(
+  supabase: SupabaseClient,
+  input: { bookingId: string; customerPhone: string },
+): Promise<
+  | { ok: true; booking: { id: string; status: 'cancelled' } }
+  | { ok: false; error: string; status: number }
+> {
+  const bookingId = input.bookingId.trim();
+  const phone = input.customerPhone.trim();
+  if (!UUID_RE.test(bookingId)) return { ok: false, error: 'Invalid booking id', status: 400 };
+  if (!SA_PHONE_RE.test(phone)) return { ok: false, error: 'Invalid Saudi mobile number', status: 400 };
+
+  const { data: existing, error: readErr } = await supabase
+    .from('bookings')
+    .select('id, status, customer_phone')
+    .eq('id', bookingId)
+    .maybeSingle();
+
+  if (readErr) return { ok: false, error: readErr.message || 'lookup_failed', status: 500 };
+  if (!existing) return { ok: false, error: 'Booking not found', status: 404 };
+
+  const row = existing as Pick<BookingRow, 'id' | 'status' | 'customer_phone'>;
+  if (String(row.customer_phone || '').trim() !== phone) {
+    return { ok: false, error: 'Booking not found', status: 404 };
+  }
+  if (row.status === 'cancelled') {
+    return { ok: true, booking: { id: row.id, status: 'cancelled' } };
+  }
+  if (row.status !== 'pending' && row.status !== 'confirmed') {
+    return { ok: false, error: 'Booking is closed', status: 409 };
+  }
+
+  const { data: updated, error: updateErr } = await supabase
+    .from('bookings')
+    .update({
+      status: 'cancelled',
+      cancellation_reason: 'ألغاه الزبون من جهازه',
+    })
+    .eq('id', bookingId)
+    .eq('customer_phone', phone)
+    .in('status', ['pending', 'confirmed'])
+    .select('id, status')
+    .maybeSingle();
+
+  if (updateErr) return { ok: false, error: updateErr.message || 'update_failed', status: 500 };
+  if (!updated) {
+    // سباق: قد يكون الحلاق ألغى أو أكمل في اللحظة نفسها
+    const again = await getCustomerBookingStatus(supabase, { bookingId, customerPhone: phone });
+    if (again.ok && again.booking.status === 'cancelled') {
+      return { ok: true, booking: { id: bookingId, status: 'cancelled' } };
+    }
+    return { ok: false, error: 'Booking is closed', status: 409 };
+  }
+
+  return { ok: true, booking: { id: String(updated.id), status: 'cancelled' } };
+}
+
 /** حذف نهائي لحجز مغلق (ملغى / مكتمل / لم يحضر) من صندوق مواعيد الحلاق. */
 export async function deleteClosedBarberBooking(
   supabase: SupabaseClient,

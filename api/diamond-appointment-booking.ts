@@ -7,8 +7,10 @@ import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiC
 import { resolveBarberPortalBookingActor } from './_lib/barberPortalBookingAuth.js';
 import {
   assertBarberPortalDiamondScheduling,
+  cancelCustomerBooking,
   createDiamondAppointmentRequest,
   deleteClosedBarberBooking,
+  getCustomerBookingStatus,
   listBarberBookings,
   updateBarberBookingStatus,
 } from './_lib/diamondAppointmentBookingService.js';
@@ -102,6 +104,26 @@ export async function POST(request: Request): Promise<Response> {
       { ok: true, bookingId: result.bookingId, booking: result.booking },
       { headers },
     );
+  }
+
+  if (action === 'customer_status') {
+    const bookingId = String((body as { bookingId?: unknown }).bookingId ?? '').trim();
+    const customerPhone = String((body as { customerPhone?: unknown }).customerPhone ?? '').trim();
+    const result = await getCustomerBookingStatus(supabase, { bookingId, customerPhone });
+    if (!result.ok) {
+      return Response.json({ error: result.error }, { status: result.status, headers });
+    }
+    return Response.json({ ok: true, booking: result.booking }, { headers });
+  }
+
+  if (action === 'customer_cancel') {
+    const bookingId = String((body as { bookingId?: unknown }).bookingId ?? '').trim();
+    const customerPhone = String((body as { customerPhone?: unknown }).customerPhone ?? '').trim();
+    const result = await cancelCustomerBooking(supabase, { bookingId, customerPhone });
+    if (!result.ok) {
+      return Response.json({ error: result.error }, { status: result.status, headers });
+    }
+    return Response.json({ ok: true, booking: result.booking }, { headers });
   }
 
   const actor = await resolveBarberPortalBookingActor(request, body as { barberId?: unknown; email?: unknown }, supabase);

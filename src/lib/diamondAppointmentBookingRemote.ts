@@ -85,13 +85,13 @@ function normalizeErrorMessage(message: string): string {
     return 'جدولة المواعيد متاحة لباقة ماسي فقط.';
   }
   if (m.includes('booking is closed')) {
-    return 'هذا الموعد مغلق مسبقاً. استخدم «إزالة من القائمة» لمسحه.';
+    return 'هذا الموعد لم يعد قابلاً للتعديل لأنه مغلق أو مكتمل.';
   }
   if (m.includes('only closed bookings can be deleted')) {
     return 'لا يمكن حذف موعد نشط. ألغِ الحجز أولاً ثم أزِله من القائمة.';
   }
   if (m.includes('booking not found')) {
-    return 'لم يُعثر على هذا الموعد. حدّث الحجوزات ثم أعد المحاولة.';
+    return 'لم يُعثر على هذا الموعد. تحقق من رقم الجوال أو حدّث القائمة ثم أعد المحاولة.';
   }
   return message;
 }
@@ -181,6 +181,57 @@ export async function createDiamondAppointmentBookingRemote(input: {
   const bookingId = String(res.json.bookingId ?? '').trim();
   if (!bookingId) return { ok: false, error: 'تعذّر إنشاء طلب الحجز.' };
   return { ok: true, bookingId };
+}
+
+export type CustomerBookingPublicView = {
+  id: string;
+  status: RemoteBookingRow['status'];
+  bookingDate: string;
+  bookingTime: string;
+  canCancel: boolean;
+};
+
+export async function fetchCustomerBookingStatusRemote(input: {
+  bookingId: string;
+  customerPhone: string;
+}): Promise<{ ok: true; booking: CustomerBookingPublicView } | { ok: false; error: string }> {
+  const res = await postJson<{ booking?: CustomerBookingPublicView }>(
+    {
+      action: 'customer_status',
+      bookingId: input.bookingId.trim(),
+      customerPhone: input.customerPhone.trim(),
+    },
+    'public',
+  );
+  if (!res.ok) return { ok: false, error: res.error };
+  const booking = res.json.booking;
+  if (!booking?.id || !booking.status) return { ok: false, error: 'تعذّر قراءة حالة الموعد.' };
+  return {
+    ok: true,
+    booking: {
+      id: String(booking.id),
+      status: booking.status,
+      bookingDate: String(booking.bookingDate ?? ''),
+      bookingTime: formatBookingTime(String(booking.bookingTime ?? '')),
+      canCancel: booking.canCancel === true,
+    },
+  };
+}
+
+export async function cancelCustomerBookingRemote(input: {
+  bookingId: string;
+  customerPhone: string;
+}): Promise<{ ok: true } | { ok: false; error: string }> {
+  const res = await postJson<{ booking?: { id?: string; status?: string } }>(
+    {
+      action: 'customer_cancel',
+      bookingId: input.bookingId.trim(),
+      customerPhone: input.customerPhone.trim(),
+    },
+    'public',
+  );
+  if (!res.ok) return { ok: false, error: res.error };
+  return { ok: true };
 }
 
 export async function listBarberBookingsRemote(): Promise<

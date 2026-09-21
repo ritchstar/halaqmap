@@ -9,13 +9,15 @@ import { Button, type ButtonProps } from '@/components/ui/button';
 import { SubscriptionTier } from '@/lib/index';
 import { cn } from '@/lib/utils';
 
-/** غلاف بنر التواصل — mobile-first، بدون تمدد أفقي. */
+/** غلاف بنر التواصل — جوال أولاً بمسند سفلي، ثم توسيط على الشاشات الأوسع.
+ * يستخدم ! لتفوق إعدادات Dialog الافتراضية (left-[50%] + translate-50%).
+ */
 export const BARBER_CONTACT_SHEET_SHELL =
   'fixed z-[70] flex min-w-0 flex-col gap-0 border bg-background p-4 shadow-lg ' +
-  'left-1/2 top-1/2 w-[min(calc(100vw-1rem),56rem)] max-w-[min(calc(100vw-1rem),56rem)] max-h-[min(92dvh,90vh)] ' +
-  '-translate-x-1/2 -translate-y-1/2 overflow-x-hidden overflow-y-auto overscroll-contain scroll-pb-6 ' +
-  'sm:max-w-4xl sm:rounded-lg sm:p-6 ' +
-  'max-sm:inset-x-2 max-sm:bottom-2 max-sm:top-auto max-sm:w-[calc(100vw-1rem)] max-sm:max-w-[calc(100vw-1rem)] max-sm:translate-x-0 max-sm:translate-y-0 max-sm:rounded-2xl';
+  '!inset-x-2 !bottom-2 !top-auto !left-2 !right-2 w-[calc(100vw-1rem)] max-w-[calc(100vw-1rem)] max-h-[min(92dvh,90vh)] ' +
+  '!translate-x-0 !translate-y-0 overflow-x-hidden overflow-y-auto overscroll-contain scroll-pb-6 rounded-2xl ' +
+  'sm:!inset-x-auto sm:!bottom-auto sm:!left-1/2 sm:!right-auto sm:!top-1/2 sm:w-[min(calc(100vw-1rem),56rem)] ' +
+  'sm:max-w-4xl sm:!-translate-x-1/2 sm:!-translate-y-1/2 sm:rounded-lg sm:p-6';
 
 export const BARBER_CONTACT_INNER_CLASS = 'barber-contact-inner';
 
@@ -150,10 +152,13 @@ export function BarberContactSheet({
 }) {
   useEffect(() => {
     if (!open) return;
-    const prev = document.body.style.overflow;
+    const prevOverflow = document.body.style.overflow;
+    const prevOverflowX = document.body.style.overflowX;
     document.body.style.overflow = 'hidden';
+    document.body.style.overflowX = 'hidden';
     return () => {
-      document.body.style.overflow = prev;
+      document.body.style.overflow = prevOverflow;
+      document.body.style.overflowX = prevOverflowX;
     };
   }, [open]);
 
