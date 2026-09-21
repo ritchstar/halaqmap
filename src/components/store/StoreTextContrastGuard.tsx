@@ -21,6 +21,7 @@ import { useLocation } from 'react-router-dom';
 import {
   contrastRatio,
   isLightBackground,
+  isWithinManualContrastZone,
   parseCssColor,
   pickReadableTextColor,
   resolveEffectiveBackground,
@@ -52,6 +53,10 @@ function hasOwnVisibleText(el: Element): boolean {
 
 function checkElement(el: HTMLElement): void {
   if (!hasOwnVisibleText(el)) return;
+  // حاوية أعلنت يدوياً أن خلفيتها الفعلية طبقة زخرفية (صورة/عنصر شقيق مطلق
+  // التموضع) لا يمكن لـ resolveEffectiveBackground رؤيتها — راجع توثيق
+  // isWithinManualContrastZone في colorContrast.ts. تخطٍّ مبكر قبل أي حساب.
+  if (isWithinManualContrastZone(el)) return;
 
   const style = window.getComputedStyle(el);
   if (style.visibility === 'hidden' || style.display === 'none') return;

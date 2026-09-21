@@ -1005,7 +1005,17 @@ export default function LandingPreview() {
       </header>
 
       {/* ── Hero section ─────────────────────────────────────────────────── */}
+      {/* data-contrast-guard-manual-bg: خلفية هذا القسم الفعلية المرئية صورة
+          فوتوغرافية (طبقات `absolute inset-0 z-0` شقيقة، لا خلفية CSS على
+          `<section>` نفسه أو أي أب حقيقي للنص) — حرّاسا التباين
+          (StoreTextContrastGuard وStoreButtonContrastGuard) لا يريان هذه
+          الطبقة إطلاقاً فيتسلّقان خطأً إلى خلفية الصفحة البيج الحقيقية خلف
+          الصورة، ويصححان نص الهيرو الأبيض المتعمَّد إلى حبر داكن يختفي فعلياً
+          فوق الصورة الداكنة. كل ألوان النصوص/الأزرار هنا رُوجعت يدوياً
+          وتباينها مضمون فوق الصورة والتعتيم الفعليين — راجع توثيق
+          isWithinManualContrastZone في src/lib/colorContrast.ts. */}
       <section
+        data-contrast-guard-manual-bg="true"
         className={cn(
           'relative overflow-x-clip',
           isMobile

@@ -27,6 +27,7 @@ import { useLocation } from 'react-router-dom';
 import {
   contrastRatio,
   extractGradientStopColors,
+  isWithinManualContrastZone,
   parseCssColor,
   pickReadableTextColor,
   resolveEffectiveBackground,
@@ -46,6 +47,11 @@ const SCAN_DEBOUNCE_MS = 220;
 const FIXED_ATTR = 'data-contrast-guard-fixed';
 
 function checkElement(el: HTMLElement): void {
+  // حاوية أعلنت يدوياً أن خلفيتها الفعلية طبقة زخرفية (صورة/عنصر شقيق مطلق
+  // التموضع) لا يمكن لـ resolveEffectiveBackground رؤيتها — راجع توثيق
+  // isWithinManualContrastZone في colorContrast.ts. تخطٍّ مبكر قبل أي حساب.
+  if (isWithinManualContrastZone(el)) return;
+
   const style = window.getComputedStyle(el);
   const textColor = parseCssColor(style.color);
   if (!textColor || textColor.a === 0) return; // نص شفاف عمداً (أيقونة فقط، إلخ) — ليس خللاً
