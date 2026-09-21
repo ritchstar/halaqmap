@@ -103,7 +103,7 @@ export function LocationStatusBar({ lat, lng }: Props) {
       initial={{ opacity: 0, x: -20, y: -8 }}
       animate={{ opacity: 1, x: 0, y: 0 }}
       transition={{ duration: 0.4, ease: 'easeOut' }}
-      className="fixed left-3 top-[96px] z-40 md:top-[80px]"
+      className="fixed left-3 z-40 top-[calc(3.5rem+env(safe-area-inset-top)+0.5rem)] md:top-[calc(4rem+0.5rem)]"
       dir="rtl"
     >
         <div
@@ -126,15 +126,17 @@ export function LocationStatusBar({ lat, lng }: Props) {
               <span className="truncate text-[0.65rem] font-bold leading-tight text-teal-700">
                 {city}
               </span>
-              <span className="font-mono text-[0.55rem] leading-tight text-teal-400/70">
+              <span className="font-mono text-[0.55rem] leading-tight text-teal-700/75">
                 {timeStr}
               </span>
             </div>
             <button
+              type="button"
+              aria-label="إخفاء شريط الموقع"
               onClick={(e) => { e.stopPropagation(); setDismissed(true); }}
-              className="ms-1 rounded p-0.5 text-[#6f6250] hover:text-[#3d3226]"
+              className="ms-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-[#6f6250] hover:bg-[#eee2ce] hover:text-[#3d3226]"
             >
-              <X className="h-2.5 w-2.5" />
+              <X className="h-3.5 w-3.5" />
             </button>
           </div>
 

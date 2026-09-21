@@ -53,9 +53,12 @@ export function LandingSearchResults({
             onIntentChange={(next) => onFilterChange(next)}
           />
         ) : null}
-        <div className="rounded-2xl border border-[#dac8aa] bg-[#fbf6ec] p-3 md:p-4">
-          <FilterBar filters={filters} onFilterChange={onFilterChange} defaultExpanded={isMobile} />
-        </div>
+        <FilterBar
+          filters={filters}
+          onFilterChange={onFilterChange}
+          tone="light"
+          defaultExpanded={false}
+        />
       </div>
 
       <div className="mx-auto max-w-7xl px-5 pb-4">
@@ -123,8 +126,8 @@ export function LandingSearchResults({
                 <p className="text-sm text-[#6f6250]">
                   <span className="font-bold text-teal-700">{filteredBarbers.length}</span> نتيجة متاحة
                 </p>
-                <div className="flex items-center gap-1.5 text-[0.65rem] text-teal-400/70">
-                  <div className="h-1.5 w-1.5 animate-pulse rounded-full bg-teal-400" />
+                <div className="flex items-center gap-1.5 text-[0.65rem] font-semibold text-teal-800">
+                  <div className="h-1.5 w-1.5 animate-pulse rounded-full bg-teal-600" />
                   مستخدم يستعلم · حلاق متوفر
                 </div>
               </div>

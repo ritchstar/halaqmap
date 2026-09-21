@@ -3,7 +3,7 @@
  */
 /**
  * عدسة الاستعلام — فلاتر الجوال مدمجة مع زر البحث (بلا تمرير أفقي).
- * أساس: 3 خيارات شائعة | تخصّص: 4 خيارات أدق — كلها ظاهرة دفعة واحدة.
+ * أساس: 3 خيارات شائعة | تخصّص: 5 خيارات أدق في شبكة واحدة — كلها ظاهرة دفعة واحدة.
  * بطاقة تواصل ماب تُعرض في شريط الفلاتر وأسفل نتائج البحث فقط (ليس هنا).
  */
 import type { FilterState } from '@/lib/index';
@@ -84,16 +84,16 @@ export function VisitorMobileQueryLens({ filters, hasLocation, onIntentChange }:
                 aria-selected={active}
                 onClick={() => handleSelect(intent.id)}
                 className={cn(
-                  'touch-manipulation rounded-xl px-1 py-2 text-center transition active:scale-[0.97]',
+                  'touch-manipulation flex min-h-11 flex-col items-center justify-center rounded-xl px-1 py-2 text-center transition active:scale-[0.97]',
                   active
                     ? 'bg-teal-500/25 shadow-[inset_0_0_0_1px_rgba(45,212,191,0.45)]'
-                    : 'bg-transparent hover:bg-[#fbf6ec]',
+                    : 'bg-transparent hover:bg-[#eee2ce]/70',
                 )}
               >
                 <span className="block text-base leading-none">{intent.emoji}</span>
                 <span
                   className={cn(
-                    'mt-1 block truncate text-[0.62rem] font-bold leading-tight',
+                    'mt-1 block line-clamp-2 text-[0.65rem] font-bold leading-tight',
                     active ? 'text-teal-800' : 'text-[#2e2418]/80',
                   )}
                 >
@@ -110,7 +110,7 @@ export function VisitorMobileQueryLens({ filters, hasLocation, onIntentChange }:
           {VISITOR_MOBILE_QUERY_REFINE_AR}
         </p>
         <div
-          className="grid grid-cols-4 gap-1"
+          className="grid grid-cols-5 gap-1"
           role="tablist"
           aria-label="تخصّص الاستعلام"
         >
@@ -124,7 +124,7 @@ export function VisitorMobileQueryLens({ filters, hasLocation, onIntentChange }:
                 aria-selected={active}
                 onClick={() => handleSelect(intent.id)}
                 className={cn(
-                  'touch-manipulation rounded-xl border px-1 py-1.5 text-center transition active:scale-[0.97]',
+                  'touch-manipulation flex min-h-11 flex-col items-center justify-center rounded-xl border px-0.5 py-2 text-center transition active:scale-[0.97]',
                   active
                     ? 'border-teal-400/45 bg-teal-500/15'
                     : 'border-[#dac8aa] bg-[#fbf6ec]',
@@ -133,7 +133,7 @@ export function VisitorMobileQueryLens({ filters, hasLocation, onIntentChange }:
                 <span className="block text-sm leading-none">{intent.emoji}</span>
                 <span
                   className={cn(
-                    'mt-0.5 block truncate text-[0.52rem] font-bold leading-tight',
+                    'mt-0.5 block line-clamp-2 text-[0.58rem] font-bold leading-tight',
                     active ? 'text-teal-800' : 'text-[#2e2418]/70',
                   )}
                 >

@@ -832,7 +832,7 @@ export default function LandingPreview() {
       {/* شريط موقع المستخدم */}
       {userLocation && <LocationStatusBar lat={userLocation.lat} lng={userLocation.lng} />}
       {seoFunnelHintAr && (
-        <div className="border-b border-teal-500/20 bg-teal-500/10 px-4 py-2 text-center text-sm text-teal-800">
+        <div className="sticky top-[calc(3.5rem+env(safe-area-inset-top))] z-40 border-b border-teal-500/20 bg-teal-500/15 px-4 py-2 text-center text-sm text-teal-900 backdrop-blur-sm md:top-16">
           استعلام مضبوط من صفحة الهبوط: <strong>{seoFunnelHintAr}</strong>
         </div>
       )}
@@ -893,7 +893,7 @@ export default function LandingPreview() {
                 </div>
                 <div className="leading-tight">
                   <div className={cn('text-[1rem] font-black tracking-wide', scrolled ? 'text-[#2e2418]' : 'text-white')}>حلاق ماب</div>
-                  <div className="text-[0.58rem] font-bold text-teal-300/85">ابحث عن حلاق قريب</div>
+                  <div className={cn('text-[0.58rem] font-bold', scrolled ? 'text-teal-800' : 'text-teal-200/90')}>ابحث عن حلاق قريب</div>
                 </div>
               </Link>
             </div>
@@ -1114,7 +1114,12 @@ export default function LandingPreview() {
               isMobile ? 'text-[clamp(1.75rem,8vw,2.25rem)]' : 'text-[clamp(2rem,5.5vw,4rem)]',
             )}>
               {VISITOR_HERO_TITLE_AR}
-              <span className="block bg-gradient-to-l from-teal-300 to-cyan-200 bg-clip-text text-transparent">
+              <span className={cn(
+                'block drop-shadow-[0_2px_12px_rgba(0,0,0,0.5)]',
+                isMobile
+                  ? 'text-teal-100'
+                  : 'bg-gradient-to-l from-teal-300 to-cyan-200 bg-clip-text text-transparent',
+              )}>
                 {VISITOR_HERO_TITLE_ACCENT_AR}
               </span>
             </h1>
@@ -1126,7 +1131,7 @@ export default function LandingPreview() {
             ) : null}
 
             {isMobile ? (
-            <div className="mb-3">
+            <div className="mb-3 drop-shadow-[0_6px_20px_rgba(0,0,0,0.35)]">
               <VisitorTrustTriad variant="chips" />
             </div>
             ) : null}
@@ -1490,7 +1495,7 @@ export default function LandingPreview() {
                     <Link
                       key={item.label}
                       to={item.to}
-                      className="rounded-xl border border-[#dac8aa] bg-[#fbf6ec] px-3 py-3 text-center text-sm font-semibold text-[#2e2418]/85 transition active:bg-[#f0e6d0]"
+                      className="flex min-h-11 items-center justify-center rounded-xl border border-[#dac8aa] bg-[#fbf6ec] px-3 py-3 text-center text-sm font-semibold text-[#2e2418]/85 transition active:bg-[#f0e6d0]"
                     >
                       {item.label}
                     </Link>
@@ -1499,7 +1504,7 @@ export default function LandingPreview() {
                       key={item.label}
                       type="button"
                       onClick={'action' in item ? item.action : undefined}
-                      className="rounded-xl border border-[#dac8aa] bg-[#fbf6ec] px-3 py-3 text-center text-sm font-semibold text-[#2e2418]/85 transition active:bg-[#f0e6d0]"
+                      className="flex min-h-11 w-full items-center justify-center rounded-xl border border-[#dac8aa] bg-[#fbf6ec] px-3 py-3 text-center text-sm font-semibold text-[#2e2418]/85 transition active:bg-[#f0e6d0]"
                     >
                       {item.label}
                     </button>

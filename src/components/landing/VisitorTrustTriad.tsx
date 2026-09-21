@@ -27,7 +27,7 @@ export function VisitorTrustTriad({ compact = false, variant = 'cards' }: Props)
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 + i * 0.05 }}
               title={item.description}
-              className="flex min-w-0 flex-1 flex-col items-center gap-1 rounded-lg border border-[#dac8aa] bg-[#fbf6ec] px-1 py-2"
+              className="flex min-w-0 flex-1 flex-col items-center gap-1 rounded-lg border border-[#dac8aa] bg-[#fbf6ec] px-1.5 py-2.5"
             >
               <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-teal-500/15">
                 <Icon className="h-3 w-3 text-teal-700" aria-hidden />

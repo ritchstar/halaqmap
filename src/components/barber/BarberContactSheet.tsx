@@ -17,7 +17,10 @@ export const BARBER_CONTACT_SHEET_SHELL =
   '!inset-x-2 !bottom-2 !top-auto !left-2 !right-2 w-[calc(100vw-1rem)] max-w-[calc(100vw-1rem)] max-h-[min(92dvh,90vh)] ' +
   '!translate-x-0 !translate-y-0 overflow-x-hidden overflow-y-auto overscroll-contain scroll-pb-6 rounded-2xl ' +
   'sm:!inset-x-auto sm:!bottom-auto sm:!left-1/2 sm:!right-auto sm:!top-1/2 sm:w-[min(calc(100vw-1rem),56rem)] ' +
-  'sm:max-w-4xl sm:!-translate-x-1/2 sm:!-translate-y-1/2 sm:rounded-lg sm:p-6';
+  'sm:max-w-4xl sm:!-translate-x-1/2 sm:!-translate-y-1/2 sm:rounded-lg sm:p-6 ' +
+  /* إغلاق في بداية RTL (يسار الشاشة) لتفادي تداخل العنوان + هدف لمس كافٍ */
+  '[&>button]:!start-4 [&>button]:!end-auto [&>button]:!left-4 [&>button]:!right-auto ' +
+  '[&>button]:!flex [&>button]:!h-10 [&>button]:!w-10 [&>button]:!items-center [&>button]:!justify-center';
 
 export const BARBER_CONTACT_INNER_CLASS = 'barber-contact-inner';
 
@@ -169,6 +172,10 @@ export function BarberContactSheet({
         className={cn(
           BARBER_CONTACT_SHEET_SHELL,
           'grid-cols-1 !gap-0 duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out',
+          /* على الجوال: صعود من الأسفل بلا انزياح يساري من حركات Dialog الافتراضية */
+          '!data-[state=open]:slide-in-from-bottom-4 !data-[state=closed]:slide-out-to-bottom-4',
+          '!data-[state=open]:slide-in-from-left-0 !data-[state=closed]:slide-out-to-left-0',
+          '!data-[state=open]:slide-in-from-top-0 !data-[state=closed]:slide-out-to-top-0',
           contentClassName,
         )}
         dir="rtl"
