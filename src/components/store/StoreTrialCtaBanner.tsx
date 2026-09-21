@@ -43,13 +43,13 @@ export function StoreTrialCtaBanner() {
             <Sparkles className="h-4 w-4 text-[#e8c547]" />
           </span>
           <p className="truncate text-sm font-extrabold text-[#f4efe4] sm:text-base">
-            اطلب تجربتك المجانية الآن
+            اطلب تجربتك المجانية الآن قبل الإغلاق
           </p>
         </div>
         <div className="flex shrink-0 items-center gap-1.5">
           <Link
             to={storeGeneralTrialHref(trialKey)}
-            className="inline-flex items-center justify-center whitespace-nowrap rounded-full bg-[#e8c547] px-4 py-2.5 text-sm font-extrabold text-[#061018] shadow-[0_10px_24px_-10px_rgba(232,197,71,0.7)] hover:bg-[#f0d36a] sm:px-5"
+            className="store-trial-cta-pulse inline-flex items-center justify-center whitespace-nowrap rounded-full bg-[#e8c547] px-4 py-2.5 text-sm font-extrabold text-[#061018] shadow-[0_10px_24px_-10px_rgba(232,197,71,0.7)] hover:bg-[#f0d36a] sm:px-5"
           >
             {STORE_GENERAL_TRIAL_COPY.promoCtaAr}
           </Link>

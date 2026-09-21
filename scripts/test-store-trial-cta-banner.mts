@@ -85,6 +85,16 @@ assert.match(banner, /fixed inset-x-0 bottom-0/);
 assert.match(banner, /safe-area-inset-bottom/);
 assert.match(banner, /#e8c547/);
 
+// نص البنر يحثّ على الاستعجال قبل الإغلاق، وزر التجربة نابض متوهّج.
+assert.match(banner, /اطلب تجربتك المجانية الآن قبل الإغلاق/);
+assert.match(banner, /store-trial-cta-pulse/, 'يجب أن يحمل زر التجربة كلاس النبض المتوهّج');
+
+const cssForTrialPulse = readFileSync(join(root, 'src/index.css'), 'utf8');
+assert.match(cssForTrialPulse, /@keyframes store-trial-cta-glow-pulse/);
+assert.match(cssForTrialPulse, /\.store-trial-cta-pulse\s*\{[^}]*animation:\s*store-trial-cta-glow-pulse/);
+// يحترم تفضيل تقليل الحركة — لا نفرض النبض على من يطلبون إيقاف الحركة.
+assert.match(cssForTrialPulse, /prefers-reduced-motion: reduce\)\s*\{\s*\.store-trial-cta-pulse\s*\{\s*animation:\s*none;/);
+
 // مجموعة التفاعل العائمة (تقييم/مشاركة) ترتفع فوق البنر بدل التداخل معه.
 const engage = readFileSync(join(root, 'src/components/store/StoreVisitorEngage.tsx'), 'utf8');
 assert.match(engage, /storeTrialLandingKeyForPath/);
