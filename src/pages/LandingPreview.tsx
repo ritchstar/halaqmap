@@ -871,15 +871,16 @@ export default function LandingPreview() {
           ══════════════════════════════════════════════════════════════════ */}
       <header className="fixed inset-x-0 top-0 z-50 pt-[env(safe-area-inset-top)] transition-all duration-500">
 
-        {/* ── طبقة الخلفية الزجاجية ──────────────────────── */}
+        {/* ── طبقة الخلفية الزجاجية — بيج فوق محتوى الصفحة الفاتح بعد التمرير،
+            وزجاج داكن شفاف فوق خلفية الهيرو المصوَّرة قبل التمرير ─────── */}
         <div className={`absolute inset-0 transition-all duration-500 ${
           scrolled
             ? isMobile
               ? 'bg-[#eee2ce]/97 shadow-[0_4px_22px_rgba(0,0,0,0.42)]'
               : 'bg-[#eee2ce]/96 backdrop-blur-2xl shadow-[0_4px_40px_rgba(0,0,0,0.6)]'
             : isMobile
-              ? 'bg-[#eee2ce]/92'
-              : 'bg-[#eee2ce]/85 backdrop-blur-xl'
+              ? 'bg-[#0a1512]/55 backdrop-blur-md'
+              : 'bg-[#0a1512]/40 backdrop-blur-md'
         }`} />
 
         {/* ── التنقل الرئيسي ─────────────────────────────── */}
@@ -891,8 +892,8 @@ export default function LandingPreview() {
                   <Scissors className="h-4 w-4 text-teal-300" />
                 </div>
                 <div className="leading-tight">
-                  <div className="text-[1rem] font-black tracking-wide text-[#2e2418]">حلاق ماب</div>
-                  <div className="text-[0.58rem] font-bold text-teal-400/70">ابحث عن حلاق قريب</div>
+                  <div className={cn('text-[1rem] font-black tracking-wide', scrolled ? 'text-[#2e2418]' : 'text-white')}>حلاق ماب</div>
+                  <div className="text-[0.58rem] font-bold text-teal-300/85">ابحث عن حلاق قريب</div>
                 </div>
               </Link>
             </div>
@@ -916,7 +917,7 @@ export default function LandingPreview() {
                 {/* اسم المنصة */}
                 <div className="leading-tight">
                   <div className="flex items-center gap-1.5">
-                    <span className="text-[1.19rem] font-black tracking-wide text-[#2e2418]">حلاق ماب</span>
+                    <span className={cn('text-[1.19rem] font-black tracking-wide', scrolled ? 'text-[#2e2418]' : 'text-white')}>حلاق ماب</span>
                     {skipHeroMotion ? (
                       <div className="h-1.5 w-1.5 rounded-full bg-teal-400" />
                     ) : (
@@ -927,11 +928,14 @@ export default function LandingPreview() {
                       />
                     )}
                   </div>
-                  <div className="text-[0.6rem] font-bold tracking-[0.3em] text-teal-400/55">HALAQ MAP · LIVE</div>
+                  <div className="text-[0.6rem] font-bold tracking-[0.3em] text-teal-300/70">HALAQ MAP · LIVE</div>
                 </div>
 
                 {/* عدد الصالونات النشطة */}
-                <div className="hidden items-center gap-1 rounded-full border border-teal-400/20 bg-teal-500/8 px-2.5 py-1 sm:flex">
+                <div className={cn(
+                  'hidden items-center gap-1 rounded-full border px-2.5 py-1 sm:flex',
+                  scrolled ? 'border-teal-400/20 bg-teal-500/8' : 'border-teal-300/30 bg-black/20 backdrop-blur-sm',
+                )}>
                   {skipHeroMotion ? (
                     <div className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
                   ) : (
@@ -941,7 +945,7 @@ export default function LandingPreview() {
                       className="h-1.5 w-1.5 rounded-full bg-emerald-400"
                     />
                   )}
-                  <span className="text-[0.69rem] font-bold text-emerald-700/80">نبض نشط</span>
+                  <span className={cn('text-[0.69rem] font-bold', scrolled ? 'text-emerald-700/80' : 'text-emerald-200')}>نبض نشط</span>
                 </div>
               </Link>
 
@@ -955,7 +959,12 @@ export default function LandingPreview() {
                     key={item.label}
                     type="button"
                     onClick={() => document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-                    className="group flex h-10 items-center gap-1.5 whitespace-nowrap rounded-xl px-3.5 text-[0.98rem] font-semibold text-[#2e2418]/82 transition-colors duration-200 hover:bg-teal-500/8 hover:text-teal-700 cursor-pointer"
+                    className={cn(
+                      'group flex h-10 items-center gap-1.5 whitespace-nowrap rounded-xl px-3.5 text-[0.98rem] font-semibold transition-colors duration-200 cursor-pointer',
+                      scrolled
+                        ? 'text-[#2e2418]/82 hover:bg-teal-500/8 hover:text-teal-700'
+                        : 'text-white/90 hover:bg-white/10 hover:text-teal-200',
+                    )}
                   >
                     <item.icon className="h-3.5 w-3.5 shrink-0 text-teal-500/50 transition-colors group-hover:text-teal-400" />
                     {item.label}
@@ -1007,14 +1016,37 @@ export default function LandingPreview() {
             : 'min-h-[100svh] pt-24',
         )}
       >
+        {/* ── خلفية الهيرو المصوَّرة — صالون فاخر بإضاءة زمردية وذهبية،
+            بلوحة زجاجية مفرَغة في المنتصف مُعدّة أصلاً لاستضافة محتوى فوقها.
+            طبقة تعتيم متدرّجة فوقها تضمن بقاء النص والفلاتر مقروءة، وتُذيب
+            حافتها السفلى في بيج الصفحة (#eee2ce) لانتقال سلس لقسم "٣ خطوات". ── */}
+        <div
+          className="pointer-events-none absolute inset-0 z-0 bg-cover bg-center"
+          style={{ backgroundImage: "url('/images/landing-hero-barbershop.webp')" }}
+          aria-hidden
+        />
+        <div
+          className="pointer-events-none absolute inset-0 z-0"
+          style={{
+            background:
+              'linear-gradient(180deg, rgba(6,12,10,0.62) 0%, rgba(8,14,12,0.5) 32%, rgba(10,15,13,0.58) 68%, #eee2ce 100%)',
+          }}
+          aria-hidden
+        />
+        <div
+          className="pointer-events-none absolute inset-0 z-0"
+          style={{ background: 'linear-gradient(90deg, rgba(6,12,10,0.55) 0%, rgba(6,12,10,0.1) 45%, rgba(6,12,10,0.35) 100%)' }}
+          aria-hidden
+        />
+
         {/* Anchor للبحث */}
         <div id="search-anchor" className="absolute top-32" />
 
-        {/* Glow blobs */}
+        {/* Glow blobs — تتناغم مع إضاءة السقف الزمردية والمعلّقات الذهبية في الصورة */}
         {!isMobile ? (
           <>
-            <div className="-right-64 top-10 pointer-events-none absolute h-[600px] w-[600px] rounded-full bg-teal-500/8 blur-[140px]" />
-            <div className="-left-48 bottom-20 pointer-events-none absolute h-[400px] w-[400px] rounded-full bg-amber-500/6 blur-[120px]" />
+            <div className="-right-64 top-10 pointer-events-none absolute z-0 h-[600px] w-[600px] rounded-full bg-teal-400/14 blur-[140px]" />
+            <div className="-left-48 bottom-20 pointer-events-none absolute z-0 h-[400px] w-[400px] rounded-full bg-amber-400/12 blur-[120px]" />
           </>
         ) : null}
 
@@ -1031,7 +1063,7 @@ export default function LandingPreview() {
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 onClick={() => resultsRef.current?.scrollIntoView({ behavior: 'smooth' })}
-                className="flex items-center gap-2 rounded-2xl border border-teal-400/30 bg-teal-500/10 px-5 py-2.5 text-sm font-semibold text-teal-700 hover:bg-teal-500/20 transition-all"
+                className="flex items-center gap-2 rounded-2xl border border-teal-300/35 bg-black/25 backdrop-blur-sm px-5 py-2.5 text-sm font-semibold text-teal-100 hover:bg-black/35 transition-all"
               >
                 <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-teal-400" />
                 {remoteStatus === 'loading'
@@ -1060,7 +1092,7 @@ export default function LandingPreview() {
           >
             {isMobile ? (
               <div className="mb-4 flex flex-wrap items-center gap-2">
-                <span className="inline-flex items-center rounded-full border border-emerald-400/25 bg-emerald-500/10 px-3 py-1.5 text-xs font-semibold text-emerald-700">
+                <span className="inline-flex items-center rounded-full border border-emerald-300/40 bg-black/25 backdrop-blur-sm px-3 py-1.5 text-xs font-semibold text-emerald-200">
                   {VISITOR_HERO_BADGE_AR}
                 </span>
               </div>
@@ -1071,24 +1103,24 @@ export default function LandingPreview() {
               transition={{ delay: skipHeroMotion ? 0 : 0.2 }}
               className="mb-5"
             >
-              <span className="inline-flex items-center rounded-full border border-emerald-400/25 bg-emerald-500/10 px-3 py-1.5 text-xs font-semibold text-emerald-700">
+              <span className="inline-flex items-center rounded-full border border-emerald-300/40 bg-black/25 backdrop-blur-sm px-3 py-1.5 text-xs font-semibold text-emerald-200">
                 {VISITOR_HERO_BADGE_AR}
               </span>
             </motion.div>
             )}
 
             <h1 className={cn(
-              'mb-4 font-black leading-[1.1] text-[#2e2418]',
+              'mb-4 font-black leading-[1.1] text-white drop-shadow-[0_2px_18px_rgba(0,0,0,0.45)]',
               isMobile ? 'text-[clamp(1.75rem,8vw,2.25rem)]' : 'text-[clamp(2rem,5.5vw,4rem)]',
             )}>
               {VISITOR_HERO_TITLE_AR}
-              <span className="block bg-gradient-to-l from-teal-600 to-cyan-600 bg-clip-text text-transparent">
+              <span className="block bg-gradient-to-l from-teal-300 to-cyan-200 bg-clip-text text-transparent">
                 {VISITOR_HERO_TITLE_ACCENT_AR}
               </span>
             </h1>
 
             {(isMobile ? VISITOR_HERO_LEAD_MOBILE_AR : VISITOR_HERO_LEAD_DESKTOP_AR) ? (
-            <p className="mb-5 max-w-lg text-base leading-relaxed text-[#2e2418]/88">
+            <p className="mb-5 max-w-lg text-base leading-relaxed text-white/85 drop-shadow-[0_1px_10px_rgba(0,0,0,0.4)]">
               {isMobile ? VISITOR_HERO_LEAD_MOBILE_AR : VISITOR_HERO_LEAD_DESKTOP_AR}
             </p>
             ) : null}
@@ -1101,14 +1133,14 @@ export default function LandingPreview() {
 
             {/* ثلاثية الثقة — بطاقات كاملة على سطح المكتب */}
             {!isMobile && deferMobileExtras ? (
-            <div className="mb-2">
+            <div className="mb-2 drop-shadow-[0_8px_28px_rgba(0,0,0,0.3)]">
               <VisitorTrustTriad />
             </div>
             ) : null}
 
             {!isMobile ? (
             <div className="mb-4 flex flex-wrap items-center gap-4">
-              <PlatformTlsTrustBadge variant="compact" />
+              <PlatformTlsTrustBadge variant="compact" tone="dark" />
             </div>
             ) : null}
           </motion.div>
@@ -1119,7 +1151,7 @@ export default function LandingPreview() {
             initial={skipHeroMotion ? false : { opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: skipHeroMotion ? 0 : 0.25, duration: 0.55 }}
-            className="hidden min-w-0 self-center lg:flex"
+            className="hidden min-w-0 self-center lg:flex drop-shadow-[0_10px_38px_rgba(0,0,0,0.35)]"
           >
             <VisitorServiceIntentRail
               filters={filters}
