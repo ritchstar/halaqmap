@@ -38,16 +38,18 @@ const src = readFileSync(p('src/pages/LandingPreview.tsx'), 'utf8');
 assert.match(
   src,
   /backgroundImage:\s*"url\('\/images\/landing-hero-barbershop\.webp'\)"/,
-  'قسم الهيرو يجب أن يضبط الصورة الجديدة كخلفية عبر backgroundImage',
+  'قسم الهيرو يجب أن يضبط صورة الحاسوب كخلفية عبر backgroundImage',
 );
-assert.match(src, /\bbg-cover\b/, 'خلفية الهيرو يجب أن تغطي المساحة كاملة (bg-cover)');
-// ملاحظة: bg-center الثابتة استُبدلت لاحقاً (2026-09-22) بموضع ديناميكي حسب
-// الجهاز — راجع scripts/test-hero-mobile-bg-position-2026-09-22.mts للتفاصيل
-// الكاملة لسبب هذا التغيير (خلل قصّ الصورة على الجوال) وتحقّقه المستقل.
+assert.match(src, /\bbg-cover bg-center\b/, 'خلفية الهيرو يجب أن تغطي المساحة كاملة ومركّزة (bg-cover bg-center)');
+// ملاحظة تاريخية: بين 2026-09-22 (مرتين) — أولاً استُبدلت bg-center الثابتة
+// بموضع ديناميكي (10% على الجوال) لتفادي قصّ صورة الحاسوب الأفقية بشكل سيئ
+// على الجوال؛ ثم حلّت صورة جوال مخصَّصة (عمودية أصلاً) محل تلك الحيلة كلياً
+// — راجع scripts/test-hero-mobile-bg-position-2026-09-22.mts (يوثّق التطوّر
+// الكامل لكلا التغييرين) للتفاصيل.
 assert.match(
   src,
-  /backgroundPosition:\s*isMobile\s*\?\s*'10% center'\s*:\s*'center'/,
-  'خلفية الهيرو يجب أن تُموضَع ديناميكياً — 10% على الجوال لإظهار تفاصيل الصورة الغنية بدل اللوح الزجاجي الفارغ، ومركّزة على الحاسوب',
+  /backgroundImage:\s*isMobile\s*\?\s*"url\('\/images\/landing-hero-mobile-corridor\.webp'\)"\s*:\s*"url\('\/images\/landing-hero-barbershop\.webp'\)"/,
+  'خلفية الهيرو يجب أن تستخدم صورة جوال مخصَّصة (عمودية) على الجوال، وصورة الحاسوب الأفقية على الحاسوب',
 );
 assert.match(src, /linear-gradient\(180deg,/, 'يجب وجود طبقة تعتيم رأسية فوق صورة الهيرو');
 assert.match(
