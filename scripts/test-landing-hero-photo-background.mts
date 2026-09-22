@@ -40,7 +40,15 @@ assert.match(
   /backgroundImage:\s*"url\('\/images\/landing-hero-barbershop\.webp'\)"/,
   'قسم الهيرو يجب أن يضبط الصورة الجديدة كخلفية عبر backgroundImage',
 );
-assert.match(src, /bg-cover bg-center/, 'خلفية الهيرو يجب أن تغطي المساحة كاملة ومركّزة (bg-cover bg-center)');
+assert.match(src, /\bbg-cover\b/, 'خلفية الهيرو يجب أن تغطي المساحة كاملة (bg-cover)');
+// ملاحظة: bg-center الثابتة استُبدلت لاحقاً (2026-09-22) بموضع ديناميكي حسب
+// الجهاز — راجع scripts/test-hero-mobile-bg-position-2026-09-22.mts للتفاصيل
+// الكاملة لسبب هذا التغيير (خلل قصّ الصورة على الجوال) وتحقّقه المستقل.
+assert.match(
+  src,
+  /backgroundPosition:\s*isMobile\s*\?\s*'10% center'\s*:\s*'center'/,
+  'خلفية الهيرو يجب أن تُموضَع ديناميكياً — 10% على الجوال لإظهار تفاصيل الصورة الغنية بدل اللوح الزجاجي الفارغ، ومركّزة على الحاسوب',
+);
 assert.match(src, /linear-gradient\(180deg,/, 'يجب وجود طبقة تعتيم رأسية فوق صورة الهيرو');
 assert.match(
   src,
