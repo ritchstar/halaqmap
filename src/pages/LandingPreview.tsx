@@ -1234,9 +1234,33 @@ export default function LandingPreview() {
       ) : null}
 
       {/* ── رادار المملكة — بعد نتائج البحث مباشرة (سطح المكتب) ──────────── */}
+      {/* طلب المستخدم (بلقطة شاشة محدَّدة بخط أصفر على الهامشين الفارغين
+          يمين ويسار البطاقة على الشاشات العريضة): استخدام نفس صورة خلفية
+          الهيرو (landing-hero-barbershop.webp) خلفيةً لهذا القسم أيضاً.
+          محاكاة قصّ bg-cover على أبعاد حاوية عريضة وقصيرة نسبياً (كهذا
+          القسم) تُظهر تلقائياً كرسيي الحلاقة + الإضاءة الذهبية + المرآتين
+          على طرَفي الصورة كليهما — بالضبط في نفس الهامشين اللذين حدّدهما
+          المستخدم — بينما يبقى مركز الصورة (اللوح الزجاجي المفرَغ أصلاً)
+          خلف البطاقة المعتمة نفسها، فلا حاجة لأي تعتيم يحمي قراءة النص
+          (البطاقة بخلفية صلبة #fbf6ec منفصلة تماماً عن الصورة تحتها).
+          تعتيم رأسي خفيف عند حافتي القسم العلوية والسفلية فقط لإذابة
+          الانتقال في بيج الصفحة المحيط (#fbf6ec) دون التأثير على البطاقة. */}
       {!isMobile ? (
-        <section className="relative z-10 bg-[#fbf6ec] py-14">
-          <div className="mx-auto w-full max-w-[440px] px-5">
+        <section className="relative z-10 overflow-hidden bg-[#fbf6ec] py-14">
+          <div
+            className="pointer-events-none absolute inset-0 z-0 bg-cover bg-center"
+            style={{ backgroundImage: "url('/images/landing-hero-barbershop.webp')" }}
+            aria-hidden
+          />
+          <div
+            className="pointer-events-none absolute inset-0 z-0"
+            style={{
+              background:
+                'linear-gradient(180deg, #fbf6ec 0%, rgba(251,246,236,0.08) 16%, rgba(251,246,236,0.08) 84%, #fbf6ec 100%)',
+            }}
+            aria-hidden
+          />
+          <div className="relative z-10 mx-auto w-full max-w-[440px] px-5">
             <LandingLazyBoundary
               fallback={
                 <div
