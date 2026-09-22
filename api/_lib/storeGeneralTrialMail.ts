@@ -9,7 +9,7 @@ export async function sendGeneralTrialConfirmEmail(input: { to: string; confirmU
     theme: 'grocers',
     kickerAr: 'نظام التجربة العام',
     titleAr: 'أكّد بريدك لإتمام طلب التجربة',
-    leadAr: 'اضغط الأيقونة لتأكيد البريد. بعد التأكيد يدخل الطلب طابور الإدارة، ثم تُرسل روابط التشغيل إن وُوفق.',
+    leadAr: 'سجل ثم أكد ايميلك واستلم متجرك فوراً. اضغط الأيقونة لتأكيد البريد.',
     iconRows: [
       [
         {
