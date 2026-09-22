@@ -14,7 +14,7 @@ import {
   writeStoreIntentSeo,
 } from './generate-store-intent-seo.mjs';
 
-assert.equal(STORE_INTENT_PAGES.length, 12);
+assert.equal(STORE_INTENT_PAGES.length, 20);
 
 const wedding = STORE_INTENT_PAGES[0];
 const html = renderStoreIntentPage(wedding);
@@ -33,9 +33,33 @@ const coiffeurHtml = renderStoreIntentPage(coiffeur);
 assert.match(coiffeurHtml, /meta name="robots" content="noindex, follow"/);
 assert.match(coiffeurHtml, /https:\/\/coiffeur\.halaqmap\.com/);
 
+// ── الصفحات الثماني "متجر إلكتروني لـ..." لصاحب النشاط (أضيفت 2026-09-22) ──
+const produceStore = STORE_INTENT_PAGES.find((p) => p.slug === 'online-store-for-produce-seller');
+const produceStoreHtml = renderStoreIntentPage(produceStore);
+assert.match(produceStoreHtml, /<h1>متجر خضار وفواكه إلكتروني لمحل أو عربة الحي<\/h1>/);
+assert.match(produceStoreHtml, /meta name="robots" content="index, follow"/);
+assert.match(produceStoreHtml, /1350 أو 2500 ر\.س/);
+assert.match(produceStoreHtml, /https:\/\/store\.halaqmap\.com\/store\/produce\/read/);
+// تمايز واضح عن صفحة الاستهلاك القائمة على نفس المنتج (نية مختلفة، لا تكرار محتوى)
+assert.doesNotMatch(produceStoreHtml, /طلب خضار بالجوال/);
+
+// بخورنا1: الوجهة الصحيحة هي /store/bakhurna نفسها (لا صفحة /read منفصلة لهذا المنتج)
+const oudStore = STORE_INTENT_PAGES.find((p) => p.slug === 'online-store-for-oud-perfume');
+const oudStoreHtml = renderStoreIntentPage(oudStore);
+assert.match(oudStoreHtml, /https:\/\/store\.halaqmap\.com\/store\/bakhurna"/);
+assert.doesNotMatch(oudStoreHtml, /\/store\/bakhurna\/read/);
+
+assert.equal(
+  STORE_INTENT_PAGES.filter((p) => p.slug.startsWith('online-store-for-')).length,
+  8,
+  'يجب أن تبقى ثماني صفحات "متجر إلكتروني لـ..." بالضبط — لا سبع ولا تسع',
+);
+
 const sitemap = buildStoreIntentSitemapXml();
 assert.match(sitemap, /need\/store<\/loc>/);
 assert.match(sitemap, /need\/wedding-invite-digital<\/loc>/);
+assert.match(sitemap, /need\/online-store-for-produce-seller<\/loc>/);
+assert.match(sitemap, /need\/online-store-for-cafe<\/loc>/);
 assert.doesNotMatch(sitemap, /salon-women-visibility/);
 
 const hub = renderStoreIntentHub();
@@ -52,6 +76,10 @@ try {
   assert.match(
     readFileSync(join(tmp, 'need', 'digital-invite-card', 'index.html'), 'utf8'),
     /12 و29 و59/,
+  );
+  assert.match(
+    readFileSync(join(tmp, 'need', 'online-store-for-dates-shop', 'index.html'), 'utf8'),
+    /مزاد علني حي لصناديق التمر/,
   );
   assert.match(readFileSync(join(tmp, 'sitemap-store-intent.xml'), 'utf8'), /<\?xml/);
 } finally {
