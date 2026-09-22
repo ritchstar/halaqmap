@@ -23,6 +23,11 @@
         try {
           var path = (window.location.pathname || '').replace(/\/+$/, '') || '/';
           var hashPath = (window.location.hash || '').replace(/^#/, '').split('?')[0] || '';
+          var adminHash =
+            hashPath.indexOf('/hmap-int-9kz2') === 0 ||
+            hashPath.indexOf('/_hmap-int-9kz2') === 0 ||
+            hashPath.indexOf('/_hm-nrvooaupmnl9') === 0 ||
+            hashPath.indexOf('/store-desk') !== -1;
           if (
             path === '/partners' ||
             path.indexOf('/partners/') === 0 ||
@@ -31,7 +36,8 @@
             hashPath === '/partners' ||
             hashPath.indexOf('/partners/') === 0 ||
             hashPath === '/store' ||
-            hashPath.indexOf('/store/') === 0
+            hashPath.indexOf('/store/') === 0 ||
+            adminHash
           ) {
             document.documentElement.classList.add('hm-app-dark-canvas');
             document.documentElement.style.background = '#020912';

@@ -50,6 +50,13 @@ export function getBootstrapOwnerDisplayName(): string {
  */
 const ADMIN_PORTAL_DEFAULT_BASE = '/_hm-nrvooaupmnl9';
 
+/**
+ * إشارات محفوظة قبل تدوير المسار. النسخة بلا شرطة سفلية هي ما يظهر في
+ * الإشارات المرجعية (`#/hmap-int-9kz2/store-desk`) فتُفتح صفحة بيضاء لأن
+ * React Router لا يطابقها.
+ */
+const LEGACY_ADMIN_PORTAL_BASES = ['/_hmap-int-9kz2', '/hmap-int-9kz2'] as const;
+
 function normalizePortalBaseSegment(raw: string): string {
   let b = raw.trim();
   if (!b) return ADMIN_PORTAL_DEFAULT_BASE;
@@ -57,25 +64,31 @@ function normalizePortalBaseSegment(raw: string): string {
   return b.replace(/\/+$/, '');
 }
 
+/** الافتراضي ثم الإشارات القديمة تُلحَق دائماً، دون تغيير القاعدة الأولى للروابط الجديدة. */
+function withRememberedPortalBases(bases: string[]): string[] {
+  const out = [...bases];
+  for (const extra of [ADMIN_PORTAL_DEFAULT_BASE, ...LEGACY_ADMIN_PORTAL_BASES]) {
+    if (!out.includes(extra)) out.push(extra);
+  }
+  return out.length ? out : [ADMIN_PORTAL_DEFAULT_BASE];
+}
+
 /**
  * كل قواعد البوابة بعد البناء.
  * تُدمج دائماً مع {@link ADMIN_PORTAL_DEFAULT_BASE} إن لم تكن ضمن القائمة، حتى لا يُفقد
  * مسار `…/in` و`…/ctrl` الافتراضي عند ضبط `VITE_ADMIN_PORTAL_BASE` على مسار سريّ جديد فقط
  * (وإلا يظهر 404 على الروابط المحفوظة أو الموثّقة).
+ * وتُدمج إشارات `hmap-int-9kz2` حتى لا تبقى لوحة التحكم بيضاء على الرابط المحفوظ.
  */
 export function getAdminPortalBasePaths(): string[] {
   const raw = (import.meta.env.VITE_ADMIN_PORTAL_BASE as string | undefined)?.trim();
-  if (!raw) return [ADMIN_PORTAL_DEFAULT_BASE];
+  if (!raw) return withRememberedPortalBases([ADMIN_PORTAL_DEFAULT_BASE]);
   const parts = raw
     .split(',')
     .map((s) => s.trim())
     .filter((s) => s.length > 0)
     .map((s) => normalizePortalBaseSegment(s));
-  const uniq = [...new Set(parts)];
-  const withDefault = uniq.includes(ADMIN_PORTAL_DEFAULT_BASE)
-    ? uniq
-    : [...uniq, ADMIN_PORTAL_DEFAULT_BASE];
-  return withDefault.length ? withDefault : [ADMIN_PORTAL_DEFAULT_BASE];
+  return withRememberedPortalBases([...new Set(parts)]);
 }
 
 /** القاعدة الافتراضية (الأولى في القائمة) — للروابط العامة. */
