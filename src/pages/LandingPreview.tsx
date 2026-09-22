@@ -1319,16 +1319,50 @@ export default function LandingPreview() {
         </LandingLazyBoundary>
       ) : null}
 
-      {/* ── Stats strip ──────────────────────────────────────────────────── */}
-      {!isMobile ? (
-        <section className="relative z-10 border-y border-[#dac8aa] bg-[#fbf6ec] py-14">
-          <div className="mx-auto max-w-4xl px-5">
-            <StatsStrip />
-          </div>
-        </section>
-      ) : null}
+      {/* ── الجزء الثالث — إحصائيات + تفاعل اختياري + "٣ خطوات" ──────────────
+          طلب المستخدم (بلقطتين محدَّدتين لهذا النطاق تحديداً من الصفحة):
+          استخدام صورة صالون ثانية (landing-lounge-secondary.webp — ركن
+          جلوس هادئ بنباتات وإضاءة دافئة) خلفيةً موحَّدة لهذا النطاق كاملاً،
+          ضمن خطة أوسع (طلب المستخدم صراحة): أربع صور خلفية تغطي كامل الصفحة
+          (هيرو + رادار المملكة + هذا الجزء + الجزء الرابع التالي) والفوتر
+          وحده يبقى دون تغيير.
 
-      {!isMobile && !userLocation ? (
+          تحذير جودة: الصورة المرفوعة من المستخدم بدقة منخفضة نسبياً
+          (320×179px أصلياً) — كُبِّرت إلى 1600px بخوارزمية Lanczos، فقد تبدو
+          أقل حدّة من صورة الهيرو الأصلية (2848×1600) عند التفحّص الدقيق،
+          لكن هذا غير ملحوظ عملياً خلف حجاب البيج الواقي أدناه.
+
+          حجاب بيج موحَّد (~62% تقريباً، لا الحواف فقط كما في الرادار) —
+          ضروري هنا خلافاً لقسم الرادار: عناصر هذا النطاق (بطاقات "٣ خطوات"
+          وعنوانه) مصمَّمة أصلاً بخلفيات شبه شفافة فوق كانفاس بيج مسطَّح
+          (from-white/5، لا بطاقة معتمة كبطاقة الرادار) — فبدون حجاب قوي
+          كافٍ، تفقد نصوصها الداكنة (#2e2418) تباينها فوق مناطق داكنة من
+          الصورة. رُفعت شفافية بطاقات "٣ خطوات" محلياً أدناه (من from-white/5
+          إلى bg-[#fbf6ec]/90) كطبقة حماية إضافية مستقلة عن قوة الحجاب. ── */}
+      {!isMobile ? (
+        <div className="relative z-10 overflow-hidden">
+          <div
+            className="pointer-events-none absolute inset-0 z-0 bg-cover bg-center"
+            style={{ backgroundImage: "url('/images/landing-lounge-secondary.webp')" }}
+            aria-hidden
+          />
+          <div
+            className="pointer-events-none absolute inset-0 z-0"
+            style={{
+              background:
+                'linear-gradient(180deg, #fbf6ec 0%, rgba(251,246,236,0.62) 8%, rgba(251,246,236,0.62) 92%, #fbf6ec 100%)',
+            }}
+            aria-hidden
+          />
+
+      {/* ── Stats strip ──────────────────────────────────────────────────── */}
+      <section className="relative z-10 border-y border-[#dac8aa] py-14">
+        <div className="mx-auto max-w-4xl px-5">
+          <StatsStrip />
+        </div>
+      </section>
+
+      {!userLocation ? (
         <section className="relative z-10 px-5 py-10">
           <div className="mx-auto max-w-4xl">
             <PlatformVoluntaryEngagementStrip />
@@ -1337,7 +1371,6 @@ export default function LandingPreview() {
       ) : null}
 
       {/* ── How it works ─────────────────────────────────────────────────── */}
-      {!isMobile ? (
       <section id="كيف يعمل" className="relative z-10 py-24">
         <div className="pointer-events-none absolute left-0 top-0 h-96 w-96 rounded-full bg-cyan-500/5 blur-[100px]" />
         <div className="mx-auto max-w-5xl px-5">
@@ -1393,7 +1426,7 @@ export default function LandingPreview() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: step.delay, duration: 0.5 }}
-                className="relative rounded-2xl border border-[#dac8aa] bg-gradient-to-b from-white/5 to-transparent p-6"
+                className="relative rounded-2xl border border-[#dac8aa] bg-[#fbf6ec]/90 p-6"
               >
                 <div className={`mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br ${step.color} font-black text-white shadow-lg`}>
                   <step.icon className="h-5 w-5" />
@@ -1433,20 +1466,40 @@ export default function LandingPreview() {
           </motion.div>
         </div>
       </section>
+        </div>
       ) : null}
 
-      {/* ── بطاقات خدمات الزائر — فلاتر + ثقة (سطح المكتب؛ الجوال يكتفي بشريط النوايا) ── */}
+      {/* ── الجزء الرابع — بطاقات خدمات الزائر + الأسئلة الشائعة ──────────────
+          طلب المستخدم: صورة صالون ثالثة (landing-mirror-chair.webp — مرآة
+          مضيئة دائرية وكرسي حلاقة) خلفيةً موحَّدة لهذا النطاق، آخر نطاق قبل
+          الفوتر (الذي طلب المستخدم صراحةً إبقاءه دون أي تغيير). نفس منطق
+          الحجاب البيج الموحَّد ونفس سبب رفع شفافية البطاقات شبه الشفافة —
+          راجع التوثيق أعلى نطاق "الجزء الثالث" لتفاصيل كاملة. ── */}
       {!isMobile ? (
+        <div className="relative z-10 overflow-hidden">
+          <div
+            className="pointer-events-none absolute inset-0 z-0 bg-cover bg-center"
+            style={{ backgroundImage: "url('/images/landing-mirror-chair.webp')" }}
+            aria-hidden
+          />
+          <div
+            className="pointer-events-none absolute inset-0 z-0"
+            style={{
+              background:
+                'linear-gradient(180deg, #fbf6ec 0%, rgba(251,246,236,0.62) 8%, rgba(251,246,236,0.62) 92%, #fbf6ec 100%)',
+            }}
+            aria-hidden
+          />
+
+      {/* ── بطاقات خدمات الزائر — فلاتر + ثقة (سطح المكتب؛ الجوال يكتفي بشريط النوايا) ── */}
       <VisitorServiceSpotlight
         filters={filters}
         activeIntentId={activeIntentId}
         onSelectIntent={handleSpotlightSelect}
         onScrollToSearch={scrollToSearch}
       />
-      ) : null}
 
       {/* ── FAQ ──────────────────────────────────────────────────────────── */}
-      {!isMobile ? (
       <section className="relative z-10 border-t border-[#dac8aa] py-20">
         <div className="mx-auto max-w-3xl px-5">
           <motion.h2
@@ -1507,6 +1560,7 @@ export default function LandingPreview() {
           </div>
         </div>
       </section>
+        </div>
       ) : null}
 
       {/* ── Footer — مخفي على الجوال قبل الاستعلام (يمنع التمدد اللانهائي) ── */}

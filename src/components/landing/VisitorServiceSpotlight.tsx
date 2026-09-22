@@ -49,6 +49,11 @@ export function VisitorServiceSpotlight({
           </motion.p>
         </div>
 
+        {/* bg-[#fbf6ec]/90 (2026-09-22): قسم "طلبك سريع" أصبح يُعرض أحياناً فوق
+            خلفية صورة صالون (راجع LandingPreview.tsx — الجزء الرابع)، وتدرّج
+            card.accent وحده (from-x/20 to-y/10) شفاف جداً ليحمي تباين النص
+            الداكن فوق صورة. bg-[#fbf6ec]/90 كخلفية أساس صلبة تقريباً أسفل
+            التدرّج اللوني — يبقي التمييز اللوني بين البطاقات، ويضمن التباين. */}
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {VISITOR_SERVICE_SPOTLIGHT_CARDS.map((card, i) => {
             const intent = VISITOR_SERVICE_INTENTS.find((x) => x.id === card.intentId);
@@ -66,7 +71,7 @@ export function VisitorServiceSpotlight({
                   onSelectIntent(applyVisitorServiceIntent(card.intentId, filters.maxDistance), card.intentId);
                   onScrollToSearch();
                 }}
-                className={`group relative overflow-hidden rounded-2xl border bg-gradient-to-br p-5 text-right transition-all ${card.border} ${card.accent} ${
+                className={`group relative overflow-hidden rounded-2xl border bg-[#fbf6ec]/90 bg-gradient-to-br p-5 text-right transition-all ${card.border} ${card.accent} ${
                   active ? 'ring-2 ring-teal-400/50' : 'hover:border-[#dac8aa]'
                 }`}
               >
