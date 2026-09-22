@@ -287,7 +287,7 @@ export function BarberCard({ barber, userLocation, imagePriority = false }: Barb
                 </div>
               </div>
 
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 <Button
                   onClick={openGoogleMaps}
                   className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground"
@@ -390,7 +390,7 @@ export function BarberCard({ barber, userLocation, imagePriority = false }: Barb
               ))}
             </div>
 
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <Button
                 onClick={openGoogleMaps}
                 className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground"
@@ -503,7 +503,7 @@ export function BarberCard({ barber, userLocation, imagePriority = false }: Barb
               </div>
             </div>
 
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <Button
                 onClick={openGoogleMaps}
                 className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground"
@@ -626,7 +626,7 @@ export function BarberCard({ barber, userLocation, imagePriority = false }: Barb
             </div>
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Button
               onClick={openGoogleMaps}
               className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg"
