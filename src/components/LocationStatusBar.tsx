@@ -7,6 +7,17 @@
  * يظهر في أعلى يسار الشاشة (fixed) بعد منح الإذن.
  * يعرض: المدينة · الإحداثيات · التوقيت المحلي الحي
  * تصميم: زجاجي مضيء، خط صغير، يتلاشى عند النقر عليه مؤقتاً.
+ *
+ * إصلاح خلل حقيقي مؤكَّد بفحص مباشر: بما أن هذا الشريط `position: fixed`
+ * بلا أي آلية إخفاء تلقائي (كان يظهر فقط عبر زر ✕ اليدوي)، فهو يبقى ملتصقاً
+ * بنفس نقطة الشاشة (أعلى يسارها) طوال الجلسة كاملة — فحين يُمرِّر الزائر
+ * الصفحة لعرض نتائج البحث، يبقى الشريط ثابتاً في مكانه ويتراكب فوق أي محتوى
+ * يمرّ تحته في هذا النطاق الرأسي، بما في ذلك عنوان أي بطاقة نتيجة (مؤكَّد
+ * حياً: تراكبه فوق عنوان بطاقة صالون حقيقية أثناء التمرير، فبدا النص
+ * "جانحاً"/محجوباً جزئياً). الإصلاح: إخفاء تلقائي بمجرد أن يبدأ الزائر
+ * بالتمرير متجاوزاً أعلى الصفحة (SCROLL_DISMISS_PX) — نفس لحظة دخول نتائج
+ * البحث إلى الشاشة عملياً — بلا حاجة لأي تفاعل يدوي، مع إبقاء زر ✕ كخيار
+ * إخفاء فوري صريح كما كان.
  */
 
 import { useState, useEffect } from 'react';
@@ -75,6 +86,9 @@ function getKSATimeStr(): string {
     .join(':');
 }
 
+/** مسافة التمرير (بالبكسل) قبل إخفاء الشريط تلقائياً — تقريباً ارتفاع الهيدر/الهيرو الأول. */
+const SCROLL_DISMISS_PX = 64;
+
 // ─── Component ────────────────────────────────────────────────────────────
 interface Props {
   lat?: number;
@@ -89,6 +103,16 @@ export function LocationStatusBar({ lat, lng }: Props) {
   useEffect(() => {
     const id = setInterval(() => setTimeStr(getKSATimeStr()), 1000);
     return () => clearInterval(id);
+  }, []);
+
+  // إخفاء تلقائي بمجرد تمرير الصفحة — راجع توثيق سبب هذا الإصلاح أعلى الملف.
+  useEffect(() => {
+    if (typeof window === 'undefined') return undefined;
+    const onScroll = () => {
+      if (window.scrollY > SCROLL_DISMISS_PX) setDismissed(true);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
   if (!lat || !lng) return null;
