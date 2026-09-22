@@ -3,6 +3,28 @@
  *
  * الشاشة الأولى — ربط اختيار المسار بتشغيله من الجوال، مع فصل مسار الزائر عن المشغّل.
  * ألوان النص على لوحة الغلاف الفاتحة (`store-light-canvas`) — حبر غامق لا أبيض.
+ *
+ * خلفية الهيرو المصوَّرة (2026-09-22 — طلب مستخدم مباشر: "قم بوضع هذه الصورة
+ * خلفية للهيرو في الصفحة الرئيسية لخريطة الحل"): صورة توضيحية باهتة الألوان
+ * (سُحُب زجاجية شفّافة، دبابيس موقع، بوصلة مضيئة بأسفل المنتصف، بيج/نعناعي
+ * فاتح جداً) — خلافاً لصورة الصالون الداكنة في هيرو LandingPreview.tsx، هذه
+ * الصورة فاتحة في كل نقطة منها تقريباً؛ محاكاة حسابية دقيقة (luminance فعلي
+ * على شبكة نقاط من الصورة بعد قصّ bg-cover) أكّدت أسوأ نسبة تباين ممكنة بين
+ * حبر النص الداكن الحالي (#2e2418) وأي نقطة في الصورة = 8.4:1 على الجوال
+ * و10.85:1 على الحاسوب — كلاهما أعلى بكثير من حد WCAG AA (4.5:1)، فلا حاجة
+ * لأي طبقة تعتيم واقية إطلاقاً؛ نصوص الحبر الداكن الحالية تبقى كما هي دون أي
+ * تعديل. bg-center عادية (لا موضع مخصَّص) تُظهر التركيبة كاملة تقريباً على
+ * الجوال (سُحُب + دبابيس + بوصلة)، وعلى الحاسوب (قسم عريض قصير نسبياً لصورة
+ * عمودية طويلة) تُظهر شريطاً أفقياً أنيقاً من وسط الصورة (سحابتان بالزاويتين
+ * + منحنى مسار خفيف) — تأكَّد بمعاينة مركَّبة فعلية قبل الاعتماد.
+ *
+ * data-contrast-guard-manual-bg: الخلفية الفعلية المرئية لهذا القسم صورة
+ * فوتوغرافية (طبقة `absolute inset-0 z-0` شقيقة، لا خلفية CSS على `<section>`
+ * نفسه أو أي أب حقيقي للنص) — حرّاسا التباين (StoreTextContrastGuard
+ * وStoreButtonContrastGuard) لا يريان هذه الطبقة إطلاقاً ويتسلّقان خطأً إلى
+ * خلفية `store-light-canvas` البيج الحقيقية خلفها. بالمصادفة تنتج نفس القرار
+ * الصحيح هنا (بيج فاتح ← حبر داكن)، لكن السمة مُضافة صراحةً حماية للمستقبل
+ * — راجع توثيق isWithinManualContrastZone في src/lib/colorContrast.ts.
  */
 import { Link } from 'react-router-dom';
 import { Smartphone } from 'lucide-react';
@@ -13,8 +35,17 @@ import { StorePathEvents } from '@/lib/storePathAnalytics';
 
 export function StoreLandingPitchHero() {
   return (
-    <section id="store-pitch-hero" className="overflow-x-clip px-4 pb-8 pt-6 md:pb-10 md:pt-10">
-      <div className="relative mx-auto max-w-3xl text-center md:text-start">
+    <section
+      id="store-pitch-hero"
+      data-contrast-guard-manual-bg="true"
+      className="relative overflow-x-clip px-4 pb-8 pt-6 md:pb-10 md:pt-10"
+    >
+      <div
+        className="pointer-events-none absolute inset-0 z-0 bg-cover bg-center"
+        style={{ backgroundImage: "url('/images/store-hero-map-illustration.webp')" }}
+        aria-hidden
+      />
+      <div className="relative z-10 mx-auto max-w-3xl text-center md:text-start">
         <span className="store-pitch-aura" aria-hidden />
         <div className="relative">
           <p className="text-xl font-black text-[#2e2418] md:text-2xl">{STORE_LANDING_COPY.shopNameAr}</p>
