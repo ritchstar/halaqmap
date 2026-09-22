@@ -150,30 +150,24 @@ for (const relPath of [
     /grid-cols-\[minmax\(0,1\.2fr\)_auto_minmax\(0,440px\)\]/,
     'شبكة الهيرو يجب ألا تحجز عموداً ثالثاً للرادار بعد نقله خارج الهيرو',
   );
-  // زر تحديد الموقع (أيقونة البحث) يجب أن يكون داخل حاوية بعرض الصفحة
-  // كاملاً (max-w-7xl) وموسَّطة، بدل الانحصار داخل عمود النص الضيق كما كان سابقاً.
+  // زر تحديد الموقع (أيقونة البحث) — محور الدائرة في مركز اللوح الزجاجي للهيرو.
   const geoButtonIdx = source.indexOf('<GeoRadarButton');
-  const wrapperClassBeforeButton = source.slice(Math.max(0, geoButtonIdx - 400), geoButtonIdx);
+  const axisIdx = source.indexOf('data-hero-search-axis');
+  assert.ok(geoButtonIdx > -1 && axisIdx > -1, 'يجب وجود GeoRadarButton ومحور data-hero-search-axis');
+  assert.ok(
+    axisIdx < geoButtonIdx,
+    'حاوية محور البحث (data-hero-search-axis) يجب أن تلفّ GeoRadarButton',
+  );
+  const axisBlock = source.slice(axisIdx, geoButtonIdx + 80);
   assert.match(
-    wrapperClassBeforeButton,
-    /max-w-7xl flex-col items-center/,
-    'زر تحديد الموقع (GeoRadarButton) يجب أن يكون داخل حاوية موسّعة (max-w-7xl) وموسَّطة في عرض الصفحة',
+    axisBlock,
+    /absolute left-1\/2 top-\[52%\]/,
+    'محور أيقونة البحث يجب أن يُثبَّت في منتصف الهيرو أفقياً وعمودياً (موضع النقطة الصفراء)',
   );
-}
-
-// طلب متابعة من المستخدم (بصورة بسهم أصفر): زر تحديد الموقع يظهر
-// أسفل شبكة عمودي النص والفلاتر مباشرة — فوق ثلاثية الثقة — لا أعلى الهيرو.
-{
-  const source = readFileSync(join(root, 'src/pages/LandingPreview.tsx'), 'utf8');
-  const geoButtonIdx = source.indexOf('<GeoRadarButton');
-  const heroGridIdx = source.indexOf("'relative z-10 mx-auto grid w-full min-w-0 max-w-7xl items-center px-5'");
-  assert.ok(
-    geoButtonIdx > -1 && heroGridIdx > -1,
-    'الصفحة الرئيسية: يجب أن يوجد كل من زر تحديد الموقع وشبكة الهيرو',
-  );
-  assert.ok(
-    geoButtonIdx > heroGridIdx,
-    'زر تحديد الموقع (GeoRadarButton) يجب أن يظهر أسفل شبكة الهيرو (عمودي النص والفلاتر)، فوق ثلاثية الثقة',
+  assert.match(
+    axisBlock,
+    /-translate-y-\[7\.125rem\]/,
+    'الإزاحة الرأسية يجب أن تحاذي مركز الدائرة (نصف 228px) لا مركز المكوّن مع نص الخصوصية',
   );
   assert.match(
     source.slice(geoButtonIdx, geoButtonIdx + 120),

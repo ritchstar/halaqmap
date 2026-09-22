@@ -1148,35 +1148,44 @@ export default function LandingPreview() {
 
         </div>
 
-        {/* أيقونة الاستعلام — وسط أسفل العنوان/الفلاتر وفوق ثلاثية الثقة (موضع السهم الأصفر) */}
+        {/* محور أيقونة الاستعلام — مركز اللوح الزجاجي في صورة الهيرو (النقطة الصفراء).
+            التموضع مطلق على منتصف الهيرو، والإزاحة الرأسية (-translate-y-[7.125rem])
+            تُحاذي مركز الدائرة نفسها (نصف قطر 228px / ٢) لا مركز المكوّن مع نص الخصوصية. */}
         {!isMobile ? (
-        <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-col items-center gap-5 px-5 pb-4 pt-2">
-          <GeoRadarButton
-            surface="hero"
-            onLocationDetected={handleLocationDetected}
-            onLocationReset={() => setUserLocation(null)}
-          />
-          {userLocation && (
-            <div className="flex flex-col items-center gap-2.5">
-              <motion.button
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                onClick={() => resultsRef.current?.scrollIntoView({ behavior: 'smooth' })}
-                className="flex items-center gap-2 rounded-2xl border border-teal-300/35 bg-black/25 backdrop-blur-sm px-5 py-2.5 text-sm font-semibold text-teal-100 hover:bg-black/35 transition-all"
-              >
-                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-teal-400" />
-                {remoteStatus === 'loading'
-                  ? 'يجري تصنيف الخدمات…'
-                  : 'اعرض الخدمات المتاحة'}
-              </motion.button>
+          <div className="pointer-events-none absolute inset-0 z-20">
+            <div
+              data-hero-search-axis=""
+              className="pointer-events-auto absolute left-1/2 top-[52%] flex w-full max-w-7xl -translate-x-1/2 -translate-y-[7.125rem] flex-col items-center gap-4 px-5"
+            >
+              <GeoRadarButton
+                surface="hero"
+                onLocationDetected={handleLocationDetected}
+                onLocationReset={() => setUserLocation(null)}
+              />
+              {userLocation ? (
+                <div className="flex flex-col items-center gap-2.5">
+                  <motion.button
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    onClick={() => resultsRef.current?.scrollIntoView({ behavior: 'smooth' })}
+                    className="flex items-center gap-2 rounded-2xl border border-teal-300/35 bg-black/25 px-5 py-2.5 text-sm font-semibold text-teal-100 backdrop-blur-sm transition-all hover:bg-black/35"
+                  >
+                    <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-teal-400" />
+                    {remoteStatus === 'loading'
+                      ? 'يجري تصنيف الخدمات…'
+                      : 'اعرض الخدمات المتاحة'}
+                  </motion.button>
+                </div>
+              ) : null}
             </div>
-          )}
-          {deferMobileExtras ? (
-            <div className="w-full max-w-3xl drop-shadow-[0_8px_28px_rgba(0,0,0,0.3)]">
-              <VisitorTrustTriad />
-            </div>
-          ) : null}
-        </div>
+          </div>
+        ) : null}
+
+        {/* ثلاثية الثقة — أسفل محور الأيقونة، ضمن تدفّق الصفحة */}
+        {!isMobile && deferMobileExtras ? (
+          <div className="relative z-10 mx-auto w-full max-w-3xl px-5 pb-12 pt-[min(56vh,24rem)] drop-shadow-[0_8px_28px_rgba(0,0,0,0.3)]">
+            <VisitorTrustTriad />
+          </div>
         ) : null}
 
         {/* Scroll indicator */}
@@ -1184,7 +1193,7 @@ export default function LandingPreview() {
           <motion.div
             animate={{ y: [0, 6, 0] }}
             transition={{ duration: 2, repeat: Infinity }}
-            className="absolute bottom-8 left-1/2 -translate-x-1/2 text-teal-400/50"
+            className="absolute bottom-6 left-1/2 z-10 -translate-x-1/2 text-teal-400/50"
           >
             <ChevronDown className="h-6 w-6" />
           </motion.div>
