@@ -14,7 +14,7 @@ import {
   writeStoreIntentSeo,
 } from './generate-store-intent-seo.mjs';
 
-assert.equal(STORE_INTENT_PAGES.length, 21);
+assert.equal(STORE_INTENT_PAGES.length, 24);
 
 const wedding = STORE_INTENT_PAGES[0];
 const html = renderStoreIntentPage(wedding);
@@ -65,6 +65,32 @@ assert.match(marketingHtml, /"@type":"FAQPage"/);
 // تمايز واضح عن صفحتي طبختنا1 القائمتين (نية مختلفة: معلوماتية لا شرائية)
 assert.doesNotMatch(marketingHtml, /طلبات الأكل المنزلي من الجوال بلا تشتت/);
 assert.doesNotMatch(marketingHtml, /متجر إلكتروني لصاحبة أو صاحب الأكل المنزلي/);
+
+// ── ثلاث صفحات نية «برنامج إدارة/هدايا» (أُضيفت 2026-09-23) ──
+const restaurantProgram = STORE_INTENT_PAGES.find((p) => p.slug === 'restaurant-management-program');
+const restaurantProgramHtml = renderStoreIntentPage(restaurantProgram);
+assert.match(restaurantProgramHtml, /<h1>برنامج لإدارة قائمة مطعمك واستقبال طلباته برابط واحد<\/h1>/);
+assert.match(restaurantProgramHtml, /meta name="robots" content="index, follow"/);
+assert.match(restaurantProgramHtml, /https:\/\/store\.halaqmap\.com\/store\/restaurant\/read/);
+// تمايز عن صفحتي مطعمنا1 القائمتين، ولا ادعاء لميزات غير موجودة
+assert.doesNotMatch(restaurantProgramHtml, /قائمة مطعم رقمية وطلبات مرتبة لضيف الحي/);
+assert.doesNotMatch(restaurantProgramHtml, /متجر إلكتروني لقائمة مطعم وطلباته/);
+assert.match(restaurantProgramHtml, /ليس نظام إدارة موظفين أو مخزون أو محاسبة/);
+
+const cafeProgram = STORE_INTENT_PAGES.find((p) => p.slug === 'cafe-management-program');
+const cafeProgramHtml = renderStoreIntentPage(cafeProgram);
+assert.match(cafeProgramHtml, /<h1>برنامج لإدارة قائمة كوفيك وطلباته وشاشاته من مكان واحد<\/h1>/);
+assert.match(cafeProgramHtml, /meta name="robots" content="index, follow"/);
+assert.doesNotMatch(cafeProgramHtml, /طلبات المقهى وشاشاته في تجربة رقمية واحدة/);
+assert.doesNotMatch(cafeProgramHtml, /متجر إلكتروني لقائمة مقهى وشاشاته/);
+assert.match(cafeProgramHtml, /ليس نظام محاسبة أو مخزون شامل/);
+
+const datesGifts = STORE_INTENT_PAGES.find((p) => p.slug === 'dates-gift-boxes');
+const datesGiftsHtml = renderStoreIntentPage(datesGifts);
+assert.match(datesGiftsHtml, /<h1>صفحة هدايا تمور مرتبة تناسب مناسباتك<\/h1>/);
+assert.match(datesGiftsHtml, /meta name="robots" content="index, follow"/);
+assert.match(datesGiftsHtml, /https:\/\/store\.halaqmap\.com\/store\/dates\/read/);
+assert.doesNotMatch(datesGiftsHtml, /متجر تمر إلكتروني بمزاد علني لصناديق الموسم/);
 
 const sitemap = buildStoreIntentSitemapXml();
 assert.match(sitemap, /need\/store<\/loc>/);
