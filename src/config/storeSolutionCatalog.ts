@@ -150,10 +150,10 @@ export const STORE_SOLUTION_CATALOG_PRODUCTS: readonly SolutionCatalogProduct[] 
     nameEn: 'Tamwinata1',
     categoryId: 'neighbor',
     categoryAr: 'جار الحي',
-    summaryAr: 'احتياجات الحي أقرب من جواله',
+    summaryAr: 'حوّل رسائل الحي إلى طلبات أوضح',
     descriptionAr:
-      'صفحة رقمية تساعد التموينات على عرض المنتجات واستقبال طلبات سكان الحي بطريقة سهلة ومباشرة.',
-    tags: ['سلة جار الحي', 'كاشير', 'QR'],
+      'تمويناتا1 يمنح تموينات الحي صفحة سلع خاصة تساعدك على عرض المتوفر وتنظيم طريقة استقبال الطلب، بدلاً من تشتت المعلومات بين المكالمات والرسائل.',
+    tags: ['بنك أصناف', 'مذكرة توصيل', 'ملصق QR'],
     stripe: 'yellow',
     // أيقونة B-02 لم تُصمَّم بعد؛ الملف الذي كان هنا (بيت وصينية طعام) يخص طبختنا1 (B-03) وتم نقله إليه.
     logoSrc: null,
@@ -276,8 +276,9 @@ export const STORE_SOLUTION_CATALOG_PRODUCTS: readonly SolutionCatalogProduct[] 
     nameEn: 'Afrahi1',
     categoryId: 'events',
     categoryAr: 'مناسبات وضيافة',
-    summaryAr: 'دعوة الزواج تفتح إلى قاعة حيّة',
-    descriptionAr: 'كرت وقاعة ولوحة مضيف لمناسبة واحدة بروابط منظمة للضيف والعرض.',
+    summaryAr: 'حوّل دعوتك إلى تجربة يعيشها ضيوفك',
+    descriptionAr:
+      'أفراحي1 يمنح مناسبتك صفحة احتفالية باسمها، تجمع تفاصيل الدعوة وتتيح للضيوف إرسال تهانيهم ورسائلهم لتظهر ضمن تجربة الحفل على شاشة القاعة وفق إعدادات المنتج.',
     tags: ['زواج', 'قاعة حية', 'دعوة'],
     stripe: 'yellow',
     logoSrc: solutionCatalogMarkSrc('D-02'),

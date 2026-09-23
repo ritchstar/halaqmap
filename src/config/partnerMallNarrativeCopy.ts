@@ -12,15 +12,21 @@ export const PARTNER_MALL_TAGLINE_AR = 'خذ موضعك في المول الرق
 
 export const PARTNER_MALL_HERO_BADGE_AR = 'مسار الشركاء · جماهيرية قائمة · والمزيد في الطريق';
 
-export const PARTNER_MALL_HERO_TITLE_AR = 'خذ موضعك في المول الرقمي';
+export const PARTNER_MALL_HERO_TITLE_AR = 'ليصل عميلك إلى صالونك وهو يعرف أين يذهب';
 
-export const PARTNER_MALL_HERO_TITLE_ACCENT_AR = 'للحلاقين — والجماهيرية قائمة';
+export const PARTNER_MALL_HERO_TITLE_ACCENT_AR = '';
 
 export const PARTNER_MALL_HERO_LEAD_DESKTOP_AR =
-  'حلاق ماب تملك استعلاماً حياً وسيوًا واسعاً — والمزيد من الباحثين في الطريق. رخصة الظهور تضع صالونك أمام المستعلم المناسب في حيّه، عند الطلب.';
+  'انضم إلى حلاق ماب لتمنح صالونك حضوراً رقمياً أوضح، وتساعد العميل القريب على اكتشافه والوصول إليه، ثم استخدم أدواتك المرتبطة بالخدمة المفعلة لتنظيم ما يتاح لك من تشغيل.';
 
-export const PARTNER_MALL_HERO_LEAD_MOBILE_AR =
-  'جماهيرية وسيو قائمان — والمزيد في الطريق. ثبّت صالونك ليظهر عند الاستعلام · لا عمولة.';
+export const PARTNER_MALL_HERO_LEAD_MOBILE_AR = PARTNER_MALL_HERO_LEAD_DESKTOP_AR;
+
+export const PARTNER_MALL_HERO_CTA_PRIMARY_AR = 'ابدأ طلب الشراكة';
+
+export const PARTNER_MALL_HERO_CTA_SECONDARY_AR = 'شاهد ما يحصل عليه الصالون';
+
+export const PARTNER_MALL_BOUNDARY_AR =
+  'حلاق ماب لا يدير صالونك بدلاً عنك، ولا يضمن حجوزات أو مبيعات أو ترتيباً في البحث. هو منتج قطاعي يجهز لك الحضور والطريق والأدوات؛ وأنت تقود الخدمة اليومية وتجربة العميل.';
 
 /** صور مسار الشركاء — من تصميم الهبوط B2B */
 export const PARTNER_B2B_VISUAL_ASSETS = {
@@ -40,32 +46,30 @@ export const PARTNER_B2B_FEATURE_CARDS = [
   {
     id: 'commission',
     asset: 'commission' as const,
-    badge: '0% عمولات',
+    badge: 'حضور أوضح',
     icon: '💰',
-    title: 'اربح بالكامل من عملك',
-    description:
-      'لا نقتطع عمولة على خدمة الصالون. كل ريال من عملك يبقى لك، والعلاقة مع المستعلم مباشرة بعد الظهور.',
-    highlight: 'أرباحك لك — بلا عمولة',
+    title: 'حضور أوضح للعميل',
+    description: 'معلومات مرتبة تساعده على التعرف على الصالون والوصول إليه.',
+    highlight: 'معلومات مرتبة للوصول',
   },
   {
     id: 'autonomy',
     asset: 'autonomy' as const,
-    badge: 'سيادة كاملة',
+    badge: 'طريق أقصر',
     icon: '🔑',
-    title: 'رخصة تشغيل حرة — لا وصاية',
+    title: 'طريق أقصر من البحث إلى الزيارة',
     description:
-      'نمنحك رخصة تشغيل حرة: حدّد أسعارك وأوقاتك وخدماتك، وتواصل مع المستعلم مباشرة بلا تجديد تلقائي يربطك.',
-    highlight: 'أنت القائد دائماً',
+      'تجربة تقلل تشتت العميل بين البحث والتواصل والوصول، دون وعد بترتيب أو نتيجة مضمونة.',
+    highlight: 'بلا وعد بنتيجة مضمونة',
   },
   {
     id: 'radar',
     asset: 'radar' as const,
-    badge: 'رادار حي',
+    badge: 'بحسب الخدمة',
     icon: '📡',
-    title: 'الظهور عند الاستعلام المناسب',
-    description:
-      'نوفر البنية والموقع الحيوي. المستهلك يستعلم بلا تسجيل — ويرى من يطابق فلتره قريباً عند توافر الظهور.',
-    highlight: 'ظهور عند الطلب — بلا وسيط',
+    title: 'تشغيل بحسب الخدمة المفعلة',
+    description: 'أدوات مرتبطة بما يتيحه اشتراك الصالون وخدمته.',
+    highlight: 'أدوات الخدمة المفعلة',
   },
 ] as const;
 

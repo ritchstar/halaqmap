@@ -39,6 +39,16 @@ export default function CoiffeurPartnersLanding() {
         <h1 className="text-3xl font-black leading-tight text-white">{COIFFEUR_PARTNERS_COPY.title}</h1>
         <p className="mx-auto mt-4 max-w-xl text-sm leading-8 text-slate-300">{COIFFEUR_PARTNERS_COPY.lead}</p>
 
+        <div className="mx-auto mt-8 max-w-xl space-y-3 text-right">
+          <p className="text-xs font-black tracking-wide text-[#f4d4c0]">{COIFFEUR_PARTNERS_COPY.benefitsTitle}</p>
+          {COIFFEUR_PARTNERS_COPY.benefits.map((item) => (
+            <div key={item.title} className="rounded-2xl border border-white/10 bg-white/[0.03] px-5 py-4">
+              <p className="text-sm font-black text-white">{item.title}</p>
+              <p className="mt-1 text-sm leading-7 text-slate-300">{item.body}</p>
+            </div>
+          ))}
+        </div>
+
         <Link
           to={ROUTE_PATHS.COIFFEUR_MARKETING}
           className="mx-auto mt-8 block max-w-xl overflow-hidden rounded-2xl border border-[#f4d4c0]/30 bg-[#1a0c12]/80 text-right transition hover:border-[#f4d4c0]/55"
@@ -67,6 +77,12 @@ export default function CoiffeurPartnersLanding() {
             <RegisterSalonGlowIcon size="md" tone="gold" />
             {COIFFEUR_PARTNERS_COPY.registerCta}
           </Link>
+          <Link
+            to={ROUTE_PATHS.COIFFEUR_MARKETING}
+            className="inline-flex items-center gap-2 rounded-xl border border-[#f4d4c0]/40 bg-white/5 px-6 py-3.5 text-sm font-bold text-[#f4d4c0]"
+          >
+            {COIFFEUR_PARTNERS_COPY.secondaryCta}
+          </Link>
           <a
             href={COIFFEUR_HALAQMAP_PAYMENT_URL}
             className="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-6 py-3.5 text-sm font-bold text-slate-100"
@@ -75,6 +91,7 @@ export default function CoiffeurPartnersLanding() {
             <ArrowLeft className="h-4 w-4" />
           </a>
         </div>
+        <p className="mx-auto mt-6 max-w-xl text-sm leading-8 text-slate-400">{COIFFEUR_PARTNERS_COPY.boundary}</p>
         <p className="mx-auto mt-4 flex max-w-lg items-start gap-2 text-xs leading-6 text-amber-100/90">
           <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-amber-300" />
           {COIFFEUR_PARTNERS_COPY.paymentNote}

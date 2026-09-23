@@ -35,6 +35,10 @@ export type ProductPathFaqItem = {
  * storeProductPathContent.ts ولا يحل محل storeSolutionCatalog.ts.
  */
 export type ProductPathEditorialContent = {
+  /** عنوان الفائدة على صفحة المسار، إن وُجد؛ وإلا يبقى «مسار {اسم المنتج}». */
+  headlineAr?: string;
+  /** نص زر الدعوة حين يختلف عن قالب «اطلب {الاسم}». الوجهة تبقى href الكتالوج. */
+  ctaLabelAr?: string;
   fitForAr: readonly string[];
   notFitForAr: readonly string[];
   problemsAr: readonly string[];

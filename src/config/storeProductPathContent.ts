@@ -19,6 +19,27 @@ const COMMON_FAQ_TAIL: ProductPathEditorialContent['faq'] = [
   },
 ];
 
+/** المنتجات التي تدير بيعاً مباشراً بين المشغّل وزبونه. الموضع الثامن في الملحق غير محدد، فلم يُدرج. */
+const DIRECT_TRADE_CODES = new Set(['B-01', 'B-02', 'B-03', 'B-04', 'B-05', 'B-06', 'C-01']);
+
+const NO_COMMISSION_FAQ: ProductPathEditorialContent['faq'] = [
+  {
+    questionAr: 'هل المنتج وسيط على مبيعاتي؟',
+    answerAr:
+      'توفّر خريطة الحل المنتج البرمجي والاستضافة السحابية، وأنت تدير نشاطك وتتلقى مدفوعاتك مباشرة. لا نقتطع عمولة من مهنتك أو من بيعك.',
+  },
+  {
+    questionAr: 'هل تُحتسب رسوم بوابة الدفع عمولة لخريطة الحل؟',
+    answerAr:
+      'قد تترتب رسوم المعالجة المعتادة من بوابة الدفع التي تختارها أنت عند استخدام رابط دفع خارجي؛ وهي رسوم بوابة الدفع وليست عمولة لخريطة الحل على المبيعات.',
+  },
+];
+
+function faqFor(code: string): ProductPathEditorialContent['faq'] {
+  if (!DIRECT_TRADE_CODES.has(code)) return COMMON_FAQ_TAIL;
+  return [...NO_COMMISSION_FAQ, ...COMMON_FAQ_TAIL];
+}
+
 export const STORE_PRODUCT_PATH_CONTENT: Record<string, ProductPathEditorialContent> = {
   'A-01': {
     fitForAr: ['صالون رجالي يريد ظهوراً واضحاً على الخريطة لعملاء يبحثون عنه بالمكان.'],
@@ -42,15 +63,21 @@ export const STORE_PRODUCT_PATH_CONTENT: Record<string, ProductPathEditorialCont
     problemsAr: ['صعوبة إخبار الزبون بما توفّر اليوم قبل أن يصل.', 'طلبات متفرقة عبر رسائل خاصة بلا تنظيم.'],
     outcomesAr: ['شريط "ما وصل اليوم" يحدّثه المشغّل بنفسه.', 'طلب بالحبة أو الكيلو يصل منظماً للوحة الصندوق.'],
     marketingStepsAr: ['تحديث شريط اليوم صباحاً ومشاركته في مجموعات الحي.', 'وضع ملصق QR عند نقطة البيع.'],
-    faq: COMMON_FAQ_TAIL,
+    faq: faqFor('B-01'),
   },
   'B-02': {
+    headlineAr: 'حوّل رسائل الحي إلى طلبات أوضح',
+    ctaLabelAr: 'شغّل تموينات الحي',
     fitForAr: ['بقالة أو تموينات حي تستقبل طلبات سكان محيطها.'],
     notFitForAr: ['متجر تموينات إلكتروني بشحن خارج النطاق المحلي.'],
     problemsAr: ['عدم وجود صفحة واضحة يرجع إليها الزبون لمعرفة المتوفر.'],
-    outcomesAr: ['بنك أصناف منظّم، ومذكرة توصيل واضحة للكاشير.'],
+    outcomesAr: [
+      'اعرض السلع المتاحة في صفحة واحدة.',
+      'حدّث ما تريد إظهاره لعملاء الحي.',
+      'اجعل وصول الطلب ومراجعته أكثر ترتيباً من الرسائل المتفرقة.',
+    ],
     marketingStepsAr: ['طباعة ملصق QR ووضعه عند الصندوق ومدخل المحل.'],
-    faq: COMMON_FAQ_TAIL,
+    faq: faqFor('B-02'),
   },
   'B-03': {
     fitForAr: ['طبخ منزلي بقائمة أطباق محدودة يومياً أو أسبوعياً.', 'من يفضّل تذكرة طلب واحدة بدل سلة تسوق معقدة.'],
@@ -58,7 +85,7 @@ export const STORE_PRODUCT_PATH_CONTENT: Record<string, ProductPathEditorialCont
     problemsAr: ['الاعتماد الكامل على رسائل الخاص لاستقبال الطلبات.', 'غياب رقم متابعة واضح للطلب.'],
     outcomesAr: ['قائمة أصناف مصنّفة بوضوح.', 'تذكرة طلب برقم متابعة، ولوحة تشغيل بمساري طلبات.'],
     marketingStepsAr: ['مشاركة القائمة اليومية مع رقم المتابعة في مجموعات الحي.', 'استخدام مركز النمو للإحالة بين الزبائن.'],
-    faq: COMMON_FAQ_TAIL,
+    faq: faqFor('B-03'),
   },
   'B-04': {
     fitForAr: ['من لديها أعمال حلا جاهزة تريد عرضها وطلب حلا مخصص عليها.'],
@@ -66,7 +93,7 @@ export const STORE_PRODUCT_PATH_CONTENT: Record<string, ProductPathEditorialCont
     problemsAr: ['غياب معرض واضح للأعمال السابقة يقنع الزبونة قبل الطلب.'],
     outcomesAr: ['معرض أعمال جاهزة، ورحلة طلب من الفكرة إلى الجدولة والمراجعة.'],
     marketingStepsAr: ['تحديث معرض الأعمال بانتظام بصور حقيقية من إنتاجك.'],
-    faq: COMMON_FAQ_TAIL,
+    faq: faqFor('B-04'),
   },
   'B-05': {
     fitForAr: ['محل أو بسطة أو عربة تمر تبيع أصنافاً تختلف بين المواسم.', 'نشاط ثابت أو متحرك يستقبل طلباً مباشراً من الجوال.'],
@@ -74,7 +101,7 @@ export const STORE_PRODUCT_PATH_CONTENT: Record<string, ProductPathEditorialCont
     problemsAr: ['اختلاف أنواع التمر وأسعارها بين المواسم يصعّب إخبار الزبون بالمتوفر.', 'طلبات متفرقة عبر مكالمات ورسائل بلا تنظيم.'],
     outcomesAr: ['أصناف وأسعار اليوم في واجهة واحدة يحدّثها المشغّل بنفسه.', 'طلب منظم بالوزن يصل مباشرة إلى لوحة التشغيل.'],
     marketingStepsAr: ['تحديث أصناف اليوم صباحاً ومشاركة الرابط في مجموعات الحي.', 'وضع ملصق QR عند المحل أو العربة.'],
-    faq: COMMON_FAQ_TAIL,
+    faq: faqFor('B-05'),
   },
   'B-06': {
     fitForAr: ['محل أو بسطة أو عربة بخور وعود وعطور تبيع أصنافاً متعددة المصادر.', 'نشاط ثابت أو متحرك يستقبل طلباً مباشراً من الجوال.'],
@@ -82,7 +109,7 @@ export const STORE_PRODUCT_PATH_CONTENT: Record<string, ProductPathEditorialCont
     problemsAr: ['اختلاف أنواع البخور والعود ودرجات نقائها يصعّب شرح المتوفر لكل زبون.', 'طلبات متفرقة عبر مكالمات ورسائل بلا تنظيم.'],
     outcomesAr: ['أصناف وأسعار اليوم في واجهة واحدة يحدّثها المشغّل بنفسه.', 'طلب منظم بالكمية يصل مباشرة إلى لوحة التشغيل.'],
     marketingStepsAr: ['تحديث أصناف اليوم صباحاً ومشاركة الرابط في مجموعات الحي.', 'وضع ملصق QR عند المحل أو العربة.'],
-    faq: COMMON_FAQ_TAIL,
+    faq: faqFor('B-06'),
   },
   'C-01': {
     fitForAr: ['مطعم صغير أو متوسط يريد قائمة وطلباً مصمماً لطبيعته لا لقالب متجر عام.'],
@@ -90,7 +117,7 @@ export const STORE_PRODUCT_PATH_CONTENT: Record<string, ProductPathEditorialCont
     problemsAr: ['تشتت الطلبات بين وسائل متعددة وصعوبة متابعتها في المطبخ.'],
     outcomesAr: ['قائمة أطباق منظمة، وتذكرة مطبخ واضحة لكل طلب.'],
     marketingStepsAr: ['مشاركة رابط القائمة مع رمز QR على الطاولات أو نقطة الاستلام.'],
-    faq: COMMON_FAQ_TAIL,
+    faq: faqFor('C-01'),
   },
   'C-02': {
     fitForAr: ['مقهى يريد تجهيز طلب الزبون قبل وصوله.'],
@@ -109,10 +136,16 @@ export const STORE_PRODUCT_PATH_CONTENT: Record<string, ProductPathEditorialCont
     faq: COMMON_FAQ_TAIL,
   },
   'D-02': {
+    headlineAr: 'حوّل دعوتك إلى تجربة يعيشها ضيوفك',
+    ctaLabelAr: 'افتح تجربة حفلك',
     fitForAr: ['مناسبة زواج تحتاج دعوة رقمية تفتح إلى قاعة حية.'],
     notFitForAr: ['مناسبة صغيرة لا تحتاج قاعة حية أو روابط منظمة للضيوف — راجع مسار كاردي8.'],
     problemsAr: ['صعوبة إدارة دعوات الحضور وتنظيم روابط الضيوف يدوياً.'],
-    outcomesAr: ['كرت فخم، وقاعة حية، وروابط سرية منظمة لكل ضيف.'],
+    outcomesAr: [
+      'اجمع تفاصيل المناسبة في وجهة واحدة.',
+      'اجعل مشاركة التهاني من الضيوف جزءاً من التجربة.',
+      'اعرض رسائل الضيوف على شاشة القاعة وفق ما يتاح في إعدادات الحفل.',
+    ],
     marketingStepsAr: ['إرسال رابط الكرت مباشرة عبر واتساب لقائمة الدعوة.'],
     faq: COMMON_FAQ_TAIL,
   },

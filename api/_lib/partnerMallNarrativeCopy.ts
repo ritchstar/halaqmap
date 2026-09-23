@@ -10,15 +10,14 @@ export const PARTNER_MALL_TAGLINE_AR = 'خذ موضعك في المول الرق
 
 export const PARTNER_MALL_HERO_BADGE_AR = 'مسار الشركاء · جماهيرية قائمة · والمزيد في الطريق';
 
-export const PARTNER_MALL_HERO_TITLE_AR = 'خذ موضعك في المول الرقمي';
+export const PARTNER_MALL_HERO_TITLE_AR = 'ليصل عميلك إلى صالونك وهو يعرف أين يذهب';
 
-export const PARTNER_MALL_HERO_TITLE_ACCENT_AR = 'للحلاقين — والجماهيرية قائمة';
+export const PARTNER_MALL_HERO_TITLE_ACCENT_AR = '';
 
 export const PARTNER_MALL_HERO_LEAD_DESKTOP_AR =
-  'حلاق ماب تملك استعلاماً حياً وسيوًا واسعاً — والمزيد من الباحثين في الطريق. رخصة الظهور تضع صالونك أمام المستعلم المناسب في حيّه، عند الطلب.';
+  'انضم إلى حلاق ماب لتمنح صالونك حضوراً رقمياً أوضح، وتساعد العميل القريب على اكتشافه والوصول إليه، ثم استخدم أدواتك المرتبطة بالخدمة المفعلة لتنظيم ما يتاح لك من تشغيل.';
 
-export const PARTNER_MALL_HERO_LEAD_MOBILE_AR =
-  'جماهيرية وسيو قائمان — والمزيد في الطريق. ثبّت صالونك ليظهر عند الاستعلام · لا عمولة.';
+export const PARTNER_MALL_HERO_LEAD_MOBILE_AR = PARTNER_MALL_HERO_LEAD_DESKTOP_AR;
 
 export const PARTNER_MALL_HERO_CHIPS_AR = [
   'جماهيرية بحث قائمة',

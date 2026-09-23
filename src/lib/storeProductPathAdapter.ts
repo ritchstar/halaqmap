@@ -93,23 +93,25 @@ function accentFor(product: SolutionCatalogProduct, productId: StoreProductId | 
   return product.stripe === 'brick' ? '#b84c3a' : product.stripe === 'blue' ? '#1d4f69' : '#d1a728';
 }
 
-function ctaLabelFor(product: SolutionCatalogProduct): string {
+function ctaLabelFor(product: SolutionCatalogProduct, editorialCta?: string): string {
+  if (editorialCta) return editorialCta;
   if (product.external) return 'استكشف المسار';
   return `اطلب ${product.nameAr}`;
 }
 
 function toDefinition(product: SolutionCatalogProduct): ProductPathDefinition {
   const productId = CODE_TO_PRODUCT_ID[product.code];
+  const editorial = STORE_PRODUCT_PATH_CONTENT[product.code] ?? EMPTY_EDITORIAL;
   return {
     slug: product.code.toLowerCase(),
     code: product.code,
     productId,
-    titleAr: `مسار ${product.nameAr}`,
+    titleAr: editorial.headlineAr ?? `مسار ${product.nameAr}`,
     shortTitleAr: product.nameAr,
     nameEn: product.nameEn,
     categoryAr: product.categoryAr,
     operatingModel: operatingModelFor(product),
-    summaryAr: product.summaryAr,
+    summaryAr: editorial.headlineAr ? product.descriptionAr : product.summaryAr,
     descriptionAr: product.descriptionAr,
     tags: product.tags,
     deliverables: product.pathItems.map((titleAr) => ({ titleAr })),
@@ -118,8 +120,8 @@ function toDefinition(product: SolutionCatalogProduct): ProductPathDefinition {
     logoSrc: product.logoSrc,
     cardImageSrc: product.cardImageSrc,
     accent: accentFor(product, productId),
-    ctaLabelAr: ctaLabelFor(product),
-    editorial: STORE_PRODUCT_PATH_CONTENT[product.code] ?? EMPTY_EDITORIAL,
+    ctaLabelAr: ctaLabelFor(product, editorial.ctaLabelAr),
+    editorial,
     operatingFacts: productId ? LIVE_ORDER_DESK_FACTS[productId] : undefined,
   };
 }
@@ -137,7 +139,7 @@ export function productPathsByOperatingModel(model: ProductPathOperatingModel | 
 }
 
 export function productPathSearchHaystack(path: ProductPathDefinition): string {
-  return [path.code, path.shortTitleAr, path.nameEn, path.categoryAr, path.summaryAr, path.descriptionAr, ...path.tags]
+  return [path.code, path.titleAr, path.shortTitleAr, path.nameEn, path.categoryAr, path.summaryAr, path.descriptionAr, ...path.tags]
     .join(' ')
     .toLowerCase();
 }

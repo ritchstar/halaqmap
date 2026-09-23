@@ -14,12 +14,14 @@ import { RegisterSalonGlowIcon } from '@/components/partner/RegisterSalonGlowIco
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { PARTNER_EARLY_WAVE_SUBLINE_AR } from '@/config/partnerEarlyWaveCopy';
 import {
+  PARTNER_MALL_BOUNDARY_AR,
   PARTNER_MALL_HERO_BADGE_AR,
   PARTNER_MALL_HERO_CHIPS_AR,
+  PARTNER_MALL_HERO_CTA_PRIMARY_AR,
+  PARTNER_MALL_HERO_CTA_SECONDARY_AR,
   PARTNER_MALL_HERO_LEAD_DESKTOP_AR,
   PARTNER_MALL_HERO_TITLE_ACCENT_AR,
   PARTNER_MALL_HERO_TITLE_AR,
-  PARTNER_MALL_TAGLINE_AR,
   PARTNER_B2B_VISUAL_ASSETS,
 } from '@/config/partnerMallNarrativeCopy';
 import { PartnerMallNarrativeSection } from '@/components/partner/PartnerMallNarrativeSection';
@@ -31,7 +33,6 @@ import {
 } from '@/config/partnerFreedomNarrativeCopy';
 import {
   PARTNER_HERO_CLOSING_TAGLINE_AR,
-  PARTNER_HERO_TAGLINE_REPUTATION_AR,
   PARTNER_LANDING_FAQ_AR,
   PARTNER_SECTION_INTROS,
 } from '@/config/partnerFieldSalesCopy';
@@ -121,28 +122,19 @@ export default function PartnersB2BLanding() {
           </motion.div>
 
           {/* Main title */}
-          <motion.h1 initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.1 }} className="text-4xl md:text-6xl font-black leading-tight mb-6">
+          <motion.h1 initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.1 }} className="text-4xl md:text-6xl font-black leading-tight mb-6 text-balance">
             <span style={{ color: "#F8FAFC" }}>{PARTNER_MALL_HERO_TITLE_AR}</span>
-            <br />
-            <span style={{ color: "#D4AF37" }}>{PARTNER_MALL_HERO_TITLE_ACCENT_AR}</span>
+            {PARTNER_MALL_HERO_TITLE_ACCENT_AR ? (
+              <>
+                <br />
+                <span style={{ color: "#D4AF37" }}>{PARTNER_MALL_HERO_TITLE_ACCENT_AR}</span>
+              </>
+            ) : null}
           </motion.h1>
 
-          {/* Subtitle */}
-          <motion.p initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.2 }} className="text-xl md:text-2xl font-bold mb-4 leading-relaxed" style={{ color: "#0D9488" }}>
-            {PARTNER_MALL_TAGLINE_AR}
-          </motion.p>
-
-          <motion.p initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.22 }} className="text-lg md:text-xl font-bold mb-4 leading-relaxed" style={{ color: "#D4AF37" }}>
-            {PARTNER_HERO_TAGLINE_REPUTATION_AR}
-          </motion.p>
-
-          {/* Description */}
           <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.3 }} className="max-w-2xl mx-auto mb-6">
-            <p className="text-base leading-relaxed mb-2" style={{ color: "#CBD5E1" }}>
+            <p className="text-base leading-relaxed" style={{ color: "#CBD5E1" }}>
               {PARTNER_MALL_HERO_LEAD_DESKTOP_AR}
-            </p>
-            <p className="text-base" style={{ color: "#94A3B8" }}>
-              تدفع مقابل رخصة برمجية حلاق ماب — لا وساطة حجز ولا عقد يربطك.
             </p>
           </motion.div>
 
@@ -175,11 +167,11 @@ export default function PartnersB2BLanding() {
           <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.5 }} className="flex flex-wrap justify-center gap-4">
             <Link to={ROUTE_PATHS.REGISTER} className={`${ctaClass} inline-flex items-center hover:scale-105 px-8 py-4 rounded-xl font-bold text-base`} style={{ background: '#0D9488', color: '#fff', boxShadow: '0 0 24px rgba(13,148,136,0.35)' }}>
               <RegisterSalonGlowIcon size="md" tone="gold" />
-              <span>سجّل طلبك الآن</span>
+              <span>{PARTNER_MALL_HERO_CTA_PRIMARY_AR}</span>
               <ArrowLeft size={18} />
             </Link>
-            <Link to={ROUTE_PATHS.HOME} className={`${ctaClass} hover:bg-teal-900/20 px-8 py-4 rounded-xl font-bold text-base`} style={{ border: '1px solid rgba(13,148,136,0.5)', color: '#0D9488' }}>
-              <span>شاهد تجربة الزبون</span>
+            <Link to={ROUTE_PATHS.PARTNER_WHY} className={`${ctaClass} hover:bg-teal-900/20 px-8 py-4 rounded-xl font-bold text-base`} style={{ border: '1px solid rgba(13,148,136,0.5)', color: '#0D9488' }}>
+              <span>{PARTNER_MALL_HERO_CTA_SECONDARY_AR}</span>
             </Link>
           </motion.div>
 
@@ -199,6 +191,10 @@ export default function PartnersB2BLanding() {
       </section>
 
       <PartnerB2BVisualFeatureCards variant="dark" />
+
+      <section className="relative z-10 px-6 pb-16">
+        <p className="mx-auto max-w-3xl text-center text-sm leading-8 text-slate-300">{PARTNER_MALL_BOUNDARY_AR}</p>
+      </section>
 
       <PartnerMallNarrativeSection variant="dark" />
 
