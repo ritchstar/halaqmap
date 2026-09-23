@@ -39,7 +39,8 @@ assert.match(pathContent, /faq: faqFor\('B-01'\)/);
 assert.match(pathContent, /faq: faqFor\('B-02'\)/);
 assert.match(pathContent, /faq: faqFor\('C-01'\)/);
 assert.match(pathContent, /faq: faqFor\('B-06'\)/);
-assert.doesNotMatch(pathContent, /faq: faqFor\('C-02'\)/);
+assert.match(pathContent, /faq: faqFor\('C-02'\)/);
+assert.doesNotMatch(pathContent, /faq: faqFor\('D-01'\)|faq: faqFor\('D-02'\)|faq: faqFor\('D-03'\)|faq: faqFor\('E-01'\)|faq: faqFor\('A-01'\)/);
 
 const grocersBlock = catalog.slice(catalog.indexOf("code: 'B-02'"), catalog.indexOf("code: 'B-03'"));
 assert.match(grocersBlock, /حوّل رسائل الحي إلى طلبات أوضح/);
@@ -62,7 +63,8 @@ assert.match(partnerCopy, /حضور أوضح للعميل/);
 assert.match(partnerCopy, /ولا يضمن حجوزات أو مبيعات أو ترتيباً في البحث/);
 assert.match(partners, /to=\{ROUTE_PATHS\.REGISTER\}/);
 assert.match(partners, /PARTNER_MALL_HERO_CTA_PRIMARY_AR/);
-assert.match(partners, /to=\{ROUTE_PATHS\.PARTNER_WHY\}/);
+assert.match(partners, /getElementById\('benefits'\)/);
+assert.doesNotMatch(partners, /href=["']#["']/);
 assert.match(partners, /PARTNER_MALL_BOUNDARY_AR/);
 assert.doesNotMatch(partners, /مراجعة الجاهزية|استلام مسار التفعيل/);
 
@@ -80,5 +82,26 @@ assert.doesNotMatch(coiffeurCopy, /مراجعة الجاهزية|استلام م
 
 assert.doesNotMatch(registration, /مراجعة الجاهزية|استلام مسار التفعيل/);
 assert.doesNotMatch(`${pathContent}\n${partnerCopy}\n${coiffeurCopy}`, /نضمن|منافس/);
+
+const intro = read('src/components/store/paths/PathsPlatformIntro.tsx');
+const card = read('src/components/store/paths/ProductPathCard.tsx');
+const benefit = read('src/config/storePathBenefitUse.ts');
+const features = read('src/components/partner/PartnerB2BVisualFeatureCards.tsx');
+assert.match(intro, /أنت تقود المنتج/);
+assert.match(intro, /المنتج لا يتحرك من تلقاء نفسه؛ أنت من يقوده/);
+assert.match(intro, /منتجاتنا لا تتحرك من تلقاء نفسها/);
+assert.match(intro, /خريطة الحل لا تبيع نتائج جاهزة/);
+assert.match(intro, /صفحة تحمل اسم نشاطك/);
+assert.match(card, /نشاطك هو الوجهة، والمنتج هو الطريق/);
+assert.doesNotMatch(card, /ليست بطاقة داخل قائمة عامة/);
+assert.match(benefit, /شارك الرابط والرمز مع عملائك/);
+assert.match(benefit, /شارك رابط الدعوة، وستظهر تهاني ضيوفك على شاشة القاعة/);
+assert.match(benefit, /فعّل شاشات اللاونج وأدر محتواها لضيوفك/);
+assert.match(benefit, /شارك بطاقتك عبر رابط مباشر لمن تريد تهنئته/);
+assert.match(benefit, /تظهر لعميلك عند استعلامه القريب، ويصله إليك مباشرة/);
+assert.match(benefit, /تسهيل عودة العميل/);
+assert.doesNotMatch(benefit, /عميل دائم|رابط على التغليف|إعادة الطلب/);
+assert.match(features, /id="benefits"/);
+assert.doesNotMatch(read('src/components/store/paths/PathStartGainsSection.tsx'), /تطبيق/);
 
 console.log('benefit-first editorial: ok');

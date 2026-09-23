@@ -52,7 +52,7 @@ export function PartnerB2BVisualFeatureCards({ variant = 'light', className }: P
 
   return (
     <section
-      id="مزايا-الشركاء"
+      id="benefits"
       className={cn(
         'relative z-10 py-20 md:py-24',
         isDark ? 'bg-[#0A1628]' : 'bg-white',

@@ -49,6 +49,7 @@ export function ProductPathCard({ path }: { path: ProductPathDefinition }) {
         <div>
           <h3 className="text-base font-extrabold text-[#1f2933]">{path.titleAr}</h3>
           <p className="mt-1 text-sm leading-6 text-[#566269]">{path.summaryAr}</p>
+          <p className="mt-2 text-xs font-bold leading-6 text-[#3d3226]">نشاطك هو الوجهة، والمنتج هو الطريق.</p>
         </div>
 
         {path.editorial.fitForAr[0] ? (

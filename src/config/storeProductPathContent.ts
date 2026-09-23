@@ -19,8 +19,12 @@ const COMMON_FAQ_TAIL: ProductPathEditorialContent['faq'] = [
   },
 ];
 
-/** المنتجات التي تدير بيعاً مباشراً بين المشغّل وزبونه. الموضع الثامن في الملحق غير محدد، فلم يُدرج. */
-const DIRECT_TRADE_CODES = new Set(['B-01', 'B-02', 'B-03', 'B-04', 'B-05', 'B-06', 'C-01']);
+/**
+ * بيع مباشر: الزبون يدفع للمشغّل، والمنصة لا تقتطع من قيمة البيع.
+ * المصدر: STORE_DIRECT_PAY_GUEST_PRODUCTS. كافينا1 داخلة بعد هذا التحقق.
+ * أفراحي1 وأجواء1 ولاونجا1 وكاردي8 وحلاق ماب وكوافير ماب خارج القائمة.
+ */
+const DIRECT_TRADE_CODES = new Set(['B-01', 'B-02', 'B-03', 'B-04', 'B-05', 'B-06', 'C-01', 'C-02']);
 
 const NO_COMMISSION_FAQ: ProductPathEditorialContent['faq'] = [
   {
@@ -125,7 +129,7 @@ export const STORE_PRODUCT_PATH_CONTENT: Record<string, ProductPathEditorialCont
     problemsAr: ['ازدحام الاستلام لعدم معرفة الطلبات القادمة مسبقاً.'],
     outcomesAr: ['قائمة مشروبات واضحة، وشاشات عرض، ولوحة كاشير منظمة.'],
     marketingStepsAr: ['مشاركة رابط الضيف مع رواد المقهى الدائمين.'],
-    faq: COMMON_FAQ_TAIL,
+    faq: faqFor('C-02'),
   },
   'D-01': {
     fitForAr: ['لاونج يستضيف فعاليات ويحتاج لوحة مضيف وشاشات عرض.'],

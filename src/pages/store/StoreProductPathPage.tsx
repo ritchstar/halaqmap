@@ -12,6 +12,7 @@ import { PathDetailHeader } from '@/components/store/paths/PathDetailHeader';
 import { PathFitSection } from '@/components/store/paths/PathFitSection';
 import { PathProblemSection } from '@/components/store/paths/PathProblemSection';
 import { PathOutcomeSection } from '@/components/store/paths/PathOutcomeSection';
+import { PathStartGainsSection } from '@/components/store/paths/PathStartGainsSection';
 import { PathDeliverablesSection } from '@/components/store/paths/PathDeliverablesSection';
 import { PathMarketingSection } from '@/components/store/paths/PathMarketingSection';
 import { PathFAQ } from '@/components/store/paths/PathFAQ';
@@ -77,6 +78,7 @@ export default function StoreProductPathPage() {
         <PathFitSection editorial={path.editorial} accent={path.accent} />
         <PathProblemSection problemsAr={path.editorial.problemsAr} />
         <PathOutcomeSection outcomesAr={path.editorial.outcomesAr} accent={path.accent} />
+        <PathStartGainsSection code={path.code} />
         <PathDeliverablesSection deliverables={path.deliverables} accent={path.accent} />
         <PathMarketingSection marketingStepsAr={path.editorial.marketingStepsAr} />
         <PathFAQ faq={path.editorial.faq} code={path.code} />

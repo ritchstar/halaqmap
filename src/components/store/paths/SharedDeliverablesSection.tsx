@@ -16,8 +16,11 @@ export function SharedDeliverablesSection() {
   return (
     <section className="rounded-3xl border border-[#bdb5a7] bg-[#fffaf4] px-5 py-10 sm:px-10">
       <h2 className="text-center text-lg font-extrabold text-[#1f2933] sm:text-xl">
-        كل مسار يقود إلى منظومة تشغيل متكاملة
+        أدوات تظهر عندما تكون ضمن المنتج
       </h2>
+      <p className="mx-auto mt-3 max-w-2xl text-center text-sm leading-7 text-[#566269]">
+        الصفحة واللوحة والرابط والرمز ليست وعداً لكل المسارات. صفحة كل منتج تذكر ما هو مثبت فيه فقط.
+      </p>
       <div className="mt-7 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {SHARED_ITEMS.map((item) => (
           <div key={item.titleAr} className="rounded-2xl border border-[#bdb5a7] bg-[#fffdf8] p-4 text-center">

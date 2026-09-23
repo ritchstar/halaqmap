@@ -170,9 +170,14 @@ export default function PartnersB2BLanding() {
               <span>{PARTNER_MALL_HERO_CTA_PRIMARY_AR}</span>
               <ArrowLeft size={18} />
             </Link>
-            <Link to={ROUTE_PATHS.PARTNER_WHY} className={`${ctaClass} hover:bg-teal-900/20 px-8 py-4 rounded-xl font-bold text-base`} style={{ border: '1px solid rgba(13,148,136,0.5)', color: '#0D9488' }}>
+            <button
+              type="button"
+              className={`${ctaClass} hover:bg-teal-900/20 px-8 py-4 rounded-xl font-bold text-base`}
+              style={{ border: '1px solid rgba(13,148,136,0.5)', color: '#0D9488' }}
+              onClick={() => document.getElementById('benefits')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+            >
               <span>{PARTNER_MALL_HERO_CTA_SECONDARY_AR}</span>
-            </Link>
+            </button>
           </motion.div>
 
           {/* Badge tier pills */}
