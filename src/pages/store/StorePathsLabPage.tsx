@@ -29,6 +29,27 @@ import '@/styles/storeSolutionCatalog.css';
 const GRID_ANCHOR_ID = 'paths-grid';
 const HELP_ANCHOR_ID = 'paths-help';
 
+/**
+ * خلفية كامل صفحة المسارات (2026-09-23 — طلب مستخدم مباشر مصحوب بنفس صورة
+ * الشبكة الزجاجية المستخدَمة سابقاً في بطاقة الهيرو وحدها؛ patch سابق
+ * (commit 219b45fc) اعتمدها لبطاقة PathsHero فقط تحديداً "لتفادي تمدّد
+ * الصورة بشكل مفرط فوق ارتفاع محتوى طويل" — طلب المستخدم الآن صراحةً
+ * تمديدها لكامل الصفحة، فحُلّت مشكلة التمدد عبر تثبيت الخلفية بـ position:
+ * fixed بحجم الشاشة (لا bg-fixed/background-attachment:fixed التقليدية،
+ * لتفادي علّتها المعروفة على iOS Safari) بدل تمديدها فوق ارتفاع المحتوى
+ * الكامل — فتبقى الصورة بحجم الشاشة ثابتة خلف المحتوى الذي يتمرّر فوقها.
+ *
+ * لا حاجة لحجاب حماية تباين نص هنا (خلافاً لـ PathsHero): كل عنصر نصّي في
+ * هذه الصفحة معزول داخل بطاقة بخلفية صلبة تقريباً خاصة به (PathsHero نفسها،
+ * PathsBackHeader، حقل PathSearch، أزرار OperatingModelFilter، بطاقات
+ * ProductPathCard، PathHelpBanner، SharedDeliverablesSection) — الخلفية هنا
+ * مرئية فقط في الفراغات/الهوامش بين البطاقات، فلا نص يلامسها مباشرة، ولا
+ * حاجة لِـ data-contrast-guard-manual-bg. حجاب بيج شبه معتم (bg-[#e9e5dc]/85
+ * — نفس درجة اللون الصلبة السابقة لجذر الصفحة) فوق الصورة يُبقي الهوية
+ * البصرية الهادئة نفسها مع بروز نقش الشبكة الزجاجية بخفة خلف البطاقات.
+ */
+const STORE_PATHS_PAGE_BACKGROUND_IMAGE = '/images/store-paths-hero-network.webp';
+
 export const STORE_PATHS_LAB_ENABLED = true;
 
 export default function StorePathsLabPage() {
@@ -73,8 +94,14 @@ export default function StorePathsLabPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#e9e5dc] px-3 py-6 sm:px-6 sm:py-10" dir="rtl">
-      <div className="mx-auto flex max-w-5xl flex-col gap-6 sm:gap-8">
+    <div className="min-h-screen px-3 py-6 sm:px-6 sm:py-10" dir="rtl">
+      <div
+        className="pointer-events-none fixed inset-0 z-0 bg-cover bg-center"
+        style={{ backgroundImage: `url(${STORE_PATHS_PAGE_BACKGROUND_IMAGE})` }}
+        aria-hidden
+      />
+      <div className="pointer-events-none fixed inset-0 z-0 bg-[#e9e5dc]/85" aria-hidden />
+      <div className="relative z-10 mx-auto flex max-w-5xl flex-col gap-6 sm:gap-8">
         <PathsBackHeader />
         <PathsHero
           onExplore={() => document.getElementById(GRID_ANCHOR_ID)?.scrollIntoView({ behavior: 'smooth' })}

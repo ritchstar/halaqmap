@@ -79,11 +79,11 @@ assert.match(
   /const PATHS_HERO_IMAGE = '\/images\/store\/paths-hero-souk\.jpg';/,
   'خلفية صورة السوق في PathsBackHeader.tsx يجب أن تبقى دون أي تغيير',
 );
-const pageSrc = readFileSync(p('src/pages/store/StorePathsLabPage.tsx'), 'utf8');
-assert.match(
-  pageSrc,
-  /className="min-h-screen bg-\[#e9e5dc\] px-3 py-6 sm:px-6 sm:py-10"/,
-  'خلفية جذر صفحة المسارات القابلة للتمرير يجب أن تبقى بيج صلبة دون صورة — التغيير محصور في PathsHero فقط',
-);
+// ملاحظة (2026-09-23): جذر الصفحة القابل للتمرير كامله صار يحمل خلفية الصورة
+// نفسها أيضاً (طلب مستخدم لاحق صريح) — راجع
+// scripts/test-store-paths-lab-page-background-2026-09-23.mts للتحقق الكامل
+// من هذا التغيير. هذا الاختبار (الخاص بـ PathsHero تحديداً) يبقى صالحاً بلا
+// تعديل لبقية بنوده؛ حُذف فقط الشرط الذي كان يمنع وجود صورة خلفية على جذر
+// الصفحة، لأنه لم يعد صحيحاً.
 
 console.log('✅ خلفية بطاقة "اختر مسار مهنتك" (صورة الشبكة الزجاجية + حجاب حماية 90%) موثَّقة ومُتحقَّق منها بالكامل.');
