@@ -14,7 +14,7 @@ import {
   writeStoreIntentSeo,
 } from './generate-store-intent-seo.mjs';
 
-assert.equal(STORE_INTENT_PAGES.length, 20);
+assert.equal(STORE_INTENT_PAGES.length, 21);
 
 const wedding = STORE_INTENT_PAGES[0];
 const html = renderStoreIntentPage(wedding);
@@ -54,6 +54,17 @@ assert.equal(
   8,
   'يجب أن تبقى ثماني صفحات "متجر إلكتروني لـ..." بالضبط — لا سبع ولا تسع',
 );
+
+// ── صفحة نية "كيف اسوق لطبخي" المعلوماتية (أضيفت 2026-09-23) ──
+const marketingPage = STORE_INTENT_PAGES.find((p) => p.slug === 'how-to-market-home-cooking');
+const marketingHtml = renderStoreIntentPage(marketingPage);
+assert.match(marketingHtml, /<h1>كيف تسوّق لطبخك المنزلي؟ خطوات عملية لزيادة الطلبات<\/h1>/);
+assert.match(marketingHtml, /meta name="robots" content="index, follow"/);
+assert.match(marketingHtml, /https:\/\/store\.halaqmap\.com\/store\/kitchen\/read/);
+assert.match(marketingHtml, /"@type":"FAQPage"/);
+// تمايز واضح عن صفحتي طبختنا1 القائمتين (نية مختلفة: معلوماتية لا شرائية)
+assert.doesNotMatch(marketingHtml, /طلبات الأكل المنزلي من الجوال بلا تشتت/);
+assert.doesNotMatch(marketingHtml, /متجر إلكتروني لصاحبة أو صاحب الأكل المنزلي/);
 
 const sitemap = buildStoreIntentSitemapXml();
 assert.match(sitemap, /need\/store<\/loc>/);
