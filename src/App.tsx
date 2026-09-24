@@ -185,6 +185,8 @@ const STORE_KITCHEN_PATH =
   (ROUTE_PATHS as { STORE_KITCHEN?: string }).STORE_KITCHEN || "/store/kitchen";
 const STORE_KITCHEN_SUPPORT_PATH =
   (ROUTE_PATHS as { STORE_KITCHEN_SUPPORT?: string }).STORE_KITCHEN_SUPPORT || "/store/kitchen/support";
+const STORE_KITCHEN_RAMADAN_PATH =
+  (ROUTE_PATHS as { STORE_KITCHEN_RAMADAN?: string }).STORE_KITCHEN_RAMADAN || "/store/kitchen/ramadan";
 const STORE_KITCHEN_GIFT_PATH =
   (ROUTE_PATHS as { STORE_KITCHEN_GIFT?: string }).STORE_KITCHEN_GIFT || "/store/kitchen/gift";
 const STORE_KITCHEN_GIFT_TERMS_PATH =
@@ -427,6 +429,7 @@ const StoreCafeLandingPage = lazy(() => import("@/pages/store/StoreCafeLandingPa
 const StoreCafeShopPage = lazy(() => import("@/pages/store/StoreCafeShopPage"));
 const StoreCafePayPage = lazy(() => import("@/pages/store/StoreCafePayPage"));
 const StoreKitchenLandingPage = lazy(() => import("@/pages/store/StoreKitchenLandingPage"));
+const StoreKitchenRamadanLandingPage = lazy(() => import("@/pages/store/StoreKitchenRamadanLandingPage"));
 const StoreProductReadPage = lazy(() => import("@/pages/store/StoreProductReadPage"));
 const StoreProductSupportPage = lazy(() => import("@/pages/store/StoreProductSupportPage"));
 const StoreKitchenGiftLandingPage = lazy(() => import("@/pages/store/StoreKitchenGiftLandingPage"));
@@ -1081,6 +1084,7 @@ export function App() {
           <Route path={STORE_INVITES_READ_PATH} element={<LazyRoute><StoreProductReadPage /></LazyRoute>} />
           <Route path={STORE_HALANA_READ_PATH} element={<LazyRoute><StoreProductReadPage /></LazyRoute>} />
           <Route path={STORE_KITCHEN_SUPPORT_PATH} element={<LazyRoute><StoreProductSupportPage /></LazyRoute>} />
+          <Route path={STORE_KITCHEN_RAMADAN_PATH} element={<LazyRoute><StoreKitchenRamadanLandingPage /></LazyRoute>} />
           <Route
             path={ROUTE_PATHS.STORE_KITCHEN_OPS_PLAN_PREVIEW}
             element={<LazyRoute><StoreKitchenOpsPlanPreviewPage /></LazyRoute>}

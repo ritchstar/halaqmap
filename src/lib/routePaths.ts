@@ -150,6 +150,8 @@ export const ROUTE_PATHS = {
   STORE_KITCHEN: '/store/kitchen',
   STORE_KITCHEN_READ: '/store/kitchen/read',
   STORE_KITCHEN_SUPPORT: '/store/kitchen/support',
+  /** استعداد طبختنا1 لرمضان — صفحة هبوط تعريفية/تعليمية، ليست صفحة شراء */
+  STORE_KITCHEN_RAMADAN: '/store/kitchen/ramadan',
   /** معاينة دليل تشغيل طبختنا1 — بلا فهرسة */
   STORE_KITCHEN_OPS_PLAN_PREVIEW: '/store/kitchen/ops-plan-preview',
   STORE_KITCHEN_GIFT: '/store/kitchen/gift',
