@@ -104,4 +104,17 @@ assert.doesNotMatch(benefit, /عميل دائم|رابط على التغليف|�
 assert.match(features, /id="benefits"/);
 assert.doesNotMatch(read('src/components/store/paths/PathStartGainsSection.tsx'), /تطبيق/);
 
+const illustrations = read('src/config/storeBenefitIllustrations.ts');
+const gains = read('src/components/store/paths/PathStartGainsSection.tsx');
+assert.match(illustrations, /hm_benefit_operator_leads\.webp/);
+assert.match(illustrations, /hm_benefit_private_destination\.webp/);
+assert.match(illustrations, /hm_benefit_direct_customer_path\.webp/);
+assert.match(illustrations, /hm_benefit_clear_discovery\.webp/);
+assert.match(illustrations, /hm_benefit_operating_tools\.webp/);
+assert.match(illustrations, /if \(!hasQrShare\) return null/);
+assert.match(gains, /benefitQrIllustrationSrc\(true\)/);
+assert.match(gains, /رابط ورمز مشاركة/);
+assert.match(read('src/components/store/paths/BenefitIllustration.tsx'), /onError/);
+assert.doesNotMatch(read('src/components/store/paths/SharedDeliverablesSection.tsx'), /رمز QR/);
+
 console.log('benefit-first editorial: ok');

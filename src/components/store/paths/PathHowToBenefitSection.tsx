@@ -3,6 +3,7 @@
  *
  * كيف تستفيد من منتجك — الخطوات 1 و2 و3 و5 ثابتة، والرابعة حسب قدرة المنتج.
  */
+import { BenefitIllustration } from '@/components/store/paths/BenefitIllustration';
 import { STORE_PRODUCT_PATHS } from '@/lib/storeProductPathAdapter';
 import {
   PATH_BENEFIT_CLOSING_STEP,
@@ -21,7 +22,8 @@ export function PathHowToBenefitSection() {
       aria-label="كيف تستفيد من منتجك"
       className="mx-auto max-w-3xl rounded-2xl border border-[#bdb5a7] bg-[#fffdf8] px-5 py-6 text-start sm:px-7 sm:py-7"
     >
-      <h2 className="text-lg font-extrabold text-[#1f2933] sm:text-xl">كيف تستفيد من منتجك؟</h2>
+      <BenefitIllustration id="directCustomerPath" />
+      <h2 className="mt-4 text-lg font-extrabold text-[#1f2933] sm:text-xl">كيف تستفيد من منتجك؟</h2>
       <ol className="mt-4 list-decimal space-y-3 pe-5 text-sm leading-8 text-[#3d3226] sm:text-base">
         {PATH_BENEFIT_FIXED_STEPS.map((step) => (
           <li key={step}>{step}</li>

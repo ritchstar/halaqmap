@@ -8,6 +8,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   NATIONAL_DAY_PRODUCTS,
+  STORE_NATIONAL_DAY_PROMO_BANNER_ENABLED,
   STORE_NATIONAL_DAY_PUBLIC_ENABLED,
   nationalDayCampaignPhase,
   nationalDayProductsForSegment,
@@ -20,6 +21,7 @@ const app = readFileSync(join(root, 'src/App.tsx'), 'utf8');
 const page = readFileSync(join(root, 'src/pages/store/StoreNationalDayLandingPage.tsx'), 'utf8');
 
 assert.equal(STORE_NATIONAL_DAY_PUBLIC_ENABLED, true);
+assert.equal(STORE_NATIONAL_DAY_PROMO_BANNER_ENABLED, false);
 assert.equal(ROUTE_PATHS.STORE_NATIONAL_DAY, '/store/national-day');
 assert.match(app, /StoreNationalDayLandingPage/);
 assert.match(app, /\/store\/national-day/);
@@ -31,6 +33,10 @@ assert.doesNotMatch(page, /href="#national-day-explorer"/);
 assert.match(app, /StoreNationalDayHashRedirect/);
 assert.match(readFileSync(join(root, 'src/lib/storeNationalDayScroll.ts'), 'utf8'), /scrollToNationalDayExplorer/);
 assert.match(readFileSync(join(root, 'src/pages/store/StoreLanding.tsx'), 'utf8'), /StoreNationalDayPromoBanner/);
+assert.match(
+  readFileSync(join(root, 'src/components/store/StoreNationalDayPromoBanner.tsx'), 'utf8'),
+  /STORE_NATIONAL_DAY_PROMO_BANNER_ENABLED/,
+);
 assert.doesNotMatch(page, /moyasar/i);
 assert.doesNotMatch(page, /خصم|تخفيض/i);
 

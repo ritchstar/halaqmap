@@ -7,6 +7,9 @@ import { ROUTE_PATHS } from '@/lib/routePaths';
 
 export const STORE_NATIONAL_DAY_PUBLIC_ENABLED = true as const;
 
+/** بنر الترويج على واجهة المتجر. الصفحة نفسها تبقى متاحة عبر مسارها. */
+export const STORE_NATIONAL_DAY_PROMO_BANNER_ENABLED = false as const;
+
 /** معرّف قسم المستكشف — لا يُستخدم كهاش مسار (HashRouter). */
 export const NATIONAL_DAY_EXPLORER_SECTION_ID = 'national-day-explorer' as const;
 export const NATIONAL_DAY_EXPLORER_SCROLL_QUERY = 'explorer' as const;

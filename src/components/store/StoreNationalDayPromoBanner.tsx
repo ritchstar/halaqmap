@@ -5,6 +5,7 @@ import { Link, useLocation } from 'react-router-dom';
 import {
   STORE_NATIONAL_DAY_COPY,
   STORE_NATIONAL_DAY_IDENTITY_MARK_SRC,
+  STORE_NATIONAL_DAY_PROMO_BANNER_ENABLED,
   STORE_NATIONAL_DAY_PUBLIC_ENABLED,
   nationalDayCampaignPhase,
 } from '@/config/storeNationalDay';
@@ -12,7 +13,7 @@ import { ROUTE_PATHS } from '@/lib/routePaths';
 
 export function StoreNationalDayPromoBanner() {
   const location = useLocation();
-  if (!STORE_NATIONAL_DAY_PUBLIC_ENABLED) return null;
+  if (!STORE_NATIONAL_DAY_PUBLIC_ENABLED || !STORE_NATIONAL_DAY_PROMO_BANNER_ENABLED) return null;
   if (nationalDayCampaignPhase() !== 'active') return null;
   if (location.pathname.startsWith(ROUTE_PATHS.STORE_NATIONAL_DAY)) return null;
 

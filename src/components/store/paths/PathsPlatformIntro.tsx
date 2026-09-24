@@ -3,6 +3,8 @@
  *
  * نص توضيحي أسفل بحث صفحة المسارات — يوضح دور المنصة والمشغّل بلا وعد بنتائج.
  */
+import { BenefitIllustration } from '@/components/store/paths/BenefitIllustration';
+
 const PARAGRAPHS = [
   'المنتج لا يتحرك من تلقاء نفسه؛ أنت من يقوده.',
   'منتجاتنا لا تتحرك من تلقاء نفسها، ولا تستبدل المشغّل؛ أنت من يحدّث منتجاتك، يدير متجرك، يتواصل مع عملائك، ويتلقى المدفوعات مباشرة. ونحن نوفر لك البنية والأدوات التي تختصر المسافات التشغيلية والتسويقية، وتمنح نشاطك حضورًا رقميًا أكثر تنظيمًا.',
@@ -22,7 +24,8 @@ export function PathsPlatformIntro() {
       aria-label="تعريف منصة خريطة الحل في صفحة المسارات"
       className="mx-auto max-w-3xl rounded-2xl border border-[#bdb5a7] bg-[#fffdf8] px-5 py-6 text-start sm:px-7 sm:py-7"
     >
-      <h2 className="mb-4 text-lg font-extrabold text-[#1f2933] sm:text-xl">أنت تقود المنتج</h2>
+      <BenefitIllustration id="operatorLeads" />
+      <h2 className="mb-4 mt-4 text-lg font-extrabold text-[#1f2933] sm:text-xl">أنت تقود المنتج</h2>
       <div className="space-y-4 text-sm leading-8 text-[#3d3226] sm:text-base sm:leading-8">
         {PARAGRAPHS.map((paragraph) => (
           <p key={paragraph}>{paragraph}</p>
@@ -43,6 +46,7 @@ export function PathsPlatformIntro() {
         ))}
       </div>
       <div className="mt-5 space-y-3 border-t border-[#dac8aa] pt-5">
+        <BenefitIllustration id="privateDestination" />
         <h3 className="text-base font-extrabold text-[#1f2933]">صفحة تحمل اسم نشاطك</h3>
         <p className="text-sm leading-8 text-[#3d3226] sm:text-base">
           صفحتك ليست بطاقة داخل قائمة عامة؛ إنها وجهة رقمية تحمل اسم نشاطك، وتعرض ما تقدمه، وتمنح العميل طريقاً واضحاً للتعرف عليك والتواصل معك وفق ما يتيحه المنتج.

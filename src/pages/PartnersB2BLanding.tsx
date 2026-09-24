@@ -26,6 +26,7 @@ import {
 } from '@/config/partnerMallNarrativeCopy';
 import { PartnerMallNarrativeSection } from '@/components/partner/PartnerMallNarrativeSection';
 import { PartnerB2BVisualFeatureCards } from '@/components/partner/PartnerB2BVisualFeatureCards';
+import { BenefitIllustration } from '@/components/store/paths/BenefitIllustration';
 import { PartnerB2BUrgencyBand } from '@/components/partner/PartnerB2BUrgencyBand';
 import { PartnerOwnerWatchSpotlight } from '@/components/partner/PartnerOwnerWatchSpotlight';
 import {
@@ -195,6 +196,9 @@ export default function PartnersB2BLanding() {
         </div>
       </section>
 
+      <div className="relative z-10 mx-auto max-w-xs px-6 pb-4">
+        <BenefitIllustration id="clearDiscovery" />
+      </div>
       <PartnerB2BVisualFeatureCards variant="dark" />
 
       <section className="relative z-10 px-6 pb-16">

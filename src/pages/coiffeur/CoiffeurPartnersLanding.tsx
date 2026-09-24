@@ -12,6 +12,7 @@ import { ROUTE_PATHS } from '@/lib/routePaths';
 import { STORE_ORIGIN } from '@/config/storeFront';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { CoiffeurBrandMark } from '@/components/coiffeur/CoiffeurBrandMark';
+import { BenefitIllustration } from '@/components/store/paths/BenefitIllustration';
 import {
   COIFFEUR_FOOTER_ECOMMERCE_AR,
   COIFFEUR_FOOTER_LEGAL_AR,
@@ -38,6 +39,9 @@ export default function CoiffeurPartnersLanding() {
       <main className="mx-auto max-w-3xl px-5 py-14 text-center">
         <h1 className="text-3xl font-black leading-tight text-white">{COIFFEUR_PARTNERS_COPY.title}</h1>
         <p className="mx-auto mt-4 max-w-xl text-sm leading-8 text-slate-300">{COIFFEUR_PARTNERS_COPY.lead}</p>
+        <div className="mx-auto mt-6 max-w-xs">
+          <BenefitIllustration id="clearDiscovery" />
+        </div>
 
         <div className="mx-auto mt-8 max-w-xl space-y-3 text-right">
           <p className="text-xs font-black tracking-wide text-[#f4d4c0]">{COIFFEUR_PARTNERS_COPY.benefitsTitle}</p>
