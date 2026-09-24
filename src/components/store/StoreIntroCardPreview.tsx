@@ -60,9 +60,11 @@ export function StoreIntroCardPreview({ displayName, role, qrDataUrl, className 
           className="h-[4.5rem] w-[4.5rem] rounded-full object-cover ring-[3px] ring-[#e8c547]/80 shadow-[0_0_28px_rgba(232,197,71,0.4)]"
           decoding="async"
         />
-        <p dir="ltr" className="mt-1.5 text-[0.68rem] font-black tracking-[0.08em] text-[#f4efe4]">
-          {STORE_BRAND_LATIN}
-        </p>
+        <img
+          src={STORE_VISUALS.brandLogotype}
+          alt={STORE_BRAND_LATIN}
+          className="mt-1.5 h-4 w-auto"
+        />
         <p className="text-[0.72rem] font-extrabold text-[#e8c547]">{STORE_PUBLIC_NAME_AR}</p>
 
         {pitch.kicker ? (

@@ -22,7 +22,7 @@ export function AtlasHeader({ compact = false }: { compact?: boolean }) {
             className={cn('shrink-0 rounded-xl object-cover', compact ? 'h-9 w-9' : 'h-11 w-11')}
           />
           <span className="min-w-0">
-            <p className="text-[0.7rem] font-bold text-[var(--atlas-muted)]">{STORE_BRAND_LATIN}</p>
+            <img src={STORE_VISUALS.brandLogotype} alt={STORE_BRAND_LATIN} className="h-3.5 w-auto" />
             <p className={cn('truncate font-extrabold', compact ? 'text-sm' : 'text-base')}>{STORE_ATLAS_COPY.brandNameAr}</p>
           </span>
         </Link>

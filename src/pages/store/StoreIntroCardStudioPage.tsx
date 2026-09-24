@@ -29,6 +29,7 @@ import {
   storeIntroCardLandingUrl,
   storeIntroCardPublicUrl,
 } from '@/config/storeIntroCardCopy';
+import { STORE_VISUALS } from '@/config/storeFront';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { ProductEvents } from '@/lib/analytics/productAnalytics';
 import {
@@ -257,9 +258,11 @@ export default function StoreIntroCardStudioPage() {
           <p className="mx-auto mt-3 max-w-2xl text-base leading-relaxed text-[#f4efe4] md:text-lg">
             {COPY.studioLead}
           </p>
-          <p dir="ltr" className="mt-2 text-xs font-bold tracking-wide text-[#e8c547]/80">
-            {STORE_BRAND_LATIN}
-          </p>
+          <img
+            src={STORE_VISUALS.brandLogotype}
+            alt={STORE_BRAND_LATIN}
+            className="mx-auto mt-2 h-3.5 w-auto"
+          />
           <Link
             to={(ROUTE_PATHS as { STORE_MEET_QR?: string }).STORE_MEET_QR || '/store/qr'}
             className="mt-4 inline-flex text-sm font-bold text-[#e8c547]"

@@ -45,9 +45,11 @@ export function StoreMeetQrBoard({ present = false }: { present?: boolean }) {
           )}
           decoding="async"
         />
-        <p dir="ltr" className="mt-2 text-[0.72rem] font-black tracking-[0.08em] text-[#f4efe4]">
-          {STORE_BRAND_LATIN}
-        </p>
+        <img
+          src={STORE_VISUALS.brandLogotype}
+          alt={STORE_BRAND_LATIN}
+          className="mt-2 h-4 w-auto"
+        />
         <p className="text-xl font-extrabold text-[#e8c547]">{STORE_PUBLIC_NAME_AR}</p>
         <p className="mt-1 text-center text-[0.78rem] font-bold leading-6 text-[#f4efe4]/85">
           {COPY.kickerAr}
