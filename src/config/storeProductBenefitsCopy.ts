@@ -27,6 +27,7 @@ export const STORE_PRODUCT_BENEFITS_COPY = {
   leadAr:
     'المنتج هنا برمجية مستضافة تصل إليها برابط ولوحة من جوالك أو شاشتك. تدفع سعر المنتج الذي اخترته، وتبقى علاقتك بزوارك مباشرة. الأسعار والشروط التفصيلية على صفحة عرض كل منتج.',
   whatTitleAr: 'المعنى بلغة العمل',
+  whatIconSrc: '/images/store/benefits/what-meaning-icon.webp',
   whatBodyAr:
     'الخدمة السحابية في هذا المتجر برمجية جاهزة تُشغَّل عند الجهة البائعة. لا تُنسخ إلى جهازك كنسخة صندوقية، ولا تحتاج خادماً في المحل ولا مهندساً مقيماً. تشتري حق استخدام لمدة أو لواقعة، وفق عرض المنتج، بلا نقل ملكية للكود وبلا تشغيل للحرفة نيابة عنك.',
   markBeforeAr: 'الاسم الموثّق للمتجر ',
@@ -35,41 +36,49 @@ export const STORE_PRODUCT_BENEFITS_COPY = {
   advantages: [
     {
       titleAr: 'تشغيل من الجوال بلا خادم في المحل',
+      iconSrc: '/images/store/benefits/adv-mobile-no-server-icon.webp',
       bodyAr:
         'تفتح الصفحة واللوحة من المتصفح حين تحتاجهما. لا قرص تثبيت، ولا شبكة محلية خاصة إلا إذا كان المنتج يعرض شاشة داخل المكان.',
     },
     {
       titleAr: 'المتجر يستضيف الصفحة ويحدّثها',
+      iconSrc: '/images/store/benefits/adv-store-hosts-icon.webp',
       bodyAr:
         'استمرار الصفحة والتحديث الأمني على بنية المتجر وفق شروط المنتج. أنت تستخدم، والمتجر يشغّل، بلا نقل للكود إلى خادمك.',
     },
     {
       titleAr: 'سعر المنتج البرمجي فقط',
+      iconSrc: '/images/store/benefits/adv-software-price-only-icon.webp',
       bodyAr:
         'لا عمولة على قصة أو وجبة أو تهنئة. الزائر يتعامل مع منشأتك، والمتجر يبيع البرمجية لا أجرة الخدمة الحِرَفية.',
     },
     {
       titleAr: 'صفحة للزائر ولوحة لمن يدير',
+      iconSrc: '/images/store/benefits/adv-visitor-page-dashboard-icon.webp',
       bodyAr:
         'بعد السداد تصلك روابط التشغيل بحسب المنتج: عرض أو طلب للزائر، ولوحة لمن يدير النشاط من جهازه. ليست شبكة اجتماعية وليست وسيط حجز.',
     },
     {
       titleAr: 'خصوصية الضيف حيث يلزم، ورمز باب حيث يناسب الحي',
+      iconSrc: '/images/store/benefits/adv-guest-privacy-door-code-icon.webp',
       bodyAr:
         'في القاعات والشاشات: روابط سرية يصدرها المشتري، وكل رابط مدعو يُربط بجهازه. ليست قائمة حضور. في صفحات الحي: رمز على الباب أو الطاولة لطلب الجار من الجوال. كل نمط يظهر في عرض المنتج نفسه.',
     },
     {
       titleAr: 'واتساب من جهازك لا من الخادم',
+      iconSrc: '/images/store/benefits/adv-whatsapp-from-device-icon.webp',
       bodyAr:
         'المذكرة أو الدعوة تُفتح أو تُشارَك من جهاز صاحب النشاط. المتجر لا يرسل جماعياً نيابة عنك ولا يحفظ أرقام مدعويك.',
     },
     {
       titleAr: 'المدة تمدّد الصفحة نفسها، والواقعة شراء لتلك المناسبة',
+      iconSrc: '/images/store/benefits/adv-duration-vs-event-icon.webp',
       bodyAr:
         'منتجات المدة: عند الانتهاء تحيلك الصفحة لإعادة الشراء على الصفحة واللوحة والشاشة نفسها، وفق ما يُذكر في عرض المنتج. منتجات الواقعة شراء لقاعة أو بطاقة لتلك المناسبة.',
     },
     {
       titleAr: 'بوابة دفع واحدة للنطاق الرسمي',
+      iconSrc: '/images/store/benefits/adv-single-payment-gateway-icon.webp',
       bodyAr:
         'سداد المنتج عبر بوابة الدفع الآمنة على النطاق الرسمي. لا نطاق دفع ثانٍ. لا تحصيل لسلة الجار ولا لتذكرة المناسبة عبر تلك البوابة.',
     },
@@ -80,18 +89,22 @@ export const STORE_PRODUCT_BENEFITS_COPY = {
   howSteps: [
     {
       titleAr: 'تختار من صفحة العرض',
+      iconSrc: '/images/store/benefits/how-choose-from-listing-icon.webp',
       bodyAr: 'كل منتج بسعره ووسمه على صفحته. لا تُخلط الفواتير بين رخصة النفاذ ومنتجات المتجر.',
     },
     {
       titleAr: 'تسدّد على النطاق الرسمي',
+      iconSrc: '/images/store/benefits/how-pay-official-domain-icon.webp',
       bodyAr: 'بعد نجاح العملية تصلك روابط التشغيل: صفحة للزائر أو الشاشة، ولوحة لمن يدير من جهازه.',
     },
     {
       titleAr: 'تستخدم من أي اتصال مناسب',
+      iconSrc: '/images/store/benefits/how-use-any-connection-icon.webp',
       bodyAr: 'تفتح الرابط حين تحتاج الصفحة أو اللوحة. التشغيل لا يعتمد على تثبيت برنامج مكتبي في المحل.',
     },
     {
       titleAr: 'ما يبقى عندك',
+      iconSrc: '/images/store/benefits/how-what-you-keep-icon.webp',
       bodyAr:
         'في صفحات الحي يدفع الجار لك نقداً أو شبكة عند التسليم أو في المحل. في القاعات والبطاقات لا يُحصَّل من الضيف عبر المتجر. صندوق الملاحظات إن وُجد في عرض المنتج ثنائي الاتجاه، لا غرفة عامة.',
     },
@@ -102,6 +115,7 @@ export const STORE_PRODUCT_BENEFITS_COPY = {
   families: [
     {
       titleAr: 'منصات قطاعية',
+      iconSrc: '/images/store/benefits/family-sector-platforms-icon.webp',
       bodyAr: `${LEGAL_FIRST_SOFTWARE_PRODUCT_AR} وكوافير ماب: استعلام للمستعلم أو المستعلمة، ورخصة نفاذ للمنشأة تظهر عند الطلب. ليستا وسيط حجز وليستا تحصيل أجرة الخدمة.`,
       links: [
         { labelAr: LEGAL_FIRST_SOFTWARE_PRODUCT_AR, to: 'https://www.halaqmap.com', external: true },
@@ -110,6 +124,7 @@ export const STORE_PRODUCT_BENEFITS_COPY = {
     },
     {
       titleAr: 'قاعات وشاشات',
+      iconSrc: '/images/store/benefits/family-halls-screens-icon.webp',
       bodyAr:
         'افراحي1 واجواء1 ولاونجا1: كرت أو شاشة حية، ولوحة مضيف، ورابط ضيف يصدره المشتري من جهازه. ليست قائمة حضور وليست إرسالاً جماعياً نيابة عنك.',
       links: [
@@ -120,6 +135,7 @@ export const STORE_PRODUCT_BENEFITS_COPY = {
     },
     {
       titleAr: 'صفحات الحي',
+      iconSrc: '/images/store/benefits/family-neighborhood-pages-icon.webp',
       bodyAr:
         'تمويناتا1 ومطعمنا1 وكافينا1 وطبختنا1 وحلانا1: صفحة طلب من الجوال ولوحة تشغيل. الطلب يصل للمنشأة، والمحاسبة مع الزبون أو العميلة لديها.',
       links: [
@@ -132,12 +148,14 @@ export const STORE_PRODUCT_BENEFITS_COPY = {
     },
     {
       titleAr: 'بطاقة حيّة',
+      iconSrc: '/images/store/benefits/family-live-card-icon.webp',
       bodyAr:
         'كاردي8 بطاقة مناسبة تُشارك برابط. أسعارها على صفحة العرض، مستقلة عن رخصة النفاذ وعن قاعات المناسبة.',
       links: [{ labelAr: 'كاردي8', to: ROUTE_PATHS.STORE_INVITES, external: false }],
     },
   ],
   notTitleAr: 'ما ليست عليه هذه المنتجات',
+  notIconSrc: '/images/store/benefits/not-what-these-are-icon.webp',
   notPoints: [
     'ليست بيع جهاز أو ترخيصاً صندوقياً يُنقل إلى خادمك الخاص.',
     'ليست وساطة حجز ولا عمولة على قصة أو وجبة أو تهنئة.',
@@ -147,6 +165,7 @@ export const STORE_PRODUCT_BENEFITS_COPY = {
     'ليست تعاقداً نيابة عن منشأتك مع زوارك، ولا تشغيلاً للصالون أو المطعم أو المقهى نيابة عنك.',
   ],
   legalTitleAr: 'ما الذي يخوّل المتجر تقديمها',
+  legalIconSrc: '/images/store/benefits/legal-authorization-icon.webp',
   legalLeadAr:
     'البيع هنا بيع تجزئة لبرمجيات جاهزة وخدمات استضافة مرتبطة بها، لا بيع معدات. الأنشطة الظاهرة والتحقق العلني في من نحن والتوثيق والتحقق.',
   legalPoints: [

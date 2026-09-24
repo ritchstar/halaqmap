@@ -32,7 +32,18 @@ export default function StoreProductBenefitsPage() {
           </header>
 
           <section className="mt-10 rounded-2xl border border-white/12 bg-[#0b1a24]/80 p-5 md:p-7">
-            <h2 className="text-2xl font-extrabold text-[#f4efe4]">{copy.whatTitleAr}</h2>
+            <div className="flex items-center gap-3">
+              <img
+                src={copy.whatIconSrc}
+                alt=""
+                width={44}
+                height={44}
+                loading="lazy"
+                decoding="async"
+                className="h-11 w-11 flex-shrink-0 object-contain"
+              />
+              <h2 className="text-2xl font-extrabold text-[#f4efe4]">{copy.whatTitleAr}</h2>
+            </div>
             <p className="mt-3 text-sm leading-7 text-white/78 md:text-base md:leading-8">{copy.whatBodyAr}</p>
             <p className="mt-3 text-sm leading-7 text-white/70 md:text-base">
               {copy.markBeforeAr}
@@ -51,7 +62,18 @@ export default function StoreProductBenefitsPage() {
                   key={item.titleAr}
                   className="rounded-xl border border-white/10 bg-[#0b1a24]/70 px-4 py-4"
                 >
-                  <p className="font-extrabold text-[#e8c547]">{item.titleAr}</p>
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={item.iconSrc}
+                      alt=""
+                      width={36}
+                      height={36}
+                      loading="lazy"
+                      decoding="async"
+                      className="h-9 w-9 flex-shrink-0 object-contain"
+                    />
+                    <p className="font-extrabold text-[#e8c547]">{item.titleAr}</p>
+                  </div>
                   <p className="mt-2 text-sm leading-7 text-white/75">{item.bodyAr}</p>
                 </li>
               ))}
@@ -73,7 +95,18 @@ export default function StoreProductBenefitsPage() {
                   key={step.titleAr}
                   className="rounded-xl border border-white/10 bg-[#061018]/70 px-4 py-3"
                 >
-                  <p className="font-extrabold text-[#f4efe4]">{step.titleAr}</p>
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={step.iconSrc}
+                      alt=""
+                      width={36}
+                      height={36}
+                      loading="lazy"
+                      decoding="async"
+                      className="h-9 w-9 flex-shrink-0 object-contain"
+                    />
+                    <p className="font-extrabold text-[#f4efe4]">{step.titleAr}</p>
+                  </div>
                   <p className="mt-1 text-sm leading-7 text-white/72">{step.bodyAr}</p>
                 </li>
               ))}
@@ -89,7 +122,18 @@ export default function StoreProductBenefitsPage() {
                   key={family.titleAr}
                   className="rounded-xl border border-white/10 bg-[#0b1a24]/70 px-4 py-4"
                 >
-                  <p className="font-extrabold text-[#e8c547]">{family.titleAr}</p>
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={family.iconSrc}
+                      alt=""
+                      width={36}
+                      height={36}
+                      loading="lazy"
+                      decoding="async"
+                      className="h-9 w-9 flex-shrink-0 object-contain"
+                    />
+                    <p className="font-extrabold text-[#e8c547]">{family.titleAr}</p>
+                  </div>
                   <p className="mt-2 text-sm leading-7 text-white/72">{family.bodyAr}</p>
                   <div className="mt-3 flex flex-wrap gap-2">
                     {family.links.map((item) =>
@@ -118,7 +162,18 @@ export default function StoreProductBenefitsPage() {
           </section>
 
           <section className="mt-10 rounded-2xl border border-white/12 bg-[#0b1a24]/70 p-5 md:p-6">
-            <h2 className="text-2xl font-extrabold text-[#f4efe4]">{copy.notTitleAr}</h2>
+            <div className="flex items-center gap-3">
+              <img
+                src={copy.notIconSrc}
+                alt=""
+                width={40}
+                height={40}
+                loading="lazy"
+                decoding="async"
+                className="h-10 w-10 flex-shrink-0 object-contain"
+              />
+              <h2 className="text-2xl font-extrabold text-[#f4efe4]">{copy.notTitleAr}</h2>
+            </div>
             <ul className="mt-3 space-y-2">
               {copy.notPoints.map((point) => (
                 <li key={point} className="text-sm leading-7 text-white/70 md:text-base">
@@ -129,7 +184,18 @@ export default function StoreProductBenefitsPage() {
           </section>
 
           <section className="mt-8 rounded-2xl border border-[#e8c547]/25 bg-[#0b1a24]/80 p-5 md:p-6">
-            <h2 className="text-2xl font-extrabold text-[#f4efe4]">{copy.legalTitleAr}</h2>
+            <div className="flex items-center gap-3">
+              <img
+                src={copy.legalIconSrc}
+                alt=""
+                width={40}
+                height={40}
+                loading="lazy"
+                decoding="async"
+                className="h-10 w-10 flex-shrink-0 object-contain"
+              />
+              <h2 className="text-2xl font-extrabold text-[#f4efe4]">{copy.legalTitleAr}</h2>
+            </div>
             <p className="mt-3 text-sm leading-7 text-white/75 md:text-base">{copy.legalLeadAr}</p>
             <ul className="mt-4 space-y-2">
               {copy.legalPoints.map((point) => (
