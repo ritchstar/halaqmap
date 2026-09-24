@@ -97,8 +97,10 @@ function faqHtml(faq) {
 
 function heroImageHtml(heroImage) {
   if (!heroImage) return '';
+  const width = heroImage.width ?? 640;
+  const height = heroImage.height ?? 349;
   return `<aside class="hero-image">
-        <img src="${escapeHtml(heroImage.src)}" alt="${escapeHtml(heroImage.alt)}" width="640" height="349" loading="eager" decoding="async" />
+        <img src="${escapeHtml(heroImage.src)}" alt="${escapeHtml(heroImage.alt)}" width="${width}" height="${height}" loading="eager" decoding="async" />
       </aside>`;
 }
 

@@ -21,6 +21,12 @@ export const STORE_INTENT_PAGES = [
     slug: 'wedding-invite-digital',
     product: 'افراحي1',
     h1: 'دعوة زفاف رقمية تفتح إلى قاعة حفل حيّة',
+    heroImage: {
+      src: '/images/store/need/wedding-invite-digital-hero.webp',
+      alt: 'رسم تعبيري لكشك دعوات زفاف بأسلوب رملي وفيروزي مع مغلفات دعوة طائرة واسم افراحي1 على لافتة المشهد',
+      width: 1200,
+      height: 896,
+    },
     title: 'دعوة زفاف رقمية تفتح إلى قاعة حفل حيّة | خريطة الحل',
     description:
       'أنشئ دعوة زفاف رقمية تعرض الأسماء والموعد والمكان والصور والتهاني عبر رابط خاص، مع تحديث التفاصيل دون إعادة طباعة. اقرأ تفاصيل افراحي1.',
@@ -52,6 +58,12 @@ export const STORE_INTENT_PAGES = [
     slug: 'event-invite-interactive',
     product: 'اجواء1',
     h1: 'دعوة تفاعلية لمناسبتك باسمها وأجوائها الخاصة',
+    heroImage: {
+      src: '/images/store/need/event-invite-interactive-hero.webp',
+      alt: 'رسم تعبيري لجناح مناسبة احتفالي بزينة وبطاقات RSVP واسم اجواء1 على لافتة المشهد',
+      width: 1200,
+      height: 896,
+    },
     title: 'دعوة تفاعلية لمناسبتك | اجواء1 · خريطة الحل',
     description:
       'قدّم مناسبتك الحرة في دعوة رقمية تفاعلية تحمل اسم الحدث وصوره وتهاني الضيوف، عبر رابط تديره وتشاركه بنفسك دون طباعة.',
@@ -83,6 +95,12 @@ export const STORE_INTENT_PAGES = [
     slug: 'neighborhood-grocery-orders',
     product: 'تمويناتا1',
     h1: 'طلبات تموينات الحي من الجوال في مسار واضح',
+    heroImage: {
+      src: '/images/store/need/neighborhood-grocery-orders-hero.webp',
+      alt: 'رسم تعبيري لكشك بقالة بمظلة مخططة وأكياس تسوق واسم تمويناتا1 على لافتة المشهد',
+      width: 1200,
+      height: 896,
+    },
     title: 'طلبات تموينات الحي من الجوال | تمويناتا1',
     description:
       'نظّم طلبات تموينات الحي عبر صفحة جوال وبنك سلع ولوحة كاشير ومذكرة توصيل، دون تطبيق للزبون أو عمولة على قيمة السلة.',
@@ -114,6 +132,12 @@ export const STORE_INTENT_PAGES = [
     slug: 'restaurant-menu-ordering',
     product: 'مطعمنا1',
     h1: 'قائمة مطعم رقمية وطلبات مرتبة لضيف الحي',
+    heroImage: {
+      src: '/images/store/need/restaurant-menu-ordering-hero.webp',
+      alt: 'رسم تعبيري لعربة طعام خشبية بلوحة قائمة معلّقة واسم مطعمنا1 مكتوب عليها',
+      width: 1200,
+      height: 896,
+    },
     title: 'قائمة مطعم رقمية وطلبات الحي | مطعمنا1',
     description:
       'اعرض وجبات مطعم الحي عبر قائمة جوال ورمز QR، واستقبل الطلب في لوحة الكاشير والمطبخ، بلا عمولة على قيمة الطلب.',
@@ -145,6 +169,12 @@ export const STORE_INTENT_PAGES = [
     slug: 'cafe-neighborhood-screens',
     product: 'كافينا1',
     h1: 'طلبات المقهى وشاشاته في تجربة رقمية واحدة',
+    heroImage: {
+      src: '/images/store/need/cafe-neighborhood-screens-hero.webp',
+      alt: 'رسم تعبيري لكشك مقهى بشاشة قائمة معلّقة واسم كافينا1 على لافتة المشهد',
+      width: 1200,
+      height: 896,
+    },
     title: 'طلبات المقهى وشاشات داخل المحل | كافينا1',
     description:
       'اجمع صفحة مشروبات المقهى وطلبات الجوال ولوحة الكاشير وثلاث شاشات داخل المحل، بلا عمولة على قيمة الطلبات.',
@@ -211,6 +241,12 @@ export const STORE_INTENT_PAGES = [
     slug: 'produce-delivery-neighborhood',
     product: 'خضارنا1',
     h1: 'خضار وفواكه الحي بأسعار اليوم على الجوال',
+    heroImage: {
+      src: '/images/store/need/produce-delivery-neighborhood-hero.webp',
+      alt: 'رسم تعبيري لسلال خضار وفواكه بين أقواس ودبابيس مواقع واسم خضارنا1 على لافتة المشهد',
+      width: 1200,
+      height: 896,
+    },
     title: 'خضار وفواكه الحي على الجوال | خضارنا1',
     description:
       'اعرض ما وصل اليوم وأسعار الخضار والفواكه بالحبة أو الكيلو، واستقبل طلبات الحي في لوحة تشغيل بلا عمولة على السلة.',
@@ -242,6 +278,12 @@ export const STORE_INTENT_PAGES = [
     slug: 'custom-sweets-portfolio',
     product: 'حلانا1',
     h1: 'معرض حلويات خاصة وطلب مخصص من مكان واحد',
+    heroImage: {
+      src: '/images/store/need/custom-sweets-portfolio-hero.webp',
+      alt: 'رسم تعبيري لبرج عرض حلويات مدرّج بألوان رملية وفيروزية واسم حلانا1 على لافتة المشهد',
+      width: 1200,
+      height: 896,
+    },
     title: 'معرض حلويات وطلب مخصص | حلانا1',
     description:
       'اعرضي أعمال الحلويات الخاصة واجمعي تفاصيل المناسبة، ثم راجعي السعر والعربون يدوياً من لوحة واحدة.',
@@ -273,6 +315,12 @@ export const STORE_INTENT_PAGES = [
     slug: 'lounge-event-screens',
     product: 'لاونجا1',
     h1: 'شاشات لاونج تفاعلية لإدارة فعاليات الزوار',
+    heroImage: {
+      src: '/images/store/need/lounge-event-screens-hero.webp',
+      alt: 'رسم تعبيري لركن لاونج بشاشات ترحيب معلّقة واسم لاونجا1 على لافتة المشهد',
+      width: 1200,
+      height: 896,
+    },
     title: 'شاشات لاونج تفاعلية | لاونجا1',
     description:
       'شغّل فعاليات وترحيبات الزوار على شاشات اللاونج، واستقبل المشاركات عبر رابط أو QR مع تحكم المضيف في العرض.',
@@ -304,6 +352,12 @@ export const STORE_INTENT_PAGES = [
     slug: 'digital-invite-card',
     product: 'كاردي8',
     h1: 'بطاقة مناسبة رقمية جاهزة للمشاركة',
+    heroImage: {
+      src: '/images/store/need/digital-invite-card-hero.webp',
+      alt: 'رسم تعبيري لمروحة بطاقات دعوة رقمية بألوان رملية وفيروزية واسم كاردي8 على إحدى البطاقات',
+      width: 1200,
+      height: 896,
+    },
     title: 'بطاقة مناسبة رقمية | كاردي8',
     description:
       'صمّم بطاقة مناسبة رقمية بمعاينة مجانية وثلاثة مستويات (12/29/59 ر.س) ورابط مشاركة وصورة عالية الجودة.',
@@ -335,6 +389,12 @@ export const STORE_INTENT_PAGES = [
     slug: 'barbershop-visibility',
     product: 'حلاق ماب',
     h1: 'اجعل صالونك ظاهراً عند بحث العميل القريب',
+    heroImage: {
+      src: '/images/store/need/barbershop-visibility-hero.webp',
+      alt: 'رسم تعبيري لواجهة محل حلاقة بطراز تراثي ودبابيس مواقع محيطة واسم حلاق ماب على لافتة المحل',
+      width: 1200,
+      height: 896,
+    },
     title: 'ظهور صالون الحلاقة للباحث القريب | حلاق ماب',
     description:
       'فعّل حضور صالون الحلاقة في حلاق ماب ليظهر عند تطابق الموقع والبحث، مع بطاقة خدمات وتواصل مباشر بلا عمولة على الخدمة.',
@@ -366,6 +426,12 @@ export const STORE_INTENT_PAGES = [
     slug: 'salon-women-visibility',
     product: 'كوافير ماب',
     h1: 'حضور رقمي للصالون النسائي أمام الباحثات',
+    heroImage: {
+      src: '/images/store/need/salon-women-visibility-hero.webp',
+      alt: 'رسم تعبيري لواجهة صالون نسائي بطراز تراثي وأيقونات مواعيد وموقع واسم كوافير ماب على لافتة الصالون',
+      width: 1200,
+      height: 896,
+    },
     title: 'حضور رقمي للصالون النسائي | كوافير ماب',
     description:
       'جهّزي حضور الصالون النسائي بصفحة واضحة للخدمات والموقع وأوقات العمل والتواصل، دون وعود بحجوزات مضمونة.',

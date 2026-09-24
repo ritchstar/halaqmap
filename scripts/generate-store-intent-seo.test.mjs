@@ -106,6 +106,31 @@ assert.match(cafeProgramNoHeroHtml, /<div class="wrap">/);
 assert.doesNotMatch(cafeProgramNoHeroHtml, /<div class="wrap wrap-hero">/);
 assert.doesNotMatch(cafeProgramNoHeroHtml, /<aside class="hero-image">/);
 
+// ── صور بارزة أعلى-يمين للصفحات الاثنتي عشرة المتبقية (رسومات chatlyai، أُضيفت 2026-09-24) ──
+// الاسم داخل كل صورة مطبوع فعلياً في مشهد الرسمة (وليس فوقها)، لذا width/height الحقيقية
+// (1200×896) تحل محل الافتراضي 640×349 المصمَّم لصورة طبختنا1 الفوتوغرافية وحدها.
+const heroSlugsChatlyai = [
+  'wedding-invite-digital',
+  'event-invite-interactive',
+  'neighborhood-grocery-orders',
+  'restaurant-menu-ordering',
+  'cafe-neighborhood-screens',
+  'produce-delivery-neighborhood',
+  'custom-sweets-portfolio',
+  'lounge-event-screens',
+  'digital-invite-card',
+  'barbershop-visibility',
+  'salon-women-visibility',
+];
+for (const slug of heroSlugsChatlyai) {
+  const page = STORE_INTENT_PAGES.find((p) => p.slug === slug);
+  assert.ok(page, `صفحة ${slug} يجب أن تكون موجودة`);
+  const html = renderStoreIntentPage(page);
+  assert.match(html, /<div class="wrap wrap-hero">/, `${slug}: يجب أن يظهر wrap-hero`);
+  assert.match(html, new RegExp(`/images/store/need/${slug}-hero\\.webp`), `${slug}: مسار الصورة الصحيح`);
+  assert.match(html, /width="1200" height="896"/, `${slug}: أبعاد الصورة الحقيقية`);
+}
+
 const sitemap = buildStoreIntentSitemapXml();
 assert.match(sitemap, /need\/store<\/loc>/);
 assert.match(sitemap, /need\/wedding-invite-digital<\/loc>/);
