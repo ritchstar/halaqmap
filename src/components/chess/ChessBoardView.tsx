@@ -2,11 +2,17 @@
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
  * رقعة الشطرنج التفاعلية — اضغط لتحديد قطعة ثم اضغط على مربّع الوجهة.
- * بلا مكتبة رقعة خارجية: شبكة 8×8 برموز يونيكود، فقط chess.js للقواعد.
- * تتضمن إحداثيات الملفات/الرتب وتظليل آخر نقلة.
+ * بلا مكتبة رقعة خارجية: شبكة 8×8 بأيقونات SVG أصلية (ChessPieceIcon)،
+ * فقط chess.js للقواعد. تتضمن إحداثيات الملفات/الرتب وتظليل آخر نقلة.
+ *
+ * ملاحظة: كانت القطع تُرسم سابقاً برموز يونيكود (♔♛♞...)، لكن بعض
+ * المنصات (تحديداً iOS) تعرض رمز الجندي بخط إيموجي أسود ثابت يتجاهل
+ * لون النص، فتظهر القطعة بالأسود بصرف النظر عن الفريق. الحل: أيقونات
+ * SVG بـ fill="currentColor" مع وهج (drop-shadow) بلون كل فريق.
  */
 import { useMemo, useState } from 'react';
 import type { Chess } from 'chess.js';
+import { ChessPieceIcon, type ChessPieceType } from '@/components/chess/ChessPieceIcon';
 
 interface EngineBoardSquare {
   type: string;
@@ -19,19 +25,14 @@ interface EngineMove {
   promotion?: string;
 }
 
-const PIECE_GLYPHS: Record<string, string> = {
-  wk: '♔',
-  wq: '♕',
-  wr: '♖',
-  wb: '♗',
-  wn: '♘',
-  wp: '♙',
-  bk: '♚',
-  bq: '♛',
-  br: '♜',
-  bb: '♝',
-  bn: '♞',
-  bp: '♟',
+/**
+ * لون ووهج كل فريق — درجتان فاتحتان مختلفتان ومشعتان (لا أبيض/أسود
+ * مسطّحان)، تركواز فاتح للأبيض وذهبي فاتح للأسود، عبر فلتر drop-shadow
+ * مزدوج: ظل تماسّ داكن خفيف لوضوح الحواف، ثم وهج ملوّن بلون الفريق.
+ */
+const TEAM_ICON_CLASS: Record<'w' | 'b', string> = {
+  w: 'text-[#5eead4] [filter:drop-shadow(0_1px_1px_rgba(0,0,0,0.55))_drop-shadow(0_0_6px_rgba(94,234,212,0.9))_drop-shadow(0_0_2px_rgba(94,234,212,0.9))]',
+  b: 'text-[#fbbf24] [filter:drop-shadow(0_1px_1px_rgba(0,0,0,0.55))_drop-shadow(0_0_6px_rgba(251,191,36,0.9))_drop-shadow(0_0_2px_rgba(251,191,36,0.9))]',
 };
 
 const FILES = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
@@ -125,7 +126,6 @@ export function ChessBoardView({ chess, playerColor, interactive, lastMove, hint
                 const isTarget = legalTargets.has(square);
                 const isLastMoveSquare = lastMove && (lastMove.from === square || lastMove.to === square);
                 const isHintSquare = hintMove && (hintMove.from === square || hintMove.to === square);
-                const glyph = piece ? PIECE_GLYPHS[`${piece.color}${piece.type}`] : '';
 
                 return (
                   <button
@@ -135,7 +135,7 @@ export function ChessBoardView({ chess, playerColor, interactive, lastMove, hint
                     disabled={!interactive}
                     aria-label={square}
                     className={[
-                      'relative flex aspect-square select-none items-center justify-center text-2xl leading-none transition-colors duration-200 sm:text-3xl',
+                      'relative flex aspect-square select-none items-center justify-center leading-none transition-colors duration-200',
                       isDark ? 'bg-[#0e262d]' : 'bg-[#15343c]',
                       isSelected ? 'ring-2 ring-inset ring-[#d8ac52]' : '',
                       interactive ? 'cursor-pointer' : 'cursor-default',
@@ -147,15 +147,12 @@ export function ChessBoardView({ chess, playerColor, interactive, lastMove, hint
                     {isHintSquare && (
                       <span className="pointer-events-none absolute inset-0.5 z-10 rounded-[3px] border-2 border-dashed border-[#00d6c8]" />
                     )}
-                    <span
-                      aria-hidden="true"
-                      className={[
-                        'relative z-10 select-none leading-none drop-shadow-[0_2px_2px_rgba(0,0,0,0.5)]',
-                        piece?.color === 'b' ? 'text-[#d8ac52]' : 'text-[#eef7f5]',
-                      ].join(' ')}
-                    >
-                      {glyph}
-                    </span>
+                    {piece && (
+                      <ChessPieceIcon
+                        type={piece.type as ChessPieceType}
+                        className={['relative z-10 h-[68%] w-[68%] select-none', TEAM_ICON_CLASS[piece.color]].join(' ')}
+                      />
+                    )}
                     {isTarget && !piece && (
                       <span className="pointer-events-none absolute z-10 h-3 w-3 rounded-full bg-[#00d6c8]/85 shadow-[0_0_14px_rgba(0,214,200,0.85)] sm:h-3.5 sm:w-3.5" />
                     )}
@@ -186,14 +183,14 @@ export function ChessBoardView({ chess, playerColor, interactive, lastMove, hint
           <div dir="rtl" className="rounded-2xl border border-[#1f4a52] bg-[#0b1f26] p-4 text-center shadow-2xl">
             <p className="mb-3 text-sm font-bold text-[#e7f4f2]">اختر الترقية</p>
             <div className="flex gap-2">
-              {['q', 'r', 'b', 'n'].map((p) => (
+              {(['q', 'r', 'b', 'n'] as ChessPieceType[]).map((p) => (
                 <button
                   key={p}
                   type="button"
                   onClick={() => handlePromotionPick(p)}
-                  className="flex h-12 w-12 items-center justify-center rounded-lg border border-[#296269]/60 bg-[#0e262d] text-2xl text-[#eef7f5] transition-colors hover:border-[#d8ac52]/60 hover:bg-[#15343c]"
+                  className="flex h-12 w-12 items-center justify-center rounded-lg border border-[#296269]/60 bg-[#0e262d] transition-colors hover:border-[#d8ac52]/60 hover:bg-[#15343c]"
                 >
-                  <span aria-hidden="true">{PIECE_GLYPHS[`${playerColor}${p}`]}</span>
+                  <ChessPieceIcon type={p} className={['h-8 w-8', TEAM_ICON_CLASS[playerColor]].join(' ')} />
                 </button>
               ))}
             </div>
