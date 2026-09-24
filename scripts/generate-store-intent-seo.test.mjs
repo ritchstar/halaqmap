@@ -92,6 +92,20 @@ assert.match(datesGiftsHtml, /meta name="robots" content="index, follow"/);
 assert.match(datesGiftsHtml, /https:\/\/store\.halaqmap\.com\/store\/dates\/read/);
 assert.doesNotMatch(datesGiftsHtml, /متجر تمر إلكتروني بمزاد علني لصناديق الموسم/);
 
+// ── صورة بارزة أعلى-يمين لصفحة "طلبات الأكل المنزلي" فقط (أُضيفت 2026-09-24) ──
+const homeFoodOrders = STORE_INTENT_PAGES.find((p) => p.slug === 'home-food-orders');
+const homeFoodOrdersHtml = renderStoreIntentPage(homeFoodOrders);
+assert.match(homeFoodOrdersHtml, /<div class="wrap wrap-hero">/);
+assert.match(homeFoodOrdersHtml, /<aside class="hero-image">/);
+assert.match(homeFoodOrdersHtml, /\/images\/store\/kitchen\/home-food-orders-hero\.jpg/);
+// حقل heroImage اختياري — صفحة لا تملكه يجب أن تبقى بجسم <div class="wrap"> العادي
+// بلا وسم <aside class="hero-image"> (قاعدة CSS غير المستخدمة تبقى في <style> بلا ضرر)
+const cafeProgramNoHero = STORE_INTENT_PAGES.find((p) => p.slug === 'cafe-management-program');
+const cafeProgramNoHeroHtml = renderStoreIntentPage(cafeProgramNoHero);
+assert.match(cafeProgramNoHeroHtml, /<div class="wrap">/);
+assert.doesNotMatch(cafeProgramNoHeroHtml, /<div class="wrap wrap-hero">/);
+assert.doesNotMatch(cafeProgramNoHeroHtml, /<aside class="hero-image">/);
+
 const sitemap = buildStoreIntentSitemapXml();
 assert.match(sitemap, /need\/store<\/loc>/);
 assert.match(sitemap, /need\/wedding-invite-digital<\/loc>/);

@@ -95,6 +95,13 @@ function faqHtml(faq) {
     </section>`;
 }
 
+function heroImageHtml(heroImage) {
+  if (!heroImage) return '';
+  return `<aside class="hero-image">
+        <img src="${escapeHtml(heroImage.src)}" alt="${escapeHtml(heroImage.alt)}" width="640" height="349" loading="eager" decoding="async" />
+      </aside>`;
+}
+
 export function renderStoreIntentPage(page, { distRoot } = {}) {
   const path = `/need/${page.slug}`;
   const canonical = `${STORE_INTENT_ORIGIN}${path}`;
@@ -161,10 +168,24 @@ export function renderStoreIntentPage(page, { distRoot } = {}) {
     h1: page.h1,
     bodyInner,
     jsonLd,
+    heroImage: page.heroImage,
   });
 }
 
-function htmlShell({ title, description, keywords, canonical, robots, h1, bodyInner, jsonLd }) {
+function htmlShell({ title, description, keywords, canonical, robots, h1, bodyInner, jsonLd, heroImage }) {
+  const hasHero = Boolean(heroImage);
+  const wrapClass = hasHero ? 'wrap wrap-hero' : 'wrap';
+  const mainInner = `${storeHeaderHtml()}
+    <main>
+      <h1>${escapeHtml(h1)}</h1>
+      ${bodyInner}
+    </main>
+    <footer>
+      <p>خريطة الحل — شريك تقني. تفاصيل الأسعار والباقات في صفحة المنتج المرتبطة أعلاه.</p>
+    </footer>`;
+  const wrapInner = hasHero
+    ? `${heroImageHtml(heroImage)}\n    <div class="hero-main-col">\n${mainInner}\n    </div>`
+    : mainInner;
   return `<!DOCTYPE html>
 <html lang="ar-SA" dir="rtl">
 <head>
@@ -208,19 +229,21 @@ ${brandPageTypeCss('linear-gradient(180deg,#120a04,#1a1208 55%,#0c0804)')}
     .grid a { display:block; padding:.85rem 1rem; border:1px solid var(--line); border-radius:12px; background:var(--card); color:var(--text); text-decoration:none; }
     .grid a strong { color:#fde68a; }
     footer { margin-top:2.5rem; padding-top:1rem; border-top:1px solid var(--line); color:var(--muted); font-size:.85rem; }
+    .wrap-hero { max-width: 68rem; }
+    .hero-image img { width:100%; height:auto; display:block; border-radius:18px; border:1px solid var(--line); box-shadow:0 20px 45px rgba(0,0,0,.35); }
+    @media (max-width: 859px) {
+      .hero-image { max-width: 420px; margin: 0 auto 1.25rem; }
+    }
+    @media (min-width: 860px) {
+      .wrap-hero { display:grid; grid-template-columns: 22rem 1fr; gap:2rem; align-items:start; }
+      .wrap-hero .hero-image { position:sticky; top:1.5rem; }
+    }
   </style>
 ${fazaaMeasurementTagHtml({ snapViewContent: true })}
 </head>
 <body>
-  <div class="wrap">
-${storeHeaderHtml()}
-    <main>
-      <h1>${escapeHtml(h1)}</h1>
-      ${bodyInner}
-    </main>
-    <footer>
-      <p>خريطة الحل — شريك تقني. تفاصيل الأسعار والباقات في صفحة المنتج المرتبطة أعلاه.</p>
-    </footer>
+  <div class="${wrapClass}">
+${wrapInner}
   </div>
 </body>
 </html>`;
