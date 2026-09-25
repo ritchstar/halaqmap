@@ -1,0 +1,53 @@
+{
+  "packageId": "com.halaqmap.chess",
+  "host": "www.halaqmap.com",
+  "name": "حلاق ماب — شطرنج",
+  "launcherName": "شطرنج ماب",
+  "display": "standalone",
+  "themeColor": "#D8AC52",
+  "themeColorDark": "#0A1F26",
+  "navigationColor": "#05141A",
+  "navigationColorDark": "#05141A",
+  "navigationDividerColor": "#000000",
+  "navigationDividerColorDark": "#000000",
+  "backgroundColor": "#05141A",
+  "enableNotifications": false,
+  "startUrl": "/#/chess",
+  "iconUrl": "https://www.halaqmap.com/images/chess/chess-app-icon-512.png",
+  "maskableIconUrl": "https://www.halaqmap.com/images/chess/chess-app-icon-512-maskable.png",
+  "splashScreenFadeOutDuration": 300,
+  "signingKey": {
+    "path": "./android.keystore",
+    "alias": "halaqmap-chess-key"
+  },
+  "appVersionName": "1.0.0",
+  "appVersionCode": 1,
+  "shortcuts": [],
+  "generatorApp": "bubblewrap-cli",
+  "webManifestUrl": "https://www.halaqmap.com/manifest-chess.json",
+  "fallbackType": "customtabs",
+  "features": {
+    "playBilling": {
+      "enabled": false
+    }
+  },
+  "alphaDependencies": {
+    "enabled": false
+  },
+  "enableSiteSettingsShortcut": true,
+  "isChromeOSOnly": false,
+  "isMetaQuest": false,
+  "fullScopeUrl": "https://www.halaqmap.com/",
+  "minSdkVersion": 21,
+  "orientation": "portrait",
+  "fingerprints": [
+    {
+      "value": "76:1C:9C:D3:AB:7D:F1:04:20:56:4E:F4:3C:18:0B:34:0F:58:F4:4F:87:99:16:CE:DF:E8:98:05:3E:7A:A7:B3"
+    }
+  ],
+  "additionalTrustedOrigins": [],
+  "retainedBundles": [],
+  "protocolHandlers": [],
+  "displayOverride": [],
+  "appVersion": "1.0.0"
+}

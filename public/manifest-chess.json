@@ -1,0 +1,36 @@
+{
+  "name": "حلاق ماب — شطرنج",
+  "short_name": "شطرنج ماب",
+  "description": "العب الشطرنج ضد الذكاء الاصطناعي (محرك Stockfish الحقيقي) بثلاث مستويات صعوبة — بلا حساب، وبجلسة محفوظة تلقائياً.",
+  "start_url": "/#/chess",
+  "scope": "/",
+  "id": "/chess-app",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "portrait-primary",
+  "background_color": "#05141A",
+  "theme_color": "#D8AC52",
+  "lang": "ar",
+  "dir": "rtl",
+  "categories": ["games", "entertainment"],
+  "icons": [
+    {
+      "src": "/images/chess/chess-app-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/images/chess/chess-app-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/images/chess/chess-app-icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

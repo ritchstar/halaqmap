@@ -18,5 +18,15 @@
         "2B:CF:4F:45:F3:7C:40:BF:83:EF:E0:D4:19:AA:82:18:83:1A:B1:D5:4E:0F:45:B8:B9:72:D5:36:51:32:A4:87"
       ]
     }
+  },
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.halaqmap.chess",
+      "sha256_cert_fingerprints": [
+        "76:1C:9C:D3:AB:7D:F1:04:20:56:4E:F4:3C:18:0B:34:0F:58:F4:4F:87:99:16:CE:DF:E8:98:05:3E:7A:A7:B3"
+      ]
+    }
   }
 ]

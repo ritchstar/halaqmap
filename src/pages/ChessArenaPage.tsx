@@ -106,9 +106,30 @@ function formatThinkBudget(ms: number): string {
   return `${(ms / 1000).toFixed(2)} ث`;
 }
 
+const CHESS_MANIFEST_HREF = '/manifest-chess.json';
+
 export default function ChessArenaPage() {
   useDocumentTitle(CHESS_ARENA_COPY.documentTitle);
   const navigate = useNavigate();
+
+  /* غلاف أندرويد TWA (android-chess-twa) يفتح على هذا المسار مباشرة — نفس
+     نمط تبديل المانيفست المستخدم في PartnerAppInstall لتطبيق الصالون: نحوّل
+     link[rel=manifest] لمانيفست الشطرنج المخصّص أثناء وجود الزائر في هذه
+     الصفحة فقط، ونعيده عند المغادرة حتى لا يتأثر تثبيت الموقع الرئيسي. */
+  useEffect(() => {
+    const existing = document.querySelector('link[rel="manifest"]') as HTMLLinkElement | null;
+    const prevHref = existing?.href || '/manifest.json';
+    let link = existing;
+    if (!link) {
+      link = document.createElement('link');
+      link.rel = 'manifest';
+      document.head.appendChild(link);
+    }
+    link.href = CHESS_MANIFEST_HREF;
+    return () => {
+      if (link) link.href = prevHref.includes('manifest-chess') ? '/manifest.json' : prevHref;
+    };
+  }, []);
 
   const [view, setView] = useState<ChessArenaView>('landing');
   const [pendingLevel, setPendingLevel] = useState<ChessDifficultyId | null>(null);

@@ -128,6 +128,12 @@ android-operators-twa/android-keys.env
 android-operators-twa/android-keys.env.txt
 android-operators-twa/passwords.txt
 android-operators-twa/local.properties
+android-chess-twa/android.keystore
+android-chess-twa/*.keystore
+android-chess-twa/android-keys.env
+android-chess-twa/android-keys.env.txt
+android-chess-twa/passwords.txt
+android-chess-twa/local.properties
 
 # --- Android TWA build artifacts ---
 android-partner-twa/.gradle/
@@ -138,6 +144,10 @@ android-operators-twa/.gradle/
 android-operators-twa/**/build/
 android-operators-twa/*.apk
 android-operators-twa/*.aab
+android-chess-twa/.gradle/
+android-chess-twa/**/build/
+android-chess-twa/*.apk
+android-chess-twa/*.aab
 play-store/delivery/*.aab
 play-store/delivery/*.apk
 android-partner-twa/*.idsig
@@ -146,6 +156,9 @@ android-partner-twa/app/src/main/res/raw/
 android-operators-twa/*.idsig
 android-operators-twa/manifest-checksum.txt
 android-operators-twa/app/src/main/res/raw/
+android-chess-twa/*.idsig
+android-chess-twa/manifest-checksum.txt
+android-chess-twa/app/src/main/res/raw/
 
 # --- iOS Capacitor consumer shell ---
 ios/App/Pods/
