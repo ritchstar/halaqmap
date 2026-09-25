@@ -274,6 +274,15 @@ export default function PartnerMarketingCommitmentsPage() {
             >
               <div className="flex flex-col gap-6 border-r-4 border-teal-400/70 p-6 md:flex-row md:p-8">
                 <div className="flex shrink-0 flex-col items-start gap-3 md:w-36">
+                  {pillar.image ? (
+                    <img
+                      src={pillar.image}
+                      alt=""
+                      className="h-24 w-24 rounded-2xl border border-teal-400/25 bg-white/[0.03] object-contain p-2"
+                      loading="lazy"
+                      aria-hidden="true"
+                    />
+                  ) : null}
                   <span className="bg-gradient-to-b from-teal-200 to-cyan-400 bg-clip-text text-5xl font-black leading-none text-transparent md:text-6xl">
                     {pillar.numeral}
                   </span>
