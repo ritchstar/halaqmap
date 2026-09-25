@@ -1,7 +1,7 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  *
- * بطاقة منجز بحث قوقل — مسار الشركاء فقط.
+ * بطاقة منجز تغطية المدن والأحياء — مسار الشركاء فقط.
  */
 import { PARTNER_GOOGLE_SERP_PROOF as COPY } from '@/config/partnerGoogleSerpProof';
 
@@ -13,7 +13,7 @@ export function PartnerGoogleSerpProofCard({ tone = 'dark' }: Props) {
   const dark = tone === 'dark';
   return (
     <div
-      id="منجز-البحث"
+      id="تغطية-المدن"
       className={
         dark
           ? 'scroll-mt-28 overflow-hidden rounded-[1.75rem] border border-teal-400/35 bg-[#041018] shadow-[0_28px_70px_-30px_rgba(20,184,166,0.45)]'

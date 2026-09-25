@@ -24,7 +24,7 @@ export const PARTNER_MARKETING_PAGE = {
   ctaPrimary: 'سجّل صالونك الآن — دقيقتين',
   ctaSecondary: 'تحدث مع مكتب المبيعات',
   ctaTertiary: 'العودة لمسار الشركاء',
-  ctaProof: 'شاهد منجز البحث',
+  ctaProof: 'شاهد تغطية المدن والأحياء',
 } as const;
 
 export const PARTNER_MARKETING_ACTIVITIES = {

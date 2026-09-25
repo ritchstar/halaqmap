@@ -211,7 +211,7 @@ export default function PartnerMarketingCommitmentsPage() {
             </button>
             <button
               type="button"
-              onClick={() => scrollToSection('منجز-البحث')}
+              onClick={() => scrollToSection('تغطية-المدن')}
               className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/5 px-6 py-4 text-sm font-bold text-slate-100 hover:bg-white/10"
             >
               {PARTNER_MARKETING_PAGE.ctaProof}
