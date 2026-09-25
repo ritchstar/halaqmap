@@ -65,6 +65,15 @@ export const PARTNER_REGISTER_INTRO_PARAGRAPHS = [
   PLATFORM_GROWTH_REGISTER_INTRO_AR.replace(/\*\*/g, ''),
 ] as const;
 
+/**
+ * فقرات صفحة التسجيل بعد إزالة التكرار — سطر «بوابة الدفع لا تُعرض إلا بعد
+ * إكمال التعهدات» يظهر مرة واحدة فقط في الصندوق المُبرَز أسفل العنوان
+ * (payAfterCommitmentsLine)، فلا داعي لتكراره ضمن الفقرات التمهيدية.
+ */
+export const PARTNER_REGISTER_PAGE_INTRO_PARAGRAPHS = PARTNER_REGISTER_INTRO_PARAGRAPHS.filter(
+  (paragraph) => paragraph !== PARTNER_JOIN_PATH_REGISTER_PAY_AFTER_COMMITMENTS_AR,
+);
+
 /** رحلة الزبون — مواءمة Pitch Deck (شريحة 3) */
 export const PARTNER_REGISTER_CUSTOMER_JOURNEY_AR = [
   {
@@ -331,7 +340,7 @@ export const PARTNER_REGISTER_FAQ_SECTION = {
 
 export const PARTNER_REGISTER_PAGE = {
   title: 'سجّل صالونك في منصة حلاق ماب',
-  introParagraphs: PARTNER_REGISTER_INTRO_PARAGRAPHS,
+  introParagraphs: PARTNER_REGISTER_PAGE_INTRO_PARAGRAPHS,
   payAfterCommitmentsLine: PARTNER_JOIN_PATH_REGISTER_PAY_AFTER_COMMITMENTS_AR,
   customerJourneyTitle: 'ماذا يحدث لصالونك بعد التفعيل؟',
   customerJourneyLead: 'مسار بسيط — من الاستعلام إلى اتصالك أنت.',

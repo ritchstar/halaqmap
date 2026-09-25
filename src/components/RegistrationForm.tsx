@@ -583,12 +583,12 @@ export function RegistrationForm() {
   const handleNext = () => {
     // Validation for each step
     if (currentStep === 1 && !formData.tier) {
-      alert('يرجى اختيار باقة قبل المتابعة');
+      toast.error('يرجى اختيار باقة قبل المتابعة');
       return;
     }
     if (currentStep === 2) {
       if (!formData.shopName || !formData.email || !formData.phone || !formData.whatsapp) {
-        alert('يرجى تعبئة جميع الحقول المطلوبة');
+        toast.error('يرجى تعبئة جميع الحقول المطلوبة');
         return;
       }
       if (isCoiffeurSurface) {
@@ -597,87 +597,87 @@ export function RegistrationForm() {
           categories: formData.categories,
         });
         if (coiffeurCategories.length === 0) {
-          alert('يرجى اختيار نوع خدمة واحد على الأقل للمشغل النسائي');
+          toast.error('يرجى اختيار نوع خدمة واحد على الأقل للمشغل النسائي');
           return;
         }
       } else {
       if (formData.specialtyTrack === 'children' && formData.tier !== SubscriptionTier.DIAMOND) {
-        alert('مسار «متخصص أطفال» متاح للباقة الماسية فقط. اختر الماسي أو حدّد «تخصص عام».');
+        toast.error('مسار «متخصص أطفال» متاح للباقة الماسية فقط. اختر الماسي أو حدّد «تخصص عام».');
         return;
       }
       if (formData.specialtyTrack === 'mens_grooming_center') {
         if (formData.tier !== SubscriptionTier.DIAMOND || !formData.digitalShiftAddon) {
-          alert('مسار «مراكز العناية بالرجل» يتطلب الباقة الماسية مع إضافة المكتب الخاص.');
+          toast.error('مسار «مراكز العناية بالرجل» يتطلب الباقة الماسية مع إضافة المكتب الخاص.');
           return;
         }
         const bannerLines = formData.groomingCenterBannerLines.map((line) => line.trim()).filter(Boolean);
         if (bannerLines.length < 2) {
-          alert('أضف خدمتين على الأقل في بنر مركز العناية بالرجل — حلاقة رجالية وخدمة أخرى.');
+          toast.error('أضف خدمتين على الأقل في بنر مركز العناية بالرجل — حلاقة رجالية وخدمة أخرى.');
           return;
         }
         const hasHaircut = bannerLines.some(
           (line) => line === MENS_GROOMING_MANDATORY_HAIRCUT_AR || line.includes('حلاقة رجال'),
         );
         if (!hasHaircut) {
-          alert('يجب تضمين «حلاقة رجالي» ضمن خدمات البنر.');
+          toast.error('يجب تضمين «حلاقة رجالي» ضمن خدمات البنر.');
           return;
         }
       }
       if (formData.specialtyTrack === 'general' && formData.categories.length === 0) {
-        alert('يرجى اختيار نوع خدمة واحد على الأقل.');
+        toast.error('يرجى اختيار نوع خدمة واحد على الأقل.');
         return;
       }
       }
       // Email validation
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(formData.email)) {
-        alert('يرجى إدخال بريد إلكتروني صحيح');
+        toast.error('يرجى إدخال بريد إلكتروني صحيح');
         return;
       }
       // Phone validation (Saudi format)
       const phoneRegex = /^05\d{8}$/;
       if (!phoneRegex.test(formData.phone)) {
-        alert('يرجى إدخال رقم هاتف صحيح (يبدأ بـ 05 ويتكون من 10 أرقام)');
+        toast.error('يرجى إدخال رقم هاتف صحيح (يبدأ بـ 05 ويتكون من 10 أرقام)');
         return;
       }
       if (!phoneRegex.test(formData.whatsapp)) {
-        alert('يرجى إدخال رقم واتساب صحيح (يبدأ بـ 05 ويتكون من 10 أرقام)');
+        toast.error('يرجى إدخال رقم واتساب صحيح (يبدأ بـ 05 ويتكون من 10 أرقام)');
         return;
       }
       const normalizedTax = formData.taxNumber.replace(/\s+/g, '');
       if (normalizedTax && !/^\d{15}$/.test(normalizedTax)) {
-        alert('إذا أدخلت الرقم الضريبي فيجب أن يكون 15 رقمًا.');
+        toast.error('إذا أدخلت الرقم الضريبي فيجب أن يكون 15 رقمًا.');
         return;
       }
     }
     if (currentStep === 3) {
       const { saudi, address, lat, lng } = formData.location;
       if (!saudi.regionId || !saudi.cityId || !saudi.districtId) {
-        alert('يرجى اختيار المنطقة والمدينة والحي من القوائم.');
+        toast.error('يرجى اختيار المنطقة والمدينة والحي من القوائم.');
         return;
       }
       if (saudi.districtId === OTHER_DISTRICT_VALUE && !saudi.districtOther.trim()) {
-        alert('يرجى كتابة اسم الحي عند اختيار «حي غير مدرج».');
+        toast.error('يرجى كتابة اسم الحي عند اختيار «حي غير مدرج».');
         return;
       }
       if (!address.trim()) {
-        alert('يرجى إدخال العنوان التفصيلي (الشارع أو المعلم القريب).');
+        toast.error('يرجى إدخال العنوان التفصيلي (الشارع أو المعلم القريب).');
         return;
       }
       const latN = parseFloat(lat);
       const lngN = parseFloat(lng);
       if (!lat.trim() || !lng.trim() || Number.isNaN(latN) || Number.isNaN(lngN)) {
-        alert('يرجى إدخال خطي العرض والطول بشكل صحيح أو استخدام «حدد موقعي الحالي».');
+        toast.error('يرجى إدخال خطي العرض والطول بشكل صحيح أو استخدام «حدد موقعي الحالي».');
         return;
       }
     }
     if (currentStep === 4) {
       if (!formData.images.shopExterior || !formData.images.shopInterior) {
-        alert('يرجى رفع صورة واحدة لواجهة المحل من الخارج وصورة واحدة من الداخل (إلزامي لجميع الباقات).');
+        toast.error('يرجى رفع صورة واحدة لواجهة المحل من الخارج وصورة واحدة من الداخل (إلزامي لجميع الباقات).');
         return;
       }
       if (formData.images.bannerImages.some((f) => !f)) {
-        alert('يرجى رفع أربع صور للبنر (كل خانة إلزامية) لعرض محلك في البطاقة.');
+        toast.error('يرجى رفع أربع صور للبنر (كل خانة إلزامية) لعرض محلك في البطاقة.');
         return;
       }
     }
@@ -685,7 +685,7 @@ export function RegistrationForm() {
       if (formData.tier === SubscriptionTier.BRONZE) {
         for (const row of formData.workingWeek) {
           if (!row.closed && (!row.open.trim() || !row.close.trim())) {
-            alert(
+            toast.error(
               'الباقة البرونزية: يرجى تحديد وقت الفتح والإغلاق لكل يوم مفتوح، أو تفعيل «مغلق» لأيام الإجازة.'
             );
             return;
@@ -696,13 +696,13 @@ export function RegistrationForm() {
     if (currentStep === 6) {
       const namedServices = formData.services.filter((s) => s.name.trim());
       if (namedServices.length === 0) {
-        alert('أضف خدمة واحدة على الأقل في المنيو (اسم الخدمة مطلوب).');
+        toast.error('أضف خدمة واحدة على الأقل في المنيو (اسم الخدمة مطلوب).');
         return;
       }
       if (formData.inclusiveAccessibleCare.offered) {
         const p = parseFloat(String(formData.inclusiveAccessibleCare.price).replace(/,/g, '.'));
         if (!Number.isFinite(p) || p <= 0) {
-          alert(
+          toast.error(
             'عند تأشير «خدمة مُيسَّرة / منزلية»: أدخل سعراً معروضاً بالريال أكبر من صفر، أو ألغِ التأشير إن لم تُوفّر الخدمة.'
           );
           return;
@@ -792,13 +792,20 @@ export function RegistrationForm() {
             },
           }));
           setLocationLoading(false);
+          toast.success('تم تحديد موقعك — تأكد من العنوان التفصيلي ثم تابع.');
         },
-        () => {
+        (error) => {
           setLocationLoading(false);
+          const deniedMessage =
+            error.code === error.PERMISSION_DENIED
+              ? 'تم رفض إذن تحديد الموقع من المتصفح. فعّل صلاحية الموقع لهذا الموقع ثم أعد المحاولة، أو أدخل خطي العرض والطول يدوياً.'
+              : 'تعذّر تحديد موقعك الحالي. تأكد من تفعيل خدمة الموقع ثم أعد المحاولة، أو أدخل خطي العرض والطول يدوياً.';
+          toast.error(deniedMessage);
         }
       );
     } else {
       setLocationLoading(false);
+      toast.error('متصفحك لا يدعم تحديد الموقع تلقائياً. يرجى إدخال خطي العرض والطول يدوياً.');
     }
   };
 
@@ -827,11 +834,11 @@ export function RegistrationForm() {
 
   const handleSubmit = async () => {
     if (!formData.tier) {
-      alert('يرجى اختيار الباقة');
+      toast.error('يرجى اختيار الباقة');
       return;
     }
     if (!formData.payment.method) {
-      alert('يرجى اختيار طريقة الدفع');
+      toast.error('يرجى اختيار طريقة الدفع');
       return;
     }
     if (!formData.registrationTermsAccepted) {
@@ -863,30 +870,30 @@ export function RegistrationForm() {
       return;
     }
     if (!formData.images.shopExterior || !formData.images.shopInterior) {
-      alert('يرجى إكمال خطوة الصور: صورة خارجية وصورة داخلية إلزاميتان.');
+      toast.error('يرجى إكمال خطوة الصور: صورة خارجية وصورة داخلية إلزاميتان.');
       return;
     }
     if (formData.images.bannerImages.some((f) => !f)) {
-      alert('يرجى إكمال خطوة الصور: أربع صور للبنر إلزامية.');
+      toast.error('يرجى إكمال خطوة الصور: أربع صور للبنر إلزامية.');
       return;
     }
     if (formData.tier === SubscriptionTier.BRONZE) {
       for (const row of formData.workingWeek) {
         if (!row.closed && (!row.open.trim() || !row.close.trim())) {
-          alert('يرجى إكمال أوقات العمل: لكل يوم مفتوح حدّد وقت الفتح والإغلاق (الباقة البرونزية إلزامية).');
+          toast.error('يرجى إكمال أوقات العمل: لكل يوم مفتوح حدّد وقت الفتح والإغلاق (الباقة البرونزية إلزامية).');
           return;
         }
       }
     }
     const namedServicesSubmit = formData.services.filter((s) => s.name.trim());
     if (namedServicesSubmit.length === 0) {
-      alert('أضف خدمة واحدة على الأقل في المنيو (اسم الخدمة مطلوب) قبل الإرسال.');
+      toast.error('أضف خدمة واحدة على الأقل في المنيو (اسم الخدمة مطلوب) قبل الإرسال.');
       return;
     }
     if (formData.inclusiveAccessibleCare.offered) {
       const p = parseFloat(String(formData.inclusiveAccessibleCare.price).replace(/,/g, '.'));
       if (!Number.isFinite(p) || p <= 0) {
-        alert(
+        toast.error(
           'عند تأشير خدمة كبار السن والمرضى وذوي الاحتياجات: أدخل سعراً معروضاً بالريال أكبر من صفر، أو ألغِ التأشير.'
         );
         return;
@@ -2190,9 +2197,10 @@ export function RegistrationForm() {
           {currentStep === 6 && (
             <RegStepShell coiffeur={isCoiffeurSurface}
               title="منيو الحلاقة والأسعار"
-              description="أضف الخدمات الاعتيادية، ثم — اختيارياً — أعلن إن كنت تُوفّر تسهيلات داخل المحل و/أو زيارة منزلية لكبار السن والمرضى وذوي الاحتياجات الخاصة بحسب ظروف العميل."
+              description="أضف خدمة واحدة على الأقل باسمها وسعرها (إلزامي)، ثم — اختيارياً — أعلن إن كنت تُوفّر تسهيلات داخل المحل و/أو زيارة منزلية لكبار السن والمرضى وذوي الاحتياجات الخاصة بحسب ظروف العميل."
             >
               <div className="space-y-4">
+                <Label className={regLabelClass}>الخدمات وأسعارها *</Label>
                 {formData.services.map((service, index) => (
                   <div key={index} className="flex gap-2">
                     <div className="flex-1 space-y-2">

@@ -129,23 +129,9 @@ export default function Register() {
             {`حزمة ${tierParam === 'bronze' ? 'برونزي' : tierParam === 'gold' ? 'ذهبي' : tierParam === 'diamond' ? 'ماسي' : 'مناسبة'} — ${softwareLicenseFormNameAr(isCoiffeurSurface ? 'coiffeur' : 'halaqmap')} مسبقة الدفع تُفعَّل وفق الحزمة التي تختارها.`}
           </p>
 
-          {/* مراحل الشراء */}
-          <div className="mt-5 flex flex-wrap items-center justify-center gap-1">
-            {PARTNER_REGISTER_PAGE.steps.map((s, i, arr) => (
-              <div key={s} className="flex items-center">
-                <span className={`rounded-full px-2.5 py-1 text-[0.6rem] font-bold ${
-                  isCoiffeurSurface
-                    ? (i === 0 ? 'bg-[#f4d4c0]/15 text-[#f4d4c0] border border-[#f4d4c0]/30' :
-                       i === arr.length - 1 ? 'bg-rose-400/15 text-rose-100 border border-rose-200/25' :
-                       'bg-white/5 text-rose-100/50 border border-[#f4d4c0]/15')
-                    : (i === 0 ? 'bg-amber-500/15 text-amber-300 border border-amber-400/30' :
-                       i === arr.length - 1 ? 'bg-emerald-500/12 text-emerald-300 border border-emerald-400/25' :
-                       'bg-white/5 text-slate-500 border border-white/8')
-                }`}>{s}</span>
-                {i < arr.length - 1 && <ChevronRight className={`h-3 w-3 mx-0.5 ${isCoiffeurSurface ? 'text-[#f4d4c0]/30' : 'text-slate-700'}`} />}
-              </div>
-            ))}
-          </div>
+          {/* ملاحظة: شريط «مراحل الشراء» (تسجيل → دفع → تفعيل) حُذف من هنا لأنه
+              كان يكرر شريط تقدّم الخطوات الظاهر داخل النموذج نفسه (الخطوة X من 7) —
+              إبقاء واحد فقط يقلّل تشتت العميل قبل وصوله لحقول التسجيل. */}
 
           {/* تأكيدات */}
           <div className={`mt-4 flex flex-wrap justify-center gap-x-3 gap-y-1 text-[0.6rem] ${isCoiffeurSurface ? 'text-rose-100/45' : 'text-slate-600'}`}>
@@ -155,35 +141,11 @@ export default function Register() {
           </div>
         </motion.header>
 
-        {isCoiffeurSurface ? null : (
-        <motion.section
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.45, delay: 0.05 }}
-          className="mx-auto mb-8 max-w-4xl"
-        >
-          <div className="rounded-2xl border border-teal-500/20 bg-teal-500/[0.04] p-4 sm:p-5">
-            <h2 className="text-center text-sm font-bold text-teal-100 sm:text-right">
-              {PARTNER_REGISTER_PAGE.customerJourneyTitle}
-            </h2>
-            <p className="mt-1 text-center text-xs text-slate-500 sm:text-right">
-              {PARTNER_REGISTER_PAGE.customerJourneyLead}
-            </p>
-            <ol className="mt-4 grid gap-3 sm:grid-cols-3">
-              {PARTNER_REGISTER_PAGE.customerJourney.map((item) => (
-                <li
-                  key={item.step}
-                  className="rounded-xl border border-white/8 bg-black/20 p-3 text-right"
-                >
-                  <span className="text-[0.65rem] font-bold text-teal-400/90">{item.step}</span>
-                  <p className="mt-1 text-xs font-bold text-white">{item.title}</p>
-                  <p className="mt-1 text-[0.7rem] leading-relaxed text-slate-400">{item.body}</p>
-                </li>
-              ))}
-            </ol>
-          </div>
-        </motion.section>
-        )}
+        {/* ملاحظة: قسم «ماذا يحدث لصالونك بعد التفعيل؟» (رحلة الزبون التسويقية)
+            انتقل إلى أسفل الصفحة بعد الأسئلة الشائعة — هو محتوى تعريفي وليس من
+            بيانات الصالون المطلوبة، فوضعه بين العنوان والنموذج كان يبعد العميل
+            عن حقول التسجيل. زر شرح اليوتيوب المكرر (نسخة كاملة فوق النموذج، إلى
+            جانب النسخة المصغّرة في الشريط العلوي) أُزيل أيضاً لنفس السبب. */}
 
         {/* ── نموذج التسجيل + شريط دعم واتساب + أيقونة تعليمات الاشتراك ── */}
         <motion.section
@@ -191,12 +153,6 @@ export default function Register() {
           className="mx-auto max-w-5xl scroll-mt-24"
           id="register-form"
         >
-          {/* شرح يوتيوب فوق النموذج — لا يدخل داخل حقول الطلب */}
-          {isCoiffeurSurface ? null : (
-          <div className="mb-3">
-            <PartnerRegistrationYoutubeGuideCta variant="form" />
-          </div>
-          )}
           <div className={`mb-3 flex items-center justify-between gap-3 rounded-xl px-3 py-2.5 sm:px-4 ${
             isCoiffeurSurface
               ? 'border border-[#f4d4c0]/25 bg-[#2a1218]/70'
@@ -246,6 +202,36 @@ export default function Register() {
             headingClassName="text-center"
           />
         </motion.div>
+        )}
+
+        {isCoiffeurSurface ? null : (
+        <motion.section
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.45, delay: 0.05 }}
+          className="mx-auto mt-8 max-w-4xl"
+        >
+          <div className="rounded-2xl border border-teal-500/20 bg-teal-500/[0.04] p-4 sm:p-5">
+            <h2 className="text-center text-sm font-bold text-teal-100 sm:text-right">
+              {PARTNER_REGISTER_PAGE.customerJourneyTitle}
+            </h2>
+            <p className="mt-1 text-center text-xs text-slate-500 sm:text-right">
+              {PARTNER_REGISTER_PAGE.customerJourneyLead}
+            </p>
+            <ol className="mt-4 grid gap-3 sm:grid-cols-3">
+              {PARTNER_REGISTER_PAGE.customerJourney.map((item) => (
+                <li
+                  key={item.step}
+                  className="rounded-xl border border-white/8 bg-black/20 p-3 text-right"
+                >
+                  <span className="text-[0.65rem] font-bold text-teal-400/90">{item.step}</span>
+                  <p className="mt-1 text-xs font-bold text-white">{item.title}</p>
+                  <p className="mt-1 text-[0.7rem] leading-relaxed text-slate-400">{item.body}</p>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </motion.section>
         )}
 
         {/* ── تذييل ── */}
