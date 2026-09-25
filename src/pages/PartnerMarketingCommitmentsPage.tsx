@@ -273,15 +273,20 @@ export default function PartnerMarketingCommitmentsPage() {
               className="scroll-mt-28 overflow-x-clip rounded-3xl border border-teal-400/30 bg-white/[0.035] shadow-[0_24px_60px_rgba(2,9,18,0.45)]"
             >
               <div className="flex flex-col gap-6 border-r-4 border-teal-400/70 p-6 md:flex-row md:p-8">
-                <div className="flex shrink-0 flex-col items-start gap-3 md:w-36">
+                <div className="flex shrink-0 flex-col items-start gap-3 md:w-44">
                   {pillar.image ? (
-                    <img
-                      src={pillar.image}
-                      alt=""
-                      className="h-24 w-24 rounded-2xl border border-teal-400/25 bg-white/[0.03] object-contain p-2"
-                      loading="lazy"
-                      aria-hidden="true"
-                    />
+                    // خلفية بيج فاتحة خلف الرسم — رسومات سكاي مصممة بألوان داكنة (كحلي/تيل)
+                    // تكاد تختفي فوق خلفية البطاقة الداكنة المشابهة لها؛ اللوحة البيجية هنا
+                    // هي نفس لوحة الكانفاس الفاتح المعتمدة في storeLightCanvas.css لإبراز التباين.
+                    <div className="flex h-32 w-32 items-center justify-center overflow-hidden rounded-2xl border border-[#dac8aa]/70 bg-[#f6ecd9] p-3 shadow-[0_12px_28px_rgba(0,0,0,0.35)] md:h-40 md:w-40">
+                      <img
+                        src={pillar.image}
+                        alt=""
+                        className="h-full w-full object-contain"
+                        loading="lazy"
+                        aria-hidden="true"
+                      />
+                    </div>
                   ) : null}
                   <span className="bg-gradient-to-b from-teal-200 to-cyan-400 bg-clip-text text-5xl font-black leading-none text-transparent md:text-6xl">
                     {pillar.numeral}
