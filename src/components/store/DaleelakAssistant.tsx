@@ -10,6 +10,7 @@ import { Compass, SendHorizonal, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAgentChatInputFocus, useAgentChatOpenFocus, useAgentChatScroll } from '@/hooks/useAgentChatSurface';
 import { askDaleelak, type DaleelakChatMessage } from '@/lib/daleelakAssistantRemote';
+import { isStoreHomePath } from '@/lib/storeHmTube';
 import { DALEELAK_OPENING_LINE_AR } from '../../../api/_lib/daleelakKnowledge';
 
 function TypingDots() {
@@ -62,8 +63,8 @@ const DEFAULT_HEADER_CLEARANCE_PX = 84;
 const HEADER_CLEARANCE_GAP_PX = 10;
 
 /**
- * زر «دليلك» يتموضع أعلى يمين الشاشة تحت الشعار مباشرة، في كل صفحات
- * `/store/*` (طلب صريح من صاحب المنصة). رأس الصفحة (`StoreVisitorHeader`)
+ * زر «دليلك» يتموضع أعلى يمين الشاشة تحت الشعار مباشرة، في صفحات
+ * المتجر ما عدا الرئيسية `/store`. رأس الصفحة (`StoreVisitorHeader`)
  * عنصر عادي ضمن تدفّق الصفحة (لا `sticky` ولا `fixed`) ويتغيّر ارتفاعه فعلياً
  * حسب الجهاز — شريط ساعات المدن يظهر على الحاسوب فقط، ويختفي على الجوال،
  * وتتبدّل صفوف التنقّل بينهما. بدل تخمين قيمتين ثابتتين منفصلتين للجوال
@@ -119,7 +120,7 @@ function useDaleelakHeaderClearance(active: boolean, routeKey: string): number |
 
 export function DaleelakAssistant() {
   const { pathname } = useLocation();
-  const visible = isStorePath(pathname);
+  const visible = isStorePath(pathname) && !isStoreHomePath(pathname);
 
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState('');
