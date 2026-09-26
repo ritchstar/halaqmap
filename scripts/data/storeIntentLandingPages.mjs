@@ -11,6 +11,9 @@
  * فتح متجر إلكتروني) — فهي نية "كيف أسوّق؟" وليست "أين أطلب؟" ولا "كيف أفتح متجراً؟".
  * السلاغ عمداً بلا بادئة `online-store-for-` حتى لا يكسر قيد الاختبار الذي يُلزم
  * بقاء صفحات هذه البادئة عند 8 بالضبط.
+ *
+ * دليل «كيف تفتح متجراً إلكترونياً» كائن مستقل (`STORE_INTENT_OPEN_STORE`)
+ * ومساره `/need/how-to-open-online-store`. ليس عنصراً داخل `STORE_INTENT_PAGES`.
  */
 
 /** @typedef {{ slug: string, product: string, h1: string, title: string, description: string, problem: string, solution: string, benefits: string[], notThis: string[], faq: { q: string, a: string }[], ctaText: string, ctaUrl: string, keywords: string, indexable?: boolean }} StoreIntentPage */
@@ -858,3 +861,68 @@ export const STORE_INTENT_HUB = {
   description:
     'صفحات نية بحث لأصحاب الأعمال: دعوات، تموينات، مطاعم، مقاهٍ، حلويات، وظهور صالونات — منتج واحد وزر واحد لصفحة التفاصيل.',
 };
+
+/** صفحة سؤال «كيف تفتح متجراً إلكترونياً» — موزّع، ليست عنصر منتج داخل STORE_INTENT_PAGES. */
+export const STORE_INTENT_OPEN_STORE_PATH = '/need/how-to-open-online-store';
+
+export const STORE_INTENT_OPEN_STORE = {
+  h1: 'كيف تفتح متجراً إلكترونياً لنشاطك؟',
+  title: 'كيف تفتح متجراً إلكترونياً لنشاطك؟ اختر الطريق المناسب لمهنتك | خريطة الحل',
+  description:
+    'تتساءل كيف تفتح متجراً إلكترونياً؟ تعرّف على الطريق المناسب للطبخ المنزلي والتموينات والخضار والتمور والمطاعم والقهوة والحلويات الخاصة، ثم اختر منتجاً رقمياً مصمماً لطبيعة نشاطك.',
+  keywords:
+    'كيف افتح متجر الكتروني، متجر إلكتروني لمشروع منزلي، متجر إلكتروني للطباخات، منيو مطعم إلكتروني، صفحة طلبات لبقالة الحي',
+};
+
+/**
+ * كل نشاط يفتح صفحة نية موجودة. لا صفحات جديدة للمنتجات.
+ * @type {{ activity: string, product: string, slug: string, line: string, also?: { slug: string, label: string }[] }[]}
+ */
+export const STORE_INTENT_OPEN_STORE_ROUTES = [
+  {
+    activity: 'طبخ منزلي',
+    product: 'طبختنا1',
+    slug: 'online-store-for-home-cooking',
+    line: 'صفحة أصناف لمطبخك، وطلب يصل إلى لوحة النشاط، والمشاركة من جهازك. ليست منصة تجارة عامة.',
+    also: [{ slug: 'how-to-market-home-cooking', label: 'كيف تسوّق للطبخ المنزلي' }],
+  },
+  {
+    activity: 'تموينات',
+    product: 'تمويناتا1',
+    slug: 'online-store-for-grocer',
+    line: 'صفحة لبقالة الحي تعرض الأصناف وتستقبل طلب التوصيل أو الاستلام. المحاسبة مباشرة مع جار الحي.',
+  },
+  {
+    activity: 'خضار وفواكه',
+    product: 'خضارنا1',
+    slug: 'online-store-for-produce-seller',
+    line: 'أصناف بالحبة أو الكيلو، وشريط ما وصل اليوم، وطلب بتوصيل أو استلام. بلا أسطول تتولاه المنصة.',
+  },
+  {
+    activity: 'تمور',
+    product: 'تمرتنا1',
+    slug: 'online-store-for-dates-shop',
+    line: 'صفحة أصناف وأوزان، وتوصيل أو استلام أو شحن خارج النطاق حين يفعّله المحل. صناديق الموسم عبر مزاد حين يُفتح.',
+    also: [{ slug: 'dates-gift-boxes', label: 'تمور كهدايا وبوكسات' }],
+  },
+  {
+    activity: 'مطعم',
+    product: 'مطعمنا1',
+    slug: 'online-store-for-restaurant',
+    line: 'قائمة وطلب لضيف الحي، وتوصيل أو استلام. ليست نظام موظفين أو مخزون أو محاسبة.',
+    also: [{ slug: 'restaurant-management-program', label: 'برنامج قائمة المطعم وطلباته' }],
+  },
+  {
+    activity: 'قهوة',
+    product: 'كافينا1',
+    slug: 'online-store-for-cafe',
+    line: 'قائمة مشروبات وطلب من الجوال، مع شاشات داخل المقهى. ليست نظام محاسبة شاملاً.',
+    also: [{ slug: 'cafe-management-program', label: 'برنامج قائمة الكوفي وشاشاته' }],
+  },
+  {
+    activity: 'حلويات خاصة',
+    product: 'حلانا1',
+    slug: 'online-store-for-custom-sweets',
+    line: 'معرض أعمال وطلب مناسبة بتفاصيل ثم عرض سعر. الموعد بعد تأكيد المتخصصة للعربون يدوياً، وليست سلة حلويات عامة.',
+  },
+];

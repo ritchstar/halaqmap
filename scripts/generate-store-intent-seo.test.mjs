@@ -8,8 +8,10 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { STORE_INTENT_PAGES } from './data/storeIntentLandingPages.mjs';
 import {
+  STORE_INTENT_OPEN_STORE_PATH,
   buildStoreIntentSitemapXml,
   renderStoreIntentHub,
+  renderStoreIntentOpenStorePage,
   renderStoreIntentPage,
   writeStoreIntentSeo,
 } from './generate-store-intent-seo.mjs';
@@ -131,8 +133,35 @@ for (const slug of heroSlugsChatlyai) {
   assert.match(html, /width="1200" height="896"/, `${slug}: أبعاد الصورة الحقيقية`);
 }
 
+const openStore = renderStoreIntentOpenStorePage();
+assert.equal(STORE_INTENT_OPEN_STORE_PATH, '/need/how-to-open-online-store');
+assert.match(openStore, /<h1>كيف تفتح متجراً إلكترونياً لنشاطك؟<\/h1>/);
+assert.match(openStore, /meta name="robots" content="index, follow"/);
+for (const slug of [
+  'online-store-for-home-cooking',
+  'online-store-for-grocer',
+  'online-store-for-produce-seller',
+  'online-store-for-dates-shop',
+  'dates-gift-boxes',
+  'online-store-for-restaurant',
+  'online-store-for-cafe',
+  'online-store-for-custom-sweets',
+]) {
+  assert.match(openStore, new RegExp(`/need/${slug}`), `رابط النشاط ${slug}`);
+}
+assert.doesNotMatch(openStore, /need\/wedding-invite-digital/);
+assert.doesNotMatch(openStore, /need\/digital-invite-card/);
+assert.doesNotMatch(openStore, /تجربة/);
+assert.match(openStore, /بلا عمولة على السلة/);
+assert.match(openStore, /تؤكد المتخصصة العربون/);
+
+const homeCooking = STORE_INTENT_PAGES.find((p) => p.slug === 'online-store-for-home-cooking');
+assert.match(renderStoreIntentPage(homeCooking), /need\/how-to-open-online-store/);
+assert.doesNotMatch(html, /need\/how-to-open-online-store/);
+
 const sitemap = buildStoreIntentSitemapXml();
 assert.match(sitemap, /need\/store<\/loc>/);
+assert.match(sitemap, /need\/how-to-open-online-store<\/loc>/);
 assert.match(sitemap, /need\/wedding-invite-digital<\/loc>/);
 assert.match(sitemap, /need\/online-store-for-produce-seller<\/loc>/);
 assert.match(sitemap, /need\/online-store-for-cafe<\/loc>/);
@@ -141,6 +170,7 @@ assert.doesNotMatch(sitemap, /salon-women-visibility/);
 const hub = renderStoreIntentHub();
 assert.match(hub, /حلول أعمال متجر خريطة الحل/);
 assert.match(hub, /need\/store/);
+assert.match(hub, /need\/how-to-open-online-store/);
 
 const tmp = mkdtempSync(join(tmpdir(), 'hm-store-intent-'));
 try {
@@ -158,6 +188,10 @@ try {
     /مزاد علني حي لصناديق التمر/,
   );
   assert.match(readFileSync(join(tmp, 'sitemap-store-intent.xml'), 'utf8'), /<\?xml/);
+  assert.match(
+    readFileSync(join(tmp, 'need', 'how-to-open-online-store', 'index.html'), 'utf8'),
+    /كيف تفتح متجراً إلكترونياً لنشاطك/,
+  );
 } finally {
   rmSync(tmp, { recursive: true, force: true });
 }

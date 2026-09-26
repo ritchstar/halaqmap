@@ -5,7 +5,13 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { STORE_INTENT_HUB, STORE_INTENT_PAGES } from './data/storeIntentLandingPages.mjs';
+import {
+  STORE_INTENT_HUB,
+  STORE_INTENT_OPEN_STORE,
+  STORE_INTENT_OPEN_STORE_PATH,
+  STORE_INTENT_OPEN_STORE_ROUTES,
+  STORE_INTENT_PAGES,
+} from './data/storeIntentLandingPages.mjs';
 import {
   brandPageTypeCss,
   fazaaMeasurementTagHtml,
@@ -22,6 +28,7 @@ import {
 const __dirname = dirname(fileURLToPath(import.meta.url));
 export const STORE_INTENT_ORIGIN = 'https://www.halaqmap.com';
 export const STORE_INTENT_HUB_PATH = '/need/store';
+export { STORE_INTENT_OPEN_STORE_PATH };
 const STORE_ORIGIN = 'https://store.halaqmap.com';
 
 export function escapeHtml(s) {
@@ -75,6 +82,17 @@ function storeHeaderCss() {
     }
     .store-chip:hover { border-color:#fbbf24; color:#fff; }
     .store-chip-primary { background: linear-gradient(135deg,#d97706,#b45309); color:#1c1204; border-color:transparent; }`;
+}
+
+const OPEN_STORE_BACKLINK_SLUGS = new Set(
+  STORE_INTENT_OPEN_STORE_ROUTES.flatMap((route) => [
+    route.slug,
+    ...(route.also ?? []).map((item) => item.slug),
+  ]),
+);
+
+function openStoreGuideLink() {
+  return `<p class="related">هذه الصفحة جزء من دليل <a href="${STORE_INTENT_OPEN_STORE_PATH}">كيف تفتح متجراً إلكترونياً لنشاطك</a>.</p>`;
 }
 
 function listItems(items) {
@@ -157,6 +175,7 @@ export function renderStoreIntentPage(page, { distRoot } = {}) {
         ${listItems(page.notThis)}
       </section>
       ${faqHtml(page.faq)}
+      ${OPEN_STORE_BACKLINK_SLUGS.has(page.slug) ? openStoreGuideLink() : ''}
       <p class="cta-wrap"><a class="cta" href="${escapeHtml(page.ctaUrl)}" rel="noopener">${escapeHtml(page.ctaText)}</a></p>
       <p class="keywords" aria-label="كلمات مفتاحية">${escapeHtml(page.keywords)}</p>
   `;
@@ -227,6 +246,10 @@ ${brandPageTypeCss('linear-gradient(180deg,#120a04,#1a1208 55%,#0c0804)')}
     .faq-row dd { margin:0; color:var(--text); }
     .cta-wrap { margin:1.5rem 0 .75rem; }
     .cta { display:inline-block; background: linear-gradient(135deg,#d97706,#b45309); color:#1c1204; font-weight:800; padding:.9rem 1.3rem; border-radius:12px; text-decoration:none; }
+    .related { margin:1rem 0 0; color:var(--muted); }
+    .related a, .also a { color:var(--accent); }
+    .also { margin:.45rem 0 0; font-size:.92rem; }
+    .route-line { margin:.35rem 0 0; color:var(--muted); }
     .grid { list-style:none; padding:0; margin:1rem 0; display:grid; gap:.65rem; }
     .grid a { display:block; padding:.85rem 1rem; border:1px solid var(--line); border-radius:12px; background:var(--card); color:var(--text); text-decoration:none; }
     .grid a strong { color:#fde68a; }
@@ -290,7 +313,117 @@ export function renderStoreIntentHub(pages = STORE_INTENT_PAGES) {
     h1: STORE_INTENT_HUB.h1,
     bodyInner: `
       <p class="lead">${escapeHtml(STORE_INTENT_HUB.description)}</p>
+      <p class="related">إن كان سؤالك كيف تفتح متجراً لنشاطك، ابدأ من <a href="${STORE_INTENT_OPEN_STORE_PATH}">دليل اختيار الطريق المناسب لمهنتك</a>.</p>
       <ul class="grid">${links}</ul>
+    `,
+    jsonLd,
+  });
+}
+
+export function renderStoreIntentOpenStorePage() {
+  const canonical = `${STORE_INTENT_ORIGIN}${STORE_INTENT_OPEN_STORE_PATH}`;
+  const routes = STORE_INTENT_OPEN_STORE_ROUTES.map((route) => {
+    const also = (route.also ?? [])
+      .map(
+        (item) =>
+          `<p class="also">زاوية قريبة: <a href="/need/${item.slug}">${escapeHtml(item.label)}</a></p>`,
+      )
+      .join('');
+    return `<li><a href="/need/${route.slug}"><strong>${escapeHtml(route.activity)}</strong> — ${escapeHtml(route.product)}</a><p class="route-line">${escapeHtml(route.line)}</p>${also}</li>`;
+  }).join('\n');
+  const faq = [
+    {
+      q: 'هل هذه الصفحة تبيع منتجاً واحداً؟',
+      a: 'لا. توضّح الفرق بين القالب العام والصفحة المتخصصة، ثم تحيلك إلى صفحة النشاط المناسب. السعر والباقة في صفحة ذلك المنتج.',
+    },
+    {
+      q: 'هل تحصّل المنصة ثمن طلب الزبون؟',
+      a: 'لا. اشتراك المنتج عبر بوابة خريطة الحل. ثمن الطلب بين المشغّل وزبونه، بلا عمولة على السلة وبلا تحصيل لقيمة الطلب عبر المنصة.',
+    },
+    {
+      q: 'أين دعوات المناسبات وبطاقات الاحتفاء؟',
+      a: 'ليست هذه الكلمة. افراحي1 وكاردي8 في فهرس حلول الأعمال، لأنهما ليستا صفحة طلبات لمتجر.',
+    },
+  ];
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'WebPage',
+        name: STORE_INTENT_OPEN_STORE.title,
+        url: canonical,
+        inLanguage: 'ar-SA',
+        description: STORE_INTENT_OPEN_STORE.description,
+        isPartOf: { '@type': 'WebSite', name: 'خريطة الحل', url: STORE_ORIGIN },
+      },
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'خريطة الحل', item: `${STORE_INTENT_ORIGIN}/` },
+          { '@type': 'ListItem', position: 2, name: 'حلول الأعمال', item: `${STORE_INTENT_ORIGIN}${STORE_INTENT_HUB_PATH}` },
+          { '@type': 'ListItem', position: 3, name: STORE_INTENT_OPEN_STORE.h1, item: canonical },
+        ],
+      },
+      {
+        '@type': 'ItemList',
+        itemListElement: STORE_INTENT_OPEN_STORE_ROUTES.map((route, index) => ({
+          '@type': 'ListItem',
+          position: index + 1,
+          name: `${route.activity} — ${route.product}`,
+          url: `${STORE_INTENT_ORIGIN}/need/${route.slug}`,
+        })),
+      },
+      {
+        '@type': 'FAQPage',
+        mainEntity: faq.map((row) => ({
+          '@type': 'Question',
+          name: row.q,
+          acceptedAnswer: { '@type': 'Answer', text: row.a },
+        })),
+      },
+    ],
+  };
+  return htmlShell({
+    title: STORE_INTENT_OPEN_STORE.title,
+    description: STORE_INTENT_OPEN_STORE.description,
+    keywords: STORE_INTENT_OPEN_STORE.keywords,
+    canonical,
+    robots: 'index, follow',
+    h1: STORE_INTENT_OPEN_STORE.h1,
+    bodyInner: `
+      <nav class="crumbs"><a href="${STORE_INTENT_ORIGIN}/">الرئيسية</a> / <a href="${STORE_INTENT_HUB_PATH}">حلول الأعمال</a> / <span>كيف تفتح متجراً</span></nav>
+      <p class="lead">لا تحتاج إلى البدء بقالب متجر عام ومكلف. ابدأ بصفحة رقمية مصممة لطبيعة نشاطك، ثم شارك الرابط مع من تريد أن يصل إليك.</p>
+      <section class="card">
+        <h2>ما الذي تحتاجه قبل فتح متجر إلكتروني؟</h2>
+        <p>اسماً لنشاطك، وعرضاً واضحاً لما تقدمه، وطريقاً يصل به الزبون إليك: رابط أو رمز على الباب. والطلبات تصل إلى لوحة واحدة تديرها أنت. هذا يكفي للبدء، قبل أي خصائص متجر كبير.</p>
+      </section>
+      <section class="card">
+        <h2>هل تحتاج متجراً عاماً أم صفحة رقمية متخصصة؟</h2>
+        <p>القالب العام يفرض إعداداً طويلاً لا يشبه طريقة عملك. خريطة الحل تعطيك منتجاً واحداً لمهنتك. اشتراك هذا المنتج عبر بوابة المنصة. ثمن طلب الزبون يبقى بينك وبينه: بلا عمولة على السلة، وبلا تحصيل لقيمة الطلب عبر المنصة.</p>
+      </section>
+      <section class="card">
+        <h2>اختر نشاطك</h2>
+        <ul class="grid">${routes}</ul>
+      </section>
+      <section class="card">
+        <h2>ماذا تعرض في صفحتك؟</h2>
+        <p>اسم النشاط، وما تقدمه، وكيف يُطلب. في الطبخ والتموينات والخضار والمطعم والقهوة: أصناف أو قائمة، ثم طلب بتوصيل أو استلام حسب ما يتيحه نشاطك. في التمور تُضاف زاوية الهدايا، وصناديق الموسم حين يُفتح لها مزاد. في الحلويات الخاصة: معرض وأعمال، ثم تفاصيل المناسبة وعرض سعر، والموعد بعد أن تؤكد المتخصصة العربون بيدها.</p>
+      </section>
+      <section class="card">
+        <h2>كيف تشارك الرابط ورمز الاستجابة؟</h2>
+        <p>من لوحة نشاطك تنسخ الرابط أو تطبع الملصق. الزبون يفتح الصفحة من جواله. الإرسال من جهازك، لا من قائمة ترسلها المنصة نيابة عنك.</p>
+      </section>
+      <section class="card muted-card">
+        <h2>كيف تبدأ بلا وعود مبالغ فيها؟</h2>
+        ${listItems([
+          'ليست الصفحة منصة تجارة بكل خصائص المتاجر الكبيرة.',
+          'لا أسطول توصيل تملكه المنصة، ولا دفتر زبائن لديها.',
+          'لا تحصيل لثمن الطلب عبر المنصة، ولا عمولة على السلة.',
+          'دعوات المناسبات وبطاقات الاحتفاء طريق آخر، تجده في فهرس الحلول.',
+        ])}
+      </section>
+      ${faqHtml(faq)}
+      <p class="cta-wrap"><a class="cta" href="${STORE_INTENT_HUB_PATH}">تصفح كل حلول الأعمال</a></p>
     `,
     jsonLd,
   });
@@ -299,6 +432,7 @@ export function renderStoreIntentHub(pages = STORE_INTENT_PAGES) {
 export function buildStoreIntentSitemapXml(pages = STORE_INTENT_PAGES) {
   const urls = [
     { loc: `${STORE_INTENT_ORIGIN}${STORE_INTENT_HUB_PATH}`, priority: '0.88', changefreq: 'weekly' },
+    { loc: `${STORE_INTENT_ORIGIN}${STORE_INTENT_OPEN_STORE_PATH}`, priority: '0.86', changefreq: 'weekly' },
     ...pages
       .filter((p) => p.indexable !== false)
       .map((p) => ({
@@ -325,6 +459,11 @@ ${body}
 
 export function writeStoreIntentSeo(distRoot) {
   writeFileDeep(distRoot, join(distRoot, 'need', 'store', 'index.html'), renderStoreIntentHub());
+  writeFileDeep(
+    distRoot,
+    join(distRoot, 'need', 'how-to-open-online-store', 'index.html'),
+    renderStoreIntentOpenStorePage(),
+  );
   for (const page of STORE_INTENT_PAGES) {
     writeFileDeep(
       distRoot,
@@ -340,7 +479,7 @@ function main() {
   writeStoreIntentSeo(distRoot);
   const indexed = STORE_INTENT_PAGES.filter((p) => p.indexable !== false).length;
   console.log(
-    `[generate-store-intent-seo] wrote hub + ${STORE_INTENT_PAGES.length} pages (${indexed} indexable) + sitemap-store-intent.xml`,
+    `[generate-store-intent-seo] wrote hub + open-store guide + ${STORE_INTENT_PAGES.length} pages (${indexed} indexable) + sitemap-store-intent.xml`,
   );
 }
 
