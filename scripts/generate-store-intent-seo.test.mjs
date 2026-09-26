@@ -16,7 +16,7 @@ import {
   writeStoreIntentSeo,
 } from './generate-store-intent-seo.mjs';
 
-assert.equal(STORE_INTENT_PAGES.length, 29);
+assert.equal(STORE_INTENT_PAGES.length, 30);
 
 const wedding = STORE_INTENT_PAGES[0];
 const html = renderStoreIntentPage(wedding);
@@ -129,6 +129,15 @@ for (const row of [
   assert.doesNotMatch(html, row.absent);
 }
 
+const barberApp = STORE_INTENT_PAGES.find((p) => p.slug === 'mens-barbershop-app');
+const barberAppHtml = renderStoreIntentPage(barberApp);
+assert.match(barberAppHtml, /<h1>تطبيق صالونات الحلاقة الرجالية<\/h1>/);
+assert.match(barberAppHtml, /تطبيق صالونات الحلاقة الرجالية/);
+assert.match(barberAppHtml, /https:\/\/www\.halaqmap\.com\/partners/);
+assert.match(barberAppHtml, /meta name="robots" content="index, follow"/);
+assert.doesNotMatch(barberAppHtml, /اجعل صالونك ظاهراً عند بحث العميل القريب/);
+assert.doesNotMatch(barberAppHtml, /كوافير|صالون نسائي/);
+
 // ── ثلاث صفحات نية «برنامج إدارة/هدايا» (أُضيفت 2026-09-23) ──
 const restaurantProgram = STORE_INTENT_PAGES.find((p) => p.slug === 'restaurant-management-program');
 const restaurantProgramHtml = renderStoreIntentPage(restaurantProgram);
@@ -234,6 +243,7 @@ assert.match(sitemap, /need\/how-to-start-home-cooking<\/loc>/);
 assert.match(sitemap, /need\/how-to-start-home-sweets<\/loc>/);
 assert.match(sitemap, /need\/how-to-start-selling-dates<\/loc>/);
 assert.match(sitemap, /need\/how-to-start-selling-oud<\/loc>/);
+assert.match(sitemap, /need\/mens-barbershop-app<\/loc>/);
 assert.match(sitemap, /need\/online-store-for-cafe<\/loc>/);
 assert.doesNotMatch(sitemap, /salon-women-visibility/);
 
