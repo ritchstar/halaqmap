@@ -16,7 +16,7 @@ import {
   writeStoreIntentSeo,
 } from './generate-store-intent-seo.mjs';
 
-assert.equal(STORE_INTENT_PAGES.length, 24);
+assert.equal(STORE_INTENT_PAGES.length, 29);
 
 const wedding = STORE_INTENT_PAGES[0];
 const html = renderStoreIntentPage(wedding);
@@ -45,6 +45,18 @@ assert.match(produceStoreHtml, /https:\/\/store\.halaqmap\.com\/store\/produce\/
 // تمايز واضح عن صفحة الاستهلاك القائمة على نفس المنتج (نية مختلفة، لا تكرار محتوى)
 assert.doesNotMatch(produceStoreHtml, /طلب خضار بالجوال/);
 
+const startProduce = STORE_INTENT_PAGES.find((p) => p.slug === 'how-to-start-selling-produce');
+const startProduceHtml = renderStoreIntentPage(startProduce);
+assert.match(startProduceHtml, /<h1>كيف تبدأ بيع الخضار والفواكه؟<\/h1>/);
+assert.match(startProduceHtml, /كيف ابدأ بيع خضار وفواكه/);
+assert.match(startProduceHtml, /1350 ر\.س لمئة وثمانين يوماً/);
+assert.match(startProduceHtml, /https:\/\/store\.halaqmap\.com\/store\/produce\/read/);
+assert.match(startProduceHtml, /meta name="robots" content="index, follow"/);
+assert.doesNotMatch(startProduceHtml, /تجربة/);
+assert.doesNotMatch(startProduceHtml, /تمويناتا1|طبختنا1|مطعمنا1|كافينا1/);
+assert.doesNotMatch(startProduceHtml, /متجر خضار وفواكه إلكتروني لمحل أو عربة الحي/);
+assert.doesNotMatch(startProduceHtml, /خضار وفواكه الحي بأسعار اليوم على الجوال/);
+
 // بخورنا1: الوجهة الصحيحة هي /store/bakhurna نفسها (لا صفحة /read منفصلة لهذا المنتج)
 const oudStore = STORE_INTENT_PAGES.find((p) => p.slug === 'online-store-for-oud-perfume');
 const oudStoreHtml = renderStoreIntentPage(oudStore);
@@ -67,6 +79,55 @@ assert.match(marketingHtml, /"@type":"FAQPage"/);
 // تمايز واضح عن صفحتي طبختنا1 القائمتين (نية مختلفة: معلوماتية لا شرائية)
 assert.doesNotMatch(marketingHtml, /طلبات الأكل المنزلي من الجوال بلا تشتت/);
 assert.doesNotMatch(marketingHtml, /متجر إلكتروني لصاحبة أو صاحب الأكل المنزلي/);
+
+const startCooking = STORE_INTENT_PAGES.find((p) => p.slug === 'how-to-start-home-cooking');
+const startCookingHtml = renderStoreIntentPage(startCooking);
+assert.match(startCookingHtml, /<h1>كيف تبدأ مشروع بيع طبخك المنزلي؟<\/h1>/);
+assert.match(startCookingHtml, /كيف ابدأ مشروع بيع طبخي/);
+assert.match(startCookingHtml, /300 ر\.س لمئة وثمانين يوماً/);
+assert.match(startCookingHtml, /https:\/\/store\.halaqmap\.com\/store\/kitchen\/read/);
+assert.match(startCookingHtml, /meta name="robots" content="index, follow"/);
+assert.doesNotMatch(startCookingHtml, /تجربة/);
+assert.doesNotMatch(startCookingHtml, /مطعمنا1|كافينا1|أكلنا1/);
+assert.doesNotMatch(startCookingHtml, /كيف تسوّق لطبخك المنزلي/);
+assert.doesNotMatch(startCookingHtml, /طلبات الأكل المنزلي من الجوال بلا تشتت/);
+assert.doesNotMatch(startCookingHtml, /متجر إلكتروني لصاحبة أو صاحب الأكل المنزلي/);
+
+for (const row of [
+  {
+    slug: 'how-to-start-home-sweets',
+    h1: 'كيف تبدأين مشروع بيع حلوياتك من المنزل؟',
+    keyword: 'كيف ابدأ مشروع بيع حلويات منزلية',
+    price: /894 ر\.س لمئة وثمانين يوماً/,
+    href: /https:\/\/store\.halaqmap\.com\/store\/halana\/read/,
+    absent: /متجر إلكتروني لحلويات مخصصة بطلب المناسبة|تجربة|تمويناتا1/,
+  },
+  {
+    slug: 'how-to-start-selling-dates',
+    h1: 'كيف تبدأ مشروع بيع التمر من المنزل؟',
+    keyword: 'كيف ابدأ مشروع بيع تمر منزلي',
+    price: /1350 ر\.س لمئة وثمانين يوماً/,
+    href: /https:\/\/store\.halaqmap\.com\/store\/dates\/read/,
+    absent: /متجر تمر إلكتروني بمزاد علني لصناديق الموسم|تجربة|بخورنا1/,
+  },
+  {
+    slug: 'how-to-start-selling-oud',
+    h1: 'كيف تبدأ مشروع بيع البخور؟',
+    keyword: 'كيف ابدأ مشروع بيع بخور',
+    price: /899 ر\.س لمئة وثمانين يوماً/,
+    href: /https:\/\/store\.halaqmap\.com\/store\/bakhurna"/,
+    absent: /متجر بخور وعود إلكتروني لمحل أو عربة|تجربة|افراحي1/,
+  },
+]) {
+  const page = STORE_INTENT_PAGES.find((p) => p.slug === row.slug);
+  const html = renderStoreIntentPage(page);
+  assert.match(html, new RegExp(`<h1>${row.h1}</h1>`));
+  assert.match(html, new RegExp(row.keyword));
+  assert.match(html, row.price);
+  assert.match(html, row.href);
+  assert.match(html, /meta name="robots" content="index, follow"/);
+  assert.doesNotMatch(html, row.absent);
+}
 
 // ── ثلاث صفحات نية «برنامج إدارة/هدايا» (أُضيفت 2026-09-23) ──
 const restaurantProgram = STORE_INTENT_PAGES.find((p) => p.slug === 'restaurant-management-program');
@@ -141,8 +202,12 @@ for (const slug of [
   'online-store-for-home-cooking',
   'online-store-for-grocer',
   'online-store-for-produce-seller',
+  'how-to-start-selling-produce',
+  'how-to-start-home-cooking',
   'online-store-for-dates-shop',
   'dates-gift-boxes',
+  'how-to-start-selling-dates',
+  'how-to-start-home-sweets',
   'online-store-for-restaurant',
   'online-store-for-cafe',
   'online-store-for-custom-sweets',
@@ -164,6 +229,11 @@ assert.match(sitemap, /need\/store<\/loc>/);
 assert.match(sitemap, /need\/how-to-open-online-store<\/loc>/);
 assert.match(sitemap, /need\/wedding-invite-digital<\/loc>/);
 assert.match(sitemap, /need\/online-store-for-produce-seller<\/loc>/);
+assert.match(sitemap, /need\/how-to-start-selling-produce<\/loc>/);
+assert.match(sitemap, /need\/how-to-start-home-cooking<\/loc>/);
+assert.match(sitemap, /need\/how-to-start-home-sweets<\/loc>/);
+assert.match(sitemap, /need\/how-to-start-selling-dates<\/loc>/);
+assert.match(sitemap, /need\/how-to-start-selling-oud<\/loc>/);
 assert.match(sitemap, /need\/online-store-for-cafe<\/loc>/);
 assert.doesNotMatch(sitemap, /salon-women-visibility/);
 
