@@ -48,7 +48,7 @@ export function StoreLandingPitchHero() {
       <div className="relative z-10 mx-auto max-w-3xl text-center md:text-start">
         <span className="store-pitch-aura" aria-hidden />
         <div className="relative">
-          <p className="text-xl font-black text-[#2e2418] md:text-2xl">{STORE_LANDING_COPY.shopNameAr}</p>
+          <p className="cyan-glow-title">{STORE_LANDING_COPY.shopNameAr}</p>
           <p className="mt-2 text-sm font-bold tracking-wide text-[#6f6250] md:text-base">
             {STORE_LANDING_COPY.pitchKickerAr}
           </p>

@@ -362,7 +362,7 @@ export default function StoreLanding() {
         <div className="mx-auto grid max-w-5xl items-center gap-8 lg:grid-cols-[1.05fr_0.95fr]">
           <div>
             <p className="text-sm font-bold tracking-wide text-[#5c4a1a]">{STORE_LANDING_COPY.kicker}</p>
-            <h2 className="mt-2 text-3xl font-extrabold leading-tight text-[#1a140c] md:text-4xl">
+            <h2 className="cyan-glow-title mt-2">
               {STORE_LANDING_COPY.shopNameAr}
             </h2>
             <p className="mt-3 max-w-3xl text-base leading-relaxed text-[#3d3226] md:text-lg">

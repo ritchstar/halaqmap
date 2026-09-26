@@ -2324,6 +2324,39 @@
   line-height: 1;
 }
 
+/* عنوان «منصة خريطة الحل» — تدرج فيروزي لامع. التوهج عبر drop-shadow لأن text-shadow لا يظهر مع قصّ التدرج على النص. */
+.cyan-glow-title {
+  font-family: 'Reem Kufi', 'Tajawal', sans-serif;
+  font-size: 1.35rem;
+  font-weight: 700;
+  line-height: 1.35;
+  letter-spacing: -0.5px;
+  display: inline-block;
+  background: linear-gradient(135deg, #00a896 0%, #00e5ff 50%, #00b4d8 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter:
+    drop-shadow(0 0 10px rgba(0, 229, 255, 0.45))
+    drop-shadow(0 0 20px rgba(0, 229, 255, 0.25))
+    drop-shadow(0 2px 4px rgba(0, 0, 0, 0.08));
+  transition: filter 0.3s ease, transform 0.3s ease;
+}
+
+@media (min-width: 640px) {
+  .cyan-glow-title {
+    font-size: 2.2rem;
+  }
+}
+
+.cyan-glow-title:hover {
+  filter:
+    drop-shadow(0 0 8px rgba(0, 229, 255, 0.7))
+    drop-shadow(0 0 10px rgba(0, 229, 255, 0.45))
+    drop-shadow(0 0 20px rgba(0, 229, 255, 0.25));
+  transform: scale(1.02);
+}
+
 /* اختصار HMap تحت الشعار — خفيف، متناسق مع تيل/ذهب الهوية */
 .halaqmap-brand-shortname {
   display: block;

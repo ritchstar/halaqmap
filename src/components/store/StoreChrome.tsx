@@ -104,7 +104,7 @@ export function StoreVisitorHeader() {
             <StoreBrandMark />
             <span className="min-w-0">
               <img src={STORE_VISUALS.brandLogotype} alt={STORE_BRAND_LATIN} className="h-3.5 w-auto md:h-4" />
-              <p className="truncate text-base font-extrabold text-[#2e2418] md:text-lg">{STORE_LANDING_COPY.shopNameAr}</p>
+              <p className="cyan-glow-title max-w-full">{STORE_LANDING_COPY.shopNameAr}</p>
             </span>
           </Link>
           <nav className="flex shrink-0 items-center gap-1.5 text-sm font-bold md:gap-2">
